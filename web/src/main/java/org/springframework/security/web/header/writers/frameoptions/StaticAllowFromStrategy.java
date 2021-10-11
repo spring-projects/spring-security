@@ -18,7 +18,7 @@ package org.springframework.security.web.header.writers.frameoptions;
 
 import java.net.URI;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Simple implementation of the {@code AllowFromStrategy}

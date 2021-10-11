@@ -19,7 +19,7 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 import java.time.Clock;
 import java.util.function.Consumer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.LogoutResponse;

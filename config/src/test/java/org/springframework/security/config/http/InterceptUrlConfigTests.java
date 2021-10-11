@@ -19,7 +19,7 @@ package org.springframework.security.config.http;
 import java.util.Collections;
 import java.util.Map;
 
-import javax.servlet.ServletRegistration;
+import jakarta.servlet.ServletRegistration;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

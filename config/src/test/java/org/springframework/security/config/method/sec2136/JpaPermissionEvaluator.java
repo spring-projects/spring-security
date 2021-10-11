@@ -18,7 +18,7 @@ package org.springframework.security.config.method.sec2136;
 
 import java.io.Serializable;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.PermissionEvaluator;

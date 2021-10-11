@@ -29,7 +29,7 @@
 	</http>
 
 	<b:bean name="userFilter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="javax.servlet.Filter"/>
+		<b:constructor-arg value="jakarta.servlet.Filter"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

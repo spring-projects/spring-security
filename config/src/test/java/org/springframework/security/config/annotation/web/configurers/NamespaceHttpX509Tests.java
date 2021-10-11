@@ -22,7 +22,8 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import javax.security.auth.x500.X500Principal;
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;

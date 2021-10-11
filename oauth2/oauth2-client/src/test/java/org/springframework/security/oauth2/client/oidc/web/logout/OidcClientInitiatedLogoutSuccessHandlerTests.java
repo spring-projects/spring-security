@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collections;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

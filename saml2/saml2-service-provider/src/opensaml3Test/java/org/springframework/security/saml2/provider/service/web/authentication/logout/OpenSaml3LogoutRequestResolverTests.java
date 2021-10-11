@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.Test;
 

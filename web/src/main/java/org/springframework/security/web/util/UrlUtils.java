@@ -18,7 +18,7 @@ package org.springframework.security.web.util;
 
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Provides static methods for composing URLs.

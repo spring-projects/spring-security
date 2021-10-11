@@ -19,7 +19,7 @@ package org.springframework.security.config.http;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.w3c.dom.Element;
 

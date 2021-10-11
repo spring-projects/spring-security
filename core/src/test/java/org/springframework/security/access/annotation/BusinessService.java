@@ -19,8 +19,8 @@ package org.springframework.security.access.annotation;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 

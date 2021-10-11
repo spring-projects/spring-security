@@ -15,13 +15,13 @@ dependencies {
 	optional 'org.springframework:spring-webmvc'
 	optional 'org.springframework:spring-webflux'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path : ':spring-security-config', configuration : 'tests')
 	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
 	testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"

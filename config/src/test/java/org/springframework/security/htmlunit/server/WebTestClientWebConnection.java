@@ -60,8 +60,8 @@ public class WebTestClientWebConnection implements WebConnection {
 	 * Validate the supplied {@code contextPath}.
 	 * <p>
 	 * If the value is not {@code null}, it must conform to
-	 * {@link javax.servlet.http.HttpServletRequest#getContextPath()} which states that it
-	 * can be an empty string and otherwise must start with a "/" character and not end
+	 * {@link jakarta.servlet.http.HttpServletRequest#getContextPath()} which states that
+	 * it can be an empty string and otherwise must start with a "/" character and not end
 	 * with a "/" character.
 	 * @param contextPath the path to validate
 	 */

@@ -19,7 +19,7 @@ package org.springframework.security.web.access.channel;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 
 import org.junit.jupiter.api.Test;
 

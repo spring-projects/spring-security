@@ -19,7 +19,7 @@ package org.springframework.security.cas.web.authentication;
 import java.net.MalformedURLException;
 import java.util.regex.Pattern;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.cas.ServiceProperties;

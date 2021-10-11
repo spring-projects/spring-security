@@ -26,7 +26,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedA
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedGrantedAuthoritiesWebAuthenticationDetails
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] X509 based pre authentication

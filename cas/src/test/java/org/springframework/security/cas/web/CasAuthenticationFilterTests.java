@@ -16,7 +16,7 @@
 
 package org.springframework.security.cas.web;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.jupiter.api.AfterEach;

@@ -19,7 +19,7 @@ package org.springframework.security.config.http;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.w3c.dom.Element;
 

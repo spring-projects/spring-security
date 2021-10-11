@@ -19,8 +19,8 @@ package org.springframework.security.config.http;
 import java.lang.reflect.Method;
 import java.util.Base64;
 
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

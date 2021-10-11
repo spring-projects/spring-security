@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

@@ -18,7 +18,7 @@ package org.springframework.security.web.jackson2;
 
 import java.io.IOException;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.json.JSONException;
@@ -35,7 +35,7 @@ public class CookieMixinTests extends AbstractMixinTests {
 
 	// @formatter:off
 	private static final String COOKIE_JSON = "{"
-		+ "\"@class\": \"javax.servlet.http.Cookie\", "
+		+ "\"@class\": \"jakarta.servlet.http.Cookie\", "
 		+ "\"name\": \"demo\", "
 		+ "\"value\": \"cookie1\","
 		+ "\"comment\": null, "

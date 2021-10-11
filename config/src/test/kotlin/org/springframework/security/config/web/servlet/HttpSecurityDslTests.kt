@@ -52,7 +52,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import javax.servlet.Filter
+import jakarta.servlet.Filter
 
 /**
  * Tests for [HttpSecurityDsl]

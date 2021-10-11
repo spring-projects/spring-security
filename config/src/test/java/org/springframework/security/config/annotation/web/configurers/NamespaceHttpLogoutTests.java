@@ -20,7 +20,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;

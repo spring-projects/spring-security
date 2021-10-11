@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.preauth.j2ee;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;

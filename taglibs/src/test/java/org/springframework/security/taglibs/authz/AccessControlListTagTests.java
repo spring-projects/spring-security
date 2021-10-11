@@ -19,8 +19,8 @@ package org.springframework.security.taglibs.authz;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.servlet.ServletContext;
-import javax.servlet.jsp.tagext.Tag;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.jsp.tagext.Tag;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

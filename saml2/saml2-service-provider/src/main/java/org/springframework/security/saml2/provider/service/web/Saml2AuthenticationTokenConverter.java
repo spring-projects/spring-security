@@ -22,7 +22,7 @@ import java.util.function.Function;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.codec.CodecPolicy;
 import org.apache.commons.codec.binary.Base64;

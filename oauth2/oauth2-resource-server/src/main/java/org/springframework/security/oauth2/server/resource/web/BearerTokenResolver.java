@@ -16,7 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.web;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 

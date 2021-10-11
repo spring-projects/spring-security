@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;

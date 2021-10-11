@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.header;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Contract for writing headers to a {@link HttpServletResponse}

@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configuration;
 
 import java.util.concurrent.Callable;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.Test;

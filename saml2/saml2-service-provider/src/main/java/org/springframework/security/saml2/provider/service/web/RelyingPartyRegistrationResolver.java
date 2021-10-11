@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.web;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 

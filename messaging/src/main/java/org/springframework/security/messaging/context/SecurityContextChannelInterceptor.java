@@ -22,7 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.ExecutorChannelInterceptor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -40,8 +40,7 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 4.0
  */
-public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter
-		implements ExecutorChannelInterceptor {
+public final class SecurityContextChannelInterceptor implements ExecutorChannelInterceptor, ChannelInterceptor {
 
 	private static final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
 

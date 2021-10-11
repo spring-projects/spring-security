@@ -19,7 +19,7 @@ package org.springframework.security.web.access.intercept;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 
 import org.junit.jupiter.api.Test;
 

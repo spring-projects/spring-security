@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.util.matcher;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;

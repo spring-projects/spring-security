@@ -18,7 +18,7 @@ package org.springframework.security.web.authentication.rememberme;
 
 import java.util.Date;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.digest.DigestUtils;

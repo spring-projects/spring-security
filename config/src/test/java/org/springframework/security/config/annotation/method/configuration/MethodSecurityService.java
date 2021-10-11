@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.List;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;

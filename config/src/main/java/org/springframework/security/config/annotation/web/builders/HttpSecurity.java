@@ -21,12 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
@@ -1048,7 +1048,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * The following configuration demonstrates how to allow token based remember me
 	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
 	 * exists, then the user will be remembered even after their
-	 * {@link javax.servlet.http.HttpSession} expires.
+	 * {@link jakarta.servlet.http.HttpSession} expires.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -1084,7 +1084,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * The following configuration demonstrates how to allow token based remember me
 	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
 	 * exists, then the user will be remembered even after their
-	 * {@link javax.servlet.http.HttpSession} expires.
+	 * {@link jakarta.servlet.http.HttpSession} expires.
 	 *
 	 * <pre>
 	 * &#064;Configuration
