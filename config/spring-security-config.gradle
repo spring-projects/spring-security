@@ -42,7 +42,6 @@ dependencies {
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(':spring-security-aspects')
-	testImplementation project(':spring-security-cas')
 	testImplementation project(':spring-security-test')
 	testImplementation project(path : ':spring-security-core', configuration : 'tests')
 	testImplementation project(path : ':spring-security-ldap', configuration : 'tests')

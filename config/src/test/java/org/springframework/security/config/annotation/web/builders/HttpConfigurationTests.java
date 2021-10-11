@@ -20,8 +20,6 @@ import java.io.IOException;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -30,7 +28,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -41,9 +38,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -68,16 +62,6 @@ public class HttpConfigurationTests {
 				.withMessageContaining("The Filter class " + UnregisteredFilter.class.getName()
 						+ " does not have a registered order and cannot be added without a specified order."
 						+ " Consider using addFilterBefore or addFilterAfter instead.");
-	}
-
-	// https://github.com/spring-projects/spring-security-javaconfig/issues/104
-	@Test
-	public void configureWhenAddFilterCasAuthenticationFilterThenFilterAdded() throws Exception {
-		CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER = spy(new CasAuthenticationFilter());
-		this.spring.register(CasAuthenticationFilterConfig.class).autowire();
-		this.mockMvc.perform(get("/"));
-		verify(CasAuthenticationFilterConfig.CAS_AUTHENTICATION_FILTER).doFilter(any(ServletRequest.class),
-				any(ServletResponse.class), any(FilterChain.class));
 	}
 
 	@Test
@@ -117,21 +101,6 @@ public class HttpConfigurationTests {
 		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(request, response);
-		}
-
-	}
-
-	@EnableWebSecurity
-	static class CasAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
-
-		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
-
-		@Override
-		protected void configure(HttpSecurity http) {
-			// @formatter:off
-			http
-				.addFilter(CAS_AUTHENTICATION_FILTER);
-			// @formatter:on
 		}
 
 	}
