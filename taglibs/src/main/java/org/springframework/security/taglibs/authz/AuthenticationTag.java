@@ -18,10 +18,10 @@ package org.springframework.security.taglibs.authz;
 
 import java.io.IOException;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.PageContext;
-import javax.servlet.jsp.tagext.Tag;
-import javax.servlet.jsp.tagext.TagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.PageContext;
+import jakarta.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.tagext.TagSupport;
 
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.BeansException;
@@ -32,8 +32,8 @@ import org.springframework.security.web.util.TextEscapeUtils;
 import org.springframework.web.util.TagUtils;
 
 /**
- * An {@link javax.servlet.jsp.tagext.Tag} implementation that allows convenient access to
- * the current <code>Authentication</code> object.
+ * An {@link jakarta.servlet.jsp.tagext.Tag} implementation that allows convenient access
+ * to the current <code>Authentication</code> object.
  * <p>
  * Whilst JSPs can access the <code>SecurityContext</code> directly, this tag avoids
  * handling <code>null</code> conditions.

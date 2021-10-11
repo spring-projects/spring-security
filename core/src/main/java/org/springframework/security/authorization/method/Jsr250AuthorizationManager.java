@@ -22,9 +22,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.aopalliance.intercept.MethodInvocation;
 

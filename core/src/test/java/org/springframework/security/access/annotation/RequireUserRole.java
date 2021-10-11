@@ -19,7 +19,7 @@ package org.springframework.security.access.annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 

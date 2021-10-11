@@ -11,7 +11,7 @@ dependencies {
 	api platform("io.projectreactor:reactor-bom:2020.0.12")
 	api platform("io.rsocket:rsocket-bom:1.1.1")
 	api platform("org.junit:junit-bom:5.8.1")
-	api platform("org.springframework.data:spring-data-bom:2021.1.0-M1")
+	api platform("org.springframework.data:spring-data-bom:2022.1.0-SNAPSHOT")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.5.2")
 	api platform("com.fasterxml.jackson:jackson-bom:2.13.0")
@@ -27,11 +27,12 @@ dependencies {
 		api "commons-collections:commons-collections:3.2.2"
 		api "commons-logging:commons-logging:1.2"
 		api "io.mockk:mockk:1.12.0"
-		api "javax.annotation:jsr250-api:1.0"
-		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
-		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
-		api "javax.servlet:javax.servlet-api:4.0.1"
-		api "javax.xml.bind:jaxb-api:2.3.1"
+		api "jakarta.annotation:jakarta.annotation-api:2.0.0"
+		api "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0"
+		api "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0"
+		api "jakarta.servlet:jakarta.servlet-api:5.0.0"
+		api "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1"
+		api "jakarta.persistence:jakarta.persistence-api:3.0.0"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sf.ehcache:ehcache:2.10.9.2"
 		api "net.sourceforge.htmlunit:htmlunit:2.54.0"
@@ -48,11 +49,11 @@ dependencies {
 		api "org.assertj:assertj-core:3.21.0"
 		api "org.bouncycastle:bcpkix-jdk15on:1.69"
 		api "org.bouncycastle:bcprov-jdk15on:1.69"
-		api "org.eclipse.jetty:jetty-server:9.4.44.v20210927"
-		api "org.eclipse.jetty:jetty-servlet:9.4.44.v20210927"
-		api "org.eclipse.persistence:javax.persistence:2.2.1"
+		api "org.eclipse.jetty:jetty-server:11.0.6"
+		api "org.eclipse.jetty:jetty-servlet:11.0.6"
+		api "jakarta.persistence:jakarta.persistence-api:3.0.0"
 		api "org.hamcrest:hamcrest:2.2"
-		api "org.hibernate:hibernate-entitymanager:5.6.0.Final"
+		api "org.hibernate:hibernate-core-jakarta:5.6.0.Final"
 		api "org.hsqldb:hsqldb:2.6.0"
 		api "org.jasig.cas.client:cas-client-core:3.6.2"
 		api "org.mockito:mockito-core:3.12.4"
@@ -63,7 +64,7 @@ dependencies {
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-impl:$openSamlVersion"
 		api "org.python:jython:2.5.3"
-		api "org.seleniumhq.selenium:htmlunit-driver:2.54.0"
+		api "org.seleniumhq.selenium:htmlunit-driver:2.52.0"
 		api "org.seleniumhq.selenium:selenium-java:3.141.59"
 		api "org.seleniumhq.selenium:selenium-support:3.141.59"
 		api "org.skyscreamer:jsonassert:1.5.0"

@@ -37,9 +37,9 @@ dependencies {
 	optional'org.springframework:spring-websocket'
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-	optional 'javax.annotation:jsr250-api'
+	optional 'jakarta.annotation:jakarta.annotation-api'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(':spring-security-aspects')
 	testImplementation project(':spring-security-cas')
@@ -62,8 +62,8 @@ dependencies {
 	testImplementation 'ch.qos.logback:logback-classic'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.rsocket:rsocket-transport-netty'
-	testImplementation 'javax.annotation:jsr250-api:1.0'
-	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'jakarta.annotation:jakarta.annotation-api'
+	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
@@ -74,8 +74,8 @@ dependencies {
 	testImplementation "org.apache.directory.server:apacheds-protocol-ldap"
 	testImplementation "org.apache.directory.server:apacheds-server-jndi"
 	testImplementation 'org.apache.directory.shared:shared-ldap'
-	testImplementation 'org.eclipse.persistence:javax.persistence'
-	testImplementation 'org.hibernate:hibernate-entitymanager'
+	testImplementation 'jakarta.persistence:jakarta.persistence-api'
+	testImplementation 'org.hibernate:hibernate-core-jakarta'
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation "org.mockito:mockito-inline"

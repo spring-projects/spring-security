@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.core;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 

@@ -18,8 +18,8 @@ package org.springframework.security.web;
 
 import java.util.List;
 
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Defines a filter chain which is capable of being matched against an

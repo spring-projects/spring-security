@@ -23,7 +23,7 @@ import java.math.BigInteger
 import java.security.KeyFactory
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.RSAPublicKeySpec
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import org.assertj.core.api.Assertions.assertThat

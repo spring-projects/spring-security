@@ -16,7 +16,7 @@
 
 package org.springframework.security.openid;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author Robin Bramley, Opsera Ltd

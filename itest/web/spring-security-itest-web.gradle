@@ -5,7 +5,7 @@ dependencies {
 	implementation 'org.springframework:spring-context'
 	implementation 'org.springframework:spring-web'
 
-	compileOnly 'javax.servlet:javax.servlet-api'
+	compileOnly 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(':spring-security-core')
 	testImplementation project(':spring-security-test')
@@ -21,7 +21,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-core"
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
-	testImplementation 'javax.servlet:javax.servlet-api'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 
 	testRuntimeOnly project(':spring-security-config')
 	testRuntimeOnly project(':spring-security-ldap')

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 /**
- * Mixin class to serialize/deserialize {@link javax.servlet.http.Cookie}
+ * Mixin class to serialize/deserialize {@link jakarta.servlet.http.Cookie}
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();

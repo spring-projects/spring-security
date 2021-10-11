@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -68,9 +68,9 @@ public class J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource implements
 
 	/**
 	 * Obtains the list of user roles based on the current user's JEE roles. The
-	 * {@link javax.servlet.http.HttpServletRequest#isUserInRole(String)} method is called
-	 * for each of the values in the {@code j2eeMappableRoles} set to determine if that
-	 * role should be assigned to the user.
+	 * {@link jakarta.servlet.http.HttpServletRequest#isUserInRole(String)} method is
+	 * called for each of the values in the {@code j2eeMappableRoles} set to determine if
+	 * that role should be assigned to the user.
 	 * @param request the request which should be used to extract the user's roles.
 	 * @return The subset of {@code j2eeMappableRoles} which applies to the current user
 	 * making the request.

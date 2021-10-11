@@ -34,5 +34,5 @@ dependencies {
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 }

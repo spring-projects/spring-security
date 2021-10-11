@@ -709,7 +709,7 @@ Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS".
 [[nsa-custom-filter]]
 === <custom-filter>
 This element is used to add a filter to the filter chain.
-It doesn't create any additional beans but is used to select a bean of type `javax.servlet.Filter` which is already defined in the application context and add that at a particular position in the filter chain maintained by Spring Security.
+It doesn't create any additional beans but is used to select a bean of type `jakarta.servlet.Filter` which is already defined in the application context and add that at a particular position in the filter chain maintained by Spring Security.
 Full details can be found in the xref:servlet/configuration/xml-namespace.adoc#ns-custom-filters[ namespace chapter].
 
 

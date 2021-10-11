@@ -19,7 +19,7 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.opensaml.core.Version;
 

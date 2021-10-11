@@ -18,7 +18,7 @@ package org.springframework.security.web.util.matcher;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * An interface for extracting URI variables from the {@link HttpServletRequest}.

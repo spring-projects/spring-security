@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.servletapi;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Internal interface for creating a {@link HttpServletRequest}.

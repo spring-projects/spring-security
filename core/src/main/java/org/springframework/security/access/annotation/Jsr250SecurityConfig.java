@@ -16,8 +16,8 @@
 
 package org.springframework.security.access.annotation;
 
-import javax.annotation.security.DenyAll;
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.security.DenyAll;
+import jakarta.annotation.security.PermitAll;
 
 import org.springframework.security.access.SecurityConfig;
 

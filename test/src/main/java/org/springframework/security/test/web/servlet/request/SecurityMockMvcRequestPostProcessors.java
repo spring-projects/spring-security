@@ -37,9 +37,9 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
 
@@ -470,7 +470,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			request.setAttribute("javax.servlet.request.X509Certificate", this.certificates);
+			request.setAttribute("jakarta.servlet.request.X509Certificate", this.certificates);
 			return request;
 		}
 

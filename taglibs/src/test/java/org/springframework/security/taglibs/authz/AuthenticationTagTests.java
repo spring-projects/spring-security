@@ -16,8 +16,8 @@
 
 package org.springframework.security.taglibs.authz;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.Tag;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.Tag;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.web;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

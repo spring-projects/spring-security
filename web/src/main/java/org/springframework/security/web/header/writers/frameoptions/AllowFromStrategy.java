@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.header.writers.frameoptions;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Strategy interfaces used by the {@code FrameOptionsHeaderWriter} to determine the

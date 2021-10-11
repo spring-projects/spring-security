@@ -57,7 +57,7 @@ public class BearerTokenAuthenticationToken extends AbstractAuthenticationToken 
 	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
 	 * Token</a>
 	 * @return the token that proves the caller's authority to perform the
-	 * {@link javax.servlet.http.HttpServletRequest}
+	 * {@link jakarta.servlet.http.HttpServletRequest}
 	 */
 	public String getToken() {
 		return this.token;

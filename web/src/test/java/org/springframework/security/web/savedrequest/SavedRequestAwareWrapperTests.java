@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Locale;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.junit.jupiter.api.Test;
 

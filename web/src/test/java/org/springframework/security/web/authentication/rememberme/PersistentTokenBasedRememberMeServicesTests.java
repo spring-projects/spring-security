@@ -19,7 +19,7 @@ package org.springframework.security.web.authentication.rememberme;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

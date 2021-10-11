@@ -186,7 +186,7 @@ This is the default in Servlet 3.1 and newer containers.
 
 
 When session fixation protection occurs, it results in a `SessionFixationProtectionEvent` being published in the application context.
-If you use `changeSessionId`, this protection will __also__ result in any  ``javax.servlet.http.HttpSessionIdListener``s being notified, so use caution if your code listens for both events.
+If you use `changeSessionId`, this protection will __also__ result in any  ``jakarta.servlet.http.HttpSessionIdListener``s being notified, so use caution if your code listens for both events.
 See the <<session-mgmt,Session Management>> chapter for additional information.
 
 == SessionManagementFilter

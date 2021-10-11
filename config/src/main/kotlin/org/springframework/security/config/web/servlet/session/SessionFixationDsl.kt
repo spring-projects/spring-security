@@ -18,8 +18,8 @@ package org.springframework.security.config.web.servlet.session
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpSession
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpSession
 
 /**
  * A Kotlin DSL to configure session fixation protection using idiomatic

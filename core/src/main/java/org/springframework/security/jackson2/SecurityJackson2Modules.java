@@ -120,7 +120,7 @@ public final class SecurityJackson2Modules {
 		for (String className : securityJackson2ModuleClasses) {
 			addToModulesList(loader, modules, className);
 		}
-		if (ClassUtils.isPresent("javax.servlet.http.Cookie", loader)) {
+		if (ClassUtils.isPresent("jakarta.servlet.http.Cookie", loader)) {
 			addToModulesList(loader, modules, webServletJackson2ModuleClass);
 		}
 		if (ClassUtils.isPresent("org.springframework.security.oauth2.client.OAuth2AuthorizedClient", loader)) {

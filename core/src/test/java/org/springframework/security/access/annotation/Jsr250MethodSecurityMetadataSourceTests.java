@@ -18,8 +18,8 @@ package org.springframework.security.access.annotation;
 
 import java.util.Collection;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,7 +63,7 @@ public class Jsr250MethodSecurityMetadataSourceTests {
 	public void permitAllMethodHasPermitAllAttribute() throws Exception {
 		ConfigAttribute[] accessAttributes = findAttributes("permitAllMethod");
 		assertThat(accessAttributes).hasSize(1);
-		assertThat(accessAttributes[0].toString()).isEqualTo("javax.annotation.security.PermitAll");
+		assertThat(accessAttributes[0].toString()).isEqualTo("jakarta.annotation.security.PermitAll");
 	}
 
 	@Test

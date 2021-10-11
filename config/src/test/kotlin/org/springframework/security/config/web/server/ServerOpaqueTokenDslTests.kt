@@ -33,7 +33,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
-import javax.annotation.PreDestroy
+import jakarta.annotation.PreDestroy
 
 /**
  * Tests for [ServerOpaqueTokenDsl]

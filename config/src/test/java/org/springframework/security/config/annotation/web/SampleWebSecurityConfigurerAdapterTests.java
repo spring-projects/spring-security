@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.Base64;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

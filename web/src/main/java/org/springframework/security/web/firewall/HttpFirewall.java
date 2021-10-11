@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.firewall;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Interface which can be used to reject potentially dangerous requests and/or wrap them

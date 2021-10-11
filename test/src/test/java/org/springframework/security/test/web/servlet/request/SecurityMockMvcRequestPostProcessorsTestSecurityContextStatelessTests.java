@@ -16,7 +16,7 @@
 
 package org.springframework.security.test.web.servlet.request;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

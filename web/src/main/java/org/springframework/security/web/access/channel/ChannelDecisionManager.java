@@ -19,7 +19,7 @@ package org.springframework.security.web.access.channel;
 import java.io.IOException;
 import java.util.Collection;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.web.FilterInvocation;

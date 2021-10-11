@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.header.writers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
@@ -112,8 +112,8 @@ public final class ContentSecurityPolicyHeaderWriter implements HeaderWriter {
 	}
 
 	/**
-	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(javax.servlet.http.HttpServletRequest,
-	 * javax.servlet.http.HttpServletResponse)
+	 * @see org.springframework.security.web.header.HeaderWriter#writeHeaders(jakarta.servlet.http.HttpServletRequest,
+	 * jakarta.servlet.http.HttpServletResponse)
 	 */
 	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {

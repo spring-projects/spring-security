@@ -83,7 +83,7 @@ public class SecurityNamespaceHandlerTests {
 	// SEC-1868
 	@Test
 	public void initDoesNotLogErrorWhenFilterChainProxyFailsToLoad() throws Exception {
-		String className = "javax.servlet.Filter";
+		String className = "jakarta.servlet.Filter";
 		Log logger = mock(Log.class);
 		SecurityNamespaceHandler handler = new SecurityNamespaceHandler();
 		ReflectionTestUtils.setField(handler, "logger", logger);
@@ -94,7 +94,7 @@ public class SecurityNamespaceHandlerTests {
 
 	@Test
 	public void filterNoClassDefFoundError() throws Exception {
-		String className = "javax.servlet.Filter";
+		String className = "jakarta.servlet.Filter";
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK))
@@ -103,7 +103,7 @@ public class SecurityNamespaceHandlerTests {
 
 	@Test
 	public void filterNoClassDefFoundErrorNoHttpBlock() throws Exception {
-		String className = "javax.servlet.Filter";
+		String className = "jakarta.servlet.Filter";
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no http block
