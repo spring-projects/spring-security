@@ -16,7 +16,7 @@
 
 package org.springframework.security.test.context;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;

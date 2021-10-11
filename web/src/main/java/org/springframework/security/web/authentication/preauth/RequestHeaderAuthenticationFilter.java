@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.preauth;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.util.Assert;
 

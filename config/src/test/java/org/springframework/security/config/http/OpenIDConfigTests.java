@@ -19,8 +19,8 @@ package org.springframework.security.config.http;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;

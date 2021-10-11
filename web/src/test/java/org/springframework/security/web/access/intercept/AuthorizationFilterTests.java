@@ -18,8 +18,8 @@ package org.springframework.security.web.access.intercept;
 
 import java.util.function.Supplier;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

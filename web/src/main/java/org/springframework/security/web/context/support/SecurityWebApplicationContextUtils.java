@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.context.support;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;

@@ -18,10 +18,10 @@ package org.springframework.security.web.authentication.www;
 
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.AfterEach;

@@ -18,8 +18,9 @@ package org.springframework.security.config.annotation.web.builders;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

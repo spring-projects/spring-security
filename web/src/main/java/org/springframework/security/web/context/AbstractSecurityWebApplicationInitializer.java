@@ -20,11 +20,11 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration.Dynamic;
-import javax.servlet.ServletContext;
-import javax.servlet.SessionTrackingMode;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterRegistration.Dynamic;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.SessionTrackingMode;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Conventions;

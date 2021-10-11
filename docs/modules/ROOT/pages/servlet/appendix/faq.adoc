@@ -305,7 +305,7 @@ This usually means that the user's application is creating a session somewhere, 
 The most common culprit is a JSP. Many people aren't aware that JSPs create sessions by default.
 To prevent a JSP from creating a session, add the directive `<%@ page session="false" %>` to the top of the page.
 
-If you are having trouble working out where a session is being created, you can add some debugging code to track down the location(s). One way to do this would be to add a `javax.servlet.http.HttpSessionListener` to your application, which calls `Thread.dumpStack()` in the `sessionCreated` method.
+If you are having trouble working out where a session is being created, you can add some debugging code to track down the location(s). One way to do this would be to add a `jakarta.servlet.http.HttpSessionListener` to your application, which calls `Thread.dumpStack()` in the `sessionCreated` method.
 
 [[appendix-faq-forbidden-csrf]]
 === I get a 403 Forbidden when performing a POST

@@ -24,7 +24,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.ser
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 resource server support using

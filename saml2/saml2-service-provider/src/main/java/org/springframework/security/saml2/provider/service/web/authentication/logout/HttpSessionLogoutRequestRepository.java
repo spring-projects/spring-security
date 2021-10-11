@@ -18,9 +18,9 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 
 import java.security.MessageDigest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.saml2.core.Saml2ParameterNames;

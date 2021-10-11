@@ -18,7 +18,7 @@ package org.springframework.security.web.servlet.util.matcher;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.RequestMatcher;

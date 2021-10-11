@@ -20,7 +20,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.function.Consumer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.opensaml.saml.saml2.core.LogoutRequest;
 

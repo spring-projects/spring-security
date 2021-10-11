@@ -18,7 +18,7 @@ package org.springframework.security.web.session;
 
 import java.io.IOException;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * Determines the behaviour of the {@code ConcurrentSessionFilter} when an expired session

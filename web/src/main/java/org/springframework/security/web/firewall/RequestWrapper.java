@@ -19,11 +19,11 @@ package org.springframework.security.web.firewall;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Request wrapper which ensures values of {@code servletPath} and {@code pathInfo} are

@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.issue50;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

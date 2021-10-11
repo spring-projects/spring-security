@@ -16,7 +16,7 @@
 
 package org.springframework.security.web;
 
-import javax.servlet.ServletRequest;
+import jakarta.servlet.ServletRequest;
 
 import org.springframework.util.Assert;
 

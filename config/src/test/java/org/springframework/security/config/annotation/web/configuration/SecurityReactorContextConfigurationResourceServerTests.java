@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;

@@ -20,14 +20,14 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when
- * the {@link javax.servlet.http.HttpServletResponse} is committed.
+ * the {@link jakarta.servlet.http.HttpServletResponse} is committed.
  *
  * @author Rob Winch
  * @since 4.0.2
@@ -84,8 +84,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Invoke this method to disable invoking
 	 * {@link OnCommittedResponseWrapper#onResponseCommitted()} when the
-	 * {@link javax.servlet.http.HttpServletResponse} is committed. This can be useful in
-	 * the event that Async Web Requests are made.
+	 * {@link jakarta.servlet.http.HttpServletResponse} is committed. This can be useful
+	 * in the event that Async Web Requests are made.
 	 */
 	protected void disableOnResponseCommitted() {
 		this.disableOnCommitted = true;
@@ -101,8 +101,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	/**
-	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse}
-	 * being committed
+	 * Implement the logic for handling the
+	 * {@link jakarta.servlet.http.HttpServletResponse} being committed
 	 */
 	protected abstract void onResponseCommitted();
 
@@ -498,8 +498,9 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
 	 * calling methods that commit the response. We delegate all methods to the original
-	 * {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close
-	 * to the original {@link javax.servlet.ServletOutputStream} as possible. See SEC-2039
+	 * {@link jakarta.servlet.ServletOutputStream} to ensure that the behavior is as close
+	 * to the original {@link jakarta.servlet.ServletOutputStream} as possible. See
+	 * SEC-2039
 	 *
 	 * @author Rob Winch
 	 */

@@ -16,7 +16,7 @@
 
 package org.springframework.security.test.web.servlet.setup;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

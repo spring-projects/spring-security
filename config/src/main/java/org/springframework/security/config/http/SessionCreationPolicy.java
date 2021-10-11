@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.http;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.core.context.SecurityContext;
 

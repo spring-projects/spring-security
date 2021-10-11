@@ -23,7 +23,7 @@ dependencies {
 	api 'org.springframework:spring-core'
 	api 'org.springframework:spring-web'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	runtimeOnly 'net.sourceforge.nekohtml:nekohtml'
 	runtimeOnly 'org.apache.httpcomponents:httpclient'

@@ -19,8 +19,8 @@ package org.springframework.security.web.context.request.async;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ThreadFactory;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +35,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.async.AsyncWebRequest;
-import org.springframework.web.context.request.async.CallableProcessingInterceptorAdapter;
+import org.springframework.web.context.request.async.CallableProcessingInterceptor;
 import org.springframework.web.context.request.async.WebAsyncManager;
 import org.springframework.web.context.request.async.WebAsyncUtils;
 
@@ -90,7 +90,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 	@Test
 	public void doFilterInternalRegistersSecurityContextCallableProcessor() throws Exception {
 		SecurityContextHolder.setContext(this.securityContext);
-		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptor() {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 				assertThat(SecurityContextHolder.getContext())
@@ -107,7 +107,7 @@ public class WebAsyncManagerIntegrationFilterTests {
 	@Test
 	public void doFilterInternalRegistersSecurityContextCallableProcessorContextUpdated() throws Exception {
 		SecurityContextHolder.setContext(SecurityContextHolder.createEmptyContext());
-		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptorAdapter() {
+		this.asyncManager.registerCallableInterceptors(new CallableProcessingInterceptor() {
 			@Override
 			public <T> void postProcess(NativeWebRequest request, Callable<T> task, Object concurrentResult) {
 				assertThat(SecurityContextHolder.getContext())

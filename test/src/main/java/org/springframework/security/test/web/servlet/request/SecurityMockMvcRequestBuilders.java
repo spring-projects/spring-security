@@ -16,7 +16,7 @@
 
 package org.springframework.security.test.web.servlet.request;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.beans.Mergeable;
 import org.springframework.http.MediaType;

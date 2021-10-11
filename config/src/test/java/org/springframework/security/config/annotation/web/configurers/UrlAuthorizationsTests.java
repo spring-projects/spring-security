@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

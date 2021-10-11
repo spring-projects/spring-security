@@ -19,8 +19,8 @@ package org.springframework.security.web.concurrent;
 import java.util.Date;
 import java.util.List;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;

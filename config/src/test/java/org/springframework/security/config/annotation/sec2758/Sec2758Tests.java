@@ -16,7 +16,7 @@
 
 package org.springframework.security.config.annotation.sec2758;
 
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

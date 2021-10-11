@@ -19,7 +19,7 @@ package org.springframework.security.saml2.provider.service.web;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

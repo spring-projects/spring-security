@@ -22,7 +22,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -30,14 +30,14 @@ import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 
 /**
- * {@link ChannelInterceptorAdapter} that validates that a valid CSRF is included in the
- * header of any {@link SimpMessageType#CONNECT} message. The expected {@link CsrfToken}
- * is populated by CsrfTokenHandshakeInterceptor.
+ * {@link ChannelInterceptor} that validates that a valid CSRF is included in the header
+ * of any {@link SimpMessageType#CONNECT} message. The expected {@link CsrfToken} is
+ * populated by CsrfTokenHandshakeInterceptor.
  *
  * @author Rob Winch
  * @since 4.0
  */
-public final class CsrfChannelInterceptor extends ChannelInterceptorAdapter {
+public final class CsrfChannelInterceptor implements ChannelInterceptor {
 
 	private final MessageMatcher<Object> matcher = new SimpMessageTypeMatcher(SimpMessageType.CONNECT);
 

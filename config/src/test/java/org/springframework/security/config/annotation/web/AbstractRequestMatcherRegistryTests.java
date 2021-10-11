@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.List;
 
-import javax.servlet.DispatcherType;
+import jakarta.servlet.DispatcherType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

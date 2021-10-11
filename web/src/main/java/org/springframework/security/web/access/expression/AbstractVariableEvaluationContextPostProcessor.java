@@ -18,7 +18,7 @@ package org.springframework.security.web.access.expression;
 
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.security.web.FilterInvocation;

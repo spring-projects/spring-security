@@ -18,12 +18,12 @@ package org.springframework.security.test.web.servlet.setup;
 
 import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -54,8 +54,8 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	}
 
 	/**
-	 * Creates a new instance with the provided {@link javax.servlet.Filter}
-	 * @param springSecurityFilterChain the {@link javax.servlet.Filter} to use
+	 * Creates a new instance with the provided {@link jakarta.servlet.Filter}
+	 * @param springSecurityFilterChain the {@link jakarta.servlet.Filter} to use
 	 */
 	SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {
 		this.delegateFilter = new DelegateFilter(springSecurityFilterChain);

@@ -22,11 +22,11 @@ import java.util.EventListener;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
-import javax.servlet.FilterRegistration;
-import javax.servlet.ServletContext;
-import javax.servlet.SessionTrackingMode;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterRegistration;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.SessionTrackingMode;
 
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;

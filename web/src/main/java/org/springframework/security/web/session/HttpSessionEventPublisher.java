@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.session;
 
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSession;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionIdListener;
-import javax.servlet.http.HttpSessionListener;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionIdListener;
+import jakarta.servlet.http.HttpSessionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,9 +40,9 @@ import org.springframework.security.web.context.support.SecurityWebApplicationCo
  * </pre>
  *
  * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root
- * WebApplicationContext. Maps javax.servlet.http.HttpSessionListener.sessionCreated() to
- * {@link HttpSessionCreatedEvent}. Maps
- * javax.servlet.http.HttpSessionListener.sessionDestroyed() to
+ * WebApplicationContext. Maps jakarta.servlet.http.HttpSessionListener.sessionCreated()
+ * to {@link HttpSessionCreatedEvent}. Maps
+ * jakarta.servlet.http.HttpSessionListener.sessionDestroyed() to
  * {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger

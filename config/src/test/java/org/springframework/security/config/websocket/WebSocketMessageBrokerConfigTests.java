@@ -40,7 +40,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
-import org.springframework.messaging.support.ChannelInterceptorAdapter;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -444,7 +444,7 @@ public class WebSocketMessageBrokerConfigTests {
 
 	}
 
-	static class ExceptingInterceptor extends ChannelInterceptorAdapter {
+	static class ExceptingInterceptor implements ChannelInterceptor {
 
 		@Override
 		public Message<?> preSend(Message<?> message, MessageChannel channel) {

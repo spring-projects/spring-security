@@ -19,7 +19,7 @@ package org.springframework.security.config.web.servlet.oauth2.login
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import javax.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired

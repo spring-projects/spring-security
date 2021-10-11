@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.session;
 
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.core.session.SessionCreationEvent;
 

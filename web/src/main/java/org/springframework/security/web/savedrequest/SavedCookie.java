@@ -18,7 +18,7 @@ package org.springframework.security.web.savedrequest;
 
 import java.io.Serializable;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 /**
  * Stores off the values of a cookie in a serializable holder

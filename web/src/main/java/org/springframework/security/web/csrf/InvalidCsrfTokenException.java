@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.csrf;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Thrown when an expected {@link CsrfToken} exists, but it does not match the value

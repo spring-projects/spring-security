@@ -18,7 +18,7 @@ package org.springframework.security.web.jackson2;
 
 import java.io.IOException;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;

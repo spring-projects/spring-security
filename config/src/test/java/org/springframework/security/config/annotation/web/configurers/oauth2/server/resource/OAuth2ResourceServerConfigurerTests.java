@@ -32,8 +32,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.PreDestroy;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;

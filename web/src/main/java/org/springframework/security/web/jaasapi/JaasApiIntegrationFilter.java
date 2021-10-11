@@ -22,10 +22,11 @@ import java.security.PrivilegedExceptionAction;
 
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginContext;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
