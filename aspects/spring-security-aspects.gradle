@@ -2,12 +2,12 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'io.freefair.aspectj'
 
 compileAspectj {
-	sourceCompatibility "1.8"
-	targetCompatibility "1.8"
+	sourceCompatibility "17"
+	targetCompatibility "17"
 }
 compileTestAspectj {
-	sourceCompatibility "1.8"
-	targetCompatibility "1.8"
+	sourceCompatibility "17"
+	targetCompatibility "17"
 }
 
 dependencies {
