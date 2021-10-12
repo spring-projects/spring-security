@@ -13,16 +13,10 @@
 		<property name="dataSource" ref="dataSource"/>
 	</bean>
 
-	<bean id="aclCache" class="org.springframework.security.acls.domain.EhCacheBasedAclCache">
+	<bean id="aclCache" class="org.springframework.security.acls.domain.SpringCacheBasedAclCache">
 		<constructor-arg>
-		   <bean class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-			  <property name="cacheManager">
-					<bean class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-						<!-- This context is used in two tests so accept existing cache manager as the context will be reused -->
-						<property name="acceptExisting" value="true"/>
-					</bean>
-			  </property>
-			  <property name="cacheName" value="aclCache"/>
+		   <bean class="org.springframework.cache.concurrent.ConcurrentMapCacheFactoryBean">
+			  <property name="name" value="aclCache"/>
 		   </bean>
 		</constructor-arg>
 		<constructor-arg>

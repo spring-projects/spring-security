@@ -22,6 +22,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.cache.Cache;
 import org.springframework.dao.DataRetrievalFailureException;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -41,8 +42,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.core.userdetails.cache.EhCacheBasedUserCache;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.core.userdetails.cache.SpringCacheBasedUserCache;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
@@ -326,8 +327,8 @@ public class DaoAuthenticationProviderTests {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 		provider.setPasswordEncoder(new BCryptPasswordEncoder());
 		assertThat(provider.getPasswordEncoder().getClass()).isEqualTo(BCryptPasswordEncoder.class);
-		provider.setUserCache(new EhCacheBasedUserCache());
-		assertThat(provider.getUserCache().getClass()).isEqualTo(EhCacheBasedUserCache.class);
+		provider.setUserCache(new SpringCacheBasedUserCache(mock(Cache.class)));
+		assertThat(provider.getUserCache().getClass()).isEqualTo(SpringCacheBasedUserCache.class);
 		assertThat(provider.isForcePrincipalAsString()).isFalse();
 		provider.setForcePrincipalAsString(true);
 		assertThat(provider.isForcePrincipalAsString()).isTrue();

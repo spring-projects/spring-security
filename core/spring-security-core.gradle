@@ -14,7 +14,6 @@ dependencies {
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.projectreactor:reactor-core'
 	optional 'jakarta.annotation:jakarta.annotation-api'
-	optional 'net.sf.ehcache:ehcache'
 	optional 'org.aspectj:aspectjrt'
 	optional 'org.springframework:spring-jdbc'
 	optional 'org.springframework:spring-tx'
