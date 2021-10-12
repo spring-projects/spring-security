@@ -34,7 +34,6 @@ dependencies {
 		api "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1"
 		api "jakarta.persistence:jakarta.persistence-api:3.0.0"
 		api "ldapsdk:ldapsdk:4.1"
-		api "net.sf.ehcache:ehcache:2.10.9.2"
 		api "net.sourceforge.htmlunit:htmlunit:2.54.0"
 		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
