@@ -34,6 +34,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -46,6 +47,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsChecker;
@@ -171,8 +173,10 @@ public class SwitchUserFilter extends GenericFilterBean
 				Authentication targetUser = attemptSwitchUser(request);
 
 				// update the current context to the new target user
-				SecurityContextHolder.getContext().setAuthentication(targetUser);
-
+				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				context.setAuthentication(targetUser);
+				SecurityContextHolder.setContext(context);
+				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", targetUser));
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response,
 						targetUser);
@@ -189,14 +193,17 @@ public class SwitchUserFilter extends GenericFilterBean
 			Authentication originalUser = attemptExitUser(request);
 
 			// update the current context back to the original user
-			SecurityContextHolder.getContext().setAuthentication(originalUser);
-
+			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			context.setAuthentication(originalUser);
+			SecurityContextHolder.setContext(context);
+			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", originalUser));
 			// redirect to target url
 			this.successHandler.onAuthenticationSuccess(request, response, originalUser);
 
 			return;
 		}
-
+		this.logger.trace(LogMessage.format("Did not attempt to switch user since request did not match [%s] or [%s]",
+				this.switchUserMatcher, this.exitUserMatcher));
 		chain.doFilter(request, response);
 	}
 
@@ -218,25 +225,13 @@ public class SwitchUserFilter extends GenericFilterBean
 		UsernamePasswordAuthenticationToken targetUserRequest;
 
 		String username = request.getParameter(this.usernameParameter);
-
-		if (username == null) {
-			username = "";
-		}
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Attempt to switch to user [" + username + "]");
-		}
-
+		username = (username != null) ? username : "";
+		this.logger.debug(LogMessage.format("Attempting to switch to user [%s]", username));
 		UserDetails targetUser = this.userDetailsService.loadUserByUsername(username);
 		this.userDetailsChecker.check(targetUser);
 
 		// OK, create the switch user token
 		targetUserRequest = createSwitchUserToken(request, targetUser);
-
-		if (this.logger.isDebugEnabled()) {
-			this.logger.debug("Switch User Token [" + targetUserRequest + "]");
-		}
-
 		// publish event
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new AuthenticationSwitchUserEvent(
@@ -273,10 +268,9 @@ public class SwitchUserFilter extends GenericFilterBean
 		Authentication original = getSourceAuthentication(current);
 
 		if (original == null) {
-			this.logger.debug("Could not find original user Authentication object!");
-			throw new AuthenticationCredentialsNotFoundException(
-					this.messages.getMessage("SwitchUserFilter.noOriginalAuthentication",
-							"Could not find original Authentication object"));
+			this.logger.debug("Failed to find original user");
+			throw new AuthenticationCredentialsNotFoundException(this.messages
+					.getMessage("SwitchUserFilter.noOriginalAuthentication", "Failed to find original user"));
 		}
 
 		// get the source user details
@@ -373,8 +367,7 @@ public class SwitchUserFilter extends GenericFilterBean
 			// check for switch user type of authority
 			if (auth instanceof SwitchUserGrantedAuthority) {
 				original = ((SwitchUserGrantedAuthority) auth).getSource();
-				this.logger.debug("Found original switch user granted authority ["
-						+ original + "]");
+				this.logger.debug(LogMessage.format("Found original switch user granted authority [%s]", original));
 			}
 		}
 
