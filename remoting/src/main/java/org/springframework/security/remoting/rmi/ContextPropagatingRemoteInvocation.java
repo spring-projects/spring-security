@@ -44,7 +44,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author James Monaghan
  * @author Ben Alex
  * @author Luke Taylor
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;

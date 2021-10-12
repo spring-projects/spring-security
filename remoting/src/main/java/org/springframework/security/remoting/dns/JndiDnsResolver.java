@@ -40,7 +40,9 @@ import javax.naming.directory.InitialDirContext;
  * @since 3.0
  * @see DnsResolver
  * @see InitialContextFactory
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class JndiDnsResolver implements DnsResolver {
 
 	private InitialContextFactory ctxFactory = new DefaultInitialContextFactory();

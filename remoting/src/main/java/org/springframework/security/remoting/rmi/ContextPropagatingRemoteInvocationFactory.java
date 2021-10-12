@@ -32,7 +32,9 @@ import org.springframework.remoting.support.RemoteInvocationFactory;
  *
  * @author James Monaghan
  * @author Ben Alex
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class ContextPropagatingRemoteInvocationFactory implements RemoteInvocationFactory {
 
 	@Override

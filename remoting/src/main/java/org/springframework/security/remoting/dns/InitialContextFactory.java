@@ -27,7 +27,9 @@ import javax.naming.directory.InitialDirContext;
  * @see InitialDirContext
  * @see DirContext
  * @see JndiDnsResolver
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public interface InitialContextFactory {
 
 	/**

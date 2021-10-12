@@ -34,7 +34,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class AuthenticationSimpleHttpInvokerRequestExecutor extends SimpleHttpInvokerRequestExecutor {
 
 	private static final Log logger = LogFactory.getLog(AuthenticationSimpleHttpInvokerRequestExecutor.class);

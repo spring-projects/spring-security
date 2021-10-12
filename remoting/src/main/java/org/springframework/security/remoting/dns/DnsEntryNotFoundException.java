@@ -21,7 +21,9 @@ package org.springframework.security.remoting.dns;
  *
  * @author Mike Wiesner
  * @since 3.0
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class DnsEntryNotFoundException extends DnsLookupException {
 
 	private static final long serialVersionUID = -947232730426775162L;

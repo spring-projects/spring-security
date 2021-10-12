@@ -21,7 +21,9 @@ package org.springframework.security.remoting.dns;
  *
  * @author Mike Wiesner
  * @since 3.0
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public interface DnsResolver {
 
 	/**
