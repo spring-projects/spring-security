@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -128,5 +128,15 @@ public interface OAuth2ErrorCodes {
 	 * 2.2.1 - Error Response</a>
 	 */
 	String UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
+
+	/**
+	 * {@code invalid_redirect_uri} - The value of one or more redirection URIs is
+	 * invalid.
+	 *
+	 * @since 5.6
+	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.2">RFC-7591
+	 * - Section 3.2.2 - Client Registration Error Response</a>
+	 */
+	String INVALID_REDIRECT_URI = "invalid_redirect_uri";
 
 }
