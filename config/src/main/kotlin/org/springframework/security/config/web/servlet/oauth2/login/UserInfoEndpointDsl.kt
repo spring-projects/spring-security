@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ class UserInfoEndpointDsl {
      * @param customUserType a custom [OAuth2User] type
      * @param clientRegistrationId the client registration identifier
      */
+    @Deprecated("Use 'customUserType<T>(clientRegistrationId)' instead.")
     fun customUserType(customUserType: Class<out OAuth2User>, clientRegistrationId: String) {
         customUserTypePair = Pair(customUserType, clientRegistrationId)
     }
@@ -65,6 +66,7 @@ class UserInfoEndpointDsl {
      * @param T a custom [OAuth2User] type
      * @param clientRegistrationId the client registration identifier
      */
+    @Suppress("DEPRECATION")
     inline fun <reified T: OAuth2User> customUserType(clientRegistrationId: String) {
         customUserType(T::class.java, clientRegistrationId)
     }
