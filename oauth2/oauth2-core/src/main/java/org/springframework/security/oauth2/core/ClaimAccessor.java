@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,11 +133,13 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns the claim value as a {@code Map<String, Object>} or {@code null} if it does
-	 * not exist or cannot be assigned to a {@code Map}.
+	 * Returns the claim value as a {@code Map<String, Object>} or {@code null} if the
+	 * claim does not exist.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
-	 * to a {@code Map}
+	 * @return the claim value or {@code null} if the claim does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to a
+	 * {@code List}
+	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	default Map<String, Object> getClaimAsMap(String claim) {
@@ -156,11 +158,13 @@ public interface ClaimAccessor {
 	}
 
 	/**
-	 * Returns the claim value as a {@code List<String>} or {@code null} if it does not
-	 * exist or cannot be assigned to a {@code List}.
+	 * Returns the claim value as a {@code List<String>} or {@code null} if the claim does
+	 * not exist.
 	 * @param claim the name of the claim
-	 * @return the claim value or {@code null} if it does not exist or cannot be assigned
-	 * to a {@code List}
+	 * @return the claim value or {@code null} if the claim does not exist
+	 * @throws IllegalArgumentException if the claim value cannot be converted to a
+	 * {@code List}
+	 * @throws NullPointerException if the claim value is {@code null}
 	 */
 	@SuppressWarnings("unchecked")
 	default List<String> getClaimAsStringList(String claim) {
