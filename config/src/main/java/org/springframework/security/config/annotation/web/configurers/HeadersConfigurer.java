@@ -69,6 +69,7 @@ import org.springframework.util.Assert;
  * @author Joe Grandja
  * @author Eddú Meléndez
  * @author Vedran Pavic
+ * @author Ankur Pathak
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -766,7 +767,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * </p>
 		 * @param preload true to include preload, else false
 		 * @since 5.2.0
-		 * @author Ankur Pathak
 		 */
 		public HstsConfig preload(boolean preload) {
 			this.writer.setPreload(preload);

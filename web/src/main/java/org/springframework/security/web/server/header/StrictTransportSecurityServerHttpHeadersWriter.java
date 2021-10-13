@@ -27,6 +27,7 @@ import org.springframework.web.server.ServerWebExchange;
  * Writes the Strict-Transport-Security if the request is secure.
  *
  * @author Rob Winch
+ * @author Ankur Pathak
  * @since 5.0
  */
 public final class StrictTransportSecurityServerHttpHeadersWriter implements ServerHttpHeadersWriter {
@@ -73,7 +74,6 @@ public final class StrictTransportSecurityServerHttpHeadersWriter implements Ser
 	 * </p>
 	 * @param preload if preload should be included
 	 * @since 5.2.0
-	 * @author Ankur Pathak
 	 */
 	public void setPreload(boolean preload) {
 		this.preload = preload ? " ; preload" : "";

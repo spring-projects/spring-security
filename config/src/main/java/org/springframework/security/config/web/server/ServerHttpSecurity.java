@@ -242,6 +242,8 @@ import org.springframework.web.server.WebFilterChain;
  * @author Eddú Meléndez
  * @author Joe Grandja
  * @author Parikshit Dutta
+ * @author Ankur Pathak
+ * @author Alexey Nesterov
  * @since 5.0
  */
 public class ServerHttpSecurity {
@@ -333,7 +335,6 @@ public class ServerHttpSecurity {
 	 * @param order the place before which to insert the {@link WebFilter}
 	 * @return the {@link ServerHttpSecurity} to continue configuring
 	 * @since 5.2.0
-	 * @author Ankur Pathak
 	 */
 	public ServerHttpSecurity addFilterBefore(WebFilter webFilter, SecurityWebFiltersOrder order) {
 		this.webFilters.add(new OrderedWebFilter(webFilter, order.getOrder() - 1));
@@ -346,7 +347,6 @@ public class ServerHttpSecurity {
 	 * @param order the place after which to insert the {@link WebFilter}
 	 * @return the {@link ServerHttpSecurity} to continue configuring
 	 * @since 5.2.0
-	 * @author Ankur Pathak
 	 */
 	public ServerHttpSecurity addFilterAfter(WebFilter webFilter, SecurityWebFiltersOrder order) {
 		this.webFilters.add(new OrderedWebFilter(webFilter, order.getOrder() + 1));
@@ -593,7 +593,6 @@ public class ServerHttpSecurity {
 	 * </pre>
 	 * @return the {@link AnonymousSpec} to customize
 	 * @since 5.2.0
-	 * @author Ankur Pathak
 	 */
 	public AnonymousSpec anonymous() {
 		if (this.anonymous == null) {
@@ -817,7 +816,6 @@ public class ServerHttpSecurity {
 	 * will be used. If authenticationManager is not specified,
 	 * {@link ReactivePreAuthenticatedAuthenticationManager} will be used.
 	 * @return the {@link X509Spec} to customize
-	 * @author Alexey Nesterov
 	 * @since 5.2
 	 */
 	public X509Spec x509() {
@@ -2026,7 +2024,6 @@ public class ServerHttpSecurity {
 		 * use
 		 * @return {@link HttpBasicSpec} for additional customization
 		 * @since 5.2.0
-		 * @author Ankur Pathak
 		 */
 		public HttpBasicSpec authenticationEntryPoint(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 			Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
@@ -2456,7 +2453,6 @@ public class ServerHttpSecurity {
 		 * custom headers writer
 		 * @return the {@link HeaderSpec} to customize
 		 * @since 5.3.0
-		 * @author Ankur Pathak
 		 */
 		public HeaderSpec writer(ServerHttpHeadersWriter serverHttpHeadersWriter) {
 			Assert.notNull(serverHttpHeadersWriter, "serverHttpHeadersWriter cannot be null");
@@ -2711,7 +2707,6 @@ public class ServerHttpSecurity {
 			 * @param preload if subdomains should be included
 			 * @return the {@link HstsSpec} to continue configuring
 			 * @since 5.2.0
-			 * @author Ankur Pathak
 			 */
 			public HstsSpec preload(boolean preload) {
 				HeaderSpec.this.hsts.setPreload(preload);
@@ -4119,7 +4114,6 @@ public class ServerHttpSecurity {
 	/**
 	 * Configures anonymous authentication
 	 *
-	 * @author Ankur Pathak
 	 * @since 5.2.0
 	 */
 	public final class AnonymousSpec {
