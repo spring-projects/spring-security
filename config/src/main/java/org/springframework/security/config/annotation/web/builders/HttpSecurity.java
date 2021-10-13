@@ -1363,7 +1363,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1384,7 +1384,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
 	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -1406,7 +1406,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) ->
+	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 		 		authorizeHttpRequests
 	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
@@ -2249,7 +2249,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *		&#064;Bean
 	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
 	 *			http
-	 *				.authorizeRequests((authorize) -> authorize
+	 *				.authorizeRequests((authorize) -&gt; authorize
 	 *					.anyRequest().authenticated()
 	 *				)
 	 *				.saml2Login(withDefaults())
@@ -2839,11 +2839,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests(authorizeRequests -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.passwordManagement(passwordManagement ->
+	 * 			.passwordManagement(passwordManagement -&gt;
 	 * 				passwordManagement
 	 * 					.changePasswordPage(&quot;/custom-change-password-page&quot;)
 	 * 			);
