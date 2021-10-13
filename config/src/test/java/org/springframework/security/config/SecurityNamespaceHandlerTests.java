@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
 import org.springframework.messaging.Message;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.config.util.SpringSecurityVersions;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.ClassUtils;
 
@@ -145,6 +146,13 @@ public class SecurityNamespaceHandlerTests {
 				eq(Message.class.getName()), any(ClassLoader.class));
 		new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER);
 		// should load just fine since no websocket block
+	}
+
+	@Test
+	public void configureWhenOldVersionThenErrorMessageContainsCorrectVersion() {
+		assertThatExceptionOfType(BeanDefinitionParsingException.class)
+				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER, "3.0", null))
+				.withMessageContaining(SpringSecurityVersions.getCurrentXsdVersionFromSpringSchemas());
 	}
 
 }
