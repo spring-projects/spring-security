@@ -2179,7 +2179,7 @@ public class ServerHttpSecurity {
 		 * generate a log in page at "/login" and a log out page at "/logout". If this is
 		 * customized:
 		 * <ul>
-		 * <li>The default log in & log out page are no longer provided</li>
+		 * <li>The default log in &amp; log out page are no longer provided</li>
 		 * <li>The application must render a log in page at the provided URL</li>
 		 * <li>The application must render an authentication error page at the provided
 		 * URL + "?error"</li>
