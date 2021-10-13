@@ -21,7 +21,7 @@ Where a module depends on another Spring Security module, the non-optional depen
 
 [[spring-security-core]]
 == Core -- `spring-security-core.jar`
-This module contains core authentication and access-contol classes and interfaces, remoting support, and basic provisioning APIs.
+This module contains core authentication and access-contol classes and interfaces, and basic provisioning APIs.
 It is required by any application that uses Spring Security.
 It supports standalone applications, remote clients, method (service layer) security, and JDBC user provisioning.
 It contains the following top-level packages:
@@ -68,25 +68,6 @@ It contains the following top-level packages:
 | Required if you are using JSR-250 method-security annotations (optional).
 |===
 
-
-[[spring-security-remoting]]
-== Remoting -- `spring-security-remoting.jar`
-This module provides integration with Spring Remoting.
-You do not need this unless you are writing a remote client that uses Spring Remoting.
-The main package is `org.springframework.security.remoting`.
-
-.Remoting Dependencies
-|===
-| Dependency | Version | Description
-
-| spring-security-core
-|
-|
-
-| spring-web
-|
-| Required for clients which use HTTP remoting support.
-|===
 
 [[spring-security-web]]
 == Web -- `spring-security-web.jar`
