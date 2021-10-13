@@ -716,7 +716,7 @@ public class ServerHttpSecurity {
 	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 	 *      http
 	 *          // ...
-	 *          .passwordManagement(passwordManagement ->
+	 *          .passwordManagement(passwordManagement -&gt;
 	 *          	// Custom change password page.
 	 *          	passwordManagement.changePasswordPage("/custom-change-password-page")
 	 *          );
