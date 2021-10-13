@@ -104,7 +104,6 @@ public class HeaderWriterFilter extends OncePerRequestFilter {
 	 * Allow writing headers at the beginning of the request.
 	 * @param shouldWriteHeadersEagerly boolean to allow writing headers at the beginning
 	 * of the request.
-	 * @author Ankur Pathak
 	 * @since 5.2
 	 */
 	public void setShouldWriteHeadersEagerly(boolean shouldWriteHeadersEagerly) {

@@ -55,6 +55,7 @@ import org.springframework.util.ClassUtils;
  * @param <B> the {@link ProviderManagerBuilder} type that this is configuring.
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Tony Dalbrekt
  * @since 3.2
  */
 public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
@@ -150,7 +151,6 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	 * {@link SimpleAuthorityMapper}
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 *
-	 * @author Tony Dalbrekt
 	 * @since 4.1.1
 	 */
 	public LdapAuthenticationProviderConfigurer<B> authoritiesMapper(

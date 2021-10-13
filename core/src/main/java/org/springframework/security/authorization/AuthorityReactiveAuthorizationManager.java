@@ -31,6 +31,7 @@ import org.springframework.util.Assert;
  *
  * @param <T> the type of object being authorized
  * @author Rob Winch
+ * @author Robbie Martinus
  * @since 5.0
  */
 public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
@@ -67,8 +68,6 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 	/**
 	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
 	 * provided authorities.
-	 *
-	 * @author Robbie Martinus
 	 * @param authorities the authorities to check for
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
@@ -96,8 +95,6 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 	/**
 	 * Creates an instance of {@link AuthorityReactiveAuthorizationManager} with the
 	 * provided authorities.
-	 *
-	 * @author Robbie Martinus
 	 * @param roles the authorities to check for prefixed with "ROLE_"
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
