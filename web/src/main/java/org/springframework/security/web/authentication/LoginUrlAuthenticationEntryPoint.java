@@ -158,15 +158,10 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 		urlBuilder.setPathInfo(loginForm);
 		if (this.forceHttps && "http".equals(scheme)) {
 			Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
-			if (httpsPort != null) {
-				// Overwrite scheme and port in the redirect URL
-				urlBuilder.setScheme("https");
-				urlBuilder.setPort(httpsPort);
-			}
-			else {
-				logger.warn(LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s",
-						serverPort));
-			}
+			if (httpsPort == null) httpsPort = serverPort; //if there is no mapped port, just use the original
+			// Overwrite scheme and port in the redirect URL
+			urlBuilder.setScheme("https");
+			urlBuilder.setPort(httpsPort);
 		}
 		return urlBuilder.getUrl();
 	}
@@ -178,21 +173,16 @@ public class LoginUrlAuthenticationEntryPoint implements AuthenticationEntryPoin
 	protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request) throws IOException, ServletException {
 		int serverPort = this.portResolver.getServerPort(request);
 		Integer httpsPort = this.portMapper.lookupHttpsPort(serverPort);
-		if (httpsPort != null) {
-			RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
-			urlBuilder.setScheme("https");
-			urlBuilder.setServerName(request.getServerName());
-			urlBuilder.setPort(httpsPort);
-			urlBuilder.setContextPath(request.getContextPath());
-			urlBuilder.setServletPath(request.getServletPath());
-			urlBuilder.setPathInfo(request.getPathInfo());
-			urlBuilder.setQuery(request.getQueryString());
-			return urlBuilder.getUrl();
-		}
-		// Fall through to server-side forward with warning message
-		logger.warn(
-				LogMessage.format("Unable to redirect to HTTPS as no port mapping found for HTTP port %s", serverPort));
-		return null;
+		if (httpsPort == null) httpsPort = serverPort; //if there is no mapped port, just use the original
+		RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
+		urlBuilder.setScheme("https");
+		urlBuilder.setServerName(request.getServerName());
+		urlBuilder.setPort(httpsPort);
+		urlBuilder.setContextPath(request.getContextPath());
+		urlBuilder.setServletPath(request.getServletPath());
+		urlBuilder.setPathInfo(request.getPathInfo());
+		urlBuilder.setQuery(request.getQueryString());
+		return urlBuilder.getUrl();
 	}
 
 	/**
