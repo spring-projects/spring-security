@@ -315,8 +315,8 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	/**
 	 * If set to true, a subtree scope search will be performed for group membership. If
 	 * false a single-level search is used.
-	 * @param searchSubtree set to true to enable searching of the entire tree below the
-	 * <tt>groupSearchBase</tt>.
+	 * @param groupSearchSubtree set to true to enable searching of the entire tree below
+	 * the <tt>groupSearchBase</tt>.
 	 * @return the {@link LdapAuthenticationProviderConfigurer} for further customizations
 	 */
 	public LdapAuthenticationProviderConfigurer<B> groupSearchSubtree(boolean groupSearchSubtree) {

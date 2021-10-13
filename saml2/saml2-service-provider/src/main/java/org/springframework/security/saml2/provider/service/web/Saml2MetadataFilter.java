@@ -60,7 +60,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 	 * @param relyingPartyRegistrationResolver
 	 * @param saml2MetadataResolver
 	 * @deprecated Use
-	 * {@link Saml2MetadataFilter#Saml2MetadataFilter(RelyingPartyRegistrationResolver)}
+	 * {@link Saml2MetadataFilter#Saml2MetadataFilter(RelyingPartyRegistrationResolver, Saml2MetadataResolver)}
 	 * instead
 	 */
 	@Deprecated
