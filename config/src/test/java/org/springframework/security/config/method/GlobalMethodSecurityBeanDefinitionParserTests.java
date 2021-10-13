@@ -208,24 +208,6 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				.isThrownBy(() -> setContext("<global-method-security />" + "<global-method-security />"));
 	}
 
-	// SEC-936
-	@Test
-	public void worksWithoutTargetOrClass() {
-		// @formatter:off
-		setContext("<global-method-security secured-annotations='enabled'/>"
-				+ "<b:bean id='businessService' class='org.springframework.remoting.httpinvoker.HttpInvokerProxyFactoryBean'>"
-				+ "    <b:property name='serviceUrl' value='http://localhost:8080/SomeService'/>"
-				+ "    <b:property name='serviceInterface' value='org.springframework.security.access.annotation.BusinessService'/>"
-				+ "</b:bean>"
-				+ ConfigTestUtils.AUTH_PROVIDER_XML);
-		// @formatter:on
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
-		SecurityContextHolder.getContext().setAuthentication(token);
-		this.target = (BusinessService) this.appContext.getBean("businessService");
-		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someUserMethod1);
-	}
-
 	// Expression configuration tests
 	@SuppressWarnings("unchecked")
 	@Test
