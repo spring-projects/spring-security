@@ -20,7 +20,8 @@ import org.springframework.http.MediaType;
 import org.springframework.util.MimeType;
 
 /**
- * Represents a bearer token that has been encoded into a {@link Payload#metadata()}.
+ * Represents a bearer token that has been encoded into a
+ * {@link io.rsocket.Payload#metadata() Payload#metadata()}.
  *
  * @author Rob Winch
  * @since 5.2

@@ -62,7 +62,6 @@ import org.springframework.web.util.UriUtils;
  * @author Josh Cummings
  * @since 5.6
  * @see Saml2LogoutRequestValidator
- * @see Saml2AssertingPartyInitiatedLogoutSuccessHandler
  */
 public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 

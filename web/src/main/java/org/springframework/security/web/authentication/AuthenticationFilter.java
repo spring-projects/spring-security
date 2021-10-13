@@ -49,11 +49,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * is made. If the result is empty, then the filter does nothing more and the
  * {@link FilterChain} is continued. If it does create an {@link Authentication}...</li>
  * <li>The {@link AuthenticationManager} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManager)} is used to perform
- * authentication.</li>
+ * {@link #AuthenticationFilter(AuthenticationManager, AuthenticationConverter)} is used
+ * to perform authentication.</li>
  * <li>The {@link AuthenticationManagerResolver} specified in
- * {@link #GenericAuthenticationFilter(AuthenticationManagerResolver)} is used to resolve
- * the appropriate authentication manager from context to perform authentication.</li>
+ * {@link #AuthenticationFilter(AuthenticationManagerResolver, AuthenticationConverter)}
+ * is used to resolve the appropriate authentication manager from context to perform
+ * authentication.</li>
  * <li>If authentication is successful, {@link AuthenticationSuccessHandler} is invoked
  * and the authentication is set on {@link SecurityContextHolder}, else
  * {@link AuthenticationFailureHandler} is invoked</li>
