@@ -9,6 +9,7 @@ Below are the highlights of the release.
 * Core
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/10226[`SecurityContextChangedListener`]
+** Improved https://github.com/spring-projects/spring-security/pull/10279[Method Security Logging]
 
 * Configuration
 
