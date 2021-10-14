@@ -32,6 +32,7 @@ Below are the highlights of the release.
 ** Improved https://github.com/spring-projects/spring-security/pull/9791[Client Credentials encoding]
 ** Improved https://github.com/spring-projects/spring-security/pull/9779[Access Token Response parsing]
 ** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for Authorization Requests
+** Introduced https://github.com/spring-projects/spring-security/pull/9208[JwtEncoder]
 
 * Testing
 
