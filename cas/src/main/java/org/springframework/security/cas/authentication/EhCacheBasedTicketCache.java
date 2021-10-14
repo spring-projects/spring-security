@@ -30,7 +30,9 @@ import org.springframework.util.Assert;
  * <a href="https://www.ehcache.org/">EHCACHE</a>.
  *
  * @author Ben Alex
+ * @deprecated since 5.6. In favor of JCache based implementations
  */
+@Deprecated
 public class EhCacheBasedTicketCache implements StatelessTicketCache, InitializingBean {
 
 	private static final Log logger = LogFactory.getLog(EhCacheBasedTicketCache.class);

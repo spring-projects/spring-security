@@ -32,7 +32,9 @@ import org.springframework.util.Assert;
  * <A HREF="https://www.ehcache.org/">EHCACHE</a>.
  *
  * @author Ben Alex
+ * @deprecated since 5.6. In favor of JCache based implementations
  */
+@Deprecated
 public class EhCacheBasedUserCache implements UserCache, InitializingBean {
 
 	private static final Log logger = LogFactory.getLog(EhCacheBasedUserCache.class);

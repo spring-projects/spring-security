@@ -37,7 +37,9 @@ import org.springframework.util.Assert;
  * {@link PermissionGrantingStrategy} and {@link AclAuthorizationStrategy} instances.
  *
  * @author Ben Alex
+ * @deprecated since 5.6. In favor of JCache based implementations
  */
+@Deprecated
 public class EhCacheBasedAclCache implements AclCache {
 
 	private final Ehcache cache;
