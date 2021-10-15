@@ -51,7 +51,7 @@ import org.springframework.util.Assert;
  * The <code>RemoteAuthenticationException</code> can be wrapped in
  * <code>WrappedRemoteAuthenticationException</code>, which extends
  * <code>AuthenticationException</code>. It can be turned on using the
- * <code>wrapRemoteAuthenticationException</code> property
+ * <code>wrapRemoteAuthenticationException</code> property.
  * </p>
  *
  * @author Ben Alex
