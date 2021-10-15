@@ -47,12 +47,20 @@ import org.springframework.util.Assert;
  * This exception should be caught and displayed to the user, enabling them to retry with
  * alternative credentials etc.
  * </p>
+ * <p>
+ * The <code>RemoteAuthenticationException</code> can be wrapped in
+ * <code>WrappedRemoteAuthenticationException</code>, which extends
+ * <code>AuthenticationException</code>. It can be turned on using the
+ * <code>wrapRemoteAuthenticationException</code> property
+ * </p>
  *
  * @author Ben Alex
  */
 public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
 	private RemoteAuthenticationManager remoteAuthenticationManager;
+
+	private boolean wrapRemoteAuthenticationException = false;
 
 	@Override
 	public void afterPropertiesSet() {
@@ -64,8 +72,7 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 		String username = authentication.getPrincipal().toString();
 		Object credentials = authentication.getCredentials();
 		String password = (credentials != null) ? credentials.toString() : null;
-		Collection<? extends GrantedAuthority> authorities = this.remoteAuthenticationManager
-				.attemptAuthentication(username, password);
+		Collection<? extends GrantedAuthority> authorities = tryToAuthenticate(username, password);
 		return new UsernamePasswordAuthenticationToken(username, password, authorities);
 	}
 
@@ -77,9 +84,33 @@ public class RemoteAuthenticationProvider implements AuthenticationProvider, Ini
 		this.remoteAuthenticationManager = remoteAuthenticationManager;
 	}
 
+	public void setWrapRemoteAuthenticationException(boolean wrapRemoteAuthenticationException) {
+		this.wrapRemoteAuthenticationException = wrapRemoteAuthenticationException;
+	}
+
 	@Override
 	public boolean supports(Class<?> authentication) {
 		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication));
+	}
+
+	private Collection<? extends GrantedAuthority> tryToAuthenticate(String username, String password) {
+		try {
+			return this.remoteAuthenticationManager.attemptAuthentication(username, password);
+		}
+		catch (RemoteAuthenticationException e) {
+			if (wrapRemoteAuthenticationException) {
+				throw new WrappedRemoteAuthenticationException(e);
+			}
+			throw e;
+		}
+	}
+
+	private static class WrappedRemoteAuthenticationException extends AuthenticationException {
+
+		public WrappedRemoteAuthenticationException(RemoteAuthenticationException e) {
+			super(e.toString(), e);
+		}
+
 	}
 
 }

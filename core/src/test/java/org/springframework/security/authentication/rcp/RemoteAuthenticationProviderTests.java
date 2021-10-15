@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 
@@ -52,7 +53,7 @@ public class RemoteAuthenticationProviderTests {
 	}
 
 	@Test
-	public void testStartupChecksAuthenticationManagerSet() throws Exception {
+	public void testStartupChecksAuthenticationManagerSet() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		assertThatIllegalArgumentException().isThrownBy(provider::afterPropertiesSet);
 		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(true));
@@ -81,6 +82,15 @@ public class RemoteAuthenticationProviderTests {
 	public void testSupports() {
 		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
 		assertThat(provider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
+	}
+
+	@Test
+	public void testWrappedExceptionsGetPassedBackToCaller() {
+		RemoteAuthenticationProvider provider = new RemoteAuthenticationProvider();
+		provider.setRemoteAuthenticationManager(new MockRemoteAuthenticationManager(false));
+		provider.setWrapRemoteAuthenticationException(true);
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "password")));
 	}
 
 	private class MockRemoteAuthenticationManager implements RemoteAuthenticationManager {
