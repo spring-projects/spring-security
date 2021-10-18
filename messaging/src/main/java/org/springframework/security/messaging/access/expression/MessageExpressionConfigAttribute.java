@@ -29,9 +29,9 @@ import org.springframework.util.Assert;
 /**
  * Simple expression configuration attribute for use in {@link Message} authorizations.
  *
- * @since 4.0
  * @author Rob Winch
  * @author Daniel Bustamante Ospina
+ * @since 4.0
  */
 @SuppressWarnings("serial")
 class MessageExpressionConfigAttribute implements ConfigAttribute, EvaluationContextPostProcessor<Message<?>> {

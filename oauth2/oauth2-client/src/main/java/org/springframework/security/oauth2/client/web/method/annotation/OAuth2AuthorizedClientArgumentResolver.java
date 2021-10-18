@@ -156,6 +156,9 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	/**
 	 * Sets the client used when requesting an access token credential at the Token
 	 * Endpoint for the {@code client_credentials} grant.
+	 * @param clientCredentialsTokenResponseClient the client used when requesting an
+	 * access token credential at the Token Endpoint for the {@code client_credentials}
+	 * grant
 	 * @deprecated Use
 	 * {@link #OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)}
 	 * instead. Create an instance of
@@ -165,9 +168,6 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	 * to
 	 * {@link DefaultOAuth2AuthorizedClientManager#setAuthorizedClientProvider(OAuth2AuthorizedClientProvider)
 	 * DefaultOAuth2AuthorizedClientManager}.
-	 * @param clientCredentialsTokenResponseClient the client used when requesting an
-	 * access token credential at the Token Endpoint for the {@code client_credentials}
-	 * grant
 	 */
 	@Deprecated
 	public void setClientCredentialsTokenResponseClient(

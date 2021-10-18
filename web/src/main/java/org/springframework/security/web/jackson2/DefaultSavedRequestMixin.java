@@ -34,9 +34,9 @@ import org.springframework.security.web.savedrequest.DefaultSavedRequest;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see WebServletJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(builder = DefaultSavedRequest.Builder.class)

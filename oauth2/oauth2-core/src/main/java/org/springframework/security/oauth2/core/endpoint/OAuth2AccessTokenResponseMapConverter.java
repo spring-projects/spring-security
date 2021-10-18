@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
  * @author Joe Grandja
  * @author Nikita Konev
  * @since 5.3
+ * @deprecated Use {@link DefaultOAuth2AccessTokenResponseMapConverter} instead
  */
 public final class OAuth2AccessTokenResponseMapConverter
 		implements Converter<OAuth2AccessTokenResponse, Map<String, String>> {

@@ -110,6 +110,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	 * parameters to an {@link OAuth2AccessTokenResponse}.
 	 * @param tokenResponseConverter the {@link Converter} used for converting to an
 	 * {@link OAuth2AccessTokenResponse}
+	 * @deprecated Use {@link #setAccessTokenResponseConverter(Converter)} instead
 	 */
 	public final void setTokenResponseConverter(
 			Converter<Map<String, String>, OAuth2AccessTokenResponse> tokenResponseConverter) {
@@ -123,6 +124,8 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	 * Access Token Response parameters.
 	 * @param tokenResponseParametersConverter the {@link Converter} used for converting
 	 * to a {@code Map} representation of the Access Token Response parameters
+	 * @deprecated Use {@link #setAccessTokenResponseParametersConverter(Converter)}
+	 * instead
 	 */
 	public final void setTokenResponseParametersConverter(
 			Converter<OAuth2AccessTokenResponse, Map<String, String>> tokenResponseParametersConverter) {

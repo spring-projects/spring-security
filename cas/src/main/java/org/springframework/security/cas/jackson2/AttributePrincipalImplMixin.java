@@ -37,9 +37,9 @@ import org.jasig.cas.client.proxy.ProxyRetriever;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see CasJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,

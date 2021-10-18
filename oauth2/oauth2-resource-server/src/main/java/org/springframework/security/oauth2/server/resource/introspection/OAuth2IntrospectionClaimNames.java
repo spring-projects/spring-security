@@ -23,6 +23,7 @@ package org.springframework.security.oauth2.server.resource.introspection;
  *
  * @author Josh Cummings
  * @since 5.2
+ * @deprecated Use {@link OAuth2TokenIntrospectionClaimNames} instead
  */
 public interface OAuth2IntrospectionClaimNames {
 

@@ -85,6 +85,10 @@ final class OpenSamlVerificationUtils {
 				DefaultSecurityConfigurationBootstrap.buildBasicInlineKeyInfoCredentialResolver());
 	}
 
+	private OpenSamlVerificationUtils() {
+
+	}
+
 	static class VerifierPartial {
 
 		private final String id;
@@ -207,10 +211,6 @@ final class OpenSamlVerificationUtils {
 			}
 
 		}
-
-	}
-
-	private OpenSamlVerificationUtils() {
 
 	}
 

@@ -31,9 +31,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see WebJackson2Module
  * @see org.springframework.security.jackson2.SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonIgnoreProperties(ignoreUnknown = true)

@@ -32,8 +32,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * </pre>
  *
  * @author Boris Finkelshteyn
- * @see WebServerJackson2Module
  * @since 5.1
+ * @see WebServerJackson2Module
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonIgnoreProperties(ignoreUnknown = true)

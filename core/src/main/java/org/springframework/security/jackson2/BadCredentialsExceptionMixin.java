@@ -36,8 +36,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
  * called @class</i> <i>The cause and stackTrace are ignored in the serialization.</i>
  *
  * @author Yannick Lombardi
- * @see CoreJackson2Module
  * @since 5.0
+ * @see CoreJackson2Module
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace" })

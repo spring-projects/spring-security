@@ -19,8 +19,8 @@ package org.springframework.security.config;
 /**
  * Callback interface that accepts a single input argument and returns no result.
  *
- * @author Eleftheria Stein
  * @param <T> the type of the input to the operation
+ * @author Eleftheria Stein
  * @since 5.2
  */
 @FunctionalInterface

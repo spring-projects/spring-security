@@ -33,6 +33,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
  * @see OAuth2IntrospectionAuthenticatedPrincipal
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
+ * @deprecated Use {@link OAuth2TokenIntrospectionClaimAccessor} instead
  */
 public interface OAuth2IntrospectionClaimAccessor extends ClaimAccessor {
 

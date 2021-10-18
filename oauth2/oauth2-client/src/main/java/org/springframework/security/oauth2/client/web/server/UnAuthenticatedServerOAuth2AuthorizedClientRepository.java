@@ -35,10 +35,10 @@ import org.springframework.web.server.ServerWebExchange;
  * {@link ServerWebExchange} is null and that the {@link Authentication} is either null or
  * anonymous to prevent using it incorrectly.
  *
- * @deprecated Use {@link AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager}
- * instead
  * @author Rob Winch
  * @since 5.1
+ * @deprecated Use {@link AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager}
+ * instead
  */
 @Deprecated
 public class UnAuthenticatedServerOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {

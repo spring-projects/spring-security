@@ -58,7 +58,6 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Joe Grandja
  * @since 5.0
- * @deprecated Use {@link DefaultAuthorizationCodeTokenResponseClient}
  * @see OAuth2AccessTokenResponseClient
  * @see OAuth2AuthorizationCodeGrantRequest
  * @see OAuth2AccessTokenResponse
@@ -71,6 +70,7 @@ import org.springframework.util.CollectionUtils;
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc6749#section-4.1.4">Section 4.1.4 Access Token Response
  * (Authorization Code Grant)</a>
+ * @deprecated Use {@link DefaultAuthorizationCodeTokenResponseClient}
  */
 @Deprecated
 public class NimbusAuthorizationCodeTokenResponseClient
