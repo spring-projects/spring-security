@@ -42,18 +42,18 @@ import org.springframework.web.client.RestTemplate;
  * {@link OAuth2User} type(s) keyed by {@code String}, which represents the
  * {@link ClientRegistration#getRegistrationId() Registration Id} of the Client.
  *
- * @deprecated It is recommended to use a delegation-based strategy of an
- * {@link OAuth2UserService} to support custom {@link OAuth2User} types, as it provides
- * much greater flexibility compared to this implementation. See the
- * <a target="_blank" href=
- * "https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2login-advanced-map-authorities-oauth2userservice">reference
- * manual</a> for details on how to implement.
  * @author Joe Grandja
  * @since 5.0
  * @see OAuth2UserService
  * @see OAuth2UserRequest
  * @see OAuth2User
  * @see ClientRegistration
+ * @deprecated It is recommended to use a delegation-based strategy of an
+ * {@link OAuth2UserService} to support custom {@link OAuth2User} types, as it provides
+ * much greater flexibility compared to this implementation. See the
+ * <a target="_blank" href=
+ * "https://docs.spring.io/spring-security/site/docs/current/reference/html5/#oauth2login-advanced-map-authorities-oauth2userservice">reference
+ * manual</a> for details on how to implement.
  */
 @Deprecated
 public class CustomUserTypesOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {

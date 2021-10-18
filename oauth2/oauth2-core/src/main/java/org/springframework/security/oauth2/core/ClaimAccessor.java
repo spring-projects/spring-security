@@ -42,11 +42,10 @@ public interface ClaimAccessor {
 	/**
 	 * Returns the claim value as a {@code T} type. The claim value is expected to be of
 	 * type {@code T}.
-	 *
-	 * @since 5.2
 	 * @param claim the name of the claim
 	 * @param <T> the type of the claim value
 	 * @return the claim value
+	 * @since 5.2
 	 */
 	@SuppressWarnings("unchecked")
 	default <T> T getClaim(String claim) {

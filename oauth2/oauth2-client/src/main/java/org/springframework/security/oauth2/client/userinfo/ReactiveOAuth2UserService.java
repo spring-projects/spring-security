@@ -29,13 +29,13 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
  * {@link OAuth2UserRequest#getClientRegistration() Client} and returning an
  * {@link AuthenticatedPrincipal} in the form of an {@link OAuth2User}.
  *
+ * @param <R> The type of OAuth 2.0 User Request
+ * @param <U> The type of OAuth 2.0 User
  * @author Rob Winch
  * @since 5.1
  * @see OAuth2UserRequest
  * @see OAuth2User
  * @see AuthenticatedPrincipal
- * @param <R> The type of OAuth 2.0 User Request
- * @param <U> The type of OAuth 2.0 User
  */
 @FunctionalInterface
 public interface ReactiveOAuth2UserService<R extends OAuth2UserRequest, U extends OAuth2User> {

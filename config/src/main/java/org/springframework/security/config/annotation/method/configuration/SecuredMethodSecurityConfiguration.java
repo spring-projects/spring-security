@@ -29,8 +29,8 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
- * @see EnableMethodSecurity
  * @since 5.6
+ * @see EnableMethodSecurity
  */
 @Configuration(proxyBeanMethods = false)
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)

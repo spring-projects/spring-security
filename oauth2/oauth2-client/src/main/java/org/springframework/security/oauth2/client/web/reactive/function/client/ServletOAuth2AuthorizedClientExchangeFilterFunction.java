@@ -239,6 +239,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	/**
 	 * Sets the {@link OAuth2AccessTokenResponseClient} used for getting an
 	 * {@link OAuth2AuthorizedClient} for the client_credentials grant.
+	 * @param clientCredentialsTokenResponseClient the client to use
 	 * @deprecated Use
 	 * {@link #ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)}
 	 * instead. Create an instance of
@@ -248,7 +249,6 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	 * to
 	 * {@link DefaultOAuth2AuthorizedClientManager#setAuthorizedClientProvider(OAuth2AuthorizedClientProvider)
 	 * DefaultOAuth2AuthorizedClientManager}.
-	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
 	@Deprecated
 	public void setClientCredentialsTokenResponseClient(
@@ -397,13 +397,13 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 	/**
 	 * An access token will be considered expired by comparing its expiration to now +
 	 * this skewed Duration. The default is 1 minute.
+	 * @param accessTokenExpiresSkew the Duration to use.
 	 * @deprecated The {@code accessTokenExpiresSkew} should be configured with the
 	 * specific {@link OAuth2AuthorizedClientProvider} implementation, e.g.
 	 * {@link ClientCredentialsOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 	 * ClientCredentialsOAuth2AuthorizedClientProvider} or
 	 * {@link RefreshTokenOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 	 * RefreshTokenOAuth2AuthorizedClientProvider}.
-	 * @param accessTokenExpiresSkew the Duration to use.
 	 */
 	@Deprecated
 	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {

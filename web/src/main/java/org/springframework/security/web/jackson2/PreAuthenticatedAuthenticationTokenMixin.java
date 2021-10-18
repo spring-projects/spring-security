@@ -42,9 +42,9 @@ import org.springframework.security.jackson2.SimpleGrantedAuthorityMixin;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see Webackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,

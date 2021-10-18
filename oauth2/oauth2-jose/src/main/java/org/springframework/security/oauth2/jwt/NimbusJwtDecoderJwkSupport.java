@@ -35,7 +35,6 @@ import org.springframework.web.client.RestOperations;
  * <p>
  * <b>NOTE:</b> This implementation uses the Nimbus JOSE + JWT SDK internally.
  *
- * @deprecated Use {@link NimbusJwtDecoder} or {@link JwtDecoders} instead
  * @author Joe Grandja
  * @author Josh Cummings
  * @since 5.0
@@ -49,6 +48,7 @@ import org.springframework.web.client.RestOperations;
  * (JWK)</a>
  * @see <a target="_blank" href="https://connect2id.com/products/nimbus-jose-jwt">Nimbus
  * JOSE + JWT SDK</a>
+ * @deprecated Use {@link NimbusJwtDecoder} or {@link JwtDecoders} instead
  */
 @Deprecated
 public final class NimbusJwtDecoderJwkSupport implements JwtDecoder {

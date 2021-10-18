@@ -70,6 +70,10 @@ final class OpenSamlVerificationUtils {
 		return new VerifierPartial(object, registration);
 	}
 
+	private OpenSamlVerificationUtils() {
+
+	}
+
 	static class VerifierPartial {
 
 		private final String id;
@@ -234,10 +238,6 @@ final class OpenSamlVerificationUtils {
 			}
 
 		}
-
-	}
-
-	private OpenSamlVerificationUtils() {
 
 	}
 

@@ -133,9 +133,9 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	/**
 	 * Sets the {@link Converter} used for converting the OAuth 2.0 Access Token Response
 	 * parameters to an {@link OAuth2AccessTokenResponse}.
-	 * @deprecated Use {@link #setAccessTokenResponseConverter(Converter)} instead
 	 * @param tokenResponseConverter the {@link Converter} used for converting to an
 	 * {@link OAuth2AccessTokenResponse}
+	 * @deprecated Use {@link #setAccessTokenResponseConverter(Converter)} instead
 	 */
 	@Deprecated
 	public final void setTokenResponseConverter(
@@ -161,10 +161,10 @@ public class OAuth2AccessTokenResponseHttpMessageConverter
 	 * Sets the {@link Converter} used for converting the
 	 * {@link OAuth2AccessTokenResponse} to a {@code Map} representation of the OAuth 2.0
 	 * Access Token Response parameters.
-	 * @deprecated Use {@link #setAccessTokenResponseParametersConverter(Converter)}
-	 * instead
 	 * @param tokenResponseParametersConverter the {@link Converter} used for converting
 	 * to a {@code Map} representation of the Access Token Response parameters
+	 * @deprecated Use {@link #setAccessTokenResponseParametersConverter(Converter)}
+	 * instead
 	 */
 	@Deprecated
 	public final void setTokenResponseParametersConverter(

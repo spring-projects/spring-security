@@ -44,8 +44,8 @@ import org.springframework.security.core.userdetails.User;
  * of all security modules.</b>
  *
  * @author Jitendra Singh.
- * @see SecurityJackson2Modules
  * @since 4.2
+ * @see SecurityJackson2Modules
  */
 @SuppressWarnings("serial")
 public class CoreJackson2Module extends SimpleModule {
