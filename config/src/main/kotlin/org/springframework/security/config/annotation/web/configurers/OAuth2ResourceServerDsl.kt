@@ -20,8 +20,8 @@ import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
-import org.springframework.security.config.web.servlet.oauth2.resourceserver.JwtDsl
-import org.springframework.security.config.web.servlet.oauth2.resourceserver.OpaqueTokenDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.resourceserver.JwtDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.resourceserver.OpaqueTokenDsl
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler

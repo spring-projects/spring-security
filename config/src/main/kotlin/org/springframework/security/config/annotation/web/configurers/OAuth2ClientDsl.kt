@@ -34,8 +34,8 @@ package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer
-import org.springframework.security.config.web.servlet.oauth2.client.AuthorizationCodeGrantDsl
-import org.springframework.security.config.web.servlet.oauth2.login.AuthorizationEndpointDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.AuthorizationCodeGrantDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.login.AuthorizationEndpointDsl
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository

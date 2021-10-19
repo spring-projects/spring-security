@@ -18,8 +18,8 @@ package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.config.web.servlet.session.SessionConcurrencyDsl
-import org.springframework.security.config.web.servlet.session.SessionFixationDsl
+import org.springframework.security.config.annotation.web.configurers.session.SessionConcurrencyDsl
+import org.springframework.security.config.annotation.web.configurers.session.SessionFixationDsl
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.session.InvalidSessionStrategy

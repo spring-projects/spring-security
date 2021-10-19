@@ -17,7 +17,7 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.web.servlet.headers.*
+import org.springframework.security.config.annotation.web.configurers.headers.*
 import org.springframework.security.web.header.HeaderWriter
 import org.springframework.security.web.header.writers.*
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter

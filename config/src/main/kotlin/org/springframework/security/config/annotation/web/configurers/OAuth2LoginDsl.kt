@@ -22,9 +22,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.config.annotation.web.configurers.oauth2.login.TokenEndpointDsl
-import org.springframework.security.config.web.servlet.oauth2.login.AuthorizationEndpointDsl
-import org.springframework.security.config.web.servlet.oauth2.login.RedirectionEndpointDsl
-import org.springframework.security.config.web.servlet.oauth2.login.UserInfoEndpointDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.login.AuthorizationEndpointDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.login.RedirectionEndpointDsl
+import org.springframework.security.config.annotation.web.configurers.oauth2.login.UserInfoEndpointDsl
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository
