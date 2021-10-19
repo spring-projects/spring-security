@@ -17,11 +17,9 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
-import java.util.*
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] exception handling using idiomatic Kotlin

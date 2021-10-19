@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl
 import org.springframework.security.web.access.channel.ChannelProcessor
 import org.springframework.security.web.util.matcher.AnyRequestMatcher

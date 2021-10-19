@@ -16,20 +16,20 @@
 
 package org.springframework.security.config.annotation.web.configurers
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
+import org.springframework.security.config.annotation.web.configurers.oauth2.login.TokenEndpointDsl
 import org.springframework.security.config.web.servlet.oauth2.login.AuthorizationEndpointDsl
 import org.springframework.security.config.web.servlet.oauth2.login.RedirectionEndpointDsl
-import org.springframework.security.config.annotation.web.configurers.oauth2.login.TokenEndpointDsl
 import org.springframework.security.config.web.servlet.oauth2.login.UserInfoEndpointDsl
-import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
-import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] OAuth 2.0 login using idiomatic Kotlin code.

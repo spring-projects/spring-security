@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.security.web.authentication.RememberMeServices

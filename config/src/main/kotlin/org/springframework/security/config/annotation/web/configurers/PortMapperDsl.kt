@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.PortMapperConfigurer
 import org.springframework.security.web.PortMapper
 
 /**

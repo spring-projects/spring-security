@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer
 import org.springframework.web.cors.CorsConfigurationSource
 
 /**

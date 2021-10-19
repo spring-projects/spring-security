@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers
 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
-import org.springframework.security.config.annotation.web.configurers.PasswordManagementConfigurer
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] password management
