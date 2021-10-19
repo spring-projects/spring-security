@@ -4,6 +4,8 @@
 Spring Security 5.6 provides a number of new features.
 Below are the highlights of the release.
 
+* All new https://antora.org/[Antora] based https://docs.spring.io/spring-security/[documentation].
+
 [[whats-new-servlet]]
 === Servlet
 * Core
