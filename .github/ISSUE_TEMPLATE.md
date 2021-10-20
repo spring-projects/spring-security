@@ -1,5 +1,5 @@
 <!--
-For Security Vulnerabilities, please use https://pivotal.io/security#reporting
+For Security Vulnerabilities, please use https://spring.io/security-policy
 -->
 
 ### Summary
