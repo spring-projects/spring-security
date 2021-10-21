@@ -725,6 +725,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param atFilter the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Deprecated("Use 'addFilterAt<T>(filter)' instead.")
     fun addFilterAt(filter: Filter, atFilter: Class<out Filter>) {
         this.http.addFilterAt(filter, atFilter)
     }
@@ -751,6 +752,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param T the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Suppress("DEPRECATION")
     inline fun <reified T: Filter> addFilterAt(filter: Filter) {
         this.addFilterAt(filter, T::class.java)
     }
@@ -776,6 +778,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param afterFilter the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Deprecated("Use 'addFilterAfter<T>(filter)' instead.")
     fun addFilterAfter(filter: Filter, afterFilter: Class<out Filter>) {
         this.http.addFilterAfter(filter, afterFilter)
     }
@@ -802,6 +805,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param T the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Suppress("DEPRECATION")
     inline fun <reified T: Filter> addFilterAfter(filter: Filter) {
         this.addFilterAfter(filter, T::class.java)
     }
@@ -827,6 +831,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param beforeFilter the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Suppress("DEPRECATION")
     fun addFilterBefore(filter: Filter, beforeFilter: Class<out Filter>) {
         this.http.addFilterBefore(filter, beforeFilter)
     }
@@ -853,6 +858,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param T the location of another [Filter] that is already registered
      * (i.e. known) with Spring Security.
      */
+    @Suppress("DEPRECATION")
     inline fun <reified T: Filter> addFilterBefore(filter: Filter) {
         this.addFilterBefore(filter, T::class.java)
     }
