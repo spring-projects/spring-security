@@ -26,8 +26,7 @@ tasks.register("generateAntora") {
 		outputFile.createNewFile()
 		outputFile.setText("""name: ''
 title: Spring Security
-version: ~
-display_version: 5.6
+version: 5.6
 start_page: ROOT:index.adoc
 asciidoc:
   attributes:
