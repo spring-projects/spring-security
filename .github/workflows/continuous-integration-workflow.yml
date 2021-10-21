@@ -15,7 +15,7 @@ env:
   COMMIT_SHA: ${{ github.sha }}
   ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-  RUN_JOBS: true
+  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
 
 jobs:
   prerequisites:
