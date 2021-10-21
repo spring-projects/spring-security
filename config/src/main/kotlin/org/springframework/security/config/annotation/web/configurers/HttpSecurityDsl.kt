@@ -25,6 +25,8 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.util.ClassUtils
+import jakarta.servlet.Filter
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * Configures [HttpSecurity] using a [HttpSecurity Kotlin DSL][HttpSecurityDsl].
