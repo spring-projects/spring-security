@@ -25,7 +25,6 @@ FileTree buildFiles = fileTree(rootDir) {
 	include '**/*.gradle', '**/*.gradle.kts'
 	exclude 'build', '**/gradle', 'settings.gradle', 'buildSrc', '/build.gradle', '.*', 'out'
 	exclude '**/grails3'
-	exclude 'cas/spring-security-cas.gradle'
 	if(excludes) {
 		exclude excludes
 	}
