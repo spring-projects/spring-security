@@ -23,10 +23,12 @@ import com.nimbusds.oauth2.sdk.token.BearerTokenError;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -41,7 +43,7 @@ import org.springframework.web.client.ResponseErrorHandler;
  */
 public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 
-	private final OAuth2ErrorHttpMessageConverter oauth2ErrorConverter = new OAuth2ErrorHttpMessageConverter();
+	private HttpMessageConverter<OAuth2Error> oauth2ErrorConverter = new OAuth2ErrorHttpMessageConverter();
 
 	private final ResponseErrorHandler defaultErrorHandler = new DefaultResponseErrorHandler();
 
@@ -87,6 +89,17 @@ public class OAuth2ErrorResponseErrorHandler implements ResponseErrorHandler {
 		catch (Exception ex) {
 			return null;
 		}
+	}
+
+	/**
+	 * Sets the {@link HttpMessageConverter} for an OAuth 2.0 Error.
+	 * @param oauth2ErrorConverter A {@link HttpMessageConverter} for an
+	 * {@link OAuth2Error OAuth 2.0 Error}.
+	 * @since 5.7
+	 */
+	public final void setErrorConverter(HttpMessageConverter<OAuth2Error> oauth2ErrorConverter) {
+		Assert.notNull(oauth2ErrorConverter, "oauth2ErrorConverter cannot be null");
+		this.oauth2ErrorConverter = oauth2ErrorConverter;
 	}
 
 }
