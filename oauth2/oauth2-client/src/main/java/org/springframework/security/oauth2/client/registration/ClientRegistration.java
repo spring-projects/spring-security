@@ -112,8 +112,8 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the uri (or uri template) for the redirection endpoint.
-	 * @deprecated Use {@link #getRedirectUri()} instead
 	 * @return the uri (or uri template) for the redirection endpoint
+	 * @deprecated Use {@link #getRedirectUri()} instead
 	 */
 	@Deprecated
 	public String getRedirectUriTemplate() {
@@ -445,10 +445,10 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri (or uri template) for the redirection endpoint.
-		 * @deprecated Use {@link #redirectUri(String)} instead
 		 * @param redirectUriTemplate the uri (or uri template) for the redirection
 		 * endpoint
 		 * @return the {@link Builder}
+		 * @deprecated Use {@link #redirectUri(String)} instead
 		 */
 		@Deprecated
 		public Builder redirectUriTemplate(String redirectUriTemplate) {

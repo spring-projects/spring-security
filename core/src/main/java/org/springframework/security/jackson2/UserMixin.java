@@ -37,10 +37,10 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see UserDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UserDeserializer.class)

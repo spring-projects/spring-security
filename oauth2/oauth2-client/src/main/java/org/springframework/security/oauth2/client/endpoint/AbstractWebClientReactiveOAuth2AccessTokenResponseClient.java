@@ -35,6 +35,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.web.reactive.function.OAuth2BodyExtractors;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -69,6 +71,8 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	private WebClient webClient = WebClient.builder().build();
 
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
+
+	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::populateTokenRequestParameters;
 
 	private BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> bodyExtractor = OAuth2BodyExtractors
 			.oauth2AccessTokenResponse();
@@ -132,7 +136,19 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	}
 
 	/**
-	 * Creates and returns the body for the token request.
+	 * Populates default parameters for the token request.
+	 * @param grantRequest the grant request
+	 * @return the parameters populated for the token request.
+	 */
+	private MultiValueMap<String, String> populateTokenRequestParameters(T grantRequest) {
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add(OAuth2ParameterNames.GRANT_TYPE, grantRequest.getGrantType().getValue());
+		return parameters;
+	}
+
+	/**
+	 * Combine the results of {@code parametersConverter} and
+	 * {@link #populateTokenRequestBody}.
 	 *
 	 * <p>
 	 * This method pre-populates the body with some standard properties, and then
@@ -144,9 +160,8 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the body for the token request.
 	 */
 	private BodyInserters.FormInserter<String> createTokenRequestBody(T grantRequest) {
-		BodyInserters.FormInserter<String> body = BodyInserters.fromFormData(OAuth2ParameterNames.GRANT_TYPE,
-				grantRequest.getGrantType().getValue());
-		return populateTokenRequestBody(grantRequest, body);
+		MultiValueMap<String, String> parameters = getParametersConverter().convert(grantRequest);
+		return populateTokenRequestBody(grantRequest, BodyInserters.fromFormData(parameters));
 	}
 
 	/**
@@ -293,6 +308,56 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 				headers.addAll(headersToAdd);
 			}
 			return headers;
+		};
+	}
+
+	/**
+	 * Returns the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link MultiValueMap}
+	 * used in the OAuth 2.0 Access Token Request body.
+	 * @return the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} to {@link MultiValueMap}
+	 */
+	final Converter<T, MultiValueMap<String, String>> getParametersConverter() {
+		return this.parametersConverter;
+	}
+
+	/**
+	 * Sets the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link MultiValueMap}
+	 * used in the OAuth 2.0 Access Token Request body.
+	 * @param parametersConverter the {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} to {@link MultiValueMap}
+	 * @since 5.6
+	 */
+	public final void setParametersConverter(Converter<T, MultiValueMap<String, String>> parametersConverter) {
+		Assert.notNull(parametersConverter, "parametersConverter cannot be null");
+		this.parametersConverter = parametersConverter;
+	}
+
+	/**
+	 * Add (compose) the provided {@code parametersConverter} to the current
+	 * {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} instance to a {@link MultiValueMap}
+	 * used in the OAuth 2.0 Access Token Request body.
+	 * @param parametersConverter the {@link Converter} to add (compose) to the current
+	 * {@link Converter} used for converting the
+	 * {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link MultiValueMap}
+	 * @since 5.6
+	 */
+	public final void addParametersConverter(Converter<T, MultiValueMap<String, String>> parametersConverter) {
+		Assert.notNull(parametersConverter, "parametersConverter cannot be null");
+		Converter<T, MultiValueMap<String, String>> currentParametersConverter = this.parametersConverter;
+		this.parametersConverter = (authorizationGrantRequest) -> {
+			MultiValueMap<String, String> parameters = currentParametersConverter.convert(authorizationGrantRequest);
+			if (parameters == null) {
+				parameters = new LinkedMultiValueMap<>();
+			}
+			MultiValueMap<String, String> parametersToAdd = parametersConverter.convert(authorizationGrantRequest);
+			if (parametersToAdd != null) {
+				parameters.addAll(parametersToAdd);
+			}
+			return parameters;
 		};
 	}
 

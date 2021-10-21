@@ -47,9 +47,9 @@ import org.springframework.security.core.GrantedAuthority;
  * called @class</i>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,

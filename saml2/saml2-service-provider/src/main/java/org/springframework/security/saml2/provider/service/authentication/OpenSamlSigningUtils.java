@@ -147,6 +147,10 @@ final class OpenSamlSigningUtils {
 		return credentials;
 	}
 
+	private OpenSamlSigningUtils() {
+
+	}
+
 	static class QueryParametersPartial {
 
 		final RelyingPartyRegistration registration;
@@ -184,10 +188,6 @@ final class OpenSamlSigningUtils {
 			}
 			return this.components;
 		}
-
-	}
-
-	private OpenSamlSigningUtils() {
 
 	}
 

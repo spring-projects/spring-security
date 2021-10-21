@@ -76,7 +76,7 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 				mi.getMethodInvocation());
 		this.expressionHandler.setReturnObject(mi.getResult(), ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new AuthorizationDecision(granted);
+		return new ExpressionAttributeAuthorizationDecision(granted, attribute);
 	}
 
 	private final class PostAuthorizeExpressionAttributeRegistry

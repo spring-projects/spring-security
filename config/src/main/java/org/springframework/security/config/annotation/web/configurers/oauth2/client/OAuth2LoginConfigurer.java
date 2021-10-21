@@ -683,10 +683,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Sets a custom {@link OAuth2User} type and associates it to the provided client
 		 * {@link ClientRegistration#getRegistrationId() registration identifier}.
-		 * @deprecated See {@link CustomUserTypesOAuth2UserService} for alternative usage.
 		 * @param customUserType a custom {@link OAuth2User} type
 		 * @param clientRegistrationId the client registration identifier
 		 * @return the {@link UserInfoEndpointConfig} for further configuration
+		 * @deprecated See {@link CustomUserTypesOAuth2UserService} for alternative usage.
 		 */
 		@Deprecated
 		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType,

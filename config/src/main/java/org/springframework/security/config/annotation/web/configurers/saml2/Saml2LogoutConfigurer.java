@@ -253,7 +253,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(registrations,
 				this.logoutRequestConfigurer.logoutRequestValidator(), logoutResponseResolver, logoutHandlers);
 		filter.setLogoutRequestMatcher(createLogoutRequestMatcher());
-		return filter;
+		return postProcess(filter);
 	}
 
 	private Saml2LogoutResponseFilter createLogoutResponseProcessingFilter(
@@ -262,7 +262,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 				this.logoutResponseConfigurer.logoutResponseValidator(), this.logoutSuccessHandler);
 		logoutResponseFilter.setLogoutRequestMatcher(createLogoutResponseMatcher());
 		logoutResponseFilter.setLogoutRequestRepository(this.logoutRequestConfigurer.logoutRequestRepository);
-		return logoutResponseFilter;
+		return postProcess(logoutResponseFilter);
 	}
 
 	private LogoutFilter createRelyingPartyLogoutFilter(RelyingPartyRegistrationResolver registrations) {
@@ -271,7 +271,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 				registrations);
 		LogoutFilter logoutFilter = new LogoutFilter(logoutRequestSuccessHandler, logoutHandlers);
 		logoutFilter.setLogoutRequestMatcher(createLogoutMatcher());
-		return logoutFilter;
+		return postProcess(logoutFilter);
 	}
 
 	private RequestMatcher createLogoutMatcher() {

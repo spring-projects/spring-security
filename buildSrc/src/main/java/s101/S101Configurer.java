@@ -125,7 +125,7 @@ public class S101Configurer {
 	}
 
 	private String installBuildTool(File installationDirectory, File configurationDirectory) {
-		String source = "https://structure101.com/binaries/v6";
+		String source = "https://structure101.com/binaries/19159";
 		try (final WebClient webClient = new WebClient()) {
 			HtmlPage page = webClient.getPage(source);
 			for (HtmlAnchor anchor : page.getAnchors()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2020 the original author or authors.
+ * Copyright 2009-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.util.InMemoryResource;
 /**
  * @author Luke Taylor
  * @author Eddú Meléndez
+ * @author Emil Sierżęga
  */
 public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext {
 
@@ -42,7 +43,7 @@ public class InMemoryXmlApplicationContext extends AbstractXmlApplicationContext
 			+ "http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context-2.5.xsd\n"
 			+ "http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-";
 	static final String BEANS_CLOSE = "</b:beans>\n";
-	static final String SPRING_SECURITY_VERSION = "5.4";
+	static final String SPRING_SECURITY_VERSION = SpringSecurityVersions.getCurrentXsdVersionFromSpringSchemas();
 
 	Resource inMemoryXml;
 

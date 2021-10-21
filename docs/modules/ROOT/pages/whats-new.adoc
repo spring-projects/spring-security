@@ -4,11 +4,14 @@
 Spring Security 5.6 provides a number of new features.
 Below are the highlights of the release.
 
+* All new https://antora.org/[Antora] based https://docs.spring.io/spring-security/[documentation].
+
 [[whats-new-servlet]]
 === Servlet
 * Core
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/10226[`SecurityContextChangedListener`]
+** Improved https://github.com/spring-projects/spring-security/pull/10279[Method Security Logging]
 
 * Configuration
 
@@ -28,9 +31,10 @@ Below are the highlights of the release.
 
 * OAuth 2.0 Client
 
-** Improved https://github.com/spring-projects/spring-security/pull/9791[client credentials] encoding
-** Improved https://github.com/spring-projects/spring-security/pull/9779[access token response] parsing
-** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for authorization requests
+** Improved https://github.com/spring-projects/spring-security/pull/9791[Client Credentials encoding]
+** Improved https://github.com/spring-projects/spring-security/pull/9779[Access Token Response parsing]
+** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for Authorization Requests
+** Introduced https://github.com/spring-projects/spring-security/pull/9208[JwtEncoder]
 
 * Testing
 
@@ -39,5 +43,11 @@ Below are the highlights of the release.
 [[whats-new-webflux]]
 === WebFlux
 
-** Improved https://github.com/spring-projects/spring-security/pull/9791[client credentials] encoding
-** Added https://github.com/spring-projects/spring-security/pull/10131[custom headers support] for access token requests
+* OAuth 2.0 Client
+
+** Improved https://github.com/spring-projects/spring-security/pull/9791[Client Credentials encoding]
+** Added https://github.com/spring-projects/spring-security/pull/10131[custom headers support] for Access Token Requests
+** Added https://github.com/spring-projects/spring-security/pull/10269[custom response parsing] for Access Token Requests
+** Added https://github.com/spring-projects/spring-security/pull/10327[jwt-bearer Grant Type support] for Access Token Requests
+** Added https://github.com/spring-projects/spring-security/pull/10336[JWT Client Authentication support] for Access Token Requests
+** Improved https://github.com/spring-projects/spring-security/pull/10373[Reactive OAuth 2.0 Client Documentation]

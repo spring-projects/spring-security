@@ -27,8 +27,8 @@ import org.springframework.security.config.annotation.authentication.builders.Au
  * {@link AuthenticationConfiguration} to configure the global
  * {@link AuthenticationManagerBuilder}.
  *
- * @since 5.0
  * @author Rob Winch
+ * @since 5.0
  */
 @Order(100)
 public abstract class GlobalAuthenticationConfigurerAdapter

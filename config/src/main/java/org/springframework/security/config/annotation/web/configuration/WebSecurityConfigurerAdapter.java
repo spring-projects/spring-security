@@ -87,8 +87,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyClassThatExtendsAbstractHttpConfigurer, sample.OtherThatExtendsAbstractHttpConfigurer
  * </pre>
  *
- * @see EnableWebSecurity
  * @author Rob Winch
+ * @see EnableWebSecurity
  */
 @Order(100)
 public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer<WebSecurity> {

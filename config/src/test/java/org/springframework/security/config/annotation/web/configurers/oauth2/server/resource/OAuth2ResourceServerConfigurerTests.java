@@ -360,7 +360,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.spring.register(JwkSetUriConfig.class).autowire();
 		// engage csrf
 		// @formatter:off
-		this.mvc.perform(post("/").with(bearerToken("token").asParam()))
+		this.mvc.perform(post("/").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).with(bearerToken("token").asParam()))
 				.andExpect(status().isForbidden())
 				.andExpect(header().doesNotExist(HttpHeaders.WWW_AUTHENTICATE));
 		// @formatter:on
@@ -370,7 +370,7 @@ public class OAuth2ResourceServerConfigurerTests {
 	public void postWhenCsrfDisabledWithBearerTokenAsFormParameterThenIgnoresToken() throws Exception {
 		this.spring.register(CsrfDisabledConfig.class).autowire();
 		// @formatter:off
-		this.mvc.perform(post("/").with(bearerToken("token").asParam()))
+		this.mvc.perform(post("/").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).with(bearerToken("token").asParam()))
 				.andExpect(status().isUnauthorized())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer"));
 		// @formatter:on
@@ -536,7 +536,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
-		this.mvc.perform(post("/authenticated").with(bearerToken(token)))
+		this.mvc.perform(post("/authenticated").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).with(bearerToken(token)))
 				.andExpect(status().isOk())
 				.andExpect(content().string("test-subject"));
 		// @formatter:on
@@ -558,7 +558,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		mockRestOperations(jwks("Default"));
 		String token = this.token("Expired");
 		// @formatter:off
-		this.mvc.perform(post("/authenticated").with(bearerToken(token)))
+		this.mvc.perform(post("/authenticated").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).with(bearerToken(token)))
 				.andExpect(status().isUnauthorized())
 				.andExpect(invalidTokenHeader("An error occurred while attempting to decode the Jwt"));
 		// @formatter:on
@@ -626,7 +626,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		this.mvc.perform(get("/authenticated").with(bearerToken(JWT_TOKEN)))
 				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
-		this.mvc.perform(post("/authenticated").param("access_token", JWT_TOKEN))
+		this.mvc.perform(post("/authenticated").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).param("access_token", JWT_TOKEN))
 				.andExpect(status().isOk())
 				.andExpect(content().string(JWT_SUBJECT));
 		// @formatter:on
@@ -659,6 +659,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		given(decoder.decode(anyString())).willReturn(JWT);
 		// @formatter:off
 		MockHttpServletRequestBuilder request = post("/authenticated")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.param("access_token", JWT_TOKEN)
 				.with(bearerToken(JWT_TOKEN))
 				.with(csrf());

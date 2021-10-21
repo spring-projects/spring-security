@@ -490,8 +490,8 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.1
-	 * @see FeaturePolicyHeaderWriter
 	 * @deprecated Use {@link #permissionsPolicy(Customizer)} instead.
+	 * @seeObjectPostProcessorConfiguration FeaturePolicyHeaderWriter
 	 */
 	@Deprecated
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {

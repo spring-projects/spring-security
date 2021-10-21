@@ -78,11 +78,11 @@ import org.springframework.web.method.support.ModelAndViewContainer;
  * }
  * </pre>
  *
+ * @author Rob Winch
+ * @since 3.2
  * @deprecated Use
  * {@link org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver}
  * instead.
- * @author Rob Winch
- * @since 3.2
  */
 @Deprecated
 public final class AuthenticationPrincipalArgumentResolver implements HandlerMethodArgumentResolver {

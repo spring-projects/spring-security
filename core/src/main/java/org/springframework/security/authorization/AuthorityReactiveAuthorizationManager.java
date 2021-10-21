@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,13 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Arrays;
 import java.util.List;
 
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -35,10 +35,10 @@ import org.springframework.util.Assert;
  */
 public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthorizationManager<T> {
 
-	private final List<String> authorities;
+	private final List<GrantedAuthority> authorities;
 
 	AuthorityReactiveAuthorizationManager(String... authorities) {
-		this.authorities = Arrays.asList(authorities);
+		this.authorities = AuthorityUtils.createAuthorityList(authorities);
 	}
 
 	@Override
@@ -46,10 +46,9 @@ public class AuthorityReactiveAuthorizationManager<T> implements ReactiveAuthori
 		// @formatter:off
 		return authentication.filter((a) -> a.isAuthenticated())
 				.flatMapIterable(Authentication::getAuthorities)
-				.map(GrantedAuthority::getAuthority)
 				.any(this.authorities::contains)
-				.map(AuthorizationDecision::new)
-				.defaultIfEmpty(new AuthorizationDecision(false));
+				.map((granted) -> ((AuthorizationDecision) new AuthorityAuthorizationDecision(granted, this.authorities)))
+				.defaultIfEmpty(new AuthorityAuthorizationDecision(false, this.authorities));
 		// @formatter:on
 	}
 

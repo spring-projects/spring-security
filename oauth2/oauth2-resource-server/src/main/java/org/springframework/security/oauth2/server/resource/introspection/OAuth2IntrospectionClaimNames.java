@@ -23,9 +23,9 @@ import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNam
  * <a target="_blank" href="https://tools.ietf.org/html/rfc7662#section-2.2">Introspection
  * Response</a>.
  *
- * @deprecated Use {@link OAuth2TokenIntrospectionClaimNames} instead
  * @author Josh Cummings
  * @since 5.2
+ * @deprecated Use {@link OAuth2TokenIntrospectionClaimNames} instead
  */
 @Deprecated
 public interface OAuth2IntrospectionClaimNames extends OAuth2TokenIntrospectionClaimNames {

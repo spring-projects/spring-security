@@ -628,6 +628,20 @@ public class OpenSaml4AuthenticationProviderTests {
 		verify(validator).convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class));
 	}
 
+	@Test
+	public void authenticateWhenAssertionIssuerNotValidThenFailsWithInvalidIssuer() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		Response response = response();
+		Assertion assertion = assertion();
+		assertion.setIssuer(TestOpenSamlObjects.issuer("https://invalid.idp.test/saml2/idp"));
+		response.getAssertions().add(assertion);
+		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				ASSERTING_PARTY_ENTITY_ID);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
+				.withMessageContaining("did not match any valid issuers");
+	}
+
 	private <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}

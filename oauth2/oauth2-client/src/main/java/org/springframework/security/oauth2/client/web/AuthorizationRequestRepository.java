@@ -59,12 +59,12 @@ public interface AuthorizationRequestRepository<T extends OAuth2AuthorizationReq
 	/**
 	 * Removes and returns the {@link OAuth2AuthorizationRequest} associated to the
 	 * provided {@code HttpServletRequest} or if not available returns {@code null}.
-	 * @deprecated Use
-	 * {@link #removeAuthorizationRequest(HttpServletRequest, HttpServletResponse)}
-	 * instead
 	 * @param request the {@code HttpServletRequest}
 	 * @return the removed {@link OAuth2AuthorizationRequest} or {@code null} if not
 	 * available
+	 * @deprecated Use
+	 * {@link #removeAuthorizationRequest(HttpServletRequest, HttpServletResponse)}
+	 * instead
 	 */
 	@Deprecated
 	T removeAuthorizationRequest(HttpServletRequest request);

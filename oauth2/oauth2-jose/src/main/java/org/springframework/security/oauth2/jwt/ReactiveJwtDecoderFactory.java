@@ -21,11 +21,11 @@ package org.springframework.security.oauth2.jwt;
  * type that provides contextual information used to create a specific
  * {@code ReactiveJwtDecoder}.
  *
+ * @param <C> The type that provides contextual information used to create a specific
+ * {@code ReactiveJwtDecoder}.
  * @author Joe Grandja
  * @since 5.2
  * @see ReactiveJwtDecoder
- * @param <C> The type that provides contextual information used to create a specific
- * {@code ReactiveJwtDecoder}.
  */
 @FunctionalInterface
 public interface ReactiveJwtDecoderFactory<C> {

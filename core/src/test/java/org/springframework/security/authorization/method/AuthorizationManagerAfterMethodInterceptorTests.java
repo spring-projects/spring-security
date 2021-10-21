@@ -53,7 +53,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 	}
 
 	@Test
-	public void beforeWhenMockAuthorizationManagerThenVerifyAndReturnedObject() throws Throwable {
+	public void beforeWhenMockAuthorizationManagerThenCheckAndReturnedObject() throws Throwable {
 		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
 		MethodInvocationResult result = new MethodInvocationResult(mockMethodInvocation, new Object());
 		given(mockMethodInvocation.proceed()).willReturn(result.getResult());
@@ -62,7 +62,7 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 				Pointcut.TRUE, mockAuthorizationManager);
 		Object returnedObject = advice.invoke(mockMethodInvocation);
 		assertThat(returnedObject).isEqualTo(result.getResult());
-		verify(mockAuthorizationManager).verify(eq(AuthorizationManagerAfterMethodInterceptor.AUTHENTICATION_SUPPLIER),
+		verify(mockAuthorizationManager).check(eq(AuthorizationManagerAfterMethodInterceptor.AUTHENTICATION_SUPPLIER),
 				any(MethodInvocationResult.class));
 	}
 

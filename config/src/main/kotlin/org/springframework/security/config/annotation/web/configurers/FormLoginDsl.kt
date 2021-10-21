@@ -16,12 +16,12 @@
 
 package org.springframework.security.config.annotation.web.configurers
 
-import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] form login using idiomatic Kotlin code.

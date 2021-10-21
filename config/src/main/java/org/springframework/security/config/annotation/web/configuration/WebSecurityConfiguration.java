@@ -60,11 +60,11 @@ import org.springframework.util.Assert;
  * {@link WebSecurityConfigurer} and exposing it as a {@link Configuration}. This
  * configuration is imported when using {@link EnableWebSecurity}.
  *
- * @see EnableWebSecurity
- * @see WebSecurity
  * @author Rob Winch
  * @author Keesun Baik
  * @since 3.2
+ * @see EnableWebSecurity
+ * @see WebSecurity
  */
 @Configuration(proxyBeanMethods = false)
 public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAware {

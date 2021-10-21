@@ -61,12 +61,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
+import org.springframework.security.oauth2.client.JwtBearerReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
+import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
@@ -78,6 +80,8 @@ import org.springframework.security.oauth2.client.registration.TestClientRegistr
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.UnAuthenticatedServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -87,6 +91,8 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.client.ClientRequest;
@@ -132,6 +138,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	private ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient;
 
 	@Mock
+	private ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient;
+
+	@Mock
 	private ReactiveOAuth2AuthorizationFailureHandler authorizationFailureHandler;
 
 	@Captor
@@ -162,6 +171,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@BeforeEach
 	public void setup() {
 		// @formatter:off
+		JwtBearerReactiveOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = new JwtBearerReactiveOAuth2AuthorizedClientProvider();
+		jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(this.jwtBearerTokenResponseClient);
 		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
 				.builder()
 				.authorizationCode()
@@ -170,6 +181,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.clientCredentials(
 						(configurer) -> configurer.accessTokenResponseClient(this.clientCredentialsTokenResponseClient))
 				.password((configurer) -> configurer.accessTokenResponseClient(this.passwordTokenResponseClient))
+				.provider(jwtBearerAuthorizedClientProvider)
 				.build();
 		// @formatter:on
 		this.authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
@@ -394,6 +406,49 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThat(request0.url().toASCIIString()).isEqualTo("https://example.com");
 		assertThat(request0.method()).isEqualTo(HttpMethod.GET);
 		assertThat(getBody(request0)).isEmpty();
+	}
+
+	@Test
+	public void filterWhenJwtBearerClientNotAuthorizedThenExchangeToken() {
+		setupMocks();
+		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("exchanged-token")
+				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
+		given(this.jwtBearerTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
+		ClientRegistration registration = ClientRegistration.withRegistrationId("jwt-bearer")
+				.clientId("client-id")
+				.clientSecret("client-secret")
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+				.scope("read", "write")
+				.tokenUri("https://example.com/oauth/token")
+				.build();
+		// @formatter:on
+		given(this.clientRegistrationRepository.findByRegistrationId(eq(registration.getRegistrationId())))
+				.willReturn(Mono.just(registration));
+		Jwt jwtAssertion = TestJwts.jwt().build();
+		Authentication jwtAuthentication = new TestingAuthenticationToken(jwtAssertion, jwtAssertion);
+		given(this.authorizedClientRepository.loadAuthorizedClient(eq(registration.getRegistrationId()),
+				eq(jwtAuthentication), any())).willReturn(Mono.empty());
+		// @formatter:off
+		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
+				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId(registration.getRegistrationId()))
+				.build();
+		// @formatter:on
+		this.function.filter(request, this.exchange)
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(jwtAuthentication))
+				.subscriberContext(serverWebExchange()).block();
+		verify(this.jwtBearerTokenResponseClient).getTokenResponse(any());
+		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(registration.getRegistrationId()),
+				eq(jwtAuthentication), any());
+		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(jwtAuthentication), any());
+		List<ClientRequest> requests = this.exchange.getRequests();
+		assertThat(requests).hasSize(1);
+		ClientRequest request1 = requests.get(0);
+		assertThat(request1.headers().getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer exchanged-token");
+		assertThat(request1.url().toASCIIString()).isEqualTo("https://example.com");
+		assertThat(request1.method()).isEqualTo(HttpMethod.GET);
+		assertThat(getBody(request1)).isEmpty();
 	}
 
 	@Test

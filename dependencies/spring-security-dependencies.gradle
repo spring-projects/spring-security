@@ -8,18 +8,18 @@ javaPlatform {
 
 dependencies {
 	api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
-	api platform("io.projectreactor:reactor-bom:2020.0.11")
+	api platform("io.projectreactor:reactor-bom:2020.0.12")
 	api platform("io.rsocket:rsocket-bom:1.1.1")
-	api platform("org.junit:junit-bom:5.8.0")
+	api platform("org.junit:junit-bom:5.8.1")
 	api platform("org.springframework.data:spring-data-bom:2022.1.0-SNAPSHOT")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.5.2")
-	api platform("com.fasterxml.jackson:jackson-bom:2.12.5")
+	api platform("com.fasterxml.jackson:jackson-bom:2.13.0")
 	constraints {
 		api "ch.qos.logback:logback-classic:1.2.6"
 		api "com.google.inject:guice:3.0"
-		api "com.nimbusds:nimbus-jose-jwt:9.12.1"
-		api "com.nimbusds:oauth2-oidc-sdk:9.15"
+		api "com.nimbusds:nimbus-jose-jwt:9.14"
+		api "com.nimbusds:oauth2-oidc-sdk:9.18"
 		api "com.squareup.okhttp3:mockwebserver:3.14.9"
 		api "com.squareup.okhttp3:okhttp:3.14.9"
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
@@ -34,7 +34,7 @@ dependencies {
 		api "jakarta.xml.bind:jakarta.xml.bind-api:3.0.1"
 		api "jakarta.persistence:jakarta.persistence-api:3.0.0"
 		api "ldapsdk:ldapsdk:4.1"
-		api "net.sourceforge.htmlunit:htmlunit:2.52.0"
+		api "net.sourceforge.htmlunit:htmlunit:2.54.0"
 		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
 		api "org.apache.directory.server:apacheds-core:1.5.5"
@@ -45,14 +45,14 @@ dependencies {
 		api "org.apache.httpcomponents:httpclient:4.5.13"
 		api "org.aspectj:aspectjrt:$aspectjVersion"
 		api "org.aspectj:aspectjweaver:$aspectjVersion"
-		api "org.assertj:assertj-core:3.20.2"
+		api "org.assertj:assertj-core:3.21.0"
 		api "org.bouncycastle:bcpkix-jdk15on:1.69"
 		api "org.bouncycastle:bcprov-jdk15on:1.69"
 		api "org.eclipse.jetty:jetty-server:11.0.6"
 		api "org.eclipse.jetty:jetty-servlet:11.0.6"
 		api "jakarta.persistence:jakarta.persistence-api:3.0.0"
 		api "org.hamcrest:hamcrest:2.2"
-		api "org.hibernate:hibernate-core-jakarta:5.5.7.Final"
+		api "org.hibernate:hibernate-core-jakarta:5.6.0.Final"
 		api "org.hsqldb:hsqldb:2.6.0"
 		api "org.jasig.cas.client:cas-client-core:3.6.2"
 		api "org.mockito:mockito-core:3.12.4"

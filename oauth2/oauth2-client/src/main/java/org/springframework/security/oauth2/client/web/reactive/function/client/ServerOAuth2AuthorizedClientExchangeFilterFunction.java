@@ -355,6 +355,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	/**
 	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} used for getting an
 	 * {@link OAuth2AuthorizedClient} for the client_credentials grant.
+	 * @param clientCredentialsTokenResponseClient the client to use
 	 * @deprecated Use
 	 * {@link #ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)}
 	 * instead. Create an instance of
@@ -364,7 +365,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 * supply it to
 	 * {@link DefaultReactiveOAuth2AuthorizedClientManager#setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProvider)
 	 * DefaultReactiveOAuth2AuthorizedClientManager}.
-	 * @param clientCredentialsTokenResponseClient the client to use
 	 */
 	@Deprecated
 	public void setClientCredentialsTokenResponseClient(
@@ -407,13 +407,13 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	/**
 	 * An access token will be considered expired by comparing its expiration to now +
 	 * this skewed Duration. The default is 1 minute.
+	 * @param accessTokenExpiresSkew the Duration to use.
 	 * @deprecated The {@code accessTokenExpiresSkew} should be configured with the
 	 * specific {@link ReactiveOAuth2AuthorizedClientProvider} implementation, e.g.
 	 * {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 	 * ClientCredentialsReactiveOAuth2AuthorizedClientProvider} or
 	 * {@link RefreshTokenReactiveOAuth2AuthorizedClientProvider#setClockSkew(Duration)
 	 * RefreshTokenReactiveOAuth2AuthorizedClientProvider}.
-	 * @param accessTokenExpiresSkew the Duration to use.
 	 */
 	@Deprecated
 	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {

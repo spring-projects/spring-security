@@ -47,7 +47,7 @@ import org.springframework.security.web.savedrequest.SavedCookie;
 public class WebServletJackson2Module extends SimpleModule {
 
 	public WebServletJackson2Module() {
-		super(WebJackson2Module.class.getName(), new Version(1, 0, 0, null, null, null));
+		super(WebServletJackson2Module.class.getName(), new Version(1, 0, 0, null, null, null));
 	}
 
 	@Override

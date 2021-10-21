@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.web.access;
 
 import java.util.Collection;
 
+import jakarta.servlet.ServletContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -28,6 +30,7 @@ import org.springframework.security.access.intercept.AbstractSecurityInterceptor
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ServletContextAware;
 
 /**
  * Allows users to determine whether they have privileges for a given web URI.
@@ -36,11 +39,13 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
+public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator, ServletContextAware {
 
 	protected static final Log logger = LogFactory.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
 
 	private final AbstractSecurityInterceptor securityInterceptor;
+
+	private ServletContext servletContext;
 
 	public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
@@ -82,7 +87,7 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 	@Override
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
-		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method);
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()
 				.getAttributes(filterInvocation);
 		if (attributes == null) {
@@ -99,6 +104,11 @@ public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPriv
 			logger.debug(LogMessage.format("%s denied for %s", filterInvocation, authentication), ex);
 			return false;
 		}
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 
 }

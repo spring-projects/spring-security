@@ -40,9 +40,9 @@ import org.springframework.security.core.GrantedAuthority;
  * <i>Note: This class will save full class name into a property called @class</i>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, isGetterVisibility = JsonAutoDetect.Visibility.NONE,

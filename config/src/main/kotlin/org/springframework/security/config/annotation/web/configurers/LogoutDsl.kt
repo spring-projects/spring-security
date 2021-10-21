@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configurers
 
-import jakarta.servlet.http.HttpSession
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.access.AccessDeniedHandler
@@ -24,6 +23,8 @@ import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
+import java.util.*
+import jakarta.servlet.http.HttpSession
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] logout support

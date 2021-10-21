@@ -261,6 +261,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	public void postWhenBearerTokenAsFormParameterThenIgnoresToken() throws Exception {
 		this.spring.configLocations(xml("JwkSetUri")).autowire();
 		this.mvc.perform(post("/") // engage csrf
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.param("access_token", "token")).andExpect(status().isForbidden())
 				.andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, "Bearer")); // different
 																						// from
@@ -451,7 +452,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		// @formatter:off
 		this.mvc.perform(get("/authenticated").header("Authorization", "Bearer token"))
 				.andExpect(status().isNotFound());
-		this.mvc.perform(post("/authenticated").param("access_token", "token"))
+		this.mvc.perform(post("/authenticated").header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE).param("access_token", "token"))
 				.andExpect(status().isNotFound());
 		// @formatter:on
 	}
@@ -477,6 +478,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MockJwtDecoder"), xml("AllowBearerTokenInBody")).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder request = post("/authenticated")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.param("access_token", "token")
 				.header("Authorization", "Bearer token")
 				.with(csrf());

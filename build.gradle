@@ -58,7 +58,6 @@ updateDependenciesSettings {
 	}
 	addFiles({
 		return [
-				project.file("buildSrc/src/main/java/io/spring/gradle/convention/AsciidoctorConventionPlugin.java"),
 				project.file("buildSrc/src/main/groovy/io/spring/gradle/convention/CheckstylePlugin.groovy")
 		]
 	})

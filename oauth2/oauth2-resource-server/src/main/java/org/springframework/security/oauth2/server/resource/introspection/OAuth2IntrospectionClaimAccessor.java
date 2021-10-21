@@ -25,7 +25,6 @@ import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNam
  * A {@link ClaimAccessor} for the &quot;claims&quot; that may be contained in the
  * Introspection Response.
  *
- * @deprecated Use {@link OAuth2TokenIntrospectionClaimAccessor} instead
  * @author David Kovac
  * @since 5.4
  * @see ClaimAccessor
@@ -33,6 +32,7 @@ import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNam
  * @see OAuth2IntrospectionAuthenticatedPrincipal
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
+ * @deprecated Use {@link OAuth2TokenIntrospectionClaimAccessor} instead
  */
 @Deprecated
 public interface OAuth2IntrospectionClaimAccessor extends OAuth2TokenIntrospectionClaimAccessor {

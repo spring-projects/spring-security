@@ -25,10 +25,10 @@ import org.springframework.core.convert.converter.Converter;
  * A {@link Converter} that converts the provided OAuth 2.0 Access Token Response
  * parameters to an {@link OAuth2AccessTokenResponse}.
  *
- * @deprecated Use {@link DefaultMapOAuth2AccessTokenResponseConverter} instead
  * @author Joe Grandja
  * @author Nikita Konev
  * @since 5.3
+ * @deprecated Use {@link DefaultMapOAuth2AccessTokenResponseConverter} instead
  */
 @Deprecated
 public final class MapOAuth2AccessTokenResponseConverter

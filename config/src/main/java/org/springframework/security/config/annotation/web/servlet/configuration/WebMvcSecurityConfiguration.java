@@ -37,9 +37,9 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
  * {@link AuthenticationPrincipalArgumentResolver} as a
  * {@link HandlerMethodArgumentResolver}.
  *
- * @deprecated This is applied internally using SpringWebMvcImportSelector
  * @author Rob Winch
  * @since 3.2
+ * @deprecated This is applied internally using SpringWebMvcImportSelector
  */
 @Deprecated
 @Configuration(proxyBeanMethods = false)

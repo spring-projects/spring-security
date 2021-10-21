@@ -79,8 +79,8 @@ import org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsSe
  * }
  * </pre>
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @Import(ObjectPostProcessorConfiguration.class)
