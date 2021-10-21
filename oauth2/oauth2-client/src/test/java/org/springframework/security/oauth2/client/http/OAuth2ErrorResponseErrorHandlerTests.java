@@ -23,12 +23,19 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
+import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.web.client.UnknownHttpStatusCodeException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OAuth2ErrorResponseErrorHandler}.
@@ -51,6 +58,26 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 		assertThatExceptionOfType(OAuth2AuthorizationException.class)
 				.isThrownBy(() -> this.errorHandler.handleError(response))
 				.withMessage("[unauthorized_client] The client is not authorized");
+	}
+
+	@Test
+	public void handleErrorWhenOAuth2ErrorConverterSetThenCalled() throws IOException {
+		HttpMessageConverter<OAuth2Error> oauth2ErrorConverter = mock(HttpMessageConverter.class);
+		this.errorHandler.setErrorConverter(oauth2ErrorConverter);
+		// @formatter:off
+		String errorResponse = "{\n"
+				+ "   \"errorCode\": \"unauthorized_client\",\n"
+				+ "   \"errorSummary\": \"The client is not authorized\"\n"
+				+ "}\n";
+		// @formatter:on
+		MockClientHttpResponse response = new MockClientHttpResponse(errorResponse.getBytes(), HttpStatus.BAD_REQUEST);
+		given(oauth2ErrorConverter.read(any(), any()))
+				.willReturn(new OAuth2Error("unauthorized_client", "The client is not authorized", null));
+
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(() -> this.errorHandler.handleError(response))
+				.withMessage("[unauthorized_client] The client is not authorized");
+		verify(oauth2ErrorConverter).read(eq(OAuth2Error.class), eq(response));
 	}
 
 	@Test
