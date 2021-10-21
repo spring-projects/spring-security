@@ -24,7 +24,9 @@ import org.springframework.security.core.GrantedAuthority;
  * Allows remote clients to attempt authentication.
  *
  * @author Ben Alex
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public interface RemoteAuthenticationManager {
 
 	/**
