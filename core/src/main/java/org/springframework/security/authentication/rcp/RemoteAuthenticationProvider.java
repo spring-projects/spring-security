@@ -49,7 +49,9 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class RemoteAuthenticationProvider implements AuthenticationProvider, InitializingBean {
 
 	private RemoteAuthenticationManager remoteAuthenticationManager;

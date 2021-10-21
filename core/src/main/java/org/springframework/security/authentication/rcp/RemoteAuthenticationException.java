@@ -28,7 +28,9 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * issues for the remoting protocol.
  *
  * @author Ben Alex
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class RemoteAuthenticationException extends NestedRuntimeException {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;

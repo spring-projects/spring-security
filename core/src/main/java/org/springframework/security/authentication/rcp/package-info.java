@@ -17,5 +17,6 @@
 /**
  * Allows remote clients to authenticate and obtain a populated
  * <code>Authentication</code> object.
+ * @deprecated as of 5.6.0 with no replacement
  */
 package org.springframework.security.authentication.rcp;

@@ -32,7 +32,9 @@ import org.springframework.util.Assert;
  * configured <code>AuthenticationManager</code> to resolve an authentication request.
  *
  * @author Ben Alex
+ * @deprecated as of 5.6.0 with no replacement
  */
+@Deprecated
 public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationManager, InitializingBean {
 
 	private AuthenticationManager authenticationManager;
