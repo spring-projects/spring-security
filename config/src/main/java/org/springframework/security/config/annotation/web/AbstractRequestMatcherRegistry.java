@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * {@link HttpMethod}.
 	 * @param antPatterns the ant patterns to create. If {@code null} or empty, then
 	 * matches on nothing.
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} from
 	 * @return the object that is chained after creating the {@link RequestMatcher}
 	 */
 	public C antMatchers(HttpMethod method, String... antPatterns) {
