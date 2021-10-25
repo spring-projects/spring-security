@@ -18,11 +18,11 @@ jobs:
         run: ./gradlew :spring-security-docs:generateAntora
       - name: Extract Branch Name
         id: extract_branch_name
-        run: echo "##[set-output name=branch_name;]$(echo ${GITHUB_REF##*/})"
+        run: echo "##[set-output name=generated_branch_name;]$(echo ${GITHUB_REPOSITORY}/${GITHUB_REF##*/})"
       - name: Push generated antora files to the spring-generated-docs
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
-          branch:  ${{ steps.extract_branch_name.outputs.branch_name }} # The branch the action should deploy to.
+          branch:  ${{ steps.extract_branch_name.outputs.generated_branch_name }} # The branch the action should deploy to.
           folder: "docs/build/generateAntora" # The folder the action should deploy.
           repository-name: "spring-io/spring-generated-docs"
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
