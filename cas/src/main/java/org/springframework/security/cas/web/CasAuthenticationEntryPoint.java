@@ -21,6 +21,8 @@ import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.jasig.cas.client.util.CommonUtils;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.AuthenticationException;
@@ -94,7 +96,7 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 	 */
 	protected String createRedirectUrl(String serviceUrl) {
 		return CommonUtils.constructRedirectUrl(this.loginUrl, this.serviceProperties.getServiceParameter(), serviceUrl,
-				this.serviceProperties.isSendRenew(), false, null);
+				this.serviceProperties.isSendRenew(), false);
 	}
 
 	/**
