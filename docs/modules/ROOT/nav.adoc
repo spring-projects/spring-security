@@ -42,7 +42,6 @@
 *** xref:servlet/authentication/anonymous.adoc[Anonymous]
 *** xref:servlet/authentication/preauth.adoc[Pre-Authentication]
 *** xref:servlet/authentication/jaas.adoc[JAAS]
-*** xref:servlet/authentication/cas.adoc[CAS]
 *** xref:servlet/authentication/x509.adoc[X509]
 *** xref:servlet/authentication/runas.adoc[Run-As]
 *** xref:servlet/authentication/logout.adoc[Logout]

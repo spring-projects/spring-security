@@ -16,7 +16,6 @@ These sections focus on specific ways you may want to authenticate and point bac
 * xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd[Username and Password] - how to authenticate with a username/password
 * xref:servlet/oauth2/oauth2-login.adoc#oauth2login[OAuth 2.0 Login] - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
 * xref:servlet/saml2/index.adoc#servlet-saml2[SAML 2.0 Login] - SAML 2.0 Log In
-* xref:servlet/authentication/cas.adoc#servlet-cas[Central Authentication Server (CAS)] - Central Authentication Server (CAS) Support
 * xref:servlet/authentication/rememberme.adoc#servlet-rememberme[Remember Me] - how to remember a user past session expiration
 * xref:servlet/authentication/jaas.adoc#servlet-jaas[JAAS Authentication] - authenticate with JAAS
 * xref:servlet/authentication/openid.adoc#servlet-openid[OpenID] - OpenID Authentication (not to be confused with OpenID Connect)

@@ -144,5 +144,4 @@ If not configured a status code 200 will be returned by default.
 - xref:servlet/integrations/servlet-api.adoc#servletapi-logout[ HttpServletRequest.logout()]
 - xref:servlet/authentication/rememberme.adoc#remember-me-impls[Remember-Me Interfaces and Implementations]
 - xref:servlet/exploits/csrf.adoc#servlet-considerations-csrf-logout[ Logging Out] in section CSRF Caveats
-- Section xref:servlet/authentication/cas.adoc#cas-singlelogout[ Single Logout] (CAS protocol)
 - Documentation for the xref:servlet/appendix/namespace.adoc#nsa-logout[ logout element] in the Spring Security XML Namespace section
