@@ -57,7 +57,6 @@ public class S101Plugin implements Plugin<Project> {
 				.workingDir(extension.getInstallationDirectory())
 				.classpath(new File(extension.getInstallationDirectory().get(), "structure101-java-build.jar"))
 				.args(new File(new File(project.getBuildDir(), "s101"), "config.xml"))
-				.args("-licensedirectory=" + extension.getLicenseDirectory().get())
 				.systemProperty("s101.label", computeLabel(extension).get())
 				.doFirst((task) -> {
 					installAndConfigureIfNeeded(project);
@@ -80,6 +79,10 @@ public class S101Plugin implements Plugin<Project> {
 	private void installAndConfigureIfNeeded(Project project) {
 		S101Configurer configurer = new S101Configurer(project);
 		S101PluginExtension extension = project.getExtensions().getByType(S101PluginExtension.class);
+		String licenseId = extension.getLicenseId().getOrNull();
+		if (licenseId != null) {
+			configurer.license(licenseId);
+		}
 		File installationDirectory = extension.getInstallationDirectory().get();
 		File configurationDirectory = extension.getConfigurationDirectory().get();
 		if (!installationDirectory.exists()) {

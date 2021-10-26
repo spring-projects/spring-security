@@ -13,6 +13,7 @@ env:
   GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
   COMMIT_OWNER: ${{ github.event.pusher.name }}
   COMMIT_SHA: ${{ github.sha }}
+  STRUCTURE101_LICENSEID: ${{ secrets.STRUCTURE101_LICENSEID }}
   ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
@@ -119,7 +120,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew check s101 --stacktrace
+          ./gradlew check s101 -Ps101.licenseId="$STRUCTURE101_LICENSEID" --stacktrace
   deploy_artifacts:
     name: Deploy Artifacts
     needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles]
