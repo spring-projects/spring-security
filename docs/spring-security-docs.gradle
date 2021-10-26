@@ -3,6 +3,12 @@ apply plugin: 'java'
 
 tasks.register("generateAntora") {
 	group = "Documentation"
+	description = "Generates antora files"
+	dependsOn 'generateAntoraYml', 'generateAntoraComponentVersion'
+}
+
+tasks.register("generateAntoraYml") {
+	group = "Documentation"
 	description = "Generates the antora.yml for dynamic properties"
 	doLast {
 		def docsTag = snapshotBuild ? 'current' : project.version
@@ -26,7 +32,6 @@ tasks.register("generateAntora") {
 		outputFile.createNewFile()
 		outputFile.setText("""name: ROOT
 title: Spring Security
-version: 5.6
 start_page: ROOT:index.adoc
 asciidoc:
   attributes:
@@ -43,6 +48,20 @@ ${ymlVersions}
 """)
 	}
 }
+
+tasks.register("generateAntoraComponentVersion") {
+	group = "Documentation"
+	description = "Generates the antora.component.version file"
+	doLast {
+		def outputFile = new File("$buildDir/generateAntora/antora.component.version")
+		outputFile.getParentFile().mkdirs()
+		outputFile.createNewFile()
+		def antoraVersion = project.version.replaceAll(/^(\d+\.\d+)\.\d+(-\w+)$/, '$1$2')
+		outputFile.setText("$antoraVersion")
+	}
+}
+
+
 
 dependencies {
 	testImplementation platform(project(":spring-security-dependencies"))
