@@ -56,7 +56,7 @@ tasks.register("generateAntoraComponentVersion") {
 		def outputFile = new File("$buildDir/generateAntora/antora.component.version")
 		outputFile.getParentFile().mkdirs()
 		outputFile.createNewFile()
-		def antoraVersion = project.version.replaceAll(/^(\d+\.\d+)\.\d+(-\w+)$/, '$1$2')
+		def antoraVersion = project.version.replaceAll(/^(\d+\.\d+)\.\d+(-\w+)?$/, '$1')
 		outputFile.setText("$antoraVersion")
 	}
 }
