@@ -113,7 +113,7 @@ jobs:
       - name: Setup gradle user name
         run: |
           mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds' >> ~/.gradle/gradle.properties
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
       - name: Check for package tangles
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
