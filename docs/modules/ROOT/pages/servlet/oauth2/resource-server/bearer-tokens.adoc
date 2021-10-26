@@ -1,0 +1,290 @@
+= OAuth 2.0 Bearer Tokens
+
+[[oauth2resourceserver-bearertoken-resolver]]
+== Bearer Token Resolution
+
+By default, Resource Server looks for a bearer token in the `Authorization` header.
+This, however, can be customized in a handful of ways.
+
+=== Reading the Bearer Token from a Custom Header
+
+For example, you may have a need to read the bearer token from a custom header.
+To achieve this, you can expose a `DefaultBearerTokenResolver` as a bean, or wire an instance into the DSL, as you can see in the following example:
+
+.Custom Bearer Token Header
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+BearerTokenResolver bearerTokenResolver() {
+    DefaultBearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+    bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION);
+    return bearerTokenResolver;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun bearerTokenResolver(): BearerTokenResolver {
+    val bearerTokenResolver = DefaultBearerTokenResolver()
+    bearerTokenResolver.setBearerTokenHeaderName(HttpHeaders.PROXY_AUTHORIZATION)
+    return bearerTokenResolver
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <oauth2-resource-server bearer-token-resolver-ref="bearerTokenResolver"/>
+</http>
+
+<bean id="bearerTokenResolver"
+        class="org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver">
+    <property name="bearerTokenHeaderName" value="Proxy-Authorization"/>
+</bean>
+----
+====
+
+Or, in circumstances where a provider is using both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
+
+=== Reading the Bearer Token from a Form Parameter
+
+Or, you may wish to read the token from a form parameter, which you can do by configuring the `DefaultBearerTokenResolver`, as you can see below:
+
+.Form Parameter Bearer Token
+====
+.Java
+[source,java,role="primary"]
+----
+DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
+resolver.setAllowFormEncodedBodyParameter(true);
+http
+    .oauth2ResourceServer(oauth2 -> oauth2
+        .bearerTokenResolver(resolver)
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val resolver = DefaultBearerTokenResolver()
+resolver.setAllowFormEncodedBodyParameter(true)
+http {
+    oauth2ResourceServer {
+        bearerTokenResolver = resolver
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <oauth2-resource-server bearer-token-resolver-ref="bearerTokenResolver"/>
+</http>
+
+<bean id="bearerTokenResolver"
+        class="org.springframework.security.oauth2.server.resource.web.HeaderBearerTokenResolver">
+    <property name="allowFormEncodedBodyParameter" value="true"/>
+</bean>
+----
+====
+
+== Bearer Token Propagation
+
+Now that you're resource server has validated the token, it might be handy to pass it to downstream services.
+This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public WebClient rest() {
+    return WebClient.builder()
+            .filter(new ServletBearerExchangeFilterFunction())
+            .build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rest(): WebClient {
+    return WebClient.builder()
+            .filter(ServletBearerExchangeFilterFunction())
+            .build()
+}
+----
+====
+
+When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
+Then, it will propagate that token in the `Authorization` header.
+
+For example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .retrieve()
+        .bodyToMono(String.class)
+        .block()
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .retrieve()
+        .bodyToMono<String>()
+        .block()
+----
+====
+
+Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+
+In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .headers(headers -> headers.setBearerAuth(overridingToken))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block()
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest.get()
+        .uri("https://other-service.example.com/endpoint")
+        .headers{  headers -> headers.setBearerAuth(overridingToken)}
+        .retrieve()
+        .bodyToMono<String>()
+        .block()
+----
+====
+
+In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
+
+[NOTE]
+Unlike the {security-api-url}org/springframework/security/oauth2/client/web/reactive/function/client/ServletOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
+To obtain this level of support, please use the OAuth 2.0 Client filter.
+
+=== `RestTemplate` support
+
+There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token quite simply with your own interceptor:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+RestTemplate rest() {
+	RestTemplate rest = new RestTemplate();
+	rest.getInterceptors().add((request, body, execution) -> {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null) {
+			return execution.execute(request, body);
+		}
+
+		if (!(authentication.getCredentials() instanceof AbstractOAuth2Token)) {
+			return execution.execute(request, body);
+		}
+
+		AbstractOAuth2Token token = (AbstractOAuth2Token) authentication.getCredentials();
+	    request.getHeaders().setBearerAuth(token.getTokenValue());
+	    return execution.execute(request, body);
+	});
+	return rest;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun rest(): RestTemplate {
+    val rest = RestTemplate()
+    rest.interceptors.add(ClientHttpRequestInterceptor { request, body, execution ->
+        val authentication: Authentication? = SecurityContextHolder.getContext().authentication
+        if (authentication != null) {
+            execution.execute(request, body)
+        }
+
+        if (authentication!!.credentials !is AbstractOAuth2Token) {
+            execution.execute(request, body)
+        }
+
+        val token: AbstractOAuth2Token = authentication.credentials as AbstractOAuth2Token
+        request.headers.setBearerAuth(token.tokenValue)
+        execution.execute(request, body)
+    })
+    return rest
+}
+----
+====
+
+
+[NOTE]
+Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
+To obtain this level of support, please create an interceptor using the xref:servlet/oauth2/oauth2-client.adoc#oauth2client[OAuth 2.0 Authorized Client Manager].
+
+[[oauth2resourceserver-bearertoken-failure]]
+== Bearer Token Failure
+
+A bearer token may be invalid for a number of reasons. For example, the token may no longer be active.
+
+In these circumstances, Resource Server throws an `InvalidBearerTokenException`.
+Like other exceptions, this results in an OAuth 2.0 Bearer Token error response:
+
+[source,http request]
+----
+HTTP/1.1 401 Unauthorized
+WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsupported algorithm of none", error_uri="https://tools.ietf.org/html/rfc6750#section-3.1"
+----
+
+Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, which you can xref:servlet/authentication/events.adoc#servlet-events[listen for in your application] like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+public class FailureEvents {
+	@EventListener
+    public void onFailure(AuthenticationFailureBadCredentialsEvent badCredentials) {
+		if (badCredentials.getAuthentication() instanceof BearerTokenAuthenticationToken) {
+		    // ... handle
+        }
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class FailureEvents {
+    @EventListener
+    fun onFailure(badCredentials: AuthenticationFailureBadCredentialsEvent) {
+        if (badCredentials.authentication is BearerTokenAuthenticationToken) {
+            // ... handle
+        }
+    }
+}
+----
+====

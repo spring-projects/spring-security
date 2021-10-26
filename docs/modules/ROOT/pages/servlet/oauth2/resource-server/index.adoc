@@ -1,0 +1,58 @@
+[[oauth2resourceserver]]
+= OAuth 2.0 Resource Server
+:figures: servlet/oauth2
+
+Spring Security supports protecting endpoints using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
+
+* https://tools.ietf.org/html/rfc7519[JWT]
+* Opaque Tokens
+
+This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
+This authorization server can be consulted by resource servers to authorize requests.
+
+This section provides details on how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
+
+[NOTE]
+====
+Working samples for both {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/jwe[JWTs] and {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security Samples repository].
+====
+
+Let's take a look at how Bearer Token Authentication works within Spring Security.
+First, we see that, like xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[Basic Authentication], the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+
+.Sending WWW-Authenticate Header
+image::{figures}/bearerauthenticationentrypoint.png[]
+
+The figure above builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+
+image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+
+image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
+The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
+
+When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
+Below is the flow for the bearer token being processed.
+
+[[oauth2resourceserver-authentication-bearertokenauthenticationfilter]]
+.Authenticating Bearer Token
+image::{figures}/bearertokenauthenticationfilter.png[]
+
+The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
+
+image:{icondir}/number_1.png[] When the user submits their bearer token, the `BearerTokenAuthenticationFilter` creates a `BearerTokenAuthenticationToken` which is a type of xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication`] by extracting the token from the `HttpServletRequest`.
+
+image:{icondir}/number_2.png[] Next, the `HttpServletRequest` is passed to the `AuthenticationManagerResolver`, which selects the `AuthenticationManager`. The `BearerTokenAuthenticationToken` is passed into the `AuthenticationManager` to be authenticated.
+The details of what `AuthenticationManager` looks like depends on whether you're configured for xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-minimalconfiguration[JWT] or xref:servlet/oauth2/resource-server/opaque-token.adoc#oauth2resourceserver-opaque-minimalconfiguration[opaque token].
+
+image:{icondir}/number_3.png[] If authentication fails, then __Failure__
+
+* The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
+* The `AuthenticationEntryPoint` is invoked to trigger the WWW-Authenticate header to be sent again.
+
+image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
+
+* The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
+* The `BearerTokenAuthenticationFilter` invokes `FilterChain.doFilter(request,response)` to continue with the rest of the application logic.
