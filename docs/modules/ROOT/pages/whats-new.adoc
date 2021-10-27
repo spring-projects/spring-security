@@ -7,7 +7,7 @@ Below are the highlights of the release.
 * All new https://antora.org/[Antora] based https://docs.spring.io/spring-security/[documentation].
 
 [[whats-new-servlet]]
-=== Servlet
+== Servlet
 * Core
 
 ** Introduced https://github.com/spring-projects/spring-security/issues/10226[`SecurityContextChangedListener`]
@@ -41,7 +41,7 @@ Below are the highlights of the release.
 ** Added support to https://github.com/spring-projects/spring-security/pull/9737[propagate the TestSecurityContextHolder to SecurityContextHolder]
 
 [[whats-new-webflux]]
-=== WebFlux
+== WebFlux
 
 * OAuth 2.0 Client
 

@@ -866,6 +866,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
         return http.build()
     }
 }
+----
 ====
 
 ==== Requesting an Access Token
@@ -953,6 +954,7 @@ class OAuth2ClientSecurityConfig {
         return OAuth2AuthorizationCodeReactiveAuthenticationManager(accessTokenResponseClient)
     }
 }
+----
 ====
 
 
@@ -1029,6 +1031,7 @@ val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveO
 ...
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
 ====
 
 [NOTE]
