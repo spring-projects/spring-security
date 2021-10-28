@@ -212,7 +212,7 @@ The `BCryptPasswordEncoder` implementation uses the widely supported "bcrypt" al
 Bcrypt uses a random 16 byte salt value and is a deliberately slow algorithm, in order to hinder password crackers.
 The amount of work it does can be tuned using the "strength" parameter which takes values from 4 to 31.
 The higher the value, the more work has to be done to calculate the hash.
-The default value is 10.
+The default value is 12.
 You can change this value in your deployed system without affecting existing passwords, as the value is also stored in the encoded hash.
 
 .BCryptPasswordEncoder
