@@ -8,7 +8,7 @@ changelog:
       labels: ["type: enhancement"]
       sort: "title"
     - title: ":beetle: Bug Fixes"
-      labels: ["type:bug"]
+      labels: ["type: bug"]
       sort: "title"
     - title: ":hammer: Dependency Upgrades"
       emoji: ":hammer:"
