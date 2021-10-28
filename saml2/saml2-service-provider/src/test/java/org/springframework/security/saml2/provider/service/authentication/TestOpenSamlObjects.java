@@ -384,6 +384,22 @@ public final class TestOpenSamlObjects {
 		return logoutResponse;
 	}
 
+	public static LogoutRequest relyingPartyLogoutRequest(RelyingPartyRegistration registration) {
+		LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
+		LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
+		logoutRequest.setID("id");
+		NameIDBuilder nameIdBuilder = new NameIDBuilder();
+		NameID nameId = nameIdBuilder.buildObject();
+		nameId.setValue("user");
+		logoutRequest.setNameID(nameId);
+		IssuerBuilder issuerBuilder = new IssuerBuilder();
+		Issuer issuer = issuerBuilder.buildObject();
+		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		logoutRequest.setIssuer(issuer);
+		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
+		return logoutRequest;
+	}
+
 	static <T extends XMLObject> T build(QName qName) {
 		return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
 	}
