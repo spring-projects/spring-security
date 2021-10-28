@@ -29,8 +29,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  * Implementation of PasswordEncoder that uses the BCrypt strong hashing function. Clients
  * can optionally supply a "version" ($2a, $2b, $2y) and a "strength" (a.k.a. log rounds
  * in BCrypt) and a SecureRandom instance. The larger the strength parameter the more work
- * will have to be done (exponentially) to hash the passwords.
- * The default value is {@value BCrypt#GENSALT_DEFAULT_LOG2_ROUNDS}.
+ * will have to be done (exponentially) to hash the passwords. The default value is
+ * {@value BCrypt#GENSALT_DEFAULT_LOG2_ROUNDS}.
  *
  * @author Dave Syer
  */
