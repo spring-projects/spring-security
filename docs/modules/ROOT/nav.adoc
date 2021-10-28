@@ -24,11 +24,11 @@
 ** xref:servlet/authentication/index.adoc[Authentication]
 *** xref:servlet/authentication/architecture.adoc[Authentication Architecture]
 *** xref:servlet/authentication/passwords/index.adoc[Username/Password]
-**** Reading Username/Password
+**** xref:servlet/authentication/passwords/input.adoc[Reading Username/Password]
 ***** xref:servlet/authentication/passwords/form.adoc[Form]
 ***** xref:servlet/authentication/passwords/basic.adoc[Basic]
 ***** xref:servlet/authentication/passwords/digest.adoc[Digest]
-**** Password Storage
+**** **** xref:servlet/authentication/passwords/storage.adoc[Password Storage]
 ***** xref:servlet/authentication/passwords/in-memory.adoc[In Memory]
 ***** xref:servlet/authentication/passwords/jdbc.adoc[JDBC]
 ***** xref:servlet/authentication/passwords/user-details.adoc[UserDetails]
