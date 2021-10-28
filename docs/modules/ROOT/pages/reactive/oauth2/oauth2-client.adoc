@@ -426,7 +426,7 @@ fun authorizedClientManager(
 ----
 ====
 
-When an authorization attempt succeeds, the `DefaultReactiveOAuth2AuthorizedClientManager` will delegate to the `ReactiveOAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `ReactiveOAuth2AuthorizedClientProvider`.
+When an authorization attempt succeeds, the `DefaultReactiveOAuth2AuthorizedClientManager` will delegate to the `ReactiveOAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `ServerOAuth2AuthorizedClientRepository`.
 In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `ServerOAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler`.
 The default behaviour may be customized via `setAuthorizationSuccessHandler(ReactiveOAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(ReactiveOAuth2AuthorizationFailureHandler)`.
 
@@ -853,7 +853,7 @@ public class OAuth2ClientSecurityConfig {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebFluxSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
     @Bean
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -940,14 +940,14 @@ class OAuth2ClientSecurityConfig {
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         http {
             oauth2Client {
-                authenticationManager = authorizationGrantAuthenticationManager()
+                authenticationManager = authorizationCodeAuthenticationManager()
             }
         }
 
         return http.build()
     }
 
-    private fun authorizationGrantAuthenticationManager(): ReactiveAuthenticationManager {
+    private fun authorizationCodeAuthenticationManager(): ReactiveAuthenticationManager {
         val accessTokenResponseClient = WebClientReactiveAuthorizationCodeTokenResponseClient()
         ...
 
@@ -1780,7 +1780,7 @@ spring:
             ...
 ----
 
-The following example shows how to configure `DefaultClientCredentialsTokenResponseClient`:
+The following example shows how to configure `WebClientReactiveClientCredentialsTokenResponseClient`:
 
 ====
 .Java
@@ -1798,8 +1798,8 @@ Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
 	return null;
 };
 
-WebClientReactiveAuthorizationCodeTokenResponseClient tokenResponseClient =
-		new WebClientReactiveAuthorizationCodeTokenResponseClient();
+WebClientReactiveClientCredentialsTokenResponseClient tokenResponseClient =
+		new WebClientReactiveClientCredentialsTokenResponseClient();
 tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
 ----
@@ -1820,7 +1820,7 @@ val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: Clien
     null
 }
 
-val tokenResponseClient = WebClientReactiveAuthorizationCodeTokenResponseClient()
+val tokenResponseClient = WebClientReactiveClientCredentialsTokenResponseClient()
 tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
@@ -1869,7 +1869,7 @@ class OAuth2ClientController {
 ----
 ====
 
-The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses an <<oauth2Client-authorized-manager-provider, ReactiveOAuth2AuthorizedClientManager>> and therefore inherits it's capabilities.
+The `@RegisteredOAuth2AuthorizedClient` annotation is handled by `OAuth2AuthorizedClientArgumentResolver`, which directly uses a <<oauth2Client-authorized-manager-provider, ReactiveOAuth2AuthorizedClientManager>> and therefore inherits it's capabilities.
 
 
 [[oauth2Client-webclient-webflux]]
@@ -1926,7 +1926,7 @@ The following code shows how to set an `OAuth2AuthorizedClient` as a request att
 [source,java,role="primary"]
 ----
 @GetMapping("/")
-public Mono<String> index(@RegisteredOAuth2AuthorizedClient("test-client") OAuth2AuthorizedClient authorizedClient) {
+public Mono<String> index(@RegisteredOAuth2AuthorizedClient("okta") OAuth2AuthorizedClient authorizedClient) {
 	String resourceUri = ...
 
 	return webClient

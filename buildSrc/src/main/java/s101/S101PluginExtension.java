@@ -24,18 +24,18 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputDirectory;
 
 public class S101PluginExtension {
-	private final Property<File> licenseDirectory;
+	private final Property<String> licenseId;
 	private final Property<File> installationDirectory;
 	private final Property<File> configurationDirectory;
 	private final Property<String> label;
 
-	@InputDirectory
-	public Property<File> getLicenseDirectory() {
-		return this.licenseDirectory;
+	@Input
+	public Property<String> getLicenseId() {
+		return this.licenseId;
 	}
 
-	public void setLicenseDirectory(String licenseDirectory) {
-		this.licenseDirectory.set(new File(licenseDirectory));
+	public void setLicenseId(String licenseId) {
+		this.licenseId.set(licenseId);
 	}
 
 	@InputDirectory
@@ -66,8 +66,10 @@ public class S101PluginExtension {
 	}
 
 	public S101PluginExtension(Project project) {
-		this.licenseDirectory = project.getObjects().property(File.class)
-				.convention(new File(System.getProperty("user.home") + "/.Structure101/java"));
+		this.licenseId = project.getObjects().property(String.class);
+		if (project.hasProperty("s101.licenseId")) {
+			setLicenseId((String) project.findProperty("s101.licenseId"));
+		}
 		this.installationDirectory = project.getObjects().property(File.class)
 				.convention(new File(project.getBuildDir(), "s101"));
 		this.configurationDirectory = project.getObjects().property(File.class)

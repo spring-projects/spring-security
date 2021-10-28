@@ -462,11 +462,7 @@ public class DaoAuthenticationProviderTests {
 	}
 
 	private double avg(List<Long> counts) {
-		long sum = 0;
-		for (Long time : counts) {
-			sum += time;
-		}
-		return sum / counts.size();
+		return counts.stream().mapToLong(Long::longValue).average().orElse(0);
 	}
 
 	@Test

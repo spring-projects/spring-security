@@ -24,11 +24,11 @@
 ** xref:servlet/authentication/index.adoc[Authentication]
 *** xref:servlet/authentication/architecture.adoc[Authentication Architecture]
 *** xref:servlet/authentication/passwords/index.adoc[Username/Password]
-**** Reading Username/Password
+**** xref:servlet/authentication/passwords/input.adoc[Reading Username/Password]
 ***** xref:servlet/authentication/passwords/form.adoc[Form]
 ***** xref:servlet/authentication/passwords/basic.adoc[Basic]
 ***** xref:servlet/authentication/passwords/digest.adoc[Digest]
-**** Password Storage
+**** **** xref:servlet/authentication/passwords/storage.adoc[Password Storage]
 ***** xref:servlet/authentication/passwords/in-memory.adoc[In Memory]
 ***** xref:servlet/authentication/passwords/jdbc.adoc[JDBC]
 ***** xref:servlet/authentication/passwords/user-details.adoc[UserDetails]
@@ -93,10 +93,9 @@
 ** Authorization
 *** xref:reactive/authorization/method.adoc[EnableReactiveMethodSecurity]
 ** xref:reactive/oauth2/index.adoc[OAuth2]
-*** xref:reactive/oauth2/login.adoc[OAuth 2.0 Login]
+*** xref:reactive/oauth2/login.adoc[OAuth2 Log In]
 *** xref:reactive/oauth2/oauth2-client.adoc[OAuth2 Client]
-*** xref:reactive/oauth2/resource-server.adoc[OAuth 2.0 Resource Server]
-*** xref:reactive/registered-oauth2-authorized-client.adoc[@RegisteredOAuth2AuthorizedClient]
+*** xref:reactive/oauth2/resource-server.adoc[OAuth2 Resource Server]
 ** xref:reactive/exploits/index.adoc[Protection Against Exploits]
 *** xref:reactive/exploits/csrf.adoc[CSRF]
 *** xref:reactive/exploits/headers.adoc[Headers]
@@ -104,6 +103,5 @@
 ** Integrations
 *** xref:reactive/integrations/cors.adoc[CORS]
 *** xref:reactive/integrations/rsocket.adoc[RSocket]
-*** xref:reactive/integrations/webclient.adoc[WebClient]
 ** xref:reactive/test.adoc[Testing]
 ** xref:reactive/configuration/webflux.adoc[WebFlux Security]

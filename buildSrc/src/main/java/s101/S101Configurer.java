@@ -24,8 +24,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -66,6 +69,8 @@ public class S101Configurer {
 	private final Mustache hspTemplate;
 	private final Mustache repositoryTemplate;
 
+	private final Path licenseDirectory;
+
 	private final Project project;
 	private final Logger logger;
 
@@ -83,6 +88,37 @@ public class S101Configurer {
 			this.repositoryTemplate = this.mustache.compile(new InputStreamReader(is), "repository");
 		} catch (IOException ex) {
 			throw new UncheckedIOException(ex);
+		}
+		this.licenseDirectory = new File(System.getProperty("user.home") + "/.Structure101/java").toPath();
+	}
+
+	public void license(String licenseId) {
+		Path licenseFile = this.licenseDirectory.resolve(".structure101license.properties");
+		if (needsLicense(licenseFile, licenseId)) {
+			writeLicense(licenseFile, licenseId);
+		}
+	}
+
+	private boolean needsLicense(Path licenseFile, String licenseId) {
+		if (!licenseFile.toFile().exists()) {
+			return true;
+		}
+		try {
+			String license = new String(Files.readAllBytes(licenseFile));
+			return !license.contains(licenseId);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
+		}
+	}
+
+	private void writeLicense(Path licenseFile, String licenseId) {
+		if (!this.licenseDirectory.toFile().mkdirs()) {
+			this.licenseDirectory.forEach((path) -> path.toFile().delete());
+		}
+		try (PrintWriter pw = new PrintWriter(licenseFile.toFile())) {
+			pw.println("licensecode=" + licenseId);
+		} catch (IOException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
