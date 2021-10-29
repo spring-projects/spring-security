@@ -103,5 +103,11 @@
 ** Integrations
 *** xref:reactive/integrations/cors.adoc[CORS]
 *** xref:reactive/integrations/rsocket.adoc[RSocket]
-** xref:reactive/test.adoc[Testing]
+** xref:reactive/test/index.adoc[Testing]
+*** xref:reactive/test/method.adoc[Testing Method Security]
+*** xref:reactive/test/web/index.adoc[Testing Web Security]
+**** xref:reactive/test/web/setup.adoc[WebTestClient Setup]
+**** xref:reactive/test/web/authentication.adoc[Testing Authentication]
+**** xref:reactive/test/web/csrf.adoc[Testing CSRF]
+**** xref:reactive/test/web/oauth2.adoc[Testing OAuth 2.0]
 ** xref:reactive/configuration/webflux.adoc[WebFlux Security]

@@ -1,0 +1,28 @@
+= Testing with CSRF
+
+Spring Security also provides support for CSRF testing with `WebTestClient`.
+For example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+this.rest
+	// provide a valid CSRF token
+	.mutateWith(csrf())
+	.post()
+	.uri("/login")
+	...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+this.rest
+    // provide a valid CSRF token
+    .mutateWith(csrf())
+    .post()
+    .uri("/login")
+    ...
+----
+====
