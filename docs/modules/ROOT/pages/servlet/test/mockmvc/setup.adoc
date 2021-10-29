@@ -1,0 +1,63 @@
+[[test-mockmvc-setup]]
+= Setting Up MockMvc and Spring Security
+
+In order to use Spring Security with Spring MVC Test it is necessary to add the Spring Security `FilterChainProxy` as a `Filter`.
+It is also necessary to add Spring Security's `TestSecurityContextHolderPostProcessor` to support xref:servlet/test/mockmvc/setup.adoc#test-mockmvc-withmockuser[Running as a User in Spring MVC Test with Annotations].
+This can be done using Spring Security's `SecurityMockMvcConfigurers.springSecurity()`.
+For example:
+
+NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
+
+====
+.Java
+[source,java,role="primary"]
+----
+
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(classes = SecurityConfig.class)
+@WebAppConfiguration
+public class CsrfShowcaseTests {
+
+	@Autowired
+	private WebApplicationContext context;
+
+	private MockMvc mvc;
+
+	@Before
+	public void setup() {
+		mvc = MockMvcBuilders
+				.webAppContextSetup(context)
+				.apply(springSecurity()) // <1>
+				.build();
+	}
+
+...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringJUnit4ClassRunner::class)
+@ContextConfiguration(classes = [SecurityConfig::class])
+@WebAppConfiguration
+class CsrfShowcaseTests {
+
+    @Autowired
+    private lateinit var context: WebApplicationContext
+
+    private var mvc: MockMvc? = null
+
+    @Before
+    fun setup() {
+        mvc = MockMvcBuilders
+            .webAppContextSetup(context)
+            .apply<DefaultMockMvcBuilder>(springSecurity()) // <1>
+            .build()
+    }
+// ...
+----
+====
+
+<1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test

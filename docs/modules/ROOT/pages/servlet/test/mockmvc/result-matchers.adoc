@@ -1,0 +1,153 @@
+== SecurityMockMvcResultMatchers
+
+At times it is desirable to make various security related assertions about a request.
+To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
+In order to use Spring Security's `ResultMatcher` implementations ensure the following static import is used:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*
+
+----
+====
+
+=== Unauthenticated Assertion
+
+At times it may be valuable to assert that there is no authenticated user associated with the result of a `MockMvc` invocation.
+For example, you might want to test submitting an invalid username and password and verify that no user is authenticated.
+You can easily do this with Spring Security's testing support using something like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin().password("invalid"))
+	.andExpect(unauthenticated());
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin().password("invalid"))
+    .andExpect { unauthenticated() }
+----
+====
+
+=== Authenticated Assertion
+
+It is often times that we must assert that an authenticated user exists.
+For example, we may want to verify that we authenticated successfully.
+We could verify that a form based login was successful with the following snippet of code:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin())
+	.andExpect(authenticated());
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin())
+    .andExpect { authenticated() }
+----
+====
+
+If we wanted to assert the roles of the user, we could refine our previous code as shown below:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withRoles("USER","ADMIN"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin())
+    .andExpect { authenticated().withRoles("USER","ADMIN") }
+----
+====
+
+Alternatively, we could verify the username:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withUsername("admin"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin().user("admin"))
+    .andExpect { authenticated().withUsername("admin") }
+----
+====
+
+We can also combine the assertions:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin().user("admin"))
+	.andExpect(authenticated().withUsername("admin").withRoles("USER", "ADMIN"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin().user("admin"))
+    .andExpect { authenticated().withUsername("admin").withRoles("USER", "ADMIN") }
+----
+====
+
+We can also make arbitrary assertions on the authentication
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin())
+	.andExpect(authenticated().withAuthentication(auth ->
+		assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken.class)));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin())
+    .andExpect {
+        authenticated().withAuthentication { auth ->
+            assertThat(auth).isInstanceOf(UsernamePasswordAuthenticationToken::class.java) }
+        }
+    }
+----
+====

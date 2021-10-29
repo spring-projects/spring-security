@@ -140,7 +140,7 @@ If not configured a status code 200 will be returned by default.
 == Further Logout-Related References
 
 - <<ns-logout, Logout Handling>>
-- xref:servlet/test/mockmvc.adoc#test-logout[ Testing Logout]
+- xref:servlet/test/mockmvc/logout.adoc#test-logout[ Testing Logout]
 - xref:servlet/integrations/servlet-api.adoc#servletapi-logout[ HttpServletRequest.logout()]
 - xref:servlet/authentication/rememberme.adoc#remember-me-impls[Remember-Me Interfaces and Implementations]
 - xref:servlet/exploits/csrf.adoc#servlet-considerations-csrf-logout[ Logging Out] in section CSRF Caveats

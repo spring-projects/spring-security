@@ -1,0 +1,58 @@
+= Testing Form Based Authentication
+
+You can easily create a request to test a form based authentication using Spring Security's testing support.
+For example, the following `formLogin` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`] will submit a POST to "/login" with the username "user", the password "password", and a valid CSRF token:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin())
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+	.perform(formLogin())
+----
+====
+
+It is easy to customize the request.
+For example, the following will submit a POST to "/auth" with the username "admin", the password "pass", and a valid CSRF token:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin("/auth").user("admin").password("pass"))
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin("/auth").user("admin").password("pass"))
+----
+====
+
+We can also customize the parameters names that the username and password are included on.
+For example, this is the above request modified to include the username on the HTTP parameter "u" and the password on the HTTP parameter "p".
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+	.perform(formLogin("/auth").user("u","admin").password("p","pass"))
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc
+    .perform(formLogin("/auth").user("u","admin").password("p","pass"))
+----
+====
