@@ -52,7 +52,7 @@ SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository re
     return http.build();
 }
 ----
-<1> - First, add your signing key to the `RelyingPartyRegistration` instance or to xref:servlet/saml2/login.adoc#servlet-saml2login-rpr-duplicated[multiple instances]
+<1> - First, add your signing key to the `RelyingPartyRegistration` instance or to xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-duplicated[multiple instances]
 <2> - Second, indicate that your application wants to use SAML SLO to logout the end user
 
 === Runtime Expectations
@@ -61,8 +61,8 @@ Given the above configuration any logged in user can send a `POST /logout` to yo
 Your application will then do the following:
 
 1. Logout the user and invalidate the session
-2. Use a `Saml2LogoutRequestResolver` to create, sign, and serialize a `<saml2:LogoutRequest>` based on the xref:servlet/saml2/login.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] associated with the currently logged-in user.
-3. Send a redirect or post to the asserting party based on the xref:servlet/saml2/login.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`]
+2. Use a `Saml2LogoutRequestResolver` to create, sign, and serialize a `<saml2:LogoutRequest>` based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] associated with the currently logged-in user.
+3. Send a redirect or post to the asserting party based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`]
 4. Deserialize, verify, and process the `<saml2:LogoutResponse>` sent by the asserting party
 5. Redirect to any configured successful logout endpoint
 
@@ -70,8 +70,8 @@ Also, your application can participate in an AP-initiated logout when the assert
 
 1. Use a `Saml2LogoutRequestHandler` to deserialize, verify, and process the `<saml2:LogoutRequest>` sent by the asserting party
 2. Logout the user and invalidate the session
-3. Create, sign, and serialize a `<saml2:LogoutResponse>` based on the xref:servlet/saml2/login.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] associated with the just logged-out user
-4. Send a redirect or post to the asserting party based on the xref:servlet/saml2/login.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`]
+3. Create, sign, and serialize a `<saml2:LogoutResponse>` based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] associated with the just logged-out user
+4. Send a redirect or post to the asserting party based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`]
 
 == Configuring Logout Endpoints
 
