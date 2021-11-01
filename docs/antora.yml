@@ -1,5 +1,2 @@
 name: ROOT
-title: Spring Security
-start_page: ROOT:index.adoc
-nav:
-- modules/ROOT/nav.adoc
+version: 5.6
