@@ -737,7 +737,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 
 In addition to the `oauth2Login()` DSL, XML configuration is also supported.
 
-The following code shows the complete configuration options available in the xref:servlet/appendix/namespace.adoc#nsa-oauth2-login[ security namespace]:
+The following code shows the complete configuration options available in the xref:servlet/appendix/namespace/http.adoc#nsa-oauth2-login[ security namespace]:
 
 .OAuth2 Login XML Configuration Options
 ====
