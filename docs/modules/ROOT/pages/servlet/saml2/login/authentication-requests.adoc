@@ -187,7 +187,7 @@ But, if you do need something from the request, then you can use create a custom
 ----
 @Component
 public class AuthnRequestConverter implements
-        Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
+        Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
 
     private final AuthnRequestBuilder authnRequestBuilder;
     private final IssuerBuilder issuerBuilder;
@@ -195,18 +195,17 @@ public class AuthnRequestConverter implements
     // ... constructor
 
     public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
-        MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
         Issuer issuer = issuerBuilder.buildObject();
-        issuer.setValue(myContext.getIssuer());
+        issuer.setValue(context.getIssuer());
 
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
         authnRequest.setIssuer(issuer);
-        authnRequest.setDestination(myContext.getDestination());
-        authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
+        authnRequest.setDestination(context.getDestination());
+        authnRequest.setAssertionConsumerServiceURL(context.getAssertionConsumerServiceUrl());
 
         // ... additional settings
 
-        authRequest.setForceAuthn(myContext.getForceAuthn());
+        authRequest.setForceAuthn(context.getForceAuthn());
         return authnRequest;
     }
 }
@@ -216,22 +215,21 @@ public class AuthnRequestConverter implements
 [source,kotlin,role="secondary"]
 ----
 @Component
-class AuthnRequestConverter : Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
+class AuthnRequestConverter : Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
     private val authnRequestBuilder: AuthnRequestBuilder? = null
     private val issuerBuilder: IssuerBuilder? = null
 
     // ... constructor
     override fun convert(context: MySaml2AuthenticationRequestContext): AuthnRequest {
-        val myContext: MySaml2AuthenticationRequestContext = context
         val issuer: Issuer = issuerBuilder.buildObject()
-        issuer.value = myContext.getIssuer()
+        issuer.value = context.getIssuer()
         val authnRequest: AuthnRequest = authnRequestBuilder.buildObject()
         authnRequest.issuer = issuer
-        authnRequest.destination = myContext.getDestination()
-        authnRequest.assertionConsumerServiceURL = myContext.getAssertionConsumerServiceUrl()
+        authnRequest.destination = context.getDestination()
+        authnRequest.assertionConsumerServiceURL = context.getAssertionConsumerServiceUrl()
 
         // ... additional settings
-        authRequest.setForceAuthn(myContext.getForceAuthn())
+        authRequest.setForceAuthn(context.getForceAuthn())
         return authnRequest
     }
 }
@@ -246,12 +244,11 @@ Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and
 ----
 @Bean
 Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-    Saml2AuthenticationRequestContextResolver resolver =
-            new DefaultSaml2AuthenticationRequestContextResolver();
-    return request -> {
-        Saml2AuthenticationRequestContext context = resolver.resolve(request);
-        return new MySaml2AuthenticationRequestContext(context, request.getParameter("force") != null);
-    };
+	Saml2AuthenticationRequestContextResolver resolver = new DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver);
+	return request -> {
+		Saml2AuthenticationRequestContext context = resolver.resolve(request);
+		return context;
+	};
 }
 
 @Bean
@@ -270,13 +267,9 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory(
 ----
 @Bean
 open fun authenticationRequestContextResolver(): Saml2AuthenticationRequestContextResolver {
-    val resolver: Saml2AuthenticationRequestContextResolver = DefaultSaml2AuthenticationRequestContextResolver()
-    return Saml2AuthenticationRequestContextResolver { request: HttpServletRequest ->
-        val context = resolver.resolve(request)
-        MySaml2AuthenticationRequestContext(
-            context,
-            request.getParameter("force") != null
-        )
+    val resolver = DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver)
+    return Saml2AuthenticationRequestContextResolver { request ->
+        resolver.resolve(request)
     }
 }
 
