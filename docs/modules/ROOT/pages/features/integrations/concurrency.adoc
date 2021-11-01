@@ -44,7 +44,7 @@ fun run() {
 
 While very simple, it makes it seamless to transfer the SecurityContext from one Thread to another.
 This is important since, in most cases, the SecurityContextHolder acts on a per Thread basis.
-For example, you might have used Spring Security's xref:servlet/appendix/namespace.adoc#nsa-global-method-security[<global-method-security>] support to secure one of your services.
+For example, you might have used Spring Security's xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[<global-method-security>] support to secure one of your services.
 You can now easily transfer the `SecurityContext` of the current `Thread` to the `Thread` that invokes the secured service.
 An example of how you might do this can be found below:
 

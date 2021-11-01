@@ -16,9 +16,10 @@
 
 package org.springframework.security.config.doc;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -60,7 +61,7 @@ public class XsdDocumentedTests {
 			"nsa-frame-options-from-parameter");
 	// @formatter:on
 
-	String referenceLocation = "../docs/modules/ROOT/pages/servlet/appendix/namespace.adoc";
+	String referenceLocation = "../docs/modules/ROOT/pages/servlet/appendix/namespace";
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 
@@ -163,7 +164,7 @@ public class XsdDocumentedTests {
 	public void countReferencesWhenReviewingDocumentationThenEntireSchemaIsIncluded() throws IOException {
 		Map<String, Element> elementsByElementName = this.xml.elementsByElementName(this.schemaDocumentLocation);
 		// @formatter:off
-		List<String> documentIds = Files.lines(Paths.get(this.referenceLocation))
+		List<String> documentIds = namespaceLines()
 				.filter((line) -> line.matches("\\[\\[(nsa-.*)\\]\\]"))
 				.map((line) -> line.substring(2, line.length() - 2))
 				.collect(Collectors.toList());
@@ -189,7 +190,7 @@ public class XsdDocumentedTests {
 		Map<String, List<String>> docAttrNameToParents = new TreeMap<>();
 		String docAttrName = null;
 		Map<String, List<String>> currentDocAttrNameToElmt = null;
-		List<String> lines = Files.readAllLines(Paths.get(this.referenceLocation));
+		List<String> lines = namespaceLines().collect(Collectors.toList());
 		for (String line : lines) {
 			if (line.matches("^\\[\\[.*\\]\\]$")) {
 				String id = line.substring(2, line.length() - 2);
@@ -211,6 +212,13 @@ public class XsdDocumentedTests {
 				if (line.matches(expression)) {
 					String elmtId = line.replaceAll(expression, "$1");
 					currentDocAttrNameToElmt.computeIfAbsent(docAttrName, (key) -> new ArrayList<>()).add(elmtId);
+				}
+				else {
+					expression = ".*xref:.*#(nsa-.*)\\[.*\\]";
+					if (line.matches(expression)) {
+						String elmtId = line.replaceAll(expression, "$1");
+						currentDocAttrNameToElmt.computeIfAbsent(docAttrName, (key) -> new ArrayList<>()).add(elmtId);
+					}
 				}
 			}
 		}
@@ -293,6 +301,19 @@ public class XsdDocumentedTests {
 		// @formatter:on
 		assertThat(notDocElmtIds).isEmpty();
 		assertThat(notDocAttrIds).isEmpty();
+	}
+
+	private Stream<String> namespaceLines() {
+		return Stream.of(new File(this.referenceLocation).listFiles()).map(File::toPath).flatMap(this::fileLines);
+	}
+
+	private Stream<String> fileLines(Path path) {
+		try {
+			return Files.lines(path);
+		}
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 }

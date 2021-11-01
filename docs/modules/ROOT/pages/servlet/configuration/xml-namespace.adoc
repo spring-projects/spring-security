@@ -192,7 +192,7 @@ Common problems like incorrect filter ordering are no longer an issue as the fil
 
 The `<authentication-provider>` element creates a `DaoAuthenticationProvider` bean and the `<user-service>` element creates an `InMemoryDaoImpl`.
 All `authentication-provider` elements must be children of the `<authentication-manager>` element, which creates a `ProviderManager` and registers the authentication providers with it.
-You can find more detailed information on the beans that are created in the xref:servlet/appendix/namespace.adoc#appendix-namespace[namespace appendix].
+You can find more detailed information on the beans that are created in the xref:servlet/appendix/namespace/index.adoc#appendix-namespace[namespace appendix].
 It's worth cross-checking this if you want to start understanding what the important classes in the framework are and how they are used, particularly if you want to customise things later.
 ****
 
