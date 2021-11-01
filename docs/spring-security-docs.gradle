@@ -28,6 +28,8 @@ tasks.register("generateAntora") {
 		outputFile.setText("""$antoraYmlText
 title: Spring Security
 start_page: ROOT:index.adoc
+nav:
+- modules/ROOT/nav.adoc
 asciidoc:
   attributes:
     icondir: icons
