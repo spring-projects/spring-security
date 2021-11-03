@@ -2212,6 +2212,60 @@ fun index(): String {
 ====
 <1> `clientRegistrationId()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
 
+The following code shows how to set an `Authentication` as a request attribute:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/")
+public String index() {
+	String resourceUri = ...
+
+	Authentication anonymousAuthentication = new AnonymousAuthenticationToken(
+			"anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+	String body = webClient
+			.get()
+			.uri(resourceUri)
+			.attributes(authentication(anonymousAuthentication))   <1>
+			.retrieve()
+			.bodyToMono(String.class)
+			.block();
+
+	...
+
+	return "index";
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/")
+fun index(): String {
+    val resourceUri: String = ...
+
+    val anonymousAuthentication: Authentication = AnonymousAuthenticationToken(
+            "anonymous", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"))
+    val body: String = webClient
+            .get()
+            .uri(resourceUri)
+            .attributes(authentication(anonymousAuthentication))  <1>
+            .retrieve()
+            .bodyToMono()
+            .block()
+
+    ...
+
+    return "index"
+}
+----
+====
+<1> `authentication()` is a `static` method in `ServletOAuth2AuthorizedClientExchangeFilterFunction`.
+
+[WARNING]
+It is recommended to be cautious with this feature since all HTTP requests will receive an access token bound to the provided principal.
+
 
 === Defaulting the Authorized Client
 
