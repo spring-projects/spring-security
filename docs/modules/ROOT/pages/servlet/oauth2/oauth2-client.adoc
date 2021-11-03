@@ -929,6 +929,11 @@ If you need to customize the pre-processing of the Token Request, you can provid
 The default implementation `OAuth2AuthorizationCodeGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.1.3[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
 
+To customize only the parameters of the request, you can provide `OAuth2AuthorizationCodeGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `OAuth2AuthorizationCodeGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
@@ -1043,6 +1048,11 @@ If you need to customize the pre-processing of the Token Request, you can provid
 The default implementation `OAuth2RefreshTokenGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-6[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
 
+To customize only the parameters of the request, you can provide `OAuth2RefreshTokenGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `OAuth2RefreshTokenGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
 
@@ -1148,6 +1158,11 @@ The `DefaultClientCredentialsTokenResponseClient` is quite flexible as it allows
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultClientCredentialsTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, RequestEntity<?>>`.
 The default implementation `OAuth2ClientCredentialsGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+To customize only the parameters of the request, you can provide `OAuth2ClientCredentialsGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `OAuth2ClientCredentialsGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
@@ -1382,6 +1397,11 @@ The `DefaultPasswordTokenResponseClient` is quite flexible as it allows you to c
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultPasswordTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, RequestEntity<?>>`.
 The default implementation `OAuth2PasswordGrantRequestEntityConverter` builds a `RequestEntity` representation of a standard https://tools.ietf.org/html/rfc6749#section-4.3.2[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+To customize only the parameters of the request, you can provide `OAuth2PasswordGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `OAuth2PasswordGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
 
 IMPORTANT: The custom `Converter` must return a valid `RequestEntity` representation of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
 
@@ -1660,6 +1680,11 @@ The `DefaultJwtBearerTokenResponseClient` is quite flexible as it allows you to 
 If you need to customize the pre-processing of the Token Request, you can provide `DefaultJwtBearerTokenResponseClient.setRequestEntityConverter()` with a custom `Converter<JwtBearerGrantRequest, RequestEntity<?>>`.
 The default implementation `JwtBearerGrantRequestEntityConverter` builds a `RequestEntity` representation of a https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[OAuth 2.0 Access Token Request].
 However, providing a custom `Converter`, would allow you to extend the Token Request and add custom parameter(s).
+
+To customize only the parameters of the request, you can provide `JwtBearerGrantRequestEntityConverter.setParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>` to completely override the parameters sent with the request. This is often simpler than constructing a `RequestEntity` directly.
+
+[TIP]
+If you prefer to only add additional parameters, you can provide `JwtBearerGrantRequestEntityConverter.addParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
 
 
 ==== Customizing the Access Token Response
