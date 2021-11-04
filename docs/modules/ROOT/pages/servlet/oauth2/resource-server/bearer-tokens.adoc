@@ -241,7 +241,7 @@ fun rest(): RestTemplate {
 
 [NOTE]
 Unlike the {security-api-url}org/springframework/security/oauth2/client/OAuth2AuthorizedClientManager.html[OAuth 2.0 Authorized Client Manager], this filter interceptor makes no attempt to renew the token, should it be expired.
-To obtain this level of support, please create an interceptor using the xref:servlet/oauth2/oauth2-client.adoc#oauth2client[OAuth 2.0 Authorized Client Manager].
+To obtain this level of support, please create an interceptor using the xref:servlet/oauth2/client/index.adoc#oauth2client[OAuth 2.0 Authorized Client Manager].
 
 [[oauth2resourceserver-bearertoken-failure]]
 == Bearer Token Failure

@@ -1,0 +1,146 @@
+[[oauth2client]]
+= OAuth 2.0 Client
+:page-section-summary-toc: 1
+
+The OAuth 2.0 Client features provide support for the Client role as defined in the https://tools.ietf.org/html/rfc6749#section-1.1[OAuth 2.0 Authorization Framework].
+
+At a high-level, the core features available are:
+
+.Authorization Grant support
+* https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code]
+* https://tools.ietf.org/html/rfc6749#section-6[Refresh Token]
+* https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials]
+* https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials]
+* https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[JWT Bearer]
+
+.Client Authentication support
+* https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer]
+
+.HTTP Client support
+* xref:servlet/oauth2/client/authorized-clients.adoc#oauth2Client-webclient-servlet[`WebClient` integration for Servlet Environments] (for requesting protected resources)
+
+The `HttpSecurity.oauth2Client()` DSL provides a number of configuration options for customizing the core components used by OAuth 2.0 Client.
+In addition, `HttpSecurity.oauth2Client().authorizationCodeGrant()` enables the customization of the Authorization Code grant.
+
+The following code shows the complete configuration options provided by the `HttpSecurity.oauth2Client()` DSL:
+
+.OAuth2 Client Configuration Options
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSecurity
+public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+
+	@Override
+	protected void configure(HttpSecurity http) throws Exception {
+		http
+			.oauth2Client(oauth2 -> oauth2
+				.clientRegistrationRepository(this.clientRegistrationRepository())
+				.authorizedClientRepository(this.authorizedClientRepository())
+				.authorizedClientService(this.authorizedClientService())
+				.authorizationCodeGrant(codeGrant -> codeGrant
+					.authorizationRequestRepository(this.authorizationRequestRepository())
+					.authorizationRequestResolver(this.authorizationRequestResolver())
+					.accessTokenResponseClient(this.accessTokenResponseClient())
+				)
+			);
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSecurity
+class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+
+    override fun configure(http: HttpSecurity) {
+        http {
+            oauth2Client {
+                clientRegistrationRepository = clientRegistrationRepository()
+                authorizedClientRepository = authorizedClientRepository()
+                authorizedClientService = authorizedClientService()
+                authorizationCodeGrant {
+                    authorizationRequestRepository = authorizationRequestRepository()
+                    authorizationRequestResolver = authorizationRequestResolver()
+                    accessTokenResponseClient = accessTokenResponseClient()
+                }
+            }
+        }
+    }
+}
+----
+====
+
+In addition to the `HttpSecurity.oauth2Client()` DSL, XML configuration is also supported.
+
+The following code shows the complete configuration options available in the xref:servlet/appendix/namespace/http.adoc#nsa-oauth2-client[ security namespace]:
+
+.OAuth2 Client XML Configuration Options
+====
+[source,xml]
+----
+<http>
+	<oauth2-client client-registration-repository-ref="clientRegistrationRepository"
+				   authorized-client-repository-ref="authorizedClientRepository"
+				   authorized-client-service-ref="authorizedClientService">
+		<authorization-code-grant
+				authorization-request-repository-ref="authorizationRequestRepository"
+				authorization-request-resolver-ref="authorizationRequestResolver"
+				access-token-response-client-ref="accessTokenResponseClient"/>
+	</oauth2-client>
+</http>
+----
+====
+
+The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
+
+The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public OAuth2AuthorizedClientManager authorizedClientManager(
+		ClientRegistrationRepository clientRegistrationRepository,
+		OAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	OAuth2AuthorizedClientProvider authorizedClientProvider =
+			OAuth2AuthorizedClientProviderBuilder.builder()
+					.authorizationCode()
+					.refreshToken()
+					.clientCredentials()
+					.password()
+					.build();
+
+	DefaultOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizedClientManager(
+        clientRegistrationRepository: ClientRegistrationRepository,
+        authorizedClientRepository: OAuth2AuthorizedClientRepository): OAuth2AuthorizedClientManager {
+    val authorizedClientProvider: OAuth2AuthorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
+            .authorizationCode()
+            .refreshToken()
+            .clientCredentials()
+            .password()
+            .build()
+    val authorizedClientManager = DefaultOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientRepository)
+    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+    return authorizedClientManager
+}
+----
+====
