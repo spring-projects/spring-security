@@ -3,7 +3,7 @@
 :icondir: icons
 
 Let's take a look at how SAML 2.0 Relying Party Authentication works within Spring Security.
-First, we see that, like xref:servlet/oauth2/oauth2-login.adoc[OAuth 2.0 Login], Spring Security takes the user to a third-party for performing authentication.
+First, we see that, like xref:servlet/oauth2/login/index.adoc[OAuth 2.0 Login], Spring Security takes the user to a third-party for performing authentication.
 It does this through a series of redirects.
 
 .Redirecting to Asserting Party Authentication
