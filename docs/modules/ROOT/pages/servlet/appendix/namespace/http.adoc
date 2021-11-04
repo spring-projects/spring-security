@@ -863,7 +863,7 @@ Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` p
 
 [[nsa-oauth2-login]]
 == <oauth2-login>
-The xref:servlet/oauth2/oauth2-login.adoc#oauth2login[OAuth 2.0 Login] feature configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+The xref:servlet/oauth2/login/index.adoc#oauth2login[OAuth 2.0 Login] feature configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
 
 
 [[nsa-oauth2-login-parents]]
