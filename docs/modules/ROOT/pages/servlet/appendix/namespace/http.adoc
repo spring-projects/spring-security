@@ -947,7 +947,7 @@ Reference to the `JwtDecoderFactory` used by `OidcAuthorizationCodeAuthenticatio
 
 [[nsa-oauth2-client]]
 == <oauth2-client>
-Configures xref:servlet/oauth2/oauth2-client.adoc#oauth2client[OAuth 2.0 Client] support.
+Configures xref:servlet/oauth2/client/index.adoc#oauth2client[OAuth 2.0 Client] support.
 
 
 [[nsa-oauth2-client-parents]]
@@ -982,7 +982,7 @@ Reference to the `OAuth2AuthorizedClientService`.
 
 [[nsa-authorization-code-grant]]
 == <authorization-code-grant>
-Configures xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-auth-grant-support[OAuth 2.0 Authorization Code Grant].
+Configures xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-auth-grant-support[OAuth 2.0 Authorization Code Grant].
 
 
 [[nsa-authorization-code-grant-parents]]
@@ -1012,7 +1012,7 @@ Reference to the `OAuth2AccessTokenResponseClient`.
 
 [[nsa-client-registrations]]
 == <client-registrations>
-A container element for client(s) registered (xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-client-registration[ClientRegistration]) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+A container element for client(s) registered (xref:servlet/oauth2/client/index.adoc#oauth2Client-client-registration[ClientRegistration]) with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 
 [[nsa-client-registrations-children]]

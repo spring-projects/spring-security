@@ -367,7 +367,7 @@ END;
 
 [[dbschema-oauth2-client]]
 == OAuth 2.0 Client Schema
-The JDBC implementation of xref:servlet/oauth2/oauth2-client.adoc#oauth2Client-authorized-repo-service[ OAuth2AuthorizedClientService] (`JdbcOAuth2AuthorizedClientService`) requires a table for persisting `OAuth2AuthorizedClient`(s).
+The JDBC implementation of xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized-repo-service[ OAuth2AuthorizedClientService] (`JdbcOAuth2AuthorizedClientService`) requires a table for persisting `OAuth2AuthorizedClient`(s).
 You will need to adjust this schema to match the database dialect you are using.
 
 [source,ddl]
