@@ -53,7 +53,7 @@ public final class LdapUtils {
 			}
 		}
 		catch (NamingException ex) {
-			logger.error("Failed to close context.", ex);
+			logger.debug("Failed to close context.", ex);
 		}
 	}
 
@@ -64,7 +64,7 @@ public final class LdapUtils {
 			}
 		}
 		catch (NamingException ex) {
-			logger.error("Failed to close enumeration.", ex);
+			logger.debug("Failed to close enumeration.", ex);
 		}
 	}
 

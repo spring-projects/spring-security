@@ -31,6 +31,7 @@ import netscape.ldap.ber.stream.BERTagDecoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.dao.DataRetrievalFailureException;
 
 /**
@@ -158,19 +159,21 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 	 */
 	@Override
 	public String toString() {
-		StringBuilder sb = new StringBuilder("PasswordPolicyResponseControl");
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName()).append(" [");
 		if (hasError()) {
-			sb.append(", error: ").append(this.errorStatus.getDefaultMessage());
+			sb.append("error=").append(this.errorStatus.getDefaultMessage()).append("; ");
 		}
 		if (this.graceLoginsRemaining != Integer.MAX_VALUE) {
-			sb.append(", warning: ").append(this.graceLoginsRemaining).append(" grace logins remain");
+			sb.append("warning=").append(this.graceLoginsRemaining).append(" grace logins remain; ");
 		}
 		if (this.timeBeforeExpiration != Integer.MAX_VALUE) {
-			sb.append(", warning: time before expiration is ").append(this.timeBeforeExpiration);
+			sb.append("warning=time before expiration is ").append(this.timeBeforeExpiration).append("; ");
 		}
 		if (!hasError() && !hasWarning()) {
-			sb.append(" (no error, no warning)");
+			sb.append("(no error, no warning)");
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 
@@ -192,7 +195,8 @@ public class PasswordPolicyResponseControl extends PasswordPolicyControl {
 					new ByteArrayInputStream(PasswordPolicyResponseControl.this.encodedValue), bread);
 			int size = seq.size();
 			if (logger.isDebugEnabled()) {
-				logger.debug("PasswordPolicyResponse, ASN.1 sequence has " + size + " elements");
+				logger.debug(LogMessage.format("Received PasswordPolicyResponse whose ASN.1 sequence has %d elements",
+						size));
 			}
 			for (int i = 0; i < seq.size(); i++) {
 				BERTag elt = (BERTag) seq.elementAt(i);

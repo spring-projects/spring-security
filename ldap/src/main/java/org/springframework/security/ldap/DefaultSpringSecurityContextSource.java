@@ -28,6 +28,7 @@ import java.util.StringTokenizer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.support.DirContextAuthenticationStrategy;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.ldap.core.support.SimpleDirContextAuthenticationStrategy;
@@ -72,7 +73,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 			String url = tokenizer.nextToken();
 			String urlRootDn = LdapUtils.parseRootDnFromUrl(url);
 			urls.add(url.substring(0, url.lastIndexOf(urlRootDn)));
-			this.logger.info(" URL '" + url + "', root DN is '" + urlRootDn + "'");
+			this.logger.info(LogMessage.format("Configure with URL %s and root DN %s", url, urlRootDn));
 			Assert.isTrue(rootDn == null || rootDn.equals(urlRootDn),
 					"Root DNs must be the same when using multiple URLs");
 			rootDn = (rootDn != null) ? rootDn : urlRootDn;
@@ -89,7 +90,7 @@ public class DefaultSpringSecurityContextSource extends LdapContextSource {
 				// Remove the pooling flag unless authenticating as the 'manager' user.
 				if (!DefaultSpringSecurityContextSource.this.userDn.equals(dn)
 						&& env.containsKey(SUN_LDAP_POOLING_FLAG)) {
-					DefaultSpringSecurityContextSource.this.logger.debug("Removing pooling flag for user " + dn);
+					DefaultSpringSecurityContextSource.this.logger.trace("Removing pooling flag for user " + dn);
 					env.remove(SUN_LDAP_POOLING_FLAG);
 				}
 			}

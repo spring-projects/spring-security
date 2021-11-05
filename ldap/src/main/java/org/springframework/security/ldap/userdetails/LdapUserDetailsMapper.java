@@ -54,7 +54,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
 		String dn = ctx.getNameInNamespace();
-		this.logger.debug(LogMessage.format("Mapping user details from context with DN: %s", dn));
+		this.logger.debug(LogMessage.format("Mapping user details from context with DN %s", dn));
 		LdapUserDetailsImpl.Essence essence = new LdapUserDetailsImpl.Essence();
 		essence.setDn(dn);
 		Object passwordValue = ctx.getObjectAttribute(this.passwordAttributeName);
@@ -67,7 +67,7 @@ public class LdapUserDetailsMapper implements UserDetailsContextMapper {
 			String[] rolesForAttribute = ctx.getStringAttributes(this.roleAttributes[i]);
 			if (rolesForAttribute == null) {
 				this.logger.debug(
-						LogMessage.format("Couldn't read role attribute '%s' for user $s", this.roleAttributes[i], dn));
+						LogMessage.format("Couldn't read role attribute %s for user %s", this.roleAttributes[i], dn));
 				continue;
 			}
 			for (String role : rolesForAttribute) {

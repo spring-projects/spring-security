@@ -76,25 +76,37 @@ public final class PasswordComparisonAuthenticator extends AbstractLdapAuthentic
 				user = ldapTemplate.retrieveEntry(userDn, getUserAttributes());
 			}
 			catch (NameNotFoundException ignore) {
+				logger.trace(LogMessage.format("Failed to retrieve user with %s", userDn), ignore);
 			}
 			if (user != null) {
 				break;
 			}
 		}
+		if (user == null) {
+			logger.debug(LogMessage.of(() -> "Failed to retrieve user with any user DNs " + getUserDns(username)));
+		}
 		if (user == null && getUserSearch() != null) {
+			logger.trace("Searching for user using " + getUserSearch());
 			user = getUserSearch().searchForUser(username);
+			if (user == null) {
+				logger.debug("Failed to find user using " + getUserSearch());
+			}
 		}
 		if (user == null) {
 			throw new UsernameNotFoundException("User not found: " + username);
 		}
-		if (logger.isDebugEnabled()) {
-			logger.debug(LogMessage.format("Performing LDAP compare of password attribute '%s' for user '%s'",
+		if (logger.isTraceEnabled()) {
+			logger.trace(LogMessage.format("Comparing password attribute '%s' for user '%s'",
 					this.passwordAttributeName, user.getDn()));
 		}
 		if (this.usePasswordAttrCompare && isPasswordAttrCompare(user, password)) {
+			logger.debug(LogMessage.format("Locally matched password attribute '%s' for user '%s'",
+					this.passwordAttributeName, user.getDn()));
 			return user;
 		}
 		if (isLdapPasswordCompare(user, ldapTemplate, password)) {
+			logger.debug(LogMessage.format("LDAP-matched password attribute '%s' for user '%s'",
+					this.passwordAttributeName, user.getDn()));
 			return user;
 		}
 		throw new BadCredentialsException(

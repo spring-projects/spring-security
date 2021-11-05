@@ -166,7 +166,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			encodedParams[i] = LdapEncoder.filterEncode(params[i].toString());
 		}
 		String formattedFilter = MessageFormat.format(filter, encodedParams);
-		logger.debug(LogMessage.format("Using filter: %s", formattedFilter));
+		logger.trace(LogMessage.format("Using filter: %s", formattedFilter));
 		HashSet<Map<String, List<String>>> result = new HashSet<>();
 		ContextMapper roleMapper = (ctx) -> {
 			DirContextAdapter adapter = (DirContextAdapter) ctx;
@@ -223,7 +223,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 			String attributeName) {
 		Object[] values = adapter.getObjectAttributes(attributeName);
 		if (values == null || values.length == 0) {
-			logger.debug(LogMessage.format("No attribute value found for '%s'", attributeName));
+			logger.debug(LogMessage.format("Did not find attribute value for %s", attributeName));
 			return;
 		}
 		List<String> stringValues = new ArrayList<>();
@@ -233,9 +233,9 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 					stringValues.add((String) value);
 				}
 				else {
-					logger.debug(LogMessage.format("Attribute:%s contains a non string value of type[%s]",
-							attributeName, value.getClass()));
 					stringValues.add(value.toString());
+					logger.debug(LogMessage.format("Coerced attribute value for %s of type %s to a String",
+							attributeName, value.getClass()));
 				}
 			}
 		}
@@ -270,7 +270,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		final DistinguishedName searchBaseDn = new DistinguishedName(base);
 		final NamingEnumeration<SearchResult> resultsEnum = ctx.search(searchBaseDn, filter, params,
 				buildControls(searchControls));
-		logger.debug(LogMessage.format("Searching for entry under DN '%s', base = '%s', filter = '%s'", ctxBaseDn,
+		logger.trace(LogMessage.format("Searching for entry under DN '%s', base = '%s', filter = '%s'", ctxBaseDn,
 				searchBaseDn, filter));
 		Set<DirContextOperations> results = new HashSet<>();
 		try {
@@ -284,7 +284,7 @@ public class SpringSecurityLdapTemplate extends LdapTemplate {
 		}
 		catch (PartialResultException ex) {
 			LdapUtils.closeEnumeration(resultsEnum);
-			logger.info("Ignoring PartialResultException");
+			logger.trace("Ignoring PartialResultException");
 		}
 		if (results.size() != 1) {
 			throw new IncorrectResultSizeDataAccessException(1, results.size());
