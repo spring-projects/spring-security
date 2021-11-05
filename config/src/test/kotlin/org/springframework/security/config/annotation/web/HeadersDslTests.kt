@@ -25,7 +25,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.config.web.servlet.headers.PermissionsPolicyDsl
 import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
