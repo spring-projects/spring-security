@@ -146,30 +146,16 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString()).append(": ");
-		sb.append("Dn: ").append(this.dn).append("; ");
-		sb.append("Username: ").append(this.username).append("; ");
-		sb.append("Password: [PROTECTED]; ");
-		sb.append("Enabled: ").append(this.enabled).append("; ");
-		sb.append("AccountNonExpired: ").append(this.accountNonExpired).append("; ");
-		sb.append("CredentialsNonExpired: ").append(this.credentialsNonExpired).append("; ");
-		sb.append("AccountNonLocked: ").append(this.accountNonLocked).append("; ");
-		if (this.getAuthorities() != null && !this.getAuthorities().isEmpty()) {
-			sb.append("Granted Authorities: ");
-			boolean first = true;
-			for (Object authority : this.getAuthorities()) {
-				if (first) {
-					first = false;
-				}
-				else {
-					sb.append(", ");
-				}
-				sb.append(authority.toString());
-			}
-		}
-		else {
-			sb.append("Not granted any authorities");
-		}
+		sb.append(getClass().getSimpleName()).append(" [");
+		sb.append("Dn=").append(this.dn).append("; ");
+		sb.append("Username=").append(this.username).append("; ");
+		sb.append("Password=[PROTECTED]; ");
+		sb.append("Enabled=").append(this.enabled).append("; ");
+		sb.append("AccountNonExpired=").append(this.accountNonExpired).append("; ");
+		sb.append("CredentialsNonExpired=").append(this.credentialsNonExpired).append("; ");
+		sb.append("AccountNonLocked=").append(this.accountNonLocked).append("; ");
+		sb.append("Granted Authorities=").append(getAuthorities());
+		sb.append("]");
 		return sb.toString();
 	}
 

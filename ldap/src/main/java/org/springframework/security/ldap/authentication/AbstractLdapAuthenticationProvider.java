@@ -24,7 +24,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -68,7 +67,6 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		UsernamePasswordAuthenticationToken userToken = (UsernamePasswordAuthenticationToken) authentication;
 		String username = userToken.getName();
 		String password = (String) authentication.getCredentials();
-		this.logger.debug(LogMessage.format("Processing authentication request for user: %s", username));
 		if (!StringUtils.hasLength(username)) {
 			throw new BadCredentialsException(
 					this.messages.getMessage("LdapAuthenticationProvider.emptyUsername", "Empty Username"));
@@ -104,6 +102,7 @@ public abstract class AbstractLdapAuthenticationProvider implements Authenticati
 		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(user, password,
 				this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
+		this.logger.debug("Authenticated user");
 		return result;
 	}
 

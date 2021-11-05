@@ -79,8 +79,8 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 		this.searchBase = searchBase;
 		setSearchSubtree(true);
 		if (searchBase.length() == 0) {
-			logger.info(
-					"SearchBase not set. Searches will be performed from the root: " + contextSource.getBaseLdapPath());
+			logger.info(LogMessage.format("Searches will be performed from the root %s since SearchBase not set",
+					contextSource.getBaseLdapPath()));
 		}
 	}
 
@@ -93,11 +93,14 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	 */
 	@Override
 	public DirContextOperations searchForUser(String username) {
-		logger.debug(LogMessage.of(() -> "Searching for user '" + username + "', with user search " + this));
+		logger.trace(LogMessage.of(() -> "Searching for user '" + username + "', with " + this));
 		SpringSecurityLdapTemplate template = new SpringSecurityLdapTemplate(this.contextSource);
 		template.setSearchControls(this.searchControls);
 		try {
-			return template.searchForSingleEntry(this.searchBase, this.searchFilter, new String[] { username });
+			DirContextOperations operations = template.searchForSingleEntry(this.searchBase, this.searchFilter,
+					new String[] { username });
+			logger.debug(LogMessage.of(() -> "Found user '" + username + "', with " + this));
+			return operations;
 		}
 		catch (IncorrectResultSizeDataAccessException ex) {
 			if (ex.getActualSize() == 0) {
@@ -151,12 +154,14 @@ public class FilterBasedLdapUserSearch implements LdapUserSearch {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("[ searchFilter: '").append(this.searchFilter).append("', ");
-		sb.append("searchBase: '").append(this.searchBase).append("'");
-		sb.append(", scope: ").append(
-				(this.searchControls.getSearchScope() != SearchControls.SUBTREE_SCOPE) ? "single-level, " : "subtree");
-		sb.append(", searchTimeLimit: ").append(this.searchControls.getTimeLimit());
-		sb.append(", derefLinkFlag: ").append(this.searchControls.getDerefLinkFlag()).append(" ]");
+		sb.append(getClass().getSimpleName()).append(" [");
+		sb.append("searchFilter=").append(this.searchFilter).append("; ");
+		sb.append("searchBase=").append(this.searchBase).append("; ");
+		sb.append("scope=").append(
+				(this.searchControls.getSearchScope() != SearchControls.SUBTREE_SCOPE) ? "single-level" : "subtree")
+				.append("; ");
+		sb.append("searchTimeLimit=").append(this.searchControls.getTimeLimit()).append("; ");
+		sb.append("derefLinkFlag=").append(this.searchControls.getDerefLinkFlag()).append(" ]");
 		return sb.toString();
 	}
 

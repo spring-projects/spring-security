@@ -48,7 +48,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	public String getPrincipal() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			log.warn("No Authentication object set in SecurityContext - returning empty String as Principal");
+			log.debug("Returning empty String as Principal since authentication is null");
 			return "";
 		}
 		Object principal = authentication.getPrincipal();
@@ -57,7 +57,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 			return details.getDn();
 		}
 		if (authentication instanceof AnonymousAuthenticationToken) {
-			log.debug("Anonymous Authentication, returning empty String as Principal");
+			log.debug("Returning empty String as Principal since authentication is anonymous");
 			return "";
 		}
 		throw new IllegalArgumentException(
@@ -71,7 +71,7 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	public String getCredentials() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if (authentication == null) {
-			log.warn("No Authentication object set in SecurityContext - returning empty String as Credentials");
+			log.debug("Returning empty String as Credentials since authentication is null");
 			return "";
 		}
 		return (String) authentication.getCredentials();

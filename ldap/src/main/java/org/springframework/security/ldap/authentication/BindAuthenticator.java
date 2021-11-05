@@ -65,7 +65,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		String username = authentication.getName();
 		String password = (String) authentication.getCredentials();
 		if (!StringUtils.hasLength(password)) {
-			logger.debug(LogMessage.format("Rejecting empty password for user %s", username));
+			logger.debug(LogMessage.format("Failed to authenticate since no credentials provided"));
 			throw new BadCredentialsException(
 					this.messages.getMessage("BindAuthenticator.emptyPassword", "Empty Password"));
 		}
@@ -76,11 +76,18 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 				break;
 			}
 		}
+		if (user == null) {
+			logger.debug(LogMessage.of(() -> "Failed to bind with any user DNs " + getUserDns(username)));
+		}
 		// Otherwise use the configured search object to find the user and authenticate
 		// with the returned DN.
 		if (user == null && getUserSearch() != null) {
+			logger.trace("Searching for user using " + getUserSearch());
 			DirContextOperations userFromSearch = getUserSearch().searchForUser(username);
 			user = bindWithDn(userFromSearch.getDn().toString(), username, password, userFromSearch.getAttributes());
+			if (user == null) {
+				logger.debug("Failed to find user using " + getUserSearch());
+			}
 		}
 		if (user == null) {
 			throw new BadCredentialsException(
@@ -98,13 +105,12 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 		DistinguishedName userDn = new DistinguishedName(userDnStr);
 		DistinguishedName fullDn = new DistinguishedName(userDn);
 		fullDn.prepend(ctxSource.getBaseLdapPath());
-		logger.debug(LogMessage.format("Attempting to bind as %s", fullDn));
+		logger.trace(LogMessage.format("Attempting to bind as %s", fullDn));
 		DirContext ctx = null;
 		try {
 			ctx = getContextSource().getContext(fullDn.toString(), password);
 			// Check for password policy control
 			PasswordPolicyControl ppolicy = PasswordPolicyControlExtractor.extractControl(ctx);
-			logger.debug("Retrieving attributes...");
 			if (attrs == null || attrs.size() == 0) {
 				attrs = ctx.getAttributes(userDn, getUserAttributes());
 			}
@@ -112,6 +118,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 			if (ppolicy != null) {
 				result.setAttributeValue(ppolicy.getID(), ppolicy);
 			}
+			logger.debug(LogMessage.format("Bound %s", fullDn));
 			return result;
 		}
 		catch (NamingException ex) {
@@ -141,7 +148,7 @@ public class BindAuthenticator extends AbstractLdapAuthenticator {
 	 * logger.
 	 */
 	protected void handleBindException(String userDn, String username, Throwable cause) {
-		logger.debug(LogMessage.format("Failed to bind as %s: %s", userDn, cause));
+		logger.trace(LogMessage.format("Failed to bind as %s", userDn), cause);
 	}
 
 }
