@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web
 
 import org.springframework.security.authentication.AuthenticationDetailsSource
-import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.oauth2.login.AuthorizationEndpointDsl
 import org.springframework.security.config.annotation.web.oauth2.login.RedirectionEndpointDsl

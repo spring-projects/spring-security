@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web
 
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.web.HttpSecurityBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
