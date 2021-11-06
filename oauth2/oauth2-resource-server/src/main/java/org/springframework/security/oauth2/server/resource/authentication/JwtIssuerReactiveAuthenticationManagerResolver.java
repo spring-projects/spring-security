@@ -17,9 +17,9 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -30,11 +30,11 @@ import reactor.core.scheduler.Schedulers;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoders;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
@@ -83,7 +83,31 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(new ArrayList<>(trustedIssuers)::contains));
+				new TrustedIssuerJwtAuthenticationManagerResolver(
+						Collections.unmodifiableCollection(trustedIssuers)::contains,
+						(issuer) -> Mono.fromCallable(() -> {
+							ReactiveJwtDecoder jwtDecoder = ReactiveJwtDecoders.fromIssuerLocation(issuer);
+							return new JwtReactiveAuthenticationManager(jwtDecoder);
+						})));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a list of trusted issuers
+	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
+	 * {@link ReactiveAuthenticationManager} by the trusted issuer
+	 *
+	 * @author Cosmin Selagea-Popov
+	 * @since 5.6
+	 */
+	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers,
+			ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
+		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
+		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
+		this.authenticationManager = new ResolvingAuthenticationManager(
+				new TrustedIssuerJwtAuthenticationManagerResolver(
+						Collections.unmodifiableCollection(trustedIssuers)::contains, issuerAuthenticationManagerResolver));
 	}
 
 	/**
@@ -104,17 +128,17 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the trusted issuers.
-	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
+	 * @param trustedIssuerAuthenticationManagerResolver a strategy for resolving the
 	 * {@link ReactiveAuthenticationManager} by the issuer
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(
-			ReactiveAuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
-		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
-		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
+			ReactiveAuthenticationManagerResolver<String> trustedIssuerAuthenticationManagerResolver) {
+		Assert.notNull(trustedIssuerAuthenticationManagerResolver, "trustedIssuerAuthenticationManagerResolver cannot be null");
+		this.authenticationManager = new ResolvingAuthenticationManager(trustedIssuerAuthenticationManagerResolver);
 	}
 
 	/**
-	 * Return an {@link AuthenticationManager} based off of the `iss` claim found in the
+	 * Return a {@link ReactiveAuthenticationManager} based off of the `iss` claim found in the
 	 * request's bearer token
 	 * @throws OAuth2AuthenticationException if the bearer token is malformed or an
 	 * {@link ReactiveAuthenticationManager} can't be derived from the issuer
@@ -173,9 +197,12 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		private final Map<String, Mono<ReactiveAuthenticationManager>> authenticationManagers = new ConcurrentHashMap<>();
 
 		private final Predicate<String> trustedIssuer;
+		private final ReactiveAuthenticationManagerResolver<String> delegate;
 
-		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer,
+				ReactiveAuthenticationManagerResolver<String> delegate) {
 			this.trustedIssuer = trustedIssuer;
+			this.delegate = delegate;
 		}
 
 		@Override
@@ -185,7 +212,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			}
 			// @formatter:off
 			return this.authenticationManagers.computeIfAbsent(issuer,
-					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
+					(k) -> this.delegate.resolve(k)
 							.subscribeOn(Schedulers.boundedElastic())
 							.cache((manager) -> Duration.ofMillis(Long.MAX_VALUE), (ex) -> Duration.ZERO, () -> Duration.ZERO)
 			);

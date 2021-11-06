@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -47,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link JwtIssuerAuthenticationManagerResolver}
@@ -139,7 +141,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
 					.setBody(JWK_SET));
 			TrustedIssuerJwtAuthenticationManagerResolver resolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-					(iss) -> iss.equals(issuer));
+					(iss) -> iss.equals(issuer), (iss) -> mock(AuthenticationManager.class));
 			AuthenticationManager authenticationManager = resolver.resolve(issuer);
 			AuthenticationManager cachedAuthenticationManager = resolver.resolve(issuer);
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
@@ -158,8 +160,34 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		// @formatter:on
 	}
 
+	// gh-9096
 	@Test
-	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
+	public void resolveWhenUsingTrustedIssuerWithCustomIssuerAuthenticationManagerResolverThenUses() {
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				Collections.singleton("trusted"), (iss) -> authenticationManager);
+		Authentication token = withBearerToken(this.jwt);
+		authenticationManagerResolver.resolve(null).authenticate(token);
+		verify(authenticationManager).authenticate(token);
+	}
+
+	// gh-9096
+	@Test
+	public void resolveWhenUsingUntrustedIssuerWithCustomIssuerAuthenticationManagerResolverThenException() {
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				Arrays.asList("other", "issuers"), (iss) -> authenticationManager);
+		Authentication token = withBearerToken(this.jwt);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(null).authenticate(token))
+				.withMessageContaining("Invalid issuer");
+		// @formatter:on
+		verifyNoInteractions(authenticationManager);
+	}
+
+	@Test
+	public void resolveWhenUsingCustomTrustedIssuerAuthenticationManagerResolverThenUses() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				(issuer) -> authenticationManager);
@@ -235,12 +263,18 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((Collection) null));
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList()));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(null, (iss) -> mock(AuthenticationManager.class)));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.emptyList(), (iss) -> mock(AuthenticationManager.class)));
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver(Collections.singleton("trusted"), null));
 	}
 
 	private Authentication withBearerToken(String token) {

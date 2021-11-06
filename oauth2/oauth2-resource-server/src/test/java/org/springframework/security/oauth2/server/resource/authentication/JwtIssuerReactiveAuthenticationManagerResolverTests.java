@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,6 +51,7 @@ import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * Tests for {@link JwtIssuerReactiveAuthenticationManagerResolver}
@@ -132,7 +134,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
 					.setBody(JWK_SET));
 			TrustedIssuerJwtAuthenticationManagerResolver resolver = new TrustedIssuerJwtAuthenticationManagerResolver(
-					(iss) -> iss.equals(issuer));
+					(iss) -> iss.equals(issuer), (iss) -> Mono.just(mock(ReactiveAuthenticationManager.class)));
 			ReactiveAuthenticationManager authenticationManager = resolver.resolve(issuer).block();
 			ReactiveAuthenticationManager cachedAuthenticationManager = resolver.resolve(issuer).block();
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
@@ -153,8 +155,37 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 		// @formatter:on
 	}
 
+	// gh-9096
 	@Test
-	public void resolveWhenUsingCustomIssuerAuthenticationManagerResolverThenUses() {
+	public void resolveWhenUsingTrustedIssuerWithCustomIssuerAuthenticationManagerResolverThenUses() {
+		Authentication token = withBearerToken(this.jwt);
+		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
+		given(authenticationManager.authenticate(token)).willReturn(Mono.empty());
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+				Collections.singleton("trusted"), (issuer) -> Mono.just(authenticationManager));
+		authenticationManagerResolver.resolve(null).flatMap((manager) -> manager.authenticate(token)).block();
+		verify(authenticationManager).authenticate(any());
+	}
+
+	// gh-9096
+	@Test
+	public void resolveWhenUsingUntrustedIssuerWithCustomIssuerAuthenticationManagerResolverThenException() {
+		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+				Arrays.asList("other", "issuers"), (issuer) -> Mono.just(authenticationManager));
+		Authentication token = withBearerToken(this.jwt);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(null)
+						.flatMap((manager) -> manager.authenticate(token))
+						.block())
+				.withMessageContaining("Invalid issuer");
+		// @formatter:on
+		verifyNoInteractions(authenticationManager);
+	}
+
+	@Test
+	public void resolveWhenUsingCustomTrustedIssuerAuthenticationManagerResolverThenUses() {
 		Authentication token = withBearerToken(this.jwt);
 		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
 		given(authenticationManager.authenticate(token)).willReturn(Mono.empty());
@@ -234,12 +265,20 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver((Collection) null));
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(Collections.emptyList()));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(null,
+						(iss) -> Mono.just(mock(ReactiveAuthenticationManager.class))));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(Collections.emptyList(),
+						(iss) -> Mono.just(mock(ReactiveAuthenticationManager.class))));
 	}
 
 	@Test
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> new JwtIssuerReactiveAuthenticationManagerResolver((ReactiveAuthenticationManagerResolver) null));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new JwtIssuerReactiveAuthenticationManagerResolver(Collections.singleton("trusted"), null));
 	}
 
 	private String jwt(String claim, String value) {

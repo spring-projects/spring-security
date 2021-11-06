@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -84,7 +85,30 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.authenticationManager = new ResolvingAuthenticationManager(
 				new TrustedIssuerJwtAuthenticationManagerResolver(
-						Collections.unmodifiableCollection(trustedIssuers)::contains));
+						Collections.unmodifiableCollection(trustedIssuers)::contains,
+						(issuer) -> {
+							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
+							return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
+						}));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a list of trusted issuers
+	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
+	 * {@link AuthenticationManager} by the trusted issuer
+	 *
+	 * @author Cosmin Selagea-Popov
+	 * @since 5.6
+	 */
+	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers,
+			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
+		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
+		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
+		this.authenticationManager = new ResolvingAuthenticationManager(
+				new TrustedIssuerJwtAuthenticationManagerResolver(
+						Collections.unmodifiableCollection(trustedIssuers)::contains, issuerAuthenticationManagerResolver));
 	}
 
 	/**
@@ -105,13 +129,13 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * </pre>
 	 *
 	 * The keys in the {@link Map} are the allowed issuers.
-	 * @param issuerAuthenticationManagerResolver a strategy for resolving the
+	 * @param trustedIssuerAuthenticationManagerResolver a strategy for resolving the
 	 * {@link AuthenticationManager} by the issuer
 	 */
 	public JwtIssuerAuthenticationManagerResolver(
-			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
-		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
-		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
+			AuthenticationManagerResolver<String> trustedIssuerAuthenticationManagerResolver) {
+		Assert.notNull(trustedIssuerAuthenticationManagerResolver, "trustedIssuerAuthenticationManagerResolver cannot be null");
+		this.authenticationManager = new ResolvingAuthenticationManager(trustedIssuerAuthenticationManagerResolver);
 	}
 
 	/**
@@ -176,20 +200,22 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		private final Map<String, AuthenticationManager> authenticationManagers = new ConcurrentHashMap<>();
 
 		private final Predicate<String> trustedIssuer;
+		private final AuthenticationManagerResolver<String> delegate;
 
-		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer) {
+		TrustedIssuerJwtAuthenticationManagerResolver(Predicate<String> trustedIssuer,
+				AuthenticationManagerResolver<String> delegate) {
 			this.trustedIssuer = trustedIssuer;
+			this.delegate = delegate;
 		}
 
 		@Override
 		public AuthenticationManager resolve(String issuer) {
 			if (this.trustedIssuer.test(issuer)) {
 				AuthenticationManager authenticationManager = this.authenticationManagers.computeIfAbsent(issuer,
-						(k) -> {
+						((Function<String, String>) (k) -> {
 							this.logger.debug("Constructing AuthenticationManager");
-							JwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuer);
-							return new JwtAuthenticationProvider(jwtDecoder)::authenticate;
-						});
+							return k;
+						}).andThen(this.delegate::resolve));
 				this.logger.debug(LogMessage.format("Resolved AuthenticationManager for issuer '%s'", issuer));
 				return authenticationManager;
 			}
