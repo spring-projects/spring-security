@@ -312,7 +312,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & saml2-login? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -629,6 +629,126 @@ opaque-token.attlist &=
 opaque-token.attlist &=
     ## Reference to an OpaqueTokenIntrospector
     attribute introspector-ref {xsd:token}?
+
+saml2-login =
+	## Configures authentication support for SAML 2.0 Login
+	element saml2-login {saml2-login.attlist}
+saml2-login.attlist &=
+	## Reference to the RelyingPartyRegistrationRepository
+	attribute relying-party-registration-repository-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the Saml2AuthenticationRequestRepository
+	attribute authentication-request-repository-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the Saml2AuthenticationRequestResolver
+	attribute authentication-request-resolver-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationConverter
+	attribute authentication-converter-ref {xsd:token}?
+saml2-login.attlist &=
+	## The URI where the filter processes authentication requests
+	attribute login-processing-url {xsd:token}?
+saml2-login.attlist &=
+	## The URI to send users to login
+	attribute login-page {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationSuccessHandler
+	attribute authentication-success-handler-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationFailureHandler
+	attribute authentication-failure-handler-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationManager
+	attribute authentication-manager-ref {xsd:token}?
+
+relying-party-registrations =
+	## Container element for relying party(ies) registered with a SAML 2.0 identity provider
+	element relying-party-registrations {relying-party-registration+, asserting-party*}
+
+relying-party-registration =
+	## Represents a relying party registered with a SAML 2.0 identity provider
+	element relying-party-registration {relying-party-registration.attlist, signing-credential*, decryption-credential*}
+relying-party-registration.attlist &=
+	## The ID that uniquely identifies the relying party registration.
+	attribute registration-id {xsd:token}
+relying-party-registration.attlist &=
+	## The location of the Identity Provider's metadata.
+	attribute metadata-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party's EntityID
+	attribute entity-id {xsd:token}?
+relying-party-registration.attlist &=
+	## The Assertion Consumer Service Location
+	attribute assertion-consumer-service-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The Assertion Consumer Service Binding
+	attribute assertion-consumer-service-binding {xsd:token}?
+relying-party-registration.attlist &=
+	## A reference to the associated asserting party.
+	attribute asserting-party-id {xsd:token}?
+
+signing-credential =
+	## The relying party's signing credential
+	element signing-credential {signing-credential.attlist}
+signing-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+signing-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+decryption-credential =
+	## The relying party's decryption credential
+	element decryption-credential {decryption-credential.attlist}
+decryption-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+decryption-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+asserting-party =
+	## The configuration metadata of the Asserting party
+	element asserting-party {asserting-party.attlist, verification-credential*, encryption-credential*}
+asserting-party.attlist &=
+	## A unique identifier of the asserting party.
+	attribute asserting-party-id {xsd:token}
+asserting-party.attlist &=
+	## The asserting party's EntityID.
+	attribute entity-id {xsd:token}
+asserting-party.attlist &=
+	## Indicates the asserting party's preference that relying parties should sign the AuthnRequest before sending
+	attribute want-authn-requests-signed {xsd:token}?
+asserting-party.attlist &=
+	## The <a href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a> Location.
+	attribute single-sign-on-service-location {xsd:token}
+asserting-party.attlist &=
+	## The <a href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a> Binding.
+	attribute single-sign-on-service-binding {xsd:token}?
+asserting-party.attlist &=
+	## A comma separated list of org.opensaml.saml.ext.saml2alg.SigningMethod Algorithms for this asserting party, in preference order.
+	attribute signing-algorithms {xsd:token}?
+
+verification-credential =
+	## The relying party's verification credential
+	element verification-credential {verification-credential.attlist}
+verification-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+verification-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+encryption-credential =
+	## The asserting party's encryption credential
+	element encryption-credential {encryption-credential.attlist}
+encryption-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+encryption-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
 
 filter-chain-map =
 	## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
@@ -1118,4 +1238,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "SAML2_AUTHENTICATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "SAML2_AUTHENTICATION_FILTER" | "FORM_LOGIN_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

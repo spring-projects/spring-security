@@ -1015,6 +1015,15 @@
             <xs:element ref="security:oauth2-login"/>
             <xs:element ref="security:oauth2-client"/>
             <xs:element ref="security:oauth2-resource-server"/>
+            <xs:element name="saml2-login">
+               <xs:annotation>
+                  <xs:documentation>Configures authentication support for SAML 2.0 Login
+                </xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:saml2-login.attlist"/>
+               </xs:complexType>
+            </xs:element>
             <xs:element name="x509">
                <xs:annotation>
                   <xs:documentation>Adds support for X.509 client authentication.
@@ -1916,6 +1925,275 @@
       <xs:attribute name="introspector-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to an OpaqueTokenIntrospector
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  
+  <xs:attributeGroup name="saml2-login.attlist">
+      <xs:attribute name="relying-party-registration-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the RelyingPartyRegistrationRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-request-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2AuthenticationRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-request-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2AuthenticationRequestResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-converter-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationConverter
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="login-processing-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URI where the filter processes authentication requests
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="login-page" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URI to send users to login
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-success-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationSuccessHandler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-failure-handler-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationFailureHandler
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authentication-manager-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the AuthenticationManager
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="relying-party-registrations">
+      <xs:annotation>
+         <xs:documentation>Container element for relying party(ies) registered with a SAML 2.0 identity provider
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element maxOccurs="unbounded" ref="security:relying-party-registration"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:asserting-party"/>
+         </xs:sequence>
+      </xs:complexType>
+   </xs:element>
+  <xs:element name="relying-party-registration">
+      <xs:annotation>
+         <xs:documentation>Represents a relying party registered with a SAML 2.0 identity provider
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:signing-credential"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:decryption-credential"/>
+         </xs:sequence>
+         <xs:attributeGroup ref="security:relying-party-registration.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="relying-party-registration.attlist">
+      <xs:attribute name="registration-id" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The ID that uniquely identifies the relying party registration.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="metadata-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The location of the Identity Provider's metadata.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="entity-id" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The relying party's EntityID
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="assertion-consumer-service-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The Assertion Consumer Service Location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="assertion-consumer-service-binding" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The Assertion Consumer Service Binding
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="asserting-party-id" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>A reference to the associated asserting party.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="signing-credential">
+      <xs:annotation>
+         <xs:documentation>The relying party's signing credential
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:signing-credential.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="signing-credential.attlist">
+      <xs:attribute name="private-key-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The private key location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="certificate-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The certificate location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="decryption-credential">
+      <xs:annotation>
+         <xs:documentation>The relying party's decryption credential
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:decryption-credential.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="decryption-credential.attlist">
+      <xs:attribute name="private-key-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The private key location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="certificate-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The certificate location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="asserting-party">
+      <xs:annotation>
+         <xs:documentation>The configuration metadata of the Asserting party
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:sequence>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:verification-credential"/>
+            <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:encryption-credential"/>
+         </xs:sequence>
+         <xs:attributeGroup ref="security:asserting-party.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="asserting-party.attlist">
+      <xs:attribute name="asserting-party-id" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>A unique identifier of the asserting party.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="entity-id" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The asserting party's EntityID.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="want-authn-requests-signed" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Indicates the asserting party's preference that relying parties should sign the
+                AuthnRequest before sending
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-sign-on-service-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The &lt;a
+                href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint"&gt;SingleSignOnService&lt;/a&gt;
+                Location.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-sign-on-service-binding" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The &lt;a
+                href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint"&gt;SingleSignOnService&lt;/a&gt;
+                Binding.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="signing-algorithms" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>A comma separated list of org.opensaml.saml.ext.saml2alg.SigningMethod Algorithms for this
+                asserting party, in preference order.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="verification-credential">
+      <xs:annotation>
+         <xs:documentation>The relying party's verification credential
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:verification-credential.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="verification-credential.attlist">
+      <xs:attribute name="private-key-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The private key location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="certificate-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The certificate location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="encryption-credential">
+      <xs:annotation>
+         <xs:documentation>The asserting party's encryption credential
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:encryption-credential.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="encryption-credential.attlist">
+      <xs:attribute name="private-key-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The private key location
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="certificate-location" use="required" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The certificate location
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -3241,10 +3519,12 @@
          <xs:enumeration value="CSRF_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
          <xs:enumeration value="OAUTH2_AUTHORIZATION_REQUEST_FILTER"/>
+         <xs:enumeration value="SAML2_AUTHENTICATION_REQUEST_FILTER"/>
          <xs:enumeration value="X509_FILTER"/>
          <xs:enumeration value="PRE_AUTH_FILTER"/>
          <xs:enumeration value="CAS_FILTER"/>
          <xs:enumeration value="OAUTH2_LOGIN_FILTER"/>
+         <xs:enumeration value="SAML2_AUTHENTICATION_FILTER"/>
          <xs:enumeration value="FORM_LOGIN_FILTER"/>
          <xs:enumeration value="LOGIN_PAGE_FILTER"/>
          <xs:enumeration value="LOGOUT_PAGE_FILTER"/>

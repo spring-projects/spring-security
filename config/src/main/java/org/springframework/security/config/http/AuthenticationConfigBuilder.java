@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,6 +182,14 @@ final class AuthenticationConfigBuilder {
 
 	private BeanDefinition oauth2LoginLinks;
 
+	private BeanDefinition saml2AuthenticationUrlToProviderName;
+
+	private BeanDefinition saml2AuthorizationRequestFilter;
+
+	private String saml2AuthenticationFilterId;
+
+	private String saml2AuthenticationRequestFilterId;
+
 	private boolean oauth2ClientEnabled;
 
 	private BeanDefinition authorizationRequestRedirectFilter;
@@ -217,6 +225,7 @@ final class AuthenticationConfigBuilder {
 		createBearerTokenAuthenticationFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
 		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager);
+		createSaml2LoginFilter(authenticationManager);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
 		createLogoutFilter();
@@ -372,6 +381,29 @@ final class AuthenticationConfigBuilder {
 			this.pc.getReaderContext()
 					.registerWithGeneratedName(new RootBeanDefinition(OAuth2ClientWebMvcSecurityPostProcessor.class));
 		}
+	}
+
+	private void createSaml2LoginFilter(BeanReference authenticationManager) {
+		Element saml2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.SAML2_LOGIN);
+		if (saml2LoginElt == null) {
+			return;
+		}
+		Saml2LoginBeanDefinitionParser parser = new Saml2LoginBeanDefinitionParser(this.csrfIgnoreRequestMatchers,
+				this.portMapper, this.portResolver, this.requestCache, this.allowSessionCreation, authenticationManager,
+				this.authenticationProviders, this.defaultEntryPointMappings);
+		BeanDefinition saml2WebSsoAuthenticationFilter = parser.parse(saml2LoginElt, this.pc);
+		this.saml2AuthorizationRequestFilter = parser.getSaml2WebSsoAuthenticationRequestFilter();
+
+		this.saml2AuthenticationFilterId = this.pc.getReaderContext().generateBeanName(saml2WebSsoAuthenticationFilter);
+		this.saml2AuthenticationRequestFilterId = this.pc.getReaderContext()
+				.generateBeanName(this.saml2AuthorizationRequestFilter);
+		this.saml2AuthenticationUrlToProviderName = parser.getSaml2AuthenticationUrlToProviderName();
+
+		// register the component
+		this.pc.registerBeanComponent(
+				new BeanComponentDefinition(saml2WebSsoAuthenticationFilter, this.saml2AuthenticationFilterId));
+		this.pc.registerBeanComponent(new BeanComponentDefinition(this.saml2AuthorizationRequestFilter,
+				this.saml2AuthenticationRequestFilterId));
 	}
 
 	private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
@@ -539,6 +571,11 @@ final class AuthenticationConfigBuilder {
 				loginPageFilter.addPropertyValue("Oauth2LoginEnabled", true);
 				loginPageFilter.addPropertyValue("Oauth2AuthenticationUrlToClientName", this.oauth2LoginLinks);
 			}
+			if (this.saml2AuthenticationFilterId != null) {
+				loginPageFilter.addPropertyValue("saml2LoginEnabled", true);
+				loginPageFilter.addPropertyValue("saml2AuthenticationUrlToProviderName",
+						this.saml2AuthenticationUrlToProviderName);
+			}
 			this.loginPageGenerationFilter = loginPageFilter.getBeanDefinition();
 			this.logoutPageGenerationFilter = logoutPageFilter.getBeanDefinition();
 		}
@@ -703,7 +740,8 @@ final class AuthenticationConfigBuilder {
 			if (formLoginElt != null && this.oauth2LoginEntryPoint != null) {
 				return this.formEntryPoint;
 			}
-			// If form login was enabled through auto-config, and Oauth2 login was not
+			// If form login was enabled through auto-config, and Oauth2 login & Saml2
+			// login was not
 			// enabled then use form login
 			if (this.oauth2LoginEntryPoint == null) {
 				return this.formEntryPoint;
@@ -777,6 +815,12 @@ final class AuthenticationConfigBuilder {
 					SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER.getOrder() + 1));
 			filters.add(new OrderDecorator(this.authorizationCodeGrantFilter,
 					SecurityFilters.OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER));
+		}
+		if (this.saml2AuthenticationFilterId != null) {
+			filters.add(new OrderDecorator(new RuntimeBeanReference(this.saml2AuthenticationFilterId),
+					SecurityFilters.SAML2_AUTHENTICATION_FILTER));
+			filters.add(new OrderDecorator(new RuntimeBeanReference(this.saml2AuthenticationRequestFilterId),
+					SecurityFilters.SAML2_AUTHENTICATION_REQUEST_FILTER));
 		}
 		filters.add(new OrderDecorator(this.etf, SecurityFilters.EXCEPTION_TRANSLATION_FILTER));
 		return filters;
