@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,6 +47,8 @@ enum SecurityFilters {
 
 	OAUTH2_AUTHORIZATION_REQUEST_FILTER,
 
+	SAML2_AUTHENTICATION_REQUEST_FILTER,
+
 	X509_FILTER,
 
 	PRE_AUTH_FILTER,
@@ -54,6 +56,8 @@ enum SecurityFilters {
 	CAS_FILTER,
 
 	OAUTH2_LOGIN_FILTER,
+
+	SAML2_AUTHENTICATION_FILTER,
 
 	FORM_LOGIN_FILTER,
 
