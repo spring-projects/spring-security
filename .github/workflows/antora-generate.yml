@@ -1,4 +1,4 @@
-name: reference
+name: Generate Antora Files and Request Build
 
 on:
   push:
@@ -27,4 +27,4 @@ jobs:
           repository-name: "spring-io/spring-generated-docs"
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Dispatch Build Request
-        run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'spring-io/spring-reference' "$GH_ACTIONS_REPO_TOKEN"
+        run: ${GITHUB_WORKSPACE}/.github/actions/dispatch.sh 'spring-projects/spring-security' "$GH_ACTIONS_REPO_TOKEN"
