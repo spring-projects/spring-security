@@ -164,6 +164,7 @@ The default value is true.
 * <<nsa-port-mappings,port-mappings>>
 * <<nsa-remember-me,remember-me>>
 * <<nsa-request-cache,request-cache>>
+* <<nsa-saml2-login,saml2-login>>
 * <<nsa-session-management,session-management>>
 * <<nsa-x509,x509>>
 
@@ -1290,6 +1291,165 @@ The Client Id to use for client authentication against the provided `introspecti
 * **client-secret**
 The Client Secret to use for client authentication against the provided `introspection-uri`.
 
+
+[[nsa-relying-party-registrations]]
+== <relying-party-registrations>
+The container element for relying party(ies) registered (xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[ClientRegistration]) with a SAML 2.0 Identity Provider.
+
+
+[[nsa-relying-party-registrations-children]]
+=== Child Elements of <relying-party-registrations>
+
+* <<nsa-asserting-party,asserting-party>>
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-relying-party-registration]]
+== <relying-party-registration>
+Represents a relying party registered with a SAML 2.0 Identity Provider
+
+
+[[nsa-relying-party-registration-parents]]
+=== Parent Elements of <relying-party-registration>
+
+* <<nsa-relying-party-registrations,relying-party-registrations>>
+
+
+[[nsa-relying-party-registration-attributes]]
+=== <relying-party-registration> Attributes
+
+
+[[nsa-relying-party-registration-registration-id]]
+* **registration-id**
+The ID that uniquely identifies the `RelyingPartyRegistration`.
+
+[[nsa-relying-party-registration-metadata-location]]
+* **metadata-location**
+The asserting party metadata location.
+
+[[nsa-relying-party-registration-entity-id]]
+* **client-id**
+The relying party's https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor[EntityID].
+
+
+[[nsa-relying-party-registration-assertion-consumer-service-location]]
+* **assertion-consumer-service-location**
+The AssertionConsumerService Location. Equivalent to the value found in `&lt;AssertionConsumerService Location="..."/&gt;` in the relying party's `&lt;SPSSODescriptor&gt;`.
+
+
+[[nsa-relying-party-registration-assertion-consumer-service-binding]]
+* **assertion-consumer-service-binding**
+the AssertionConsumerService Binding. Equivalent to the value found in `&lt;AssertionConsumerService Binding="..."/&gt;` in the relying party's `&lt;SPSSODescriptor&gt;`.
+The supported values are *POST* and *REDIRECT*.
+
+
+[[nsa-relying-party-registration-asserting-party-id]]
+* **asserting-party-id**
+A reference to the associated asserting party. Must reference an `<asserting-party>` element.
+
+
+[[nsa-asserting-party]]
+== <asserting-party>
+The configuration information for a SAML 2.0 Asserting Party.
+
+
+[[nsa-asserting-party-parents]]
+=== Parent Elements of <asserting-party>
+
+* <<nsa-relying-party-registrations,relying-party-registrations>>
+
+
+[[nsa-asserting-party-attributes]]
+=== <asserting-party> Attributes
+
+
+[[nsa-asserting-party-asserting-party-id]]
+* **asserting-party-id**
+The ID that uniquely identifies the asserting party.
+
+
+[[nsa-asserting-party-entity-id]]
+* **entity-id**
+The EntityID of the Asserting Party
+
+
+[[nsa-asserting-party-want-authn-requests-signed]]
+* **want-authn-requests-signed**
+The `WantAuthnRequestsSigned` setting, indicating the asserting party's preference that relying parties should sign the `AuthnRequest` before sending.
+
+
+[[nsa-asserting-party-single-sign-on-service-location]]
+* **single-sign-on-service-location**
+The https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint[SingleSignOnService] Location.
+
+
+[[nsa-asserting-party-single-sign-on-service-binding]]
+* **single-sign-on-service-binding**
+The https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint[SingleSignOnService] Binding.
+The supported values are *POST* and *REDIRECT*.
+
+
+[[nsa-asserting-party-signing-algorithms]]
+* **signing-algorithms**
+The list of `org.opensaml.saml.ext.saml2alg.SigningMethod` Algorithms for this asserting party, in preference order.
+
+
+[[nsa-asserting-party-children]]
+=== Child Elements of <asserting-party>
+
+* <<nsa-encryption-credential,encryption-credential>>
+* <<nsa-verification-credential,verification-credential>>
+
+
+[[nsa-encryption-credential]]
+== <encryption-credential>
+The encryption credentials associated with the asserting party.
+
+
+[[nsa-encryption-credential-parents]]
+=== Parent Elements of <encryption-credential>
+
+* <<nsa-asserting-party,asserting-party>>
+
+
+[[nsa-encryption-credential-attributes]]
+=== <encryption-credential> Attributes
+
+
+[[nsa-encryption-credential-certificate-location]]
+* **certificate-location**
+The location to get the certificate
+
+[[nsa-encryption-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+[[nsa-verification-credential]]
+== <verification-credential>
+The verification credentials associated with the asserting party.
+
+
+[[nsa-verification-credential-parents]]
+=== Parent Elements of <verification-credential>
+
+* <<nsa-asserting-party,asserting-party>>
+
+
+[[nsa-verification-credential-attributes]]
+=== <verification-credential> Attributes
+
+
+[[nsa-verification-credential-certificate-location]]
+* **certificate-location**
+The location to get this certificate
+
+[[nsa-verification-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+
 [[nsa-http-basic]]
 == <http-basic>
 Adds a `BasicAuthenticationFilter` and `BasicAuthenticationEntryPoint` to the configuration.
@@ -1575,6 +1735,64 @@ Defaults to "username".
 === Child Elements of <openid-login>
 * <<nsa-attribute-exchange,attribute-exchange>>
 
+
+[[nsa-saml2-login]]
+== <saml2-login>
+The xref:servlet/saml2/login/index.adoc#servlet-saml2login[SAML 2.0 Login] feature configures authentication support using an SAML 2.0 Service Provider.
+
+
+[[nsa-saml2-login-parents]]
+=== Parent Elements of <saml2-login>
+
+* <<nsa-http,http>>
+
+[[nsa-saml2-login-attributes]]
+=== <saml2-login> Attributes
+
+
+[[nsa-saml2-login-relying-party-registration-repository-ref]]
+* **relying-party-registration-repository-ref**
+Reference to the `RelyingPartyRegistrationRepository`.
+
+
+[[nsa-saml2-login-authentication-request-repository-ref]]
+* **authentication-request-repository-ref**
+Reference to the `Saml2AuthenticationRequestRepository`.
+
+
+[[nsa-saml2-login-authentication-request-resolver-ref]]
+* **authentication-request-context-resolver-ref**
+Reference to the `Saml2AuthenticationRequestResolver`.
+
+
+[[nsa-saml2-login-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to the `AuthenticationConverter`.
+
+
+[[nsa-saml2-login-login-processing-url]]
+* **login-processing-url**
+The URI where the filter processes authentication requests.
+
+
+[[nsa-saml2-login-login-page]]
+* **login-page**
+The URI to send users to login.
+
+
+[[nsa-saml2-login-authentication-success-handler-ref]]
+* **authentication-success-handler-ref**
+Reference to the `AuthenticationSuccessHandler`.
+
+
+[[nsa-saml2-login-authentication-failure-handler-ref]]
+* **authentication-failure-handler-ref**
+Reference to the `AuthenticationFailureHandler`.
+
+
+[[nsa-saml2-login-authentication-manager-ref]]
+* **authentication-manager-ref**
+Reference to the `AuthenticationManager`.
 
 
 [[nsa-attribute-exchange]]

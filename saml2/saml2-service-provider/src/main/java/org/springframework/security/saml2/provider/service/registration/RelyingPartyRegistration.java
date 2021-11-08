@@ -111,7 +111,9 @@ public final class RelyingPartyRegistration {
 		Assert.isTrue(singleLogoutServiceLocation == null || singleLogoutServiceBinding != null,
 				"singleLogoutServiceBinding cannot be null when singleLogoutServiceLocation is set");
 		Assert.notNull(providerDetails, "providerDetails cannot be null");
-		Assert.notEmpty(credentials, "credentials cannot be empty");
+		Assert.isTrue(
+				!credentials.isEmpty() || (decryptionX509Credentials.isEmpty() && signingX509Credentials.isEmpty()),
+				"credentials cannot be empty");
 		for (org.springframework.security.saml2.credentials.Saml2X509Credential c : credentials) {
 			Assert.notNull(c, "credentials cannot contain null elements");
 		}
