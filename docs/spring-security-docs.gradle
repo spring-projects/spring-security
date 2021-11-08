@@ -1,5 +1,22 @@
+plugins {
+	id "io.github.rwinch.antora" version "0.0.2"
+}
+
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
+
+antora {
+	antoraVersion = "3.0.0-alpha.8"
+	arguments = ["--fetch"]
+}
+
+tasks.antora {
+	environment = [
+			"ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
+			"ALGOLIA_APP_ID" : "244V8V9FGG",
+			"ALGOLIA_INDEX_NAME" : "security-docs"
+	]
+}
 
 tasks.register("generateAntora") {
 	group = "Documentation"
