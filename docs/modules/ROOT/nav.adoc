@@ -125,7 +125,9 @@
 ** Authorization
 *** xref:reactive/authorization/method.adoc[EnableReactiveMethodSecurity]
 ** xref:reactive/oauth2/index.adoc[OAuth2]
-*** xref:reactive/oauth2/login.adoc[OAuth2 Log In]
+*** xref:reactive/oauth2/login/index.adoc[OAuth2 Log In]
+**** xref:reactive/oauth2/login/core.adoc[Core Configuration]
+**** xref:reactive/oauth2/login/advanced.adoc[Advanced Configuration]
 *** xref:reactive/oauth2/client/index.adoc[OAuth2 Client]
 **** xref:reactive/oauth2/client/core.adoc[Core Interfaces and Classes]
 **** xref:reactive/oauth2/client/authorization-grants.adoc[OAuth2 Authorization Grants]
