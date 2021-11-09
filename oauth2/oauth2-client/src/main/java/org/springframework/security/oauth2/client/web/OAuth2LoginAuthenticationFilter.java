@@ -222,6 +222,7 @@ public class OAuth2LoginAuthenticationFilter extends AbstractAuthenticationProce
 	 * authentication result.
 	 * @param authenticationResultConverter the converter for
 	 * {@link OAuth2AuthenticationToken}'s
+	 * @since 5.6
 	 */
 	public final void setAuthenticationResultConverter(
 			Converter<OAuth2LoginAuthenticationToken, OAuth2AuthenticationToken> authenticationResultConverter) {
