@@ -19,9 +19,9 @@ Below are the highlights of the release.
 
 * SAML 2.0 Service Provider
 
-** Added https://github.com/spring-projects/spring-security/pull/9483[SAML 2.0 Single Logout Support]
-** Added https://github.com/spring-projects/spring-security/pull/10060[Saml2AuthenticationRequestRepository]
-** Added https://github.com/spring-projects/spring-security/issues/9486[`RelyingPartyRegistrationResolver`]
+** Added xref:servlet/saml2/logout.adoc[SAML 2.0 Single Logout Support]
+** Added xref:servlet/saml2/login/authentication-requests.adoc#servlet-saml2login-store-authn-request[Saml2AuthenticationRequestRepository]
+** Added xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-relyingpartyregistrationresolver[`RelyingPartyRegistrationResolver`]
 ** Improved ``Saml2LoginConfigurer``'s handling of https://github.com/spring-projects/spring-security/issues/10268[`Saml2AuthenticationTokenConverter`]
 
 
