@@ -188,7 +188,7 @@ When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
 ----
 protected void configure(HttpSecurity http) {
     http
-        .authorizeRequests(authorize -> authorize
+        .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::opaqueToken);
@@ -224,7 +224,7 @@ Replacing this is as simple as exposing the bean within the application:
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyRequest().authenticated()
             )
@@ -338,7 +338,7 @@ An authorization server's Introspection Uri can be configured <<oauth2resourcese
 public class DirectlyConfiguredIntrospectionUri extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -400,7 +400,7 @@ More powerful than `introspectionUri()` is `introspector()`, which will complete
 public class DirectlyConfiguredIntrospector extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -479,7 +479,7 @@ This means that to protect an endpoint or method with a scope derived from an Op
 public class MappedAuthorities extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorizeRequests -> authorizeRequests
+            .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                 .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
                 .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
                 .anyRequest().authenticated()

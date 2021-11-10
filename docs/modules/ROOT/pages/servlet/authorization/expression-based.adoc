@@ -144,7 +144,7 @@ You could refer to the method using:
 [source,java,role="primary"]
 ----
 http
-    .authorizeRequests(authorize -> authorize
+    .authorizeHttpRequests(authorize -> authorize
         .antMatchers("/user/**").access("@webSecurity.check(authentication,request)")
         ...
     )
@@ -210,7 +210,7 @@ You could refer to the method using:
 [source,java,role="primary",attrs="-attributes"]
 ----
 http
-	.authorizeRequests(authorize -> authorize
+	.authorizeHttpRequests(authorize -> authorize
 		.antMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
 		...
 	);

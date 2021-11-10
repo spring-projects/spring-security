@@ -456,7 +456,7 @@ public class WebSecurityConfig
                     .sameOrigin()
                 )
             )
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 ...
             )
             ...
