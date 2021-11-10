@@ -43,7 +43,7 @@ RelyingPartyRegistrationRepository registrations() {
 @Bean
 SecurityFilterChain web(HttpSecurity http, RelyingPartyRegistrationRepository registrations) throws Exception {
     http
-        .authorizeRequests((authorize) -> authorize
+        .authorizeHttpRequests((authorize) -> authorize
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults())

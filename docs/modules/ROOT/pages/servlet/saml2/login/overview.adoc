@@ -289,7 +289,7 @@ When including `spring-security-saml2-service-provider`, the `WebSecurityConfigu
 ----
 protected void configure(HttpSecurity http) {
     http
-        .authorizeRequests(authorize -> authorize
+        .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults());
@@ -323,7 +323,7 @@ You can replace this by exposing the bean within the application:
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
@@ -471,7 +471,7 @@ Alternatively, you can directly wire up the repository using the DSL, which will
 public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) {
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )

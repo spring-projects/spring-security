@@ -32,7 +32,7 @@ The explicit configuration looks like:
 protected void configure(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.authorizeRequests(authorize -> authorize
+		.authorizeHttpRequests(authorize -> authorize
 			.anyRequest().authenticated()
 		);
 }
@@ -71,7 +71,7 @@ We can configure Spring Security to have different rules by adding more rules in
 protected void configure(HttpSecurity http) throws Exception {
 	http
 		// ...
-		.authorizeRequests(authorize -> authorize                                  // <1>
+		.authorizeHttpRequests(authorize -> authorize                                  // <1>
 			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
 			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
 			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>

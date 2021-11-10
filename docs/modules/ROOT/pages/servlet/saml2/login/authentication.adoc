@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         );
 
         http
-            .authorizeRequests(authz -> authz
+            .authorizeHttpRequests(authz -> authz
                 .anyRequest().authenticated()
             )
             .saml2Login(saml2 -> saml2
@@ -106,7 +106,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         });
 
         http
-            .authorizeRequests(authz -> authz
+            .authorizeHttpRequests(authz -> authz
                 .anyRequest().authenticated()
             )
             .saml2Login(saml2 -> saml2
@@ -310,7 +310,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         AuthenticationManager authenticationManager = new MySaml2AuthenticationManager(...);
         http
-            .authorizeRequests(authorize -> authorize
+            .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
             )
             .saml2Login(saml2 -> saml2

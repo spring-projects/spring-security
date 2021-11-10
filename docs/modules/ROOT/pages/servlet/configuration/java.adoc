@@ -193,7 +193,7 @@ public class MultiHttpSecurityConfig {
 		protected void configure(HttpSecurity http) throws Exception {
 			http
 				.antMatcher("/api/**")                               <3>
-				.authorizeRequests(authorize -> authorize
+				.authorizeHttpRequests(authorize -> authorize
 					.anyRequest().hasRole("ADMIN")
 			    )
 				.httpBasic(withDefaults());
@@ -206,7 +206,7 @@ public class MultiHttpSecurityConfig {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			http
-				.authorizeRequests(authorize -> authorize
+				.authorizeHttpRequests(authorize -> authorize
 					.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults());
