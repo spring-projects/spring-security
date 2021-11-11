@@ -40,9 +40,11 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.oauth2.jwt.JwtClaimNames.ISS;
 
@@ -82,6 +84,31 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			ReactiveAuthenticationManager cachedAuthenticationManager =
 					authenticationManagerResolver.resolve(exchange).block();
 			assertThat(authenticationManager).isSameAs(cachedAuthenticationManager);
+		}
+	}
+
+	// gh-10444
+	@Test
+	public void resolveWhenIssuerFailsThenErrorNotCached() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String issuer = server.url("").toString();
+			// @formatter:off
+			server.enqueue(new MockResponse().setResponseCode(500).setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			// @formatter:on
+			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
+					issuer);
+			MockServerWebExchange exchange = withBearerToken(jws.serialize());
+			assertThatExceptionOfType(IllegalArgumentException.class)
+					.isThrownBy(() -> authenticationManagerResolver.resolve(exchange).block());
+			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(exchange)
+					.block();
+			assertThat(authenticationManager).isNotNull();
 		}
 	}
 
