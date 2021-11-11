@@ -16,6 +16,7 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -174,7 +175,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 			return this.authenticationManagers.computeIfAbsent(issuer,
 					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
 							.subscribeOn(Schedulers.boundedElastic())
-							.cache()
+							.cache((manager) -> Duration.ofMillis(Long.MAX_VALUE), (ex) -> Duration.ZERO, () -> Duration.ZERO)
 			);
 			// @formatter:on
 		}
