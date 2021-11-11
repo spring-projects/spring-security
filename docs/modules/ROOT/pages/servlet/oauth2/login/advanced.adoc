@@ -191,6 +191,8 @@ The following sections go into more detail on each of the configuration options 
 * <<oauth2login-advanced-login-page, OAuth 2.0 Login Page>>
 * <<oauth2login-advanced-redirection-endpoint, Redirection Endpoint>>
 * <<oauth2login-advanced-userinfo-endpoint, UserInfo Endpoint>>
+* <<oauth2login-advanced-idtoken-verify, ID Token Signature Verification>>
+* <<oauth2login-advanced-oidc-logout, OpenID Connect 1.0 Logout>>
 
 
 [[oauth2login-advanced-login-page]]
@@ -892,9 +894,6 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 		return oidcLogoutSuccessHandler;
 	}
 }
-
-NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
-If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
 ----
 
 .Kotlin
@@ -926,8 +925,8 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
         return oidcLogoutSuccessHandler
     }
 }
+----
+====
 
 NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
 If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
-----
-====
