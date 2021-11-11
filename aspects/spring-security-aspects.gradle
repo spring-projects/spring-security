@@ -27,7 +27,3 @@ sourceSets.test.aspectj.srcDir "src/test/java"
 sourceSets.test.java.srcDirs = files()
 
 compileAspectj.ajcOptions.outxmlfile = "META-INF/aop.xml"
-
-aspectj {
-	version = aspectjVersion
-}
