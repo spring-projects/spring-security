@@ -5,7 +5,6 @@
 module.exports.register = (pipeline, { config }) => {
 
     pipeline.on('contentAggregated', ({ contentAggregate }) => {
-        console.log("version-fix.js")
         contentAggregate.forEach(aggregate => {
             if (aggregate.name === "" && aggregate.displayVersion === 5.6) {
                 aggregate.name = "ROOT";
@@ -14,7 +13,6 @@ module.exports.register = (pipeline, { config }) => {
                 aggregate.displayVersion = `${aggregate.version}`
                 delete aggregate.prerelease
             }
-            out(aggregate);
         })
     })
 }
