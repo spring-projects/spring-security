@@ -656,7 +656,7 @@ If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authe
 
 
 [[webflux-oauth2-login-advanced-oidc-logout]]
-=== OpenID Connect 1.0 Logout
+== OpenID Connect 1.0 Logout
 
 OpenID Connect Session Management 1.0 allows the ability to log out the End-User at the Provider using the Client.
 One of the strategies available is https://openid.net/specs/openid-connect-session-1_0.html#RPLogout[RP-Initiated Logout].
