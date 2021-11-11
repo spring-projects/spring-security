@@ -7,7 +7,7 @@ apply plugin: 'java'
 
 antora {
 	antoraVersion = "3.0.0-alpha.8"
-	arguments = ["--fetch"]
+	arguments = ["--fetch", "--stacktrace"]
 }
 
 tasks.antora {
