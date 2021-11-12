@@ -127,7 +127,7 @@ public class OAuth2LoginSecurityConfig {
 	@Bean
 	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 		http
-			.exceptionHandling(exceptions -> exceptions
+			.exceptionHandling(exceptionHandling -> exceptionHandling
 				.authenticationEntryPoint(new RedirectServerAuthenticationEntryPoint("/login/oauth2"))
 			)
 			.oauth2Login(oauth2 -> oauth2
