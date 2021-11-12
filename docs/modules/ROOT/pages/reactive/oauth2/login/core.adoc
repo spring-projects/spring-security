@@ -380,8 +380,8 @@ public class OAuth2LoginConfig {
 	}
 
 	@Bean
-	public ClientRegistrationRepository clientRegistrationRepository() {
-		return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
+	public ReactiveClientRegistrationRepository clientRegistrationRepository() {
+		return new InMemoryReactiveClientRegistrationRepository(this.googleClientRegistration());
 	}
 
 	private ClientRegistration googleClientRegistration() {
