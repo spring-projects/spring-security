@@ -323,7 +323,7 @@ Next, we can construct a `JWTProcessor`:
 JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
 	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
             new DefaultJWTProcessor();
-	jwtProcessor.setJWTClaimSetJWSKeySelector(keySelector);
+	jwtProcessor.setJWTClaimsSetAwareJWSKeySelector(keySelector);
 	return jwtProcessor;
 }
 ----
