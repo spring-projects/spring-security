@@ -7,10 +7,10 @@ asciidoc:
 content:
   sources:
     - url: https://github.com/spring-io/spring-generated-docs
-      branches: [spring-projects/spring-security/main,spring-projects/spring-security/*.x,spring-projects/spring-security/*-RC*,spring-projects/spring-security/*-M*]
+      branches: [spring-projects/spring-security/*]
     - url: https://github.com/spring-projects/spring-security
-      branches: [main,5.6.x]
-      tags: [5.6.0-RC1]
+      branches: [main,5.6.x,5.7.x]
+      tags: ['5.6.*','!5.6.0-M*','5.7.*']
       start_path: docs
 urls:
   latest_version_segment_strategy: redirect:to
