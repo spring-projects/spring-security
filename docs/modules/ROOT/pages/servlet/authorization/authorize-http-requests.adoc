@@ -1,0 +1,171 @@
+[[servlet-authorization-authorizationfilter]]
+= Authorize HttpServletRequests with AuthorizationFilter
+:figures: servlet/authorization
+
+This section builds on xref:servlet/architecture.adoc#servlet-architecture[Servlet Architecture and Implementation] by digging deeper into how xref:servlet/authorization/index.adoc#servlet-authorization[authorization] works within Servlet-based applications.
+
+[NOTE]
+`AuthorizationFilter` supersedes xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`].
+To remain backward compatible, `FilterSecurityInterceptor` remains the default.
+This section discusses how `AuthorizationFilter` works and how to override the default configuration.
+
+The {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] provides xref:servlet/authorization/index.adoc#servlet-authorization[authorization] for ``HttpServletRequest``s.
+It is inserted into the xref:servlet/architecture.adoc#servlet-filterchainproxy[FilterChainProxy] as one of the xref:servlet/architecture.adoc#servlet-security-filters[Security Filters].
+
+You can override the default when you declare a `SecurityFilterChain`.
+Instead of using xref:servlet/authorization/authorize-http-requests.adoc#servlet-authorize-requests-defaults[`authorizeRequests`], use `authorizeHttpRequests`, like so:
+
+.Use authorizeHttpRequests
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws AuthenticationException {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest().authenticated();
+        )
+        // ...
+
+    return http.build();
+}
+----
+====
+
+This improves on `authorizeRequests` in a number of ways:
+
+1. Uses the simplified `AuthorizationManager` API instead of metadata sources, config attributes, decision managers, and voters.
+This simplifies reuse and customization.
+2. Delays `Authentication` lookup.
+Instead of the authentication needing to be looked up for every request, it will only look it up in requests where an authorization decision requires authentication.
+3. Bean-based configuration support.
+
+When `authorizeHttpRequests` is used instead of `authorizeRequests`, then {security-api-url}org/springframework/security/web/access/intercept/AuthorizationFilter.html[`AuthorizationFilter`] is used instead of xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`].
+
+.Authorize HttpServletRequest
+image::{figures}/authorizationfilter.png[]
+
+* image:{icondir}/number_1.png[] First, the `AuthorizationFilter` obtains an  xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] from the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
+It wraps this in an `Supplier` in order to delay lookup.
+* image:{icondir}/number_2.png[] Second, `AuthorizationFilter` creates a {security-api-url}org/springframework/security/web/FilterInvocation.html[`FilterInvocation`] from the `HttpServletRequest`, `HttpServletResponse`, and `FilterChain`.
+// FIXME: link to FilterInvocation
+* image:{icondir}/number_3.png[] Next, it passes the `Supplier<Authentication>` and `FilterInvocation` to the xref:servlet/architecture.adoc#authz-authorization-manager[`AuthorizationManager`].
+** image:{icondir}/number_4.png[] If authorization is denied, an `AccessDeniedException` is thrown.
+In this case the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] handles the `AccessDeniedException`.
+** image:{icondir}/number_5.png[] If access is granted, `AuthorizationFilter` continues with the xref:servlet/architecture.adoc#servlet-filters-review[FilterChain] which allows the application to process normally.
+
+We can configure Spring Security to have different rules by adding more rules in order of precedence.
+
+.Authorize Requests
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.authorizeHttpRequests(authorize -> authorize                                  // <1>
+			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
+			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
+			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			.anyRequest().denyAll()                                                // <5>
+		);
+
+	return http.build();
+}
+----
+====
+<1> There are multiple authorization rules specified.
+Each rule is considered in the order they were declared.
+<2> We specified multiple URL patterns that any user can access.
+Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
+<3> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
+You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
+You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
+<5> Any URL that has not already been matched on is denied access.
+This is a good strategy if you do not want to accidentally forget to update your authorization rules.
+
+You can take a bean-based approach by constructing your own xref:servlet/authorization/architecture.adoc#authz-delegate-authorization-manager[`RequestMatcherDelegatingAuthorizationManager`] like so:
+
+.Configure RequestMatcherDelegatingAuthorizationManager
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http, AuthorizationManager<RequestAuthorizationContext> access)
+        throws AuthenticationException {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest().access(access)
+        )
+        // ...
+
+    return http.build();
+}
+
+@Bean
+AuthorizationManager<RequestAuthorizationContext> requestMatcherAuthorizationManager(HandlerMappingIntrospector introspector) {
+    RequestMatcher permitAll =
+            new AndRequestMatcher(
+                    new MvcRequestMatcher(introspector, "/resources/**"),
+                    new MvcRequestMatcher(introspector, "/signup"),
+                    new MvcRequestMatcher(introspector, "/about"));
+    RequestMatcher admin = new MvcRequestMatcher(introspector, "/admin/**");
+    RequestMatcher db = new MvcRequestMatcher(introspector, "/db/**");
+    RequestMatcher any = AnyRequestMatcher.INSTANCE;
+    AuthorizationManager<HttpRequestServlet> manager = RequestMatcherDelegatingAuthorizationManager.builder()
+            .add(permitAll, (context) -> new AuthorizationDecision(true))
+            .add(admin, AuthorityAuthorizationManager.hasRole("ADMIN"))
+            .add(db, AuthorityAuthorizationManager.hasRole("DBA"))
+            .add(any, new AuthenticatedAuthorizationManager())
+            .build();
+    return (context) -> manager.check(context.getRequest());
+}
+----
+====
+
+You can also wire xref:servlet/authorization/architecture.adoc#authz-custom-authorization-manager[your own custom authorization managers] for any request matcher.
+
+Here is an example of mapping a custom authorization manager to the `my/authorized/endpoint`:
+
+.Custom Authorization Manager
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .mvcMatchers("/my/authorized/endpoint").access(new CustomAuthorizationManager());
+        )
+        // ...
+
+    return http.build();
+}
+----
+====
+
+Or you can provide it for all requests as seen below:
+
+.Custom Authorization Manager for All Requests
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest.access(new CustomAuthorizationManager());
+        )
+        // ...
+
+    return http.build();
+}
+----
+====
