@@ -53,7 +53,9 @@ import java.util.Map;
  * Such that "id" is an identifier used to look up which {@link PasswordEncoder} should be
  * used and "encodedPassword" is the original encoded password for the selected
  * {@link PasswordEncoder}. The "id" must be at the beginning of the password, start with
- * "{" and end with "}". If the "id" cannot be found, the "id" will be null.
+ * "{" (id prefix) and end with "}" (id suffix). Both id prefix and id suffix can be
+ * customized via {@link #DelegatingPasswordEncoder(String, Map, String, String)}. If the
+ * "id" cannot be found, the "id" will be null.
  *
  * For example, the following might be a list of passwords encoded using different "id".
  * All of the original passwords are "password".
@@ -122,13 +124,13 @@ import java.util.Map;
  */
 public class DelegatingPasswordEncoder implements PasswordEncoder {
 
-	private static final String DEFAULT_PREFIX = "{";
+	private static final String DEFAULT_ID_PREFIX = "{";
 
-	private static final String DEFAULT_SUFFIX = "}";
+	private static final String DEFAULT_ID_SUFFIX = "}";
 
-	private final String prefix;
+	private final String idPrefix;
 
-	private final String suffix;
+	private final String idSuffix;
 
 	private final String idForEncode;
 
@@ -147,7 +149,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * {@link #matches(CharSequence, String)}
 	 */
 	public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder) {
-		this(idForEncode, idToPasswordEncoder, DEFAULT_PREFIX, DEFAULT_SUFFIX);
+		this(idForEncode, idToPasswordEncoder, DEFAULT_ID_PREFIX, DEFAULT_ID_SUFFIX);
 	}
 
 	/**
@@ -156,19 +158,19 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	 * used for {@link #encode(CharSequence)}
 	 * @param idToPasswordEncoder a Map of id to {@link PasswordEncoder} used to determine
 	 * which {@link PasswordEncoder} should be used for
-	 * @param prefix the prefix that denotes the start of an {@code idForEncode}
-	 * @param suffix the suffix that denotes the end of an {@code idForEncode}
+	 * @param idPrefix the prefix that denotes the start of the id in the encoded results
+	 * @param idSuffix the suffix that denotes the end of an id in the encoded results
 	 * {@link #matches(CharSequence, String)}
 	 */
 	public DelegatingPasswordEncoder(String idForEncode, Map<String, PasswordEncoder> idToPasswordEncoder,
-			String prefix, String suffix) {
+			String idPrefix, String idSuffix) {
 		if (idForEncode == null) {
 			throw new IllegalArgumentException("idForEncode cannot be null");
 		}
-		if (prefix == null) {
+		if (idPrefix == null) {
 			throw new IllegalArgumentException("prefix cannot be null");
 		}
-		if (suffix == null || suffix.isEmpty()) {
+		if (idSuffix == null || idSuffix.isEmpty()) {
 			throw new IllegalArgumentException("suffix cannot be empty");
 		}
 
@@ -180,18 +182,18 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 			if (id == null) {
 				continue;
 			}
-			if (!prefix.isEmpty() && id.contains(prefix)) {
-				throw new IllegalArgumentException("id " + id + " cannot contain " + prefix);
+			if (!idPrefix.isEmpty() && id.contains(idPrefix)) {
+				throw new IllegalArgumentException("id " + id + " cannot contain " + idPrefix);
 			}
-			if (id.contains(suffix)) {
-				throw new IllegalArgumentException("id " + id + " cannot contain " + suffix);
+			if (id.contains(idSuffix)) {
+				throw new IllegalArgumentException("id " + id + " cannot contain " + idSuffix);
 			}
 		}
 		this.idForEncode = idForEncode;
 		this.passwordEncoderForEncode = idToPasswordEncoder.get(idForEncode);
 		this.idToPasswordEncoder = new HashMap<>(idToPasswordEncoder);
-		this.prefix = prefix;
-		this.suffix = suffix;
+		this.idPrefix = idPrefix;
+		this.idSuffix = idSuffix;
 	}
 
 	/**
@@ -217,7 +219,7 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 
 	@Override
 	public String encode(CharSequence rawPassword) {
-		return this.prefix + this.idForEncode + this.suffix + this.passwordEncoderForEncode.encode(rawPassword);
+		return this.idPrefix + this.idForEncode + this.idSuffix + this.passwordEncoderForEncode.encode(rawPassword);
 	}
 
 	@Override
@@ -238,15 +240,15 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		if (prefixEncodedPassword == null) {
 			return null;
 		}
-		int start = prefixEncodedPassword.indexOf(this.prefix);
+		int start = prefixEncodedPassword.indexOf(this.idPrefix);
 		if (start != 0) {
 			return null;
 		}
-		int end = prefixEncodedPassword.indexOf(this.suffix, start);
+		int end = prefixEncodedPassword.indexOf(this.idSuffix, start);
 		if (end < 0) {
 			return null;
 		}
-		return prefixEncodedPassword.substring(start + this.prefix.length(), end);
+		return prefixEncodedPassword.substring(start + this.idPrefix.length(), end);
 	}
 
 	@Override
@@ -262,8 +264,8 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 	}
 
 	private String extractEncodedPassword(String prefixEncodedPassword) {
-		int start = prefixEncodedPassword.indexOf(this.suffix);
-		return prefixEncodedPassword.substring(start + this.suffix.length());
+		int start = prefixEncodedPassword.indexOf(this.idSuffix);
+		return prefixEncodedPassword.substring(start + this.idSuffix.length());
 	}
 
 	/**
