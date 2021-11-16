@@ -53,8 +53,9 @@ import java.util.Map;
  * Such that "id" is an identifier used to look up which {@link PasswordEncoder} should be
  * used and "encodedPassword" is the original encoded password for the selected
  * {@link PasswordEncoder}. The "id" must be at the beginning of the password, start with
- * "{" (id prefix) and end with "}" (id suffix). Both id prefix and id suffix can be customized via
- * {@link #DelegatingPasswordEncoder(String, Map, String, String)}. If the "id" cannot be found, the "id" will be null.
+ * "{" (id prefix) and end with "}" (id suffix). Both id prefix and id suffix can be
+ * customized via {@link #DelegatingPasswordEncoder(String, Map, String, String)}. If the
+ * "id" cannot be found, the "id" will be null.
  *
  * For example, the following might be a list of passwords encoded using different "id".
  * All of the original passwords are "password".
