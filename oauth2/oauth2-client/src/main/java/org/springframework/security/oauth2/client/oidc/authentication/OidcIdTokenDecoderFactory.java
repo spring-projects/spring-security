@@ -49,11 +49,18 @@ import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestOperations;
+import org.springframework.web.client.RestTemplate;
 
 /**
  * A {@link JwtDecoderFactory factory} that provides a {@link JwtDecoder} used for
  * {@link OidcIdToken} signature verification. The provided {@link JwtDecoder} is
  * associated to a specific {@link ClientRegistration}.
+ *
+ * <p>
+ * This implementation may use a {@link RestOperations} when requesting a key set at the
+ * Authorization Server's JWKS Endpoint.
+ * </p>
  *
  * @author Joe Grandja
  * @author Rafael Dominguez
@@ -80,6 +87,8 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			createDefaultClaimTypeConverters());
 
 	private final Map<String, JwtDecoder> jwtDecoders = new ConcurrentHashMap<>();
+
+	private RestOperations restOperations = new RestTemplate();
 
 	private Function<ClientRegistration, OAuth2TokenValidator<Jwt>> jwtValidatorFactory = new DefaultOidcIdTokenValidatorFactory();
 
@@ -164,7 +173,8 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 						null);
 				throw new OAuth2AuthenticationException(oauth2Error, oauth2Error.toString());
 			}
-			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm).build();
+			return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).jwsAlgorithm((SignatureAlgorithm) jwsAlgorithm)
+					.restOperations(this.restOperations).build();
 		}
 		if (jwsAlgorithm != null && MacAlgorithm.class.isAssignableFrom(jwsAlgorithm.getClass())) {
 			// https://openid.net/specs/openid-connect-core-1_0.html#IDTokenValidation
@@ -235,6 +245,16 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 			Function<ClientRegistration, Converter<Map<String, Object>, Map<String, Object>>> claimTypeConverterFactory) {
 		Assert.notNull(claimTypeConverterFactory, "claimTypeConverterFactory cannot be null");
 		this.claimTypeConverterFactory = claimTypeConverterFactory;
+	}
+
+	/**
+	 * Sets the {@link RestOperations} used when requesting a JWKS key set.
+	 * @param restOperations the {@link RestOperations} used when requesting a JWKS key
+	 * set.
+	 */
+	public void setRestOperations(RestOperations restOperations) {
+		Assert.notNull(restOperations, "restOperations cannot be null");
+		this.restOperations = restOperations;
 	}
 
 }

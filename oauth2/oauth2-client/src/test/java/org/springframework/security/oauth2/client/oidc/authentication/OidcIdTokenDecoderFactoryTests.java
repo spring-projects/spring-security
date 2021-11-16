@@ -96,6 +96,11 @@ public class OidcIdTokenDecoderFactoryTests {
 	}
 
 	@Test
+	public void setRestOperationsWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.setRestOperations(null));
+	}
+
+	@Test
 	public void createDecoderWhenClientRegistrationNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.idTokenDecoderFactory.createDecoder(null));
 	}
