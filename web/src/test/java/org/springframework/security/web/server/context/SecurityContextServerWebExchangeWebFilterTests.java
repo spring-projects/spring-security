@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.context;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -48,7 +50,8 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 				.filter(this.exchange, new DefaultWebFilterChain((e) -> e.getPrincipal()
 						.doOnSuccess((contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
 						.flatMap((contextPrincipal) -> Mono.subscriberContext())
-						.doOnSuccess((context) -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then()))
+						.doOnSuccess((context) -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then(),
+						Collections.emptyList()))
 				.subscriberContext((context) -> context.put("foo", "bar"))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
@@ -61,7 +64,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 						new DefaultWebFilterChain((e) -> e.getPrincipal()
 								.doOnSuccess(
 										(contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
-								.then()))
+								.then(), Collections.emptyList()))
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
 	}
@@ -73,7 +76,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 				new DefaultWebFilterChain((e) -> e.getPrincipal().defaultIfEmpty(defaultAuthentication)
 						.doOnSuccess(
 								(contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(defaultAuthentication))
-						.then()));
+						.then(), Collections.emptyList()));
 		StepVerifier.create(result).verifyComplete();
 	}
 

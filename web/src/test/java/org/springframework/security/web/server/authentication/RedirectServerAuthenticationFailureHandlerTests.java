@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.util.Collections;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -95,7 +97,7 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 
 	private WebFilterExchange createExchange() {
 		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()),
-				new DefaultWebFilterChain((e) -> Mono.empty()));
+				new DefaultWebFilterChain((e) -> Mono.empty(), Collections.emptyList()));
 	}
 
 }

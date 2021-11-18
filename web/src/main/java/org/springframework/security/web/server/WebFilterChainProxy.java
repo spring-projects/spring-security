@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
-import org.springframework.web.server.handler.FilteringWebHandler;
 
 /**
  * Used to delegate to a List of {@link SecurityWebFilterChain} instances.
@@ -52,7 +51,7 @@ public class WebFilterChainProxy implements WebFilter {
 				.filterWhen((securityWebFilterChain) -> securityWebFilterChain.matches(exchange)).next()
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
 				.flatMap((securityWebFilterChain) -> securityWebFilterChain.getWebFilters().collectList())
-				.map((filters) -> new FilteringWebHandler(chain::filter, filters)).map(DefaultWebFilterChain::new)
+				.map((filters) -> new DefaultWebFilterChain(chain::filter, filters))
 				.flatMap((securedChain) -> securedChain.filter(exchange));
 	}
 

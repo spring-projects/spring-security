@@ -41,9 +41,9 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -139,7 +139,7 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerDocTests {
 
 	@Configuration
 	@EnableWebSocketMessageBroker
-	static class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+	static class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
 		@Override
 		public void registerStompEndpoints(StompEndpointRegistry registry) {

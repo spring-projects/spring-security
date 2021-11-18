@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.context;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -109,7 +111,8 @@ public class ReactorContextWebFilterTests {
 		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		String contextKey = "main";
 		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
-		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);
+		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(),
+				List.of(mainContextWebFilter, this.filter));
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
 		StepVerifier.create(filter).expectAccessibleContext().hasKey(contextKey).then().verifyComplete();
 	}

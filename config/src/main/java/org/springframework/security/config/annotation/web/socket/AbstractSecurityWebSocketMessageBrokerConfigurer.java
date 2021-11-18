@@ -50,8 +50,8 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import org.springframework.web.socket.server.support.WebSocketHttpRequestHandler;
 import org.springframework.web.socket.sockjs.SockJsService;
@@ -84,8 +84,8 @@ import org.springframework.web.socket.sockjs.transport.TransportHandlingSockJsSe
  */
 @Order(Ordered.HIGHEST_PRECEDENCE + 100)
 @Import(ObjectPostProcessorConfiguration.class)
-public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends AbstractWebSocketMessageBrokerConfigurer
-		implements SmartInitializingSingleton {
+public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer
+		implements WebSocketMessageBrokerConfigurer, SmartInitializingSingleton {
 
 	private final WebSocketMessageSecurityMetadataSourceRegistry inboundRegistry = new WebSocketMessageSecurityMetadataSourceRegistry();
 
@@ -107,12 +107,12 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer extends A
 	@Override
 	public final void configureClientInboundChannel(ChannelRegistration registration) {
 		ChannelSecurityInterceptor inboundChannelSecurity = this.context.getBean(ChannelSecurityInterceptor.class);
-		registration.setInterceptors(this.context.getBean(SecurityContextChannelInterceptor.class));
+		registration.interceptors(this.context.getBean(SecurityContextChannelInterceptor.class));
 		if (!sameOriginDisabled()) {
-			registration.setInterceptors(this.context.getBean(CsrfChannelInterceptor.class));
+			registration.interceptors(this.context.getBean(CsrfChannelInterceptor.class));
 		}
 		if (this.inboundRegistry.containsMapping()) {
-			registration.setInterceptors(inboundChannelSecurity);
+			registration.interceptors(inboundChannelSecurity);
 		}
 		customizeClientInboundChannel(registration);
 	}

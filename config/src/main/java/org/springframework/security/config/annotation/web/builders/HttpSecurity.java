@@ -3234,7 +3234,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @see MvcRequestMatcher
 	 */
 	public HttpSecurity mvcMatcher(String mvcPattern) {
-		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector(getContext());
+		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector();
+		introspector.setApplicationContext(getContext());
+		introspector.afterPropertiesSet();
 		return requestMatcher(new MvcRequestMatcher(introspector, mvcPattern));
 	}
 
