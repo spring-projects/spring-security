@@ -739,7 +739,7 @@ But, if you do need something from the request, then you can use create a custom
 ----
 @Component
 public class AuthnRequestConverter implements
-        Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
+        Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
 
 	private final AuthnRequestBuilder authnRequestBuilder;
 	private final IssuerBuilder issuerBuilder;
