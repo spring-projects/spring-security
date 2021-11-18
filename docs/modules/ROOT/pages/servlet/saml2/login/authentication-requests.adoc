@@ -195,17 +195,18 @@ public class AuthnRequestConverter implements
     // ... constructor
 
     public AuthnRequest convert(Saml2AuthenticationRequestContext context) {
+        MySaml2AuthenticationRequestContext myContext = (MySaml2AuthenticationRequestContext) context;
         Issuer issuer = issuerBuilder.buildObject();
-        issuer.setValue(context.getIssuer());
+        issuer.setValue(myContext.getIssuer());
 
         AuthnRequest authnRequest = authnRequestBuilder.buildObject();
         authnRequest.setIssuer(issuer);
-        authnRequest.setDestination(context.getDestination());
-        authnRequest.setAssertionConsumerServiceURL(context.getAssertionConsumerServiceUrl());
+        authnRequest.setDestination(myContext.getDestination());
+        authnRequest.setAssertionConsumerServiceURL(myContext.getAssertionConsumerServiceUrl());
 
         // ... additional settings
 
-        authRequest.setForceAuthn(context.getForceAuthn());
+        authRequest.setForceAuthn(myContext.getForceAuthn());
         return authnRequest;
     }
 }
@@ -220,16 +221,17 @@ class AuthnRequestConverter : Converter<Saml2AuthenticationRequestContext, Authn
     private val issuerBuilder: IssuerBuilder? = null
 
     // ... constructor
-    override fun convert(context: MySaml2AuthenticationRequestContext): AuthnRequest {
+    override fun convert(context: Saml2AuthenticationRequestContext): AuthnRequest {
+        val myContext: MySaml2AuthenticationRequestContext = context
         val issuer: Issuer = issuerBuilder.buildObject()
-        issuer.value = context.getIssuer()
+        issuer.value = myContext.getIssuer()
         val authnRequest: AuthnRequest = authnRequestBuilder.buildObject()
         authnRequest.issuer = issuer
-        authnRequest.destination = context.getDestination()
-        authnRequest.assertionConsumerServiceURL = context.getAssertionConsumerServiceUrl()
+        authnRequest.destination = myContext.getDestination()
+        authnRequest.assertionConsumerServiceURL = myContext.getAssertionConsumerServiceUrl()
 
         // ... additional settings
-        authRequest.setForceAuthn(context.getForceAuthn())
+        authRequest.setForceAuthn(myContext.getForceAuthn())
         return authnRequest
     }
 }
@@ -244,11 +246,12 @@ Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and
 ----
 @Bean
 Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver() {
-	Saml2AuthenticationRequestContextResolver resolver = new DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver);
-	return request -> {
-		Saml2AuthenticationRequestContext context = resolver.resolve(request);
-		return context;
-	};
+    Saml2AuthenticationRequestContextResolver resolver =
+            new DefaultSaml2AuthenticationRequestContextResolver();
+    return request -> {
+        Saml2AuthenticationRequestContext context = resolver.resolve(request);
+        return new MySaml2AuthenticationRequestContext(context, request.getParameter("force") != null);
+    };
 }
 
 @Bean
@@ -267,9 +270,13 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory(
 ----
 @Bean
 open fun authenticationRequestContextResolver(): Saml2AuthenticationRequestContextResolver {
-    val resolver = DefaultSaml2AuthenticationRequestContextResolver(relyingPartyRegistrationResolver)
-    return Saml2AuthenticationRequestContextResolver { request ->
-        resolver.resolve(request)
+    val resolver: Saml2AuthenticationRequestContextResolver = DefaultSaml2AuthenticationRequestContextResolver()
+    return Saml2AuthenticationRequestContextResolver { request: HttpServletRequest ->
+        val context = resolver.resolve(request)
+        MySaml2AuthenticationRequestContext(
+            context,
+            request.getParameter("force") != null
+        )
     }
 }
 
