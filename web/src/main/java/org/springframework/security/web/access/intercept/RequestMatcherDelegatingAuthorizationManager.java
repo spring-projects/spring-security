@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.access.intercept;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -109,6 +110,20 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			Assert.notNull(matcher, "matcher cannot be null");
 			Assert.notNull(manager, "manager cannot be null");
 			this.mappings.put(matcher, manager);
+			return this;
+		}
+
+		/**
+		 * Allows to configure the {@link RequestMatcher} to {@link AuthorizationManager}
+		 * mappings.
+		 * @param mappingsConsumer used to configure the {@link RequestMatcher} to
+		 * {@link AuthorizationManager} mappings.
+		 * @return the {@link Builder} for further customizations
+		 */
+		public Builder mappings(
+				Consumer<Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>>> mappingsConsumer) {
+			Assert.notNull(mappingsConsumer, "mappingsConsumer cannot be null");
+			mappingsConsumer.accept(this.mappings);
 			return this;
 		}
 

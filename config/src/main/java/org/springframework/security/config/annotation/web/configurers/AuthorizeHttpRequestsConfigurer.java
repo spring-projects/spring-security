@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,9 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<AuthorizeHttpRequestsConfigurer<H>, H> {
+
+	static final AuthorizationManager<RequestAuthorizationContext> permitAllAuthorizationManager = (a,
+			o) -> new AuthorizationDecision(true);
 
 	private final AuthorizationManagerRequestMatcherRegistry registry;
 
@@ -81,6 +85,12 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		return this.registry;
 	}
 
+	AuthorizationManagerRequestMatcherRegistry addFirst(RequestMatcher matcher,
+			AuthorizationManager<RequestAuthorizationContext> manager) {
+		this.registry.addFirst(matcher, manager);
+		return this.registry;
+	}
+
 	/**
 	 * Registry for mapping a {@link RequestMatcher} to an {@link AuthorizationManager}.
 	 *
@@ -103,6 +113,19 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		private void addMapping(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
 			this.unmappedMatchers = null;
 			this.managerBuilder.add(matcher, manager);
+			this.mappingCount++;
+		}
+
+		private void addFirst(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
+			this.unmappedMatchers = null;
+			this.managerBuilder.mappings((m) -> {
+				LinkedHashMap<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> reorderedMap = new LinkedHashMap<>(
+						m.size() + 1);
+				reorderedMap.put(matcher, manager);
+				reorderedMap.putAll(m);
+				m.clear();
+				m.putAll(reorderedMap);
+			});
 			this.mappingCount++;
 		}
 
@@ -209,7 +232,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry permitAll() {
-			return access((a, o) -> new AuthorizationDecision(true));
+			return access(permitAllAuthorizationManager);
 		}
 
 		/**
