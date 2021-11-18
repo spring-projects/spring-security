@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,10 +62,31 @@ public class PermitAllSupportTests {
 	}
 
 	@Test
+	public void performWhenUsingPermitAllExactUrlRequestMatcherThenMatchesExactUrlWithAuthorizeHttp() throws Exception {
+		this.spring.register(PermitAllConfigAuthorizeHttpRequests.class).autowire();
+		MockHttpServletRequestBuilder request = get("/app/xyz").contextPath("/app");
+		this.mvc.perform(request).andExpect(status().isNotFound());
+		MockHttpServletRequestBuilder getWithQuery = get("/app/xyz?def").contextPath("/app");
+		this.mvc.perform(getWithQuery).andExpect(status().isFound());
+		MockHttpServletRequestBuilder postWithQueryAndCsrf = post("/app/abc?def").with(csrf()).contextPath("/app");
+		this.mvc.perform(postWithQueryAndCsrf).andExpect(status().isNotFound());
+		MockHttpServletRequestBuilder getWithCsrf = get("/app/abc").with(csrf()).contextPath("/app");
+		this.mvc.perform(getWithCsrf).andExpect(status().isFound());
+	}
+
+	@Test
 	public void configureWhenNotAuthorizeRequestsThenException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
-				.withMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
+				.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire()).withMessageContaining(
+						"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
+	}
+
+	@Test
+	public void configureWhenBothAuthorizeRequestsAndAuthorizeHttpRequestsThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(PermitAllConfigWithBothConfigs.class).autowire())
+				.withMessageContaining(
+						"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
 	}
 
 	@EnableWebSecurity
@@ -81,6 +102,45 @@ public class PermitAllSupportTests {
 				.formLogin()
 					.loginPage("/xyz").permitAll()
 					.loginProcessingUrl("/abc?def").permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermitAllConfigAuthorizeHttpRequests extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests()
+						.anyRequest().authenticated()
+						.and()
+					.formLogin()
+						.loginPage("/xyz").permitAll()
+						.loginProcessingUrl("/abc?def").permitAll();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermitAllConfigWithBothConfigs extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests()
+						.anyRequest().authenticated()
+						.and()
+					.authorizeHttpRequests()
+						.anyRequest().authenticated()
+						.and()
+					.formLogin()
+						.loginPage("/xyz").permitAll()
+						.loginProcessingUrl("/abc?def").permitAll();
 			// @formatter:on
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,11 +48,22 @@ final class PermitAllSupport {
 			RequestMatcher... requestMatchers) {
 		ExpressionUrlAuthorizationConfigurer<?> configurer = http
 				.getConfigurer(ExpressionUrlAuthorizationConfigurer.class);
-		Assert.state(configurer != null, "permitAll only works with HttpSecurity.authorizeRequests()");
+		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = http.getConfigurer(AuthorizeHttpRequestsConfigurer.class);
+
+		boolean oneConfigurerPresent = configurer == null ^ httpConfigurer == null;
+		Assert.state(oneConfigurerPresent,
+				"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests(). "
+						+ "Please define one or the other but not both.");
+
 		for (RequestMatcher matcher : requestMatchers) {
 			if (matcher != null) {
-				configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
-						SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+				if (configurer != null) {
+					configurer.getRegistry().addMapping(0, new UrlMapping(matcher,
+							SecurityConfig.createList(ExpressionUrlAuthorizationConfigurer.permitAll)));
+				}
+				else {
+					httpConfigurer.addFirst(matcher, AuthorizeHttpRequestsConfigurer.permitAllAuthorizationManager);
+				}
 			}
 		}
 	}
