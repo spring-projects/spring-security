@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,23 +19,17 @@ package org.springframework.security.config.annotation.authentication.configurer
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.NullLdapAuthoritiesPopulator;
-import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Collection;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.util.ReflectionTestUtils.getField;
-import static org.springframework.test.util.ReflectionTestUtils.invokeMethod;
+import static org.mockito.Mockito.mock;
 
 public class LdapAuthenticationProviderConfigurerTests {
 
@@ -56,39 +50,25 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@Test
 	public void customAuthoritiesPopulator() throws Exception {
-		assertThat(getField(this.configurer, "ldapAuthoritiesPopulator")).isNull();
+		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator")).isNull();
 		this.configurer.ldapAuthoritiesPopulator(new NullLdapAuthoritiesPopulator());
-		assertThat(getField(this.configurer, "ldapAuthoritiesPopulator")).isInstanceOf(NullLdapAuthoritiesPopulator.class);
+		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator"))
+				.isInstanceOf(NullLdapAuthoritiesPopulator.class);
 	}
 
 	@Test
-	public void authoritiesPopulatorIsPostProcessed() throws Exception {
-		assertThat(getField(this.configurer, "ldapAuthoritiesPopulator")).isNull();
+	public void configureWhenObjectPostProcessorThenAuthoritiesPopulatorIsPostProcessed() {
+		LdapAuthoritiesPopulator populator = mock(LdapAuthoritiesPopulator.class);
+		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator")).isNull();
 		this.configurer.contextSource(new DefaultSpringSecurityContextSource("ldap://localhost:389"));
-		this.configurer.addObjectPostProcessor(
-				new ObjectPostProcessor<LdapAuthoritiesPopulator>() {
-					@Override
-					public <O extends LdapAuthoritiesPopulator> O postProcess(O object) {
-						if (object instanceof DefaultLdapAuthoritiesPopulator) {
-							return (O)new TestPostProcessLdapAuthoritiesPopulator();
-						}
-						else {
-							return object;
-						}
-					}
-				}
-		);
-		invokeMethod(this.configurer, "getLdapAuthoritiesPopulator");
-		assertThat(getField(this.configurer, "ldapAuthoritiesPopulator"))
-				.isInstanceOf(TestPostProcessLdapAuthoritiesPopulator.class);
-	}
-
-	private static class TestPostProcessLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator {
-		@Override
-		public Collection<? extends GrantedAuthority> getGrantedAuthorities(
-				DirContextOperations userData, String username) {
-			return null;
-		}
+		this.configurer.addObjectPostProcessor(new ObjectPostProcessor<LdapAuthoritiesPopulator>() {
+			@Override
+			public <O extends LdapAuthoritiesPopulator> O postProcess(O object) {
+				return (O) populator;
+			}
+		});
+		ReflectionTestUtils.invokeMethod(this.configurer, "getLdapAuthoritiesPopulator");
+		assertThat(ReflectionTestUtils.getField(this.configurer, "ldapAuthoritiesPopulator")).isSameAs(populator);
 	}
 
 }
