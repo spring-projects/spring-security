@@ -25,7 +25,7 @@ public class DocsPlugin implements Plugin<Project> {
 			group = 'Distribution'
 			archiveBaseName = project.rootProject.name
 			archiveClassifier = 'docs'
-			description = "Builds -${classifier} archive containing all " +
+			description = "Builds -${archiveClassifier.get()} archive containing all " +
 				"Docs for deployment at docs.spring.io"
 
 			from(project.tasks.api.outputs) {
