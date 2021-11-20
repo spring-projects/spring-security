@@ -35,11 +35,6 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 				mavenLocal()
 			}
 			mavenCentral()
-			jcenter() {
-				content {
-					includeGroup "org.gretty"
-				}
-			}
 			if (isSnapshot) {
 				maven {
 					name = 'artifactory-snapshot'
