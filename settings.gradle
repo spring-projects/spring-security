@@ -10,8 +10,6 @@ plugins {
 	id "io.spring.ge.conventions" version "0.0.7"
 }
 
-enableFeaturePreview("VERSION_ORDERING_V2")
-
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
