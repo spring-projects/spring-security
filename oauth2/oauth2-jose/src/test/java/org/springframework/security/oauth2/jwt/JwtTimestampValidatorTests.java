@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.junit.Test;
@@ -60,6 +61,7 @@ public class JwtTimestampValidatorTests {
 		Collection<String> messages = details.stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
 
 		assertThat(messages).contains("Jwt expired at " + oneHourAgo);
+		assertThat(details).allMatch((error) -> Objects.equals(error.getErrorCode(), OAuth2ErrorCodes.INVALID_TOKEN));
 	}
 
 	@Test
@@ -74,6 +76,7 @@ public class JwtTimestampValidatorTests {
 		Collection<String> messages = details.stream().map(OAuth2Error::getDescription).collect(Collectors.toList());
 
 		assertThat(messages).contains("Jwt used before " + oneHourFromNow);
+		assertThat(details).allMatch((error) -> Objects.equals(error.getErrorCode(), OAuth2ErrorCodes.INVALID_TOKEN));
 	}
 
 	@Test

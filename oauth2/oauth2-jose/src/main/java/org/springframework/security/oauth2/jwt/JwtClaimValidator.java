@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ public final class JwtClaimValidator<T> implements OAuth2TokenValidator<Jwt> {
 		Assert.notNull(test, "test can not be null");
 		this.claim = claim;
 		this.test = test;
-		this.error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST,
+		this.error = new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN,
 				"The " + this.claim + " claim is not valid",
 				"https://tools.ietf.org/html/rfc6750#section-3.1");
 	}
