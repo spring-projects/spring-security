@@ -56,7 +56,6 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
-		Assert.notEmpty(users, "users cannot be null or empty");
 		this.users = new ConcurrentHashMap<>();
 		for (UserDetails user : users) {
 			this.users.put(getKey(user.getUsername()), user);
