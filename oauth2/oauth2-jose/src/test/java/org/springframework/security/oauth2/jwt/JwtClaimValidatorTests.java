@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,14 @@
 
 package org.springframework.security.oauth2.jwt;
 
+import java.util.Collection;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 import org.junit.Test;
 
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,7 +49,9 @@ public class JwtClaimValidatorTests {
 	@Test
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://abc").build();
+		Collection<OAuth2Error> details = this.validator.validate(jwt).getErrors();
 		assertThat(this.validator.validate(jwt).getErrors().isEmpty()).isFalse();
+		assertThat(details).allMatch((error) -> Objects.equals(error.getErrorCode(), OAuth2ErrorCodes.INVALID_TOKEN));
 	}
 
 	@Test
