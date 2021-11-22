@@ -167,7 +167,7 @@ public class OpenSamlAuthenticationRequestFactory implements Saml2Authentication
 	private AuthnRequest createAuthnRequest(Saml2AuthenticationRequestContext context) {
 		return createAuthnRequest(context.getIssuer(), context.getDestination(),
 				context.getAssertionConsumerServiceUrl(), this.protocolBindingResolver.convert(context),
-				context.getRelyingPartyRegistration().getNameIDFormat());
+				context.getRelyingPartyRegistration().getNameIdFormat());
 	}
 
 	private AuthnRequest createAuthnRequest(String issuer, String destination, String assertionConsumerServiceUrl,

@@ -81,15 +81,13 @@ public final class RelyingPartyRegistration {
 
 	private final Saml2MessageBinding assertionConsumerServiceBinding;
 
-<<<<<<< Upstream, based on upstream/main
 	private final String singleLogoutServiceLocation;
 
 	private final String singleLogoutServiceResponseLocation;
 
 	private final Saml2MessageBinding singleLogoutServiceBinding;
-=======
+
 	private final String nameIdFormat;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 
 	private final ProviderDetails providerDetails;
 
@@ -100,13 +98,9 @@ public final class RelyingPartyRegistration {
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
 	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
-<<<<<<< Upstream, based on upstream/main
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Saml2MessageBinding singleLogoutServiceBinding,
-			ProviderDetails providerDetails,
-=======
-			Saml2MessageBinding assertionConsumerServiceBinding, String nameIdFormat, ProviderDetails providerDetails,
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
+			ProviderDetails providerDetails, String nameIdFormat,
 			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
@@ -134,13 +128,10 @@ public final class RelyingPartyRegistration {
 		this.entityId = entityId;
 		this.assertionConsumerServiceLocation = assertionConsumerServiceLocation;
 		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
-<<<<<<< Upstream, based on upstream/main
 		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
 		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 		this.singleLogoutServiceBinding = singleLogoutServiceBinding;
-=======
 		this.nameIdFormat = nameIdFormat;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 		this.providerDetails = providerDetails;
 		this.credentials = Collections.unmodifiableList(new LinkedList<>(credentials));
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
@@ -201,7 +192,6 @@ public final class RelyingPartyRegistration {
 	}
 
 	/**
-<<<<<<< Upstream, based on upstream/main
 	 * Get the <a href=
 	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService
 	 * Binding</a>
@@ -245,14 +235,15 @@ public final class RelyingPartyRegistration {
 	 */
 	public String getSingleLogoutServiceResponseLocation() {
 		return this.singleLogoutServiceResponseLocation;
-=======
+	}
+
+	/**
 	 * Get the NameID format.
 	 * @return the NameID format
 	 * @since 5.7
 	 */
 	public String getNameIdFormat() {
 		return this.nameIdFormat;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 	}
 
 	/**
@@ -442,13 +433,10 @@ public final class RelyingPartyRegistration {
 				.decryptionX509Credentials((c) -> c.addAll(registration.getDecryptionX509Credentials()))
 				.assertionConsumerServiceLocation(registration.getAssertionConsumerServiceLocation())
 				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
-<<<<<<< Upstream, based on upstream/main
 				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBinding(registration.getSingleLogoutServiceBinding())
-=======
-				.nameIDFormat(registration.getNameIdFormat())
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
+				.nameIdFormat(registration.getNameIdFormat())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -1037,15 +1025,13 @@ public final class RelyingPartyRegistration {
 
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 
-<<<<<<< Upstream, based on upstream/main
 		private String singleLogoutServiceLocation = "{baseUrl}/logout/saml2/slo";
 
 		private String singleLogoutServiceResponseLocation;
 
 		private Saml2MessageBinding singleLogoutServiceBinding = Saml2MessageBinding.POST;
-=======
-		private String nameIDFormat = null;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
+
+		private String nameIdFormat = null;
 
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 
@@ -1151,7 +1137,6 @@ public final class RelyingPartyRegistration {
 		}
 
 		/**
-<<<<<<< Upstream, based on upstream/main
 		 * Set the <a href=
 		 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService
 		 * Binding</a>
@@ -1200,15 +1185,17 @@ public final class RelyingPartyRegistration {
 		 */
 		public Builder singleLogoutServiceResponseLocation(String singleLogoutServiceResponseLocation) {
 			this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
-=======
+			return this;
+		}
+
+		/**
 		 * Set the NameID format
-		 * @param nameIDFormat
+		 * @param nameIdFormat
 		 * @return the {@link Builder} for further configuration
-		 * @since 5.5
+		 * @since 5.7
 		 */
-		public Builder nameIDFormat(String nameIDFormat) {
-			this.nameIDFormat = nameIDFormat;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
+		public Builder nameIdFormat(String nameIdFormat) {
+			this.nameIdFormat = nameIdFormat;
 			return this;
 		}
 
@@ -1358,16 +1345,10 @@ public final class RelyingPartyRegistration {
 				this.singleLogoutServiceResponseLocation = this.singleLogoutServiceLocation;
 			}
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
-<<<<<<< Upstream, based on upstream/main
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBinding, this.providerDetails.build(), this.credentials,
+					this.singleLogoutServiceBinding, this.providerDetails.build(), this.nameIdFormat, this.credentials,
 					this.decryptionX509Credentials, this.signingX509Credentials);
-=======
-					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding, this.nameIDFormat,
-					this.providerDetails.build(), this.credentials, this.decryptionX509Credentials,
-					this.signingX509Credentials);
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 		}
 
 	}

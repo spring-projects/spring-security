@@ -63,7 +63,7 @@ public class OpenSamlMetadataResolverTests {
 
 	@Test
 	public void resolveWhenRelyingPartyNameIDFormatThenMetadataMatches() {
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full().nameIDFormat("format")
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full().nameIdFormat("format")
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);

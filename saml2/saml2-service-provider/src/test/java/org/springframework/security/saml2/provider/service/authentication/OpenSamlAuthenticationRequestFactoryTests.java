@@ -192,7 +192,7 @@ public class OpenSamlAuthenticationRequestFactoryTests {
 
 	@Test
 	public void createAuthenticationRequestWhenSetNameIDPolicyThenReturnsCorrectNameIDPolicy() {
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().nameIDFormat("format").build();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().nameIdFormat("format").build();
 		this.context = this.contextBuilder.relayState("Relay State Value").relyingPartyRegistration(registration)
 				.build();
 		AuthnRequest authn = getAuthNRequest(Saml2MessageBinding.POST);

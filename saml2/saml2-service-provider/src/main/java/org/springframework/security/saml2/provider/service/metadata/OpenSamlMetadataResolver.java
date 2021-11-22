@@ -87,13 +87,10 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		spSsoDescriptor.getKeyDescriptors()
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
-<<<<<<< Upstream, based on upstream/main
 		spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
-=======
-		if (registration.getNameIDFormat() != null) {
+		if (registration.getNameIdFormat() != null) {
 			spSsoDescriptor.getNameIDFormats().add(buildNameIDFormat(registration));
 		}
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
 		return spSsoDescriptor;
 	}
 
@@ -132,19 +129,18 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		return assertionConsumerService;
 	}
 
-<<<<<<< Upstream, based on upstream/main
 	private SingleLogoutService buildSingleLogoutService(RelyingPartyRegistration registration) {
 		SingleLogoutService singleLogoutService = build(SingleLogoutService.DEFAULT_ELEMENT_NAME);
 		singleLogoutService.setLocation(registration.getSingleLogoutServiceLocation());
 		singleLogoutService.setResponseLocation(registration.getSingleLogoutServiceResponseLocation());
 		singleLogoutService.setBinding(registration.getSingleLogoutServiceBinding().getUrn());
 		return singleLogoutService;
-=======
+	}
+
 	private NameIDFormat buildNameIDFormat(RelyingPartyRegistration registration) {
-		NameIDFormat nameIDFormat = build(NameIDFormat.DEFAULT_ELEMENT_NAME);
-		nameIDFormat.setFormat(registration.getNameIDFormat());
-		return nameIDFormat;
->>>>>>> 7056a31 make SP NameIDPolicy configurable in RelyingPartyRegistration
+		NameIDFormat nameIdFormat = build(NameIDFormat.DEFAULT_ELEMENT_NAME);
+		nameIdFormat.setFormat(registration.getNameIdFormat());
+		return nameIdFormat;
 	}
 
 	@SuppressWarnings("unchecked")
