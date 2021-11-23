@@ -118,18 +118,12 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 	}
 
 	private static Instant convertInstant(Object source) {
-		if (source == null) {
-			return null;
-		}
 		Instant result = (Instant) CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, INSTANT_TYPE_DESCRIPTOR);
 		Assert.state(result != null, () -> "Could not coerce " + source + " into an Instant");
 		return result;
 	}
 
 	private static String convertIssuer(Object source) {
-		if (source == null) {
-			return null;
-		}
 		URL result = (URL) CONVERSION_SERVICE.convert(source, OBJECT_TYPE_DESCRIPTOR, URL_TYPE_DESCRIPTOR);
 		if (result != null) {
 			return result.toExternalForm();
@@ -152,8 +146,11 @@ public final class MappedJwtClaimSetConverter implements Converter<Map<String, O
 		for (Map.Entry<String, Converter<Object, ?>> entry : this.claimTypeConverters.entrySet()) {
 			String claimName = entry.getKey();
 			Converter<Object, ?> converter = entry.getValue();
-			if (converter != null) {
-				Object claim = claims.get(claimName);
+			if (!claims.containsKey(claimName)) {
+				continue;
+			}
+			Object claim = claims.get(claimName);
+			if (converter != null && claim != null) {
 				Object mappedClaim = converter.convert(claim);
 				mappedClaims.compute(claimName, (key, value) -> mappedClaim);
 			}
