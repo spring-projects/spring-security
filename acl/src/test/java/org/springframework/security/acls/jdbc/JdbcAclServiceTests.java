@@ -45,6 +45,7 @@ import org.springframework.security.acls.model.Sid;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -168,6 +169,26 @@ public class JdbcAclServiceTests {
 		assertThat(objectIdentities.get(0).getType()).isEqualTo("costcenter");
 		assertThat(objectIdentities.get(0).getIdentifier())
 				.isEqualTo(UUID.fromString("25d93b3f-c3aa-4814-9d5e-c7c96ced7762"));
+	}
+
+	@Test
+	public void setObjectIdentityGeneratorWhenNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.aclServiceIntegration.setObjectIdentityGenerator(null))
+				.withMessage("objectIdentityGenerator cannot be null");
+	}
+
+	@Test
+	public void findChildrenWhenObjectIdentityGeneratorSetThenUsed() {
+		this.aclServiceIntegration
+				.setObjectIdentityGenerator((id, type) -> new ObjectIdentityImpl(type, "prefix:" + id));
+
+		ObjectIdentity objectIdentity = new ObjectIdentityImpl("location", "US");
+		this.aclServiceIntegration.setAclClassIdSupported(true);
+		List<ObjectIdentity> objectIdentities = this.aclServiceIntegration.findChildren(objectIdentity);
+		assertThat(objectIdentities.size()).isEqualTo(1);
+		assertThat(objectIdentities.get(0).getType()).isEqualTo("location");
+		assertThat(objectIdentities.get(0).getIdentifier()).isEqualTo("prefix:US-PAL");
 	}
 
 	class MockLongIdDomainObject {
