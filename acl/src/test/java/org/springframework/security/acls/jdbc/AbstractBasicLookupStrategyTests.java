@@ -320,6 +320,15 @@ public abstract class AbstractBasicLookupStrategyTests {
 		assertThat(((GrantedAuthoritySid) result).getGrantedAuthority()).isEqualTo("sid");
 	}
 
+	@Test
+	public void setObjectIdentityGeneratorWhenNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.strategy.setObjectIdentityGenerator(null))
+				.withMessage("objectIdentityGenerator cannot be null");
+		// @formatter:on
+	}
+
 	private static final class CacheManagerMock {
 
 		private final List<String> cacheNames;
