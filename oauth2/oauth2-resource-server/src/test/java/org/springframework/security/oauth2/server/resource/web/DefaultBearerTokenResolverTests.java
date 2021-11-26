@@ -149,13 +149,13 @@ public class DefaultBearerTokenResolverTests {
 
 	// gh-10326
 	@Test
-	public void resolveWhenParameterIsPresentInMultipartRequestAndFormParameterSupportedThenTokenIsNotResolved() {
-		this.resolver.setAllowFormEncodedBodyParameter(true);
+	public void resolveWhenRequestContainsTwoAccessTokenMultiPartFormParametersThenAuthenticationExceptionIsThrown() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("multipart/form-data");
-		request.addParameter("access_token", TEST_TOKEN);
-		assertThat(this.resolver.resolve(request)).isNull();
+		request.addParameter("access_token", "token1", "token2");
+		assertThatExceptionOfType(OAuth2AuthenticationException.class).isThrownBy(() -> this.resolver.resolve(request))
+				.withMessageContaining("Found multiple bearer tokens in the request");
 	}
 
 	@Test
@@ -173,6 +173,25 @@ public class DefaultBearerTokenResolverTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("POST");
 		request.setContentType("application/x-www-form-urlencoded");
+		request.addParameter("access_token", TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isNull();
+	}
+
+	@Test
+	public void resolveWhenMultiPartFormParameterIsPresentAndSupportedThenTokenIsResolved() {
+		this.resolver.setAllowFormEncodedBodyParameter(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("multipart/form-data");
+		request.addParameter("access_token", TEST_TOKEN);
+		assertThat(this.resolver.resolve(request)).isEqualTo(TEST_TOKEN);
+	}
+
+	@Test
+	public void resolveWhenMultiPartFormParameterIsPresentAndNotSupportedThenTokenIsNotResolved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setMethod("POST");
+		request.setContentType("multipart/form-data");
 		request.addParameter("access_token", TEST_TOKEN);
 		assertThat(this.resolver.resolve(request)).isNull();
 	}

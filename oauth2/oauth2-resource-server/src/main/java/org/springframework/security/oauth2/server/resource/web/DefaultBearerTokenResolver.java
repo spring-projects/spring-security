@@ -128,14 +128,18 @@ public final class DefaultBearerTokenResolver implements BearerTokenResolver {
 
 	private boolean isParameterTokenSupportedForRequest(final HttpServletRequest request) {
 		return (("POST".equals(request.getMethod())
-				&& MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType()))
+				&& isFormRequest(request))
 				|| "GET".equals(request.getMethod()));
 	}
 
 	private boolean isParameterTokenEnabledForRequest(final HttpServletRequest request) {
 		return ((this.allowFormEncodedBodyParameter && "POST".equals(request.getMethod())
-				&& MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType()))
+				&& isFormRequest(request))
 				|| (this.allowUriQueryParameter && "GET".equals(request.getMethod())));
 	}
 
+	private static boolean isFormRequest(final HttpServletRequest request) {
+		return MediaType.APPLICATION_FORM_URLENCODED_VALUE.equals(request.getContentType())
+				|| MediaType.MULTIPART_FORM_DATA_VALUE.equals(request.getContentType());
+	}
 }
