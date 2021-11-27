@@ -18,6 +18,7 @@ package org.springframework.security.core.userdetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -154,7 +155,7 @@ public class MapReactiveUserDetailsServiceTests {
 	@Test
 	public void changePasswordForUnknownUser() {
 		Authentication authentication = new TestingAuthenticationToken("unknown-user", PASSWORD, "USER");
-		assertThatIllegalArgumentException().isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
+		assertThatIllegalStateException().isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
