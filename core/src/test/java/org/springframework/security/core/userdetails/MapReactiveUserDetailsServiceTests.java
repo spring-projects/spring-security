@@ -148,7 +148,7 @@ public class MapReactiveUserDetailsServiceTests {
 	public void changePasswordForKnownUser() {
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
 		this.users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(this.users.findByUsername(USERNAME).block().getPassword()).isEqualTo("newPassword");
 	}
 
@@ -156,13 +156,13 @@ public class MapReactiveUserDetailsServiceTests {
 	public void changePasswordForUnknownUser() {
 		Authentication authentication = new TestingAuthenticationToken("unknown-user", PASSWORD, "USER");
 		assertThatIllegalStateException().isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
 	@Test
 	public void changePasswordForUnauthenticatedUser() {
 		assertThrows(AccessDeniedException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(null)).block());
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(null)).block());
 	}
 
 	@Test
@@ -173,7 +173,7 @@ public class MapReactiveUserDetailsServiceTests {
 
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
 		assertThrows(BadCredentialsException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
 }
