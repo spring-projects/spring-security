@@ -177,7 +177,7 @@ public class MapReactiveUserDetailsServiceTests {
 		when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
-		assertThatExceptionOfType(AccessDeniedException.class)
+		assertThatExceptionOfType(BadCredentialsException.class)
 				.isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
 						.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
