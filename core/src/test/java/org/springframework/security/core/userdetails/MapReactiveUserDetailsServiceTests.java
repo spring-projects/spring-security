@@ -108,44 +108,48 @@ public class MapReactiveUserDetailsServiceTests {
 	}
 
 	@Test
-	public void createNewUser() {
+	public void findByUsernameWhenUserIsCreatedThenReturnNewUser() {
 		UserDetails newUser = User.withUsername("user2").password("password2").roles("USER").build();
 		this.users.createUser(newUser).block();
 		assertThat((this.users.findByUsername("user2").block())).isEqualTo(newUser);
 	}
 
 	@Test
-	public void createAlreadyExistingUser() {
+	public void createUserWhenUserAlreadyExistsThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.users.createUser(USER_DETAILS).block());
 	}
 
 	@Test
-	public void updateExistingUser() {
+	public void findByUsernameWhenUserIsUpdatedThenReturnUpdatedUser() {
 		UserDetails updatedUser = User.withUserDetails(USER_DETAILS).roles("ADMIN").build();
 		this.users.updateUser(updatedUser).block();
 		assertThat((this.users.findByUsername(USERNAME).block())).isEqualTo(updatedUser);
 	}
 
 	@Test
-	public void updateNonExistingUser() {
+	public void updateUserWhenUserDoesNotExistThenThrowIllegalArgumentException() {
 		UserDetails newUser = User.withUsername("user2").password("password2").roles("USER").build();
 		assertThatIllegalArgumentException().isThrownBy(() -> this.users.updateUser(newUser).block());
 	}
 
 	@Test
-	public void deleteUser() {
+	public void findByUsernameWhenUserIsDeletedThenReturnEmpty() {
 		this.users.deleteUser(USERNAME).block();
 		assertThat((this.users.findByUsername(USERNAME))).isEqualTo(Mono.empty());
 	}
 
 	@Test
-	public void checkIfUserExists() {
+	public void userExistsWhenUserDoesNotExistThenReturnFalse() {
 		assertThat((this.users.userExists("unknown-user")).block()).isFalse();
+	}
+
+	@Test
+	public void userExistsWhenUserExistsThenReturnTrue() {
 		assertThat((this.users.userExists(USERNAME)).block()).isTrue();
 	}
 
 	@Test
-	public void changePasswordForKnownUser() {
+	public void findByUsernameWhenPasswordIsChangedThenReturnNewPassword() {
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
 		this.users.changePassword(PASSWORD, "newPassword")
 				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
@@ -153,20 +157,20 @@ public class MapReactiveUserDetailsServiceTests {
 	}
 
 	@Test
-	public void changePasswordForUnknownUser() {
+	public void changePasswordWhenUserDoesNotExistThenThrowIllegalStateException() {
 		Authentication authentication = new TestingAuthenticationToken("unknown-user", PASSWORD, "USER");
 		assertThatIllegalStateException().isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
 				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
 	@Test
-	public void changePasswordForUnauthenticatedUser() {
+	public void changePasswordWhenUserIsUnauthenticatedThenThrowAccessDeniedException() {
 		assertThrows(AccessDeniedException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
 				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(null)).block());
 	}
 
 	@Test
-	public void changePasswordIfAuthenticationFails() {
+	public void changePasswordWhenAuthenticationFailsThenThrowBadCredentialsException() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		this.users.setAuthenticationManager(authenticationManager);
 		when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
