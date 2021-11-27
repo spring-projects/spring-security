@@ -17,9 +17,9 @@
 package org.springframework.security.core.userdetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -165,8 +165,9 @@ public class MapReactiveUserDetailsServiceTests {
 
 	@Test
 	public void changePasswordWhenUserIsUnauthenticatedThenThrowAccessDeniedException() {
-		assertThrows(AccessDeniedException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(null)).block());
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
+						.contextWrite(ReactiveSecurityContextHolder.withAuthentication(null)).block());
 	}
 
 	@Test
@@ -176,8 +177,9 @@ public class MapReactiveUserDetailsServiceTests {
 		when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
-		assertThrows(BadCredentialsException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
-				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
+						.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
 }
