@@ -110,7 +110,7 @@ public class MapReactiveUserDetailsServiceTests {
 	@Test
 	public void createNewUser() {
 		UserDetails newUser = User.withUsername("user2").password("password2").roles("USER").build();
-		users.createUser(newUser).block();
+		this.users.createUser(newUser).block();
 		assertThat((this.users.findByUsername("user2").block())).isEqualTo(newUser);
 	}
 
@@ -168,7 +168,7 @@ public class MapReactiveUserDetailsServiceTests {
 	@Test
 	public void changePasswordIfAuthenticationFails() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-		users.setAuthenticationManager(authenticationManager);
+		this.users.setAuthenticationManager(authenticationManager);
 		when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
