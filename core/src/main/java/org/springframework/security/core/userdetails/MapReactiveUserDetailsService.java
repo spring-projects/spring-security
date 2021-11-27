@@ -112,11 +112,11 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	}
 
 	public Mono<Void> deleteUser(String username) {
-		return Mono.just(username).doOnNext(this.users::remove).then();
+		return Mono.just(getKey(username)).doOnNext(this.users::remove).then();
 	}
 
 	public Mono<Boolean> userExists(String username) {
-		return Mono.just(username).map(this.users::containsKey);
+		return Mono.just(getKey(username)).map(this.users::containsKey);
 	}
 
 	public Mono<Void> changePassword(String oldPassword, String newPassword) {
