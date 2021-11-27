@@ -16,15 +16,17 @@
 
 package org.springframework.security.web.session;
 
-import static org.assertj.core.api.Assertions.*;
+import jakarta.servlet.http.HttpSessionEvent;
 
-import javax.servlet.http.HttpSessionEvent;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.web.session.HttpSessionEventPublisher;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.StaticWebApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * The HttpSessionEventPublisher tests
@@ -32,8 +34,6 @@ import org.springframework.web.context.support.StaticWebApplicationContext;
  * @author Ray Krueger
  */
 public class HttpSessionEventPublisherTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * It's not that complicated so we'll just run it straight through here.
@@ -41,94 +41,85 @@ public class HttpSessionEventPublisherTests {
 	@Test
 	public void publishedEventIsReceivedbyListener() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
-
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
-
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.setAttribute(
-				StaticWebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE,
-				context);
-
+		servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
 		context.setServletContext(servletContext);
 		context.registerSingleton("listener", MockApplicationListener.class, null);
 		context.refresh();
-
 		MockHttpSession session = new MockHttpSession(servletContext);
-		MockApplicationListener listener = (MockApplicationListener) context
-				.getBean("listener");
-
+		MockApplicationListener listener = (MockApplicationListener) context.getBean("listener");
 		HttpSessionEvent event = new HttpSessionEvent(session);
-
 		publisher.sessionCreated(event);
-
 		assertThat(listener.getCreatedEvent()).isNotNull();
 		assertThat(listener.getDestroyedEvent()).isNull();
 		assertThat(listener.getCreatedEvent().getSession()).isEqualTo(session);
-
 		listener.setCreatedEvent(null);
 		listener.setDestroyedEvent(null);
-
 		publisher.sessionDestroyed(event);
 		assertThat(listener.getDestroyedEvent()).isNotNull();
 		assertThat(listener.getCreatedEvent()).isNull();
 		assertThat(listener.getDestroyedEvent().getSession()).isEqualTo(session);
+		publisher.sessionIdChanged(event, "oldSessionId");
+		assertThat(listener.getSessionIdChangedEvent()).isNotNull();
+		assertThat(listener.getSessionIdChangedEvent().getOldSessionId()).isEqualTo("oldSessionId");
+		listener.setSessionIdChangedEvent(null);
 	}
 
 	@Test
 	public void publishedEventIsReceivedbyListenerChildContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
-
 		StaticWebApplicationContext context = new StaticWebApplicationContext();
-
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.setAttribute(
-				"org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher",
-				context);
-
+		servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", context);
 		context.setServletContext(servletContext);
 		context.registerSingleton("listener", MockApplicationListener.class, null);
 		context.refresh();
-
 		MockHttpSession session = new MockHttpSession(servletContext);
-		MockApplicationListener listener = (MockApplicationListener) context
-				.getBean("listener");
-
+		MockApplicationListener listener = (MockApplicationListener) context.getBean("listener");
 		HttpSessionEvent event = new HttpSessionEvent(session);
-
 		publisher.sessionCreated(event);
-
 		assertThat(listener.getCreatedEvent()).isNotNull();
 		assertThat(listener.getDestroyedEvent()).isNull();
 		assertThat(listener.getCreatedEvent().getSession()).isEqualTo(session);
-
 		listener.setCreatedEvent(null);
 		listener.setDestroyedEvent(null);
-
 		publisher.sessionDestroyed(event);
 		assertThat(listener.getDestroyedEvent()).isNotNull();
 		assertThat(listener.getCreatedEvent()).isNull();
 		assertThat(listener.getDestroyedEvent().getSession()).isEqualTo(session);
+		publisher.sessionIdChanged(event, "oldSessionId");
+		assertThat(listener.getSessionIdChangedEvent()).isNotNull();
+		assertThat(listener.getSessionIdChangedEvent().getOldSessionId()).isEqualTo("oldSessionId");
+		listener.setSessionIdChangedEvent(null);
 	}
 
 	// SEC-2599
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void sessionCreatedNullApplicationContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpSession session = new MockHttpSession(servletContext);
 		HttpSessionEvent event = new HttpSessionEvent(session);
-
-		publisher.sessionCreated(event);
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionCreated(event));
 	}
 
-	// SEC-2599
-	@Test(expected = IllegalStateException.class)
+	@Test // SEC-2599
 	public void sessionDestroyedNullApplicationContext() {
 		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
 		MockServletContext servletContext = new MockServletContext();
 		MockHttpSession session = new MockHttpSession(servletContext);
 		HttpSessionEvent event = new HttpSessionEvent(session);
-
-		publisher.sessionDestroyed(event);
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionDestroyed(event));
 	}
+
+	@Test
+	public void sessionIdChangeNullApplicationContext() {
+		HttpSessionEventPublisher publisher = new HttpSessionEventPublisher();
+		MockServletContext servletContext = new MockServletContext();
+		MockHttpSession session = new MockHttpSession(servletContext);
+		HttpSessionEvent event = new HttpSessionEvent(session);
+		assertThatIllegalStateException().isThrownBy(() -> publisher.sessionIdChanged(event, "oldSessionId"));
+	}
+
 }

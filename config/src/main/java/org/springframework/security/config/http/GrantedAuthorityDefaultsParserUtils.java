@@ -27,35 +27,39 @@ import org.springframework.security.config.core.GrantedAuthorityDefaults;
  * @author Rob Winch
  * @since 4.2
  */
-class GrantedAuthorityDefaultsParserUtils {
+final class GrantedAuthorityDefaultsParserUtils {
 
+	private GrantedAuthorityDefaultsParserUtils() {
+	}
 
-	static RootBeanDefinition registerWithDefaultRolePrefix(ParserContext pc, Class<? extends AbstractGrantedAuthorityDefaultsBeanFactory> beanFactoryClass) {
+	static RootBeanDefinition registerWithDefaultRolePrefix(ParserContext pc,
+			Class<? extends AbstractGrantedAuthorityDefaultsBeanFactory> beanFactoryClass) {
 		RootBeanDefinition beanFactoryDefinition = new RootBeanDefinition(beanFactoryClass);
 		String beanFactoryRef = pc.getReaderContext().generateBeanName(beanFactoryDefinition);
 		pc.getRegistry().registerBeanDefinition(beanFactoryRef, beanFactoryDefinition);
-
 		RootBeanDefinition bean = new RootBeanDefinition();
 		bean.setFactoryBeanName(beanFactoryRef);
 		bean.setFactoryMethodName("getBean");
 		return bean;
 	}
 
-	static abstract class AbstractGrantedAuthorityDefaultsBeanFactory implements ApplicationContextAware {
+	abstract static class AbstractGrantedAuthorityDefaultsBeanFactory implements ApplicationContextAware {
+
 		protected String rolePrefix = "ROLE_";
 
 		@Override
-		public final void setApplicationContext(ApplicationContext applicationContext)
-				throws BeansException {
-			String[] grantedAuthorityDefaultsBeanNames = applicationContext.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		public final void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+			String[] grantedAuthorityDefaultsBeanNames = applicationContext
+					.getBeanNamesForType(GrantedAuthorityDefaults.class);
 			if (grantedAuthorityDefaultsBeanNames.length == 1) {
-				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
+				GrantedAuthorityDefaults grantedAuthorityDefaults = applicationContext
+						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
 			}
 		}
 
 		abstract Object getBean();
+
 	}
 
-	private GrantedAuthorityDefaultsParserUtils() {}
 }

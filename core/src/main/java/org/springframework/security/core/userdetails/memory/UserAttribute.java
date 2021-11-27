@@ -24,21 +24,18 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
- * Used by {@link org.springframework.security.provisioning.InMemoryUserDetailsManager} to temporarily store the attributes associated with a
- * user.
+ * Used by {@link org.springframework.security.provisioning.InMemoryUserDetailsManager} to
+ * temporarily store the attributes associated with a user.
  *
  * @author Ben Alex
  */
 public class UserAttribute {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private List<GrantedAuthority> authorities = new Vector<>();
-	private String password;
-	private boolean enabled = true;
 
-	// ~ Methods
-	// ========================================================================================================
+	private String password;
+
+	private boolean enabled = true;
 
 	public void addAuthority(GrantedAuthority newAuthority) {
 		this.authorities.add(newAuthority);
@@ -50,7 +47,6 @@ public class UserAttribute {
 
 	/**
 	 * Set all authorities for this user.
-	 *
 	 * @param authorities {@link List} &lt;{@link GrantedAuthority}&gt;
 	 * @since 1.1
 	 */
@@ -61,7 +57,6 @@ public class UserAttribute {
 	/**
 	 * Set all authorities for this user from String values. It will create the necessary
 	 * {@link GrantedAuthority} objects.
-	 *
 	 * @param authoritiesAsStrings {@link List} &lt;{@link String}&gt;
 	 * @since 1.1
 	 */
@@ -73,20 +68,15 @@ public class UserAttribute {
 	}
 
 	public String getPassword() {
-		return password;
+		return this.password;
 	}
 
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	public boolean isValid() {
-		if ((this.password != null) && (authorities.size() > 0)) {
-			return true;
-		}
-		else {
-			return false;
-		}
+		return (this.password != null) && (this.authorities.size() > 0);
 	}
 
 	public void setEnabled(boolean enabled) {
@@ -96,4 +86,5 @@ public class UserAttribute {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
 }

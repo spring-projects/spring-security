@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.method;
 
 import java.lang.reflect.Method;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
@@ -36,59 +38,43 @@ import org.springframework.util.ObjectUtils;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public final class DelegatingMethodSecurityMetadataSource extends
-		AbstractMethodSecurityMetadataSource {
-	private final static List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections
-			.emptyList();
+public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
+
+	private static final List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();
 
 	private final List<MethodSecurityMetadataSource> methodSecurityMetadataSources;
+
 	private final Map<DefaultCacheKey, Collection<ConfigAttribute>> attributeCache = new HashMap<>();
 
-	// ~ Constructor
-	// ====================================================================================================
-
-	public DelegatingMethodSecurityMetadataSource(
-			List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
-		Assert.notNull(methodSecurityMetadataSources,
-				"MethodSecurityMetadataSources cannot be null");
+	public DelegatingMethodSecurityMetadataSource(List<MethodSecurityMetadataSource> methodSecurityMetadataSources) {
+		Assert.notNull(methodSecurityMetadataSources, "MethodSecurityMetadataSources cannot be null");
 		this.methodSecurityMetadataSources = methodSecurityMetadataSources;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public Collection<ConfigAttribute> getAttributes(Method method, Class<?> targetClass) {
 		DefaultCacheKey cacheKey = new DefaultCacheKey(method, targetClass);
-		synchronized (attributeCache) {
-			Collection<ConfigAttribute> cached = attributeCache.get(cacheKey);
+		synchronized (this.attributeCache) {
+			Collection<ConfigAttribute> cached = this.attributeCache.get(cacheKey);
 			// Check for canonical value indicating there is no config attribute,
-
 			if (cached != null) {
 				return cached;
 			}
-
 			// No cached value, so query the sources to find a result
 			Collection<ConfigAttribute> attributes = null;
-			for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
+			for (MethodSecurityMetadataSource s : this.methodSecurityMetadataSources) {
 				attributes = s.getAttributes(method, targetClass);
 				if (attributes != null && !attributes.isEmpty()) {
 					break;
 				}
 			}
-
 			// Put it in the cache.
 			if (attributes == null || attributes.isEmpty()) {
 				this.attributeCache.put(cacheKey, NULL_CONFIG_ATTRIBUTE);
 				return NULL_CONFIG_ATTRIBUTE;
 			}
-
-			if (logger.isDebugEnabled()) {
-				logger.debug("Caching method [" + cacheKey + "] with attributes "
-						+ attributes);
-			}
-
+			this.logger.debug(LogMessage.format("Caching method [%s] with attributes %s", cacheKey, attributes));
 			this.attributeCache.put(cacheKey, attributes);
-
 			return attributes;
 		}
 	}
@@ -96,7 +82,7 @@ public final class DelegatingMethodSecurityMetadataSource extends
 	@Override
 	public Collection<ConfigAttribute> getAllConfigAttributes() {
 		Set<ConfigAttribute> set = new HashSet<>();
-		for (MethodSecurityMetadataSource s : methodSecurityMetadataSources) {
+		for (MethodSecurityMetadataSource s : this.methodSecurityMetadataSources) {
 			Collection<ConfigAttribute> attrs = s.getAllConfigAttributes();
 			if (attrs != null) {
 				set.addAll(attrs);
@@ -106,14 +92,13 @@ public final class DelegatingMethodSecurityMetadataSource extends
 	}
 
 	public List<MethodSecurityMetadataSource> getMethodSecurityMetadataSources() {
-		return methodSecurityMetadataSources;
+		return this.methodSecurityMetadataSources;
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private static class DefaultCacheKey {
+
 		private final Method method;
+
 		private final Class<?> targetClass;
 
 		DefaultCacheKey(Method method, Class<?> targetClass) {
@@ -124,20 +109,21 @@ public final class DelegatingMethodSecurityMetadataSource extends
 		@Override
 		public boolean equals(Object other) {
 			DefaultCacheKey otherKey = (DefaultCacheKey) other;
-			return (this.method.equals(otherKey.method) && ObjectUtils.nullSafeEquals(
-					this.targetClass, otherKey.targetClass));
+			return (this.method.equals(otherKey.method)
+					&& ObjectUtils.nullSafeEquals(this.targetClass, otherKey.targetClass));
 		}
 
 		@Override
 		public int hashCode() {
-			return this.method.hashCode() * 21
-					+ (this.targetClass != null ? this.targetClass.hashCode() : 0);
+			return this.method.hashCode() * 21 + ((this.targetClass != null) ? this.targetClass.hashCode() : 0);
 		}
 
 		@Override
 		public String toString() {
-			return "CacheKey[" + (targetClass == null ? "-" : targetClass.getName())
-					+ "; " + method + "]";
+			String targetClassName = (this.targetClass != null) ? this.targetClass.getName() : "-";
+			return "CacheKey[" + targetClassName + "; " + this.method + "]";
 		}
+
 	}
+
 }

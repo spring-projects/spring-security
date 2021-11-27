@@ -16,6 +16,9 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -24,28 +27,29 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 
-import java.io.IOException;
-import java.util.Set;
-
 /**
- * Custom Deserializer for {@link User} class. This is already registered with {@link UserMixin}.
- * You can also use it directly with your mixin class.
+ * Custom Deserializer for {@link User} class. This is already registered with
+ * {@link UserMixin}. You can also use it directly with your mixin class.
  *
  * @author Jitendra Singh
- * @see UserMixin
  * @since 4.2
+ * @see UserMixin
  */
 class UserDeserializer extends JsonDeserializer<User> {
 
+	private static final TypeReference<Set<SimpleGrantedAuthority>> SIMPLE_GRANTED_AUTHORITY_SET = new TypeReference<Set<SimpleGrantedAuthority>>() {
+	};
+
 	/**
-	 * This method will create {@link User} object. It will ensure successful object creation even if password key is null in
-	 * serialized json, because credentials may be removed from the {@link User} by invoking {@link User#eraseCredentials()}.
-	 * In that case there won't be any password key in serialized json.
-	 *
+	 * This method will create {@link User} object. It will ensure successful object
+	 * creation even if password key is null in serialized json, because credentials may
+	 * be removed from the {@link User} by invoking {@link User#eraseCredentials()}. In
+	 * that case there won't be any password key in serialized json.
 	 * @param jp the JsonParser
 	 * @param ctxt the DeserializationContext
 	 * @return the user
@@ -56,20 +60,18 @@ class UserDeserializer extends JsonDeserializer<User> {
 	public User deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException, JsonProcessingException {
 		ObjectMapper mapper = (ObjectMapper) jp.getCodec();
 		JsonNode jsonNode = mapper.readTree(jp);
-		Set<? extends GrantedAuthority> authorities =
-				mapper.convertValue(
-						jsonNode.get("authorities"),
-						new TypeReference<Set<SimpleGrantedAuthority>>() {}
-				);
-		JsonNode password = readJsonNode(jsonNode, "password");
-		User result =  new User(
-				readJsonNode(jsonNode, "username").asText(), password.asText(""),
-				readJsonNode(jsonNode, "enabled").asBoolean(), readJsonNode(jsonNode, "accountNonExpired").asBoolean(),
-				readJsonNode(jsonNode, "credentialsNonExpired").asBoolean(),
-				readJsonNode(jsonNode, "accountNonLocked").asBoolean(), authorities
-		);
-
-		if (password.asText(null) == null) {
+		Set<? extends GrantedAuthority> authorities = mapper.convertValue(jsonNode.get("authorities"),
+				SIMPLE_GRANTED_AUTHORITY_SET);
+		JsonNode passwordNode = readJsonNode(jsonNode, "password");
+		String username = readJsonNode(jsonNode, "username").asText();
+		String password = passwordNode.asText("");
+		boolean enabled = readJsonNode(jsonNode, "enabled").asBoolean();
+		boolean accountNonExpired = readJsonNode(jsonNode, "accountNonExpired").asBoolean();
+		boolean credentialsNonExpired = readJsonNode(jsonNode, "credentialsNonExpired").asBoolean();
+		boolean accountNonLocked = readJsonNode(jsonNode, "accountNonLocked").asBoolean();
+		User result = new User(username, password, enabled, accountNonExpired, credentialsNonExpired, accountNonLocked,
+				authorities);
+		if (passwordNode.asText(null) == null) {
 			result.eraseCredentials();
 		}
 		return result;
@@ -78,4 +80,5 @@ class UserDeserializer extends JsonDeserializer<User> {
 	private JsonNode readJsonNode(JsonNode jsonNode, String field) {
 		return jsonNode.has(field) ? jsonNode.get(field) : MissingNode.getInstance();
 	}
+
 }

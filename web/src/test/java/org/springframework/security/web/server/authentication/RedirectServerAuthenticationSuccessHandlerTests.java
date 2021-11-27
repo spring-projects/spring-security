@@ -16,10 +16,14 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.net.URI;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.test.publisher.PublisherProbe;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -28,49 +32,46 @@ import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
-import reactor.test.publisher.PublisherProbe;
-
-import java.net.URI;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedirectServerAuthenticationSuccessHandlerTests {
 
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
+
 	@Mock
 	private Authentication authentication;
 
 	private URI location = URI.create("/");
 
-	private RedirectServerAuthenticationSuccessHandler handler =
-		new RedirectServerAuthenticationSuccessHandler();
+	private RedirectServerAuthenticationSuccessHandler handler = new RedirectServerAuthenticationSuccessHandler();
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
 	public void successWhenNoSubscribersThenNoActions() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication);
-
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
 	}
@@ -78,35 +79,32 @@ public class RedirectServerAuthenticationSuccessHandlerTests {
 	@Test
 	public void successWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication).block();
-
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
+				.block();
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isEqualTo(this.location);
 	}
 
 	@Test
 	public void successWhenCustomLocationThenCustomLocationUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
-		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange,
-			this.chain), this.authentication).block();
+		this.handler.onAuthenticationSuccess(new WebFilterExchange(this.exchange, this.chain), this.authentication)
+				.block();
 		redirectResult.assertWasSubscribed();
 		verify(this.redirectStrategy).sendRedirect(any(), eq(this.location));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setLocationWhenNullThenException() {
-		this.handler.setLocation(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setLocation(null));
 	}
+
 }

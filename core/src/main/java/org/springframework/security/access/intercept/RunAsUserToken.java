@@ -33,16 +33,13 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private final Class<? extends Authentication> originalAuthentication;
-	private final Object credentials;
-	private final Object principal;
-	private final int keyHash;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Object credentials;
+
+	private final Object principal;
+
+	private final int keyHash;
 
 	public RunAsUserToken(String key, Object principal, Object credentials,
 			Collection<? extends GrantedAuthority> authorities,
@@ -54,9 +51,6 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 		this.originalAuthentication = originalAuthentication;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public Object getCredentials() {
@@ -79,10 +73,9 @@ public class RunAsUserToken extends AbstractAuthenticationToken {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(super.toString());
-		String className = this.originalAuthentication == null ? null
-				: this.originalAuthentication.getName();
+		String className = (this.originalAuthentication != null) ? this.originalAuthentication.getName() : null;
 		sb.append("; Original Class: ").append(className);
-
 		return sb.toString();
 	}
+
 }

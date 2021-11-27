@@ -40,11 +40,13 @@ import org.springframework.web.reactive.result.view.AbstractView;
  */
 @Configuration(proxyBeanMethods = false)
 class WebFluxSecurityConfiguration {
+
 	public static final int WEB_FILTER_CHAIN_FILTER_ORDER = 0 - 100;
 
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.WebFluxSecurityConfiguration.";
 
-	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX + "WebFilterChainFilter";
+	private static final String SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME = BEAN_NAME_PREFIX
+			+ "WebFilterChainFilter";
 
 	public static final String REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME = "org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository";
 
@@ -62,18 +64,18 @@ class WebFluxSecurityConfiguration {
 	}
 
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
-	@Order(value = WEB_FILTER_CHAIN_FILTER_ORDER)
-	public WebFilterChainProxy springSecurityWebFilterChainFilter() {
+	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
+	WebFilterChainProxy springSecurityWebFilterChainFilter() {
 		return new WebFilterChainProxy(getSecurityWebFilterChains());
 	}
 
 	@Bean(name = AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME)
-	public CsrfRequestDataValueProcessor requestDataValueProcessor() {
+	CsrfRequestDataValueProcessor requestDataValueProcessor() {
 		return new CsrfRequestDataValueProcessor();
 	}
 
 	@Bean
-	public static BeanFactoryPostProcessor conversionServicePostProcessor() {
+	static BeanFactoryPostProcessor conversionServicePostProcessor() {
 		return new RsaKeyConversionServicePostProcessor();
 	}
 
@@ -96,33 +98,32 @@ class WebFluxSecurityConfiguration {
 	 * @return
 	 */
 	private SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-		http
-			.authorizeExchange()
-				.anyExchange().authenticated();
-
+		http.authorizeExchange().anyExchange().authenticated();
 		if (isOAuth2Present && OAuth2ClasspathGuard.shouldConfigure(this.context)) {
 			OAuth2ClasspathGuard.configure(this.context, http);
-		} else {
-			http
-				.httpBasic().and()
-				.formLogin();
 		}
-
+		else {
+			http.httpBasic();
+			http.formLogin();
+		}
 		SecurityWebFilterChain result = http.build();
 		return result;
 	}
 
 	private static class OAuth2ClasspathGuard {
+
 		static void configure(ApplicationContext context, ServerHttpSecurity http) {
-			http
-				.oauth2Login().and()
-				.oauth2Client();
+			http.oauth2Login();
+			http.oauth2Client();
 		}
 
 		static boolean shouldConfigure(ApplicationContext context) {
 			ClassLoader loader = context.getClassLoader();
-			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
+			Class<?> reactiveClientRegistrationRepositoryClass = ClassUtils
+					.resolveClassName(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, loader);
 			return context.getBeanNamesForType(reactiveClientRegistrationRepositoryClass).length == 1;
 		}
+
 	}
+
 }

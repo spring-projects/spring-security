@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.core.converter;
 
-import org.springframework.core.convert.TypeDescriptor;
-import org.springframework.core.convert.converter.GenericConverter;
+package org.springframework.security.oauth2.core.converter;
 
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+
+import org.springframework.core.convert.TypeDescriptor;
+import org.springframework.core.convert.converter.GenericConverter;
 
 /**
  * @author Joe Grandja
@@ -50,14 +51,17 @@ final class ObjectToInstantConverter implements GenericConverter {
 		}
 		try {
 			return Instant.ofEpochSecond(Long.parseLong(source.toString()));
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			// Ignore
 		}
 		try {
 			return Instant.parse(source.toString());
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			// Ignore
 		}
 		return null;
 	}
+
 }

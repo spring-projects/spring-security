@@ -13,7 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.core.SpringVersion;
+import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,19 +39,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
-
-import org.apache.commons.logging.Log;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
-import org.powermock.reflect.Whitebox;
-import org.springframework.core.SpringVersion;
 
 /**
  * Checks that the embedded version information is up to date.
@@ -41,131 +46,125 @@ import org.springframework.core.SpringVersion;
  * @author Luke Taylor
  * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ SpringSecurityCoreVersion.class, SpringVersion.class })
+@ExtendWith(MockitoExtension.class)
 public class SpringSecurityCoreVersionTests {
 
 	@Mock
 	private Log logger;
 
-	@Before
-	public void setup() {
-		Whitebox.setInternalState(SpringSecurityCoreVersion.class, logger);
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private MockedStatic<SpringVersion> springVersion;
+
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private MockedStatic<SpringSecurityCoreVersion> springSecurityCoreVersion;
+
+	@BeforeEach
+	public void setup() throws Exception {
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, this.logger);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() throws Exception {
 		System.clearProperty(getDisableChecksProperty());
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, LogFactory.getLog(SpringSecurityCoreVersion.class));
 	}
 
 	@Test
 	public void springVersionIsUpToDate() {
 		// Property is set by the build script
 		String springVersion = System.getProperty("springVersion");
-
 		assertThat(SpringSecurityCoreVersion.MIN_SPRING_VERSION).isEqualTo(springVersion);
 	}
 
 	@Test
 	public void serialVersionMajorAndMinorVersionMatchBuildVersion() {
 		String version = System.getProperty("springSecurityVersion");
-
 		// Strip patch version
-		String serialVersion = String.valueOf(
-				SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
-
+		String serialVersion = String.valueOf(SpringSecurityCoreVersion.SERIAL_VERSION_UID).substring(0, 2);
 		assertThat(serialVersion.charAt(0)).isEqualTo(version.charAt(0));
 		assertThat(serialVersion.charAt(1)).isEqualTo(version.charAt(2));
-
 	}
 
 	// SEC-2295
 	@Test
 	public void noLoggingIfVersionsAreEqual() throws Exception {
 		String version = "1";
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn(version).when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn(version).when(SpringVersion.class, "getVersion");
-
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(version);
 		performChecks();
-
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
 	public void noLoggingIfSpringVersionNull() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("1").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn(null).when(SpringVersion.class, "getVersion");
-
+		String version = "1";
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(null);
 		performChecks();
-
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	@Test
 	public void warnIfSpringVersionTooSmall() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("2").when(SpringVersion.class, "getVersion");
-
+		expectSpringSecurityVersionThenReturn("3");
+		expectSpringVersionThenReturn("2");
 		performChecks();
-
-		verify(logger, times(1)).warn(any());
+		verify(this.logger, times(1)).warn(any());
 	}
 
 	@Test
 	public void noWarnIfSpringVersionLarger() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("4.0.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("4.0.0.RELEASE").when(SpringVersion.class, "getVersion");
-
+		String version = "4.0.0.RELEASE";
+		expectSpringSecurityVersionThenReturn(version);
+		expectSpringVersionThenReturn(version);
 		performChecks();
-
-		verify(logger, never()).warn(any());
+		verify(this.logger, never()).warn(any());
 	}
 
 	// SEC-2697
 	@Test
 	public void noWarnIfSpringPatchVersionDoubleDigits() throws Exception {
 		String minSpringVersion = "3.2.8.RELEASE";
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3.2.0.RELEASE").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("3.2.10.RELEASE").when(SpringVersion.class, "getVersion");
-
+		expectSpringSecurityVersionThenReturn("3.2.0.RELEASE");
+		expectSpringVersionThenReturn("3.2.10.RELEASE");
 		performChecks(minSpringVersion);
-
-		verify(logger, never()).warn(any());
+		verify(this.logger, never()).warn(any());
 	}
 
 	@Test
 	public void noLoggingIfPropertySet() throws Exception {
-		spy(SpringSecurityCoreVersion.class);
-		spy(SpringVersion.class);
-		doReturn("3").when(SpringSecurityCoreVersion.class, "getVersion");
-		doReturn("2").when(SpringVersion.class, "getVersion");
+		expectSpringSecurityVersionThenReturn("3");
+		expectSpringVersionThenReturn("2");
 		System.setProperty(getDisableChecksProperty(), Boolean.TRUE.toString());
-
 		performChecks();
-
-		verifyZeroInteractions(logger);
+		verifyZeroInteractions(this.logger);
 	}
 
 	private String getDisableChecksProperty() {
 		return SpringSecurityCoreVersion.class.getName().concat(".DISABLE_CHECKS");
 	}
 
-	private void performChecks() throws Exception {
-		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks");
+	private void performChecks() {
+		Method method = ReflectionUtils.findMethod(SpringSecurityCoreVersion.class, "performVersionChecks");
+		ReflectionUtils.makeAccessible(method);
+		ReflectionUtils.invokeMethod(method, null);
 	}
 
-	private void performChecks(String minSpringVersion) throws Exception {
-		Whitebox.invokeMethod(SpringSecurityCoreVersion.class, "performVersionChecks",
-				minSpringVersion);
+	private void performChecks(String minSpringVersion) {
+		Method method = ReflectionUtils.findMethod(SpringSecurityCoreVersion.class, "performVersionChecks",
+				String.class);
+		ReflectionUtils.makeAccessible(method);
+		ReflectionUtils.invokeMethod(method, null, minSpringVersion);
 	}
+
+	private void expectSpringSecurityVersionThenReturn(String version) {
+		this.springSecurityCoreVersion.when(SpringSecurityCoreVersion::getVersion).thenReturn(version);
+	}
+
+	private void expectSpringVersionThenReturn(String version) {
+		this.springVersion.when(SpringVersion::getVersion).thenReturn(version);
+	}
+
 }

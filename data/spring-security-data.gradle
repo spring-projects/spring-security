@@ -1,9 +1,18 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile 'javax.xml.bind:jaxb-api'
-	compile 'org.springframework.data:spring-data-commons'
-	compile 'org.springframework:spring-core'
+	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-core')
+	api 'jakarta.xml.bind:jakarta.xml.bind-api'
+	api 'org.springframework.data:spring-data-commons'
+	api 'org.springframework:spring-core'
+	
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
 
 }

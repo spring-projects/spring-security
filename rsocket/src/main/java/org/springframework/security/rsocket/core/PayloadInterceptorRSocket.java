@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,28 @@
 
 package org.springframework.security.rsocket.core;
 
+import java.util.List;
+
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
-import io.rsocket.ResponderRSocket;
 import io.rsocket.util.RSocketProxy;
 import org.reactivestreams.Publisher;
-import org.springframework.security.rsocket.api.PayloadExchangeType;
-import org.springframework.security.rsocket.api.PayloadInterceptor;
-import org.springframework.util.MimeType;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
-import java.util.List;
+import org.springframework.security.rsocket.api.PayloadExchangeType;
+import org.springframework.security.rsocket.api.PayloadInterceptor;
+import org.springframework.util.MimeType;
 
 /**
- * Combines the {@link PayloadInterceptor} with a {@link ResponderRSocket}
+ * Combines the {@link PayloadInterceptor} with an {@link RSocketProxy}
+ *
  * @author Rob Winch
  * @since 5.2
  */
-class PayloadInterceptorRSocket extends RSocketProxy implements ResponderRSocket {
+class PayloadInterceptorRSocket extends RSocketProxy {
+
 	private final List<PayloadInterceptor> interceptors;
 
 	private final MimeType metadataMimeType;
@@ -44,14 +46,12 @@ class PayloadInterceptorRSocket extends RSocketProxy implements ResponderRSocket
 
 	private final Context context;
 
-	PayloadInterceptorRSocket(RSocket delegate,
-			List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
+	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
 			MimeType dataMimeType) {
 		this(delegate, interceptors, metadataMimeType, dataMimeType, Context.empty());
 	}
 
-	PayloadInterceptorRSocket(RSocket delegate,
-			List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
+	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
 			MimeType dataMimeType, Context context) {
 		super(delegate);
 		this.metadataMimeType = metadataMimeType;
@@ -72,71 +72,55 @@ class PayloadInterceptorRSocket extends RSocketProxy implements ResponderRSocket
 	@Override
 	public Mono<Void> fireAndForget(Payload payload) {
 		return intercept(PayloadExchangeType.FIRE_AND_FORGET, payload)
-			.flatMap(context ->
-				this.source.fireAndForget(payload)
-					.subscriberContext(context)
-			);
+				.flatMap((context) -> this.source.fireAndForget(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Mono<Payload> requestResponse(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_RESPONSE, payload)
-			.flatMap(context ->
-				this.source.requestResponse(payload)
-					.subscriberContext(context)
-			);
+				.flatMap((context) -> this.source.requestResponse(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestStream(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_STREAM, payload)
-			.flatMapMany(context ->
-				this.source.requestStream(payload)
-					.subscriberContext(context)
-			);
+				.flatMapMany((context) -> this.source.requestStream(payload).subscriberContext(context));
 	}
 
 	@Override
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
-		return Flux.from(payloads)
-			.switchOnFirst((signal, innerFlux) -> {
-				Payload firstPayload = signal.get();
-				return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload)
-					.flatMapMany(context ->
-						innerFlux
-							.skip(1)
-							.flatMap(p -> intercept(PayloadExchangeType.PAYLOAD, p).thenReturn(p))
-							.transform(securedPayloads -> Flux.concat(Flux.just(firstPayload), securedPayloads))
-							.transform(securedPayloads -> this.source.requestChannel(securedPayloads))
-							.subscriberContext(context)
-					);
-			});
+		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
+			Payload firstPayload = signal.get();
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
+					(context) -> innerFlux.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
+							.transform((securedPayloads) -> this.source.requestChannel(securedPayloads))
+							.subscriberContext(context));
+		});
+	}
+
+	private Mono<Payload> justOrIntercept(Long index, Payload payload) {
+		return (index == 0) ? Mono.just(payload) : intercept(PayloadExchangeType.PAYLOAD, payload).thenReturn(payload);
 	}
 
 	@Override
 	public Mono<Void> metadataPush(Payload payload) {
 		return intercept(PayloadExchangeType.METADATA_PUSH, payload)
-			.flatMap(c -> this.source
-					.metadataPush(payload)
-					.subscriberContext(c)
-			);
+				.flatMap((c) -> this.source.metadataPush(payload).subscriberContext(c));
 	}
 
 	private Mono<Context> intercept(PayloadExchangeType type, Payload payload) {
 		return Mono.defer(() -> {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
-			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload,
-					this.metadataMimeType, this.dataMimeType);
-			return chain.next(exchange)
-				.then(Mono.fromCallable(() -> chain.getContext()))
-				.defaultIfEmpty(Context.empty())
-				.subscriberContext(this.context);
+			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload, this.metadataMimeType,
+					this.dataMimeType);
+			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
+					.defaultIfEmpty(Context.empty()).subscriberContext(this.context);
 		});
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[source=" + this.source + ",interceptors="
-				+ this.interceptors + "]";
+		return getClass().getSimpleName() + "[source=" + this.source + ",interceptors=" + this.interceptors + "]";
 	}
+
 }

@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.concurrent;
 
-import static org.mockito.Mockito.verify;
+package org.springframework.security.concurrent;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.verify;
 
 /**
  * Abstract class for testing {@link DelegatingSecurityContextExecutor} which allows
@@ -33,32 +35,30 @@ import org.mockito.Mock;
  * @see CurrentDelegatingSecurityContextExecutorTests
  * @see ExplicitDelegatingSecurityContextExecutorTests
  */
-public abstract class AbstractDelegatingSecurityContextExecutorTests extends
-		AbstractDelegatingSecurityContextTestSupport {
+public abstract class AbstractDelegatingSecurityContextExecutorTests
+		extends AbstractDelegatingSecurityContextTestSupport {
+
 	@Mock
 	protected ScheduledExecutorService delegate;
 
 	private DelegatingSecurityContextExecutor executor;
 
-	// --- constructor ---
-
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingSecurityContextExecutor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingSecurityContextExecutor(null));
 	}
-
-	// --- execute ---
 
 	@Test
 	public void execute() {
-		executor = create();
-		executor.execute(runnable);
-		verify(getExecutor()).execute(wrappedRunnable);
+		this.executor = create();
+		this.executor.execute(this.runnable);
+		verify(getExecutor()).execute(this.wrappedRunnable);
 	}
 
 	protected Executor getExecutor() {
-		return delegate;
+		return this.delegate;
 	}
 
 	protected abstract DelegatingSecurityContextExecutor create();
+
 }

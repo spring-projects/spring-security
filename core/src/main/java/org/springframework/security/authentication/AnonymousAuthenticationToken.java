@@ -27,55 +27,42 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AnonymousAuthenticationToken extends AbstractAuthenticationToken implements
-		Serializable {
-	// ~ Instance fields
-	// ================================================================================================
+public class AnonymousAuthenticationToken extends AbstractAuthenticationToken implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	private final Object principal;
-	private final int keyHash;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Object principal;
+
+	private final int keyHash;
 
 	/**
 	 * Constructor.
-	 *
-	 * @param key         to identify if this object made by an authorised client
-	 * @param principal   the principal (typically a <code>UserDetails</code>)
+	 * @param key to identify if this object made by an authorised client
+	 * @param principal the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
 	 * @throws IllegalArgumentException if a <code>null</code> was passed
 	 */
 	public AnonymousAuthenticationToken(String key, Object principal,
-										Collection<? extends GrantedAuthority> authorities) {
+			Collection<? extends GrantedAuthority> authorities) {
 		this(extractKeyHash(key), principal, authorities);
 	}
 
 	/**
 	 * Constructor helps in Jackson Deserialization
-	 *
-	 * @param keyHash     hashCode of provided Key, constructed by above constructor
-	 * @param principal   the principal (typically a <code>UserDetails</code>)
+	 * @param keyHash hashCode of provided Key, constructed by above constructor
+	 * @param principal the principal (typically a <code>UserDetails</code>)
 	 * @param authorities the authorities granted to the principal
 	 * @since 4.2
 	 */
 	private AnonymousAuthenticationToken(Integer keyHash, Object principal,
-										Collection<? extends GrantedAuthority> authorities) {
+			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
-
-		if (principal == null || "".equals(principal)) {
-			throw new IllegalArgumentException("principal cannot be null or empty");
-		}
+		Assert.isTrue(principal != null && !"".equals(principal), "principal cannot be null or empty");
 		Assert.notEmpty(authorities, "authorities cannot be null or empty");
-
 		this.keyHash = keyHash;
 		this.principal = principal;
 		setAuthenticated(true);
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private static Integer extractKeyHash(String key) {
 		Assert.hasLength(key, "key cannot be empty or null");
@@ -87,17 +74,10 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 		if (!super.equals(obj)) {
 			return false;
 		}
-
 		if (obj instanceof AnonymousAuthenticationToken) {
 			AnonymousAuthenticationToken test = (AnonymousAuthenticationToken) obj;
-
-			if (this.getKeyHash() != test.getKeyHash()) {
-				return false;
-			}
-
-			return true;
+			return (this.getKeyHash() == test.getKeyHash());
 		}
-
 		return false;
 	}
 
@@ -110,7 +90,6 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 
 	/**
 	 * Always returns an empty <code>String</code>
-	 *
 	 * @return an empty String
 	 */
 	@Override
@@ -126,4 +105,5 @@ public class AnonymousAuthenticationToken extends AbstractAuthenticationToken im
 	public Object getPrincipal() {
 		return this.principal;
 	}
+
 }

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Spring Security's web security module. Classes which have a dependency on the Servlet API can be found here.
+ * Spring Security's web security module. Classes which have a dependency on the Servlet
+ * API can be found here.
  */
 package org.springframework.security.web;
-

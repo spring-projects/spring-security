@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.rememberme;
 
 import java.util.Date;
@@ -21,11 +22,10 @@ import java.util.Date;
  * The abstraction used by {@link PersistentTokenBasedRememberMeServices} to store the
  * persistent login tokens for a user.
  *
- * @see JdbcTokenRepositoryImpl
- * @see InMemoryTokenRepositoryImpl
- *
  * @author Luke Taylor
  * @since 2.0
+ * @see JdbcTokenRepositoryImpl
+ * @see InMemoryTokenRepositoryImpl
  */
 public interface PersistentTokenRepository {
 

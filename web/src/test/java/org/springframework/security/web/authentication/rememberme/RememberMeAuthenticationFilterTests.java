@@ -16,10 +16,14 @@
 
 package org.springframework.security.web.authentication.rememberme;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.junit.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -33,9 +37,13 @@ import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests {@link RememberMeAuthenticationFilter}.
@@ -43,145 +51,129 @@ import javax.servlet.http.HttpServletResponse;
  * @author Ben Alex
  */
 public class RememberMeAuthenticationFilterTests {
-	Authentication remembered = new TestingAuthenticationToken("remembered", "password",
-			"ROLE_REMEMBERED");
 
-	// ~ Methods
-	// ========================================================================================================
+	Authentication remembered = new TestingAuthenticationToken("remembered", "password", "ROLE_REMEMBERED");
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsAuthenticationManagerProperty() {
-		new RememberMeAuthenticationFilter(null, new NullRememberMeServices());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new RememberMeAuthenticationFilter(null, new NullRememberMeServices()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testDetectsRememberMeServicesProperty() {
-		new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new RememberMeAuthenticationFilter(mock(AuthenticationManager.class), null));
 	}
 
 	@Test
 	public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
 		// Put an Authentication object into the SecurityContextHolder
-		Authentication originalAuth = new TestingAuthenticationToken("user", "password",
-				"ROLE_A");
+		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
 		SecurityContextHolder.getContext().setAuthentication(originalAuth);
-
 		// Setup our filter correctly
-		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(
-				mock(AuthenticationManager.class), new MockRememberMeServices(remembered));
+		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(mock(AuthenticationManager.class),
+				new MockRememberMeServices(this.remembered));
 		filter.afterPropertiesSet();
-
 		// Test
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		FilterChain fc = mock(FilterChain.class);
 		request.setRequestURI("x");
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
-
 		// Ensure filter didn't change our original object
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(originalAuth);
-		verify(fc)
-				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void testOperationWhenNoAuthenticationInContextHolder() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(remembered)).thenReturn(remembered);
-
+		given(am.authenticate(this.remembered)).willReturn(this.remembered);
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered));
+				new MockRememberMeServices(this.remembered));
 		filter.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		FilterChain fc = mock(FilterChain.class);
 		request.setRequestURI("x");
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
-
 		// Ensure filter setup with our remembered authentication object
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(remembered);
-		verify(fc)
-				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.remembered);
+		verify(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
 	public void onUnsuccessfulLoginIsCalledWhenProviderRejectsAuth() throws Exception {
 		final Authentication failedAuth = new TestingAuthenticationToken("failed", "");
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(any(Authentication.class))).thenThrow(
-				new BadCredentialsException(""));
-
+		given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered)) {
-			protected void onUnsuccessfulAuthentication(HttpServletRequest request,
-					HttpServletResponse response, AuthenticationException failed) {
+				new MockRememberMeServices(this.remembered)) {
+			@Override
+			protected void onUnsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
+					AuthenticationException failed) {
 				super.onUnsuccessfulAuthentication(request, response, failed);
 				SecurityContextHolder.getContext().setAuthentication(failedAuth);
 			}
 		};
 		filter.setApplicationEventPublisher(mock(ApplicationEventPublisher.class));
 		filter.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		FilterChain fc = mock(FilterChain.class);
 		request.setRequestURI("x");
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(failedAuth);
-		verify(fc)
-				.doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Test
-	public void authenticationSuccessHandlerIsInvokedOnSuccessfulAuthenticationIfSet()
-			throws Exception {
+	public void authenticationSuccessHandlerIsInvokedOnSuccessfulAuthenticationIfSet() throws Exception {
 		AuthenticationManager am = mock(AuthenticationManager.class);
-		when(am.authenticate(remembered)).thenReturn(remembered);
+		given(am.authenticate(this.remembered)).willReturn(this.remembered);
 		RememberMeAuthenticationFilter filter = new RememberMeAuthenticationFilter(am,
-				new MockRememberMeServices(remembered));
-		filter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler(
-				"/target"));
+				new MockRememberMeServices(this.remembered));
+		filter.setAuthenticationSuccessHandler(new SimpleUrlAuthenticationSuccessHandler("/target"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain fc = mock(FilterChain.class);
 		request.setRequestURI("x");
 		filter.doFilter(request, response, fc);
-
 		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
-
 		// Should return after success handler is invoked, so chain should not proceed
 		verifyZeroInteractions(fc);
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private class MockRememberMeServices implements RememberMeServices {
+
 		private Authentication authToReturn;
 
 		MockRememberMeServices(Authentication authToReturn) {
 			this.authToReturn = authToReturn;
 		}
 
-		public Authentication autoLogin(HttpServletRequest request,
-				HttpServletResponse response) {
-			return authToReturn;
+		@Override
+		public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
+			return this.authToReturn;
 		}
 
+		@Override
 		public void loginFail(HttpServletRequest request, HttpServletResponse response) {
 		}
 
-		public void loginSuccess(HttpServletRequest request,
-				HttpServletResponse response, Authentication successfulAuthentication) {
+		@Override
+		public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+				Authentication successfulAuthentication) {
 		}
+
 	}
+
 }

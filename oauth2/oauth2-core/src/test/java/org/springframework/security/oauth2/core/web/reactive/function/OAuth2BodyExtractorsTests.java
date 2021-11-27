@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,17 @@
 
 package org.springframework.security.oauth2.core.web.reactive.function;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.codec.ByteBufferDecoder;
 import org.springframework.core.codec.StringDecoder;
 import org.springframework.http.HttpStatus;
@@ -30,19 +39,12 @@ import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mock.http.client.reactive.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.web.reactive.function.BodyExtractor;
-import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Rob Winch
@@ -54,14 +56,13 @@ public class OAuth2BodyExtractorsTests {
 
 	private Map<String, Object> hints;
 
-	@Before
+	@BeforeEach
 	public void createContext() {
 		final List<HttpMessageReader<?>> messageReaders = new ArrayList<>();
 		messageReaders.add(new DecoderHttpMessageReader<>(new ByteBufferDecoder()));
 		messageReaders.add(new DecoderHttpMessageReader<>(StringDecoder.allMimeTypes()));
 		messageReaders.add(new DecoderHttpMessageReader<>(new Jackson2JsonDecoder()));
 		messageReaders.add(new FormHttpMessageReader());
-
 		this.hints = new HashMap<>();
 		this.context = new BodyExtractor.Context() {
 			@Override
@@ -85,35 +86,48 @@ public class OAuth2BodyExtractorsTests {
 	public void oauth2AccessTokenResponseWhenInvalidJsonThenException() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
 				.oauth2AccessTokenResponse();
-
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 		response.setBody("{");
-
 		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(result::block)
+				.withMessageContaining("An error occurred parsing the Access Token response");
+		// @formatter:on
+	}
 
-		assertThatCode(() -> result.block())
-				.isInstanceOf(RuntimeException.class);
+	@Test
+	public void oauth2AccessTokenResponseWhenEmptyThenException() {
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
+				.oauth2AccessTokenResponse();
+		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
+		Mono<OAuth2AccessTokenResponse> result = extractor.extract(response, this.context);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthorizationException.class)
+				.isThrownBy(result::block)
+				.withMessageContaining("Empty OAuth 2.0 Access Token Response");
+		// @formatter:on
 	}
 
 	@Test
 	public void oauth2AccessTokenResponseWhenValidThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
 				.oauth2AccessTokenResponse();
-
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-		response.setBody("{\n"
+		// @formatter:off
+		response.setBody(
+				"{\n"
 			+ "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n"
 			+ "       \"token_type\":\"Bearer\",\n"
 			+ "       \"expires_in\":3600,\n"
 			+ "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
 			+ "       \"example_parameter\":\"example_value\"\n"
 			+ "     }");
-
+		// @formatter:on
 		Instant now = Instant.now();
 		OAuth2AccessTokenResponse result = extractor.extract(response, this.context).block();
-
 		assertThat(result.getAccessToken().getTokenValue()).isEqualTo("2YotnFZFEjr1zCsicMWpAA");
 		assertThat(result.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(result.getAccessToken().getExpiresAt()).isBetween(now.plusSeconds(3600), now.plusSeconds(3600 + 2));
@@ -121,27 +135,26 @@ public class OAuth2BodyExtractorsTests {
 		assertThat(result.getAdditionalParameters()).containsEntry("example_parameter", "example_value");
 	}
 
-
 	@Test
 	// gh-6087
 	public void oauth2AccessTokenResponseWhenMultipleAttributeTypesThenCreated() {
 		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = OAuth2BodyExtractors
 				.oauth2AccessTokenResponse();
-
 		MockClientHttpResponse response = new MockClientHttpResponse(HttpStatus.OK);
 		response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-		response.setBody("{\n"
-				+ "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n"
-				+ "       \"token_type\":\"Bearer\",\n"
-				+ "       \"expires_in\":3600,\n"
-				+ "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
-				+ "       \"subjson\":{}, \n"
-				+ "		  \"list\":[]  \n"
-				+ "     }");
-
+		// @formatter:off
+		response.setBody(
+				"{\n"
+			+ "       \"access_token\":\"2YotnFZFEjr1zCsicMWpAA\",\n"
+			+ "       \"token_type\":\"Bearer\",\n"
+			+ "       \"expires_in\":3600,\n"
+			+ "       \"refresh_token\":\"tGzv3JOkF0XG5Qx2TlKWIA\",\n"
+			+ "       \"subjson\":{}, \n"
+			+ "		  \"list\":[]  \n"
+			+ "     }");
+		// @formatter:on
 		Instant now = Instant.now();
 		OAuth2AccessTokenResponse result = extractor.extract(response, this.context).block();
-
 		assertThat(result.getAccessToken().getTokenValue()).isEqualTo("2YotnFZFEjr1zCsicMWpAA");
 		assertThat(result.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
 		assertThat(result.getAccessToken().getExpiresAt()).isBetween(now.plusSeconds(3600), now.plusSeconds(3600 + 2));
@@ -149,4 +162,5 @@ public class OAuth2BodyExtractorsTests {
 		assertThat(result.getAdditionalParameters().get("subjson")).isInstanceOfAny(Map.class);
 		assertThat(result.getAdditionalParameters().get("list")).isInstanceOfAny(List.class);
 	}
+
 }

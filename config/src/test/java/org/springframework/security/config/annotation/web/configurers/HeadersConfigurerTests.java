@@ -16,26 +16,29 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import com.google.common.net.HttpHeaders;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import java.net.URI;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.springframework.test.web.servlet.ResultMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -50,10 +53,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Vedran Pavic
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -61,19 +64,454 @@ public class HeadersConfigurerTests {
 	@Test
 	public void getWhenHeadersConfiguredThenDefaultHeadersInResponse() throws Exception {
 		this.spring.register(HeadersConfig.class).autowire();
-
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
 				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
 				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.DENY.name()))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
+				.andExpect(
+						header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
-				.andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
 				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
+	public void getWhenHeadersConfiguredInLambdaThenDefaultHeadersInResponse() throws Exception {
+		this.spring.register(HeadersInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
+				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.DENY.name()))
+				.andExpect(
+						header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
+				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
+				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndContentTypeConfiguredThenOnlyContentTypeHeaderInResponse()
+			throws Exception {
+		this.spring.register(ContentTypeOptionsConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_CONTENT_TYPE_OPTIONS);
+	}
+
+	@Test
+	public void getWhenOnlyContentTypeConfiguredInLambdaThenOnlyContentTypeHeaderInResponse() throws Exception {
+		this.spring.register(ContentTypeOptionsInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_CONTENT_TYPE_OPTIONS);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndFrameOptionsConfiguredThenOnlyFrameOptionsHeaderInResponse()
+			throws Exception {
+		this.spring.register(FrameOptionsConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.DENY.name())).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_FRAME_OPTIONS);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndHstsConfiguredThenOnlyStrictTransportSecurityHeaderInResponse()
+			throws Exception {
+		this.spring.register(HstsConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(
+						header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
+				.andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndCacheControlConfiguredThenCacheControlAndExpiresAndPragmaHeadersInResponse()
+			throws Exception {
+		this.spring.register(CacheControlConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(HttpHeaders.CACHE_CONTROL,
+				HttpHeaders.EXPIRES, HttpHeaders.PRAGMA);
+	}
+
+	@Test
+	public void getWhenOnlyCacheControlConfiguredInLambdaThenCacheControlAndExpiresAndPragmaHeadersInResponse()
+			throws Exception {
+		this.spring.register(CacheControlInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
+				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
+				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(HttpHeaders.CACHE_CONTROL,
+				HttpHeaders.EXPIRES, HttpHeaders.PRAGMA);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredThenOnlyXssProtectionHeaderInResponse()
+			throws Exception {
+		this.spring.register(XssProtectionConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
+	public void getWhenOnlyXssProtectionConfiguredInLambdaThenOnlyXssProtectionHeaderInResponse() throws Exception {
+		this.spring.register(XssProtectionInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
+	public void getWhenFrameOptionsSameOriginConfiguredThenFrameOptionsHeaderHasValueSameOrigin() throws Exception {
+		this.spring.register(HeadersCustomSameOriginConfig.class).autowire();
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.SAMEORIGIN.name()))
+				.andReturn();
+	}
+
+	@Test
+	public void getWhenFrameOptionsSameOriginConfiguredInLambdaThenFrameOptionsHeaderHasValueSameOrigin()
+			throws Exception {
+		this.spring.register(HeadersCustomSameOriginInLambdaConfig.class).autowire();
+		this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.SAMEORIGIN.name()))
+				.andReturn();
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndPublicHpkpWithNoPinThenNoHeadersInResponse() throws Exception {
+		this.spring.register(HpkpConfigNoPins.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).isEmpty();
+	}
+
+	@Test
+	public void getWhenSecureRequestAndHpkpWithPinThenPublicKeyPinsReportOnlyHeaderInResponse() throws Exception {
+		this.spring.register(HpkpConfig.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenInsecureRequestHeaderDefaultsDisabledAndHpkpWithPinThenNoHeadersInResponse() throws Exception {
+		this.spring.register(HpkpConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).isEmpty();
+	}
+
+	@Test
+	public void getWhenHpkpWithMultiplePinsThenPublicKeyPinsReportOnlyHeaderWithMultiplePinsInResponse()
+			throws Exception {
+		this.spring.register(HpkpConfigWithPins.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; pin-sha256=\"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenHpkpWithCustomAgeThenPublicKeyPinsReportOnlyHeaderWithCustomAgeInResponse() throws Exception {
+		this.spring.register(HpkpConfigCustomAge.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=604800 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenHpkpWithReportOnlyFalseThenPublicKeyPinsHeaderInResponse() throws Exception {
+		this.spring.register(HpkpConfigTerminateConnection.class).autowire();
+		ResultMatcher pins = header().string(HttpHeaders.PUBLIC_KEY_PINS,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pins)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS);
+	}
+
+	@Test
+	public void getWhenHpkpIncludeSubdomainThenPublicKeyPinsReportOnlyHeaderWithIncludeSubDomainsInResponse()
+			throws Exception {
+		this.spring.register(HpkpConfigIncludeSubDomains.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenHpkpWithReportUriThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse() throws Exception {
+		this.spring.register(HpkpConfigWithReportURI.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenHpkpWithReportUriAsStringThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse()
+			throws Exception {
+		this.spring.register(HpkpConfigWithReportURIAsString.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenHpkpWithReportUriInLambdaThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse()
+			throws Exception {
+		this.spring.register(HpkpWithReportUriInLambdaConfig.class).autowire();
+		ResultMatcher pinsReportOnly = header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
+				"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\"");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(pinsReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyConfiguredThenContentSecurityPolicyHeaderInResponse() throws Exception {
+		this.spring.register(ContentSecurityPolicyDefaultConfig.class).autowire();
+		ResultMatcher csp = header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(csp)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyWithReportOnlyThenContentSecurityPolicyReportOnlyHeaderInResponse()
+			throws Exception {
+		this.spring.register(ContentSecurityPolicyReportOnlyConfig.class).autowire();
+		ResultMatcher cspReportOnly = header().string(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY,
+				"default-src 'self'; script-src trustedscripts.example.com");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(cspReportOnly)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames())
+				.containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY);
+	}
+
+	@Test
+	public void getWhenContentSecurityPolicyWithReportOnlyInLambdaThenContentSecurityPolicyReportOnlyHeaderInResponse()
+			throws Exception {
+		this.spring.register(ContentSecurityPolicyReportOnlyInLambdaConfig.class).autowire();
+		ResultMatcher csp = header().string(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY,
+				"default-src 'self'; script-src trustedscripts.example.com");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(csp)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames())
+				.containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY);
+	}
+
+	@Test
+	public void configureWhenContentSecurityPolicyEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenContentSecurityPolicyEmptyInLambdaThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidInLambdaConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenContentSecurityPolicyNoPolicyDirectivesInLambdaThenDefaultHeaderValue() throws Exception {
+		this.spring.register(ContentSecurityPolicyNoDirectivesInLambdaConfig.class).autowire();
+		ResultMatcher csp = header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(csp)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
+	}
+
+	@Test
+	public void getWhenReferrerPolicyConfiguredThenReferrerPolicyHeaderInResponse() throws Exception {
+		this.spring.register(ReferrerPolicyDefaultConfig.class).autowire();
+		ResultMatcher referrerPolicy = header().string("Referrer-Policy", ReferrerPolicy.NO_REFERRER.getPolicy());
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(referrerPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
+	}
+
+	@Test
+	public void getWhenReferrerPolicyInLambdaThenReferrerPolicyHeaderInResponse() throws Exception {
+		this.spring.register(ReferrerPolicyDefaultInLambdaConfig.class).autowire();
+		ResultMatcher referrerPolicy = header().string("Referrer-Policy", ReferrerPolicy.NO_REFERRER.getPolicy());
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(referrerPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
+	}
+
+	@Test
+	public void getWhenReferrerPolicyConfiguredWithCustomValueThenReferrerPolicyHeaderWithCustomValueInResponse()
+			throws Exception {
+		this.spring.register(ReferrerPolicyCustomConfig.class).autowire();
+		ResultMatcher referrerPolicy = header().string("Referrer-Policy", ReferrerPolicy.SAME_ORIGIN.getPolicy());
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(referrerPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
+	}
+
+	@Test
+	public void getWhenReferrerPolicyConfiguredWithCustomValueInLambdaThenCustomValueInResponse() throws Exception {
+		this.spring.register(ReferrerPolicyCustomInLambdaConfig.class).autowire();
+		ResultMatcher referrerPolicy = header().string("Referrer-Policy", ReferrerPolicy.SAME_ORIGIN.getPolicy());
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(referrerPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
+	}
+
+	@Test
+	public void getWhenFeaturePolicyConfiguredThenFeaturePolicyHeaderInResponse() throws Exception {
+		this.spring.register(FeaturePolicyConfig.class).autowire();
+		ResultMatcher featurePolicy = header().string("Feature-Policy", "geolocation 'self'");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(featurePolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Feature-Policy");
+	}
+
+	@Test
+	public void configureWhenFeaturePolicyEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(FeaturePolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void getWhenPermissionsPolicyConfiguredThenPermissionsPolicyHeaderInResponse() throws Exception {
+		this.spring.register(PermissionsPolicyConfig.class).autowire();
+		ResultMatcher permissionsPolicy = header().string("Permissions-Policy", "geolocation=(self)");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(permissionsPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Permissions-Policy");
+	}
+
+	@Test
+	public void getWhenPermissionsPolicyConfiguredWithStringThenPermissionsPolicyHeaderInResponse() throws Exception {
+		this.spring.register(PermissionsPolicyStringConfig.class).autowire();
+		ResultMatcher permissionsPolicy = header().string("Permissions-Policy", "geolocation=(self)");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(permissionsPolicy)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Permissions-Policy");
+	}
+
+	@Test
+	public void configureWhenPermissionsPolicyEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(PermissionsPolicyInvalidConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void configureWhenPermissionsPolicyStringEmptyThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(PermissionsPolicyInvalidStringConfig.class).autowire())
+				.withRootCauseInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void getWhenHstsConfiguredWithPreloadThenStrictTransportSecurityHeaderWithPreloadInResponse()
+			throws Exception {
+		this.spring.register(HstsWithPreloadConfig.class).autowire();
+		ResultMatcher hsts = header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY,
+				"max-age=31536000 ; includeSubDomains ; preload");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(hsts)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
+	}
+
+	@Test
+	public void getWhenHstsConfiguredWithPreloadInLambdaThenStrictTransportSecurityHeaderWithPreloadInResponse()
+			throws Exception {
+		this.spring.register(HstsWithPreloadInLambdaConfig.class).autowire();
+		ResultMatcher hsts = header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY,
+				"max-age=31536000 ; includeSubDomains ; preload");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(hsts)
+				.andReturn();
+		// @formatter:on
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
 	}
 
 	@EnableWebSecurity
@@ -86,24 +524,7 @@ public class HeadersConfigurerTests {
 				.headers();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeadersConfiguredInLambdaThenDefaultHeadersInResponse() throws Exception {
-		this.spring.register(HeadersInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
-				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.DENY.name()))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
-				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
-				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
-				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
-				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
 	}
 
 	@EnableWebSecurity
@@ -116,17 +537,7 @@ public class HeadersConfigurerTests {
 				.headers(withDefaults());
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndContentTypeConfiguredThenOnlyContentTypeHeaderInResponse()
-			throws Exception {
-		this.spring.register(ContentTypeOptionsConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_CONTENT_TYPE_OPTIONS);
 	}
 
 	@EnableWebSecurity
@@ -141,17 +552,7 @@ public class HeadersConfigurerTests {
 					.contentTypeOptions();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenOnlyContentTypeConfiguredInLambdaThenOnlyContentTypeHeaderInResponse()
-			throws Exception {
-		this.spring.register(ContentTypeOptionsInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andExpect(header().string(HttpHeaders.X_CONTENT_TYPE_OPTIONS, "nosniff"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_CONTENT_TYPE_OPTIONS);
 	}
 
 	@EnableWebSecurity
@@ -161,24 +562,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.contentTypeOptions(withDefaults())
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndFrameOptionsConfiguredThenOnlyFrameOptionsHeaderInResponse()
-			throws Exception {
-		this.spring.register(FrameOptionsConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.DENY.name()))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_FRAME_OPTIONS);
 	}
 
 	@EnableWebSecurity
@@ -193,17 +584,7 @@ public class HeadersConfigurerTests {
 					.frameOptions();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndHstsConfiguredThenOnlyStrictTransportSecurityHeaderInResponse()
-			throws Exception {
-		this.spring.register(HstsConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
 	}
 
 	@EnableWebSecurity
@@ -218,20 +599,7 @@ public class HeadersConfigurerTests {
 					.httpStrictTransportSecurity();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndCacheControlConfiguredThenCacheControlAndExpiresAndPragmaHeadersInResponse()
-			throws Exception {
-		this.spring.register(CacheControlConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
-				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(HttpHeaders.CACHE_CONTROL,
-				HttpHeaders.EXPIRES, HttpHeaders.PRAGMA);
 	}
 
 	@EnableWebSecurity
@@ -246,20 +614,7 @@ public class HeadersConfigurerTests {
 					.cacheControl();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenOnlyCacheControlConfiguredInLambdaThenCacheControlAndExpiresAndPragmaHeadersInResponse()
-			throws Exception {
-		this.spring.register(CacheControlInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
-				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
-				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(HttpHeaders.CACHE_CONTROL,
-				HttpHeaders.EXPIRES, HttpHeaders.PRAGMA);
 	}
 
 	@EnableWebSecurity
@@ -269,24 +624,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.cacheControl(withDefaults())
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredThenOnlyXssProtectionHeaderInResponse()
-			throws Exception {
-		this.spring.register(XssProtectionConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
 	@EnableWebSecurity
@@ -301,17 +646,7 @@ public class HeadersConfigurerTests {
 					.xssProtection();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenOnlyXssProtectionConfiguredInLambdaThenOnlyXssProtectionHeaderInResponse()
-			throws Exception {
-		this.spring.register(XssProtectionInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
 	@EnableWebSecurity
@@ -321,22 +656,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.xssProtection(withDefaults())
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenFrameOptionsSameOriginConfiguredThenFrameOptionsHeaderHasValueSameOrigin() throws Exception {
-		this.spring.register(HeadersCustomSameOriginConfig.class).autowire();
-
-		this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.SAMEORIGIN.name()))
-				.andReturn();
 	}
 
 	@EnableWebSecurity
@@ -350,16 +677,7 @@ public class HeadersConfigurerTests {
 					.frameOptions().sameOrigin();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenFrameOptionsSameOriginConfiguredInLambdaThenFrameOptionsHeaderHasValueSameOrigin()
-			throws Exception {
-		this.spring.register(HeadersCustomSameOriginInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_FRAME_OPTIONS, XFrameOptionsMode.SAMEORIGIN.name()))
-				.andReturn();
 	}
 
 	@EnableWebSecurity
@@ -369,21 +687,13 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
-						.frameOptions(frameOptionsConfig -> frameOptionsConfig.sameOrigin())
+						.frameOptions((frameOptionsConfig) -> frameOptionsConfig.sameOrigin())
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHeaderDefaultsDisabledAndPublicHpkpWithNoPinThenNoHeadersInResponse() throws Exception {
-		this.spring.register(HpkpConfigNoPins.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).isEmpty();
 	}
 
 	@EnableWebSecurity
@@ -398,28 +708,7 @@ public class HeadersConfigurerTests {
 					.httpPublicKeyPinning();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenSecureRequestAndHpkpWithPinThenPublicKeyPinsReportOnlyHeaderInResponse()
-			throws Exception {
-		this.spring.register(HpkpConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
-	}
-
-	@Test
-	public void getWhenInsecureRequestHeaderDefaultsDisabledAndHpkpWithPinThenNoHeadersInResponse()
-			throws Exception {
-		this.spring.register(HpkpConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).isEmpty();
 	}
 
 	@EnableWebSecurity
@@ -435,18 +724,7 @@ public class HeadersConfigurerTests {
 						.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithMultiplePinsThenPublicKeyPinsReportOnlyHeaderWithMultiplePinsInResponse()
-			throws Exception {
-		this.spring.register(HpkpConfigWithPins.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; pin-sha256=\"E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -457,7 +735,6 @@ public class HeadersConfigurerTests {
 			Map<String, String> pins = new LinkedHashMap<>();
 			pins.put("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=", "sha256");
 			pins.put("E9CZ9INDbd+2eRQozYqqbQ2yXLVKB9+xcprMF+44U1g=", "sha256");
-
 			// @formatter:off
 			http
 				.headers()
@@ -466,17 +743,7 @@ public class HeadersConfigurerTests {
 						.withPins(pins);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithCustomAgeThenPublicKeyPinsReportOnlyHeaderWithCustomAgeInResponse() throws Exception {
-		this.spring.register(HpkpConfigCustomAge.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=604800 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -493,17 +760,7 @@ public class HeadersConfigurerTests {
 						.maxAgeInSeconds(604800);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithReportOnlyFalseThenPublicKeyPinsHeaderInResponse() throws Exception {
-		this.spring.register(HpkpConfigTerminateConnection.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS);
 	}
 
 	@EnableWebSecurity
@@ -520,18 +777,7 @@ public class HeadersConfigurerTests {
 						.reportOnly(false);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpIncludeSubdomainThenPublicKeyPinsReportOnlyHeaderWithIncludeSubDomainsInResponse()
-			throws Exception {
-		this.spring.register(HpkpConfigIncludeSubDomains.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; includeSubDomains"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -548,17 +794,7 @@ public class HeadersConfigurerTests {
 						.includeSubDomains(true);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithReportUriThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse() throws Exception {
-		this.spring.register(HpkpConfigWithReportURI.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -575,18 +811,7 @@ public class HeadersConfigurerTests {
 						.reportUri(new URI("https://example.net/pkp-report"));
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithReportUriAsStringThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse()
-			throws Exception {
-		this.spring.register(HpkpConfigWithReportURIAsString.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -603,18 +828,7 @@ public class HeadersConfigurerTests {
 						.reportUri("https://example.net/pkp-report");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHpkpWithReportUriInLambdaThenPublicKeyPinsReportOnlyHeaderWithReportUriInResponse()
-			throws Exception {
-		this.spring.register(HpkpWithReportUriInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY,
-						"max-age=5184000 ; pin-sha256=\"d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=\" ; report-uri=\"https://example.net/pkp-report\""))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.PUBLIC_KEY_PINS_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -624,10 +838,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.httpPublicKeyPinning(hpkp ->
+						.httpPublicKeyPinning((hpkp) ->
 							hpkp
 								.addSha256Pins("d6qzRu9zOECb90Uez27xWltNsj0e1Md7GkYYkVoZWmM=")
 								.reportUri("https://example.net/pkp-report")
@@ -635,16 +849,7 @@ public class HeadersConfigurerTests {
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenContentSecurityPolicyConfiguredThenContentSecurityPolicyHeaderInResponse() throws Exception {
-		this.spring.register(ContentSecurityPolicyDefaultConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY, "default-src 'self'"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
 	}
 
 	@EnableWebSecurity
@@ -659,17 +864,7 @@ public class HeadersConfigurerTests {
 					.contentSecurityPolicy("default-src 'self'");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenContentSecurityPolicyWithReportOnlyThenContentSecurityPolicyReportOnlyHeaderInResponse() throws Exception {
-		this.spring.register(ContentSecurityPolicyReportOnlyConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY,
-						"default-src 'self'; script-src trustedscripts.example.com"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -685,18 +880,7 @@ public class HeadersConfigurerTests {
 					.reportOnly();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenContentSecurityPolicyWithReportOnlyInLambdaThenContentSecurityPolicyReportOnlyHeaderInResponse()
-			throws Exception {
-		this.spring.register(ContentSecurityPolicyReportOnlyInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY,
-						"default-src 'self'; script-src trustedscripts.example.com"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY_REPORT_ONLY);
 	}
 
 	@EnableWebSecurity
@@ -706,10 +890,10 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.contentSecurityPolicy(csp ->
+						.contentSecurityPolicy((csp) ->
 							csp
 								.policyDirectives("default-src 'self'; script-src trustedscripts.example.com")
 								.reportOnly()
@@ -717,13 +901,7 @@ public class HeadersConfigurerTests {
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenContentSecurityPolicyEmptyThenException() {
-		assertThatThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
@@ -738,13 +916,7 @@ public class HeadersConfigurerTests {
 					.contentSecurityPolicy("");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenContentSecurityPolicyEmptyInLambdaThenException() {
-		assertThatThrownBy(() -> this.spring.register(ContentSecurityPolicyInvalidInLambdaConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
@@ -754,26 +926,16 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.contentSecurityPolicy(csp ->
+						.contentSecurityPolicy((csp) ->
 								csp.policyDirectives("")
 						)
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenContentSecurityPolicyNoPolicyDirectivesInLambdaThenDefaultHeaderValue() throws Exception {
-		this.spring.register(ContentSecurityPolicyNoDirectivesInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.CONTENT_SECURITY_POLICY,
-						"default-src 'self'"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CONTENT_SECURITY_POLICY);
 	}
 
 	@EnableWebSecurity
@@ -783,23 +945,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.contentSecurityPolicy(withDefaults())
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenReferrerPolicyConfiguredThenReferrerPolicyHeaderInResponse() throws Exception {
-		this.spring.register(ReferrerPolicyDefaultConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string("Referrer-Policy", ReferrerPolicy.NO_REFERRER.getPolicy()))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
 	}
 
 	@EnableWebSecurity
@@ -814,16 +967,7 @@ public class HeadersConfigurerTests {
 					.referrerPolicy();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenReferrerPolicyInLambdaThenReferrerPolicyHeaderInResponse() throws Exception {
-		this.spring.register(ReferrerPolicyDefaultInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string("Referrer-Policy", ReferrerPolicy.NO_REFERRER.getPolicy()))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
 	}
 
 	@EnableWebSecurity
@@ -833,24 +977,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
 						.referrerPolicy()
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenReferrerPolicyConfiguredWithCustomValueThenReferrerPolicyHeaderWithCustomValueInResponse()
-			throws Exception {
-		this.spring.register(ReferrerPolicyCustomConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string("Referrer-Policy", ReferrerPolicy.SAME_ORIGIN.getPolicy()))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
 	}
 
 	@EnableWebSecurity
@@ -865,16 +999,7 @@ public class HeadersConfigurerTests {
 					.referrerPolicy(ReferrerPolicy.SAME_ORIGIN);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenReferrerPolicyConfiguredWithCustomValueInLambdaThenCustomValueInResponse() throws Exception {
-		this.spring.register(ReferrerPolicyCustomInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string("Referrer-Policy", ReferrerPolicy.SAME_ORIGIN.getPolicy()))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Referrer-Policy");
 	}
 
 	@EnableWebSecurity
@@ -884,25 +1009,16 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.referrerPolicy(referrerPolicy ->
+						.referrerPolicy((referrerPolicy) ->
 								referrerPolicy.policy(ReferrerPolicy.SAME_ORIGIN)
 						)
 				);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenFeaturePolicyConfiguredThenFeaturePolicyHeaderInResponse() throws Exception {
-		this.spring.register(FeaturePolicyConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string("Feature-Policy", "geolocation 'self'"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly("Feature-Policy");
 	}
 
 	@EnableWebSecurity
@@ -917,13 +1033,7 @@ public class HeadersConfigurerTests {
 					.featurePolicy("geolocation 'self'");
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenFeaturePolicyEmptyThenException() {
-		assertThatThrownBy(() -> this.spring.register(FeaturePolicyInvalidConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
 	@EnableWebSecurity
@@ -938,18 +1048,69 @@ public class HeadersConfigurerTests {
 					.featurePolicy("");
 			// @formatter:on
 		}
+
 	}
 
-	@Test
-	public void getWhenHstsConfiguredWithPreloadThenStrictTransportSecurityHeaderWithPreloadInResponse()
-			throws Exception {
-		this.spring.register(HstsWithPreloadConfig.class).autowire();
+	@EnableWebSecurity
+	static class PermissionsPolicyConfig extends WebSecurityConfigurerAdapter {
 
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY,
-						"max-age=31536000 ; includeSubDomains ; preload"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy("geolocation=(self)"));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyStringConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy()
+					.policy("geolocation=(self)");
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyInvalidConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy((permissionsPolicy) -> permissionsPolicy.policy(null));
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class PermissionsPolicyInvalidStringConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.permissionsPolicy()
+					.policy("");
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -965,18 +1126,7 @@ public class HeadersConfigurerTests {
 						.preload(true);
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void getWhenHstsConfiguredWithPreloadInLambdaThenStrictTransportSecurityHeaderWithPreloadInResponse()
-			throws Exception {
-		this.spring.register(HstsWithPreloadInLambdaConfig.class).autowire();
-
-		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.STRICT_TRANSPORT_SECURITY,
-						"max-age=31536000 ; includeSubDomains ; preload"))
-				.andReturn();
-		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
 	}
 
 	@EnableWebSecurity
@@ -986,12 +1136,14 @@ public class HeadersConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.headers(headers ->
+				.headers((headers) ->
 					headers
 						.defaultsDisabled()
-						.httpStrictTransportSecurity(hstsConfig -> hstsConfig.preload(true))
+						.httpStrictTransportSecurity((hstsConfig) -> hstsConfig.preload(true))
 				);
 			// @formatter:on
 		}
+
 	}
+
 }

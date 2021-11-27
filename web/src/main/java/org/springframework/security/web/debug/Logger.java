@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.debug;
 
 import java.io.PrintWriter;
@@ -28,13 +29,14 @@ import org.apache.commons.logging.LogFactory;
  * @since 3.1
  */
 final class Logger {
+
 	private static final Log logger = LogFactory.getLog("Spring Security Debugger");
 
-	public void info(String message) {
+	void info(String message) {
 		info(message, false);
 	}
 
-	public void info(String message, boolean dumpStack) {
+	void info(String message, boolean dumpStack) {
 		StringBuilder output = new StringBuilder(256);
 		output.append("\n\n************************************************************\n\n");
 		output.append(message).append("\n");
@@ -53,4 +55,5 @@ final class Logger {
 
 		logger.info(output.toString());
 	}
+
 }

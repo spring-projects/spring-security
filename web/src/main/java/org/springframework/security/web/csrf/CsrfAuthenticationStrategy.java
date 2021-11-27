@@ -13,10 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -33,6 +37,8 @@ import org.springframework.util.Assert;
  */
 public final class CsrfAuthenticationStrategy implements SessionAuthenticationStrategy {
 
+	private final Log logger = LogFactory.getLog(getClass());
+
 	private final CsrfTokenRepository csrfTokenRepository;
 
 	/**
@@ -44,27 +50,18 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.authentication.session.
-	 * SessionAuthenticationStrategy
-	 * #onAuthentication(org.springframework.security.core.Authentication,
-	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
 	@Override
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response)
-					throws SessionAuthenticationException {
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) throws SessionAuthenticationException {
 		boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
 		if (containsToken) {
 			this.csrfTokenRepository.saveToken(null, request, response);
-
 			CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
 			this.csrfTokenRepository.saveToken(newToken, request, response);
-
 			request.setAttribute(CsrfToken.class.getName(), newToken);
 			request.setAttribute(newToken.getParameterName(), newToken);
+			this.logger.debug("Replaced CSRF Token");
 		}
 	}
+
 }

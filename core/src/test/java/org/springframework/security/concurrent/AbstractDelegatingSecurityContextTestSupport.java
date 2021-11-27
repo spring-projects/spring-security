@@ -13,24 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.concurrent;
 
-import static org.mockito.ArgumentMatchers.eq;
-import static org.powermock.api.mockito.PowerMockito.doReturn;
-import static org.powermock.api.mockito.PowerMockito.spy;
+package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.mockito.ArgumentMatchers.eq;
 
 /**
  * Abstract base class for testing classes that extend
@@ -40,10 +40,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @since 3.2
  *
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({ DelegatingSecurityContextRunnable.class,
-		DelegatingSecurityContextCallable.class })
+@ExtendWith(MockitoExtension.class)
 public abstract class AbstractDelegatingSecurityContextTestSupport {
+
 	@Mock
 	protected SecurityContext securityContext;
 
@@ -65,31 +64,36 @@ public abstract class AbstractDelegatingSecurityContextTestSupport {
 	@Mock
 	protected Runnable wrappedRunnable;
 
-	public final void explicitSecurityContextPowermockSetup() throws Exception {
-		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				eq(callable), securityContextCaptor.capture());
-		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				eq(runnable), securityContextCaptor.capture());
+	@Mock
+	protected MockedStatic<DelegatingSecurityContextCallable> delegatingSecurityContextCallable;
+
+	@Mock
+	protected MockedStatic<DelegatingSecurityContextRunnable> delegatingSecurityContextRunnable;
+
+	public final void explicitSecurityContextSetup() throws Exception {
+		this.delegatingSecurityContextCallable.when(
+				() -> DelegatingSecurityContextCallable.create(eq(this.callable), this.securityContextCaptor.capture()))
+				.thenReturn(this.wrappedCallable);
+		this.delegatingSecurityContextRunnable.when(
+				() -> DelegatingSecurityContextRunnable.create(eq(this.runnable), this.securityContextCaptor.capture()))
+				.thenReturn(this.wrappedRunnable);
 	}
 
-	public final void currentSecurityContextPowermockSetup() throws Exception {
-		spy(DelegatingSecurityContextCallable.class);
-		doReturn(wrappedCallable).when(DelegatingSecurityContextCallable.class, "create",
-				callable, null);
-		spy(DelegatingSecurityContextRunnable.class);
-		doReturn(wrappedRunnable).when(DelegatingSecurityContextRunnable.class, "create",
-				runnable, null);
+	public final void currentSecurityContextSetup() throws Exception {
+		this.delegatingSecurityContextCallable.when(() -> DelegatingSecurityContextCallable.create(this.callable, null))
+				.thenReturn(this.wrappedCallable);
+		this.delegatingSecurityContextRunnable.when(() -> DelegatingSecurityContextRunnable.create(this.runnable, null))
+				.thenReturn(this.wrappedRunnable);
 	}
 
-	@Before
+	@BeforeEach
 	public final void setContext() {
-		SecurityContextHolder.setContext(currentSecurityContext);
+		SecurityContextHolder.setContext(this.currentSecurityContext);
 	}
 
-	@After
+	@AfterEach
 	public final void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
+
 }

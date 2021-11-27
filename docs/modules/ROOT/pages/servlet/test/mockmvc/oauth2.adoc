@@ -1,0 +1,1162 @@
+[[testing-oauth2]]
+= Testing OAuth 2.0
+
+When it comes to OAuth 2.0, the same principles covered earlier still apply: Ultimately, it depends on what your method under test is expecting to be in the `SecurityContextHolder`.
+
+For example, for a controller that looks like this:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(Principal user) {
+    return user.getName();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(user: Principal): String {
+    return user.name
+}
+----
+====
+
+There's nothing OAuth2-specific about it, so you will likely be able to simply xref:servlet/test/method.adoc#test-method-withmockuser[use `@WithMockUser`] and be fine.
+
+But, in cases where your controllers are bound to some aspect of Spring Security's OAuth 2.0 support, like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@AuthenticationPrincipal OidcUser user) {
+    return user.getIdToken().getSubject();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal user: OidcUser): String {
+    return user.idToken.subject
+}
+----
+====
+
+then Spring Security's test support can come in handy.
+
+[[testing-oidc-login]]
+== Testing OIDC Login
+
+Testing the method above with Spring MVC Test would require simulating some kind of grant flow with an authorization server.
+Certainly this would be a daunting task, which is why Spring Security ships with support for removing this boilerplate.
+
+For example, we can tell Spring Security to include a default `OidcUser` using the `oidcLogin` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(oidcLogin()));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oidcLogin())
+}
+----
+====
+
+What this will do is configure the associated `MockHttpServletRequest` with an `OidcUser` that includes a simple `OidcIdToken`, `OidcUserInfo`, and `Collection` of granted authorities.
+
+Specifically, it will include an `OidcIdToken` with a `sub` claim set to `user`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(user.getIdToken().getClaim("sub")).isEqualTo("user");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.idToken.getClaim<String>("sub")).isEqualTo("user")
+----
+====
+
+an `OidcUserInfo` with no claims set:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(user.getUserInfo().getClaims()).isEmpty();
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.userInfo.claims).isEmpty()
+----
+====
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(user.getAuthorities()).hasSize(1);
+assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.authorities).hasSize(1)
+assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
+
+Spring Security does the necessary work to make sure that the `OidcUser` instance is available for xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[the `@AuthenticationPrincipal` annotation].
+
+Further, it also links that `OidcUser` to a simple instance of `OAuth2AuthorizedClient` that it deposits into an mock `OAuth2AuthorizedClientRepository`.
+This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>..
+
+[[testing-oidc-login-authorities]]
+== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oidcLogin()
+            .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oidcLogin()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+}
+----
+====
+
+[[testing-oidc-login-claims]]
+== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` claim that indicates the user's id in your system.
+You might access it like so in a controller:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@AuthenticationPrincipal OidcUser oidcUser) {
+    String userId = oidcUser.getIdToken().getClaim("user_id");
+    // ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oidcUser: OidcUser): String {
+    val userId = oidcUser.idToken.getClaim<String>("user_id")
+    // ...
+}
+----
+====
+
+In that case, you'd want to specify that claim with the `idToken()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oidcLogin()
+                .idToken(token -> token.claim("user_id", "1234"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oidcLogin()
+        .idToken {
+            it.claim("user_id", "1234")
+        }
+    )
+}
+----
+====
+
+since `OidcUser` collects its claims from `OidcIdToken`.
+
+[[testing-oidc-login-user]]
+== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `userInfo(OidcUserInfo.Builder)` - For configuring the `OidcUserInfo` instance
+* `clientRegistration(ClientRegistration)` - For configuring the associated `OAuth2AuthorizedClient` with a given `ClientRegistration`
+* `oidcUser(OidcUser)` - For configuring the complete `OidcUser` instance
+
+That last one is handy if you:
+1. Have your own implementation of `OidcUser`, or
+2. Need to change the name attribute
+
+For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
+In that case, you can configure an `OidcUser` by hand:
+
+====
+.Java
+[source,java,role="primary"]
+----
+OidcUser oidcUser = new DefaultOidcUser(
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+        OidcIdToken.withTokenValue("id-token").claim("user_name", "foo_user").build(),
+        "user_name");
+
+mvc
+    .perform(get("/endpoint")
+        .with(oidcLogin().oidcUser(oidcUser))
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val oidcUser: OidcUser = DefaultOidcUser(
+    AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+    OidcIdToken.withTokenValue("id-token").claim("user_name", "foo_user").build(),
+    "user_name"
+)
+
+mvc.get("/endpoint") {
+    with(oidcLogin().oidcUser(oidcUser))
+}
+----
+====
+
+[[testing-oauth2-login]]
+== Testing OAuth 2.0 Login
+
+As with <<testing-oidc-login,testing OIDC login>>, testing OAuth 2.0 Login presents a similar challenge of mocking a grant flow.
+And because of that, Spring Security also has test support for non-OIDC use cases.
+
+Let's say that we've got a controller that gets the logged-in user as an `OAuth2User`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@AuthenticationPrincipal OAuth2User oauth2User) {
+    return oauth2User.getAttribute("sub");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oauth2User: OAuth2User): String? {
+    return oauth2User.getAttribute("sub")
+}
+----
+====
+
+In that case, we can tell Spring Security to include a default `OAuth2User` using the `oauth2User` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(oauth2Login()));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oauth2Login())
+}
+----
+====
+
+What this will do is configure the associated `MockHttpServletRequest` with an `OAuth2User` that includes a simple `Map` of attributes and `Collection` of granted authorities.
+
+Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat((String) user.getAttribute("sub")).isEqualTo("user");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.getAttribute<String>("sub")).isEqualTo("user")
+----
+====
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(user.getAuthorities()).hasSize(1);
+assertThat(user.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(user.authorities).hasSize(1)
+assertThat(user.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
+
+Spring Security does the necessary work to make sure that the `OAuth2User` instance is available for xref:servlet/integrations/mvc.adoc#mvc-authentication-principal[the `@AuthenticationPrincipal` annotation].
+
+Further, it also links that `OAuth2User` to a simple instance of `OAuth2AuthorizedClient` that it deposits in a mock `OAuth2AuthorizedClientRepository`.
+This can be handy if your tests <<testing-oauth2-client,use the `@RegisteredOAuth2AuthorizedClient` annotation>>.
+
+[[testing-oauth2-login-authorities]]
+== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Login()
+            .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oauth2Login()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+}
+----
+====
+
+[[testing-oauth2-login-claims]]
+== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have claims in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
+You might access it like so in a controller:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@AuthenticationPrincipal OAuth2User oauth2User) {
+    String userId = oauth2User.getAttribute("user_id");
+    // ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@AuthenticationPrincipal oauth2User: OAuth2User): String {
+    val userId = oauth2User.getAttribute<String>("user_id")
+    // ...
+}
+----
+====
+
+In that case, you'd want to specify that attribute with the `attributes()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Login()
+                .attributes(attrs -> attrs.put("user_id", "1234"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oauth2Login()
+        .attributes { attrs -> attrs["user_id"] = "1234" }
+    )
+}
+----
+====
+
+[[testing-oauth2-login-user]]
+== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `clientRegistration(ClientRegistration)` - For configuring the associated `OAuth2AuthorizedClient` with a given `ClientRegistration`
+* `oauth2User(OAuth2User)` - For configuring the complete `OAuth2User` instance
+
+That last one is handy if you:
+1. Have your own implementation of `OAuth2User`, or
+2. Need to change the name attribute
+
+For example, let's say that your authorization server sends the principal name in the `user_name` claim instead of the `sub` claim.
+In that case, you can configure an `OAuth2User` by hand:
+
+====
+.Java
+[source,java,role="primary"]
+----
+OAuth2User oauth2User = new DefaultOAuth2User(
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+        Collections.singletonMap("user_name", "foo_user"),
+        "user_name");
+
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Login().oauth2User(oauth2User))
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val oauth2User: OAuth2User = DefaultOAuth2User(
+    AuthorityUtils.createAuthorityList("SCOPE_message:read"),
+    mapOf(Pair("user_name", "foo_user")),
+    "user_name"
+)
+
+mvc.get("/endpoint") {
+    with(oauth2Login().oauth2User(oauth2User))
+}
+----
+====
+
+[[testing-oauth2-client]]
+== Testing OAuth 2.0 Clients
+
+Independent of how your user authenticates, you may have other tokens and client registrations that are in play for the request you are testing.
+For example, your controller may be relying on the client credentials grant to get a token that isn't associated with the user at all:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
+    return this.webClient.get()
+        .attributes(oauth2AuthorizedClient(authorizedClient))
+        .retrieve()
+        .bodyToMono(String.class)
+        .block();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@RegisteredOAuth2AuthorizedClient("my-app") authorizedClient: OAuth2AuthorizedClient?): String? {
+    return this.webClient.get()
+        .attributes(oauth2AuthorizedClient(authorizedClient))
+        .retrieve()
+        .bodyToMono(String::class.java)
+        .block()
+}
+----
+====
+
+Simulating this handshake with the authorization server could be cumbersome.
+Instead, you can use the `oauth2Client` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`] to add a `OAuth2AuthorizedClient` into a mock `OAuth2AuthorizedClientRepository`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(oauth2Client("my-app")));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(
+        oauth2Client("my-app")
+    )
+}
+----
+====
+
+What this will do is create an `OAuth2AuthorizedClient` that has a simple `ClientRegistration`, `OAuth2AccessToken`, and resource owner name.
+
+Specifically, it will include a `ClientRegistration` with a client id of "test-client" and client secret of "test-secret":
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(authorizedClient.getClientRegistration().getClientId()).isEqualTo("test-client");
+assertThat(authorizedClient.getClientRegistration().getClientSecret()).isEqualTo("test-secret");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.clientRegistration.clientId).isEqualTo("test-client")
+assertThat(authorizedClient.clientRegistration.clientSecret).isEqualTo("test-secret")
+----
+====
+
+a resource owner name of "user":
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(authorizedClient.getPrincipalName()).isEqualTo("user");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.principalName).isEqualTo("user")
+----
+====
+
+and an `OAuth2AccessToken` with just one scope, `read`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(authorizedClient.getAccessToken().getScopes()).hasSize(1);
+assertThat(authorizedClient.getAccessToken().getScopes()).containsExactly("read");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(authorizedClient.accessToken.scopes).hasSize(1)
+assertThat(authorizedClient.accessToken.scopes).containsExactly("read")
+----
+====
+
+The client can then be retrieved as normal using `@RegisteredOAuth2AuthorizedClient` in a controller method.
+
+[[testing-oauth2-client-scopes]]
+== Configuring Scopes
+
+In many circumstances, the OAuth 2.0 access token comes with a set of scopes.
+If your controller inspects these, say like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(@RegisteredOAuth2AuthorizedClient("my-app") OAuth2AuthorizedClient authorizedClient) {
+    Set<String> scopes = authorizedClient.getAccessToken().getScopes();
+    if (scopes.contains("message:read")) {
+        return this.webClient.get()
+            .attributes(oauth2AuthorizedClient(authorizedClient))
+            .retrieve()
+            .bodyToMono(String.class)
+            .block();
+    }
+    // ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(@RegisteredOAuth2AuthorizedClient("my-app") authorizedClient: OAuth2AuthorizedClient): String? {
+    val scopes = authorizedClient.accessToken.scopes
+    if (scopes.contains("message:read")) {
+        return webClient.get()
+            .attributes(oauth2AuthorizedClient(authorizedClient))
+            .retrieve()
+            .bodyToMono(String::class.java)
+            .block()
+    }
+    // ...
+}
+----
+====
+
+then you can configure the scope using the `accessToken()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Client("my-app")
+            .accessToken(new OAuth2AccessToken(BEARER, "token", null, null, Collections.singleton("message:read"))))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(oauth2Client("my-app")
+            .accessToken(OAuth2AccessToken(BEARER, "token", null, null, Collections.singleton("message:read")))
+    )
+}
+----
+====
+
+[[testing-oauth2-client-registration]]
+== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects:
+
+* `principalName(String)` - For configuring the resource owner name
+* `clientRegistration(Consumer<ClientRegistration.Builder>)` - For configuring the associated `ClientRegistration`
+* `clientRegistration(ClientRegistration)` - For configuring the complete `ClientRegistration`
+
+That last one is handy if you want to use a real `ClientRegistration`
+
+For example, let's say that you are wanting to use one of your app's `ClientRegistration` definitions, as specified in your `application.yml`.
+
+In that case, your test can autowire the `ClientRegistrationRepository` and look up the one your test needs:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Autowired
+ClientRegistrationRepository clientRegistrationRepository;
+
+// ...
+
+mvc
+    .perform(get("/endpoint")
+        .with(oauth2Client()
+            .clientRegistration(this.clientRegistrationRepository.findByRegistrationId("facebook"))));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Autowired
+lateinit var clientRegistrationRepository: ClientRegistrationRepository
+
+// ...
+
+mvc.get("/endpoint") {
+    with(oauth2Client("my-app")
+        .clientRegistration(clientRegistrationRepository.findByRegistrationId("facebook"))
+    )
+}
+----
+====
+
+[[testing-jwt]]
+== Testing JWT Authentication
+
+In order to make an authorized request on a resource server, you need a bearer token.
+
+If your resource server is configured for JWTs, then this would mean that the bearer token needs to be signed and then encoded according to the JWT specification.
+All of this can be quite daunting, especially when this isn't the focus of your test.
+
+Fortunately, there are a number of simple ways that you can overcome this difficulty and allow your tests to focus on authorization and not on representing bearer tokens.
+We'll look at two of them now:
+
+== `jwt() RequestPostProcessor`
+
+The first way is via the `jwt` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`].
+The simplest of these would look something like this:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(jwt()));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(jwt())
+}
+----
+====
+
+What this will do is create a mock `Jwt`, passing it correctly through any authentication APIs so that it's available for your authorization mechanisms to verify.
+
+By default, the `JWT` that it creates has the following characteristics:
+
+[source,json]
+----
+{
+  "headers" : { "alg" : "none" },
+  "claims" : {
+    "sub" : "user",
+    "scope" : "read"
+  }
+}
+----
+
+And the resulting `Jwt`, were it tested, would pass in the following way:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(jwt.getTokenValue()).isEqualTo("token");
+assertThat(jwt.getHeaders().get("alg")).isEqualTo("none");
+assertThat(jwt.getSubject()).isEqualTo("sub");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(jwt.tokenValue).isEqualTo("token")
+assertThat(jwt.headers["alg"]).isEqualTo("none")
+assertThat(jwt.subject).isEqualTo("sub")
+----
+====
+
+These values can, of course be configured.
+
+Any headers or claims can be configured with their corresponding methods:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().jwt(jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org"))));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(
+        jwt().jwt { jwt -> jwt.header("kid", "one").claim("iss", "https://idp.example.org") }
+    )
+}
+----
+====
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().jwt(jwt -> jwt.claims(claims -> claims.remove("scope")))));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(
+        jwt().jwt { jwt -> jwt.claims { claims -> claims.remove("scope") } }
+    )
+}
+----
+====
+
+The `scope` and `scp` claims are processed the same way here as they are in a normal bearer token request.
+However, this can be overridden simply by providing the list of `GrantedAuthority` instances that you need for your test:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new SimpleGrantedAuthority("SCOPE_messages"))));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(
+        jwt().authorities(SimpleGrantedAuthority("SCOPE_messages"))
+    )
+}
+----
+====
+
+Or, if you have a custom `Jwt` to `Collection<GrantedAuthority>` converter, you can also use that to derive the authorities:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().authorities(new MyConverter())));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(
+        jwt().authorities(MyConverter())
+    )
+}
+----
+====
+
+You can also specify a complete `Jwt`, for which `{security-api-url}org/springframework/security/oauth2/jwt/Jwt.Builder.html[Jwt.Builder]` comes quite handy:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read")
+    .build();
+
+mvc
+    .perform(get("/endpoint")
+        .with(jwt().jwt(jwt)));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwt: Jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .claim("scope", "read")
+    .build()
+
+mvc.get("/endpoint") {
+    with(
+        jwt().jwt(jwt)
+    )
+}
+----
+====
+
+== `authentication()` `RequestPostProcessor`
+
+The second way is by using the `authentication()` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`].
+Essentially, you can instantiate your own `JwtAuthenticationToken` and provide it in your test, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Jwt jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build();
+Collection<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("SCOPE_read");
+JwtAuthenticationToken token = new JwtAuthenticationToken(jwt, authorities);
+
+mvc
+    .perform(get("/endpoint")
+        .with(authentication(token)));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwt = Jwt.withTokenValue("token")
+    .header("alg", "none")
+    .claim("sub", "user")
+    .build()
+val authorities: Collection<GrantedAuthority> = AuthorityUtils.createAuthorityList("SCOPE_read")
+val token = JwtAuthenticationToken(jwt, authorities)
+
+mvc.get("/endpoint") {
+    with(
+        authentication(token)
+    )
+}
+----
+====
+
+Note that as an alternative to these, you can also mock the `JwtDecoder` bean itself with a `@MockBean` annotation.
+
+[[testing-opaque-token]]
+== Testing Opaque Token Authentication
+
+Similar to <<testing-jwt,JWTs>>, opaque tokens require an authorization server in order to verify their validity, which can make testing more difficult.
+To help with that, Spring Security has test support for opaque tokens.
+
+Let's say that we've got a controller that retrieves the authentication as a `BearerTokenAuthentication`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(BearerTokenAuthentication authentication) {
+    return (String) authentication.getTokenAttributes().get("sub");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(authentication: BearerTokenAuthentication): String {
+    return authentication.tokenAttributes["sub"] as String
+}
+----
+====
+
+In that case, we can tell Spring Security to include a default `BearerTokenAuthentication` using the `opaqueToken` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`] method, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint").with(opaqueToken()));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(opaqueToken())
+}
+----
+====
+
+What this will do is configure the associated `MockHttpServletRequest` with a `BearerTokenAuthentication` that includes a simple `OAuth2AuthenticatedPrincipal`, `Map` of attributes, and `Collection` of granted authorities.
+
+Specifically, it will include a `Map` with a key/value pair of `sub`/`user`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat((String) token.getTokenAttributes().get("sub")).isEqualTo("user");
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(token.tokenAttributes["sub"] as String).isEqualTo("user")
+----
+====
+
+and a `Collection` of authorities with just one authority, `SCOPE_read`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+assertThat(token.getAuthorities()).hasSize(1);
+assertThat(token.getAuthorities()).containsExactly(new SimpleGrantedAuthority("SCOPE_read"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+assertThat(token.authorities).hasSize(1)
+assertThat(token.authorities).containsExactly(SimpleGrantedAuthority("SCOPE_read"))
+----
+====
+
+Spring Security does the necessary work to make sure that the `BearerTokenAuthentication` instance is available for your controller methods.
+
+[[testing-opaque-token-authorities]]
+== Configuring Authorities
+
+In many circumstances, your method is protected by filter or method security and needs your `Authentication` to have certain granted authorities to allow the request.
+
+In this case, you can supply what granted authorities you need using the `authorities()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(opaqueToken()
+            .authorities(new SimpleGrantedAuthority("SCOPE_message:read"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(opaqueToken()
+        .authorities(SimpleGrantedAuthority("SCOPE_message:read"))
+    )
+}
+----
+====
+
+[[testing-opaque-token-attributes]]
+== Configuring Claims
+
+And while granted authorities are quite common across all of Spring Security, we also have attributes in the case of OAuth 2.0.
+
+Let's say, for example, that you've got a `user_id` attribute that indicates the user's id in your system.
+You might access it like so in a controller:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@GetMapping("/endpoint")
+public String foo(BearerTokenAuthentication authentication) {
+    String userId = (String) authentication.getTokenAttributes().get("user_id");
+    // ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@GetMapping("/endpoint")
+fun foo(authentication: BearerTokenAuthentication): String {
+    val userId = authentication.tokenAttributes["user_id"] as String
+    // ...
+}
+----
+====
+
+In that case, you'd want to specify that attribute with the `attributes()` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+mvc
+    .perform(get("/endpoint")
+        .with(opaqueToken()
+                .attributes(attrs -> attrs.put("user_id", "1234"))
+        )
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+mvc.get("/endpoint") {
+    with(opaqueToken()
+        .attributes { attrs -> attrs["user_id"] = "1234" }
+    )
+}
+----
+====
+
+[[testing-opaque-token-principal]]
+== Additional Configurations
+
+There are additional methods, too, for further configuring the authentication; it simply depends on what data your controller expects.
+
+One such is `principal(OAuth2AuthenticatedPrincipal)`, which you can use to configure the complete `OAuth2AuthenticatedPrincipal` instance that underlies the `BearerTokenAuthentication`
+
+It's handy if you:
+1. Have your own implementation of `OAuth2AuthenticatedPrincipal`, or
+2. Want to specify a different principal name
+
+For example, let's say that your authorization server sends the principal name in the `user_name` attribute instead of the `sub` attribute.
+In that case, you can configure an `OAuth2AuthenticatedPrincipal` by hand:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Map<String, Object> attributes = Collections.singletonMap("user_name", "foo_user");
+OAuth2AuthenticatedPrincipal principal = new DefaultOAuth2AuthenticatedPrincipal(
+        (String) attributes.get("user_name"),
+        attributes,
+        AuthorityUtils.createAuthorityList("SCOPE_message:read"));
+
+mvc
+    .perform(get("/endpoint")
+        .with(opaqueToken().principal(principal))
+    );
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val attributes: Map<String, Any> = Collections.singletonMap("user_name", "foo_user")
+val principal: OAuth2AuthenticatedPrincipal = DefaultOAuth2AuthenticatedPrincipal(
+    attributes["user_name"] as String?,
+    attributes,
+    AuthorityUtils.createAuthorityList("SCOPE_message:read")
+)
+
+mvc.get("/endpoint") {
+    with(opaqueToken().principal(principal))
+}
+----
+====
+
+Note that as an alternative to using `opaqueToken()` test support, you can also mock the `OpaqueTokenIntrospector` bean itself with a `@MockBean` annotation.

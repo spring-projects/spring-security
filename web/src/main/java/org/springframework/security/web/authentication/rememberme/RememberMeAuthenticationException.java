@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.rememberme;
 
 import org.springframework.security.core.AuthenticationException;
@@ -26,27 +27,23 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class RememberMeAuthenticationException extends AuthenticationException {
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Constructs a {@code RememberMeAuthenticationException} with the specified message
 	 * and root cause.
-	 *
 	 * @param msg the detail message
-	 * @param t the root cause
+	 * @param cause the root cause
 	 */
-	public RememberMeAuthenticationException(String msg, Throwable t) {
-		super(msg, t);
+	public RememberMeAuthenticationException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
 
 	/**
 	 * Constructs an {@code RememberMeAuthenticationException} with the specified message
 	 * and no root cause.
-	 *
 	 * @param msg the detail message
 	 */
 	public RememberMeAuthenticationException(String msg) {
 		super(msg);
 	}
+
 }

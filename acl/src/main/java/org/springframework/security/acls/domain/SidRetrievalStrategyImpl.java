@@ -51,20 +51,16 @@ public class SidRetrievalStrategyImpl implements SidRetrievalStrategy {
 		this.roleHierarchy = roleHierarchy;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public List<Sid> getSids(Authentication authentication) {
-		Collection<? extends GrantedAuthority> authorities = roleHierarchy
+		Collection<? extends GrantedAuthority> authorities = this.roleHierarchy
 				.getReachableGrantedAuthorities(authentication.getAuthorities());
 		List<Sid> sids = new ArrayList<>(authorities.size() + 1);
-
 		sids.add(new PrincipalSid(authentication));
-
 		for (GrantedAuthority authority : authorities) {
 			sids.add(new GrantedAuthoritySid(authority));
 		}
-
 		return sids;
 	}
+
 }

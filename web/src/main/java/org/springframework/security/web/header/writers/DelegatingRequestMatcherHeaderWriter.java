@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -30,33 +31,26 @@ import org.springframework.util.Assert;
  * @since 3.2
  */
 public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter {
+
 	private final RequestMatcher requestMatcher;
 
 	private final HeaderWriter delegateHeaderWriter;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param requestMatcher the {@link RequestMatcher} to use. If returns true, the
 	 * delegateHeaderWriter will be invoked.
 	 * @param delegateHeaderWriter the {@link HeaderWriter} to invoke if the
 	 * {@link RequestMatcher} returns true.
 	 */
-	public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher,
-			HeaderWriter delegateHeaderWriter) {
+	public DelegatingRequestMatcherHeaderWriter(RequestMatcher requestMatcher, HeaderWriter delegateHeaderWriter) {
 		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
 		Assert.notNull(delegateHeaderWriter, "delegateHeaderWriter cannot be null");
 		this.requestMatcher = requestMatcher;
 		this.delegateHeaderWriter = delegateHeaderWriter;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.web.headers.HeaderWriter#writeHeaders(javax.servlet
-	 * .http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
 		if (this.requestMatcher.matches(request)) {
 			this.delegateHeaderWriter.writeHeaders(request, response);
@@ -65,7 +59,8 @@ public final class DelegatingRequestMatcherHeaderWriter implements HeaderWriter 
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [requestMatcher=" + this.requestMatcher
-				+ ", delegateHeaderWriter=" + this.delegateHeaderWriter + "]";
+		return getClass().getName() + " [requestMatcher=" + this.requestMatcher + ", delegateHeaderWriter="
+				+ this.delegateHeaderWriter + "]";
 	}
+
 }

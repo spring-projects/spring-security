@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
 import java.util.Collections;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
@@ -50,26 +48,27 @@ import org.springframework.web.util.UrlPathHelper;
  * @author Luke Taylor
  * @author Rob Winch
  * @author Eddú Meléndez
+ * @author Evgeniy Cheban
  * @since 3.1
- *
  * @see org.springframework.util.AntPathMatcher
  */
-public final class AntPathRequestMatcher
-		implements RequestMatcher, RequestVariablesExtractor {
-	private static final Log logger = LogFactory.getLog(AntPathRequestMatcher.class);
+public final class AntPathRequestMatcher implements RequestMatcher, RequestVariablesExtractor {
+
 	private static final String MATCH_ALL = "/**";
 
 	private final Matcher matcher;
+
 	private final String pattern;
+
 	private final HttpMethod httpMethod;
+
 	private final boolean caseSensitive;
 
 	private final UrlPathHelper urlPathHelper;
 
 	/**
 	 * Creates a matcher with the specific pattern which will match all HTTP methods in a
-	 * case insensitive manner.
-	 *
+	 * case sensitive manner.
 	 * @param pattern the ant pattern to use for matching
 	 */
 	public AntPathRequestMatcher(String pattern) {
@@ -77,9 +76,8 @@ public final class AntPathRequestMatcher
 	}
 
 	/**
-	 * Creates a matcher with the supplied pattern and HTTP method in a case insensitive
+	 * Creates a matcher with the supplied pattern and HTTP method in a case sensitive
 	 * manner.
-	 *
 	 * @param pattern the ant pattern to use for matching
 	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
 	 * the incoming request doesn't have the same method.
@@ -91,32 +89,29 @@ public final class AntPathRequestMatcher
 	/**
 	 * Creates a matcher with the supplied pattern which will match the specified Http
 	 * method
-	 *
 	 * @param pattern the ant pattern to use for matching
 	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
 	 * the incoming request doesn't doesn't have the same method.
 	 * @param caseSensitive true if the matcher should consider case, else false
 	 */
-	public AntPathRequestMatcher(String pattern, String httpMethod,
-			boolean caseSensitive) {
+	public AntPathRequestMatcher(String pattern, String httpMethod, boolean caseSensitive) {
 		this(pattern, httpMethod, caseSensitive, null);
 	}
 
 	/**
 	 * Creates a matcher with the supplied pattern which will match the specified Http
 	 * method
-	 *
 	 * @param pattern the ant pattern to use for matching
 	 * @param httpMethod the HTTP method. The {@code matches} method will return false if
-	 * the incoming request doesn't doesn't have the same method.
+	 * the incoming request doesn't have the same method.
 	 * @param caseSensitive true if the matcher should consider case, else false
-	 * @param urlPathHelper if non-null, will be used for extracting the path from the HttpServletRequest
+	 * @param urlPathHelper if non-null, will be used for extracting the path from the
+	 * HttpServletRequest
 	 */
-	public AntPathRequestMatcher(String pattern, String httpMethod,
-			boolean caseSensitive, UrlPathHelper urlPathHelper) {
+	public AntPathRequestMatcher(String pattern, String httpMethod, boolean caseSensitive,
+			UrlPathHelper urlPathHelper) {
 		Assert.hasText(pattern, "Pattern cannot be null or empty");
 		this.caseSensitive = caseSensitive;
-
 		if (pattern.equals(MATCH_ALL) || pattern.equals("**")) {
 			pattern = MATCH_ALL;
 			this.matcher = null;
@@ -125,59 +120,35 @@ public final class AntPathRequestMatcher
 			// If the pattern ends with {@code /**} and has no other wildcards or path
 			// variables, then optimize to a sub-path match
 			if (pattern.endsWith(MATCH_ALL)
-					&& (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1
-							&& pattern.indexOf('}') == -1)
+					&& (pattern.indexOf('?') == -1 && pattern.indexOf('{') == -1 && pattern.indexOf('}') == -1)
 					&& pattern.indexOf("*") == pattern.length() - 2) {
-				this.matcher = new SubpathMatcher(
-						pattern.substring(0, pattern.length() - 3), caseSensitive);
+				this.matcher = new SubpathMatcher(pattern.substring(0, pattern.length() - 3), caseSensitive);
 			}
 			else {
 				this.matcher = new SpringAntMatcher(pattern, caseSensitive);
 			}
 		}
-
 		this.pattern = pattern;
-		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod)
-				: null;
+		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 		this.urlPathHelper = urlPathHelper;
 	}
 
 	/**
 	 * Returns true if the configured pattern (and HTTP-Method) match those of the
 	 * supplied request.
-	 *
 	 * @param request the request to match against. The ant pattern will be matched
 	 * against the {@code servletPath} + {@code pathInfo} of the request.
 	 */
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
-				&& this.httpMethod != valueOf(request.getMethod())) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request '" + request.getMethod() + " "
-						+ getRequestPath(request) + "'" + " doesn't match '"
-						+ this.httpMethod + " " + this.pattern + "'");
-			}
-
+				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
 			return false;
 		}
-
 		if (this.pattern.equals(MATCH_ALL)) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Request '" + getRequestPath(request)
-						+ "' matched by universal pattern '/**'");
-			}
-
 			return true;
 		}
-
 		String url = getRequestPath(request);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Checking match of request : '" + url + "'; against '"
-					+ this.pattern + "'");
-		}
-
 		return this.matcher.matches(url);
 	}
 
@@ -189,8 +160,11 @@ public final class AntPathRequestMatcher
 
 	@Override
 	public MatchResult matcher(HttpServletRequest request) {
-		if (this.matcher == null || !matches(request)) {
+		if (!matches(request)) {
 			return MatchResult.notMatch();
+		}
+		if (this.matcher == null) {
+			return MatchResult.match();
 		}
 		String url = getRequestPath(request);
 		return MatchResult.match(this.matcher.extractUriTemplateVariables(url));
@@ -201,12 +175,10 @@ public final class AntPathRequestMatcher
 			return this.urlPathHelper.getPathWithinApplication(request);
 		}
 		String url = request.getServletPath();
-
 		String pathInfo = request.getPathInfo();
 		if (pathInfo != null) {
 			url = StringUtils.hasLength(url) ? url + pathInfo : pathInfo;
 		}
-
 		return url;
 	}
 
@@ -219,7 +191,6 @@ public final class AntPathRequestMatcher
 		if (!(obj instanceof AntPathRequestMatcher)) {
 			return false;
 		}
-
 		AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
 		return this.pattern.equals(other.pattern) && this.httpMethod == other.httpMethod
 				&& this.caseSensitive == other.caseSensitive;
@@ -227,8 +198,8 @@ public final class AntPathRequestMatcher
 
 	@Override
 	public int hashCode() {
-		int result = this.pattern != null ? this.pattern.hashCode() : 0;
-		result = 31 * result + (this.httpMethod != null ? this.httpMethod.hashCode() : 0);
+		int result = (this.pattern != null) ? this.pattern.hashCode() : 0;
+		result = 31 * result + ((this.httpMethod != null) ? this.httpMethod.hashCode() : 0);
 		result = 31 * result + (this.caseSensitive ? 1231 : 1237);
 		return result;
 	}
@@ -237,41 +208,23 @@ public final class AntPathRequestMatcher
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("Ant [pattern='").append(this.pattern).append("'");
-
 		if (this.httpMethod != null) {
 			sb.append(", ").append(this.httpMethod);
 		}
-
 		sb.append("]");
-
 		return sb.toString();
 	}
 
-	/**
-	 * Provides a save way of obtaining the HttpMethod from a String. If the method is
-	 * invalid, returns null.
-	 *
-	 * @param method the HTTP method to use.
-	 *
-	 * @return the HttpMethod or null if method is invalid.
-	 */
-	private static HttpMethod valueOf(String method) {
-		try {
-			return HttpMethod.valueOf(method);
-		}
-		catch (IllegalArgumentException e) {
-		}
-
-		return null;
-	}
-
 	private interface Matcher {
+
 		boolean matches(String path);
 
 		Map<String, String> extractUriTemplateVariables(String path);
+
 	}
 
-	private static class SpringAntMatcher implements Matcher {
+	private static final class SpringAntMatcher implements Matcher {
+
 		private final AntPathMatcher antMatcher;
 
 		private final String pattern;
@@ -297,18 +250,22 @@ public final class AntPathRequestMatcher
 			matcher.setCaseSensitive(caseSensitive);
 			return matcher;
 		}
+
 	}
 
 	/**
 	 * Optimized matcher for trailing wildcards
 	 */
-	private static class SubpathMatcher implements Matcher {
+	private static final class SubpathMatcher implements Matcher {
+
 		private final String subpath;
+
 		private final int length;
+
 		private final boolean caseSensitive;
 
 		private SubpathMatcher(String subpath, boolean caseSensitive) {
-			assert!subpath.contains("*");
+			Assert.isTrue(!subpath.contains("*"), "subpath cannot contain \"*\"");
 			this.subpath = caseSensitive ? subpath : subpath.toLowerCase();
 			this.length = subpath.length();
 			this.caseSensitive = caseSensitive;
@@ -319,13 +276,14 @@ public final class AntPathRequestMatcher
 			if (!this.caseSensitive) {
 				path = path.toLowerCase();
 			}
-			return path.startsWith(this.subpath)
-					&& (path.length() == this.length || path.charAt(this.length) == '/');
+			return path.startsWith(this.subpath) && (path.length() == this.length || path.charAt(this.length) == '/');
 		}
 
 		@Override
 		public Map<String, String> extractUriTemplateVariables(String path) {
 			return Collections.emptyMap();
 		}
+
 	}
+
 }

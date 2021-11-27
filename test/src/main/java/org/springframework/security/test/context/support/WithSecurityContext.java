@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.support;
 
 import java.lang.annotation.Annotation;
@@ -54,11 +55,11 @@ import org.springframework.test.context.TestContext;
 @Inherited
 @Documented
 public @interface WithSecurityContext {
+
 	/**
 	 * The {@link WithUserDetailsSecurityContextFactory} to use to create the
 	 * {@link SecurityContext}. It can contain {@link Autowired} and other Spring
 	 * annotations.
-	 *
 	 * @return
 	 */
 	Class<? extends WithSecurityContextFactory<? extends Annotation>> factory();

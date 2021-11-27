@@ -13,22 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.setup;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import java.io.IOException;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 import org.springframework.security.config.BeanIds;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.test.web.servlet.setup.ConfigurableMockMvcBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcConfigurerAdapter;
+import org.springframework.util.Assert;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.io.IOException;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.testSecurityContext;
 
@@ -41,6 +43,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * @since 4.0
  */
 final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
+
 	private final DelegateFilter delegateFilter;
 
 	/**
@@ -51,8 +54,8 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	}
 
 	/**
-	 * Creates a new instance with the provided {@link javax.servlet.Filter}
-	 * @param springSecurityFilterChain the {@link javax.servlet.Filter} to use
+	 * Creates a new instance with the provided {@link jakarta.servlet.Filter}
+	 * @param springSecurityFilterChain the {@link jakarta.servlet.Filter} to use
 	 */
 	SecurityMockMvcConfigurer(Filter springSecurityFilterChain) {
 		this.delegateFilter = new DelegateFilter(springSecurityFilterChain);
@@ -64,26 +67,17 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	}
 
 	@Override
-	public RequestPostProcessor beforeMockMvcCreated(
-			ConfigurableMockMvcBuilder<?> builder, WebApplicationContext context) {
+	public RequestPostProcessor beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder,
+			WebApplicationContext context) {
 		String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
-		if (getSpringSecurityFilterChain() == null
-				&& context.containsBean(securityBeanId)) {
-			setSpringSecurityFitlerChain(context.getBean(securityBeanId,
-					Filter.class));
+		if (getSpringSecurityFilterChain() == null && context.containsBean(securityBeanId)) {
+			setSpringSecurityFitlerChain(context.getBean(securityBeanId, Filter.class));
 		}
-
-		if (getSpringSecurityFilterChain() == null) {
-			throw new IllegalStateException(
-					"springSecurityFilterChain cannot be null. Ensure a Bean with the name "
-							+ securityBeanId
-							+ " implementing Filter is present or inject the Filter to be used.");
-		}
-
+		Assert.state(getSpringSecurityFilterChain() != null,
+				() -> "springSecurityFilterChain cannot be null. Ensure a Bean with the name " + securityBeanId
+						+ " implementing Filter is present or inject the Filter to be used.");
 		// This is used by other test support to obtain the FilterChainProxy
-		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN,
-				getSpringSecurityFilterChain());
-
+		context.getServletContext().setAttribute(BeanIds.SPRING_SECURITY_FILTER_CHAIN, getSpringSecurityFilterChain());
 		return testSecurityContext();
 	}
 
@@ -96,11 +90,13 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 	}
 
 	/**
-	 * Allows adding in {@link #afterConfigurerAdded(ConfigurableMockMvcBuilder)} to preserve Filter order and then
-	 * lazily set the delegate in {@link #beforeMockMvcCreated(ConfigurableMockMvcBuilder, WebApplicationContext)}.
+	 * Allows adding in {@link #afterConfigurerAdded(ConfigurableMockMvcBuilder)} to
+	 * preserve Filter order and then lazily set the delegate in
+	 * {@link #beforeMockMvcCreated(ConfigurableMockMvcBuilder, WebApplicationContext)}.
 	 *
-	 * {@link org.springframework.web.filter.DelegatingFilterProxy} is not used because it is not easy to lazily set
-	 * the delegate or get the delegate which is necessary for the test infrastructure.
+	 * {@link org.springframework.web.filter.DelegatingFilterProxy} is not used because it
+	 * is not easy to lazily set the delegate or get the delegate which is necessary for
+	 * the test infrastructure.
 	 */
 	static class DelegateFilter implements Filter {
 
@@ -118,38 +114,44 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		}
 
 		Filter getDelegate() {
-			return this.delegate;
+			Filter result = this.delegate;
+			Assert.state(result != null,
+					() -> "delegate cannot be null. Ensure a Bean with the name " + BeanIds.SPRING_SECURITY_FILTER_CHAIN
+							+ " implementing Filter is present or inject the Filter to be used.");
+			return result;
 		}
 
 		@Override
 		public void init(FilterConfig filterConfig) throws ServletException {
-			this.delegate.init(filterConfig);
+			getDelegate().init(filterConfig);
 		}
 
 		@Override
 		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 				throws IOException, ServletException {
-			this.delegate.doFilter(request, response, chain);
+			getDelegate().doFilter(request, response, chain);
 		}
 
 		@Override
 		public void destroy() {
-			this.delegate.destroy();
-		}
-
-		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
+			getDelegate().destroy();
 		}
 
 		@Override
 		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+			return getDelegate().equals(obj);
+		}
+
+		@Override
+		public int hashCode() {
+			return getDelegate().hashCode();
 		}
 
 		@Override
 		public String toString() {
-			return this.delegate.toString();
+			return getDelegate().toString();
 		}
+
 	}
+
 }

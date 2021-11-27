@@ -16,25 +16,22 @@
 
 package org.springframework.security;
 
-import org.junit.After;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanDefinitionStoreException;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Eddú Meléndez
  */
 public class LdapServerBeanDefinitionParserTests {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
-
 	private ClassPathXmlApplicationContext context;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
 		if (this.context != null) {
 			this.context.close();
@@ -44,10 +41,9 @@ public class LdapServerBeanDefinitionParserTests {
 
 	@Test
 	public void apacheDirectoryServerIsStartedByDefault() {
-		this.thrown.expect(BeanDefinitionStoreException.class);
-		this.thrown.expectMessage("Embedded LDAP server is not provided");
-
-		this.context = new ClassPathXmlApplicationContext("applicationContext-security.xml");
+		assertThatExceptionOfType(BeanDefinitionStoreException.class)
+				.isThrownBy(() -> this.context = new ClassPathXmlApplicationContext("applicationContext-security.xml"))
+				.withMessageContaining("Embedded LDAP server is not provided");
 	}
 
 }

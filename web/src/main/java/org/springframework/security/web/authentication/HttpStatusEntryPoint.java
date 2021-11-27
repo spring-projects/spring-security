@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
@@ -32,11 +33,11 @@ import org.springframework.util.Assert;
  * @since 4.0
  */
 public final class HttpStatusEntryPoint implements AuthenticationEntryPoint {
+
 	private final HttpStatus httpStatus;
 
 	/**
 	 * Creates a new instance.
-	 *
 	 * @param httpStatus the HttpStatus to set
 	 */
 	public HttpStatusEntryPoint(HttpStatus httpStatus) {
@@ -44,8 +45,10 @@ public final class HttpStatusEntryPoint implements AuthenticationEntryPoint {
 		this.httpStatus = httpStatus;
 	}
 
+	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) {
-		response.setStatus(httpStatus.value());
+		response.setStatus(this.httpStatus.value());
 	}
+
 }

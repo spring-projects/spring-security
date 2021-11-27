@@ -1,0 +1,10 @@
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	testImplementation project(path: ':core', configuration: 'tests')
+	testImplementation 'junit:junit:4.12'
+}

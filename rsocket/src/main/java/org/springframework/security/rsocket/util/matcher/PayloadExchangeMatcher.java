@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.rsocket.util.matcher;
 
-import org.springframework.security.rsocket.api.PayloadExchange;
-import reactor.core.publisher.Mono;
+package org.springframework.security.rsocket.util.matcher;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import reactor.core.publisher.Mono;
+
+import org.springframework.security.rsocket.api.PayloadExchange;
+
 /**
  * An interface for determining if a {@link PayloadExchangeMatcher} matches.
+ *
  * @author Rob Winch
  * @since 5.2
  */
@@ -40,7 +43,9 @@ public interface PayloadExchangeMatcher {
 	 * The result of matching
 	 */
 	class MatchResult {
+
 		private final boolean match;
+
 		private final Map<String, Object> variables;
 
 		private MatchResult(boolean match, Map<String, Object> variables) {
@@ -49,7 +54,7 @@ public interface PayloadExchangeMatcher {
 		}
 
 		public boolean isMatch() {
-			return match;
+			return this.match;
 		}
 
 		/**
@@ -57,7 +62,7 @@ public interface PayloadExchangeMatcher {
 		 * @return
 		 */
 		public Map<String, Object> getVariables() {
-			return variables;
+			return this.variables;
 		}
 
 		/**
@@ -70,12 +75,15 @@ public interface PayloadExchangeMatcher {
 
 		/**
 		 *
-		 * Creates an instance of {@link MatchResult} that is a match with the specified variables
+		 * Creates an instance of {@link MatchResult} that is a match with the specified
+		 * variables
 		 * @param variables
 		 * @return
 		 */
 		public static Mono<MatchResult> match(Map<String, ? extends Object> variables) {
-			return Mono.just(new MatchResult(true, variables == null ? null : new HashMap<String, Object>(variables)));
+			MatchResult result = new MatchResult(true,
+					(variables != null) ? new HashMap<String, Object>(variables) : null);
+			return Mono.just(result);
 		}
 
 		/**
@@ -85,5 +93,7 @@ public interface PayloadExchangeMatcher {
 		public static Mono<MatchResult> notMatch() {
 			return Mono.just(new MatchResult(false, Collections.emptyMap()));
 		}
+
 	}
+
 }

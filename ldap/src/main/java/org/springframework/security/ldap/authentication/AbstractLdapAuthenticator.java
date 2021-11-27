@@ -16,29 +16,26 @@
 
 package org.springframework.security.ldap.authentication;
 
-import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.security.ldap.search.LdapUserSearch;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.ldap.core.ContextSource;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.util.Assert;
-
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Base class for the authenticator implementations.
  *
  * @author Luke Taylor
  */
-public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
-		InitializingBean, MessageSourceAware {
-	// ~ Instance fields
-	// ================================================================================================
+public abstract class AbstractLdapAuthenticator implements LdapAuthenticator, InitializingBean, MessageSourceAware {
 
 	private final ContextSource contextSource;
 
@@ -47,6 +44,7 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	 * isn't sufficient
 	 */
 	private LdapUserSearch userSearch;
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	/**
@@ -59,12 +57,8 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	/** Stores the patterns which are used as potential DN matches */
 	private MessageFormat[] userDnFormat = null;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	/**
 	 * Create an initialized instance with the {@link ContextSource} provided.
-	 *
 	 * @param contextSource
 	 */
 	public AbstractLdapAuthenticator(ContextSource contextSource) {
@@ -72,52 +66,46 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 		this.contextSource = contextSource;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
-		Assert.isTrue((userDnFormat != null) || (userSearch != null),
+		Assert.isTrue((this.userDnFormat != null) || (this.userSearch != null),
 				"Either an LdapUserSearch or DN pattern (or both) must be supplied.");
 	}
 
 	protected ContextSource getContextSource() {
-		return contextSource;
+		return this.contextSource;
 	}
 
 	public String[] getUserAttributes() {
-		return userAttributes;
+		return this.userAttributes;
 	}
 
 	/**
 	 * Builds list of possible DNs for the user, worked out from the
 	 * <tt>userDnPatterns</tt> property.
-	 *
 	 * @param username the user's login name
-	 *
 	 * @return the list of possible DN matches, empty if <tt>userDnPatterns</tt> wasn't
 	 * set.
 	 */
 	protected List<String> getUserDns(String username) {
-		if (userDnFormat == null) {
+		if (this.userDnFormat == null) {
 			return Collections.emptyList();
 		}
-
-		List<String> userDns = new ArrayList<>(userDnFormat.length);
+		List<String> userDns = new ArrayList<>(this.userDnFormat.length);
 		String[] args = new String[] { LdapEncoder.nameEncode(username) };
-
-		synchronized (userDnFormat) {
-			for (MessageFormat formatter : userDnFormat) {
+		synchronized (this.userDnFormat) {
+			for (MessageFormat formatter : this.userDnFormat) {
 				userDns.add(formatter.format(args));
 			}
 		}
-
 		return userDns;
 	}
 
 	protected LdapUserSearch getUserSearch() {
-		return userSearch;
+		return this.userSearch;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "Message source must not be null");
 		this.messages = new MessageSourceAccessor(messageSource);
@@ -125,12 +113,10 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 
 	/**
 	 * Sets the user attributes which will be retrieved from the directory.
-	 *
 	 * @param userAttributes
 	 */
 	public void setUserAttributes(String[] userAttributes) {
-		Assert.notNull(userAttributes,
-				"The userAttributes property cannot be set to null");
+		Assert.notNull(userAttributes, "The userAttributes property cannot be set to null");
 		this.userAttributes = userAttributes;
 	}
 
@@ -138,17 +124,15 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 	 * Sets the pattern which will be used to supply a DN for the user. The pattern should
 	 * be the name relative to the root DN. The pattern argument {0} will contain the
 	 * username. An example would be "cn={0},ou=people".
-	 *
 	 * @param dnPattern the array of patterns which will be tried when converting a
 	 * username to a DN.
 	 */
 	public void setUserDnPatterns(String[] dnPattern) {
 		Assert.notNull(dnPattern, "The array of DN patterns cannot be set to null");
 		// this.userDnPattern = dnPattern;
-		userDnFormat = new MessageFormat[dnPattern.length];
-
+		this.userDnFormat = new MessageFormat[dnPattern.length];
 		for (int i = 0; i < dnPattern.length; i++) {
-			userDnFormat[i] = new MessageFormat(dnPattern[i]);
+			this.userDnFormat[i] = new MessageFormat(dnPattern[i]);
 		}
 	}
 
@@ -156,4 +140,5 @@ public abstract class AbstractLdapAuthenticator implements LdapAuthenticator,
 		Assert.notNull(userSearch, "The userSearch cannot be set to null");
 		this.userSearch = userSearch;
 	}
+
 }

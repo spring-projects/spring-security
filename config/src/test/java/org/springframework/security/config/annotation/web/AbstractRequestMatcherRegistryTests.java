@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.util.List;
+
+import jakarta.servlet.DispatcherType;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,9 +37,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class AbstractRequestMatcherRegistryTests {
+
 	private TestRequestMatcherRegistry matcherRegistry;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
 	}
@@ -71,6 +77,23 @@ public class AbstractRequestMatcherRegistryTests {
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 
+	@Test
+	public void dispatcherTypeMatchersWhenHttpMethodAndPatternParamsThenReturnAntPathRequestMatcherType() {
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(HttpMethod.GET,
+				DispatcherType.ASYNC);
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
+	}
+
+	@Test
+	public void dispatcherMatchersWhenPatternParamThenReturnAntPathRequestMatcherType() {
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(DispatcherType.INCLUDE);
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
+	}
+
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
 
 		@Override
@@ -87,5 +110,7 @@ public class AbstractRequestMatcherRegistryTests {
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}
+
 	}
+
 }

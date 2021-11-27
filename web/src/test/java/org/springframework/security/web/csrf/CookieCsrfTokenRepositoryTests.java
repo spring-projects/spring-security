@@ -16,25 +16,30 @@
 
 package org.springframework.security.web.csrf;
 
-import org.junit.Before;
-import org.junit.Test;
+import jakarta.servlet.http.Cookie;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
-import javax.servlet.http.Cookie;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
  * @since 4.1
  */
 public class CookieCsrfTokenRepositoryTests {
+
 	CookieCsrfTokenRepository repository;
+
 	MockHttpServletResponse response;
+
 	MockHttpServletRequest request;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.repository = new CookieCsrfTokenRepository();
 		this.request = new MockHttpServletRequest();
@@ -45,12 +50,9 @@ public class CookieCsrfTokenRepositoryTests {
 	@Test
 	public void generateToken() {
 		CsrfToken generateToken = this.repository.generateToken(this.request);
-
 		assertThat(generateToken).isNotNull();
-		assertThat(generateToken.getHeaderName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME);
-		assertThat(generateToken.getParameterName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
+		assertThat(generateToken.getHeaderName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME);
+		assertThat(generateToken.getParameterName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
 		assertThat(generateToken.getToken()).isNotEmpty();
 	}
 
@@ -60,9 +62,7 @@ public class CookieCsrfTokenRepositoryTests {
 		String parameterName = "paramName";
 		this.repository.setHeaderName(headerName);
 		this.repository.setParameterName(parameterName);
-
 		CsrfToken generateToken = this.repository.generateToken(this.request);
-
 		assertThat(generateToken).isNotNull();
 		assertThat(generateToken.getHeaderName()).isEqualTo(headerName);
 		assertThat(generateToken.getParameterName()).isEqualTo(parameterName);
@@ -73,13 +73,9 @@ public class CookieCsrfTokenRepositoryTests {
 	public void saveToken() {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getMaxAge()).isEqualTo(-1);
-		assertThat(tokenCookie.getName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
@@ -91,24 +87,37 @@ public class CookieCsrfTokenRepositoryTests {
 		this.request.setSecure(true);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getSecure()).isTrue();
+	}
+
+	@Test
+	public void saveTokenSecureFlagTrue() {
+		this.request.setSecure(false);
+		this.repository.setSecure(Boolean.TRUE);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getSecure()).isTrue();
+	}
+
+	@Test
+	public void saveTokenSecureFlagFalse() {
+		this.request.setSecure(true);
+		this.repository.setSecure(Boolean.FALSE);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getSecure()).isFalse();
 	}
 
 	@Test
 	public void saveTokenNull() {
 		this.request.setSecure(true);
 		this.repository.saveToken(null, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getMaxAge()).isZero();
-		assertThat(tokenCookie.getName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEmpty();
@@ -119,10 +128,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setCookieHttpOnly(true);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.isHttpOnly()).isTrue();
 	}
 
@@ -131,10 +137,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setCookieHttpOnly(false);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.isHttpOnly()).isFalse();
 	}
 
@@ -143,10 +146,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.isHttpOnly()).isFalse();
 	}
 
@@ -156,10 +156,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.repository.getCookiePath());
 	}
 
@@ -169,10 +166,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 	}
 
@@ -182,10 +176,7 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 	}
 
@@ -193,14 +184,20 @@ public class CookieCsrfTokenRepositoryTests {
 	public void saveTokenWithCookieDomain() {
 		String domainName = "example.com";
 		this.repository.setCookieDomain(domainName);
-
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
-
-		Cookie tokenCookie = this.response
-				.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
-
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getDomain()).isEqualTo(domainName);
+	}
+
+	@Test
+	public void saveTokenWithCookieMaxAge() {
+		int maxAge = 1200;
+		this.repository.setCookieMaxAge(maxAge);
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getMaxAge()).isEqualTo(maxAge);
 	}
 
 	@Test
@@ -211,32 +208,24 @@ public class CookieCsrfTokenRepositoryTests {
 	@Test
 	public void loadTokenCookieIncorrectNameNull() {
 		this.request.setCookies(new Cookie("other", "name"));
-
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
 
 	@Test
 	public void loadTokenCookieValueEmptyString() {
-		this.request.setCookies(
-				new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, ""));
-
+		this.request.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, ""));
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
 
 	@Test
 	public void loadToken() {
 		CsrfToken generateToken = this.repository.generateToken(this.request);
-
 		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-						generateToken.getToken()));
-
+				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generateToken.getToken()));
 		CsrfToken loadToken = this.repository.loadToken(this.request);
-
 		assertThat(loadToken).isNotNull();
 		assertThat(loadToken.getHeaderName()).isEqualTo(generateToken.getHeaderName());
-		assertThat(loadToken.getParameterName())
-				.isEqualTo(generateToken.getParameterName());
+		assertThat(loadToken.getParameterName()).isEqualTo(generateToken.getParameterName());
 		assertThat(loadToken.getToken()).isNotEmpty();
 	}
 
@@ -249,30 +238,32 @@ public class CookieCsrfTokenRepositoryTests {
 		this.repository.setHeaderName(headerName);
 		this.repository.setParameterName(parameterName);
 		this.repository.setCookieName(cookieName);
-
 		this.request.setCookies(new Cookie(cookieName, value));
-
 		CsrfToken loadToken = this.repository.loadToken(this.request);
-
 		assertThat(loadToken).isNotNull();
 		assertThat(loadToken.getHeaderName()).isEqualTo(headerName);
 		assertThat(loadToken.getParameterName()).isEqualTo(parameterName);
 		assertThat(loadToken.getToken()).isEqualTo(value);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setCookieNameNullIllegalArgumentException() {
-		this.repository.setCookieName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieName(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setParameterNameNullIllegalArgumentException() {
-		this.repository.setParameterName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setParameterName(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setHeaderNameNullIllegalArgumentException() {
-		this.repository.setHeaderName(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setHeaderName(null));
+	}
+
+	@Test
+	public void setCookieMaxAgeZeroIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieMaxAge(0));
 	}
 
 }

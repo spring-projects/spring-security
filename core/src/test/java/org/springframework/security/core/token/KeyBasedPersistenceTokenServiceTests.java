@@ -13,24 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core.token;
 
-import static org.assertj.core.api.Assertions.*;
+package org.springframework.security.core.token;
 
 import java.security.SecureRandom;
 import java.util.Date;
 
-import org.junit.Test;
-import org.springframework.security.core.token.DefaultToken;
-import org.springframework.security.core.token.KeyBasedPersistenceTokenService;
-import org.springframework.security.core.token.SecureRandomFactoryBean;
-import org.springframework.security.core.token.Token;
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link KeyBasedPersistenceTokenService}.
  *
  * @author Ben Alex
- *
  */
 public class KeyBasedPersistenceTokenServiceTests {
 
@@ -44,8 +41,8 @@ public class KeyBasedPersistenceTokenServiceTests {
 			service.setSecureRandom(rnd);
 			service.afterPropertiesSet();
 		}
-		catch (Exception e) {
-			throw new RuntimeException(e);
+		catch (Exception ex) {
+			throw new RuntimeException(ex);
 		}
 		return service;
 	}
@@ -83,19 +80,22 @@ public class KeyBasedPersistenceTokenServiceTests {
 		assertThat(result).isEqualTo(token);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testOperationWithMissingKey() {
 		KeyBasedPersistenceTokenService service = getService();
-		Token token = new DefaultToken("", new Date().getTime(), "");
-		service.verifyToken(token.getKey());
+		assertThatIllegalArgumentException().isThrownBy(() -> {
+			Token token = new DefaultToken("", new Date().getTime(), "");
+			service.verifyToken(token.getKey());
+		});
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testOperationWithTamperedKey() {
 		KeyBasedPersistenceTokenService service = getService();
 		Token goodToken = service.allocateToken("");
 		String fake = goodToken.getKey().toUpperCase();
 		Token token = new DefaultToken(fake, new Date().getTime(), "");
-		service.verifyToken(token.getKey());
+		assertThatIllegalArgumentException().isThrownBy(() -> service.verifyToken(token.getKey()));
 	}
+
 }

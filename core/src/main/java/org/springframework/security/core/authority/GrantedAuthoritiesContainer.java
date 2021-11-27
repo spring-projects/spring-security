@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.Collection;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -31,5 +32,7 @@ import org.springframework.security.core.GrantedAuthority;
  * @since 2.0
  */
 public interface GrantedAuthoritiesContainer extends Serializable {
+
 	Collection<? extends GrantedAuthority> getGrantedAuthorities();
+
 }

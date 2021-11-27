@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Eddú Meléndez
@@ -31,13 +33,16 @@ import static org.springframework.security.web.header.writers.ReferrerPolicyHead
 public class ReferrerPolicyHeaderWriterTests {
 
 	private final String DEFAULT_REFERRER_POLICY = "no-referrer";
+
 	private MockHttpServletRequest request;
+
 	private MockHttpServletResponse response;
+
 	private ReferrerPolicyHeaderWriter writer;
 
 	private static final String REFERRER_POLICY_HEADER = "Referrer-Policy";
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.request.setSecure(true);
@@ -48,24 +53,21 @@ public class ReferrerPolicyHeaderWriterTests {
 	@Test
 	public void writeHeadersReferrerPolicyDefault() {
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo(DEFAULT_REFERRER_POLICY);
+		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo(this.DEFAULT_REFERRER_POLICY);
 	}
 
 	@Test
 	public void writeHeadersReferrerPolicyCustom() {
 		this.writer = new ReferrerPolicyHeaderWriter(ReferrerPolicy.SAME_ORIGIN);
-
 		this.writer.writeHeaders(this.request, this.response);
-
 		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeader("Referrer-Policy")).isEqualTo("same-origin");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void writeHeaderReferrerPolicyInvalid() {
-		this.writer = new ReferrerPolicyHeaderWriter(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ReferrerPolicyHeaderWriter(null));
 	}
 
 	@Test
@@ -75,4 +77,5 @@ public class ReferrerPolicyHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(REFERRER_POLICY_HEADER)).isSameAs(value);
 	}
+
 }

@@ -29,20 +29,15 @@ import org.springframework.util.Assert;
  * 'exiting' from a user switch.
  *
  * @author Mark St.Godard
- *
  * @see org.springframework.security.web.authentication.switchuser.SwitchUserFilter
  */
 public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
 	private final String role;
-	private final Authentication source;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Authentication source;
 
 	public SwitchUserGrantedAuthority(String role, Authentication source) {
 		Assert.notNull(role, "role cannot be null");
@@ -51,21 +46,29 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 		this.source = source;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	/**
 	 * Returns the original user associated with a successful user switch.
-	 *
 	 * @return The original <code>Authentication</code> object of the switched user.
 	 */
 	public Authentication getSource() {
-		return source;
+		return this.source;
 	}
 
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof SwitchUserGrantedAuthority) {
+			SwitchUserGrantedAuthority swa = (SwitchUserGrantedAuthority) obj;
+			return this.role.equals(swa.role) && this.source.equals(swa.source);
+		}
+		return false;
 	}
 
 	@Override
@@ -76,21 +79,8 @@ public final class SwitchUserGrantedAuthority implements GrantedAuthority {
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-
-		if (obj instanceof SwitchUserGrantedAuthority) {
-			SwitchUserGrantedAuthority swa = (SwitchUserGrantedAuthority) obj;
-			return this.role.equals(swa.role) && this.source.equals(swa.source);
-		}
-
-		return false;
-	}
-
-	@Override
 	public String toString() {
-		return "Switch User Authority [" + role + "," + source + "]";
+		return "Switch User Authority [" + this.role + "," + this.source + "]";
 	}
+
 }

@@ -32,12 +32,10 @@ import org.springframework.util.Assert;
  * To be successfully validated, the {@link RememberMeAuthenticationToken#getKeyHash()}
  * must match this class' {@link #getKey()}.
  */
-public class RememberMeAuthenticationProvider implements AuthenticationProvider,
-		InitializingBean, MessageSourceAware {
-	// ~ Instance fields
-	// ================================================================================================
+public class RememberMeAuthenticationProvider implements AuthenticationProvider, InitializingBean, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private String key;
 
 	public RememberMeAuthenticationProvider(String key) {
@@ -45,38 +43,35 @@ public class RememberMeAuthenticationProvider implements AuthenticationProvider,
 		this.key = key;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.messages, "A message source must be set");
 	}
 
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
-		if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication)
-				.getKeyHash()) {
-			throw new BadCredentialsException(
-					messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
-							"The presented RememberMeAuthenticationToken does not contain the expected key"));
+		if (this.key.hashCode() != ((RememberMeAuthenticationToken) authentication).getKeyHash()) {
+			throw new BadCredentialsException(this.messages.getMessage("RememberMeAuthenticationProvider.incorrectKey",
+					"The presented RememberMeAuthenticationToken does not contain the expected key"));
 		}
-
 		return authentication;
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return (RememberMeAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
 }

@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
-import org.springframework.util.Assert;
-
-import javax.servlet.http.Cookie;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,12 +23,18 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import jakarta.servlet.http.Cookie;
+
+import org.springframework.util.Assert;
+
 /**
  * A Bean implementation of SavedRequest
+ *
  * @author Rob Winch
  * @since 5.1
  */
 public class SimpleSavedRequest implements SavedRequest {
+
 	private String redirectUrl;
 
 	private List<Cookie> cookies = new ArrayList<>();
@@ -43,7 +47,8 @@ public class SimpleSavedRequest implements SavedRequest {
 
 	private Map<String, String[]> parameters = new HashMap<>();
 
-	public SimpleSavedRequest() {}
+	public SimpleSavedRequest() {
+	}
 
 	public SimpleSavedRequest(String redirectUrl) {
 		this.redirectUrl = redirectUrl;
@@ -57,6 +62,7 @@ public class SimpleSavedRequest implements SavedRequest {
 		}
 		this.locales = request.getLocales();
 		this.parameters = request.getParameterMap();
+		this.method = request.getMethod();
 	}
 
 	@Override
@@ -71,7 +77,7 @@ public class SimpleSavedRequest implements SavedRequest {
 
 	@Override
 	public String getMethod() {
-		return null;
+		return this.method;
 	}
 
 	@Override
@@ -128,4 +134,5 @@ public class SimpleSavedRequest implements SavedRequest {
 		Assert.notNull(parameters, "parameters cannot be null");
 		this.parameters = parameters;
 	}
+
 }

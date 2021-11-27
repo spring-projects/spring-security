@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<KeyMeasureData formatVersion="2" specViolationDependencies="0" specViolationContainers="0" specItemViolations="0" specDependencyViolatingItems="0" biggestUnspecifiedNumber="0" specCoverage="0.0" feedbackDependencies="0" totalProblemDependencies="0" tangledDesign="0" tanglePercentage="0.0" biggestClassTangle="3" fatPackage="1" fatClass="5" fatMethod="11" fatPercentage="16.0" numDiagrams="0" numDiagramDependencyViolations="0" numDiagramDependencyViolatingItems="0" numUnassociatedItems="0" numDiagramViolationContainers="0" moduleAPIViolations="0" moduleRequiresViolations="0" deprecationViolations="0" moduleViolatingItems="0" moduleCoverage="0.0">
+    <enabled-optional-measures/>
+    <specOverlays/>
+    <archOverlays/>
+    <tangledDesign/>
+    <fatPackage>
+        <node id="19282" measure="174" impact="20634" threshold="120.0"/>
+    </fatPackage>
+    <fatClass>
+        <node id="595" measure="123" impact="1219" threshold="120.0"/>
+        <node id="70" measure="127" impact="1157" threshold="120.0"/>
+        <node id="392" measure="128" impact="1191" threshold="120.0"/>
+        <node id="88" measure="210" impact="2248" threshold="120.0"/>
+        <node id="79" measure="224" impact="4599" threshold="120.0"/>
+    </fatClass>
+    <fatMethod>
+        <node id="6341" measure="16" impact="137" threshold="15.0"/>
+        <node id="13404" measure="16" impact="109" threshold="15.0"/>
+        <node id="6415" measure="16" impact="241" threshold="15.0"/>
+        <node id="14097" measure="16" impact="288" threshold="15.0"/>
+        <node id="14292" measure="16" impact="199" threshold="15.0"/>
+        <node id="12707" measure="19" impact="154" threshold="15.0"/>
+        <node id="17377" measure="19" impact="283" threshold="15.0"/>
+        <node id="5668" measure="23" impact="387" threshold="15.0"/>
+        <node id="8028" measure="25" impact="371" threshold="15.0"/>
+        <node id="9256" measure="26" impact="292" threshold="15.0"/>
+        <node id="13997" measure="26" impact="361" threshold="15.0"/>
+    </fatMethod>
+    <specViolationContainers/>
+    <specItemViolations/>
+    <biggestClassTangle>
+        <node id="2075" measure="353"/>
+        <node id="2621" measure="357"/>
+        <node id="1680" measure="718"/>
+    </biggestClassTangle>
+    <archViolationContainers/>
+    <unassociatedItems/>
+    <moduleViolations/>
+    <nodeMap>
+        <entry>
+            <key>17377</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void" type="method" localSize="283" size="283" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHeadersDsl$get$1.invoke(org.springframework.security.config.web.server.ServerHttpSecurity$HeaderSpec):void" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>12707</key>
+            <value realName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" type="method" localSize="154" size="154" displayName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" navigationName="spring-security-web.org.springframework.security.web.util.TextEscapeUtils.escapeEntities(java.lang.String):java.lang.String" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>5668</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void" type="method" localSize="387" size="387" displayName="spring-security-config.org.springframework.security.config.annotation.web.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.annotation.web.OAuth2LoginDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer):void" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>6341</key>
+            <value realName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication" type="method" localSize="137" size="137" displayName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication" navigationName="spring-security-core.org.springframework.security.authentication.ProviderManager.authenticate(org.springframework.security.core.Authentication):org.springframework.security.core.Authentication" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>70</key>
+            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" type="class" localSize="1" size="1157" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client.web.reactive.function.client.ServletOAuth2AuthorizedClientExchangeFilterFunction" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>392</key>
+            <value realName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager" type="class" localSize="1" size="1191" displayName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager" navigationName="spring-security-core.org.springframework.security.provisioning.JdbcUserDetailsManager" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>9256</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" type="method" localSize="292" size="292" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity.build():org.springframework.security.web.server.SecurityWebFilterChain" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>13997</key>
+            <value realName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" type="method" localSize="361" size="361" displayName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" navigationName="spring-security-config.org.springframework.security.config.http.HttpConfigurationBuilder.createSessionManagementFilters():void" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>6415</key>
+            <value realName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyMetadataConverter.convert(java.io.InputStream):org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration$Builder" type="method" localSize="241" size="241" displayName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyMetadataConverter.convert(java.io.InputStream):org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration$Builder" navigationName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.registration.OpenSamlAssertingPartyMetadataConverter.convert(java.io.InputStream):org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration$Builder" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>79</key>
+            <value realName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" type="class" localSize="1" size="4599" displayName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" navigationName="spring-security-config.org.springframework.security.config.web.server.ServerHttpSecurity" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>1680</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" type="class" localSize="1" size="718" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>14097</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.LogoutDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.LogoutConfigurer):void" type="method" localSize="288" size="288" displayName="spring-security-config.org.springframework.security.config.annotation.web.LogoutDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.LogoutConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.annotation.web.LogoutDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.LogoutConfigurer):void" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>19282</key>
+            <value realName="spring-security-oauth2-client.org.springframework.security.oauth2.client" type="package" localSize="0" size="20634" displayName="spring-security-oauth2-client.org.springframework.security.oauth2.client" navigationName="spring-security-oauth2-client.org.springframework.security.oauth2.client" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>595</key>
+            <value realName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" type="class" localSize="1" size="1219" displayName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" navigationName="spring-security-saml2-service-provider.org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>14292</key>
+            <value realName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String" type="method" localSize="199" size="199" displayName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String" navigationName="spring-security-crypto.org.springframework.security.crypto.bcrypt.BCrypt.hashpw(byte[], java.lang.String):java.lang.String" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>88</key>
+            <value realName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" type="class" localSize="1" size="2248" displayName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" navigationName="spring-security-config.org.springframework.security.config.http.AuthenticationConfigBuilder" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>2075</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" type="class" localSize="1" size="353" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.LogoutConfigurer" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>13404</key>
+            <value realName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" type="method" localSize="109" size="109" displayName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" navigationName="spring-security-oauth2-core.org.springframework.security.oauth2.core.oidc.DefaultAddressStandardClaim.equals(java.lang.Object):boolean" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>8028</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" type="method" localSize="371" size="371" displayName="spring-security-config.org.springframework.security.config.annotation.web.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" navigationName="spring-security-config.org.springframework.security.config.annotation.web.HeadersDsl$get$1.invoke(org.springframework.security.config.annotation.web.configurers.HeadersConfigurer):void" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+        <entry>
+            <key>2621</key>
+            <value realName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" type="class" localSize="1" size="357" displayName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" navigationName="spring-security-config.org.springframework.security.config.annotation.web.configurers.CsrfConfigurer" isModule="false" isModuleInterface="false" isDeprecated="false"/>
+        </entry>
+    </nodeMap>
+</KeyMeasureData>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -31,16 +32,19 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.core.oidc.OidcIdToken;
+import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -63,16 +67,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  * @since 5.3
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
+
 	@Autowired
 	WebApplicationContext context;
 
 	MockMvc mvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.mvc = MockMvcBuilders
@@ -82,61 +87,77 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 		// @formatter:on
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}
 
 	@Test
-	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication()
-		throws Exception {
-
-		this.mvc.perform(get("/name").with(oidcLogin()))
-				.andExpect(content().string("test-subject"));
-		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin()))
-				.andExpect(status().isForbidden());
+	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthentication() throws Exception {
+		this.mvc.perform(get("/name").with(oidcLogin())).andExpect(content().string("user"));
+		this.mvc.perform(get("/admin/id-token/name").with(oidcLogin())).andExpect(status().isForbidden());
 	}
 
 	@Test
-	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient()
-			throws Exception {
-
-		this.mvc.perform(get("/access-token").with(oidcLogin()))
-				.andExpect(content().string("access-token"));
+	public void oidcLoginWhenUsingDefaultsThenProducesDefaultAuthorizedClient() throws Exception {
+		this.mvc.perform(get("/access-token").with(oidcLogin())).andExpect(content().string("access-token"));
 	}
 
 	@Test
 	public void oidcLoginWhenAuthoritiesSpecifiedThenGrantsAccess() throws Exception {
-		this.mvc.perform(get("/admin/scopes")
-				.with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
+		this.mvc.perform(get("/admin/scopes").with(oidcLogin().authorities(new SimpleGrantedAuthority("SCOPE_admin"))))
 				.andExpect(content().string("[\"SCOPE_admin\"]"));
 	}
 
 	@Test
 	public void oidcLoginWhenIdTokenSpecifiedThenUserHasClaims() throws Exception {
-		this.mvc.perform(get("/id-token/iss")
-				.with(oidcLogin().idToken(i -> i.issuer("https://idp.example.org"))))
+		this.mvc.perform(get("/id-token/iss").with(oidcLogin().idToken((i) -> i.issuer("https://idp.example.org"))))
 				.andExpect(content().string("https://idp.example.org"));
 	}
 
 	@Test
 	public void oidcLoginWhenUserInfoSpecifiedThenUserHasClaims() throws Exception {
-		this.mvc.perform(get("/user-info/email")
-				.with(oidcLogin().userInfoToken(u -> u.email("email@email"))))
+		this.mvc.perform(get("/user-info/email").with(oidcLogin().userInfoToken((u) -> u.email("email@email"))))
 				.andExpect(content().string("email@email"));
+	}
+
+	@Test
+	public void oidcLoginWhenNameSpecifiedThenUserHasName() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.commaSeparatedStringToAuthorityList("SCOPE_read"),
+				OidcIdToken.withTokenValue("id-token").claim("custom-attribute", "test-subject").build(),
+				"custom-attribute");
+		this.mvc.perform(get("/id-token/custom-attribute").with(oidcLogin().oidcUser(oidcUser)))
+				.andExpect(content().string("test-subject"));
+		this.mvc.perform(get("/name").with(oidcLogin().oidcUser(oidcUser))).andExpect(content().string("test-subject"));
+		this.mvc.perform(get("/client-name").with(oidcLogin().oidcUser(oidcUser)))
+				.andExpect(content().string("test-subject"));
+	}
+
+	// gh-7794
+	@Test
+	public void oidcLoginWhenOidcUserSpecifiedThenLastCalledTakesPrecedence() throws Exception {
+		OidcUser oidcUser = new DefaultOidcUser(AuthorityUtils.createAuthorityList("SCOPE_read"),
+				TestOidcIdTokens.idToken().build());
+		this.mvc.perform(get("/id-token/sub").with(oidcLogin().idToken((i) -> i.subject("foo")).oidcUser(oidcUser)))
+				.andExpect(status().isOk()).andExpect(content().string("subject"));
+		this.mvc.perform(get("/id-token/sub").with(oidcLogin().oidcUser(oidcUser).idToken((i) -> i.subject("bar"))))
+				.andExpect(content().string("bar"));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class OAuth2LoginConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
-					.anyRequest().hasAuthority("SCOPE_user")
+					.anyRequest().hasAuthority("SCOPE_read")
 					.and()
 				.oauth2Login();
+			// @formatter:on
 		}
 
 		@Bean
@@ -144,17 +165,22 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			return mock(ClientRegistrationRepository.class);
 		}
 
-
 		@Bean
 		OAuth2AuthorizedClientRepository oAuth2AuthorizedClientRepository() {
-			return new HttpSessionOAuth2AuthorizedClientRepository();
+			return mock(OAuth2AuthorizedClientRepository.class);
 		}
 
 		@RestController
 		static class PrincipalController {
+
 			@GetMapping("/name")
 			String name(@AuthenticationPrincipal OidcUser oidcUser) {
 				return oidcUser.getName();
+			}
+
+			@GetMapping("/client-name")
+			String clientName(@RegisteredOAuth2AuthorizedClient OAuth2AuthorizedClient authorizedClient) {
+				return authorizedClient.getPrincipalName();
 			}
 
 			@GetMapping("/access-token")
@@ -173,11 +199,13 @@ public class SecurityMockMvcRequestPostProcessorsOidcLoginTests {
 			}
 
 			@GetMapping("/admin/scopes")
-			List<String> scopes(@AuthenticationPrincipal(expression = "authorities")
-										Collection<GrantedAuthority> authorities) {
-				return authorities.stream().map(GrantedAuthority::getAuthority)
-						.collect(Collectors.toList());
+			List<String> scopes(
+					@AuthenticationPrincipal(expression = "authorities") Collection<GrantedAuthority> authorities) {
+				return authorities.stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
 			}
+
 		}
+
 	}
+
 }

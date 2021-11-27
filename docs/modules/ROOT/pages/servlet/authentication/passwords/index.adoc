@@ -1,0 +1,9 @@
+[[servlet-authentication-unpwd]]
+= Username/Password Authentication
+:page-section-summary-toc: 1
+:figures: images/servlet/authentication/unpwd
+:icondir: images/icons
+
+One of the most common ways to authenticate a user is by validating a username and password.
+As such, Spring Security provides comprehensive support for authenticating with a username and password.
+

@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Support classes and interfaces for authenticating and authorizing a client
- * with an OpenID Connect 1.0 Provider using a specific authorization grant flow.
+ * Support classes and interfaces for authenticating and authorizing a client with an
+ * OpenID Connect 1.0 Provider using a specific authorization grant flow.
  */
 package org.springframework.security.oauth2.client.oidc.authentication;

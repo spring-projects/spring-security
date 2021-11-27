@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.core;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -33,10 +34,10 @@ public final class GrantedAuthorityDefaults {
 
 	/**
 	 * The default prefix used with role based authorization. Default is "ROLE_".
-	 *
 	 * @return the default role prefix
 	 */
 	public String getRolePrefix() {
 		return this.rolePrefix;
 	}
+
 }

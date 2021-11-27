@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
 import java.util.Collection;
@@ -20,7 +21,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-import javax.servlet.http.Cookie;
+import jakarta.servlet.http.Cookie;
 
 /**
  * Encapsulates the functionality required of a cached request for both an authentication
@@ -51,4 +52,5 @@ public interface SavedRequest extends java.io.Serializable {
 	String[] getParameterValues(String name);
 
 	Map<String, String[]> getParameterMap();
+
 }

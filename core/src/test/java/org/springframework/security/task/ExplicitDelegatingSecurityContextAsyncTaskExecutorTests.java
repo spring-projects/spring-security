@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.task;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Tests using an explicit {@link SecurityContext} on
@@ -25,18 +28,17 @@ import org.junit.Before;
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests extends
-		AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
+public class ExplicitDelegatingSecurityContextAsyncTaskExecutorTests
+		extends AbstractDelegatingSecurityContextAsyncTaskExecutorTests {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		explicitSecurityContextPowermockSetup();
+		explicitSecurityContextSetup();
 	}
 
 	@Override
 	protected DelegatingSecurityContextAsyncTaskExecutor create() {
-		return new DelegatingSecurityContextAsyncTaskExecutor(taskExecutorDelegate,
-				securityContext);
+		return new DelegatingSecurityContextAsyncTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}
 
 }

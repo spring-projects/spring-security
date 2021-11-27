@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.token;
 
 import java.util.Date;
@@ -26,8 +27,11 @@ import org.springframework.util.Assert;
  * @since 2.0.1
  */
 public class DefaultToken implements Token {
+
 	private final String key;
+
 	private final long keyCreationTime;
+
 	private final String extendedInformation;
 
 	public DefaultToken(String key, long keyCreationTime, String extendedInformation) {
@@ -40,25 +44,24 @@ public class DefaultToken implements Token {
 
 	@Override
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
 	@Override
 	public long getKeyCreationTime() {
-		return keyCreationTime;
+		return this.keyCreationTime;
 	}
 
 	@Override
 	public String getExtendedInformation() {
-		return extendedInformation;
+		return this.extendedInformation;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (obj != null && obj instanceof DefaultToken) {
 			DefaultToken rhs = (DefaultToken) obj;
-			return this.key.equals(rhs.key)
-					&& this.keyCreationTime == rhs.keyCreationTime
+			return this.key.equals(rhs.key) && this.keyCreationTime == rhs.keyCreationTime
 					&& this.extendedInformation.equals(rhs.extendedInformation);
 		}
 		return false;
@@ -67,16 +70,16 @@ public class DefaultToken implements Token {
 	@Override
 	public int hashCode() {
 		int code = 979;
-		code = code * key.hashCode();
-		code = code * new Long(keyCreationTime).hashCode();
-		code = code * extendedInformation.hashCode();
+		code = code * this.key.hashCode();
+		code = code * new Long(this.keyCreationTime).hashCode();
+		code = code * this.extendedInformation.hashCode();
 		return code;
 	}
 
 	@Override
 	public String toString() {
-		return "DefaultToken[key=" + key + "; creation=" + new Date(keyCreationTime)
-				+ "; extended=" + extendedInformation + "]";
+		return "DefaultToken[key=" + this.key + "; creation=" + new Date(this.keyCreationTime) + "; extended="
+				+ this.extendedInformation + "]";
 	}
 
 }

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Support classes for the Spring Security namespace. None of the code in these packages should be used directly
- * in applications.
+ * Support classes for the Spring Security namespace. None of the code in these packages
+ * should be used directly in applications.
  */
 package org.springframework.security.config;
-

@@ -16,19 +16,20 @@
 
 package org.springframework.security.access.intercept.aspectj;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import java.lang.reflect.Method;
+import java.util.List;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
 import org.aspectj.lang.reflect.CodeSignature;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+
 import org.springframework.security.TargetObject;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,8 +44,16 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.ClassUtils;
 
-import java.lang.reflect.Method;
-import java.util.List;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests {@link AspectJMethodSecurityInterceptor}.
@@ -54,84 +63,82 @@ import java.util.List;
  * @author Rob Winch
  */
 public class AspectJMethodSecurityInterceptorTests {
+
 	private TestingAuthenticationToken token;
+
 	private AspectJMethodSecurityInterceptor interceptor;
-	private @Mock AccessDecisionManager adm;
-	private @Mock MethodSecurityMetadataSource mds;
-	private @Mock AuthenticationManager authman;
-	private @Mock AspectJCallback aspectJCallback;
+
+	@Mock
+	private AccessDecisionManager adm;
+
+	@Mock
+	private MethodSecurityMetadataSource mds;
+
+	@Mock
+	private AuthenticationManager authman;
+
+	@Mock
+	private AspectJCallback aspectJCallback;
+
 	private ProceedingJoinPoint joinPoint;
 
-	// ~ Methods
-	// ========================================================================================================
-
-	@Before
+	@BeforeEach
 	public final void setUp() {
 		MockitoAnnotations.initMocks(this);
 		SecurityContextHolder.clearContext();
-		token = new TestingAuthenticationToken("Test", "Password");
-		interceptor = new AspectJMethodSecurityInterceptor();
-		interceptor.setAccessDecisionManager(adm);
-		interceptor.setAuthenticationManager(authman);
-		interceptor.setSecurityMetadataSource(mds);
+		this.token = new TestingAuthenticationToken("Test", "Password");
+		this.interceptor = new AspectJMethodSecurityInterceptor();
+		this.interceptor.setAccessDecisionManager(this.adm);
+		this.interceptor.setAuthenticationManager(this.authman);
+		this.interceptor.setSecurityMetadataSource(this.mds);
 		// Set up joinpoint information for the countLength method on TargetObject
-		joinPoint = mock(ProceedingJoinPoint.class); // new MockJoinPoint(new
-														// TargetObject(), method);
+		this.joinPoint = mock(ProceedingJoinPoint.class); // new MockJoinPoint(new
+															// TargetObject(), method);
 		Signature sig = mock(Signature.class);
-		when(sig.getDeclaringType()).thenReturn(TargetObject.class);
+		given(sig.getDeclaringType()).willReturn(TargetObject.class);
 		JoinPoint.StaticPart staticPart = mock(JoinPoint.StaticPart.class);
-		when(joinPoint.getSignature()).thenReturn(sig);
-		when(joinPoint.getStaticPart()).thenReturn(staticPart);
+		given(this.joinPoint.getSignature()).willReturn(sig);
+		given(this.joinPoint.getStaticPart()).willReturn(staticPart);
 		CodeSignature codeSig = mock(CodeSignature.class);
-		when(codeSig.getName()).thenReturn("countLength");
-		when(codeSig.getDeclaringType()).thenReturn(TargetObject.class);
-		when(codeSig.getParameterTypes()).thenReturn(new Class[] { String.class });
-		when(staticPart.getSignature()).thenReturn(codeSig);
-		when(mds.getAttributes(any())).thenReturn(
-				SecurityConfig.createList("ROLE_USER"));
-		when(authman.authenticate(token)).thenReturn(token);
+		given(codeSig.getName()).willReturn("countLength");
+		given(codeSig.getDeclaringType()).willReturn(TargetObject.class);
+		given(codeSig.getParameterTypes()).willReturn(new Class[] { String.class });
+		given(staticPart.getSignature()).willReturn(codeSig);
+		given(this.mds.getAttributes(any())).willReturn(SecurityConfig.createList("ROLE_USER"));
+		given(this.authman.authenticate(this.token)).willReturn(this.token);
 	}
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
 	@Test
 	public void callbackIsInvokedWhenPermissionGranted() throws Throwable {
-		SecurityContextHolder.getContext().setAuthentication(token);
-		interceptor.invoke(joinPoint, aspectJCallback);
-		verify(aspectJCallback).proceedWithObject();
-
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		this.interceptor.invoke(this.joinPoint, this.aspectJCallback);
+		verify(this.aspectJCallback).proceedWithObject();
 		// Just try the other method too
-		interceptor.invoke(joinPoint);
+		this.interceptor.invoke(this.joinPoint);
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void callbackIsNotInvokedWhenPermissionDenied() {
-		doThrow(new AccessDeniedException("denied")).when(adm).decide(
-				any(), any(), any());
-
-		SecurityContextHolder.getContext().setAuthentication(token);
-		try {
-			interceptor.invoke(joinPoint, aspectJCallback);
-			fail("Expected AccessDeniedException");
-		}
-		catch (AccessDeniedException expected) {
-		}
-		verify(aspectJCallback, never()).proceedWithObject();
+		willThrow(new AccessDeniedException("denied")).given(this.adm).decide(any(), any(), any());
+		SecurityContextHolder.getContext().setAuthentication(this.token);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
+		verify(this.aspectJCallback, never()).proceedWithObject();
 	}
 
 	@Test
 	public void adapterHoldsCorrectData() {
 		TargetObject to = new TargetObject();
-		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength",
-				new Class[] { String.class });
-
-		when(joinPoint.getTarget()).thenReturn(to);
-		when(joinPoint.getArgs()).thenReturn(new Object[] { "Hi" });
-		MethodInvocationAdapter mia = new MethodInvocationAdapter(joinPoint);
+		Method m = ClassUtils.getMethodIfAvailable(TargetObject.class, "countLength", new Class[] { String.class });
+		given(this.joinPoint.getTarget()).willReturn(to);
+		given(this.joinPoint.getArgs()).willReturn(new Object[] { "Hi" });
+		MethodInvocationAdapter mia = new MethodInvocationAdapter(this.joinPoint);
 		assertThat(mia.getArguments()[0]).isEqualTo("Hi");
 		assertThat(mia.getStaticPart()).isEqualTo(m);
 		assertThat(mia.getMethod()).isEqualTo(m);
@@ -140,21 +147,13 @@ public class AspectJMethodSecurityInterceptorTests {
 
 	@Test
 	public void afterInvocationManagerIsNotInvokedIfExceptionIsRaised() {
-		token.setAuthenticated(true);
-		SecurityContextHolder.getContext().setAuthentication(token);
-
+		this.token.setAuthenticated(true);
+		SecurityContextHolder.getContext().setAuthentication(this.token);
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
-		interceptor.setAfterInvocationManager(aim);
-
-		when(aspectJCallback.proceedWithObject()).thenThrow(new RuntimeException());
-
-		try {
-			interceptor.invoke(joinPoint, aspectJCallback);
-			fail("Expected exception");
-		}
-		catch (RuntimeException expected) {
-		}
-
+		this.interceptor.setAfterInvocationManager(aim);
+		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
 		verifyZeroInteractions(aim);
 	}
 
@@ -163,26 +162,19 @@ public class AspectJMethodSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	public void invokeWithAspectJCallbackRunAsReplacementCleansAfterException() {
 		SecurityContext ctx = SecurityContextHolder.getContext();
-		ctx.setAuthentication(token);
-		token.setAuthenticated(true);
+		ctx.setAuthentication(this.token);
+		this.token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
-		interceptor.setRunAsManager(runAs);
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
-		when(aspectJCallback.proceedWithObject()).thenThrow(new RuntimeException());
-
-		try {
-			interceptor.invoke(joinPoint, aspectJCallback);
-			fail("Expected Exception");
-		}
-		catch (RuntimeException success) {
-		}
-
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", this.token.getAuthorities(),
+				TestingAuthenticationToken.class);
+		this.interceptor.setRunAsManager(runAs);
+		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
+		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
 	}
 
 	// SEC-1967
@@ -190,25 +182,18 @@ public class AspectJMethodSecurityInterceptorTests {
 	@SuppressWarnings("unchecked")
 	public void invokeRunAsReplacementCleansAfterException() throws Throwable {
 		SecurityContext ctx = SecurityContextHolder.getContext();
-		ctx.setAuthentication(token);
-		token.setAuthenticated(true);
+		ctx.setAuthentication(this.token);
+		this.token.setAuthenticated(true);
 		final RunAsManager runAs = mock(RunAsManager.class);
-		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds",
-				token.getAuthorities(), TestingAuthenticationToken.class);
-		interceptor.setRunAsManager(runAs);
-		when(runAs.buildRunAs(eq(token), any(MethodInvocation.class), any(List.class)))
-				.thenReturn(runAsToken);
-		when(joinPoint.proceed()).thenThrow(new RuntimeException());
-
-		try {
-			interceptor.invoke(joinPoint);
-			fail("Expected Exception");
-		}
-		catch (RuntimeException success) {
-		}
-
+		final RunAsUserToken runAsToken = new RunAsUserToken("key", "someone", "creds", this.token.getAuthorities(),
+				TestingAuthenticationToken.class);
+		this.interceptor.setRunAsManager(runAs);
+		given(runAs.buildRunAs(eq(this.token), any(MethodInvocation.class), any(List.class))).willReturn(runAsToken);
+		given(this.joinPoint.proceed()).willThrow(new RuntimeException());
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.interceptor.invoke(this.joinPoint));
 		// Check we've changed back
 		assertThat(SecurityContextHolder.getContext()).isSameAs(ctx);
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(token);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.token);
 	}
+
 }

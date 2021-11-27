@@ -13,27 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util.matcher;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import jakarta.servlet.http.HttpServletRequest;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
 
 /**
- *
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class NegatedRequestMatcherTests {
+
 	@Mock
 	private RequestMatcher delegate;
 
@@ -42,24 +42,23 @@ public class NegatedRequestMatcherTests {
 
 	private RequestMatcher matcher;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNull() {
-		new NegatedRequestMatcher(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new NegatedRequestMatcher(null));
 	}
 
 	@Test
 	public void matchesDelegateFalse() {
-		when(delegate.matches(request)).thenReturn(false);
-		matcher = new NegatedRequestMatcher(delegate);
-
-		assertThat(matcher.matches(request)).isTrue();
+		given(this.delegate.matches(this.request)).willReturn(false);
+		this.matcher = new NegatedRequestMatcher(this.delegate);
+		assertThat(this.matcher.matches(this.request)).isTrue();
 	}
 
 	@Test
 	public void matchesDelegateTrue() {
-		when(delegate.matches(request)).thenReturn(true);
-		matcher = new NegatedRequestMatcher(delegate);
-
-		assertThat(matcher.matches(request)).isFalse();
+		given(this.delegate.matches(this.request)).willReturn(true);
+		this.matcher = new NegatedRequestMatcher(this.delegate);
+		assertThat(this.matcher.matches(this.request)).isFalse();
 	}
+
 }

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.userdetails;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -25,8 +27,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.junit.After;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -40,28 +42,30 @@ import reactor.core.publisher.Mono;
 public class MapReactiveUserDetailsServiceTests {
 	private static final String PASSWORD = "password";
 	private static final String USERNAME = "user";
+
+	// @formatter:off
 	private static final UserDetails USER_DETAILS = User.withUsername(USERNAME)
 			.password(PASSWORD)
 			.roles("USER")
 			.build();
-
+	// @formatter:on
 	private final MapReactiveUserDetailsService users = new MapReactiveUserDetailsService(Arrays.asList(USER_DETAILS));
 
-	@After
+	@AfterEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullUsers() {
-		Collection<UserDetails> users = null;
-		new MapReactiveUserDetailsService(users);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MapReactiveUserDetailsService((Collection<UserDetails>) null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyUsers() {
-		Collection<UserDetails> users = Collections.emptyList();
-		new MapReactiveUserDetailsService(users);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new MapReactiveUserDetailsService(Collections.emptyList()));
 	}
 
 	@Test
@@ -73,108 +77,102 @@ public class MapReactiveUserDetailsServiceTests {
 
 	@Test
 	public void findByUsernameWhenFoundThenReturns() {
-		assertThat((users.findByUsername(USERNAME).block())).isEqualTo(USER_DETAILS);
+		assertThat((this.users.findByUsername(USERNAME).block())).isEqualTo(USER_DETAILS);
 	}
 
 	@Test
 	public void findByUsernameWhenDifferentCaseThenReturns() {
-		assertThat((users.findByUsername("uSeR").block())).isEqualTo(USER_DETAILS);
+		assertThat((this.users.findByUsername("uSeR").block())).isEqualTo(USER_DETAILS);
 	}
 
 	@Test
 	public void findByUsernameWhenClearCredentialsThenFindByUsernameStillHasCredentials() {
-		User foundUser = users.findByUsername(USERNAME).cast(User.class).block();
+		User foundUser = this.users.findByUsername(USERNAME).cast(User.class).block();
 		assertThat(foundUser.getPassword()).isNotEmpty();
 		foundUser.eraseCredentials();
 		assertThat(foundUser.getPassword()).isNull();
-
-		foundUser = users.findByUsername(USERNAME).cast(User.class).block();
+		foundUser = this.users.findByUsername(USERNAME).cast(User.class).block();
 		assertThat(foundUser.getPassword()).isNotEmpty();
 	}
 
 	@Test
 	public void findByUsernameWhenNotFoundThenEmpty() {
-		assertThat((users.findByUsername("notfound"))).isEqualTo(Mono.empty());
+		assertThat((this.users.findByUsername("notfound"))).isEqualTo(Mono.empty());
 	}
 
 	@Test
 	public void updatePassword() {
-		users.updatePassword(USER_DETAILS, "newPassword").block();
-		assertThat(users.findByUsername(USERNAME).block().getPassword()).isEqualTo("newPassword");
+		this.users.updatePassword(USER_DETAILS, "newPassword").block();
+		assertThat(this.users.findByUsername(USERNAME).block().getPassword()).isEqualTo("newPassword");
 	}
 
 	@Test
 	public void createNewUser() {
-		UserDetails newUser = User.withUsername("user2")
-				.password("password2")
-				.roles("USER")
-				.build();
+		UserDetails newUser = User.withUsername("user2").password("password2").roles("USER").build();
 		users.createUser(newUser).block();
-		assertThat((users.findByUsername("user2").block())).isEqualTo(newUser);
+		assertThat((this.users.findByUsername("user2").block())).isEqualTo(newUser);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void createAlreadyExistingUser() {
-		users.createUser(USER_DETAILS).block();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.users.createUser(USER_DETAILS).block());
 	}
 
 	@Test
 	public void updateExistingUser() {
 		UserDetails updatedUser = User.withUserDetails(USER_DETAILS).roles("ADMIN").build();
-		users.updateUser(updatedUser).block();
-		assertThat((users.findByUsername(USERNAME).block())).isEqualTo(updatedUser);
+		this.users.updateUser(updatedUser).block();
+		assertThat((this.users.findByUsername(USERNAME).block())).isEqualTo(updatedUser);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void updateNonExistingUser() {
-		UserDetails newUser = User.withUsername("user2")
-				.password("password2")
-				.roles("USER")
-				.build();
-		users.updateUser(newUser).block();
+		UserDetails newUser = User.withUsername("user2").password("password2").roles("USER").build();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.users.updateUser(newUser).block());
 	}
 
 	@Test
 	public void deleteUser() {
-		users.deleteUser(USERNAME).block();
-		assertThat((users.findByUsername(USERNAME))).isEqualTo(Mono.empty());
+		this.users.deleteUser(USERNAME).block();
+		assertThat((this.users.findByUsername(USERNAME))).isEqualTo(Mono.empty());
 	}
 
 	@Test
 	public void checkIfUserExists() {
-		assertThat((users.userExists("unknown-user")).block()).isFalse();
-		assertThat((users.userExists(USERNAME)).block()).isTrue();
+		assertThat((this.users.userExists("unknown-user")).block()).isFalse();
+		assertThat((this.users.userExists(USERNAME)).block()).isTrue();
 	}
 
 	@Test
 	public void changePasswordForKnownUser() {
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
-		users.changePassword(PASSWORD, "newPassword")
+		this.users.changePassword(PASSWORD, "newPassword")
 				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
-		assertThat(users.findByUsername(USERNAME).block().getPassword()).isEqualTo("newPassword");
+		assertThat(this.users.findByUsername(USERNAME).block().getPassword()).isEqualTo("newPassword");
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void changePasswordForUnknownUser() {
 		Authentication authentication = new TestingAuthenticationToken("unknown-user", PASSWORD, "USER");
-		users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+		assertThatIllegalArgumentException().isThrownBy(() -> this.users.changePassword(PASSWORD, "newPassword")
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void changePasswordForUnauthenticatedUser() {
-		users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(null)).block();
+		assertThrows(AccessDeniedException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(null)).block());
 	}
 
-	@Test(expected = BadCredentialsException.class)
+	@Test
 	public void changePasswordIfAuthenticationFails() {
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		users.setAuthenticationManager(authenticationManager);
 		when(authenticationManager.authenticate(any(Authentication.class))).thenThrow(new BadCredentialsException(""));
 
 		Authentication authentication = new TestingAuthenticationToken(USERNAME, PASSWORD, "USER");
-		users.changePassword(PASSWORD, "newPassword")
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+		assertThrows(BadCredentialsException.class, () -> this.users.changePassword(PASSWORD, "newPassword")
+				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block());
 	}
+
 }

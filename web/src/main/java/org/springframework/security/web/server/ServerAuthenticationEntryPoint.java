@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server;
 
 import reactor.core.publisher.Mono;
@@ -31,10 +32,11 @@ public interface ServerAuthenticationEntryPoint {
 
 	/**
 	 * Initiates the authentication flow
-	 *
 	 * @param exchange
-	 * @param e
-	 * @return {@code Mono<Void>} to indicate when the request for authentication is complete
+	 * @param ex
+	 * @return {@code Mono<Void>} to indicate when the request for authentication is
+	 * complete
 	 */
-	Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e);
+	Mono<Void> commence(ServerWebExchange exchange, AuthenticationException ex);
+
 }

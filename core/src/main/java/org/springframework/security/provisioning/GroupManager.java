@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.provisioning;
 
 import java.util.List;
@@ -40,7 +41,6 @@ public interface GroupManager {
 
 	/**
 	 * Locates the users who are members of a group
-	 *
 	 * @param groupName the group whose members are required
 	 * @return the usernames of the group members
 	 */
@@ -48,7 +48,6 @@ public interface GroupManager {
 
 	/**
 	 * Creates a new group with the specified list of authorities.
-	 *
 	 * @param groupName the name for the new group
 	 * @param authorities the authorities which are to be allocated to this group.
 	 */
@@ -56,7 +55,6 @@ public interface GroupManager {
 
 	/**
 	 * Removes a group, including all members and authorities.
-	 *
 	 * @param groupName the group to remove.
 	 */
 	void deleteGroup(String groupName);
@@ -68,7 +66,6 @@ public interface GroupManager {
 
 	/**
 	 * Makes a user a member of a particular group.
-	 *
 	 * @param username the user to be given membership.
 	 * @param group the name of the group to which the user will be added.
 	 */
@@ -76,7 +73,6 @@ public interface GroupManager {
 
 	/**
 	 * Deletes a user's membership of a group.
-	 *
 	 * @param username the user
 	 * @param groupName the group to remove them from
 	 */
@@ -96,4 +92,5 @@ public interface GroupManager {
 	 * Deletes an authority from those assigned to a group
 	 */
 	void removeGroupAuthority(String groupName, GrantedAuthority authority);
+
 }

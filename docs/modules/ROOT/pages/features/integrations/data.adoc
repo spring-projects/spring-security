@@ -1,0 +1,70 @@
+[[data]]
+= Spring Data Integration
+
+Spring Security provides Spring Data integration that allows referring to the current user within your queries.
+It is not only useful but necessary to include the user in the queries to support paged results since filtering the results afterwards would not scale.
+
+[[data-configuration]]
+== Spring Data & Spring Security Configuration
+
+To use this support, add `org.springframework.security:spring-security-data` dependency and provide a bean of type `SecurityEvaluationContextExtension`.
+In Java Configuration, this would look like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
+	return new SecurityEvaluationContextExtension();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
+    return SecurityEvaluationContextExtension()
+}
+----
+====
+
+In XML Configuration, this would look like:
+
+[source,xml]
+----
+<bean class="org.springframework.security.data.repository.query.SecurityEvaluationContextExtension"/>
+----
+
+[[data-query]]
+== Security Expressions within @Query
+
+Now Spring Security can be used within your queries.
+For example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Repository
+public interface MessageRepository extends PagingAndSortingRepository<Message,Long> {
+	@Query("select m from Message m where m.to.id = ?#{ principal?.id }")
+	Page<Message> findInbox(Pageable pageable);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Repository
+interface MessageRepository : PagingAndSortingRepository<Message?, Long?> {
+    @Query("select m from Message m where m.to.id = ?#{ principal?.id }")
+    fun findInbox(pageable: Pageable?): Page<Message?>?
+}
+----
+====
+
+This checks to see if the `Authentication.getPrincipal().getId()` is equal to the recipient of the `Message`.
+Note that this example assumes you have customized the principal to be an Object that has an id property.
+By exposing the `SecurityEvaluationContextExtension` bean, all of the xref:servlet/authorization/expression-based.adoc#common-expressions[Common Security Expressions] are available within the Query.

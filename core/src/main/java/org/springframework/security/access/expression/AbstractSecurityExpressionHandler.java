@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression;
 
 import org.springframework.context.ApplicationContext;
@@ -36,15 +37,20 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.1
  */
-public abstract class AbstractSecurityExpressionHandler<T> implements
-		SecurityExpressionHandler<T>, ApplicationContextAware {
+public abstract class AbstractSecurityExpressionHandler<T>
+		implements SecurityExpressionHandler<T>, ApplicationContextAware {
+
 	private ExpressionParser expressionParser = new SpelExpressionParser();
-	private BeanResolver br;
+
+	private BeanResolver beanResolver;
+
 	private RoleHierarchy roleHierarchy;
+
 	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
 
+	@Override
 	public final ExpressionParser getExpressionParser() {
-		return expressionParser;
+		return this.expressionParser;
 	}
 
 	public final void setExpressionParser(ExpressionParser expressionParser) {
@@ -55,21 +61,17 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	/**
 	 * Invokes the internal template methods to create {@code StandardEvaluationContext}
 	 * and {@code SecurityExpressionRoot} objects.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return the context object for use in evaluating the expression, populated with a
 	 * suitable root object.
 	 */
-	public final EvaluationContext createEvaluationContext(Authentication authentication,
-			T invocation) {
-		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication,
-				invocation);
-		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication,
-				invocation);
-		ctx.setBeanResolver(br);
+	@Override
+	public final EvaluationContext createEvaluationContext(Authentication authentication, T invocation) {
+		SecurityExpressionOperations root = createSecurityExpressionRoot(authentication, invocation);
+		StandardEvaluationContext ctx = createEvaluationContextInternal(authentication, invocation);
+		ctx.setBeanResolver(this.beanResolver);
 		ctx.setRootObject(root);
-
 		return ctx;
 	}
 
@@ -79,30 +81,27 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	 * The returned object will have a {@code SecurityExpressionRootPropertyAccessor}
 	 * added, allowing beans in the {@code ApplicationContext} to be accessed via
 	 * expression properties.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
 	 * @return A {@code StandardEvaluationContext} or potentially a custom subclass if
 	 * overridden.
 	 */
-	protected StandardEvaluationContext createEvaluationContextInternal(
-			Authentication authentication, T invocation) {
+	protected StandardEvaluationContext createEvaluationContextInternal(Authentication authentication, T invocation) {
 		return new StandardEvaluationContext();
 	}
 
 	/**
 	 * Implement in order to create a root object of the correct type for the supported
 	 * invocation type.
-	 *
 	 * @param authentication the current authentication object
 	 * @param invocation the invocation (filter, method, channel)
-	 * @return the object wh
+	 * @return the object
 	 */
-	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(
-			Authentication authentication, T invocation);
+	protected abstract SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			T invocation);
 
 	protected RoleHierarchy getRoleHierarchy() {
-		return roleHierarchy;
+		return this.roleHierarchy;
 	}
 
 	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
@@ -110,14 +109,16 @@ public abstract class AbstractSecurityExpressionHandler<T> implements
 	}
 
 	protected PermissionEvaluator getPermissionEvaluator() {
-		return permissionEvaluator;
+		return this.permissionEvaluator;
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
 		this.permissionEvaluator = permissionEvaluator;
 	}
 
+	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) {
-		br = new BeanFactoryResolver(applicationContext);
+		this.beanResolver = new BeanFactoryResolver(applicationContext);
 	}
+
 }

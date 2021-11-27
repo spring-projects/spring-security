@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -38,58 +40,50 @@ public class XXssProtectionHeaderWriterTests {
 
 	private static final String XSS_PROTECTION_HEADER = "X-XSS-Protection";
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		writer = new XXssProtectionHeaderWriter();
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.writer = new XXssProtectionHeaderWriter();
 	}
 
 	@Test
 	public void writeHeaders() {
-		writer.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
 	}
 
 	@Test
 	public void writeHeadersNoBlock() {
-		writer.setBlock(false);
-
-		writer.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
+		this.writer.setBlock(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
 	}
 
 	@Test
 	public void writeHeadersDisabled() {
-		writer.setBlock(false);
-		writer.setEnabled(false);
-
-		writer.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
+		this.writer.setBlock(false);
+		this.writer.setEnabled(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
 
 	@Test
 	public void setEnabledFalseWithBlockTrue() {
-		writer.setEnabled(false);
-
-		writer.writeHeaders(request, response);
-
-		assertThat(response.getHeaderNames()).hasSize(1);
-		assertThat(response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
+		this.writer.setEnabled(false);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setBlockTrueWithEnabledFalse() {
-		writer.setBlock(false);
-		writer.setEnabled(false);
-
-		writer.setBlock(true);
+		this.writer.setBlock(false);
+		this.writer.setEnabled(false);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setBlock(true));
 	}
 
 	@Test
@@ -99,4 +93,5 @@ public class XXssProtectionHeaderWriterTests {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(XSS_PROTECTION_HEADER)).isSameAs(value);
 	}
+
 }

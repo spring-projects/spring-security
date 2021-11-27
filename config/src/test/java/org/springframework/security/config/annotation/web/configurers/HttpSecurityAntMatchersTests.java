@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -35,31 +35,36 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
  *
  */
 public class HttpSecurityAntMatchersTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -67,47 +72,60 @@ public class HttpSecurityAntMatchersTests {
 	@Test
 	public void antMatchersMethodAndNoPatterns() throws Exception {
 		loadConfig(AntMatchersNoPatternsConfig.class);
-		request.setMethod("POST");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
-	}
-
-	@EnableWebSecurity
-	@Configuration
-	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.requestMatchers()
-					.antMatchers(HttpMethod.POST)
-					.and()
-				.authorizeRequests()
-					.anyRequest().denyAll();
-		}
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication();
-		}
+		this.request.setMethod("POST");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
 	}
 
 	// SEC-3135
 	@Test
 	public void antMatchersMethodAndEmptyPatterns() throws Exception {
 		loadConfig(AntMatchersEmptyPatternsConfig.class);
-		request.setMethod("POST");
+		this.request.setMethod("POST");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
 
-		springSecurityFilterChain.doFilter(request, response, chain);
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
 
-		assertThat(response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	@EnableWebSecurity
+	@Configuration
+	static class AntMatchersNoPatternsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestMatchers()
+					.antMatchers(HttpMethod.POST)
+					.and()
+				.authorizeRequests()
+					.anyRequest().denyAll();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication();
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	static class AntMatchersEmptyPatternsConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.requestMatchers()
 					.antMatchers("/never/")
@@ -115,22 +133,17 @@ public class HttpSecurityAntMatchersTests {
 					.and()
 				.authorizeRequests()
 					.anyRequest().denyAll();
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
+
 	}
-
-	public void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.refresh();
-
-		context.getAutowireCapableBeanFactory().autowireBean(this);
-	}
-
 
 }

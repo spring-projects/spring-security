@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Encapsulates the redirection logic for all classes in the framework which perform
@@ -35,6 +36,6 @@ public interface RedirectStrategy {
 	 * @param response the response to redirect
 	 * @param url the target URL to redirect to, for example "/login"
 	 */
-	void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url)
-			throws IOException;
+	void sendRedirect(HttpServletRequest request, HttpServletResponse response, String url) throws IOException;
+
 }

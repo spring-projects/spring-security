@@ -16,17 +16,18 @@
 
 package org.springframework.security.web.access.channel;
 
-import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.*;
+import jakarta.servlet.FilterChain;
 
-import javax.servlet.FilterChain;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
-import org.springframework.security.web.access.channel.SecureChannelProcessor;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link SecureChannelProcessor}.
@@ -34,8 +35,7 @@ import org.springframework.security.web.access.channel.SecureChannelProcessor;
  * @author Ben Alex
  */
 public class SecureChannelProcessorTests {
-	// ~ Methods
-	// ========================================================================================================
+
 	@Test
 	public void testDecideDetectsAcceptableChannel() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -46,15 +46,10 @@ public class SecureChannelProcessorTests {
 		request.setScheme("https");
 		request.setSecure(true);
 		request.setServerPort(8443);
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
-
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE",
-				"REQUIRES_SECURE_CHANNEL"));
-
+		processor.decide(fi, SecurityConfig.createList("SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
 
@@ -67,17 +62,11 @@ public class SecureChannelProcessorTests {
 		request.setServletPath("/servlet");
 		request.setScheme("http");
 		request.setServerPort(8080);
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
-
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		SecureChannelProcessor processor = new SecureChannelProcessor();
-		processor.decide(
-				fi,
-				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE",
-						"REQUIRES_SECURE_CHANNEL" }));
-
+		processor.decide(fi,
+				SecurityConfig.createList(new String[] { "SOME_IGNORED_ATTRIBUTE", "REQUIRES_SECURE_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
 
@@ -85,14 +74,7 @@ public class SecureChannelProcessorTests {
 	public void testDecideRejectsNulls() throws Exception {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
 		processor.afterPropertiesSet();
-
-		try {
-			processor.decide(null, null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> processor.decide(null, null));
 	}
 
 	@Test
@@ -101,7 +83,6 @@ public class SecureChannelProcessorTests {
 		assertThat(processor.getSecureKeyword()).isEqualTo("REQUIRES_SECURE_CHANNEL");
 		processor.setSecureKeyword("X");
 		assertThat(processor.getSecureKeyword()).isEqualTo("X");
-
 		assertThat(processor.getEntryPoint() != null).isTrue();
 		processor.setEntryPoint(null);
 		assertThat(processor.getEntryPoint() == null).isTrue();
@@ -111,38 +92,19 @@ public class SecureChannelProcessorTests {
 	public void testMissingEntryPoint() throws Exception {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
 		processor.setEntryPoint(null);
-
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("entryPoint required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
+				.withMessage("entryPoint required");
 	}
 
 	@Test
 	public void testMissingSecureChannelKeyword() throws Exception {
 		SecureChannelProcessor processor = new SecureChannelProcessor();
 		processor.setSecureKeyword(null);
-
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("secureKeyword required");
-		}
-
+		assertThatIllegalArgumentException().isThrownBy(processor::afterPropertiesSet)
+				.withMessage("secureKeyword required");
 		processor.setSecureKeyword("");
-
-		try {
-			processor.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage()).isEqualTo("secureKeyword required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> processor.afterPropertiesSet())
+				.withMessage("secureKeyword required");
 	}
 
 	@Test
@@ -152,4 +114,5 @@ public class SecureChannelProcessorTests {
 		assertThat(processor.supports(null)).isFalse();
 		assertThat(processor.supports(new SecurityConfig("NOT_SUPPORTED"))).isFalse();
 	}
+
 }

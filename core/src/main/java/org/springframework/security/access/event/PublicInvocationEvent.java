@@ -30,15 +30,13 @@ package org.springframework.security.access.event;
  * @author Ben Alex
  */
 public class PublicInvocationEvent extends AbstractAuthorizationEvent {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Construct the event, passing in the public secure object.
-	 *
 	 * @param secureObject the public secure object
 	 */
 	public PublicInvocationEvent(Object secureObject) {
 		super(secureObject);
 	}
+
 }

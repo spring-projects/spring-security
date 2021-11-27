@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.oidc;
 
 /**
- * The names of the &quot;Standard Claims&quot; defined by the OpenID Connect Core 1.0 specification
- * that can be returned either in the UserInfo Response or the ID Token.
+ * The names of the &quot;Standard Claims&quot; defined by the OpenID Connect Core 1.0
+ * specification that can be returned either in the UserInfo Response or the ID Token.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard Claims</a>
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo Response</a>
- * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims">Standard
+ * Claims</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#UserInfoResponse">UserInfo
+ * Response</a>
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 public interface StandardClaimNames {
 
@@ -53,12 +59,14 @@ public interface StandardClaimNames {
 	String MIDDLE_NAME = "middle_name";
 
 	/**
-	 * {@code nickname} - the user's nick name that may or may not be the same as the {@code given_name}
+	 * {@code nickname} - the user's nick name that may or may not be the same as the
+	 * {@code given_name}
 	 */
 	String NICKNAME = "nickname";
 
 	/**
-	 * {@code preferred_username} - the preferred username that the user wishes to be referred to
+	 * {@code preferred_username} - the preferred username that the user wishes to be
+	 * referred to
 	 */
 	String PREFERRED_USERNAME = "preferred_username";
 
@@ -83,7 +91,8 @@ public interface StandardClaimNames {
 	String EMAIL = "email";
 
 	/**
-	 * {@code email_verified} - {@code true} if the user's e-mail address has been verified, otherwise {@code false}
+	 * {@code email_verified} - {@code true} if the user's e-mail address has been
+	 * verified, otherwise {@code false}
 	 */
 	String EMAIL_VERIFIED = "email_verified";
 
@@ -113,7 +122,8 @@ public interface StandardClaimNames {
 	String PHONE_NUMBER = "phone_number";
 
 	/**
-	 * {@code phone_number_verified} - {@code true} if the user's phone number has been verified, otherwise {@code false}
+	 * {@code phone_number_verified} - {@code true} if the user's phone number has been
+	 * verified, otherwise {@code false}
 	 */
 	String PHONE_NUMBER_VERIFIED = "phone_number_verified";
 

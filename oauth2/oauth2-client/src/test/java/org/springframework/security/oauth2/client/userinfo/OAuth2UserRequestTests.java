@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.userinfo;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.springframework.security.oauth2.client.registration.ClientRegistration;
-import org.springframework.security.oauth2.core.AuthorizationGrantType;
-import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
+package org.springframework.security.oauth2.client.userinfo;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -28,8 +22,16 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2UserRequest}.
@@ -37,26 +39,30 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Joe Grandja
  */
 public class OAuth2UserRequestTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AccessToken accessToken;
+
 	private Map<String, Object> additionalParameters;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
+		// @formatter:off
 		this.clientRegistration = ClientRegistration.withRegistrationId("registration-1")
 				.clientId("client-1")
 				.clientSecret("secret")
-				.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 				.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-				.redirectUriTemplate("https://client.com")
+				.redirectUri("https://client.com")
 				.scope(new LinkedHashSet<>(Arrays.asList("scope1", "scope2")))
 				.authorizationUri("https://provider.com/oauth2/authorization")
 				.tokenUri("https://provider.com/oauth2/token")
 				.clientName("Client 1")
 				.build();
-		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
-				"access-token-1234", Instant.now(), Instant.now().plusSeconds(60),
-				new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
+		// @formatter:on
+		this.accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, "access-token-1234", Instant.now(),
+				Instant.now().plusSeconds(60), new LinkedHashSet<>(Arrays.asList("scope1", "scope2")));
 		this.additionalParameters = new HashMap<>();
 		this.additionalParameters.put("param1", "value1");
 		this.additionalParameters.put("param2", "value2");
@@ -64,23 +70,21 @@ public class OAuth2UserRequestTests {
 
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2UserRequest(null, this.accessToken))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2UserRequest(null, this.accessToken));
 	}
 
 	@Test
 	public void constructorWhenAccessTokenIsNullThenThrowIllegalArgumentException() {
-		assertThatThrownBy(() -> new OAuth2UserRequest(this.clientRegistration, null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2UserRequest(this.clientRegistration, null));
 	}
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2UserRequest userRequest = new OAuth2UserRequest(
-				this.clientRegistration, this.accessToken, this.additionalParameters);
-
+		OAuth2UserRequest userRequest = new OAuth2UserRequest(this.clientRegistration, this.accessToken,
+				this.additionalParameters);
 		assertThat(userRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(userRequest.getAccessToken()).isEqualTo(this.accessToken);
 		assertThat(userRequest.getAdditionalParameters()).containsAllEntriesOf(this.additionalParameters);
 	}
+
 }

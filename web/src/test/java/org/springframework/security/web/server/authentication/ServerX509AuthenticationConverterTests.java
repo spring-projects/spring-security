@@ -16,12 +16,15 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.security.cert.X509Certificate;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.http.server.reactive.SslInfo;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -29,13 +32,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509TestUtils;
 
-import java.security.cert.X509Certificate;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerX509AuthenticationConverterTests {
 
 	@Mock
@@ -48,29 +49,31 @@ public class ServerX509AuthenticationConverterTests {
 
 	private MockServerHttpRequest.BaseBuilder<?> request;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		request = MockServerHttpRequest.get("/");
+		this.request = MockServerHttpRequest.get("/");
+		this.certificate = X509TestUtils.buildTestCertificate();
+	}
 
-		certificate = X509TestUtils.buildTestCertificate();
-		when(principalExtractor.extractPrincipal(any())).thenReturn("Luke Taylor");
+	private void givenExtractPrincipalWillReturn() {
+		given(this.principalExtractor.extractPrincipal(any())).willReturn("Luke Taylor");
 	}
 
 	@Test
 	public void shouldReturnNullForInvalidCertificate() {
-		Authentication authentication = converter.convert(MockServerWebExchange.from(request.build())).block();
-
+		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
+				.block();
 		assertThat(authentication).isNull();
 	}
 
 	@Test
 	public void shouldReturnAuthenticationForValidCertificate() {
-		request.sslInfo(new MockSslInfo(certificate));
-
-		Authentication authentication = converter.convert(MockServerWebExchange.from(request.build())).block();
-
+		givenExtractPrincipalWillReturn();
+		this.request.sslInfo(new MockSslInfo(this.certificate));
+		Authentication authentication = this.converter.convert(MockServerWebExchange.from(this.request.build()))
+				.block();
 		assertThat(authentication.getName()).isEqualTo("Luke Taylor");
-		assertThat(authentication.getCredentials()).isEqualTo(certificate);
+		assertThat(authentication.getCredentials()).isEqualTo(this.certificate);
 	}
 
 	class MockSslInfo implements SslInfo {
@@ -90,5 +93,7 @@ public class ServerX509AuthenticationConverterTests {
 		public X509Certificate[] getPeerCertificates() {
 			return this.peerCertificates;
 		}
+
 	}
+
 }

@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.session;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -53,38 +55,29 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @since 3.2
  */
-public class CompositeSessionAuthenticationStrategy
-		implements SessionAuthenticationStrategy {
+public class CompositeSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final List<SessionAuthenticationStrategy> delegateStrategies;
 
-	public CompositeSessionAuthenticationStrategy(
-			List<SessionAuthenticationStrategy> delegateStrategies) {
+	public CompositeSessionAuthenticationStrategy(List<SessionAuthenticationStrategy> delegateStrategies) {
 		Assert.notEmpty(delegateStrategies, "delegateStrategies cannot be null or empty");
 		for (SessionAuthenticationStrategy strategy : delegateStrategies) {
-			if (strategy == null) {
-				throw new IllegalArgumentException(
-						"delegateStrategies cannot contain null entires. Got "
-								+ delegateStrategies);
-			}
+			Assert.notNull(strategy, () -> "delegateStrategies cannot contain null entires. Got " + delegateStrategies);
 		}
 		this.delegateStrategies = delegateStrategies;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.authentication.session.
-	 * SessionAuthenticationStrategy
-	 * #onAuthentication(org.springframework.security.core.Authentication,
-	 * javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
-	 */
-	public void onAuthentication(Authentication authentication,
-			HttpServletRequest request, HttpServletResponse response)
-					throws SessionAuthenticationException {
+	@Override
+	public void onAuthentication(Authentication authentication, HttpServletRequest request,
+			HttpServletResponse response) throws SessionAuthenticationException {
+		int currentPosition = 0;
+		int size = this.delegateStrategies.size();
 		for (SessionAuthenticationStrategy delegate : this.delegateStrategies) {
-			if (this.logger.isDebugEnabled()) {
-				this.logger.debug("Delegating to " + delegate);
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Preparing session with %s (%d/%d)",
+						delegate.getClass().getSimpleName(), ++currentPosition, size));
 			}
 			delegate.onAuthentication(authentication, request, response);
 		}
@@ -92,7 +85,7 @@ public class CompositeSessionAuthenticationStrategy
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [delegateStrategies = " + this.delegateStrategies
-				+ "]";
+		return getClass().getName() + " [delegateStrategies = " + this.delegateStrategies + "]";
 	}
+
 }

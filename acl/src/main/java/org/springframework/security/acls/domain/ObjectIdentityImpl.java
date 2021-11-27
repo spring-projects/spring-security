@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import java.io.Serializable;
@@ -31,19 +32,14 @@ import org.springframework.util.ClassUtils;
  * @author Ben Alex
  */
 public class ObjectIdentityImpl implements ObjectIdentity {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final String type;
-	private Serializable identifier;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private Serializable identifier;
 
 	public ObjectIdentityImpl(String type, Serializable identifier) {
 		Assert.hasText(type, "Type required");
 		Assert.notNull(identifier, "identifier required");
-
 		this.identifier = identifier;
 		this.type = type;
 	}
@@ -66,36 +62,28 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * <p>
 	 * The class name of the object passed will be considered the {@link #type}, so if
 	 * more control is required, a different constructor should be used.
-	 *
 	 * @param object the domain object instance to create an identity for.
-	 *
 	 * @throws IdentityUnavailableException if identity could not be extracted
 	 */
 	public ObjectIdentityImpl(Object object) throws IdentityUnavailableException {
 		Assert.notNull(object, "object cannot be null");
-
 		Class<?> typeClass = ClassUtils.getUserClass(object.getClass());
-		type = typeClass.getName();
-
-		Object result;
-
-		try {
-			Method method = typeClass.getMethod("getId", new Class[] {});
-			result = method.invoke(object);
-		}
-		catch (Exception e) {
-			throw new IdentityUnavailableException(
-					"Could not extract identity from object " + object, e);
-		}
-
+		this.type = typeClass.getName();
+		Object result = invokeGetIdMethod(object, typeClass);
 		Assert.notNull(result, "getId() is required to return a non-null value");
-		Assert.isInstanceOf(Serializable.class, result,
-				"Getter must provide a return value of type Serializable");
+		Assert.isInstanceOf(Serializable.class, result, "Getter must provide a return value of type Serializable");
 		this.identifier = (Serializable) result;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
+	private Object invokeGetIdMethod(Object object, Class<?> typeClass) {
+		try {
+			Method method = typeClass.getMethod("getId", new Class[] {});
+			return method.invoke(object);
+		}
+		catch (Exception ex) {
+			throw new IdentityUnavailableException("Could not extract identity from object " + object, ex);
+		}
+	}
 
 	/**
 	 * Important so caching operates properly.
@@ -105,49 +93,42 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 	 * <p>
 	 * Numeric identities (Integer and Long values) are considered equal if they are
 	 * numerically equal. Other serializable types are evaluated using a simple equality.
-	 *
-	 * @param arg0 object to compare
-	 *
+	 * @param obj object to compare
 	 * @return <code>true</code> if the presented object matches this object
 	 */
 	@Override
-	public boolean equals(Object arg0) {
-		if (arg0 == null || !(arg0 instanceof ObjectIdentityImpl)) {
+	public boolean equals(Object obj) {
+		if (obj == null || !(obj instanceof ObjectIdentityImpl)) {
 			return false;
 		}
-
-		ObjectIdentityImpl other = (ObjectIdentityImpl) arg0;
-
-		if (identifier instanceof Number && other.identifier instanceof Number) {
+		ObjectIdentityImpl other = (ObjectIdentityImpl) obj;
+		if (this.identifier instanceof Number && other.identifier instanceof Number) {
 			// Integers and Longs with same value should be considered equal
-			if (((Number) identifier).longValue() != ((Number) other.identifier)
-					.longValue()) {
+			if (((Number) this.identifier).longValue() != ((Number) other.identifier).longValue()) {
 				return false;
 			}
 		}
 		else {
 			// Use plain equality for other serializable types
-			if (!identifier.equals(other.identifier)) {
+			if (!this.identifier.equals(other.identifier)) {
 				return false;
 			}
 		}
-
-		return type.equals(other.type);
+		return this.type.equals(other.type);
 	}
 
 	@Override
 	public Serializable getIdentifier() {
-		return identifier;
+		return this.identifier;
 	}
 
 	@Override
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 	/**
 	 * Important so caching operates properly.
-	 *
 	 * @return the hash
 	 */
 	@Override
@@ -163,7 +144,7 @@ public class ObjectIdentityImpl implements ObjectIdentity {
 		sb.append(this.getClass().getName()).append("[");
 		sb.append("Type: ").append(this.type);
 		sb.append("; Identifier: ").append(this.identifier).append("]");
-
 		return sb.toString();
 	}
+
 }

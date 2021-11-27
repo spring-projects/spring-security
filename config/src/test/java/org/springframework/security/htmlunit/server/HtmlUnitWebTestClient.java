@@ -27,8 +27,9 @@ import java.util.StringTokenizer;
 import com.gargoylesoftware.htmlunit.FormEncodingType;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
-
 import com.gargoylesoftware.htmlunit.util.NameValuePair;
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -43,7 +44,6 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
-import reactor.core.publisher.Mono;
 
 final class HtmlUnitWebTestClient {
 
@@ -55,21 +55,23 @@ final class HtmlUnitWebTestClient {
 		Assert.notNull(webClient, "WebClient must not be null");
 		Assert.notNull(webTestClient, "WebTestClient must not be null");
 		this.webClient = webClient;
+		// @formatter:off
 		this.webTestClient = webTestClient.mutate()
-			.filter(new FollowRedirects())
-			.filter(new CookieManager())
-			.build();
+				.filter(new FollowRedirects())
+				.filter(new CookieManager())
+				.build();
+		// @formatter:on
 	}
 
-	public FluxExchangeResult<String> getResponse(WebRequest webRequest) {
+	FluxExchangeResult<String> getResponse(WebRequest webRequest) {
+		// @formatter:off
 		WebTestClient.RequestBodySpec request = this.webTestClient
 				.method(httpMethod(webRequest))
 				.uri(uri(webRequest));
+		// @formatter:on
 		contentType(request, webRequest);
 		cookies(request, webRequest);
 		headers(request, webRequest);
-
-
 		return content(request, webRequest).exchange().returnResult(String.class);
 	}
 
@@ -87,7 +89,7 @@ final class HtmlUnitWebTestClient {
 
 	private MultiValueMap<String, String> formData(List<NameValuePair> params) {
 		MultiValueMap<String, String> result = new LinkedMultiValueMap<>(params.size());
-		params.forEach( pair -> result.add(pair.getName(), pair.getValue()));
+		params.forEach((pair) -> result.add(pair.getName(), pair.getValue()));
 		return result;
 	}
 
@@ -99,7 +101,7 @@ final class HtmlUnitWebTestClient {
 				contentType = encodingType.getName();
 			}
 		}
-		MediaType mediaType = contentType == null ? MediaType.ALL : MediaType.parseMediaType(contentType);
+		MediaType mediaType = (contentType != null) ? MediaType.parseMediaType(contentType) : MediaType.ALL;
 		request.contentType(mediaType);
 	}
 
@@ -109,14 +111,12 @@ final class HtmlUnitWebTestClient {
 			StringTokenizer tokens = new StringTokenizer(cookieHeaderValue, "=;");
 			while (tokens.hasMoreTokens()) {
 				String cookieName = tokens.nextToken().trim();
-				Assert.isTrue(tokens.hasMoreTokens(),
-						() -> "Expected value for cookie name '" + cookieName +
-								"': full cookie header was [" + cookieHeaderValue + "]");
+				Assert.isTrue(tokens.hasMoreTokens(), () -> "Expected value for cookie name '" + cookieName
+						+ "': full cookie header was [" + cookieHeaderValue + "]");
 				String cookieValue = tokens.nextToken().trim();
 				request.cookie(cookieName, cookieValue);
 			}
 		}
-
 		Set<com.gargoylesoftware.htmlunit.util.Cookie> managedCookies = this.webClient.getCookies(webRequest.getUrl());
 		for (com.gargoylesoftware.htmlunit.util.Cookie cookie : managedCookies) {
 			request.cookie(cookie.getName(), cookie.getValue());
@@ -129,7 +129,7 @@ final class HtmlUnitWebTestClient {
 	}
 
 	private void headers(WebTestClient.RequestBodySpec request, WebRequest webRequest) {
-		webRequest.getAdditionalHeaders().forEach( (name, value) -> request.header(name, value));
+		webRequest.getAdditionalHeaders().forEach((name, value) -> request.header(name, value));
 	}
 
 	private HttpMethod httpMethod(WebRequest webRequest) {
@@ -143,66 +143,66 @@ final class HtmlUnitWebTestClient {
 	}
 
 	static class FollowRedirects implements ExchangeFilterFunction {
+
 		@Override
 		public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-			return next.exchange(request)
-				.flatMap( response -> redirectIfNecessary(request, next, response));
+			return next.exchange(request).flatMap((response) -> redirectIfNecessary(request, next, response));
 		}
 
-		private Mono<ClientResponse> redirectIfNecessary(ClientRequest request, ExchangeFunction next, ClientResponse response) {
+		private Mono<ClientResponse> redirectIfNecessary(ClientRequest request, ExchangeFunction next,
+				ClientResponse response) {
 			URI location = response.headers().asHttpHeaders().getLocation();
 			String host = request.url().getHost();
 			String scheme = request.url().getScheme();
 			if (location != null) {
 				String redirectUrl = location.toASCIIString();
 				if (location.getHost() == null) {
-					redirectUrl = scheme+ "://" + host + location.toASCIIString();
+					redirectUrl = scheme + "://" + host + location.toASCIIString();
 				}
+				// @formatter:off
 				ClientRequest redirect = ClientRequest.method(HttpMethod.GET, URI.create(redirectUrl))
-					.headers(headers -> headers.addAll(request.headers()))
-					.cookies(cookies -> cookies.addAll(request.cookies()))
-					.attributes(attributes -> attributes.putAll(request.attributes()))
-					.build();
-
-				return next.exchange(redirect).flatMap( r -> redirectIfNecessary(request, next, r));
+						.headers((headers) -> headers.addAll(request.headers()))
+						.cookies((cookies) -> cookies.addAll(request.cookies()))
+						.attributes((attributes) -> attributes.putAll(request.attributes()))
+						.build();
+				// @formatter:on
+				return next.exchange(redirect).flatMap((r) -> redirectIfNecessary(request, next, r));
 			}
-
 			return Mono.just(response);
 		}
+
 	}
 
 	static class CookieManager implements ExchangeFilterFunction {
+
 		private Map<String, ResponseCookie> cookies = new HashMap<>();
 
 		@Override
 		public Mono<ClientResponse> filter(ClientRequest request, ExchangeFunction next) {
-			return next.exchange(withClientCookies(request))
-				.doOnSuccess( response -> {
-					response.cookies().values().forEach( cookies -> {
-						cookies.forEach( cookie -> {
-							if (cookie.getMaxAge().isZero()) {
-								this.cookies.remove(cookie.getName());
-							} else {
-								this.cookies.put(cookie.getName(), cookie);
-							}
-						});
+			return next.exchange(withClientCookies(request)).doOnSuccess((response) -> {
+				response.cookies().values().forEach((cookies) -> {
+					cookies.forEach((cookie) -> {
+						if (cookie.getMaxAge().isZero()) {
+							this.cookies.remove(cookie.getName());
+						}
+						else {
+							this.cookies.put(cookie.getName(), cookie);
+						}
 					});
 				});
+			});
 		}
 
 		private ClientRequest withClientCookies(ClientRequest request) {
-			return ClientRequest.from(request)
-				.cookies( c -> {
-					c.addAll(clientCookies());
-				}).build();
+			return ClientRequest.from(request).cookies((c) -> c.addAll(clientCookies())).build();
 		}
 
 		private MultiValueMap<String, String> clientCookies() {
 			MultiValueMap<String, String> result = new LinkedMultiValueMap<>(this.cookies.size());
-			this.cookies.values().forEach( cookie ->
-				result.add(cookie.getName(), cookie.getValue())
-			);
+			this.cookies.values().forEach((cookie) -> result.add(cookie.getName(), cookie.getValue()));
 			return result;
 		}
+
 	}
+
 }

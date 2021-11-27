@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<local-project language="java" version="6.1.19139" xml-version="3" flavor="j2se">
+  <property name="show-as-module" value="false" />
+  <property name="publish-architecture-artifacts" value="true" />
+  <property name="force-classpath" value="false" />
+  <property name="project-type" value="classpath" />
+  <property name="hide-externals" value="true" />
+  <property name="parse-archive-in-archive" value="false" />
+  <property name="include-injected-dependency" value="false" />
+  <property name="relative-to" value="const(THIS_FILE)/../.." />
+  <property name="action-set-mod" value="1" />
+  <property name="detail-mode" value="true" />
+  <property name="hide-deprecated" value="false" />
+  <property name="resolve-name-clashes" value="true" />
+  <property name="project-excluded" />
+  <property name="show-needs-to-compile" value="false" />
+  <classpath>
+    <classpathentry kind="lib" path="acl/build/classes/java/main" module="spring-security-acl" />
+    <classpathentry kind="lib" path="aspects/build/classes/aspectj/main" module="spring-security-aspects" />
+    <classpathentry kind="lib" path="cas/build/classes/java/main" module="spring-security-cas" />
+    <classpathentry kind="lib" path="config/build/classes/java/main" module="spring-security-config" />
+    <classpathentry kind="lib" path="config/build/classes/kotlin/main" module="spring-security-config" />
+    <classpathentry kind="lib" path="core/build/classes/java/main" module="spring-security-core" />
+    <classpathentry kind="lib" path="crypto/build/classes/java/main" module="spring-security-crypto" />
+    <classpathentry kind="lib" path="data/build/classes/java/main" module="spring-security-data" />
+    <classpathentry kind="lib" path="ldap/build/classes/java/main" module="spring-security-ldap" />
+    <classpathentry kind="lib" path="messaging/build/classes/java/main" module="spring-security-messaging" />
+    <classpathentry kind="lib" path="oauth2/oauth2-client/build/classes/java/main" module="spring-security-oauth2-client" />
+    <classpathentry kind="lib" path="oauth2/oauth2-core/build/classes/java/main" module="spring-security-oauth2-core" />
+    <classpathentry kind="lib" path="oauth2/oauth2-jose/build/classes/java/main" module="spring-security-oauth2-jose" />
+    <classpathentry kind="lib" path="oauth2/oauth2-resource-server/build/classes/java/main" module="spring-security-oauth2-resource-server" />
+    <classpathentry kind="lib" path="openid/build/classes/java/main" module="spring-security-openid" />
+    <classpathentry kind="lib" path="remoting/build/classes/java/main" module="spring-security-remoting" />
+    <classpathentry kind="lib" path="rsocket/build/classes/java/main" module="spring-security-rsocket" />
+    <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/main" module="spring-security-saml2-service-provider" />
+    <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/opensaml3Main" module="spring-security-saml2-service-provider" />
+    <classpathentry kind="lib" path="saml2/saml2-service-provider/build/classes/java/opensaml4Main" module="spring-security-saml2-service-provider" />
+    <classpathentry kind="lib" path="taglibs/build/classes/java/main" module="spring-security-taglibs" />
+    <classpathentry kind="lib" path="test/build/classes/java/main" module="spring-security-test" />
+    <classpathentry kind="lib" path="web/build/classes/java/main" module="spring-security-web" />
+  </classpath>
+  <pom-root-files />
+  <modules-in-scope />
+  <restructuring>
+    <set version="3" name="Action list 1" hiview="Codemap" active="true" todo="false" list="0" />
+  </restructuring>
+  <grid-set sep="." version="6.1.19139" />
+</local-project>

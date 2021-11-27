@@ -13,17 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server;
 
-import org.springframework.util.Assert;
+import java.util.function.Function;
+
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
-
-import java.util.function.Function;
 
 /**
  * Converts a ServerWebExchange into a UsernamePasswordAuthenticationToken from the form
@@ -31,12 +32,12 @@ import java.util.function.Function;
  *
  * @author Rob Winch
  * @since 5.0
- * @deprecated use {@link org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter}
+ * @deprecated use
+ * {@link org.springframework.security.web.server.authentication.ServerFormLoginAuthenticationConverter}
  * instead.
  */
 @Deprecated
-public class ServerFormLoginAuthenticationConverter implements
-		Function<ServerWebExchange, Mono<Authentication>> {
+public class ServerFormLoginAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 
 	private String usernameParameter = "username";
 
@@ -45,12 +46,10 @@ public class ServerFormLoginAuthenticationConverter implements
 	@Override
 	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
-		return exchange.getFormData()
-				.map( data -> createAuthentication(data));
+		return exchange.getFormData().map((data) -> createAuthentication(data));
 	}
 
-	private UsernamePasswordAuthenticationToken createAuthentication(
-		MultiValueMap<String, String> data) {
+	private UsernamePasswordAuthenticationToken createAuthentication(MultiValueMap<String, String> data) {
 		String username = data.getFirst(this.usernameParameter);
 		String password = data.getFirst(this.passwordParameter);
 		return new UsernamePasswordAuthenticationToken(username, password);
@@ -73,4 +72,5 @@ public class ServerFormLoginAuthenticationConverter implements
 		Assert.notNull(passwordParameter, "passwordParameter cannot be null");
 		this.passwordParameter = passwordParameter;
 	}
+
 }

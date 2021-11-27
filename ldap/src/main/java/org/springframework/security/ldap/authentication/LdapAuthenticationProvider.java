@@ -108,37 +108,30 @@ import org.springframework.util.Assert;
  * this means that if the LDAP directory is configured to allow unauthenticated access, it
  * might be possible to authenticate as <i>any</i> user just by supplying an empty
  * password. More information on the misuse of unauthenticated access can be found in
- * <a href="https://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt"> draft
- * -ietf-ldapbis-authmeth-19.txt</a>.
- *
+ * <a href="https://www.ietf.org/internet-drafts/draft-ietf-ldapbis-authmeth-19.txt">
+ * draft -ietf-ldapbis-authmeth-19.txt</a>.
  *
  * @author Luke Taylor
- *
  * @see BindAuthenticator
  * @see DefaultLdapAuthoritiesPopulator
  */
 public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvider {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private LdapAuthenticator authenticator;
-	private LdapAuthoritiesPopulator authoritiesPopulator;
-	private boolean hideUserNotFoundExceptions = true;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private LdapAuthoritiesPopulator authoritiesPopulator;
+
+	private boolean hideUserNotFoundExceptions = true;
 
 	/**
 	 * Create an instance with the supplied authenticator and authorities populator
 	 * implementations.
-	 *
 	 * @param authenticator the authentication strategy (bind, password comparison, etc)
 	 * to be used by this provider for authenticating users.
 	 * @param authoritiesPopulator the strategy for obtaining the authorities for a given
 	 * user after they've been authenticated.
 	 */
-	public LdapAuthenticationProvider(LdapAuthenticator authenticator,
-			LdapAuthoritiesPopulator authoritiesPopulator) {
+	public LdapAuthenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authoritiesPopulator) {
 		this.setAuthenticator(authenticator);
 		this.setAuthoritiesPopulator(authoritiesPopulator);
 	}
@@ -146,16 +139,12 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 	/**
 	 * Creates an instance with the supplied authenticator and a null authorities
 	 * populator. In this case, the authorities must be mapped from the user context.
-	 *
 	 * @param authenticator the authenticator strategy.
 	 */
 	public LdapAuthenticationProvider(LdapAuthenticator authenticator) {
 		this.setAuthenticator(authenticator);
 		this.setAuthoritiesPopulator(new NullLdapAuthoritiesPopulator());
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	private void setAuthenticator(LdapAuthenticator authenticator) {
 		Assert.notNull(authenticator, "An LdapAuthenticator must be supplied");
@@ -167,8 +156,7 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 	}
 
 	private void setAuthoritiesPopulator(LdapAuthoritiesPopulator authoritiesPopulator) {
-		Assert.notNull(authoritiesPopulator,
-				"An LdapAuthoritiesPopulator must be supplied");
+		Assert.notNull(authoritiesPopulator, "An LdapAuthoritiesPopulator must be supplied");
 		this.authoritiesPopulator = authoritiesPopulator;
 	}
 
@@ -181,35 +169,31 @@ public class LdapAuthenticationProvider extends AbstractLdapAuthenticationProvid
 	}
 
 	@Override
-	protected DirContextOperations doAuthentication(
-			UsernamePasswordAuthenticationToken authentication) {
+	protected DirContextOperations doAuthentication(UsernamePasswordAuthenticationToken authentication) {
 		try {
 			return getAuthenticator().authenticate(authentication);
 		}
-		catch (PasswordPolicyException ppe) {
+		catch (PasswordPolicyException ex) {
 			// The only reason a ppolicy exception can occur during a bind is that the
 			// account is locked.
-			throw new LockedException(this.messages.getMessage(
-					ppe.getStatus().getErrorCode(), ppe.getStatus().getDefaultMessage()));
+			throw new LockedException(
+					this.messages.getMessage(ex.getStatus().getErrorCode(), ex.getStatus().getDefaultMessage()));
 		}
-		catch (UsernameNotFoundException notFound) {
+		catch (UsernameNotFoundException ex) {
 			if (this.hideUserNotFoundExceptions) {
-				throw new BadCredentialsException(this.messages.getMessage(
-						"LdapAuthenticationProvider.badCredentials", "Bad credentials"));
+				throw new BadCredentialsException(
+						this.messages.getMessage("LdapAuthenticationProvider.badCredentials", "Bad credentials"));
 			}
-			else {
-				throw notFound;
-			}
+			throw ex;
 		}
-		catch (NamingException ldapAccessFailure) {
-			throw new InternalAuthenticationServiceException(
-					ldapAccessFailure.getMessage(), ldapAccessFailure);
+		catch (NamingException ex) {
+			throw new InternalAuthenticationServiceException(ex.getMessage(), ex);
 		}
 	}
 
 	@Override
-	protected Collection<? extends GrantedAuthority> loadUserAuthorities(
-			DirContextOperations userData, String username, String password) {
+	protected Collection<? extends GrantedAuthority> loadUserAuthorities(DirContextOperations userData, String username,
+			String password) {
 		return getAuthoritiesPopulator().getGrantedAuthorities(userData, username);
 	}
 

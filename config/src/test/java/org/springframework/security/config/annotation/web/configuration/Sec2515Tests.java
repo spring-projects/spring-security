@@ -13,34 +13,63 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configuration;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.springframework.beans.FatalBeanException;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.test.SpringTestRule;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+package org.springframework.security.config.annotation.web.configuration;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.springframework.beans.FatalBeanException;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Joe Grandja
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class Sec2515Tests {
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	// SEC-2515
-	@Test(expected = FatalBeanException.class)
+	@Test
 	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanThenThrowFatalBeanException() {
-		this.spring.register(StackOverflowSecurityConfig.class).autowire();
+		assertThatExceptionOfType(FatalBeanException.class)
+				.isThrownBy(() -> this.spring.register(StackOverflowSecurityConfig.class).autowire());
+	}
+
+	@Test
+	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
+		assertThatExceptionOfType(FatalBeanException.class)
+				.isThrownBy(() -> this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire());
+	}
+
+	// SEC-2549
+	@Test
+	public void loadConfigWhenChildClassLoaderSetThenContextLoads() {
+		CanLoadWithChildConfig.AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
+		this.spring.register(CanLoadWithChildConfig.class);
+		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring
+				.getContext();
+		context.setClassLoader(new URLClassLoader(new URL[0], context.getClassLoader()));
+		this.spring.autowire();
+		assertThat(this.spring.getContext().getBean(AuthenticationManager.class)).isNotNull();
+	} // SEC-2515
+
+	@Test
+	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() {
+		this.spring.register(SecurityConfig.class).autowire();
 	}
 
 	@EnableWebSecurity
@@ -51,49 +80,31 @@ public class Sec2515Tests {
 		public AuthenticationManager authenticationManagerBean() throws Exception {
 			return super.authenticationManagerBean();
 		}
-	}
 
-	@Test(expected = FatalBeanException.class)
-	public void loadConfigWhenAuthenticationManagerNotConfiguredAndRegisterBeanCustomNameThenThrowFatalBeanException() {
-		this.spring.register(CustomBeanNameStackOverflowSecurityConfig.class).autowire();
 	}
 
 	@EnableWebSecurity
 	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
-		@Bean(name="custom")
+		@Bean(name = "custom")
 		public AuthenticationManager authenticationManagerBean() throws Exception {
 			return super.authenticationManagerBean();
 		}
-	}
 
-	// SEC-2549
-	@Test
-	public void loadConfigWhenChildClassLoaderSetThenContextLoads() {
-		CanLoadWithChildConfig.AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
-		this.spring.register(CanLoadWithChildConfig.class);
-		AnnotationConfigWebApplicationContext context = (AnnotationConfigWebApplicationContext) this.spring.getContext();
-		context.setClassLoader(new URLClassLoader(new URL[0], context.getClassLoader()));
-		this.spring.autowire();
-
-		assertThat(this.spring.getContext().getBean(AuthenticationManager.class)).isNotNull();
 	}
 
 	@EnableWebSecurity
 	static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
+
 		static AuthenticationManager AUTHENTICATION_MANAGER;
 
+		@Override
 		@Bean
 		public AuthenticationManager authenticationManager() {
 			return AUTHENTICATION_MANAGER;
 		}
-	}
 
-	// SEC-2515
-	@Test
-	public void loadConfigWhenAuthenticationManagerConfiguredAndRegisterBeanThenContextLoads() {
-		this.spring.register(SecurityConfig.class).autowire();
 	}
 
 	@EnableWebSecurity
@@ -109,5 +120,7 @@ public class Sec2515Tests {
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 			auth.inMemoryAuthentication();
 		}
+
 	}
+
 }

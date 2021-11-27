@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,37 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.function.Predicate;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.security.oauth2.jwt.TestJwts.jwt;
 
 /**
  * Tests for {@link JwtAuthenticationProvider}
  *
  * @author Josh Cummings
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class JwtAuthenticationProviderTests {
+
 	@Mock
 	Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter;
 
@@ -52,50 +56,54 @@ public class JwtAuthenticationProviderTests {
 
 	JwtAuthenticationProvider provider;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		this.provider =
-				new JwtAuthenticationProvider(this.jwtDecoder);
-		this.provider.setJwtAuthenticationConverter(jwtAuthenticationConverter);
+		this.provider = new JwtAuthenticationProvider(this.jwtDecoder);
+		this.provider.setJwtAuthenticationConverter(this.jwtAuthenticationConverter);
 	}
 
 	@Test
 	public void authenticateWhenJwtDecodesThenAuthenticationHasAttributesContainedInJwt() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
-		Jwt jwt = jwt().claim("name", "value").build();
-
-		when(this.jwtDecoder.decode("token")).thenReturn(jwt);
-		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(new JwtAuthenticationToken(jwt));
-
-		JwtAuthenticationToken authentication =
-				(JwtAuthenticationToken) this.provider.authenticate(token);
-
+		Jwt jwt = TestJwts.jwt().claim("name", "value").build();
+		given(this.jwtDecoder.decode("token")).willReturn(jwt);
+		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(new JwtAuthenticationToken(jwt));
+		JwtAuthenticationToken authentication = (JwtAuthenticationToken) this.provider.authenticate(token);
 		assertThat(authentication.getTokenAttributes()).containsEntry("name", "value");
 	}
 
 	@Test
 	public void authenticateWhenJwtDecodeFailsThenRespondsWithInvalidToken() {
 		BearerTokenAuthenticationToken token = this.authentication();
-
-		when(this.jwtDecoder.decode("token")).thenThrow(JwtException.class);
-
-		assertThatCode(() -> this.provider.authenticate(token))
-				.matches(failed -> failed instanceof OAuth2AuthenticationException)
+		given(this.jwtDecoder.decode("token")).willThrow(BadJwtException.class);
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
 				.matches(errorCode(BearerTokenErrorCodes.INVALID_TOKEN));
+		// @formatter:on
 	}
 
 	@Test
 	public void authenticateWhenDecoderThrowsIncompatibleErrorMessageThenWrapsWithGenericOne() {
 		BearerTokenAuthenticationToken token = this.authentication();
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new BadJwtException("with \"invalid\" chars"));
+		// @formatter:off
+		assertThatExceptionOfType(OAuth2AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.satisfies((ex) -> assertThat(ex).hasFieldOrPropertyWithValue("error.description", "Invalid token"));
+		// @formatter:on
+	}
 
-		when(this.jwtDecoder.decode(token.getToken())).thenThrow(new JwtException("with \"invalid\" chars"));
-
-		assertThatCode(() -> this.provider.authenticate(token))
-				.isInstanceOf(OAuth2AuthenticationException.class)
-				.hasFieldOrPropertyWithValue(
-						"error.description",
-						"An error occurred while attempting to decode the Jwt: Invalid token");
+	// gh-7785
+	@Test
+	public void authenticateWhenDecoderFailsGenericallyThenThrowsGenericException() {
+		BearerTokenAuthenticationToken token = this.authentication();
+		given(this.jwtDecoder.decode(token.getToken())).willThrow(new JwtException("no jwk set"));
+		// @formatter:off
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> this.provider.authenticate(token))
+				.isNotInstanceOf(OAuth2AuthenticationException.class);
+		// @formatter:on
 	}
 
 	@Test
@@ -103,16 +111,15 @@ public class JwtAuthenticationProviderTests {
 		BearerTokenAuthenticationToken token = this.authentication();
 		Object details = mock(Object.class);
 		token.setDetails(details);
-
-		Jwt jwt = jwt().build();
+		Jwt jwt = TestJwts.jwt().build();
 		JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwt);
-
-		when(this.jwtDecoder.decode(token.getToken())).thenReturn(jwt);
-		when(this.jwtAuthenticationConverter.convert(jwt)).thenReturn(authentication);
-
+		given(this.jwtDecoder.decode(token.getToken())).willReturn(jwt);
+		given(this.jwtAuthenticationConverter.convert(jwt)).willReturn(authentication);
+		// @formatter:off
 		assertThat(this.provider.authenticate(token))
-				.isEqualTo(authentication)
-				.hasFieldOrPropertyWithValue("details", details);
+				.isEqualTo(authentication).hasFieldOrPropertyWithValue("details",
+				details);
+		// @formatter:on
 	}
 
 	@Test
@@ -125,7 +132,7 @@ public class JwtAuthenticationProviderTests {
 	}
 
 	private Predicate<? super Throwable> errorCode(String errorCode) {
-		return failed ->
-				((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
+		return (failed) -> ((OAuth2AuthenticationException) failed).getError().getErrorCode() == errorCode;
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.converter;
 
 import org.springframework.core.convert.ConversionService;
@@ -21,8 +22,8 @@ import org.springframework.core.convert.support.GenericConversionService;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
- * A {@link ConversionService} configured with converters
- * that provide type conversion for claim values.
+ * A {@link ConversionService} configured with converters that provide type conversion for
+ * claim values.
  *
  * @author Joe Grandja
  * @since 5.2
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.core.ClaimAccessor;
  * @see ClaimAccessor
  */
 public final class ClaimConversionService extends GenericConversionService {
+
 	private static volatile ClaimConversionService sharedInstance;
 
 	private ClaimConversionService() {
@@ -38,7 +40,6 @@ public final class ClaimConversionService extends GenericConversionService {
 
 	/**
 	 * Returns a shared instance of {@code ClaimConversionService}.
-	 *
 	 * @return a shared instance of {@code ClaimConversionService}
 	 */
 	public static ClaimConversionService getSharedInstance() {
@@ -56,9 +57,8 @@ public final class ClaimConversionService extends GenericConversionService {
 	}
 
 	/**
-	 * Adds the converters that provide type conversion for claim values
-	 * to the provided {@link ConverterRegistry}.
-	 *
+	 * Adds the converters that provide type conversion for claim values to the provided
+	 * {@link ConverterRegistry}.
 	 * @param converterRegistry the registry of converters to add to
 	 */
 	public static void addConverters(ConverterRegistry converterRegistry) {
@@ -69,4 +69,5 @@ public final class ClaimConversionService extends GenericConversionService {
 		converterRegistry.addConverter(new ObjectToListStringConverter());
 		converterRegistry.addConverter(new ObjectToMapStringObjectConverter());
 	}
+
 }

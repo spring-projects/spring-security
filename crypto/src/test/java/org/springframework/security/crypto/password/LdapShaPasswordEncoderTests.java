@@ -16,10 +16,12 @@
 
 package org.springframework.security.crypto.password;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link LdapShaPasswordEncoder}.
@@ -28,13 +30,8 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("deprecation")
 public class LdapShaPasswordEncoderTests {
-	// ~ Instance fields
-	// ================================================================================================
 
 	LdapShaPasswordEncoder sha = new LdapShaPasswordEncoder();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void invalidPasswordFails() {
@@ -87,26 +84,25 @@ public class LdapShaPasswordEncoderTests {
 	public void correctPrefixCaseIsUsed() {
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{ssha}"));
-
 		this.sha = new LdapShaPasswordEncoder(KeyGenerators.shared(0));
 		this.sha.setForceLowerCasePrefix(false);
 		assertThat(this.sha.encode("somepassword").startsWith("{SHA}"));
-
 		this.sha.setForceLowerCasePrefix(true);
 		assertThat(this.sha.encode("somepassword").startsWith("{SSHA}"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidPrefixIsRejected() {
-		this.sha.matches("somepassword", "{MD9}xxxxxxxxxx");
+		assertThatIllegalArgumentException().isThrownBy(() -> this.sha.matches("somepassword", "{MD9}xxxxxxxxxx"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void malformedPrefixIsRejected() {
 		// No right brace
-		this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.sha.matches("somepassword", "{SSHA25ro4PKC8jhQZ26jVsozhX/xaP0suHgX"));
 	}
+
 }

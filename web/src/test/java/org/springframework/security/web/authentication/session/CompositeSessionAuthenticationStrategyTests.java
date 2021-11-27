@@ -16,28 +16,30 @@
 
 package org.springframework.security.web.authentication.session;
 
-import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
 import java.util.Arrays;
 import java.util.Collections;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.security.core.Authentication;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CompositeSessionAuthenticationStrategyTests {
 
 	@Mock
@@ -55,49 +57,42 @@ public class CompositeSessionAuthenticationStrategyTests {
 	@Mock
 	private HttpServletResponse response;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegates() {
-		new CompositeSessionAuthenticationStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeSessionAuthenticationStrategy(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorEmptyDelegates() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> emptyList());
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeSessionAuthenticationStrategy(
+				Collections.<SessionAuthenticationStrategy>emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorDelegatesContainNull() {
-		new CompositeSessionAuthenticationStrategy(
-				Collections.<SessionAuthenticationStrategy> singletonList(null));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CompositeSessionAuthenticationStrategy(
+				Collections.<SessionAuthenticationStrategy>singletonList(null)));
 	}
 
 	@Test
 	public void delegatesToAll() {
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
-		strategy.onAuthentication(authentication, request, response);
-
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2).onAuthentication(authentication, request, response);
+				Arrays.asList(this.strategy1, this.strategy2));
+		strategy.onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2).onAuthentication(this.authentication, this.request, this.response);
 	}
 
 	@Test
 	public void delegateShortCircuits() {
-		doThrow(new SessionAuthenticationException("oops")).when(
-				strategy1).onAuthentication(authentication, request, response);
-
+		willThrow(new SessionAuthenticationException("oops")).given(this.strategy1)
+				.onAuthentication(this.authentication, this.request, this.response);
 		CompositeSessionAuthenticationStrategy strategy = new CompositeSessionAuthenticationStrategy(
-				Arrays.asList(strategy1, strategy2));
-
-		try {
-			strategy.onAuthentication(authentication, request, response);
-			fail("Expected Exception");
-		}
-		catch (SessionAuthenticationException success) {
-		}
-
-		verify(strategy1).onAuthentication(authentication, request, response);
-		verify(strategy2, times(0)).onAuthentication(authentication, request, response);
+				Arrays.asList(this.strategy1, this.strategy2));
+		assertThatExceptionOfType(SessionAuthenticationException.class)
+				.isThrownBy(() -> strategy.onAuthentication(this.authentication, this.request, this.response));
+		verify(this.strategy1).onAuthentication(this.authentication, this.request, this.response);
+		verify(this.strategy2, times(0)).onAuthentication(this.authentication, this.request, this.response);
 	}
+
 }

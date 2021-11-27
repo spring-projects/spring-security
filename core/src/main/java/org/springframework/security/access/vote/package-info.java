@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Implements a vote-based approach to authorization decisions.
  */
 package org.springframework.security.access.vote;
-

@@ -26,15 +26,13 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class ProviderNotFoundException extends AuthenticationException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs a <code>ProviderNotFoundException</code> with the specified message.
-	 *
 	 * @param msg the detail message
 	 */
 	public ProviderNotFoundException(String msg) {
 		super(msg);
 	}
+
 }

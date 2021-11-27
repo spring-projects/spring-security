@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.provisioning;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,7 +46,6 @@ public interface UserDetailsManager extends UserDetailsService {
 	/**
 	 * Modify the current user's password. This should change the user's password in the
 	 * persistent user repository (datbase, LDAP etc).
-	 *
 	 * @param oldPassword current password (for re-authentication if required)
 	 * @param newPassword the password to change to
 	 */

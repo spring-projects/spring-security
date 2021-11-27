@@ -16,14 +16,14 @@
 
 package org.springframework.security.ldap.userdetails;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.*;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DirContextAdapter;
@@ -34,70 +34,67 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- *
  * @author Luke Taylor
  * @author Eddú Meléndez
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = ApacheDsContainerConfig.class)
 @SuppressWarnings({ "deprecation" })
 public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Autowired
 	private ContextSource contextSource;
+
 	private DefaultLdapAuthoritiesPopulator populator;
 
-	// ~ Methods
-	// ========================================================================================================
-
-	@Before
+	@BeforeEach
 	public void setUp() {
-		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
-		populator.setIgnorePartialResultException(false);
+		this.populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, "ou=groups");
+		this.populator.setIgnorePartialResultException(false);
 	}
 
 	@Test
 	public void defaultRoleIsAssignedWhenSet() {
-		populator.setDefaultRole("ROLE_USER");
-		assertThat(populator.getContextSource()).isSameAs(this.contextSource);
+		this.populator.setDefaultRole("ROLE_USER");
+		assertThat(this.populator.getContextSource()).isSameAs(this.contextSource);
 
-		DirContextAdapter ctx = new DirContextAdapter(
-				new DistinguishedName("cn=notfound"));
+		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName("cn=notfound"));
 
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx,
-				"notfound");
+		Collection<GrantedAuthority> authorities = this.populator.getGrantedAuthorities(ctx, "notfound");
 		assertThat(authorities).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
 	}
 
 	@Test
 	public void nullSearchBaseIsAccepted() {
-		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null);
-		populator.setDefaultRole("ROLE_USER");
+		this.populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null);
+		this.populator.setDefaultRole("ROLE_USER");
 
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
-				new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
+		Collection<GrantedAuthority> authorities = this.populator
+				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
 	}
 
 	@Test
 	public void groupSearchReturnsExpectedRoles() {
-		populator.setRolePrefix("ROLE_");
-		populator.setGroupRoleAttribute("ou");
-		populator.setSearchSubtree(true);
-		populator.setSearchSubtree(false);
-		populator.setConvertToUpperCase(true);
-		populator.setGroupSearchFilter("(member={0})");
+		this.populator.setRolePrefix("ROLE_");
+		this.populator.setGroupRoleAttribute("ou");
+		this.populator.setSearchSubtree(true);
+		this.populator.setSearchSubtree(false);
+		this.populator.setConvertToUpperCase(true);
+		this.populator.setGroupSearchFilter("(member={0})");
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=ben,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
-				.getGrantedAuthorities(ctx, "ben"));
+		Set<String> authorities = AuthorityUtils.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "ben"));
 
 		assertThat(authorities).as("Should have 2 roles").hasSize(2);
 
@@ -107,15 +104,15 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void useOfUsernameParameterReturnsExpectedRoles() {
-		populator.setGroupRoleAttribute("ou");
-		populator.setConvertToUpperCase(true);
-		populator.setGroupSearchFilter("(ou={1})");
+		this.populator.setGroupRoleAttribute("ou");
+		this.populator.setConvertToUpperCase(true);
+		this.populator.setGroupSearchFilter("(ou={1})");
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=ben,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
-				.getGrantedAuthorities(ctx, "manager"));
+		Set<String> authorities = AuthorityUtils
+				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -123,14 +120,14 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void subGroupRolesAreNotFoundByDefault() {
-		populator.setGroupRoleAttribute("ou");
-		populator.setConvertToUpperCase(true);
+		this.populator.setGroupRoleAttribute("ou");
+		this.populator.setConvertToUpperCase(true);
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=ben,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
-				.getGrantedAuthorities(ctx, "manager"));
+		Set<String> authorities = AuthorityUtils
+				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 2 roles").hasSize(2);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -139,15 +136,15 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void subGroupRolesAreFoundWhenSubtreeSearchIsEnabled() {
-		populator.setGroupRoleAttribute("ou");
-		populator.setConvertToUpperCase(true);
-		populator.setSearchSubtree(true);
+		this.populator.setGroupRoleAttribute("ou");
+		this.populator.setConvertToUpperCase(true);
+		this.populator.setSearchSubtree(true);
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"uid=ben,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("uid=ben,ou=people,dc=springframework,dc=org"));
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
-				.getGrantedAuthorities(ctx, "manager"));
+		Set<String> authorities = AuthorityUtils
+				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 3 roles").hasSize(3);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -157,32 +154,30 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void extraRolesAreAdded() {
-		populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null) {
+		this.populator = new DefaultLdapAuthoritiesPopulator(this.contextSource, null) {
 			@Override
-			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user,
-					String username) {
-				return new HashSet<>(
-						AuthorityUtils.createAuthorityList("ROLE_EXTRA"));
+			protected Set<GrantedAuthority> getAdditionalRoles(DirContextOperations user, String username) {
+				return new HashSet<>(AuthorityUtils.createAuthorityList("ROLE_EXTRA"));
 			}
 		};
 
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(
-				new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
+		Collection<GrantedAuthority> authorities = this.populator
+				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
 		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA")).isTrue();
 	}
 
 	@Test
 	public void userDnWithEscapedCharacterParameterReturnsExpectedRoles() {
-		populator.setGroupRoleAttribute("ou");
-		populator.setConvertToUpperCase(true);
-		populator.setGroupSearchFilter("(member={0})");
+		this.populator.setGroupRoleAttribute("ou");
+		this.populator.setConvertToUpperCase(true);
+		this.populator.setGroupSearchFilter("(member={0})");
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
 
-		Set<String> authorities = AuthorityUtils.authorityListToSet(populator
-				.getGrantedAuthorities(ctx, "notused"));
+		Set<String> authorities = AuthorityUtils
+				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "notused"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
 		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
@@ -190,22 +185,23 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 	@Test
 	public void customAuthoritiesMappingFunction() {
-		populator.setAuthorityMapper(record -> {
+		this.populator.setAuthorityMapper((record) -> {
 			String dn = record.get(SpringSecurityLdapTemplate.DN_KEY).get(0);
-			String role = record.get(populator.getGroupRoleAttribute()).get(0);
+			String role = record.get(this.populator.getGroupRoleAttribute()).get(0);
 			return new LdapAuthority(role, dn);
 		});
 
-		DirContextAdapter ctx = new DirContextAdapter(new DistinguishedName(
-				"cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
+		DirContextAdapter ctx = new DirContextAdapter(
+				new DistinguishedName("cn=mouse\\, jerry,ou=people,dc=springframework,dc=org"));
 
-		Collection<GrantedAuthority> authorities = populator.getGrantedAuthorities(ctx, "notused");
+		Collection<GrantedAuthority> authorities = this.populator.getGrantedAuthorities(ctx, "notused");
 
 		assertThat(authorities).allMatch(LdapAuthority.class::isInstance);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void customAuthoritiesMappingFunctionThrowsIfNull() {
-		populator.setAuthorityMapper(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.populator.setAuthorityMapper(null));
 	}
+
 }

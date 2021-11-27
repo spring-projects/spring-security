@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,18 +30,22 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ServerAuthenticationEntryPointFailureHandlerTests {
+
 	@Mock
 	private ServerAuthenticationEntryPoint authenticationEntryPoint;
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
@@ -51,18 +55,17 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 	@InjectMocks
 	private ServerAuthenticationEntryPointFailureHandler handler;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenNullEntryPointThenException() {
-		this.authenticationEntryPoint = null;
-		new ServerAuthenticationEntryPointFailureHandler(this.authenticationEntryPoint);
+		assertThatIllegalArgumentException().isThrownBy(() -> new ServerAuthenticationEntryPointFailureHandler(null));
 	}
 
 	@Test
 	public void onAuthenticationFailureWhenInvokedThenDelegatesToEntryPoint() {
 		Mono<Void> result = Mono.empty();
 		BadCredentialsException e = new BadCredentialsException("Failed");
-		when(this.authenticationEntryPoint.commence(this.exchange, e)).thenReturn(result);
-
+		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(result);
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
 	}
+
 }

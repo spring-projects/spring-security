@@ -16,49 +16,50 @@
 
 package org.springframework.security.web.server;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WebFilterExchangeTests {
+
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private WebFilterChain chain;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorServerWebExchangeWebFilterChainWhenExchangeNullThenException() {
-		this. exchange = null;
-		new WebFilterExchange(this.exchange, this.chain);
+		assertThatIllegalArgumentException().isThrownBy(() -> new WebFilterExchange(null, this.chain));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorServerWebExchangeWebFilterChainWhenChainNullThenException() {
-		this. chain = null;
-		new WebFilterExchange(this.exchange, this.chain);
+		assertThatIllegalArgumentException().isThrownBy(() -> new WebFilterExchange(this.exchange, null));
 	}
 
 	@Test
 	public void getExchange() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getExchange()).isEqualTo(this.exchange);
 	}
 
 	@Test
 	public void getChain() {
 		WebFilterExchange filterExchange = new WebFilterExchange(this.exchange, this.chain);
-
 		assertThat(filterExchange.getChain()).isEqualTo(this.chain);
 	}
+
 }

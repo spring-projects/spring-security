@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link AuthorizationGrantType}.
@@ -26,9 +28,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class AuthorizationGrantTypeTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenValueIsNullThenThrowIllegalArgumentException() {
-		new AuthorizationGrantType(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthorizationGrantType(null));
 	}
 
 	@Test
@@ -50,4 +52,11 @@ public class AuthorizationGrantTypeTests {
 	public void getValueWhenPasswordGrantTypeThenReturnPassword() {
 		assertThat(AuthorizationGrantType.PASSWORD.getValue()).isEqualTo("password");
 	}
+
+	@Test
+	public void getValueWhenJwtBearerGrantTypeThenReturnJwtBearer() {
+		assertThat(AuthorizationGrantType.JWT_BEARER.getValue())
+				.isEqualTo("urn:ietf:params:oauth:grant-type:jwt-bearer");
+	}
+
 }

@@ -13,34 +13,42 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.ldap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+package org.springframework.security.ldap;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DistinguishedName;
 
-@RunWith(MockitoJUnitRunner.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+@ExtendWith(MockitoExtension.class)
 public class SpringSecurityLdapTemplateTests {
 
 	@Mock
 	private DirContext ctx;
+
 	@Captor
 	private ArgumentCaptor<SearchControls> searchControls;
+
 	@Mock
 	private NamingEnumeration<SearchResult> resultsEnum;
+
 	@Mock
 	private SearchResult searchResult;
 
@@ -52,18 +60,14 @@ public class SpringSecurityLdapTemplateTests {
 		String searchResultName = "ldap://example.com/dc=springframework,dc=org";
 		Object[] params = new Object[] {};
 		DirContextAdapter searchResultObject = mock(DirContextAdapter.class);
-
-		when(
-				ctx.search(any(DistinguishedName.class), eq(filter), eq(params),
-						searchControls.capture())).thenReturn(resultsEnum);
-		when(resultsEnum.hasMore()).thenReturn(true, false);
-		when(resultsEnum.next()).thenReturn(searchResult);
-		when(searchResult.getObject()).thenReturn(searchResultObject);
-
-		SpringSecurityLdapTemplate.searchForSingleEntryInternal(ctx,
-				mock(SearchControls.class), base, filter, params);
-
-		assertThat(searchControls.getValue().getReturningObjFlag()).isTrue();
+		given(this.ctx.search(any(DistinguishedName.class), eq(filter), eq(params), this.searchControls.capture()))
+				.willReturn(this.resultsEnum);
+		given(this.resultsEnum.hasMore()).willReturn(true, false);
+		given(this.resultsEnum.next()).willReturn(this.searchResult);
+		given(this.searchResult.getObject()).willReturn(searchResultObject);
+		SpringSecurityLdapTemplate.searchForSingleEntryInternal(this.ctx, mock(SearchControls.class), base, filter,
+				params);
+		assertThat(this.searchControls.getValue().getReturningObjFlag()).isTrue();
 	}
 
 }

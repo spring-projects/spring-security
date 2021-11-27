@@ -25,9 +25,10 @@ import java.security.cert.X509Certificate;
  *
  * @author Luke Taylor
  */
-public class X509TestUtils {
-	// ~ Methods
-	// ========================================================================================================
+public final class X509TestUtils {
+
+	private X509TestUtils() {
+	}
 
 	/**
 	 * Builds an X.509 certificate. In human-readable form it is:
@@ -92,12 +93,9 @@ public class X509TestUtils {
 				+ "nRB3QPZfRvop0I4oPvwViKt3puLsi9XSSJ1w9yswnIf89iONT7ZyssPg48Bojo8q\n"
 				+ "lcKwXuDRBWciODK/xWhvQbaegGJ1BtXcEHtvNjrUJLwSMDSr+U5oUYdMohG0h1iJ\n"
 				+ "R+JQc49I33o2cTc77wfEWLtVdXAyYY4GSJR6VfgvV40x85ItaNS3HHfT/aXU1x4m\n"
-				+ "W9YQkWlA6t0blGlC+ghTOY1JbgWnEfXMmVgg9a9cWaYQ+NQwqA==\n"
-				+ "-----END CERTIFICATE-----";
-
+				+ "W9YQkWlA6t0blGlC+ghTOY1JbgWnEfXMmVgg9a9cWaYQ+NQwqA==\n" + "-----END CERTIFICATE-----";
 		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-
 		return (X509Certificate) cf.generateCertificate(in);
 	}
 
@@ -130,11 +128,11 @@ public class X509TestUtils {
 				+ "MOvaw6wSSkmEoEvdek3s/bH6Gp0spnykqtb+kunGr/XFxyBhHmfdSroEgzspslFh\n"
 				+ "Glqe/XfrQmFgPWd13GH8mqzSU1zc+0Ka7s68jcuNfz9ble5rT0IrdjRm5E64mVGk\n"
 				+ "aJTAO5N87ks5JjkDHDJzcyYRcIpqBGotJtyZTjGpIeAG8xLGlkSsUg88iUOchI7s\n"
-				+ "dOmse9mpgEjCb4kdZ0PnoxMFjsPR8AoGOz4A5vA19nKqWM8bxK9hqLGKsaiQpQg7\n"
-				+ "bA==\n" + "-----END CERTIFICATE-----\n";
+				+ "dOmse9mpgEjCb4kdZ0PnoxMFjsPR8AoGOz4A5vA19nKqWM8bxK9hqLGKsaiQpQg7\n" + "bA==\n"
+				+ "-----END CERTIFICATE-----\n";
 		ByteArrayInputStream in = new ByteArrayInputStream(cert.getBytes());
 		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-
 		return (X509Certificate) cf.generateCertificate(in);
 	}
+
 }

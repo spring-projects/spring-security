@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.ldap;
 
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
 
@@ -27,23 +28,28 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
  *
  */
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
+
 	@EnableWebSecurity
 	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
 					.userDnPatterns("uid={0},ou=people"); // ldap-server@user-dn-pattern
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
 
 	@EnableWebSecurity
-	static class CustomLdapAuthenticationProviderConfig extends
-			WebSecurityConfigurerAdapter {
-		// @formatter:off
+	static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupRoleAttribute("cn") // ldap-authentication-provider@group-role-attribute
@@ -60,39 +66,46 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.managerDn("uid=admin,ou=system") // ldap-server@manager-dn
 						.managerPassword("secret") // ldap-server@manager-password
 						.port(33399) // ldap-server@port
-						.root("dc=springframework,dc=org") // ldap-server@root
+						.root("dc=springframework,dc=org"); // ldap-server@root
 						// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
-						;
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
 
 	@EnableWebSecurity
 	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
+
 		static LdapAuthoritiesPopulator LAP;
 
-		// @formatter:off
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.userSearchFilter("(uid={0})")
 					.ldapAuthoritiesPopulator(LAP);
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
 
 	@EnableWebSecurity
 	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
-		// @formatter:off
+
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.ldapAuthentication()
 					.groupSearchBase("ou=groups")
 					.userSearchFilter("(uid={0})")
 					.passwordCompare()
-						.passwordEncoder(NoOpPasswordEncoder.getInstance()) // ldap-authentication-provider/password-compare/password-encoder@ref
+						.passwordEncoder(new BCryptPasswordEncoder()) // ldap-authentication-provider/password-compare/password-encoder@ref
 						.passwordAttribute("userPassword"); // ldap-authentication-provider/password-compare@password-attribute
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
+
 }

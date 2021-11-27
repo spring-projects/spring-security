@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
 import org.springframework.security.core.context.SecurityContext;
@@ -26,8 +27,8 @@ import org.springframework.util.Assert;
  * {@link SecurityContext} after the delegate has completed.
  * </p>
  * <p>
- * If there is a {@link SecurityContext} that already exists, it will be
- * restored after the {@link #run()} method is invoked.
+ * If there is a {@link SecurityContext} that already exists, it will be restored after
+ * the {@link #run()} method is invoked.
  * </p>
  *
  * @author Rob Winch
@@ -38,14 +39,13 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	private final Runnable delegate;
 
 	/**
-	 * The {@link SecurityContext} that the delegate {@link Runnable} will be
-	 * ran as.
+	 * The {@link SecurityContext} that the delegate {@link Runnable} will be ran as.
 	 */
 	private final SecurityContext delegateSecurityContext;
 
 	/**
-	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder}
-	 * prior to being set to the delegateSecurityContext.
+	 * The {@link SecurityContext} that was on the {@link SecurityContextHolder} prior to
+	 * being set to the delegateSecurityContext.
 	 */
 	private SecurityContext originalSecurityContext;
 
@@ -57,8 +57,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	 * @param securityContext the {@link SecurityContext} to establish for the delegate
 	 * {@link Runnable}. Cannot be null.
 	 */
-	public DelegatingSecurityContextRunnable(Runnable delegate,
-			SecurityContext securityContext) {
+	public DelegatingSecurityContextRunnable(Runnable delegate, SecurityContext securityContext) {
 		Assert.notNull(delegate, "delegate cannot be null");
 		Assert.notNull(securityContext, "securityContext cannot be null");
 		this.delegate = delegate;
@@ -78,17 +77,17 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	@Override
 	public void run() {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
-
 		try {
-			SecurityContextHolder.setContext(delegateSecurityContext);
-			delegate.run();
+			SecurityContextHolder.setContext(this.delegateSecurityContext);
+			this.delegate.run();
 		}
 		finally {
 			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
-			if (emptyContext.equals(originalSecurityContext)) {
+			if (emptyContext.equals(this.originalSecurityContext)) {
 				SecurityContextHolder.clearContext();
-			} else {
-				SecurityContextHolder.setContext(originalSecurityContext);
+			}
+			else {
+				SecurityContextHolder.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
 		}
@@ -96,12 +95,11 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 
 	@Override
 	public String toString() {
-		return delegate.toString();
+		return this.delegate.toString();
 	}
 
 	/**
 	 * Factory method for creating a {@link DelegatingSecurityContextRunnable}.
-	 *
 	 * @param delegate the original {@link Runnable} that will be delegated to after
 	 * establishing a {@link SecurityContext} on the {@link SecurityContextHolder}. Cannot
 	 * have null.
@@ -112,7 +110,8 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	 */
 	public static Runnable create(Runnable delegate, SecurityContext securityContext) {
 		Assert.notNull(delegate, "delegate cannot be  null");
-		return securityContext == null ? new DelegatingSecurityContextRunnable(delegate)
-				: new DelegatingSecurityContextRunnable(delegate, securityContext);
+		return (securityContext != null) ? new DelegatingSecurityContextRunnable(delegate, securityContext)
+				: new DelegatingSecurityContextRunnable(delegate);
 	}
+
 }

@@ -23,15 +23,15 @@ import java.util.Map;
 import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests SecurityContextLoginModule
@@ -39,26 +39,22 @@ import static org.assertj.core.api.Assertions.fail;
  * @author Ray Krueger
  */
 public class SecurityContextLoginModuleTests {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private SecurityContextLoginModule module = null;
-	private Subject subject = new Subject(false, new HashSet<>(),
-			new HashSet<>(), new HashSet<>());
-	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-			"principal", "credentials");
 
-	// ~ Methods
-	// ========================================================================================================
+	private Subject subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
 
-	@Before
+	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
+			"credentials");
+
+	@BeforeEach
 	public void setUp() {
 		this.module = new SecurityContextLoginModule();
 		this.module.initialize(this.subject, null, null, null);
 		SecurityContextHolder.clearContext();
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() {
 		SecurityContextHolder.clearContext();
 		this.module = null;
@@ -66,8 +62,7 @@ public class SecurityContextLoginModuleTests {
 
 	@Test
 	public void testAbort() throws Exception {
-		assertThat(this.module.abort()).as("Should return false, no auth is set")
-				.isFalse();
+		assertThat(this.module.abort()).as("Should return false, no auth is set").isFalse();
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.module.login();
 		this.module.commit();
@@ -76,22 +71,14 @@ public class SecurityContextLoginModuleTests {
 
 	@Test
 	public void testLoginException() {
-		try {
-			this.module.login();
-			fail("LoginException expected, there is no Authentication in the SecurityContext");
-		}
-		catch (LoginException e) {
-		}
+		assertThatExceptionOfType(LoginException.class).isThrownBy(this.module::login);
 	}
 
 	@Test
 	public void testLoginSuccess() throws Exception {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
-		assertThat(this.module.login())
-				.as("Login should succeed, there is an authentication set").isTrue();
-		assertThat(this.module.commit())
-				.withFailMessage(
-						"The authentication is not null, this should return true")
+		assertThat(this.module.login()).as("Login should succeed, there is an authentication set").isTrue();
+		assertThat(this.module.commit()).withFailMessage("The authentication is not null, this should return true")
 				.isTrue();
 		assertThat(this.subject.getPrincipals().contains(this.auth))
 				.withFailMessage("Principals should contain the authentication").isTrue();
@@ -102,41 +89,30 @@ public class SecurityContextLoginModuleTests {
 		SecurityContextHolder.getContext().setAuthentication(this.auth);
 		this.module.login();
 		assertThat(this.module.logout()).as("Should return true as it succeeds").isTrue();
-		assertThat(this.module.getAuthentication()).as("Authentication should be null")
-				.isNull();
-
+		assertThat(this.module.getAuthentication()).as("Authentication should be null").isNull();
 		assertThat(this.subject.getPrincipals().contains(this.auth))
-				.withFailMessage(
-						"Principals should not contain the authentication after logout")
-				.isFalse();
+				.withFailMessage("Principals should not contain the authentication after logout").isFalse();
 	}
 
 	@Test
 	public void testNullAuthenticationInSecurityContext() {
-		try {
-			SecurityContextHolder.getContext().setAuthentication(null);
-			this.module.login();
-			fail("LoginException expected, the authentication is null in the SecurityContext");
-		}
-		catch (Exception e) {
-		}
+		SecurityContextHolder.getContext().setAuthentication(null);
+		assertThatExceptionOfType(Exception.class).isThrownBy(this.module::login);
 	}
 
 	@Test
 	public void testNullAuthenticationInSecurityContextIgnored() throws Exception {
 		this.module = new SecurityContextLoginModule();
-
 		Map<String, String> options = new HashMap<>();
 		options.put("ignoreMissingAuthentication", "true");
-
 		this.module.initialize(this.subject, null, null, options);
 		SecurityContextHolder.getContext().setAuthentication(null);
-		assertThat(this.module.login()).as("Should return false and ask to be ignored")
-				.isFalse();
+		assertThat(this.module.login()).as("Should return false and ask to be ignored").isFalse();
 	}
 
 	@Test
 	public void testNullLogout() throws Exception {
 		assertThat(this.module.logout()).isFalse();
 	}
+
 }

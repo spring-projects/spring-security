@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.prepost;
 
 import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.framework.AopInfrastructureBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -28,7 +30,7 @@ import org.springframework.security.core.Authentication;
  */
 public interface PostInvocationAuthorizationAdvice extends AopInfrastructureBean {
 
-	Object after(Authentication authentication, MethodInvocation mi,
-			PostInvocationAttribute pia, Object returnedObject)
+	Object after(Authentication authentication, MethodInvocation mi, PostInvocationAttribute pia, Object returnedObject)
 			throws AccessDeniedException;
+
 }

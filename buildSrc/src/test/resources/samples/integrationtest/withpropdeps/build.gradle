@@ -1,0 +1,14 @@
+plugins {
+	id 'io.spring.convention.integration-test'
+}
+
+apply plugin: 'java'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	optional 'jakarta.servlet:jakarta.servlet-api:5.0.0'
+	testCompile 'junit:junit:4.12'
+}

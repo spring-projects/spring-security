@@ -16,12 +16,12 @@
 
 package org.springframework.security.core.context;
 
+import java.util.function.Function;
 
-import org.springframework.security.core.Authentication;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
-import java.util.function.Function;
+import org.springframework.security.core.Authentication;
 
 /**
  * Allows getting and setting the Spring {@link SecurityContext} into a {@link Context}.
@@ -29,17 +29,31 @@ import java.util.function.Function;
  * @author Rob Winch
  * @since 5.0
  */
-public class ReactiveSecurityContextHolder {
+public final class ReactiveSecurityContextHolder {
+
 	private static final Class<?> SECURITY_CONTEXT_KEY = SecurityContext.class;
+
+	private ReactiveSecurityContextHolder() {
+	}
 
 	/**
 	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link Context}
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
+		// @formatter:off
 		return Mono.subscriberContext()
-			.filter( c -> c.hasKey(SECURITY_CONTEXT_KEY))
-			.flatMap( c-> c.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY));
+				.filter(ReactiveSecurityContextHolder::hasSecurityContext)
+				.flatMap(ReactiveSecurityContextHolder::getSecurityContext);
+		// @formatter:on
+	}
+
+	private static boolean hasSecurityContext(Context context) {
+		return context.hasKey(SECURITY_CONTEXT_KEY);
+	}
+
+	private static Mono<SecurityContext> getSecurityContext(Context context) {
+		return context.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY);
 	}
 
 	/**
@@ -48,7 +62,7 @@ public class ReactiveSecurityContextHolder {
 	 * from clearing the context.
 	 */
 	public static Function<Context, Context> clearContext() {
-		return context -> context.delete(SECURITY_CONTEXT_KEY);
+		return (context) -> context.delete(SECURITY_CONTEXT_KEY);
 	}
 
 	/**
@@ -70,4 +84,5 @@ public class ReactiveSecurityContextHolder {
 	public static Context withAuthentication(Authentication authentication) {
 		return withSecurityContext(Mono.just(new SecurityContextImpl(authentication)));
 	}
+
 }

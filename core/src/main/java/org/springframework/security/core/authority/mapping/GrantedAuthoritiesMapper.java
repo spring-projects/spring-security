@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
-import org.springframework.security.core.GrantedAuthority;
+import java.util.Collection;
 
-import java.util.*;
+import org.springframework.security.core.GrantedAuthority;
 
 /**
  * Mapping interface which can be injected into the authentication layer to convert the
@@ -27,6 +28,7 @@ import java.util.*;
  * @author Luke Taylor
  */
 public interface GrantedAuthoritiesMapper {
-	Collection<? extends GrantedAuthority> mapAuthorities(
-			Collection<? extends GrantedAuthority> authorities);
+
+	Collection<? extends GrantedAuthority> mapAuthorities(Collection<? extends GrantedAuthority> authorities);
+
 }

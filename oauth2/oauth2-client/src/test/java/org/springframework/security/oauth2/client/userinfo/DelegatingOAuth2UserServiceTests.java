@@ -13,18 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.oauth2.client.userinfo;
 
-import org.junit.Test;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+package org.springframework.security.oauth2.client.userinfo;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import org.junit.jupiter.api.Test;
+
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link DelegatingOAuth2UserService}.
@@ -33,23 +36,24 @@ import static org.mockito.Mockito.when;
  */
 public class DelegatingOAuth2UserServiceTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenUserServicesIsNullThenThrowIllegalArgumentException() {
-		new DelegatingOAuth2UserService<>(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new DelegatingOAuth2UserService<>(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenUserServicesIsEmptyThenThrowIllegalArgumentException() {
-		new DelegatingOAuth2UserService<>(Collections.emptyList());
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingOAuth2UserService<>(Collections.emptyList()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	@SuppressWarnings("unchecked")
 	public void loadUserWhenUserRequestIsNullThenThrowIllegalArgumentException() {
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(
-				Arrays.asList(mock(OAuth2UserService.class), mock(OAuth2UserService.class)));
-		delegatingUserService.loadUser(null);
+		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService = mock(OAuth2UserService.class);
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
+				Arrays.asList(userService, userService));
+		assertThatIllegalArgumentException().isThrownBy(() -> delegatingUserService.loadUser(null));
 	}
 
 	@Test
@@ -59,11 +63,9 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService2 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
 		OAuth2User mockUser = mock(OAuth2User.class);
-		when(userService3.loadUser(any(OAuth2UserRequest.class))).thenReturn(mockUser);
-
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(Arrays.asList(userService1, userService2, userService3));
-
+		given(userService3.loadUser(any(OAuth2UserRequest.class))).willReturn(mockUser);
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
+				Arrays.asList(userService1, userService2, userService3));
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isEqualTo(mockUser);
 	}
@@ -74,11 +76,10 @@ public class DelegatingOAuth2UserServiceTests {
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService1 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService2 = mock(OAuth2UserService.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> userService3 = mock(OAuth2UserService.class);
-
-		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService =
-			new DelegatingOAuth2UserService<>(Arrays.asList(userService1, userService2, userService3));
-
+		DelegatingOAuth2UserService<OAuth2UserRequest, OAuth2User> delegatingUserService = new DelegatingOAuth2UserService<>(
+				Arrays.asList(userService1, userService2, userService3));
 		OAuth2User loadedUser = delegatingUserService.loadUser(mock(OAuth2UserRequest.class));
 		assertThat(loadedUser).isNull();
 	}
+
 }

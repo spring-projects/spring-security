@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration.python;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
+
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.core.io.Resource;
@@ -33,12 +35,12 @@ import org.springframework.security.access.prepost.PreInvocationAuthorizationAdv
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ClassUtils;
 
-public class PythonInterpreterPreInvocationAdvice implements
-		PreInvocationAuthorizationAdvice {
+public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
+
 	private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
 
-	public boolean before(Authentication authentication, MethodInvocation mi,
-			PreInvocationAttribute preAttr) {
+	@Override
+	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {
 		PythonInterpreterPreInvocationAttribute pythonAttr = (PythonInterpreterPreInvocationAttribute) preAttr;
 		String script = pythonAttr.getScript();
 
@@ -46,14 +48,13 @@ public class PythonInterpreterPreInvocationAdvice implements
 		python.set("authentication", authentication);
 		python.set("args", createArgumentMap(mi));
 		python.set("method", mi.getMethod().getName());
-		Resource scriptResource = new PathMatchingResourcePatternResolver()
-				.getResource(script);
+		Resource scriptResource = new PathMatchingResourcePatternResolver().getResource(script);
 
 		try {
 			python.execfile(scriptResource.getInputStream());
 		}
-		catch (IOException e) {
-			throw new IllegalArgumentException("Couldn't run python script, " + script, e);
+		catch (IOException ex) {
+			throw new IllegalArgumentException("Couldn't run python script, " + script, ex);
 		}
 
 		PyObject allowed = python.get("allow");
@@ -68,9 +69,8 @@ public class PythonInterpreterPreInvocationAdvice implements
 	private Map<String, Object> createArgumentMap(MethodInvocation mi) {
 		Object[] args = mi.getArguments();
 		Object targetObject = mi.getThis();
-		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(),
-				targetObject.getClass());
-		String[] paramNames = parameterNameDiscoverer.getParameterNames(method);
+		Method method = ClassUtils.getMostSpecificMethod(mi.getMethod(), targetObject.getClass());
+		String[] paramNames = this.parameterNameDiscoverer.getParameterNames(method);
 
 		Map<String, Object> argMap = new HashMap<>();
 		for (int i = 0; i < args.length; i++) {
@@ -79,4 +79,5 @@ public class PythonInterpreterPreInvocationAdvice implements
 
 		return argMap;
 	}
+
 }

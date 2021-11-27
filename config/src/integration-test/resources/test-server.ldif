@@ -68,16 +68,6 @@ sn: Mouse
 uid: jerry
 userPassword: jerryspassword
 
-dn: uid=bcrypt,ou=people,dc=springframework,dc=org
-objectclass: top
-objectclass: person
-objectclass: organizationalPerson
-objectclass: inetOrgPerson
-cn: BCrypt user
-sn: BCrypt
-uid: bcrypt
-userPassword: $2a$10$lDa0YFNHAt63MjIzK/wUqeM0qjIhzPhp3RNI/MLUQEAUbzhB/SnnS
-
 dn: cn=developers,ou=groups,dc=springframework,dc=org
 objectclass: top
 objectclass: groupOfNames

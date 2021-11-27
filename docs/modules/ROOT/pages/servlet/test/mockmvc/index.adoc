@@ -1,0 +1,5 @@
+[[test-mockmvc]]
+= Spring MVC Test Integration
+:page-section-summary-toc: 1
+
+Spring Security provides comprehensive integration with https://docs.spring.io/spring/docs/current/spring-framework-reference/html/testing.html#spring-mvc-test-framework[Spring MVC Test]

@@ -16,13 +16,15 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -34,10 +36,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Eleftheria Stein
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class RequestMatcherConfigurerTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -46,11 +48,23 @@ public class RequestMatcherConfigurerTests {
 	@Test
 	public void authorizeRequestsWhenInvokedMultipleTimesThenChainsPaths() throws Exception {
 		this.spring.register(Sec2908Config.class).autowire();
-
+		// @formatter:off
 		this.mvc.perform(get("/oauth/abc"))
 				.andExpect(status().isForbidden());
 		this.mvc.perform(get("/api/abc"))
 				.andExpect(status().isForbidden());
+		// @formatter:on
+	}
+
+	@Test
+	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
+		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/oauth/abc"))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/api/abc"))
+				.andExpect(status().isForbidden());
+		// @formatter:on
 	}
 
 	@EnableWebSecurity
@@ -70,16 +84,7 @@ public class RequestMatcherConfigurerTests {
 					.anyRequest().denyAll();
 			// @formatter:on
 		}
-	}
 
-	@Test
-	public void authorizeRequestsWhenInvokedMultipleTimesInLambdaThenChainsPaths() throws Exception {
-		this.spring.register(AuthorizeRequestInLambdaConfig.class).autowire();
-
-		this.mvc.perform(get("/oauth/abc"))
-				.andExpect(status().isForbidden());
-		this.mvc.perform(get("/api/abc"))
-				.andExpect(status().isForbidden());
 	}
 
 	@EnableWebSecurity
@@ -89,19 +94,21 @@ public class RequestMatcherConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.antMatchers("/api/**")
 				)
-				.requestMatchers(requestMatchers ->
+				.requestMatchers((requestMatchers) ->
 					requestMatchers
 						.antMatchers("/oauth/**")
 				)
-				.authorizeRequests(authorizeRequests ->
+				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
 						.anyRequest().denyAll()
 				);
 			// @formatter:on
 		}
+
 	}
+
 }

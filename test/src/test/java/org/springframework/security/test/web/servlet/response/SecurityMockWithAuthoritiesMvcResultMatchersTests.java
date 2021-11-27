@@ -13,18 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.test.web.servlet.response;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+package org.springframework.security.test.web.servlet.response;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -36,7 +33,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -45,19 +42,24 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SecurityMockWithAuthoritiesMvcResultMatchersTests.Config.class)
 @WebAppConfiguration
 public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
+
 	@Autowired
 	private WebApplicationContext context;
 
 	private MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		mockMvc = MockMvcBuilders.webAppContextSetup(context).apply(springSecurity())
-				.build();
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).apply(springSecurity()).build();
 	}
 
 	@Test
@@ -65,35 +67,40 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-		mockMvc.perform(formLogin())
-				.andExpect(authenticated().withAuthorities(grantedAuthorities));
+		this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
 	}
 
-	@Test(expected = AssertionError.class)
+	@Test
 	public void withAuthoritiesFailsIfNotAllRoles() throws Exception {
 		List<SimpleGrantedAuthority> grantedAuthorities = new ArrayList<>();
 		grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-		mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities));
+		assertThatExceptionOfType(AssertionError.class).isThrownBy(
+				() -> this.mockMvc.perform(formLogin()).andExpect(authenticated().withAuthorities(grantedAuthorities)));
 	}
 
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
+		@Override
 		@Bean
 		public UserDetailsService userDetailsService() {
+			// @formatter:off
 			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("ADMIN", "SELLER").build();
 			return new InMemoryUserDetailsManager(user);
+			// @formatter:on
 		}
-		// @formatter:on
 
 		@RestController
 		static class Controller {
+
 			@RequestMapping("/")
-			public String ok() {
+			String ok() {
 				return "ok";
 			}
+
 		}
+
 	}
+
 }

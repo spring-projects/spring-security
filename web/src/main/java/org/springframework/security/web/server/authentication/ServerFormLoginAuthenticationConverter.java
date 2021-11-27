@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.authentication;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
 /**
  * Converts a ServerWebExchange into a UsernamePasswordAuthenticationToken from the form
@@ -35,4 +37,5 @@ public class ServerFormLoginAuthenticationConverter
 	public Mono<Authentication> convert(ServerWebExchange exchange) {
 		return apply(exchange);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication.jaas.memory;
 
 import java.util.Collections;
@@ -35,36 +36,28 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  */
 public class InMemoryConfiguration extends Configuration {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final AppConfigurationEntry[] defaultConfiguration;
-	private final Map<String, AppConfigurationEntry[]> mappedConfigurations;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Map<String, AppConfigurationEntry[]> mappedConfigurations;
 
 	/**
 	 * Creates a new instance with only a defaultConfiguration. Any configuration name
 	 * will result in defaultConfiguration being returned.
-	 *
 	 * @param defaultConfiguration The result for any calls to
 	 * {@link #getAppConfigurationEntry(String)}. Can be <code>null</code>.
 	 */
 	public InMemoryConfiguration(AppConfigurationEntry[] defaultConfiguration) {
-		this(Collections.<String, AppConfigurationEntry[]>emptyMap(),
-				defaultConfiguration);
+		this(Collections.<String, AppConfigurationEntry[]>emptyMap(), defaultConfiguration);
 	}
 
 	/**
 	 * Creates a new instance with a mapping of login context name to an array of
 	 * {@link AppConfigurationEntry}s.
-	 *
 	 * @param mappedConfigurations each key represents a login context name and each value
 	 * is an Array of {@link AppConfigurationEntry}s that should be used.
 	 */
-	public InMemoryConfiguration(
-			Map<String, AppConfigurationEntry[]> mappedConfigurations) {
+	public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations) {
 		this(mappedConfigurations, null);
 	}
 
@@ -72,27 +65,22 @@ public class InMemoryConfiguration extends Configuration {
 	 * Creates a new instance with a mapping of login context name to an array of
 	 * {@link AppConfigurationEntry}s along with a default configuration that will be used
 	 * if no mapping is found for the given login context name.
-	 *
 	 * @param mappedConfigurations each key represents a login context name and each value
 	 * is an Array of {@link AppConfigurationEntry}s that should be used.
 	 * @param defaultConfiguration The result for any calls to
 	 * {@link #getAppConfigurationEntry(String)}. Can be <code>null</code>.
 	 */
-	public InMemoryConfiguration(
-			Map<String, AppConfigurationEntry[]> mappedConfigurations,
+	public InMemoryConfiguration(Map<String, AppConfigurationEntry[]> mappedConfigurations,
 			AppConfigurationEntry[] defaultConfiguration) {
 		Assert.notNull(mappedConfigurations, "mappedConfigurations cannot be null.");
 		this.mappedConfigurations = mappedConfigurations;
 		this.defaultConfiguration = defaultConfiguration;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public AppConfigurationEntry[] getAppConfigurationEntry(String name) {
 		AppConfigurationEntry[] mappedResult = this.mappedConfigurations.get(name);
-		return mappedResult == null ? this.defaultConfiguration : mappedResult;
+		return (mappedResult != null) ? mappedResult : this.defaultConfiguration;
 	}
 
 	/**
@@ -101,4 +89,5 @@ public class InMemoryConfiguration extends Configuration {
 	@Override
 	public void refresh() {
 	}
+
 }

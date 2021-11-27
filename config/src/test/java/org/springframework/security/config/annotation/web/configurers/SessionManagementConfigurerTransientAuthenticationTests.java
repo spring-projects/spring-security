@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -26,7 +27,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.Transient;
@@ -39,27 +41,23 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 /**
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
-	public void postWhenTransientAuthenticationThenNoSessionCreated()
-			throws Exception {
-
+	public void postWhenTransientAuthenticationThenNoSessionCreated() throws Exception {
 		this.spring.register(WithTransientAuthenticationConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNull();
 	}
 
 	@Test
-	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides()
-			throws Exception {
-
+	public void postWhenTransientAuthenticationThenAlwaysSessionOverrides() throws Exception {
 		this.spring.register(AlwaysCreateSessionConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login")).andReturn();
 		assertThat(result.getRequest().getSession(false)).isNotNull();
@@ -67,28 +65,37 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	@EnableWebSecurity
 	static class WithTransientAuthenticationConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
-
+			// @formatter:off
 			http
 				.csrf().disable();
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) {
+			// @formatter:off
 			auth
 				.authenticationProvider(new TransientAuthenticationProvider());
+			// @formatter:on
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class AlwaysCreateSessionConfig extends WithTransientAuthenticationConfig {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS);
+			// @formatter:on
 		}
+
 	}
 
 	static class TransientAuthenticationProvider implements AuthenticationProvider {
@@ -102,10 +109,12 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		public boolean supports(Class<?> authentication) {
 			return true;
 		}
+
 	}
 
 	@Transient
 	static class SomeTransientAuthentication extends AbstractAuthenticationToken {
+
 		SomeTransientAuthentication() {
 			super(null);
 		}
@@ -119,5 +128,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		public Object getPrincipal() {
 			return null;
 		}
+
 	}
+
 }

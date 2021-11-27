@@ -13,21 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
-import org.springframework.security.acls.jdbc.JdbcAclService;
-
 import java.io.Serializable;
+
+import org.springframework.security.acls.jdbc.JdbcAclService;
 
 /**
  * A caching layer for {@link JdbcAclService}.
  *
  * @author Ben Alex
- *
  */
 public interface AclCache {
-	// ~ Methods
-	// ========================================================================================================
 
 	void evictFromCache(Serializable pk);
 
@@ -40,4 +38,5 @@ public interface AclCache {
 	void putInCache(MutableAcl acl);
 
 	void clearCache();
+
 }

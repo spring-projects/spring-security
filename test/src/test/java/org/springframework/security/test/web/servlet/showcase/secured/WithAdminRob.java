@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.showcase.secured;
 
 import java.lang.annotation.Documented;
@@ -28,6 +29,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @Documented
-@WithMockUser(value="rob", roles="ADMIN")
+@WithMockUser(value = "rob", roles = "ADMIN")
 public @interface WithAdminRob {
+
 }

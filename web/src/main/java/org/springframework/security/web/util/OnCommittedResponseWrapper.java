@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.util;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.WriteListener;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.WriteListener;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
 
 /**
  * Base class for response wrappers which encapsulate the logic for handling an event when
- * the {@link javax.servlet.http.HttpServletResponse} is committed.
+ * the {@link jakarta.servlet.http.HttpServletResponse} is committed.
  *
- * @since 4.0.2
  * @author Rob Winch
+ * @since 4.0.2
  */
 public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrapper {
 
@@ -83,8 +84,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Invoke this method to disable invoking
 	 * {@link OnCommittedResponseWrapper#onResponseCommitted()} when the
-	 * {@link javax.servlet.http.HttpServletResponse} is committed. This can be useful in
-	 * the event that Async Web Requests are made.
+	 * {@link jakarta.servlet.http.HttpServletResponse} is committed. This can be useful
+	 * in the event that Async Web Requests are made.
 	 */
 	protected void disableOnResponseCommitted() {
 		this.disableOnCommitted = true;
@@ -100,8 +101,8 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	}
 
 	/**
-	 * Implement the logic for handling the {@link javax.servlet.http.HttpServletResponse}
-	 * being committed
+	 * Implement the logic for handling the
+	 * {@link jakarta.servlet.http.HttpServletResponse} being committed
 	 */
 	protected abstract void onResponseCommitted();
 
@@ -185,13 +186,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	private void trackContentLength(byte[] content) {
 		if (!this.disableOnCommitted) {
-			checkContentLength(content == null ? 0 : content.length);
+			checkContentLength((content != null) ? content.length : 0);
 		}
 	}
 
 	private void trackContentLength(char[] content) {
 		if (!this.disableOnCommitted) {
-			checkContentLength(content == null ? 0 : content.length);
+			checkContentLength((content != null) ? content.length : 0);
 		}
 	}
 
@@ -221,7 +222,7 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 
 	private void trackContentLength(String content) {
 		if (!this.disableOnCommitted) {
-			int contentLength = content == null ? 4 : content.length();
+			int contentLength = (content != null) ? content.length() : 4;
 			checkContentLength(contentLength);
 		}
 	}
@@ -229,13 +230,11 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	/**
 	 * Adds the contentLengthToWrite to the total contentWritten size and checks to see if
 	 * the response should be written.
-	 *
 	 * @param contentLengthToWrite the size of the content that is about to be written.
 	 */
 	private void checkContentLength(long contentLengthToWrite) {
 		this.contentWritten += contentLengthToWrite;
-		boolean isBodyFullyWritten = this.contentLength > 0
-				&& this.contentWritten >= this.contentLength;
+		boolean isBodyFullyWritten = this.contentLength > 0 && this.contentWritten >= this.contentLength;
 		int bufferSize = getBufferSize();
 		boolean requiresFlush = bufferSize > 0 && this.contentWritten >= bufferSize;
 		if (isBodyFullyWritten || requiresFlush) {
@@ -259,9 +258,11 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 	 * calling the prior to methods that commit the response. We delegate all methods to
 	 * the original {@link java.io.PrintWriter} to ensure that the behavior is as close to
 	 * the original {@link java.io.PrintWriter} as possible. See SEC-2039
+	 *
 	 * @author Rob Winch
 	 */
 	private class SaveContextPrintWriter extends PrintWriter {
+
 		private final PrintWriter delegate;
 
 		SaveContextPrintWriter(PrintWriter delegate) {
@@ -282,13 +283,13 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		}
 
 		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
 		}
 
 		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override
@@ -491,17 +492,20 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 			trackContentLength(c);
 			return this.delegate.append(c);
 		}
+
 	}
 
 	/**
 	 * Ensures{@link OnCommittedResponseWrapper#onResponseCommitted()} is invoked before
 	 * calling methods that commit the response. We delegate all methods to the original
-	 * {@link javax.servlet.ServletOutputStream} to ensure that the behavior is as close
-	 * to the original {@link javax.servlet.ServletOutputStream} as possible. See SEC-2039
+	 * {@link jakarta.servlet.ServletOutputStream} to ensure that the behavior is as close
+	 * to the original {@link jakarta.servlet.ServletOutputStream} as possible. See
+	 * SEC-2039
 	 *
 	 * @author Rob Winch
 	 */
 	private class SaveContextServletOutputStream extends ServletOutputStream {
+
 		private final ServletOutputStream delegate;
 
 		SaveContextServletOutputStream(ServletOutputStream delegate) {
@@ -524,16 +528,6 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 		public void close() throws IOException {
 			doOnResponseCommitted();
 			this.delegate.close();
-		}
-
-		@Override
-		public int hashCode() {
-			return this.delegate.hashCode();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			return this.delegate.equals(obj);
 		}
 
 		@Override
@@ -645,17 +639,31 @@ public abstract class OnCommittedResponseWrapper extends HttpServletResponseWrap
 			this.delegate.write(b, off, len);
 		}
 
+		@Override
 		public boolean isReady() {
 			return this.delegate.isReady();
 		}
 
+		@Override
 		public void setWriteListener(WriteListener writeListener) {
 			this.delegate.setWriteListener(writeListener);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			return this.delegate.equals(obj);
+		}
+
+		@Override
+		public int hashCode() {
+			return this.delegate.hashCode();
 		}
 
 		@Override
 		public String toString() {
 			return getClass().getName() + "[delegate=" + this.delegate.toString() + "]";
 		}
+
 	}
+
 }

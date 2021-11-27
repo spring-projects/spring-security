@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.List;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -23,6 +25,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  */
 public class MethodSecurityServiceImpl implements MethodSecurityService {
+
 	@Override
 	public String preAuthorize() {
 		return null;
@@ -83,6 +86,15 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	@Override
 	public String postAnnotation(String object) {
 		return null;
+	}
+
+	@Override
+	public List<String> manyAnnotations(List<String> object) {
+		return object;
+	}
+
+	@Override
+	public void repeatedAnnotations() {
 	}
 
 }

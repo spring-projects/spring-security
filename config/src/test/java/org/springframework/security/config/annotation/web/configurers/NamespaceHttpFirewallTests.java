@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
- * Tests to verify that all the functionality of <http-firewall> attributes is present
+ * Tests to verify that all the functionality of &lt;http-firewall&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceHttpFirewallTests {
 
-	@Rule
-	public final SpringTestRule rule = new SpringTestRule();
+	public final SpringTestContext rule = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -52,53 +55,59 @@ public class NamespaceHttpFirewallTests {
 	@Test
 	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
 		this.rule.register(HttpFirewallConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/public/../private/")))
-				.isInstanceOf(RequestRejectedException.class);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/public/../private/")));
 	}
-
-	@EnableWebSecurity
-	static class HttpFirewallConfig {}
 
 	@Test
 	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
-				.isInstanceOf(RequestRejectedException.class);
-	}
-
-	@EnableWebSecurity
-	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		public void configure(WebSecurity web) {
-			web
-				.httpFirewall(new CustomHttpFirewall());
-		}
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
 	}
 
 	@Test
 	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
 		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
-		assertThatCode(() -> this.mvc.perform(get("/").param("deny", "true")))
-				.isInstanceOf(RequestRejectedException.class);
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
+	}
+
+	@EnableWebSecurity
+	static class HttpFirewallConfig {
+
+	}
+
+	@EnableWebSecurity
+	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		public void configure(WebSecurity web) {
+			web.httpFirewall(new CustomHttpFirewall());
+		}
+
 	}
 
 	@EnableWebSecurity
 	static class CustomHttpFirewallBeanConfig {
+
 		@Bean
 		HttpFirewall firewall() {
 			return new CustomHttpFirewall();
 		}
+
 	}
 
 	static class CustomHttpFirewall extends DefaultHttpFirewall {
 
 		@Override
-		public FirewalledRequest getFirewalledRequest(HttpServletRequest request)
-				throws RequestRejectedException {
+		public FirewalledRequest getFirewalledRequest(HttpServletRequest request) throws RequestRejectedException {
 			if (request.getParameter("deny") != null) {
 				throw new RequestRejectedException("custom rejection");
 			}
 			return super.getFirewalledRequest(request);
 		}
+
 	}
+
 }

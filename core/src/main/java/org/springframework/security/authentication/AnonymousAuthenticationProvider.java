@@ -33,13 +33,10 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AnonymousAuthenticationProvider implements AuthenticationProvider,
-		MessageSourceAware {
-
-	// ~ Instance fields
-	// ================================================================================================
+public class AnonymousAuthenticationProvider implements AuthenticationProvider, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 	private String key;
 
 	public AnonymousAuthenticationProvider(String key) {
@@ -47,35 +44,31 @@ public class AnonymousAuthenticationProvider implements AuthenticationProvider,
 		this.key = key;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
-	public Authentication authenticate(Authentication authentication)
-			throws AuthenticationException {
+	@Override
+	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-
-		if (this.key.hashCode() != ((AnonymousAuthenticationToken) authentication)
-				.getKeyHash()) {
-			throw new BadCredentialsException(
-					messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
-							"The presented AnonymousAuthenticationToken does not contain the expected key"));
+		if (this.key.hashCode() != ((AnonymousAuthenticationToken) authentication).getKeyHash()) {
+			throw new BadCredentialsException(this.messages.getMessage("AnonymousAuthenticationProvider.incorrectKey",
+					"The presented AnonymousAuthenticationToken does not contain the expected key"));
 		}
-
 		return authentication;
 	}
 
 	public String getKey() {
-		return key;
+		return this.key;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
 
+	@Override
 	public boolean supports(Class<?> authentication) {
 		return (AnonymousAuthenticationToken.class.isAssignableFrom(authentication));
 	}
+
 }

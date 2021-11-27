@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
 import java.util.ArrayList;
@@ -36,90 +37,94 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.2
  */
-public class DelegatingSecurityContextExecutorService extends
-		DelegatingSecurityContextExecutor implements ExecutorService {
+public class DelegatingSecurityContextExecutorService extends DelegatingSecurityContextExecutor
+		implements ExecutorService {
+
 	/**
 	 * Creates a new {@link DelegatingSecurityContextExecutorService} that uses the
 	 * specified {@link SecurityContext}.
-	 *
 	 * @param delegateExecutorService the {@link ExecutorService} to delegate to. Cannot
 	 * be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
-	public DelegatingSecurityContextExecutorService(
-			ExecutorService delegateExecutorService, SecurityContext securityContext) {
+	public DelegatingSecurityContextExecutorService(ExecutorService delegateExecutorService,
+			SecurityContext securityContext) {
 		super(delegateExecutorService, securityContext);
 	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextExecutorService} that uses the
 	 * current {@link SecurityContext} from the {@link SecurityContextHolder}.
-	 *
-	 * @param delegate the {@link ExecutorService} to delegate to. Cannot be
-	 * null.
+	 * @param delegate the {@link ExecutorService} to delegate to. Cannot be null.
 	 */
 	public DelegatingSecurityContextExecutorService(ExecutorService delegate) {
 		this(delegate, null);
 	}
 
+	@Override
 	public final void shutdown() {
 		getDelegate().shutdown();
 	}
 
+	@Override
 	public final List<Runnable> shutdownNow() {
 		return getDelegate().shutdownNow();
 	}
 
+	@Override
 	public final boolean isShutdown() {
 		return getDelegate().isShutdown();
 	}
 
+	@Override
 	public final boolean isTerminated() {
 		return getDelegate().isTerminated();
 	}
 
-	public final boolean awaitTermination(long timeout, TimeUnit unit)
-			throws InterruptedException {
+	@Override
+	public final boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
 		return getDelegate().awaitTermination(timeout, unit);
 	}
 
+	@Override
 	public final <T> Future<T> submit(Callable<T> task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
+	@Override
 	public final <T> Future<T> submit(Runnable task, T result) {
-		task = wrap(task);
-		return getDelegate().submit(task, result);
+		return getDelegate().submit(wrap(task), result);
 	}
 
+	@Override
 	public final Future<?> submit(Runnable task) {
-		task = wrap(task);
-		return getDelegate().submit(task);
+		return getDelegate().submit(wrap(task));
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public final List invokeAll(Collection tasks) throws InterruptedException {
 		tasks = createTasks(tasks);
 		return getDelegate().invokeAll(tasks);
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final List invokeAll(Collection tasks, long timeout, TimeUnit unit)
-			throws InterruptedException {
+	public final List invokeAll(Collection tasks, long timeout, TimeUnit unit) throws InterruptedException {
 		tasks = createTasks(tasks);
 		return getDelegate().invokeAll(tasks, timeout, unit);
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public final Object invokeAny(Collection tasks) throws InterruptedException,
-			ExecutionException {
+	public final Object invokeAny(Collection tasks) throws InterruptedException, ExecutionException {
 		tasks = createTasks(tasks);
 		return getDelegate().invokeAny(tasks);
 	}
 
+	@Override
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public final Object invokeAny(Collection tasks, long timeout, TimeUnit unit)
 			throws InterruptedException, ExecutionException, TimeoutException {
@@ -141,4 +146,5 @@ public class DelegatingSecurityContextExecutorService extends
 	private ExecutorService getDelegate() {
 		return (ExecutorService) getDelegateExecutor();
 	}
+
 }

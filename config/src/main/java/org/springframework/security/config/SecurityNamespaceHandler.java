@@ -1,5 +1,5 @@
 /*
- * Copyright 2009-2013 the original author or authors.
+ * Copyright 2009-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config;
 
 import java.util.HashMap;
@@ -20,6 +21,9 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.xml.BeanDefinitionDecorator;
@@ -40,12 +44,12 @@ import org.springframework.security.config.ldap.LdapServerBeanDefinitionParser;
 import org.springframework.security.config.ldap.LdapUserServiceBeanDefinitionParser;
 import org.springframework.security.config.method.GlobalMethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.InterceptMethodsBeanDefinitionDecorator;
+import org.springframework.security.config.method.MethodSecurityBeanDefinitionParser;
 import org.springframework.security.config.method.MethodSecurityMetadataSourceBeanDefinitionParser;
+import org.springframework.security.config.oauth2.client.ClientRegistrationsBeanDefinitionParser;
 import org.springframework.security.config.websocket.WebSocketMessageBrokerSecurityBeanDefinitionParser;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.ClassUtils;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * Parses elements from the "security" namespace
@@ -57,147 +61,139 @@ import org.w3c.dom.Node;
  * @since 2.0
  */
 public final class SecurityNamespaceHandler implements NamespaceHandler {
+
 	private static final String FILTER_CHAIN_PROXY_CLASSNAME = "org.springframework.security.web.FilterChainProxy";
+
 	private static final String MESSAGE_CLASSNAME = "org.springframework.messaging.Message";
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final Map<String, BeanDefinitionParser> parsers = new HashMap<>();
+
 	private final BeanDefinitionDecorator interceptMethodsBDD = new InterceptMethodsBeanDefinitionDecorator();
+
 	private BeanDefinitionDecorator filterChainMapBDD;
 
 	public SecurityNamespaceHandler() {
 		String coreVersion = SpringSecurityCoreVersion.getVersion();
-
 		Package pkg = SpringSecurityCoreVersion.class.getPackage();
-
 		if (pkg == null || coreVersion == null) {
-			logger.info("Couldn't determine package version information.");
+			this.logger.info("Couldn't determine package version information.");
 			return;
 		}
-
 		String version = pkg.getImplementationVersion();
-		logger.info("Spring Security 'config' module version is " + version);
-
+		this.logger.info("Spring Security 'config' module version is " + version);
 		if (version.compareTo(coreVersion) != 0) {
-			logger.error("You are running with different versions of the Spring Security 'core' and 'config' modules");
+			this.logger.error(
+					"You are running with different versions of the Spring Security 'core' and 'config' modules");
 		}
 	}
 
+	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		if (!namespaceMatchesVersion(element)) {
-			pc.getReaderContext()
-					.fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
-							+ "with Spring Security 5.2. Please update your schema declarations to the 5.2 schema.",
-							element);
+			pc.getReaderContext().fatal("You cannot use a spring-security-2.0.xsd or spring-security-3.0.xsd or "
+					+ "spring-security-3.1.xsd schema or spring-security-3.2.xsd schema or spring-security-4.0.xsd schema "
+					+ "with Spring Security 6.0. Please update your schema declarations to the 6.0 schema.", element);
 		}
 		String name = pc.getDelegate().getLocalName(element);
-		BeanDefinitionParser parser = parsers.get(name);
-
+		BeanDefinitionParser parser = this.parsers.get(name);
 		if (parser == null) {
 			// SEC-1455. Load parsers when required, not just on init().
 			loadParsers();
 		}
-
-		if (parser == null) {
-			if (Elements.HTTP.equals(name)
-					|| Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)
-					|| Elements.FILTER_CHAIN_MAP.equals(name)
-					|| Elements.FILTER_CHAIN.equals(name)) {
-				reportMissingWebClasses(name, pc, element);
-			}
-			else {
-				reportUnsupportedNodeType(name, pc, element);
-			}
-
-			return null;
+		if (parser != null) {
+			return parser.parse(element, pc);
 		}
-
-		return parser.parse(element, pc);
+		if (Elements.HTTP.equals(name) || Elements.FILTER_SECURITY_METADATA_SOURCE.equals(name)
+				|| Elements.FILTER_CHAIN_MAP.equals(name) || Elements.FILTER_CHAIN.equals(name)) {
+			reportMissingWebClasses(name, pc, element);
+		}
+		else {
+			reportUnsupportedNodeType(name, pc, element);
+		}
+		return null;
 	}
 
-	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition,
-			ParserContext pc) {
+	@Override
+	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext pc) {
 		String name = pc.getDelegate().getLocalName(node);
-
-		// We only handle elements
 		if (node instanceof Element) {
+			// We only handle elements
 			if (Elements.INTERCEPT_METHODS.equals(name)) {
-				return interceptMethodsBDD.decorate(node, definition, pc);
+				return this.interceptMethodsBDD.decorate(node, definition, pc);
 			}
-
 			if (Elements.FILTER_CHAIN_MAP.equals(name)) {
-				if (filterChainMapBDD == null) {
+				if (this.filterChainMapBDD == null) {
 					loadParsers();
 				}
-				if (filterChainMapBDD == null) {
+				if (this.filterChainMapBDD == null) {
 					reportMissingWebClasses(name, pc, node);
 				}
-				return filterChainMapBDD.decorate(node, definition, pc);
+				return this.filterChainMapBDD.decorate(node, definition, pc);
 			}
 		}
-
 		reportUnsupportedNodeType(name, pc, node);
-
 		return null;
 	}
 
 	private void reportUnsupportedNodeType(String name, ParserContext pc, Node node) {
-		pc.getReaderContext().fatal(
-				"Security namespace does not support decoration of "
-						+ (node instanceof Element ? "element" : "attribute") + " ["
-						+ name + "]", node);
+		pc.getReaderContext().fatal("Security namespace does not support decoration of "
+				+ ((node instanceof Element) ? "element" : "attribute") + " [" + name + "]", node);
 	}
 
 	private void reportMissingWebClasses(String nodeName, ParserContext pc, Node node) {
 		String errorMessage = "The classes from the spring-security-web jar "
-				+ "(or one of its dependencies) are not available. You need these to use <"
-				+ nodeName + ">";
+				+ "(or one of its dependencies) are not available. You need these to use <" + nodeName + ">";
 		try {
 			ClassUtils.forName(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader());
 			// no details available
 			pc.getReaderContext().fatal(errorMessage, node);
 		}
-		catch (Throwable cause) {
+		catch (Throwable ex) {
 			// provide details on why it could not be loaded
-			pc.getReaderContext().fatal(errorMessage, node, cause);
+			pc.getReaderContext().fatal(errorMessage, node, ex);
 		}
 	}
 
+	@Override
 	public void init() {
 		loadParsers();
 	}
 
 	private void loadParsers() {
 		// Parsers
-		parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
-		parsers.put(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
-		parsers.put(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
-		parsers.put(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
-		parsers.put(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
-		parsers.put(Elements.AUTHENTICATION_PROVIDER,
-				new AuthenticationProviderBeanDefinitionParser());
-		parsers.put(Elements.GLOBAL_METHOD_SECURITY,
-				new GlobalMethodSecurityBeanDefinitionParser());
-		parsers.put(Elements.AUTHENTICATION_MANAGER,
-				new AuthenticationManagerBeanDefinitionParser());
-		parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE,
+		this.parsers.put(Elements.LDAP_PROVIDER, new LdapProviderBeanDefinitionParser());
+		this.parsers.put(Elements.LDAP_SERVER, new LdapServerBeanDefinitionParser());
+		this.parsers.put(Elements.LDAP_USER_SERVICE, new LdapUserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.USER_SERVICE, new UserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.JDBC_USER_SERVICE, new JdbcUserServiceBeanDefinitionParser());
+		this.parsers.put(Elements.AUTHENTICATION_PROVIDER, new AuthenticationProviderBeanDefinitionParser());
+		this.parsers.put(Elements.GLOBAL_METHOD_SECURITY, new GlobalMethodSecurityBeanDefinitionParser());
+		this.parsers.put(Elements.METHOD_SECURITY, new MethodSecurityBeanDefinitionParser());
+		this.parsers.put(Elements.AUTHENTICATION_MANAGER, new AuthenticationManagerBeanDefinitionParser());
+		this.parsers.put(Elements.METHOD_SECURITY_METADATA_SOURCE,
 				new MethodSecurityMetadataSourceBeanDefinitionParser());
-
-		// Only load the web-namespace parsers if the web classes are available
-		if (ClassUtils.isPresent(FILTER_CHAIN_PROXY_CLASSNAME, getClass()
-				.getClassLoader())) {
-			parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
-			parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
-			parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
-			parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE,
-					new FilterInvocationSecurityMetadataSourceParser());
-			parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
-			filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+		if (ClassUtils.isPresent(FILTER_CHAIN_PROXY_CLASSNAME, getClass().getClassLoader())) {
+			loadWebParsers();
 		}
-
 		if (ClassUtils.isPresent(MESSAGE_CLASSNAME, getClass().getClassLoader())) {
-			parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER,
-					new WebSocketMessageBrokerSecurityBeanDefinitionParser());
+			loadWebSocketParsers();
 		}
+	}
+
+	private void loadWebParsers() {
+		this.parsers.put(Elements.DEBUG, new DebugBeanDefinitionParser());
+		this.parsers.put(Elements.HTTP, new HttpSecurityBeanDefinitionParser());
+		this.parsers.put(Elements.HTTP_FIREWALL, new HttpFirewallBeanDefinitionParser());
+		this.parsers.put(Elements.FILTER_SECURITY_METADATA_SOURCE, new FilterInvocationSecurityMetadataSourceParser());
+		this.parsers.put(Elements.FILTER_CHAIN, new FilterChainBeanDefinitionParser());
+		this.filterChainMapBDD = new FilterChainMapBeanDefinitionDecorator();
+		this.parsers.put(Elements.CLIENT_REGISTRATIONS, new ClientRegistrationsBeanDefinitionParser());
+	}
+
+	private void loadWebSocketParsers() {
+		this.parsers.put(Elements.WEBSOCKET_MESSAGE_BROKER, new WebSocketMessageBrokerSecurityBeanDefinitionParser());
 	}
 
 	/**
@@ -209,7 +205,6 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	 * using 3.0 as an error too. It might be an error to declare spring-security.xsd as
 	 * an alias, but you are only going to find that out when one of the sub parsers
 	 * breaks.
-	 *
 	 * @param element the element that is to be parsed next
 	 * @return true if we find a schema declaration that matches
 	 */
@@ -219,9 +214,8 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 	}
 
 	private boolean matchesVersionInternal(Element element) {
-		String schemaLocation = element.getAttributeNS(
-				"http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
-		return schemaLocation.matches("(?m).*spring-security-5\\.2.*.xsd.*")
+		String schemaLocation = element.getAttributeNS("http://www.w3.org/2001/XMLSchema-instance", "schemaLocation");
+		return schemaLocation.matches("(?m).*spring-security-6\\.0.*.xsd.*")
 				|| schemaLocation.matches("(?m).*spring-security.xsd.*")
 				|| !schemaLocation.matches("(?m).*spring-security.*");
 	}

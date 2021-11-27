@@ -36,6 +36,7 @@ import org.springframework.expression.TypedValue;
  * @since 4.1
  */
 class DelegatingEvaluationContext implements EvaluationContext {
+
 	private final EvaluationContext delegate;
 
 	DelegatingEvaluationContext(EvaluationContext delegate) {
@@ -96,4 +97,5 @@ class DelegatingEvaluationContext implements EvaluationContext {
 	public Object lookupVariable(String name) {
 		return this.delegate.lookupVariable(name);
 	}
+
 }

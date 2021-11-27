@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -41,7 +42,7 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 
 	@Override
 	public String getAuthority() {
-		return role;
+		return this.role;
 	}
 
 	@Override
@@ -49,11 +50,9 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 		if (this == obj) {
 			return true;
 		}
-
 		if (obj instanceof SimpleGrantedAuthority) {
-			return role.equals(((SimpleGrantedAuthority) obj).role);
+			return this.role.equals(((SimpleGrantedAuthority) obj).role);
 		}
-
 		return false;
 	}
 
@@ -66,4 +65,5 @@ public final class SimpleGrantedAuthority implements GrantedAuthority {
 	public String toString() {
 		return this.role;
 	}
+
 }

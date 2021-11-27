@@ -16,52 +16,49 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.CACHE;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.COOKIES;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.EXECUTION_CONTEXTS;
-import static org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter.Directive.STORAGE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
 /**
  *
- * Tests for {@link HeaderWriterLogoutHandler} that passing {@link ClearSiteDataHeaderWriter}
- * implementation.
+ * Tests for {@link HeaderWriterLogoutHandler} that passing
+ * {@link ClearSiteDataHeaderWriter} implementation.
  *
  * @author Rafiullah Hamedy
  *
  */
-@RunWith(SpringRunner.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class LogoutConfigurerClearSiteDataTests {
 
 	private static final String CLEAR_SITE_DATA_HEADER = "Clear-Site-Data";
 
-	private static final ClearSiteDataHeaderWriter.Directive[] SOURCE =
-			{ CACHE, COOKIES, STORAGE, EXECUTION_CONTEXTS };
+	private static final Directive[] SOURCE = { Directive.CACHE, Directive.COOKIES, Directive.STORAGE,
+			Directive.EXECUTION_CONTEXTS };
 
 	private static final String HEADER_VALUE = "\"cache\", \"cookies\", \"storage\", \"executionContexts\"";
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -70,36 +67,38 @@ public class LogoutConfigurerClearSiteDataTests {
 	@WithMockUser
 	public void logoutWhenRequestTypeGetThenHeaderNotPresentt() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
-		this.mvc.perform(get("/logout").secure(true).with(csrf()))
-			.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
+		MockHttpServletRequestBuilder logoutRequest = get("/logout").secure(true).with(csrf());
+		this.mvc.perform(logoutRequest).andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenRequestTypePostAndNotSecureThenHeaderNotPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").with(csrf()))
-			.andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
+		MockHttpServletRequestBuilder logoutRequest = post("/logout").with(csrf());
+		this.mvc.perform(logoutRequest).andExpect(header().doesNotExist(CLEAR_SITE_DATA_HEADER));
 	}
 
 	@Test
 	@WithMockUser
 	public void logoutWhenRequestTypePostAndSecureThenHeaderIsPresent() throws Exception {
 		this.spring.register(HttpLogoutConfig.class).autowire();
-
-		this.mvc.perform(post("/logout").secure(true).with(csrf()))
-			.andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
+		MockHttpServletRequestBuilder logoutRequest = post("/logout").secure(true).with(csrf());
+		this.mvc.perform(logoutRequest).andExpect(header().stringValues(CLEAR_SITE_DATA_HEADER, HEADER_VALUE));
 	}
 
 	@EnableWebSecurity
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.logout()
 					.addLogoutHandler(new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(SOURCE)));
+			// @formatter:on
 		}
+
 	}
+
 }

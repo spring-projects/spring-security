@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,20 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.logout;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import jakarta.servlet.http.Cookie;
 
-import javax.servlet.http.Cookie;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+
 /**
  * @author Luke Taylor
+ * @author Onur Kagan Ozcan
  */
 public class CookieClearingLogoutHandlerTests {
 
@@ -50,15 +54,37 @@ public class CookieClearingLogoutHandlerTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setContextPath("/app");
-		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(
-				"my_cookie", "my_cookie_too");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie", "my_cookie_too");
 		handler.logout(request, response, mock(Authentication.class));
 		assertThat(response.getCookies()).hasSize(2);
 		for (Cookie c : response.getCookies()) {
-			// gh-2325
-			assertThat(c.getPath()).isEqualTo("/app/");
+			assertThat(c.getPath()).isEqualTo("/app");
 			assertThat(c.getMaxAge()).isZero();
 		}
+	}
+
+	@Test
+	public void configuredCookieIsSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(true);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isTrue();
+	}
+
+	@Test
+	public void configuredCookieIsNotSecure() {
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSecure(false);
+		request.setContextPath("/app");
+		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler("my_cookie");
+		handler.logout(request, response, mock(Authentication.class));
+		assertThat(response.getCookies()).hasSize(1);
+		assertThat(response.getCookies()[0].getSecure()).isFalse();
 	}
 
 	@Test
@@ -81,15 +107,12 @@ public class CookieClearingLogoutHandlerTests {
 		}
 	}
 
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void invalidAge() {
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.setContextPath("/foo/bar");
 		Cookie cookie1 = new Cookie("my_cookie", null);
 		cookie1.setPath("/foo");
 		cookie1.setMaxAge(100);
-		CookieClearingLogoutHandler handler = new CookieClearingLogoutHandler(cookie1);
-		handler.logout(request, response, mock(Authentication.class));
+		assertThatIllegalArgumentException().isThrownBy(() -> new CookieClearingLogoutHandler(cookie1));
 	}
+
 }

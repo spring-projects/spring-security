@@ -22,6 +22,7 @@ import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -31,8 +32,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Vedran Pavic
  * @since 5.1
  */
-public final class ReferrerPolicyServerHttpHeadersWriter
-		implements ServerHttpHeadersWriter {
+public final class ReferrerPolicyServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String REFERRER_POLICY = "Referrer-Policy";
 
@@ -58,25 +58,28 @@ public final class ReferrerPolicyServerHttpHeadersWriter
 	}
 
 	private static ServerHttpHeadersWriter createDelegate(ReferrerPolicy policy) {
-		// @formatter:off
-		return StaticServerHttpHeadersWriter.builder()
-				.header(REFERRER_POLICY, policy.getPolicy())
-				.build();
-		// @formatter:on
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(REFERRER_POLICY, policy.getPolicy());
+		return builder.build();
 	}
 
 	public enum ReferrerPolicy {
 
-		// @formatter:off
 		NO_REFERRER("no-referrer"),
+
 		NO_REFERRER_WHEN_DOWNGRADE("no-referrer-when-downgrade"),
+
 		SAME_ORIGIN("same-origin"),
+
 		ORIGIN("origin"),
+
 		STRICT_ORIGIN("strict-origin"),
+
 		ORIGIN_WHEN_CROSS_ORIGIN("origin-when-cross-origin"),
+
 		STRICT_ORIGIN_WHEN_CROSS_ORIGIN("strict-origin-when-cross-origin"),
+
 		UNSAFE_URL("unsafe-url");
-		// @formatter:on
 
 		private static final Map<String, ReferrerPolicy> REFERRER_POLICIES;
 
@@ -88,7 +91,7 @@ public final class ReferrerPolicyServerHttpHeadersWriter
 			REFERRER_POLICIES = Collections.unmodifiableMap(referrerPolicies);
 		}
 
-		private String policy;
+		private final String policy;
 
 		ReferrerPolicy(String policy) {
 			this.policy = policy;

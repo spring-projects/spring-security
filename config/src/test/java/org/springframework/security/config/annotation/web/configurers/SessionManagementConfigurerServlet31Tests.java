@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.lang.reflect.Method;
-import javax.servlet.Filter;
+import jakarta.servlet.Filter;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -43,44 +39,41 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- *
  * @author Rob Winch
  */
-@RunWith(PowerMockRunner.class)
-@PowerMockIgnore({ "org.w3c.dom.*", "org.xml.sax.*", "org.apache.xerces.*", "javax.xml.parsers.*" })
 public class SessionManagementConfigurerServlet31Tests {
-	@Mock
-	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
 
 	Filter springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
 	@Test
 	public void changeSessionIdThenPreserveParameters() throws Exception {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "");
-		String id =  request.getSession().getId();
+		String id = request.getSession().getId();
 		request.getSession();
 		request.setServletPath("/login");
 		request.setMethod("POST");
@@ -88,39 +81,13 @@ public class SessionManagementConfigurerServlet31Tests {
 		request.setParameter("password", "password");
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
 		CsrfToken token = repository.generateToken(request);
-		repository.saveToken(token, request, response);
+		repository.saveToken(token, request, this.response);
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
-
 		loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
+		this.springSecurityFilterChain.doFilter(request, this.response, this.chain);
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 		assertThat(request.getSession().getAttribute("attribute1")).isEqualTo("value1");
-	}
-
-	@EnableWebSecurity
-	static class SessionManagementDefaultSessionFixationServlet31Config extends
-			WebSecurityConfigurerAdapter {
-		// @formatter:off
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.formLogin()
-					.and()
-				.sessionManagement();
-		}
-		// @formatter:on
-
-		// @formatter:off
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-		}
-		// @formatter:on
 	}
 
 	private void loadConfig(Class<?>... classes) {
@@ -128,19 +95,40 @@ public class SessionManagementConfigurerServlet31Tests {
 		context.register(classes);
 		context.refresh();
 		this.context = context;
-		this.springSecurityFilterChain = this.context.getBean(
-				"springSecurityFilterChain", Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
 
 	private void login(Authentication auth) {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
-		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(
-				request, response);
+		HttpRequestResponseHolder requestResponseHolder = new HttpRequestResponseHolder(this.request, this.response);
 		repo.loadContext(requestResponseHolder);
-
 		SecurityContextImpl securityContextImpl = new SecurityContextImpl();
 		securityContextImpl.setAuthentication(auth);
-		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(),
-				requestResponseHolder.getResponse());
+		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
 	}
+
+	@EnableWebSecurity
+	static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin()
+					.and()
+				.sessionManagement();
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
 }

@@ -16,15 +16,15 @@
 
 package org.springframework.security.jackson2;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-import java.util.Set;
-
 /**
- * This mixin class used to deserialize java.util.Collections$UnmodifiableSet and used with various AuthenticationToken
- * implementation's mixin classes.
+ * This mixin class used to deserialize java.util.Collections$UnmodifiableSet and used
+ * with various AuthenticationToken implementation's mixin classes.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -32,10 +32,10 @@ import java.util.Set;
  * </pre>
  *
  * @author Jitendra Singh
+ * @since 4.2
  * @see UnmodifiableSetDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
- * @since 4.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UnmodifiableSetDeserializer.class)
@@ -46,5 +46,7 @@ class UnmodifiableSetMixin {
 	 * @param s the Set
 	 */
 	@JsonCreator
-	UnmodifiableSetMixin(Set<?> s) {}
+	UnmodifiableSetMixin(Set<?> s) {
+	}
+
 }

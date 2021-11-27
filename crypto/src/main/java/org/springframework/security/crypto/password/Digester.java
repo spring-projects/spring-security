@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.password;
 
 import java.security.MessageDigest;
@@ -45,9 +46,9 @@ final class Digester {
 		setIterations(iterations);
 	}
 
-	public byte[] digest(byte[] value) {
-		MessageDigest messageDigest = createDigest(algorithm);
-		for (int i = 0; i < iterations; i++) {
+	byte[] digest(byte[] value) {
+		MessageDigest messageDigest = createDigest(this.algorithm);
+		for (int i = 0; i < this.iterations; i++) {
 			value = messageDigest.digest(value);
 		}
 		return value;
@@ -64,8 +65,9 @@ final class Digester {
 		try {
 			return MessageDigest.getInstance(algorithm);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalStateException("No such hashing algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalStateException("No such hashing algorithm", ex);
 		}
 	}
+
 }

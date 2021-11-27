@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import java.util.List;
@@ -29,14 +30,19 @@ import org.springframework.security.web.access.channel.ChannelDecisionManagerImp
  * @author Luke Taylor
  * @since 3.0
  */
-public class ChannelAttributeFactory {
+public final class ChannelAttributeFactory {
+
 	private static final String OPT_REQUIRES_HTTP = "http";
+
 	private static final String OPT_REQUIRES_HTTPS = "https";
+
 	private static final String OPT_ANY_CHANNEL = "any";
+
+	private ChannelAttributeFactory() {
+	}
 
 	public static List<ConfigAttribute> createChannelAttributes(String requiredChannel) {
 		String channelConfigAttribute;
-
 		if (requiredChannel.equals(OPT_REQUIRES_HTTPS)) {
 			channelConfigAttribute = "REQUIRES_SECURE_CHANNEL";
 		}
@@ -47,10 +53,9 @@ public class ChannelAttributeFactory {
 			channelConfigAttribute = ChannelDecisionManagerImpl.ANY_CHANNEL;
 		}
 		else {
-			throw new BeanCreationException("Unknown channel attribute "
-					+ requiredChannel);
+			throw new BeanCreationException("Unknown channel attribute " + requiredChannel);
 		}
-
 		return SecurityConfig.createList(channelConfigAttribute);
 	}
+
 }

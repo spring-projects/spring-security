@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.authority.mapping;
 
 import java.util.Collections;
@@ -27,15 +28,10 @@ import java.util.Set;
  * @since 2.0
  */
 public class SimpleMappableAttributesRetriever implements MappableAttributesRetriever {
+
 	private Set<String> mappableAttributes = null;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.core.authority.mapping.MappableAttributesRetriever
-	 * #getMappableAttributes()
-	 */
+	@Override
 	public Set<String> getMappableAttributes() {
 		return this.mappableAttributes;
 	}

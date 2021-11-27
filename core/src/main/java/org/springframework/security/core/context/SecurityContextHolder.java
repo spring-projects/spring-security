@@ -16,10 +16,11 @@
 
 package org.springframework.security.core.context;
 
+import java.lang.reflect.Constructor;
+
+import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.lang.reflect.Constructor;
 
 /**
  * Associates a given {@link SecurityContext} with the current execution thread.
@@ -48,23 +49,64 @@ import java.lang.reflect.Constructor;
  *
  */
 public class SecurityContextHolder {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	public static final String MODE_THREADLOCAL = "MODE_THREADLOCAL";
+
 	public static final String MODE_INHERITABLETHREADLOCAL = "MODE_INHERITABLETHREADLOCAL";
+
 	public static final String MODE_GLOBAL = "MODE_GLOBAL";
+
+	private static final String MODE_PRE_INITIALIZED = "MODE_PRE_INITIALIZED";
+
 	public static final String SYSTEM_PROPERTY = "spring.security.strategy";
+
 	private static String strategyName = System.getProperty(SYSTEM_PROPERTY);
+
 	private static SecurityContextHolderStrategy strategy;
+
 	private static int initializeCount = 0;
 
 	static {
 		initialize();
 	}
 
-	// ~ Methods
-	// ========================================================================================================
+	private static void initialize() {
+		initializeStrategy();
+		initializeCount++;
+	}
+
+	private static void initializeStrategy() {
+		if (MODE_PRE_INITIALIZED.equals(strategyName)) {
+			Assert.state(strategy != null, "When using " + MODE_PRE_INITIALIZED
+					+ ", setContextHolderStrategy must be called with the fully constructed strategy");
+			return;
+		}
+		if (!StringUtils.hasText(strategyName)) {
+			// Set default
+			strategyName = MODE_THREADLOCAL;
+		}
+		if (strategyName.equals(MODE_THREADLOCAL)) {
+			strategy = new ThreadLocalSecurityContextHolderStrategy();
+			return;
+		}
+		if (strategyName.equals(MODE_INHERITABLETHREADLOCAL)) {
+			strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
+			return;
+		}
+		if (strategyName.equals(MODE_GLOBAL)) {
+			strategy = new GlobalSecurityContextHolderStrategy();
+			return;
+		}
+		// Try to load a custom strategy
+		try {
+			Class<?> clazz = Class.forName(strategyName);
+			Constructor<?> customStrategy = clazz.getConstructor();
+			strategy = (SecurityContextHolderStrategy) customStrategy.newInstance();
+		}
+		catch (Exception ex) {
+			ReflectionUtils.handleReflectionException(ex);
+		}
+	}
 
 	/**
 	 * Explicitly clears the context value from the current thread.
@@ -75,7 +117,6 @@ public class SecurityContextHolder {
 
 	/**
 	 * Obtain the current <code>SecurityContext</code>.
-	 *
 	 * @return the security context (never <code>null</code>)
 	 */
 	public static SecurityContext getContext() {
@@ -85,47 +126,17 @@ public class SecurityContextHolder {
 	/**
 	 * Primarily for troubleshooting purposes, this method shows how many times the class
 	 * has re-initialized its <code>SecurityContextHolderStrategy</code>.
-	 *
 	 * @return the count (should be one unless you've called
-	 * {@link #setStrategyName(String)} to switch to an alternate strategy.
+	 * {@link #setStrategyName(String)} or
+	 * {@link #setContextHolderStrategy(SecurityContextHolderStrategy)} to switch to an
+	 * alternate strategy).
 	 */
 	public static int getInitializeCount() {
 		return initializeCount;
 	}
 
-	private static void initialize() {
-		if (!StringUtils.hasText(strategyName)) {
-			// Set default
-			strategyName = MODE_THREADLOCAL;
-		}
-
-		if (strategyName.equals(MODE_THREADLOCAL)) {
-			strategy = new ThreadLocalSecurityContextHolderStrategy();
-		}
-		else if (strategyName.equals(MODE_INHERITABLETHREADLOCAL)) {
-			strategy = new InheritableThreadLocalSecurityContextHolderStrategy();
-		}
-		else if (strategyName.equals(MODE_GLOBAL)) {
-			strategy = new GlobalSecurityContextHolderStrategy();
-		}
-		else {
-			// Try to load a custom strategy
-			try {
-				Class<?> clazz = Class.forName(strategyName);
-				Constructor<?> customStrategy = clazz.getConstructor();
-				strategy = (SecurityContextHolderStrategy) customStrategy.newInstance();
-			}
-			catch (Exception ex) {
-				ReflectionUtils.handleReflectionException(ex);
-			}
-		}
-
-		initializeCount++;
-	}
-
 	/**
 	 * Associates a new <code>SecurityContext</code> with the current thread of execution.
-	 *
 	 * @param context the new <code>SecurityContext</code> (may not be <code>null</code>)
 	 */
 	public static void setContext(SecurityContext context) {
@@ -136,7 +147,6 @@ public class SecurityContextHolder {
 	 * Changes the preferred strategy. Do <em>NOT</em> call this method more than once for
 	 * a given JVM, as it will re-initialize the strategy and adversely affect any
 	 * existing threads using the old strategy.
-	 *
 	 * @param strategyName the fully qualified class name of the strategy that should be
 	 * used.
 	 */
@@ -146,8 +156,42 @@ public class SecurityContextHolder {
 	}
 
 	/**
-	 * Allows retrieval of the context strategy. See SEC-1188.
+	 * Use this {@link SecurityContextHolderStrategy}.
 	 *
+	 * Call either {@link #setStrategyName(String)} or this method, but not both.
+	 *
+	 * This method is not thread safe. Changing the strategy while requests are in-flight
+	 * may cause race conditions.
+	 *
+	 * {@link SecurityContextHolder} maintains a static reference to the provided
+	 * {@link SecurityContextHolderStrategy}. This means that the strategy and its members
+	 * will not be garbage collected until you remove your strategy.
+	 *
+	 * To ensure garbage collection, remember the original strategy like so:
+	 *
+	 * <pre>
+	 *     SecurityContextHolderStrategy original = SecurityContextHolder.getContextHolderStrategy();
+	 *     SecurityContextHolder.setContextHolderStrategy(myStrategy);
+	 * </pre>
+	 *
+	 * And then when you are ready for {@code myStrategy} to be garbage collected you can
+	 * do:
+	 *
+	 * <pre>
+	 *     SecurityContextHolder.setContextHolderStrategy(original);
+	 * </pre>
+	 * @param strategy the {@link SecurityContextHolderStrategy} to use
+	 * @since 5.6
+	 */
+	public static void setContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		Assert.notNull(strategy, "securityContextHolderStrategy cannot be null");
+		SecurityContextHolder.strategyName = MODE_PRE_INITIALIZED;
+		SecurityContextHolder.strategy = strategy;
+		initialize();
+	}
+
+	/**
+	 * Allows retrieval of the context strategy. See SEC-1188.
 	 * @return the configured strategy for storing the security context.
 	 */
 	public static SecurityContextHolderStrategy getContextHolderStrategy() {
@@ -163,7 +207,8 @@ public class SecurityContextHolder {
 
 	@Override
 	public String toString() {
-		return "SecurityContextHolder[strategy='" + strategyName + "'; initializeCount="
+		return "SecurityContextHolder[strategy='" + strategy.getClass().getSimpleName() + "'; initializeCount="
 				+ initializeCount + "]";
 	}
+
 }

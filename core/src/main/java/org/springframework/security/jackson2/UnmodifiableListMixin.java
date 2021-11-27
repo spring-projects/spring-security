@@ -16,11 +16,11 @@
 
 package org.springframework.security.jackson2;
 
+import java.util.Set;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Set;
 
 /**
  * This mixin class used to deserialize java.util.Collections$UnmodifiableRandomAccessList
@@ -32,10 +32,10 @@ import java.util.Set;
  * </pre>
  *
  * @author Rob Winch
+ * @since 5.0.2
  * @see UnmodifiableListDeserializer
  * @see CoreJackson2Module
  * @see SecurityJackson2Modules
- * @since 5.0.2
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonDeserialize(using = UnmodifiableListDeserializer.class)
@@ -46,5 +46,7 @@ class UnmodifiableListMixin {
 	 * @param s the Set
 	 */
 	@JsonCreator
-	UnmodifiableListMixin(Set<?> s) {}
+	UnmodifiableListMixin(Set<?> s) {
+	}
+
 }

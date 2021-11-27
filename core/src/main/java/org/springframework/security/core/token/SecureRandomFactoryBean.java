@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.token;
 
 import java.io.InputStream;
@@ -32,28 +33,29 @@ import org.springframework.util.FileCopyUtils;
 public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 
 	private String algorithm = "SHA1PRNG";
+
 	private Resource seed;
 
+	@Override
 	public SecureRandom getObject() throws Exception {
-		SecureRandom rnd = SecureRandom.getInstance(algorithm);
-
+		SecureRandom random = SecureRandom.getInstance(this.algorithm);
 		// Request the next bytes, thus eagerly incurring the expense of default
 		// seeding and to prevent the see from replacing the entire state
-		rnd.nextBytes(new byte[1]);
-
-		if (seed != null) {
+		random.nextBytes(new byte[1]);
+		if (this.seed != null) {
 			// Seed specified, so use it
-			byte[] seedBytes = FileCopyUtils.copyToByteArray(seed.getInputStream());
-			rnd.setSeed(seedBytes);
+			byte[] seedBytes = FileCopyUtils.copyToByteArray(this.seed.getInputStream());
+			random.setSeed(seedBytes);
 		}
-
-		return rnd;
+		return random;
 	}
 
+	@Override
 	public Class<SecureRandom> getObjectType() {
 		return SecureRandom.class;
 	}
 
+	@Override
 	public boolean isSingleton() {
 		return false;
 	}
@@ -61,7 +63,6 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 	/**
 	 * Allows the Pseudo Random Number Generator (PRNG) algorithm to be nominated.
 	 * Defaults to "SHA1PRNG".
-	 *
 	 * @param algorithm to use (mandatory)
 	 */
 	public void setAlgorithm(String algorithm) {
@@ -76,10 +77,10 @@ public class SecureRandomFactoryBean implements FactoryBean<SecureRandom> {
 	 * {@link SecureRandom#setSeed(byte[])} method. Note that this will simply supplement,
 	 * rather than replace, the existing seed. As such, it is always safe to set a seed
 	 * using this method (it never reduces randomness).
-	 *
 	 * @param seed to use, or <code>null</code> if no additional seeding is needed
 	 */
 	public void setSeed(Resource seed) {
 		this.seed = seed;
 	}
+
 }

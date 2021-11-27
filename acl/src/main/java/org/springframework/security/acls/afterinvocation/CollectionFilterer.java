@@ -16,13 +16,15 @@
 
 package org.springframework.security.acls.afterinvocation;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 
 /**
  * A filter used to filter Collections.
@@ -31,24 +33,15 @@ import java.util.Set;
  * @author Paulo Neves
  */
 class CollectionFilterer<T> implements Filterer<T> {
-	// ~ Static fields/initializers
-	// =====================================================================================
 
 	protected static final Log logger = LogFactory.getLog(CollectionFilterer.class);
-
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final Collection<T> collection;
 
 	private final Set<T> removeList;
 
-	// ~ Constructors
-	// ===================================================================================================
-
 	CollectionFilterer(Collection<T> collection) {
 		this.collection = collection;
-
 		// We create a Set of objects to be removed from the Collection,
 		// as ConcurrentModificationException prevents removal during
 		// iteration, and making a new Collection to be returned is
@@ -56,47 +49,30 @@ class CollectionFilterer<T> implements Filterer<T> {
 		// to the method may not necessarily be re-constructable (as
 		// the Collection(collection) constructor is not guaranteed and
 		// manually adding may lose sort order or other capabilities)
-		removeList = new HashSet<>();
+		this.removeList = new HashSet<>();
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#getFilteredObject()
-	 */
+	@Override
 	public Object getFilteredObject() {
 		// Now the Iterator has ended, remove Objects from Collection
-		Iterator<T> removeIter = removeList.iterator();
-
-		int originalSize = collection.size();
-
+		Iterator<T> removeIter = this.removeList.iterator();
+		int originalSize = this.collection.size();
 		while (removeIter.hasNext()) {
-			collection.remove(removeIter.next());
+			this.collection.remove(removeIter.next());
 		}
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("Original collection contained " + originalSize
-					+ " elements; now contains " + collection.size() + " elements");
-		}
-
-		return collection;
+		logger.debug(LogMessage.of(() -> "Original collection contained " + originalSize + " elements; now contains "
+				+ this.collection.size() + " elements"));
+		return this.collection;
 	}
 
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#iterator()
-	 */
+	@Override
 	public Iterator<T> iterator() {
-		return collection.iterator();
+		return this.collection.iterator();
 	}
 
-	/**
-	 *
-	 * @see org.springframework.security.acls.afterinvocation.Filterer#remove(java.lang.Object)
-	 */
+	@Override
 	public void remove(T object) {
-		removeList.add(object);
+		this.removeList.add(object);
 	}
+
 }

@@ -16,10 +16,11 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.test.publisher.PublisherProbe;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
@@ -28,43 +29,42 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.test.publisher.PublisherProbe;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedirectServerAuthenticationEntryPointTests {
 
 	@Mock
 	private ServerWebExchange exchange;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
-	private RedirectServerAuthenticationEntryPoint entryPoint =
-		new RedirectServerAuthenticationEntryPoint(this.location);
+	private RedirectServerAuthenticationEntryPoint entryPoint = new RedirectServerAuthenticationEntryPoint(
+			this.location);
 
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
+	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
+			"Authentication Required");
 
-
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-		this.entryPoint.commence(this.exchange,
-			this.exception);
-
+		this.entryPoint.commence(this.exchange, this.exception);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getSession().block().isStarted()).isFalse();
 	}
@@ -72,28 +72,24 @@ public class RedirectServerAuthenticationEntryPointTests {
 	@Test
 	public void commenceWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
-		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
 
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.entryPoint.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
-
 		this.entryPoint.commence(this.exchange, this.exception).block();
-
 		redirectResult.assertWasSubscribed();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.entryPoint.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.entryPoint.setRedirectStrategy(null));
 	}
+
 }

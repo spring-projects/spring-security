@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.switchuser;
 
 import java.util.Collection;
@@ -36,7 +37,6 @@ public interface SwitchUserAuthorityChanger {
 	/**
 	 * Allow subclasses to add or remove authorities that will be granted when in switch
 	 * user mode.
-	 *
 	 * @param targetUser the UserDetails representing the identity being switched to
 	 * @param currentAuthentication the current Authentication of the principal performing
 	 * the switching
@@ -44,10 +44,9 @@ public interface SwitchUserAuthorityChanger {
 	 * {@link org.springframework.security.core.GrantedAuthority} instances to be granted
 	 * to the user, excluding the special "switch user" authority that is used internally
 	 * (guaranteed never null)
-	 *
 	 * @return the modified list of granted authorities.
 	 */
-	Collection<? extends GrantedAuthority> modifyGrantedAuthorities(
-			UserDetails targetUser, Authentication currentAuthentication,
-			Collection<? extends GrantedAuthority> authoritiesToBeGranted);
+	Collection<? extends GrantedAuthority> modifyGrantedAuthorities(UserDetails targetUser,
+			Authentication currentAuthentication, Collection<? extends GrantedAuthority> authoritiesToBeGranted);
+
 }

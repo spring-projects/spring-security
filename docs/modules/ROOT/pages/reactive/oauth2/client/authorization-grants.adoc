@@ -1,0 +1,1100 @@
+[[oauth2Client-auth-grant-support]]
+= Authorization Grant Support
+
+
+[[oauth2Client-auth-code-grant]]
+== Authorization Code
+
+[NOTE]
+Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.1[Authorization Code] grant.
+
+
+=== Obtaining Authorization
+
+[NOTE]
+Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.1[Authorization Request/Response] protocol flow for the Authorization Code grant.
+
+
+=== Initiating the Authorization Request
+
+The `OAuth2AuthorizationRequestRedirectWebFilter` uses a `ServerOAuth2AuthorizationRequestResolver` to resolve an `OAuth2AuthorizationRequest` and initiate the Authorization Code grant flow by redirecting the end-user's user-agent to the Authorization Server's Authorization Endpoint.
+
+The primary role of the `ServerOAuth2AuthorizationRequestResolver` is to resolve an `OAuth2AuthorizationRequest` from the provided web request.
+The default implementation `DefaultServerOAuth2AuthorizationRequestResolver` matches on the (default) path `+/oauth2/authorization/{registrationId}+` extracting the `registrationId` and using it to build the `OAuth2AuthorizationRequest` for the associated `ClientRegistration`.
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml,attrs="-attributes"]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/authorized/okta"
+            scope: read, write
+        provider:
+          okta:
+            authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
+----
+
+A request with the base path `/oauth2/authorization/okta` will initiate the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectWebFilter` and ultimately start the Authorization Code grant flow.
+
+[NOTE]
+The `AuthorizationCodeReactiveOAuth2AuthorizedClientProvider` is an implementation of `ReactiveOAuth2AuthorizedClientProvider` for the Authorization Code grant,
+which also initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectWebFilter`.
+
+If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], then configure the OAuth 2.0 Client registration as follows:
+
+[source,yaml,attrs="-attributes"]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-authentication-method: none
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/authorized/okta"
+            ...
+----
+
+Public Clients are supported using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
+If the client is running in an untrusted environment (eg. native application or web browser-based application) and therefore incapable of maintaining the confidentiality of it's credentials, PKCE will automatically be used when the following conditions are true:
+
+. `client-secret` is omitted (or empty)
+. `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
+
+[[oauth2Client-auth-code-redirect-uri]]
+The `DefaultServerOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
+
+The following configuration uses all the supported `URI` template variables:
+
+[source,yaml,attrs="-attributes"]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            ...
+            redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
+            ...
+----
+
+[NOTE]
+`+{baseUrl}+` resolves to `+{baseScheme}://{baseHost}{basePort}{basePath}+`
+
+Configuring the `redirect-uri` with `URI` template variables is especially useful when the OAuth 2.0 Client is running behind a xref:features/exploits/http.adoc#http-proxy-server[Proxy Server].
+This ensures that the `X-Forwarded-*` headers are used when expanding the `redirect-uri`.
+
+=== Customizing the Authorization Request
+
+One of the primary use cases a `ServerOAuth2AuthorizationRequestResolver` can realize is the ability to customize the Authorization Request with additional parameters above the standard parameters defined in the OAuth 2.0 Authorization Framework.
+
+For example, OpenID Connect defines additional OAuth 2.0 request parameters for the https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest[Authorization Code Flow] extending from the standard parameters defined in the https://tools.ietf.org/html/rfc6749#section-4.1.1[OAuth 2.0 Authorization Framework].
+One of those extended parameters is the `prompt` parameter.
+
+[NOTE]
+OPTIONAL. Space delimited, case sensitive list of ASCII string values that specifies whether the Authorization Server prompts the End-User for reauthentication and consent. The defined values are: none, login, consent, select_account
+
+The following example shows how to configure the `DefaultServerOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebFluxSecurity
+public class OAuth2LoginSecurityConfig {
+
+	@Autowired
+	private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		http
+			.authorizeExchange(authorize -> authorize
+				.anyExchange().authenticated()
+			)
+			.oauth2Login(oauth2 -> oauth2
+				.authorizationRequestResolver(
+					authorizationRequestResolver(this.clientRegistrationRepository)
+				)
+			);
+		return http.build();
+	}
+
+	private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver(
+			ReactiveClientRegistrationRepository clientRegistrationRepository) {
+
+		DefaultServerOAuth2AuthorizationRequestResolver authorizationRequestResolver =
+				new DefaultServerOAuth2AuthorizationRequestResolver(
+						clientRegistrationRepository);
+		authorizationRequestResolver.setAuthorizationRequestCustomizer(
+				authorizationRequestCustomizer());
+
+		return  authorizationRequestResolver;
+	}
+
+	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+		return customizer -> customizer
+					.additionalParameters(params -> params.put("prompt", "consent"));
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebFluxSecurity
+class SecurityConfig {
+
+    @Autowired
+    private lateinit var customClientRegistrationRepository: ReactiveClientRegistrationRepository
+
+    @Bean
+    fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        http {
+            authorizeExchange {
+                authorize(anyExchange, authenticated)
+            }
+            oauth2Login {
+                authorizationRequestResolver = authorizationRequestResolver(customClientRegistrationRepository)
+            }
+        }
+
+        return http.build()
+    }
+
+    private fun authorizationRequestResolver(
+            clientRegistrationRepository: ReactiveClientRegistrationRepository): ServerOAuth2AuthorizationRequestResolver {
+        val authorizationRequestResolver = DefaultServerOAuth2AuthorizationRequestResolver(
+                clientRegistrationRepository)
+        authorizationRequestResolver.setAuthorizationRequestCustomizer(
+                authorizationRequestCustomizer())
+        return authorizationRequestResolver
+    }
+
+    private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationRequest.Builder> {
+        return Consumer { customizer ->
+            customizer
+                .additionalParameters { params -> params["prompt"] = "consent" }
+        }
+    }
+}
+----
+====
+
+For the simple use case, where the additional request parameter is always the same for a specific provider, it may be added directly in the `authorization-uri` property.
+
+For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, than simply configure as follows:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        provider:
+          okta:
+            authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize?prompt=consent
+----
+
+The preceding example shows the common use case of adding a custom parameter on top of the standard parameters.
+Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by simply overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+
+[TIP]
+`OAuth2AuthorizationRequest.Builder.build()` constructs the `OAuth2AuthorizationRequest.authorizationRequestUri`, which represents the Authorization Request URI including all query parameters using the `application/x-www-form-urlencoded` format.
+
+The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
+
+====
+.Java
+[source,java,role="primary"]
+----
+private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
+	return customizer -> customizer
+			.authorizationRequestUri(uriBuilder -> uriBuilder
+					.queryParam("prompt", "consent").build());
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationRequest.Builder> {
+    return Consumer { customizer: OAuth2AuthorizationRequest.Builder ->
+        customizer
+                .authorizationRequestUri { uriBuilder: UriBuilder ->
+                    uriBuilder
+                            .queryParam("prompt", "consent").build()
+                }
+    }
+}
+----
+====
+
+
+=== Storing the Authorization Request
+
+The `ServerAuthorizationRequestRepository` is responsible for the persistence of the `OAuth2AuthorizationRequest` from the time the Authorization Request is initiated to the time the Authorization Response is received (the callback).
+
+[TIP]
+The `OAuth2AuthorizationRequest` is used to correlate and validate the Authorization Response.
+
+The default implementation of `ServerAuthorizationRequestRepository` is `WebSessionOAuth2ServerAuthorizationRequestRepository`, which stores the `OAuth2AuthorizationRequest` in the `WebSession`.
+
+If you have a custom implementation of `ServerAuthorizationRequestRepository`, you may configure it as shown in the following example:
+
+.ServerAuthorizationRequestRepository Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebFluxSecurity
+public class OAuth2ClientSecurityConfig {
+
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		http
+			.oauth2Client(oauth2 -> oauth2
+				.authorizationRequestRepository(this.authorizationRequestRepository())
+				...
+			);
+		return http.build();
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebFluxSecurity
+class OAuth2ClientSecurityConfig {
+
+    @Bean
+    fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        http {
+            oauth2Client {
+                authorizationRequestRepository = authorizationRequestRepository()
+            }
+        }
+
+        return http.build()
+    }
+}
+----
+====
+
+=== Requesting an Access Token
+
+[NOTE]
+Please refer to the https://tools.ietf.org/html/rfc6749#section-4.1.3[Access Token Request/Response] protocol flow for the Authorization Code grant.
+
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Authorization Code grant is `WebClientReactiveAuthorizationCodeTokenResponseClient`, which uses a `WebClient` for exchanging an authorization code for an access token at the Authorization Server’s Token Endpoint.
+
+The `WebClientReactiveAuthorizationCodeTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveAuthorizationCodeTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>`.
+The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.1.3[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Authorization Code grant are added directly to the body of the request by the `WebClientReactiveAuthorizationCodeTokenResponseClient`.
+However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+[TIP]
+If you prefer to only add additional parameters, you can instead provide `WebClientReactiveAuthorizationCodeTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2AuthorizationCodeGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
+
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveAuthorizationCodeTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
+The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
+
+=== Customizing the `WebClient`
+
+Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveAuthorizationCodeTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
+
+Whether you customize `WebClientReactiveAuthorizationCodeTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
+
+.Access Token Response Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebFluxSecurity
+public class OAuth2ClientSecurityConfig {
+
+	@Bean
+	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+		http
+			.oauth2Client(oauth2 -> oauth2
+				.authenticationManager(this.authorizationCodeAuthenticationManager())
+				...
+			);
+		return http.build();
+	}
+
+	private ReactiveAuthenticationManager authorizationCodeAuthenticationManager() {
+		WebClientReactiveAuthorizationCodeTokenResponseClient accessTokenResponseClient =
+				new WebClientReactiveAuthorizationCodeTokenResponseClient();
+		...
+
+		return new OAuth2AuthorizationCodeReactiveAuthenticationManager(accessTokenResponseClient);
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebFluxSecurity
+class OAuth2ClientSecurityConfig {
+
+    @Bean
+    fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        http {
+            oauth2Client {
+                authenticationManager = authorizationCodeAuthenticationManager()
+            }
+        }
+
+        return http.build()
+    }
+
+    private fun authorizationCodeAuthenticationManager(): ReactiveAuthenticationManager {
+        val accessTokenResponseClient = WebClientReactiveAuthorizationCodeTokenResponseClient()
+        ...
+
+        return OAuth2AuthorizationCodeReactiveAuthenticationManager(accessTokenResponseClient)
+    }
+}
+----
+====
+
+
+[[oauth2Client-refresh-token-grant]]
+== Refresh Token
+
+[NOTE]
+Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.5[Refresh Token].
+
+
+=== Refreshing an Access Token
+
+[NOTE]
+Please refer to the https://tools.ietf.org/html/rfc6749#section-6[Access Token Request/Response] protocol flow for the Refresh Token grant.
+
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Refresh Token grant is `WebClientReactiveRefreshTokenTokenResponseClient`, which uses a `WebClient` when refreshing an access token at the Authorization Server’s Token Endpoint.
+
+The `WebClientReactiveRefreshTokenTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveRefreshTokenTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>`.
+The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-6[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Refresh Token grant are added directly to the body of the request by the `WebClientReactiveRefreshTokenTokenResponseClient`.
+However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+[TIP]
+If you prefer to only add additional parameters, you can instead provide `WebClientReactiveRefreshTokenTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2RefreshTokenGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
+
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveRefreshTokenTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
+The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
+
+=== Customizing the `WebClient`
+
+Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveRefreshTokenTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
+
+Whether you customize `WebClientReactiveRefreshTokenTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
+
+.Access Token Response Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+// Customize
+ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient = ...
+
+ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.authorizationCode()
+				.refreshToken(configurer -> configurer.accessTokenResponseClient(refreshTokenTokenResponseClient))
+				.build();
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+// Customize
+val refreshTokenTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> = ...
+
+val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+        .authorizationCode()
+        .refreshToken { it.accessTokenResponseClient(refreshTokenTokenResponseClient) }
+        .build()
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
+====
+
+[NOTE]
+`ReactiveOAuth2AuthorizedClientProviderBuilder.builder().refreshToken()` configures a `RefreshTokenReactiveOAuth2AuthorizedClientProvider`,
+which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Refresh Token grant.
+
+The `OAuth2RefreshToken` may optionally be returned in the Access Token Response for the `authorization_code` and `password` grant types.
+If the `OAuth2AuthorizedClient.getRefreshToken()` is available and the `OAuth2AuthorizedClient.getAccessToken()` is expired, it will automatically be refreshed by the `RefreshTokenReactiveOAuth2AuthorizedClientProvider`.
+
+
+[[oauth2Client-client-creds-grant]]
+== Client Credentials
+
+[NOTE]
+Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.4[Client Credentials] grant.
+
+
+=== Requesting an Access Token
+
+[NOTE]
+Please refer to the https://tools.ietf.org/html/rfc6749#section-4.4.2[Access Token Request/Response] protocol flow for the Client Credentials grant.
+
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Client Credentials grant is `WebClientReactiveClientCredentialsTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+
+The `WebClientReactiveClientCredentialsTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveClientCredentialsTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>`.
+The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Client Credentials grant are added directly to the body of the request by the `WebClientReactiveClientCredentialsTokenResponseClient`.
+However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+[TIP]
+If you prefer to only add additional parameters, you can instead provide `WebClientReactiveClientCredentialsTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2ClientCredentialsGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
+
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveClientCredentialsTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
+The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
+
+=== Customizing the `WebClient`
+
+Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveClientCredentialsTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
+
+Whether you customize `WebClientReactiveClientCredentialsTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+// Customize
+ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient = ...
+
+ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.clientCredentials(configurer -> configurer.accessTokenResponseClient(clientCredentialsTokenResponseClient))
+				.build();
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+// Customize
+val clientCredentialsTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> = ...
+
+val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+        .clientCredentials { it.accessTokenResponseClient(clientCredentialsTokenResponseClient) }
+        .build()
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
+====
+
+[NOTE]
+`ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsReactiveOAuth2AuthorizedClientProvider`,
+which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Client Credentials grant.
+
+=== Using the Access Token
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: client_credentials
+            scope: read, write
+        provider:
+          okta:
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
+----
+
+...and the `ReactiveOAuth2AuthorizedClientManager` `@Bean`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
+		ReactiveClientRegistrationRepository clientRegistrationRepository,
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+			ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+					.clientCredentials()
+					.build();
+
+	DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultReactiveOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizedClientManager(
+        clientRegistrationRepository: ReactiveClientRegistrationRepository,
+        authorizedClientRepository: ServerOAuth2AuthorizedClientRepository): ReactiveOAuth2AuthorizedClientManager {
+    val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+            .clientCredentials()
+            .build()
+    val authorizedClientManager = DefaultReactiveOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientRepository)
+    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+    return authorizedClientManager
+}
+----
+====
+
+You may obtain the `OAuth2AccessToken` as follows:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Controller
+public class OAuth2ClientController {
+
+	@Autowired
+	private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+
+	@GetMapping("/")
+	public Mono<String> index(Authentication authentication, ServerWebExchange exchange) {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+				.principal(authentication)
+				.attribute(ServerWebExchange.class.getName(), exchange)
+				.build();
+
+		return this.authorizedClientManager.authorize(authorizeRequest)
+				.map(OAuth2AuthorizedClient::getAccessToken)
+				...
+				.thenReturn("index");
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class OAuth2ClientController {
+
+    @Autowired
+    private lateinit var authorizedClientManager: ReactiveOAuth2AuthorizedClientManager
+
+    @GetMapping("/")
+    fun index(authentication: Authentication, exchange: ServerWebExchange): Mono<String> {
+        val authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+                .principal(authentication)
+                .attribute(ServerWebExchange::class.java.name, exchange)
+                .build()
+
+        return authorizedClientManager.authorize(authorizeRequest)
+                .map { it.accessToken }
+                ...
+                .thenReturn("index")
+    }
+}
+----
+====
+
+[NOTE]
+`ServerWebExchange` is an OPTIONAL attribute.
+If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
+
+
+[[oauth2Client-password-grant]]
+== Resource Owner Password Credentials
+
+[NOTE]
+Please refer to the OAuth 2.0 Authorization Framework for further details on the https://tools.ietf.org/html/rfc6749#section-1.3.3[Resource Owner Password Credentials] grant.
+
+
+=== Requesting an Access Token
+
+[NOTE]
+Please refer to the https://tools.ietf.org/html/rfc6749#section-4.3.2[Access Token Request/Response] protocol flow for the Resource Owner Password Credentials grant.
+
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the Resource Owner Password Credentials grant is `WebClientReactivePasswordTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+
+The `WebClientReactivePasswordTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactivePasswordTokenResponseClient.setParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>`.
+The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the Resource Owner Password Credentials grant are added directly to the body of the request by the `WebClientReactivePasswordTokenResponseClient`.
+However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+[TIP]
+If you prefer to only add additional parameters, you can instead provide `WebClientReactivePasswordTokenResponseClient.addParametersConverter()` with a custom `Converter<OAuth2PasswordGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
+
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactivePasswordTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
+The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
+
+=== Customizing the `WebClient`
+
+Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactivePasswordTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
+
+Whether you customize `WebClientReactivePasswordTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+// Customize
+ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient = ...
+
+ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.password(configurer -> configurer.accessTokenResponseClient(passwordTokenResponseClient))
+				.refreshToken()
+				.build();
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val passwordTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> = ...
+
+val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+        .password { it.accessTokenResponseClient(passwordTokenResponseClient) }
+        .refreshToken()
+        .build()
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
+====
+
+[NOTE]
+`ReactiveOAuth2AuthorizedClientProviderBuilder.builder().password()` configures a `PasswordReactiveOAuth2AuthorizedClientProvider`,
+which is an implementation of a `ReactiveOAuth2AuthorizedClientProvider` for the Resource Owner Password Credentials grant.
+
+=== Using the Access Token
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: password
+            scope: read, write
+        provider:
+          okta:
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
+----
+
+...and the `ReactiveOAuth2AuthorizedClientManager` `@Bean`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
+		ReactiveClientRegistrationRepository clientRegistrationRepository,
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+			ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+					.password()
+					.refreshToken()
+					.build();
+
+	DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultReactiveOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	// Assuming the `username` and `password` are supplied as `ServerHttpRequest` parameters,
+	// map the `ServerHttpRequest` parameters to `OAuth2AuthorizationContext.getAttributes()`
+	authorizedClientManager.setContextAttributesMapper(contextAttributesMapper());
+
+	return authorizedClientManager;
+}
+
+private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttributesMapper() {
+	return authorizeRequest -> {
+		Map<String, Object> contextAttributes = Collections.emptyMap();
+		ServerWebExchange exchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
+		ServerHttpRequest request = exchange.getRequest();
+		String username = request.getQueryParams().getFirst(OAuth2ParameterNames.USERNAME);
+		String password = request.getQueryParams().getFirst(OAuth2ParameterNames.PASSWORD);
+		if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+			contextAttributes = new HashMap<>();
+
+			// `PasswordReactiveOAuth2AuthorizedClientProvider` requires both attributes
+			contextAttributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+			contextAttributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+		}
+		return Mono.just(contextAttributes);
+	};
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizedClientManager(
+        clientRegistrationRepository: ReactiveClientRegistrationRepository,
+        authorizedClientRepository: ServerOAuth2AuthorizedClientRepository): ReactiveOAuth2AuthorizedClientManager {
+    val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+            .password()
+            .refreshToken()
+            .build()
+    val authorizedClientManager = DefaultReactiveOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientRepository)
+    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+
+    // Assuming the `username` and `password` are supplied as `ServerHttpRequest` parameters,
+    // map the `ServerHttpRequest` parameters to `OAuth2AuthorizationContext.getAttributes()`
+    authorizedClientManager.setContextAttributesMapper(contextAttributesMapper())
+    return authorizedClientManager
+}
+
+private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, Mono<MutableMap<String, Any>>> {
+    return Function { authorizeRequest ->
+        var contextAttributes: MutableMap<String, Any> = mutableMapOf()
+        val exchange: ServerWebExchange = authorizeRequest.getAttribute(ServerWebExchange::class.java.name)!!
+        val request: ServerHttpRequest = exchange.request
+        val username: String? = request.queryParams.getFirst(OAuth2ParameterNames.USERNAME)
+        val password: String? = request.queryParams.getFirst(OAuth2ParameterNames.PASSWORD)
+        if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+            contextAttributes = hashMapOf()
+
+            // `PasswordReactiveOAuth2AuthorizedClientProvider` requires both attributes
+            contextAttributes[OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME] = username!!
+            contextAttributes[OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME] = password!!
+        }
+        Mono.just(contextAttributes)
+    }
+}
+----
+====
+
+You may obtain the `OAuth2AccessToken` as follows:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Controller
+public class OAuth2ClientController {
+
+	@Autowired
+	private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+
+	@GetMapping("/")
+	public Mono<String> index(Authentication authentication, ServerWebExchange exchange) {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+				.principal(authentication)
+				.attribute(ServerWebExchange.class.getName(), exchange)
+				.build();
+
+		return this.authorizedClientManager.authorize(authorizeRequest)
+				.map(OAuth2AuthorizedClient::getAccessToken)
+				...
+				.thenReturn("index");
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Controller
+class OAuth2ClientController {
+    @Autowired
+    private lateinit var authorizedClientManager: ReactiveOAuth2AuthorizedClientManager
+
+    @GetMapping("/")
+    fun index(authentication: Authentication, exchange: ServerWebExchange): Mono<String> {
+        val authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+                .principal(authentication)
+                .attribute(ServerWebExchange::class.java.name, exchange)
+                .build()
+
+        return authorizedClientManager.authorize(authorizeRequest)
+                .map { it.accessToken }
+                ...
+                .thenReturn("index")
+    }
+}
+----
+====
+
+[NOTE]
+`ServerWebExchange` is an OPTIONAL attribute.
+If not provided, it will be obtained from the https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] via the key `ServerWebExchange.class`.
+
+
+[[oauth2Client-jwt-bearer-grant]]
+== JWT Bearer
+
+[NOTE]
+Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on the https://datatracker.ietf.org/doc/html/rfc7523[JWT Bearer] grant.
+
+
+=== Requesting an Access Token
+
+[NOTE]
+Please refer to the https://datatracker.ietf.org/doc/html/rfc7523#section-2.1[Access Token Request/Response] protocol flow for the JWT Bearer grant.
+
+The default implementation of `ReactiveOAuth2AccessTokenResponseClient` for the JWT Bearer grant is `WebClientReactiveJwtBearerTokenResponseClient`, which uses a `WebClient` when requesting an access token at the Authorization Server’s Token Endpoint.
+
+The `WebClientReactiveJwtBearerTokenResponseClient` is quite flexible as it allows you to customize the pre-processing of the Token Request and/or post-handling of the Token Response.
+
+
+=== Customizing the Access Token Request
+
+If you need to customize the pre-processing of the Token Request, you can provide `WebClientReactiveJwtBearerTokenResponseClient.setParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>`.
+The default implementation builds a `MultiValueMap<String, String>` containing only the `grant_type` parameter of a standard https://tools.ietf.org/html/rfc6749#section-4.4.2[OAuth 2.0 Access Token Request] which is used to construct the request. Other parameters required by the JWT Bearer grant are added directly to the body of the request by the `WebClientReactiveJwtBearerTokenResponseClient`.
+However, providing a custom `Converter`, would allow you to extend the standard Token Request and add custom parameter(s).
+
+[TIP]
+If you prefer to only add additional parameters, you can instead provide `WebClientReactiveJwtBearerTokenResponseClient.addParametersConverter()` with a custom `Converter<JwtBearerGrantRequest, MultiValueMap<String, String>>` which constructs an aggregate `Converter`.
+
+IMPORTANT: The custom `Converter` must return valid parameters of an OAuth 2.0 Access Token Request that is understood by the intended OAuth 2.0 Provider.
+
+=== Customizing the Access Token Response
+
+On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `WebClientReactiveJwtBearerTokenResponseClient.setBodyExtractor()` with a custom configured `BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage>` that is used for converting the OAuth 2.0 Access Token Response to an `OAuth2AccessTokenResponse`.
+The default implementation provided by `OAuth2BodyExtractors.oauth2AccessTokenResponse()` parses the response and handles errors accordingly.
+
+=== Customizing the `WebClient`
+
+Alternatively, if your requirements are more advanced, you can take full control of the request/response by simply providing `WebClientReactiveJwtBearerTokenResponseClient.setWebClient()` with a custom configured `WebClient`.
+
+Whether you customize `WebClientReactiveJwtBearerTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+// Customize
+ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient = ...
+
+JwtBearerReactiveOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider = new JwtBearerReactiveOAuth2AuthorizedClientProvider();
+jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerTokenResponseClient);
+
+ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+		ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+				.provider(jwtBearerAuthorizedClientProvider)
+				.build();
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+// Customize
+val jwtBearerTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> = ...
+
+val jwtBearerAuthorizedClientProvider = JwtBearerReactiveOAuth2AuthorizedClientProvider()
+jwtBearerAuthorizedClientProvider.setAccessTokenResponseClient(jwtBearerTokenResponseClient)
+
+val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+        .provider(jwtBearerAuthorizedClientProvider)
+        .build()
+
+...
+
+authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+----
+====
+
+=== Using the Access Token
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            authorization-grant-type: urn:ietf:params:oauth:grant-type:jwt-bearer
+            scope: read
+        provider:
+          okta:
+            token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
+----
+
+...and the `OAuth2AuthorizedClientManager` `@Bean`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
+		ReactiveClientRegistrationRepository clientRegistrationRepository,
+		ServerOAuth2AuthorizedClientRepository authorizedClientRepository) {
+
+	JwtBearerReactiveOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider =
+			new JwtBearerReactiveOAuth2AuthorizedClientProvider();
+
+	ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
+			ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+					.provider(jwtBearerAuthorizedClientProvider)
+					.build();
+
+	DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager =
+			new DefaultReactiveOAuth2AuthorizedClientManager(
+					clientRegistrationRepository, authorizedClientRepository);
+	authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+
+	return authorizedClientManager;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizedClientManager(
+        clientRegistrationRepository: ReactiveClientRegistrationRepository,
+        authorizedClientRepository: ServerOAuth2AuthorizedClientRepository): ReactiveOAuth2AuthorizedClientManager {
+    val jwtBearerAuthorizedClientProvider = JwtBearerReactiveOAuth2AuthorizedClientProvider()
+    val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
+            .provider(jwtBearerAuthorizedClientProvider)
+            .build()
+    val authorizedClientManager = DefaultReactiveOAuth2AuthorizedClientManager(
+            clientRegistrationRepository, authorizedClientRepository)
+    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+    return authorizedClientManager
+}
+----
+====
+
+You may obtain the `OAuth2AccessToken` as follows:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@RestController
+public class OAuth2ResourceServerController {
+
+	@Autowired
+	private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+
+	@GetMapping("/resource")
+	public Mono<String> resource(JwtAuthenticationToken jwtAuthentication, ServerWebExchange exchange) {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+				.principal(jwtAuthentication)
+				.build();
+
+		return this.authorizedClientManager.authorize(authorizeRequest)
+				.map(OAuth2AuthorizedClient::getAccessToken)
+				...
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class OAuth2ResourceServerController {
+
+    @Autowired
+    private lateinit var authorizedClientManager: ReactiveOAuth2AuthorizedClientManager
+
+    @GetMapping("/resource")
+    fun resource(jwtAuthentication: JwtAuthenticationToken, exchange: ServerWebExchange): Mono<String> {
+        val authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+                .principal(jwtAuthentication)
+                .build()
+        return authorizedClientManager.authorize(authorizeRequest)
+                .map { it.accessToken }
+                ...
+    }
+}
+----
+====

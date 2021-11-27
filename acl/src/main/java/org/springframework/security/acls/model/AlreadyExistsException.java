@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 /**
@@ -21,12 +22,9 @@ package org.springframework.security.acls.model;
  * @author Ben Alex
  */
 public class AlreadyExistsException extends AclDataAccessException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>AlreadyExistsException</code> with the specified message.
-	 *
 	 * @param msg the detail message
 	 */
 	public AlreadyExistsException(String msg) {
@@ -36,11 +34,11 @@ public class AlreadyExistsException extends AclDataAccessException {
 	/**
 	 * Constructs an <code>AlreadyExistsException</code> with the specified message and
 	 * root cause.
-	 *
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public AlreadyExistsException(String msg, Throwable t) {
-		super(msg, t);
+	public AlreadyExistsException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

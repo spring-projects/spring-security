@@ -16,11 +16,11 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -43,16 +45,19 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class WebSecurityTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
@@ -60,7 +65,7 @@ public class WebSecurityTests {
 		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		if (this.context != null) {
 			this.context.close();
@@ -69,40 +74,61 @@ public class WebSecurityTests {
 
 	@Test
 	public void ignoringMvcMatcher() throws Exception {
-		loadConfig(MvcMatcherConfig.class);
-
+		loadConfig(MvcMatcherConfig.class, LegacyMvcMatchingConfig.class);
 		this.request.setRequestURI("/path");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/path.html");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
 		setup();
-
 		this.request.setRequestURI("/other");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+	}
 
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+	@Test
+	public void ignoringMvcMatcherServletPath() throws Exception {
+		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		setup();
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path.html");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		setup();
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/path/");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		setup();
+		this.request.setServletPath("/other");
+		this.request.setRequestURI("/other/path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
+	}
+
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.setServletContext(new MockServletContext());
+		this.context.refresh();
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
 			// @formatter:off
@@ -132,53 +158,21 @@ public class WebSecurityTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
+
 		}
-	}
 
-	@Test
-	public void ignoringMvcMatcherServletPath() throws Exception {
-		loadConfig(MvcMatcherServletPathConfig.class);
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path.html");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/spring");
-		this.request.setRequestURI("/spring/path/");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
-
-		setup();
-
-		this.request.setServletPath("/other");
-		this.request.setRequestURI("/other/path");
-		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
-		assertThat(this.response.getStatus())
-				.isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
 	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		public void configure(WebSecurity web) {
 			// @formatter:off
@@ -209,20 +203,24 @@ public class WebSecurityTests {
 
 		@RestController
 		static class PathController {
+
 			@RequestMapping("/path")
-			public String path() {
+			String path() {
 				return "path";
 			}
+
 		}
+
 	}
 
-	public void loadConfig(Class<?>... configs) {
-		this.context = new AnnotationConfigWebApplicationContext();
-		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
-		this.context.refresh();
+	@Configuration
+	static class LegacyMvcMatchingConfig implements WebMvcConfigurer {
 
-		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+		@Override
+		public void configurePathMatch(PathMatchConfigurer configurer) {
+			configurer.setUseSuffixPatternMatch(true);
+		}
+
 	}
 
 }

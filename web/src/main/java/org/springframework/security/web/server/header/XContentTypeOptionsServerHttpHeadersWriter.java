@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
+
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Adds X-Content-Type-Options: nosniff
@@ -25,21 +26,17 @@ import reactor.core.publisher.Mono;
  * @author Rob Winch
  * @since 5.0
  */
-public class XContentTypeOptionsServerHttpHeadersWriter
-	implements ServerHttpHeadersWriter {
+public class XContentTypeOptionsServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String X_CONTENT_OPTIONS = "X-Content-Options";
 
 	public static final String NOSNIFF = "nosniff";
 
-
 	/**
 	 * The delegate to write all the cache control related headers
 	 */
-	private static final ServerHttpHeadersWriter CONTENT_TYPE_HEADERS = StaticServerHttpHeadersWriter
-		.builder()
-			.header(X_CONTENT_OPTIONS, NOSNIFF)
-			.build();
+	private static final ServerHttpHeadersWriter CONTENT_TYPE_HEADERS = StaticServerHttpHeadersWriter.builder()
+			.header(X_CONTENT_OPTIONS, NOSNIFF).build();
 
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {

@@ -13,57 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.util.matcher;
 
-import static java.util.Arrays.asList;
-import static org.apache.commons.logging.LogFactory.getLog;
-import static org.springframework.util.Assert.notEmpty;
-
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.util.Assert;
 
 /**
  * Abstract {@link MessageMatcher} containing multiple {@link MessageMatcher}
  *
  * @since 4.0
  */
-abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
-	protected final Log LOGGER = getLog(getClass());
+public abstract class AbstractMessageMatcherComposite<T> implements MessageMatcher<T> {
+
+	protected final Log logger = LogFactory.getLog(getClass());
+
+	/**
+	 * @deprecated since 5.4 in favor of {@link #logger}
+	 */
+	@Deprecated
+	protected final Log LOGGER = this.logger;
 
 	private final List<MessageMatcher<T>> messageMatchers;
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	AbstractMessageMatcherComposite(List<MessageMatcher<T>> messageMatchers) {
-		notEmpty(messageMatchers, "messageMatchers must contain a value");
-		if (messageMatchers.contains(null)) {
-			throw new IllegalArgumentException(
-					"messageMatchers cannot contain null values");
-		}
+		Assert.notEmpty(messageMatchers, "messageMatchers must contain a value");
+		Assert.isTrue(!messageMatchers.contains(null), "messageMatchers cannot contain null values");
 		this.messageMatchers = messageMatchers;
 
 	}
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
 	AbstractMessageMatcherComposite(MessageMatcher<T>... messageMatchers) {
-		this(asList(messageMatchers));
+		this(Arrays.asList(messageMatchers));
 	}
 
 	public List<MessageMatcher<T>> getMessageMatchers() {
-		return messageMatchers;
+		return this.messageMatchers;
 	}
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + "[messageMatchers=" + messageMatchers + "]";
+		return getClass().getSimpleName() + "[messageMatchers=" + this.messageMatchers + "]";
 	}
+
 }

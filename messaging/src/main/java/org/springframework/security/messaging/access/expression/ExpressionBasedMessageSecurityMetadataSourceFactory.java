@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
 import java.util.Arrays;
@@ -32,10 +33,13 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
  * A class used to create a {@link MessageSecurityMetadataSource} that uses
  * {@link MessageMatcher} mapped to Spring Expressions.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
+
+	private ExpressionBasedMessageSecurityMetadataSourceFactory() {
+	}
 
 	/**
 	 * Create a {@link MessageSecurityMetadataSource} that uses {@link MessageMatcher}
@@ -61,7 +65,6 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 *
 	 * <p>
 	 * For a complete listing of expressions see {@link MessageSecurityExpressionRoot}
-	 *
 	 * @param matcherToExpression an ordered mapping of {@link MessageMatcher} to Strings
 	 * that are turned into an Expression using
 	 * {@link DefaultMessageSecurityExpressionHandler#getExpressionParser()}
@@ -69,7 +72,8 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 */
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
 			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression) {
-		return createExpressionMessageMetadataSource(matcherToExpression, new DefaultMessageSecurityExpressionHandler<>());
+		return createExpressionMessageMetadataSource(matcherToExpression,
+				new DefaultMessageSecurityExpressionHandler<>());
 	}
 
 	/**
@@ -98,7 +102,6 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 * <p>
 	 * For a complete listing of expressions see {@link MessageSecurityExpressionRoot}
 	 * </p>
-	 *
 	 * @param matcherToExpression an ordered mapping of {@link MessageMatcher} to Strings
 	 * that are turned into an Expression using
 	 * {@link DefaultMessageSecurityExpressionHandler#getExpressionParser()}
@@ -106,21 +109,17 @@ public final class ExpressionBasedMessageSecurityMetadataSourceFactory {
 	 * @return the {@link MessageSecurityMetadataSource} to use. Cannot be null.
 	 */
 	public static MessageSecurityMetadataSource createExpressionMessageMetadataSource(
-			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression, SecurityExpressionHandler<Message<Object>> handler) {
-
+			LinkedHashMap<MessageMatcher<?>, String> matcherToExpression,
+			SecurityExpressionHandler<Message<Object>> handler) {
 		LinkedHashMap<MessageMatcher<?>, Collection<ConfigAttribute>> matcherToAttrs = new LinkedHashMap<>();
-
 		for (Map.Entry<MessageMatcher<?>, String> entry : matcherToExpression.entrySet()) {
 			MessageMatcher<?> matcher = entry.getKey();
 			String rawExpression = entry.getValue();
-			Expression expression = handler.getExpressionParser().parseExpression(
-					rawExpression);
+			Expression expression = handler.getExpressionParser().parseExpression(rawExpression);
 			ConfigAttribute attribute = new MessageExpressionConfigAttribute(expression, matcher);
 			matcherToAttrs.put(matcher, Arrays.asList(attribute));
 		}
 		return new DefaultMessageSecurityMetadataSource(matcherToAttrs);
 	}
 
-	private ExpressionBasedMessageSecurityMetadataSourceFactory() {
-	}
 }

@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.core.userdetails;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ResourceLoaderAware;
 import org.springframework.core.io.Resource;
@@ -24,22 +26,22 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.util.InMemoryResource;
 
-import java.util.Collection;
-
 /**
- * Constructs an {@link MapReactiveUserDetailsService} from a resource using {@link UserDetailsResourceFactoryBean}.
+ * Constructs an {@link MapReactiveUserDetailsService} from a resource using
+ * {@link UserDetailsResourceFactoryBean}.
  *
  * @author Rob Winch
  * @since 5.0
  * @see UserDetailsResourceFactoryBean
  */
 public class ReactiveUserDetailsServiceResourceFactoryBean
-	implements ResourceLoaderAware, FactoryBean<MapReactiveUserDetailsService> {
+		implements ResourceLoaderAware, FactoryBean<MapReactiveUserDetailsService> {
+
 	private UserDetailsResourceFactoryBean userDetails = new UserDetailsResourceFactoryBean();
 
 	@Override
 	public MapReactiveUserDetailsService getObject() throws Exception {
-		Collection<UserDetails> users = userDetails.getObject();
+		Collection<UserDetails> users = this.userDetails.getObject();
 		return new MapReactiveUserDetailsService(users);
 	}
 
@@ -50,21 +52,22 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 
 	@Override
 	public void setResourceLoader(ResourceLoader resourceLoader) {
-		userDetails.setResourceLoader(resourceLoader);
+		this.userDetails.setResourceLoader(resourceLoader);
 	}
 
 	/**
-	 * Sets the location of a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * Sets the location of a Resource that is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
+	 * @param resourceLocation the location of the properties file that contains the users
+	 * (i.e. "classpath:users.properties")
 	 */
 	public void setResourceLocation(String resourceLocation) {
 		this.userDetails.setResourceLocation(resourceLocation);
 	}
 
 	/**
-	 * Sets a Resource that is a Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
+	 * Sets a Resource that is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
 	 * @param resource the Resource to use
 	 */
 	public void setResource(Resource resource) {
@@ -72,10 +75,11 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	}
 
 	/**
-	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with the location of a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param resourceLocation the location of the properties file that contains the users (i.e. "classpath:users.properties")
+	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with the location of a
+	 * Resource that is a Properties file in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}.
+	 * @param resourceLocation the location of the properties file that contains the users
+	 * (i.e. "classpath:users.properties")
 	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
 	public static ReactiveUserDetailsServiceResourceFactoryBean fromResourceLocation(String resourceLocation) {
@@ -85,10 +89,10 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	}
 
 	/**
-	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with a Resource that is a Properties file in the
-	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param propertiesResource the Resource that is a properties file that contains the users
+	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with a Resource that is a
+	 * Properties file in the format defined in {@link UserDetailsResourceFactoryBean}.
+	 * @param propertiesResource the Resource that is a properties file that contains the
+	 * users
 	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
 	public static ReactiveUserDetailsServiceResourceFactoryBean fromResource(Resource propertiesResource) {
@@ -100,8 +104,8 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 	/**
 	 * Create a ReactiveUserDetailsServiceResourceFactoryBean with a String that is in the
 	 * format defined in {@link UserDetailsResourceFactoryBean}.
-	 *
-	 * @param users the users in the format defined in {@link UserDetailsResourceFactoryBean}
+	 * @param users the users in the format defined in
+	 * {@link UserDetailsResourceFactoryBean}
 	 * @return the ReactiveUserDetailsServiceResourceFactoryBean
 	 */
 	public static ReactiveUserDetailsServiceResourceFactoryBean fromString(String users) {
@@ -109,4 +113,5 @@ public class ReactiveUserDetailsServiceResourceFactoryBean
 		result.setResource(new InMemoryResource(users));
 		return result;
 	}
+
 }

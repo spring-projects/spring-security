@@ -1,0 +1,88 @@
+plugins {
+	id "io.github.rwinch.antora" version "0.0.2"
+}
+
+apply plugin: 'io.spring.convention.docs'
+apply plugin: 'java'
+
+antora {
+	antoraVersion = "3.0.0-alpha.8"
+	arguments = ["--fetch", "--stacktrace"]
+}
+
+tasks.antora {
+	environment = [
+			"ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
+			"ALGOLIA_APP_ID" : "244V8V9FGG",
+			"ALGOLIA_INDEX_NAME" : "security-docs"
+	]
+}
+
+tasks.register("generateAntora") {
+	group = "Documentation"
+	description = "Generates the antora.yml for dynamic properties"
+	doLast {
+		def docsTag = snapshotBuild ? 'current' : project.version
+		def ghTag = snapshotBuild ? 'main' : project.version
+		def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"
+		def ghOldSamplesUrl = "https://github.com/spring-projects/spring-security/tree/5.4.x/samples"
+		def ghSamplesUrl = "https://github.com/spring-projects/spring-security-samples/tree/$samplesBranch"
+		def securityDocsUrl = "https://docs.spring.io/spring-security/site/docs/$docsTag"
+		def securityApiUrl = "$securityDocsUrl/api/"
+		def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
+		def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
+		def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/reference/html/"
+		def versions = resolvedVersions(project.configurations.testRuntimeClasspath)
+		def ymlVersions = ""
+		versions.call().each { name, version ->
+			ymlVersions += """
+    ${name}: ${version}"""
+		}
+		def outputFile = new File("$buildDir/generateAntora/antora.yml")
+		outputFile.getParentFile().mkdirs()
+		outputFile.createNewFile()
+		def antoraYmlText = file("antora.yml").getText()
+		outputFile.setText("""$antoraYmlText
+title: Spring Security
+start_page: ROOT:index.adoc
+nav:
+- modules/ROOT/nav.adoc
+asciidoc:
+  attributes:
+    icondir: icons
+    gh-old-samples-url: $ghOldSamplesUrl
+    gh-samples-url: $ghSamplesUrl
+    gh-url: $ghUrl
+    security-api-url: $securityApiUrl
+    security-reference-url: $securityReferenceUrl
+    spring-framework-api-url: $springFrameworkApiUrl
+    spring-framework-reference-url: $springFrameworkReferenceUrl
+    spring-security-version: ${project.version}
+${ymlVersions}
+""")
+	}
+}
+
+
+
+dependencies {
+	testImplementation platform(project(":spring-security-dependencies"))
+	testImplementation "com.unboundid:unboundid-ldapsdk"
+	testImplementation "org.apache.directory.server:apacheds-core"
+	testImplementation "org.springframework:spring-core"
+}
+
+def resolvedVersions(Configuration configuration) {
+	return {
+		configuration.resolvedConfiguration
+				.resolvedArtifacts
+				.collectEntries { [(it.name + "-version"): it.moduleVersion.id.version] }
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/release" }
+	maven { url "https://repo.spring.io/milestone" }
+	maven { url "https://repo.spring.io/snapshot" }
+}

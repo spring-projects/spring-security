@@ -13,7 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.reactive.server;
+
+import java.util.Arrays;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest.BaseBuilder;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -22,21 +27,18 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebHandler;
 import org.springframework.web.server.handler.FilteringWebHandler;
 
-import reactor.core.publisher.Mono;
-
-import java.util.Arrays;
-
 /**
- *
  * @author Rob Winch
  * @since 5.0
  */
-public class WebTestHandler {
+public final class WebTestHandler {
+
 	private final MockWebHandler webHandler = new MockWebHandler();
+
 	private final WebHandler handler;
 
 	private WebTestHandler(WebFilter... filters) {
-		this.handler = new FilteringWebHandler(webHandler, Arrays.asList(filters));
+		this.handler = new FilteringWebHandler(this.webHandler, Arrays.asList(filters));
 	}
 
 	public WebHandlerResult exchange(BaseBuilder<?> baseBuilder) {
@@ -45,11 +47,16 @@ public class WebTestHandler {
 	}
 
 	public WebHandlerResult exchange(ServerWebExchange exchange) {
-		handler.handle(exchange).block();
-		return new WebHandlerResult(webHandler.exchange);
+		this.handler.handle(exchange).block();
+		return new WebHandlerResult(this.webHandler.exchange);
 	}
 
-	public static class WebHandlerResult {
+	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
+		return new WebTestHandler(filters);
+	}
+
+	public static final class WebHandlerResult {
+
 		private final ServerWebExchange exchange;
 
 		private WebHandlerResult(ServerWebExchange exchange) {
@@ -57,15 +64,13 @@ public class WebTestHandler {
 		}
 
 		public ServerWebExchange getExchange() {
-			return exchange;
+			return this.exchange;
 		}
-	}
 
-	public static WebTestHandler bindToWebFilters(WebFilter... filters) {
-		return new WebTestHandler(filters);
 	}
 
 	static class MockWebHandler implements WebHandler {
+
 		private ServerWebExchange exchange;
 
 		@Override
@@ -73,5 +78,7 @@ public class WebTestHandler {
 			this.exchange = exchange;
 			return Mono.empty();
 		}
+
 	}
+
 }

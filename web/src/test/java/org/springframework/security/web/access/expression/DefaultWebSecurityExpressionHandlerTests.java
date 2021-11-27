@@ -16,12 +16,12 @@
 
 package org.springframework.security.web.access.expression;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.context.support.StaticApplicationContext;
@@ -35,10 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultWebSecurityExpressionHandlerTests {
 
 	@Mock
@@ -52,12 +53,12 @@ public class DefaultWebSecurityExpressionHandlerTests {
 
 	private DefaultWebSecurityExpressionHandler handler;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		handler = new DefaultWebSecurityExpressionHandler();
+		this.handler = new DefaultWebSecurityExpressionHandler();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}
@@ -68,33 +69,26 @@ public class DefaultWebSecurityExpressionHandlerTests {
 		RootBeanDefinition bean = new RootBeanDefinition(SecurityConfig.class);
 		bean.getConstructorArgumentValues().addGenericArgumentValue("ROLE_A");
 		appContext.registerBeanDefinition("role", bean);
-		handler.setApplicationContext(appContext);
-
-		EvaluationContext ctx = handler.createEvaluationContext(
-				mock(Authentication.class), mock(FilterInvocation.class));
-		ExpressionParser parser = handler.getExpressionParser();
-		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(
-				ctx, Boolean.class)).isTrue();
-		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx,
-				Boolean.class)).isTrue();
+		this.handler.setApplicationContext(appContext);
+		EvaluationContext ctx = this.handler.createEvaluationContext(mock(Authentication.class),
+				mock(FilterInvocation.class));
+		ExpressionParser parser = this.handler.getExpressionParser();
+		assertThat(parser.parseExpression("@role.getAttribute() == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
+		assertThat(parser.parseExpression("@role.attribute == 'ROLE_A'").getValue(ctx, Boolean.class)).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setTrustResolverNull() {
-		handler.setTrustResolver(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setTrustResolver(null));
 	}
 
 	@Test
 	public void createEvaluationContextCustomTrustResolver() {
-		handler.setTrustResolver(trustResolver);
-
-		Expression expression = handler.getExpressionParser().parseExpression(
-				"anonymous");
-		EvaluationContext context = handler.createEvaluationContext(authentication,
-				invocation);
+		this.handler.setTrustResolver(this.trustResolver);
+		Expression expression = this.handler.getExpressionParser().parseExpression("anonymous");
+		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.invocation);
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();
-
-		verify(trustResolver).isAnonymous(authentication);
+		verify(this.trustResolver).isAnonymous(this.authentication);
 	}
 
 }

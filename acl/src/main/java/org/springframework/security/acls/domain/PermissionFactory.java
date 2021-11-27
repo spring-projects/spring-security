@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import java.util.List;
@@ -25,16 +26,13 @@ import org.springframework.security.acls.model.Permission;
  *
  * @author Ben Alex
  * @since 2.0.3
- *
  */
 public interface PermissionFactory {
 
 	/**
 	 * Dynamically creates a <code>CumulativePermission</code> or
 	 * <code>BasePermission</code> representing the active bits in the passed mask.
-	 *
 	 * @param mask to build
-	 *
 	 * @return a Permission representing the requested object
 	 */
 	Permission buildFromMask(int mask);
@@ -42,4 +40,5 @@ public interface PermissionFactory {
 	Permission buildFromName(String name);
 
 	List<Permission> buildFromNames(List<String> names);
+
 }

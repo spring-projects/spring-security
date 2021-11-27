@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
-import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
+
+import org.springframework.security.web.server.header.StaticServerHttpHeadersWriter.Builder;
+import org.springframework.util.Assert;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * Add the x-xss-protection header.
@@ -26,6 +29,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	public static final String X_XSS_PROTECTION = "X-XSS-Protection";
 
 	private boolean enabled;
@@ -43,12 +47,9 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 		updateDelegate();
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
-		return delegate.writeHttpHeaders(exchange);
+		return this.delegate.writeHttpHeaders(exchange);
 	}
 
 	/**
@@ -71,7 +72,6 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * <pre>
 	 * X-XSS-Protection: 0
 	 * </pre>
-	 *
 	 * @param enabled the new value
 	 */
 	public void setEnabled(boolean enabled) {
@@ -85,32 +85,28 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	/**
 	 * If false, will not specify the mode as blocked. In this instance, any content will
 	 * be attempted to be fixed. If true, the content will be replaced with "#".
-	 *
 	 * @param block the new value
 	 */
 	public void setBlock(boolean block) {
-		if (!enabled && block) {
-			throw new IllegalArgumentException(
-					"Cannot set block to true with enabled false");
-		}
+		Assert.isTrue(this.enabled || !block, "Cannot set block to true with enabled false");
 		this.block = block;
 		updateDelegate();
 	}
 
 	private void updateDelegate() {
-
-		this.delegate = StaticServerHttpHeadersWriter.builder()
-				.header(X_XSS_PROTECTION, createHeaderValue())
-				.build();
+		Builder builder = StaticServerHttpHeadersWriter.builder();
+		builder.header(X_XSS_PROTECTION, createHeaderValue());
+		this.delegate = builder.build();
 	}
 
 	private String createHeaderValue() {
-		if (!enabled) {
-			return  "0";
+		if (!this.enabled) {
+			return "0";
 		}
-		if (!block) {
+		if (!this.block) {
 			return "1";
 		}
 		return "1 ; mode=block";
 	}
+
 }

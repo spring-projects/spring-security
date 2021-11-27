@@ -16,9 +16,10 @@
 
 package org.springframework.security.crypto.password;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * <p>
@@ -32,14 +33,12 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SuppressWarnings("deprecation")
 public class MessageDigestPasswordEncoderTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void md5BasicFunctionality() {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("MD5");
 		String raw = "abc123";
-		assertThat(pe.matches( raw, "{THIS_IS_A_SALT}a68aafd90299d0b137de28fb4bb68573")).isTrue();
+		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}a68aafd90299d0b137de28fb4bb68573")).isTrue();
 	}
 
 	@Test
@@ -97,7 +96,6 @@ public class MessageDigestPasswordEncoderTests {
 		MessageDigestPasswordEncoder pe = new MessageDigestPasswordEncoder("SHA-1");
 		String raw = "abc123";
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}b2f50ffcbd3407fe9415c062d55f54731f340d32"));
-
 	}
 
 	@Test
@@ -115,8 +113,9 @@ public class MessageDigestPasswordEncoderTests {
 		assertThat(pe.matches(raw, "{THIS_IS_A_SALT}4b79b7de23eb23b78cc5ede227d532b8a51f89b2ec166f808af76b0dbedc47d7"));
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testInvalidStrength() {
-		new MessageDigestPasswordEncoder("SHA-666");
+		assertThatIllegalStateException().isThrownBy(() -> new MessageDigestPasswordEncoder("SHA-666"));
 	}
+
 }

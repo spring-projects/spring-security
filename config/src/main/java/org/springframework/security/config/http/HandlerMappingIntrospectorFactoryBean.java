@@ -31,15 +31,21 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * @author Rob Winch
  * @since 4.1.1
  */
-class HandlerMappingIntrospectorFactoryBean implements FactoryBean<HandlerMappingIntrospector>, ApplicationContextAware {
+class HandlerMappingIntrospectorFactoryBean
+		implements FactoryBean<HandlerMappingIntrospector>, ApplicationContextAware {
+
 	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
 
 	private ApplicationContext context;
 
+	@Override
 	public HandlerMappingIntrospector getObject() {
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
-			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, "A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME +" of type " + HandlerMappingIntrospector.class.getName()
-				+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+			throw new NoSuchBeanDefinitionException(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+					"A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME + " of type "
+							+ HandlerMappingIntrospector.class.getName()
+							+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring "
+							+ "MVC are configured in a shared ApplicationContext.");
 		}
 		return this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector.class);
 	}
@@ -50,15 +56,8 @@ class HandlerMappingIntrospectorFactoryBean implements FactoryBean<HandlerMappin
 		return HandlerMappingIntrospector.class;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.context.ApplicationContextAware#setApplicationContext(org.
-	 * springframework.context.ApplicationContext)
-	 */
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.context = applicationContext;
 	}
 

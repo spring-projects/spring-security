@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.authentication.configurers.userdetails;
 
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
@@ -23,13 +24,12 @@ import org.springframework.security.core.userdetails.UserDetailsService;
  * Allows configuring a {@link UserDetailsService} within a
  * {@link AuthenticationManagerBuilder}.
  *
- * @author Rob Winch
- * @since 3.2
- *
  * @param <B> the type of the {@link ProviderManagerBuilder}
  * @param <C> the {@link UserDetailsServiceConfigurer} (or this)
  * @param <U> the type of UserDetailsService being used to allow for returning the
  * concrete UserDetailsService.
+ * @author Rob Winch
+ * @since 3.2
  */
 public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C extends UserDetailsServiceConfigurer<B, C, U>, U extends UserDetailsService>
 		extends AbstractDaoAuthenticationConfigurer<B, C, U> {
@@ -45,7 +45,6 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	@Override
 	public void configure(B builder) throws Exception {
 		initUserDetailsService();
-
 		super.configure(builder);
 	}
 
@@ -55,4 +54,5 @@ public class UserDetailsServiceConfigurer<B extends ProviderManagerBuilder<B>, C
 	 */
 	protected void initUserDetailsService() throws Exception {
 	}
+
 }

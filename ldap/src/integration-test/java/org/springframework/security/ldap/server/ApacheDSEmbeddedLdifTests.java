@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.server;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
@@ -34,16 +35,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ApacheDSEmbeddedLdifTests {
 
 	private static final String LDAP_ROOT = "ou=ssattributes,dc=springframework,dc=org";
+
 	private static final int LDAP_PORT = 52389;
 
 	private ApacheDSContainer server;
+
 	private SpringSecurityLdapTemplate ldapTemplate;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		// TODO: InMemoryXmlApplicationContext would be useful here, but it is not visible
-		this.server = new ApacheDSContainer(LDAP_ROOT,
-				"classpath:test-server-custom-attribute-types.ldif");
+		this.server = new ApacheDSContainer(LDAP_ROOT, "classpath:test-server-custom-attribute-types.ldif");
 		this.server.setPort(LDAP_PORT);
 		this.server.afterPropertiesSet();
 
@@ -58,20 +60,20 @@ public class ApacheDSEmbeddedLdifTests {
 		return ldapContextSource;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		if (this.server != null) {
 			this.server.destroy();
 		}
 	}
 
-	@Ignore // Not fixed yet
+	@Disabled // Not fixed yet
 	@Test // SEC-2387
 	public void customAttributeTypesShouldBeProperlyCreatedWhenLoadedFromLdif() {
-		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid",
-				"objectWithCustomAttribute1")).isTrue();
-		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1",
-				"customAttribute", "I am custom")).isTrue();
+		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "uid", "objectWithCustomAttribute1"))
+				.isTrue();
+		assertThat(this.ldapTemplate.compare("uid=objectWithCustomAttribute1", "customAttribute", "I am custom"))
+				.isTrue();
 	}
 
 }

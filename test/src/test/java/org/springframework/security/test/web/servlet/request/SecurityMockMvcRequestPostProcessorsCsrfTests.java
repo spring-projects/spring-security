@@ -13,20 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import java.io.IOException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -40,7 +41,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,20 +59,23 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsCsrfTests {
+
 	@Autowired
 	WebApplicationContext wac;
+
 	@Autowired
 	TheController controller;
+
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
 	MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.mockMvc = MockMvcBuilders
@@ -151,12 +155,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 	public void csrfWhenUsedThenDoesNotImpactOriginalRepository() throws Exception {
 		// @formatter:off
 		this.mockMvc.perform(post("/").with(csrf()));
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
 		CsrfToken token = repo.generateToken(request);
 		repo.saveToken(token, request, new MockHttpServletResponse());
-
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())
 			.session((MockHttpSession) request.getSession());
@@ -169,6 +171,10 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		return new CsrfParamResultMatcher();
 	}
 
+	public static ResultMatcher csrfAsHeader() {
+		return new CsrfHeaderResultMatcher();
+	}
+
 	static class CsrfParamResultMatcher implements ResultMatcher {
 
 		@Override
@@ -177,10 +183,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNotNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNull();
 		}
-	}
 
-	public static ResultMatcher csrfAsHeader() {
-		return new CsrfHeaderResultMatcher();
 	}
 
 	static class CsrfHeaderResultMatcher implements ResultMatcher {
@@ -191,18 +194,19 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			assertThat(request.getParameter("_csrf")).isNull();
 			assertThat(request.getHeader("X-CSRF-TOKEN")).isNotNull();
 		}
+
 	}
 
 	static class SessionRepositoryFilter extends OncePerRequestFilter {
 
 		@Override
-		protected void doFilterInternal(HttpServletRequest request,
-				HttpServletResponse response, FilterChain filterChain)
-						throws ServletException, IOException {
+		protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+				FilterChain filterChain) throws ServletException, IOException {
 			filterChain.doFilter(new SessionRequestWrapper(request), response);
 		}
 
 		static class SessionRequestWrapper extends HttpServletRequestWrapper {
+
 			HttpSession session = new MockHttpSession();
 
 			SessionRequestWrapper(HttpServletRequest request) {
@@ -218,21 +222,28 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 			public HttpSession getSession() {
 				return this.session;
 			}
+
 		}
+
 	}
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) {
 		}
 
 		@RestController
 		static class TheController {
+
 			@RequestMapping("/")
 			String index() {
 				return "Hi";
 			}
+
 		}
+
 	}
+
 }

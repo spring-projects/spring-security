@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Implementations of {@link org.springframework.security.core.userdetails.UserCache UserCache}.
+ * Implementations of {@link org.springframework.security.core.userdetails.UserCache
+ * UserCache}.
  */
 package org.springframework.security.core.userdetails.cache;
-

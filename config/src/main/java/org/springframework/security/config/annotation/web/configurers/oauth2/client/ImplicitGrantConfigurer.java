@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -52,16 +53,22 @@ import org.springframework.util.Assert;
  * @since 5.0
  * @see OAuth2AuthorizationRequestRedirectFilter
  * @see ClientRegistrationRepository
+ * @deprecated It is not recommended to use the implicit flow due to the inherent risks of
+ * returning access tokens in an HTTP redirect without any confirmation that it has been
+ * received by the client. See reference
+ * <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0 Implicit
+ * Grant</a>.
  */
-public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> extends
-	AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
+@Deprecated
+public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>>
+		extends AbstractHttpConfigurer<ImplicitGrantConfigurer<B>, B> {
 
 	private String authorizationRequestBaseUri;
 
 	/**
 	 * Sets the base {@code URI} used for authorization requests.
-	 *
-	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization requests
+	 * @param authorizationRequestBaseUri the base {@code URI} used for authorization
+	 * requests
 	 * @return the {@link ImplicitGrantConfigurer} for further configuration
 	 */
 	public ImplicitGrantConfigurer<B> authorizationRequestBaseUri(String authorizationRequestBaseUri) {
@@ -72,11 +79,11 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 
 	/**
 	 * Sets the repository of client registrations.
-	 *
 	 * @param clientRegistrationRepository the repository of client registrations
 	 * @return the {@link ImplicitGrantConfigurer} for further configuration
 	 */
-	public ImplicitGrantConfigurer<B> clientRegistrationRepository(ClientRegistrationRepository clientRegistrationRepository) {
+	public ImplicitGrantConfigurer<B> clientRegistrationRepository(
+			ClientRegistrationRepository clientRegistrationRepository) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		this.getBuilder().setSharedObject(ClientRegistrationRepository.class, clientRegistrationRepository);
 		return this;
@@ -85,13 +92,14 @@ public final class ImplicitGrantConfigurer<B extends HttpSecurityBuilder<B>> ext
 	@Override
 	public void configure(B http) {
 		OAuth2AuthorizationRequestRedirectFilter authorizationRequestFilter = new OAuth2AuthorizationRequestRedirectFilter(
-			OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()), this.getAuthorizationRequestBaseUri());
+				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
+				this.getAuthorizationRequestBaseUri());
 		http.addFilter(this.postProcess(authorizationRequestFilter));
 	}
 
 	private String getAuthorizationRequestBaseUri() {
-		return this.authorizationRequestBaseUri != null ?
-			this.authorizationRequestBaseUri :
-			OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
+		return (this.authorizationRequestBaseUri != null) ? this.authorizationRequestBaseUri
+				: OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI;
 	}
+
 }

@@ -13,8 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Strategy interface and implementations for handling session-related behaviour for a newly authenticated user.
+ * Strategy interface and implementations for handling session-related behaviour for a
+ * newly authenticated user.
  * <p>
  * Comes with support for:
  * <ul>
@@ -23,4 +25,3 @@
  * </ul>
  */
 package org.springframework.security.web.authentication.session;
-

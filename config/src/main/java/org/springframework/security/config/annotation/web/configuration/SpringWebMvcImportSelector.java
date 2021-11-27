@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configuration;
 
 import org.springframework.context.annotation.ImportSelector;
@@ -29,19 +30,13 @@ import org.springframework.util.ClassUtils;
  */
 class SpringWebMvcImportSelector implements ImportSelector {
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.context.annotation.ImportSelector#selectImports(org.
-	 * springframework .core.type.AnnotationMetadata)
-	 */
+	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		boolean webmvcPresent = ClassUtils.isPresent(
-				"org.springframework.web.servlet.DispatcherServlet",
-				getClass().getClassLoader());
-		return webmvcPresent
-				? new String[] {
-						"org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration" }
-				: new String[] {};
+		if (!ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader())) {
+			return new String[0];
+		}
+		return new String[] {
+				"org.springframework.security.config.annotation.web.configuration.WebMvcSecurityConfiguration" };
 	}
+
 }

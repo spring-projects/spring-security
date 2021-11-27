@@ -1,0 +1,6 @@
+[[servlet-saml2]]
+= SAML2
+:page-section-summary-toc: 1
+
+Spring Security provides comprehensive SAML 2 support.
+This section discusses how to integrate SAML 2 into your servlet based application.

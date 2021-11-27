@@ -32,6 +32,7 @@ import static org.mockito.Mockito.mock;
  * @since 5.1
  */
 public class MockExchangeFunction implements ExchangeFunction {
+
 	private List<ClientRequest> requests = new ArrayList<>();
 
 	private ClientResponse response = mock(ClientResponse.class);
@@ -55,4 +56,5 @@ public class MockExchangeFunction implements ExchangeFunction {
 			return Mono.just(this.response);
 		});
 	}
+
 }

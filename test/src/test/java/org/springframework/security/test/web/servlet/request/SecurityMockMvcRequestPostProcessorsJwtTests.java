@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
 import java.util.Arrays;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
@@ -58,8 +60,9 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
  * @author Josh Cummings
  * @since 5.2
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityMockMvcRequestPostProcessorsJwtTests {
+
 	@Captor
 	private ArgumentCaptor<SecurityContext> contextCaptor;
 
@@ -70,10 +73,11 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 
 	@Mock
 	private GrantedAuthority authority1;
+
 	@Mock
 	private GrantedAuthority authority2;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		SecurityContextPersistenceFilter filter = new SecurityContextPersistenceFilter(this.repository);
 		MockServletContext servletContext = new MockServletContext();
@@ -83,7 +87,7 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		WebTestUtils.setSecurityContextRepository(this.request, this.repository);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}
@@ -91,12 +95,10 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 	@Test
 	public void jwtWhenUsingDefaultsThenProducesDefaultJwtAuthentication() {
 		jwt().postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				JwtAuthenticationToken.class);
+		assertThat(context.getAuthentication()).isInstanceOf(JwtAuthenticationToken.class);
 		JwtAuthenticationToken token = (JwtAuthenticationToken) context.getAuthentication();
 		assertThat(token.getAuthorities()).isNotEmpty();
 		assertThat(token.getToken()).isNotNull();
@@ -107,64 +109,50 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 	@Test
 	public void jwtWhenProvidingBuilderConsumerThenProducesJwtAuthentication() {
 		String name = new String("user");
-		jwt().jwt(jwt -> jwt.subject(name)).postProcessRequest(this.request);
-
+		jwt().jwt((jwt) -> jwt.subject(name)).postProcessRequest(this.request);
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat(context.getAuthentication()).isInstanceOf(
-				JwtAuthenticationToken.class);
+		assertThat(context.getAuthentication()).isInstanceOf(JwtAuthenticationToken.class);
 		JwtAuthenticationToken token = (JwtAuthenticationToken) context.getAuthentication();
 		assertThat(token.getToken().getSubject()).isSameAs(name);
 	}
 
 	@Test
 	public void jwtWhenProvidingCustomAuthoritiesThenProducesJwtAuthentication() {
-		jwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
-				.authorities(this.authority1, this.authority2)
+		jwt().jwt((jwt) -> jwt.claim("scope", "ignored authorities")).authorities(this.authority1, this.authority2)
 				.postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(this.authority1, this.authority2);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1,
+				this.authority2);
 	}
 
 	@Test
 	public void jwtWhenProvidingScopedAuthoritiesThenProducesJwtAuthentication() {
-		jwt().jwt(jwt -> jwt.claim("scope", "scoped authorities"))
-				.postProcessRequest(this.request);
-
+		jwt().jwt((jwt) -> jwt.claim("scope", "scoped authorities")).postProcessRequest(this.request);
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(new SimpleGrantedAuthority("SCOPE_scoped"),
-						new SimpleGrantedAuthority("SCOPE_authorities"));
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(
+				new SimpleGrantedAuthority("SCOPE_scoped"), new SimpleGrantedAuthority("SCOPE_authorities"));
 	}
 
 	@Test
 	public void jwtWhenProvidingGrantedAuthoritiesThenProducesJwtAuthentication() {
-		jwt().jwt(jwt -> jwt.claim("scope", "ignored authorities"))
-				.authorities(jwt -> Arrays.asList(this.authority1))
-				.postProcessRequest(this.request);
-
+		jwt().jwt((jwt) -> jwt.claim("scope", "ignored authorities"))
+				.authorities((jwt) -> Arrays.asList(this.authority1)).postProcessRequest(this.request);
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
-		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities())
-				.containsOnly(this.authority1);
+		assertThat((List<GrantedAuthority>) context.getAuthentication().getAuthorities()).containsOnly(this.authority1);
 	}
 
 	@Test
 	public void jwtWhenProvidingPreparedJwtThenUsesItForAuthentication() {
-		Jwt originalToken = TestJwts.jwt()
-				.header("header1", "value1")
-				.subject("some_user")
-				.build();
+		Jwt originalToken = TestJwts.jwt().header("header1", "value1").subject("some_user").build();
 		jwt().jwt(originalToken).postProcessRequest(this.request);
-
 		verify(this.repository).saveContext(this.contextCaptor.capture(), eq(this.request),
 				any(HttpServletResponse.class));
 		SecurityContext context = this.contextCaptor.getValue();
@@ -173,4 +161,5 @@ public class SecurityMockMvcRequestPostProcessorsJwtTests {
 		assertThat(retrievedToken.getToken().getTokenValue()).isEqualTo("token");
 		assertThat(retrievedToken.getToken().getHeaders().get("header1")).isEqualTo("value1");
 	}
+
 }

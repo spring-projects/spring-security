@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.prepost;
 
 import org.springframework.security.access.ConfigAttribute;
 
 /**
- * Marker interface for attributes which are created from combined @PreFilter and @PreAuthorize
- * annotations.
+ * Marker interface for attributes which are created from combined @PreFilter
+ * and @PreAuthorize annotations.
  * <p>
  * Consumed by a {@link PreInvocationAuthorizationAdvice}.
  *

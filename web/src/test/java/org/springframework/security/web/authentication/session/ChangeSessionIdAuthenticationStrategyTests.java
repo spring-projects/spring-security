@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.session;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
@@ -27,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  *
  */
-@RunWith(PowerMockRunner.class)
 public class ChangeSessionIdAuthenticationStrategyTests {
 
 	@Test
@@ -37,4 +35,5 @@ public class ChangeSessionIdAuthenticationStrategyTests {
 		new ChangeSessionIdAuthenticationStrategy().applySessionFixation(request);
 		assertThat(request.getSession().getId()).isNotEqualTo(id);
 	}
+
 }

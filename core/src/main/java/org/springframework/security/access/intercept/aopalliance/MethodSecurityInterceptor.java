@@ -16,13 +16,13 @@
 
 package org.springframework.security.access.intercept.aopalliance;
 
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.access.intercept.InterceptorStatusToken;
 import org.springframework.security.access.method.MethodSecurityMetadataSource;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 
 /**
  * Provides security interception of AOP Alliance based method invocations.
@@ -37,33 +37,25 @@ import org.aopalliance.intercept.MethodInvocation;
  * @author Ben Alex
  * @author Rob Winch
  */
-public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements
-		MethodInterceptor {
-	// ~ Instance fields
-	// ================================================================================================
+public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
 
 	private MethodSecurityMetadataSource securityMetadataSource;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public Class<?> getSecureObjectClass() {
 		return MethodInvocation.class;
 	}
 
 	/**
 	 * This method should be used to enforce security on a <code>MethodInvocation</code>.
-	 *
 	 * @param mi The method being invoked which requires a security decision
-	 *
 	 * @return The returned value from the method invocation (possibly modified by the
 	 * {@code AfterInvocationManager}).
-	 *
 	 * @throws Throwable if any error occurs
 	 */
+	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
 		InterceptorStatusToken token = super.beforeInvocation(mi);
-
 		Object result;
 		try {
 			result = mi.proceed();
@@ -78,6 +70,7 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 		return this.securityMetadataSource;
 	}
 
+	@Override
 	public SecurityMetadataSource obtainSecurityMetadataSource() {
 		return this.securityMetadataSource;
 	}
@@ -85,4 +78,5 @@ public class MethodSecurityInterceptor extends AbstractSecurityInterceptor imple
 	public void setSecurityMetadataSource(MethodSecurityMetadataSource newSource) {
 		this.securityMetadataSource = newSource;
 	}
+
 }

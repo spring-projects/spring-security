@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,24 +13,61 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core;
+
+import java.io.Serializable;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
 
-import java.io.Serializable;
-
 /**
- * The authentication method used when authenticating the client with the authorization server.
+ * The authentication method used when authenticating the client with the authorization
+ * server.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section 2.3 Client Authentication</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2.3">Section
+ * 2.3 Client Authentication</a>
  */
 public final class ClientAuthenticationMethod implements Serializable {
+
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
+	/**
+	 * @deprecated Use {@link #CLIENT_SECRET_BASIC}
+	 */
+	@Deprecated
 	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
+
+	/**
+	 * @since 5.5
+	 */
+	public static final ClientAuthenticationMethod CLIENT_SECRET_BASIC = new ClientAuthenticationMethod(
+			"client_secret_basic");
+
+	/**
+	 * @deprecated Use {@link #CLIENT_SECRET_POST}
+	 */
+	@Deprecated
 	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
+
+	/**
+	 * @since 5.5
+	 */
+	public static final ClientAuthenticationMethod CLIENT_SECRET_POST = new ClientAuthenticationMethod(
+			"client_secret_post");
+
+	/**
+	 * @since 5.5
+	 */
+	public static final ClientAuthenticationMethod CLIENT_SECRET_JWT = new ClientAuthenticationMethod(
+			"client_secret_jwt");
+
+	/**
+	 * @since 5.5
+	 */
+	public static final ClientAuthenticationMethod PRIVATE_KEY_JWT = new ClientAuthenticationMethod("private_key_jwt");
 
 	/**
 	 * @since 5.2
@@ -41,7 +78,6 @@ public final class ClientAuthenticationMethod implements Serializable {
 
 	/**
 	 * Constructs a {@code ClientAuthenticationMethod} using the provided value.
-	 *
 	 * @param value the value of the client authentication method
 	 */
 	public ClientAuthenticationMethod(String value) {
@@ -51,7 +87,6 @@ public final class ClientAuthenticationMethod implements Serializable {
 
 	/**
 	 * Returns the value of the client authentication method.
-	 *
 	 * @return the value of the client authentication method
 	 */
 	public String getValue() {
@@ -74,4 +109,5 @@ public final class ClientAuthenticationMethod implements Serializable {
 	public int hashCode() {
 		return this.getValue().hashCode();
 	}
+
 }

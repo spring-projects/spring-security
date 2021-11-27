@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.request;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,14 +29,14 @@ import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
@@ -45,7 +47,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 	// SEC-3836
 	@Test
 	public void findCookieCsrfTokenRepository() {
-		MockHttpServletRequest request = post("/").buildRequest(wac.getServletContext());
+		MockHttpServletRequest request = post("/").buildRequest(this.wac.getServletContext());
 		CsrfTokenRepository csrfTokenRepository = WebTestUtils.getCsrfTokenRepository(request);
 		assertThat(csrfTokenRepository).isNotNull();
 		assertThat(csrfTokenRepository).isEqualTo(Config.cookieCsrfTokenRepository);
@@ -53,6 +55,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
+
 		static CsrfTokenRepository cookieCsrfTokenRepository = new CookieCsrfTokenRepository();
 
 		@Override
@@ -65,5 +68,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 			// Enable the DebugFilter
 			web.debug(true);
 		}
+
 	}
+
 }

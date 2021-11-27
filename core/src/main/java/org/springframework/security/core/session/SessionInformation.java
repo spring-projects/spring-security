@@ -16,11 +16,11 @@
 
 package org.springframework.security.core.session;
 
+import java.io.Serializable;
+import java.util.Date;
+
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
-
-import java.util.Date;
-import java.io.Serializable;
 
 /**
  * Represents a record of a session within the Spring Security framework.
@@ -41,16 +41,13 @@ public class SessionInformation implements Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	// ~ Instance fields
-	// ================================================================================================
-
 	private Date lastRequest;
-	private final Object principal;
-	private final String sessionId;
-	private boolean expired = false;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Object principal;
+
+	private final String sessionId;
+
+	private boolean expired = false;
 
 	public SessionInformation(Object principal, String sessionId, Date lastRequest) {
 		Assert.notNull(principal, "Principal required");
@@ -61,27 +58,24 @@ public class SessionInformation implements Serializable {
 		this.lastRequest = lastRequest;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public void expireNow() {
 		this.expired = true;
 	}
 
 	public Date getLastRequest() {
-		return lastRequest;
+		return this.lastRequest;
 	}
 
 	public Object getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	public String getSessionId() {
-		return sessionId;
+		return this.sessionId;
 	}
 
 	public boolean isExpired() {
-		return expired;
+		return this.expired;
 	}
 
 	/**
@@ -90,4 +84,5 @@ public class SessionInformation implements Serializable {
 	public void refreshLastRequest() {
 		this.lastRequest = new Date();
 	}
+
 }

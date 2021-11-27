@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth.websphere;
 
 import java.util.List;
@@ -31,4 +32,5 @@ interface WASUsernameAndGroupsExtractor {
 	List<String> getGroupsForCurrentUser();
 
 	String getCurrentUserName();
+
 }

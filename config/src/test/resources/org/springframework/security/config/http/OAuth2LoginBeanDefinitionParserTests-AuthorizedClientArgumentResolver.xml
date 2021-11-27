@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2002-2020 the original author or authors.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~       https://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<b:beans xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xmlns:mvc="http://www.springframework.org/schema/mvc"
+		 xmlns="http://www.springframework.org/schema/security"
+		xsi:schemaLocation="
+			http://www.springframework.org/schema/security
+			https://www.springframework.org/schema/security/spring-security.xsd
+			http://www.springframework.org/schema/beans
+			https://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/mvc
+			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+	<http auto-config="true">
+		<intercept-url pattern="/**" access="authenticated"/>
+		<oauth2-login authorized-client-repository-ref="authorizedClientRepository" />
+	</http>
+
+	<mvc:annotation-driven />
+
+	<b:bean id="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
+		<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository"/>
+	</b:bean>
+
+	<b:bean name="authorizedClientController" class="org.springframework.security.config.http.OAuth2LoginBeanDefinitionParserTests.AuthorizedClientController" />
+
+	<b:import resource="../oauth2/client/google-github-registration.xml"/>
+	<b:import resource="userservice.xml"/>
+</b:beans>

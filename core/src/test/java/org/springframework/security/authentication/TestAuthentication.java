@@ -37,4 +37,5 @@ public class TestAuthentication extends PasswordEncodedUser {
 	public static Authentication autheticated(UserDetails user) {
 		return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
 	}
+
 }

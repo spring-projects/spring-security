@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ package org.springframework.security.authorization;
  * @since 5.0
  */
 public class AuthorizationDecision {
+
 	private final boolean granted;
 
 	public AuthorizationDecision(boolean granted) {
@@ -28,6 +29,12 @@ public class AuthorizationDecision {
 	}
 
 	public boolean isGranted() {
-		return granted;
+		return this.granted;
 	}
+
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + " [granted=" + this.granted + "]";
+	}
+
 }

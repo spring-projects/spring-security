@@ -1,0 +1,8 @@
+[[integrations]]
+= Integrations
+:page-section-summary-toc: 1
+
+Spring Security provides integrations with numerous frameworks and APIs.
+In this section, we discuss generic integrations that are not specific to Servlet or Reactive environments.
+To see specific integrations, refer to the xref:servlet/integrations/index.adoc[Servlet] and xref:servlet/integrations/index.adoc[Reactive] Integrations sections.
+// FIXME add link to reactive integrations

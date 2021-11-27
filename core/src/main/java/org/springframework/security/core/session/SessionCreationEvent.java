@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.core.session;
 
-import org.springframework.context.ApplicationEvent;
+package org.springframework.security.core.session;
 
 /**
  * Generic session creation event which indicates that a session (potentially represented
@@ -24,9 +23,10 @@ import org.springframework.context.ApplicationEvent;
  * @author Luke Taylor
  * @since 3.0
  */
-public abstract class SessionCreationEvent extends ApplicationEvent {
+public abstract class SessionCreationEvent extends AbstractSessionEvent {
 
 	public SessionCreationEvent(Object source) {
 		super(source);
 	}
+
 }

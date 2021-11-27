@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.password;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,7 +32,7 @@ public class PasswordEncoderUtilsTests {
 	}
 
 	@Test
-	public void equalsWhenNullAndNotEmtpyThenFalse() {
+	public void equalsWhenNullAndNotEmptyThenFalse() {
 		assertThat(PasswordEncoderUtils.equals(null, "a")).isFalse();
 		assertThat(PasswordEncoderUtils.equals("a", null)).isFalse();
 	}
@@ -54,7 +55,7 @@ public class PasswordEncoderUtilsTests {
 	}
 
 	@Test
-	public void equalsWhenEmtpyAndEmptyThenTrue() {
+	public void equalsWhenEmptyAndEmptyThenTrue() {
 		assertThat(PasswordEncoderUtils.equals("", "")).isTrue();
 	}
 
@@ -67,4 +68,5 @@ public class PasswordEncoderUtilsTests {
 	public void equalsWhenSameThenTrue() {
 		assertThat(PasswordEncoderUtils.equals("abcdef", "abcdef")).isTrue();
 	}
+
 }

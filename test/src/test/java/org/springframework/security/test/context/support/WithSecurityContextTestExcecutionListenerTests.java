@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context.support;
 
 import java.lang.annotation.Annotation;
@@ -23,12 +24,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -38,6 +39,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.test.context.NestedTestConfiguration;
 import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.jdbc.SqlScriptsTestExecutionListener;
@@ -45,11 +47,12 @@ import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ReflectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class WithSecurityContextTestExcecutionListenerTests {
+
 	private ConfigurableApplicationContext context;
 
 	@Mock
@@ -57,17 +60,17 @@ public class WithSecurityContextTestExcecutionListenerTests {
 
 	private WithSecurityContextTestExecutionListener listener;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		listener = new WithSecurityContextTestExecutionListener();
-		context = new AnnotationConfigApplicationContext(Config.class);
+		this.listener = new WithSecurityContextTestExecutionListener();
+		this.context = new AnnotationConfigApplicationContext(Config.class);
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -75,36 +78,63 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNullSecurityContextNoError() throws Exception {
 		Class testClass = FakeTest.class;
-		when(testContext.getTestClass()).thenReturn(testClass);
-		when(testContext.getTestMethod()).thenReturn(
-				ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
-
-		listener.beforeTestMethod(testContext);
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testNoAnnotation"));
+		this.listener.beforeTestMethod(this.testContext);
 	}
 
 	@Test
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void beforeTestMethodNoApplicationContext() throws Exception {
 		Class testClass = FakeTest.class;
-		when(testContext.getApplicationContext()).thenThrow(new IllegalStateException());
-		when(testContext.getTestMethod()).thenReturn(
-				ReflectionUtils.findMethod(testClass, "testWithMockUser"));
-
-		listener.beforeTestMethod(testContext);
-
-		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName())
-				.isEqualTo("user");
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException());
+		given(this.testContext.getTestMethod()).willReturn(ReflectionUtils.findMethod(testClass, "testWithMockUser"));
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
 	}
+
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerClass() throws Exception {
+		Class testClass = OuterClass.InnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+	}
+
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerInnerClass() throws Exception {
+		Class testClass = OuterClass.InnerClass.InnerInnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		given(this.testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("user");
+	}
+
+	@Test
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void beforeTestMethodInnerClassWhenOverride() throws Exception {
+		Class testClass = OverrideOuterClass.InnerClass.class;
+		Method testNoAnnotation = ReflectionUtils.findMethod(testClass, "testNoAnnotation");
+		given(this.testContext.getTestClass()).willReturn(testClass);
+		given(this.testContext.getTestMethod()).willReturn(testNoAnnotation);
+		this.listener.beforeTestMethod(this.testContext);
+		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
 	// gh-3962
 	@Test
 	public void withSecurityContextAfterSqlScripts() {
 		SqlScriptsTestExecutionListener sql = new SqlScriptsTestExecutionListener();
 		WithSecurityContextTestExecutionListener security = new WithSecurityContextTestExecutionListener();
-
 		List<TestExecutionListener> listeners = Arrays.asList(security, sql);
-
 		AnnotationAwareOrderComparator.sort(listeners);
-
 		assertThat(listeners).containsExactly(sql, security);
 	}
 
@@ -113,29 +143,22 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	public void orderOverridden() {
 		AbstractTestExecutionListener otherListener = new AbstractTestExecutionListener() {
 		};
-
 		List<TestExecutionListener> listeners = new ArrayList<>();
 		listeners.add(otherListener);
 		listeners.add(this.listener);
-
 		AnnotationAwareOrderComparator.sort(listeners);
-
 		assertThat(listeners).containsSequence(this.listener, otherListener);
 	}
 
 	@Test
 	// gh-3837
 	public void handlesGenericAnnotation() throws Exception {
-		Method method = ReflectionUtils.findMethod(
-				WithSecurityContextTestExcecutionListenerTests.class,
+		Method method = ReflectionUtils.findMethod(WithSecurityContextTestExcecutionListenerTests.class,
 				"handlesGenericAnnotationTestMethod");
 		TestContext testContext = mock(TestContext.class);
-		when(testContext.getTestMethod()).thenReturn(method);
-		when(testContext.getApplicationContext())
-				.thenThrow(new IllegalStateException(""));
-
+		given(testContext.getTestMethod()).willReturn(method);
+		given(testContext.getApplicationContext()).willThrow(new IllegalStateException(""));
 		this.listener.beforeTestMethod(testContext);
-
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal())
 				.isInstanceOf(WithSuperClassWithSecurityContext.class);
 	}
@@ -147,11 +170,12 @@ public class WithSecurityContextTestExcecutionListenerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@WithSecurityContext(factory = SuperClassWithSecurityContextFactory.class)
 	@interface WithSuperClassWithSecurityContext {
+
 		String username() default "WithSuperClassWithSecurityContext";
+
 	}
 
-	static class SuperClassWithSecurityContextFactory
-			implements WithSecurityContextFactory<Annotation> {
+	static class SuperClassWithSecurityContextFactory implements WithSecurityContextFactory<Annotation> {
 
 		@Override
 		public SecurityContext createSecurityContext(Annotation annotation) {
@@ -159,19 +183,62 @@ public class WithSecurityContextTestExcecutionListenerTests {
 			context.setAuthentication(new TestingAuthenticationToken(annotation, "NA"));
 			return context;
 		}
+
 	}
 
 	static class FakeTest {
-		public void testNoAnnotation() {
+
+		void testNoAnnotation() {
 		}
 
 		@WithMockUser
-		public void testWithMockUser() {
-
+		void testWithMockUser() {
 		}
+
 	}
 
 	@Configuration
 	static class Config {
+
 	}
+
+	@WithMockUser
+	class OuterClass {
+
+		class InnerClass {
+
+			void testNoAnnotation() {
+			}
+
+			class InnerInnerClass {
+
+				void testNoAnnotation() {
+				}
+
+			}
+
+		}
+
+	}
+
+	@WithMockUser
+	@NestedTestConfiguration(NestedTestConfiguration.EnclosingConfiguration.OVERRIDE)
+	class OverrideOuterClass {
+
+		class InnerClass {
+
+			void testNoAnnotation() {
+			}
+
+			class InnerInnerClass {
+
+				void testNoAnnotation() {
+				}
+
+			}
+
+		}
+
+	}
+
 }

@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.task;
 
 import java.util.concurrent.Executor;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
+
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
 import org.springframework.security.concurrent.AbstractDelegatingSecurityContextExecutorTests;
+import org.springframework.security.concurrent.DelegatingSecurityContextExecutor;
+import org.springframework.security.core.context.SecurityContext;
 
 /**
  * Tests using an explicit {@link SecurityContext} on
@@ -31,22 +34,24 @@ import org.springframework.security.concurrent.AbstractDelegatingSecurityContext
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextTaskExecutorTests extends
-		AbstractDelegatingSecurityContextExecutorTests {
+public class ExplicitDelegatingSecurityContextTaskExecutorTests extends AbstractDelegatingSecurityContextExecutorTests {
+
 	@Mock
 	private TaskExecutor taskExecutorDelegate;
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		explicitSecurityContextPowermockSetup();
+		explicitSecurityContextSetup();
 	}
 
+	@Override
 	protected Executor getExecutor() {
-		return taskExecutorDelegate;
+		return this.taskExecutorDelegate;
 	}
 
+	@Override
 	protected DelegatingSecurityContextExecutor create() {
-		return new DelegatingSecurityContextTaskExecutor(taskExecutorDelegate,
-				securityContext);
+		return new DelegatingSecurityContextTaskExecutor(this.taskExecutorDelegate, this.securityContext);
 	}
+
 }

@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression.method;
 
-public class SecurityRules {
+public final class SecurityRules {
+
+	private SecurityRules() {
+	}
+
 	public static boolean disallow() {
 		return false;
 	}
@@ -27,4 +32,5 @@ public class SecurityRules {
 	public static boolean isJoe(String s) {
 		return "joe".equals(s);
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
@@ -33,28 +34,24 @@ import org.springframework.security.config.BeanIds;
  * @author Rob Winch
  */
 abstract class MethodConfigUtils {
+
 	@SuppressWarnings("unchecked")
 	static void registerDefaultMethodAccessManagerIfNecessary(ParserContext parserContext) {
-		if (!parserContext.getRegistry().containsBeanDefinition(
-				BeanIds.METHOD_ACCESS_MANAGER)) {
-			parserContext.getRegistry().registerBeanDefinition(
-					BeanIds.METHOD_ACCESS_MANAGER,
+		if (!parserContext.getRegistry().containsBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER)) {
+			parserContext.getRegistry().registerBeanDefinition(BeanIds.METHOD_ACCESS_MANAGER,
 					createAccessManagerBean(RoleVoter.class, AuthenticatedVoter.class));
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	private static RootBeanDefinition createAccessManagerBean(
-			Class<? extends AccessDecisionVoter>... voters) {
+	private static RootBeanDefinition createAccessManagerBean(Class<? extends AccessDecisionVoter>... voters) {
 		ManagedList defaultVoters = new ManagedList(voters.length);
-
 		for (Class<? extends AccessDecisionVoter> voter : voters) {
 			defaultVoters.add(new RootBeanDefinition(voter));
 		}
-
-		BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(AffirmativeBased.class);
+		BeanDefinitionBuilder accessMgrBuilder = BeanDefinitionBuilder.rootBeanDefinition(AffirmativeBased.class);
 		accessMgrBuilder.addConstructorArgValue(defaultVoters);
 		return (RootBeanDefinition) accessMgrBuilder.getBeanDefinition();
 	}
+
 }

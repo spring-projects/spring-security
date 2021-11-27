@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,57 +39,57 @@ import org.springframework.web.server.WebFilterChain;
  * {@link ServerLogoutHandler}.
  *
  * @author Rob Winch
+ * @author Mathieu Ouellet
  * @since 5.0
  */
 public class LogoutWebFilter implements WebFilter {
-	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key", "anonymous",
-		AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+
+	private static final Log logger = LogFactory.getLog(LogoutWebFilter.class);
+
+	private AnonymousAuthenticationToken anonymousAuthenticationToken = new AnonymousAuthenticationToken("key",
+			"anonymous", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
 
 	private ServerLogoutHandler logoutHandler = new SecurityContextServerLogoutHandler();
 
 	private ServerLogoutSuccessHandler logoutSuccessHandler = new RedirectServerLogoutSuccessHandler();
 
-	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers
-		.pathMatchers(HttpMethod.POST, "/logout");
+	private ServerWebExchangeMatcher requiresLogout = ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST,
+			"/logout");
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return this.requiresLogout.matches(exchange)
-			.filter( result -> result.isMatch())
-			.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
-			.map(result -> exchange)
-			.flatMap(this::flatMapAuthentication)
-			.flatMap( authentication -> {
-				WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
-				return logout(webFilterExchange, authentication);
-			});
+		return this.requiresLogout.matches(exchange).filter((result) -> result.isMatch())
+				.switchIfEmpty(chain.filter(exchange).then(Mono.empty())).map((result) -> exchange)
+				.flatMap(this::flatMapAuthentication).flatMap((authentication) -> {
+					WebFilterExchange webFilterExchange = new WebFilterExchange(exchange, chain);
+					return logout(webFilterExchange, authentication);
+				});
 	}
 
 	private Mono<Authentication> flatMapAuthentication(ServerWebExchange exchange) {
-		return exchange.getPrincipal()
-			.cast(Authentication.class)
-			.defaultIfEmpty(this.anonymousAuthenticationToken);
+		return exchange.getPrincipal().cast(Authentication.class).defaultIfEmpty(this.anonymousAuthenticationToken);
 	}
 
 	private Mono<Void> logout(WebFilterExchange webFilterExchange, Authentication authentication) {
+		logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", authentication));
 		return this.logoutHandler.logout(webFilterExchange, authentication)
-			.then(this.logoutSuccessHandler
-				.onLogoutSuccess(webFilterExchange, authentication))
-			.subscriberContext(ReactiveSecurityContextHolder.clearContext());
+				.then(this.logoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
+				.subscriberContext(ReactiveSecurityContextHolder.clearContext());
 	}
 
 	/**
-	 * Sets the {@link ServerLogoutSuccessHandler}. The default is {@link RedirectServerLogoutSuccessHandler}.
+	 * Sets the {@link ServerLogoutSuccessHandler}. The default is
+	 * {@link RedirectServerLogoutSuccessHandler}.
 	 * @param logoutSuccessHandler the handler to use
 	 */
-	public void setLogoutSuccessHandler(
-		ServerLogoutSuccessHandler logoutSuccessHandler) {
+	public void setLogoutSuccessHandler(ServerLogoutSuccessHandler logoutSuccessHandler) {
 		Assert.notNull(logoutSuccessHandler, "logoutSuccessHandler cannot be null");
 		this.logoutSuccessHandler = logoutSuccessHandler;
 	}
 
 	/**
-	 * Sets the {@link ServerLogoutHandler}. The default is {@link SecurityContextServerLogoutHandler}.
+	 * Sets the {@link ServerLogoutHandler}. The default is
+	 * {@link SecurityContextServerLogoutHandler}.
 	 * @param logoutHandler The handler to use
 	 */
 	public void setLogoutHandler(ServerLogoutHandler logoutHandler) {
@@ -98,4 +101,5 @@ public class LogoutWebFilter implements WebFilter {
 		Assert.notNull(requiresLogoutMatcher, "requiresLogoutMatcher must not be null");
 		this.requiresLogout = requiresLogoutMatcher;
 	}
+
 }

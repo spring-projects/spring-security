@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,9 @@ package org.springframework.security.web.server.csrf;
 
 import java.util.UUID;
 
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -25,32 +28,38 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
-import reactor.core.publisher.Mono;
-
 /**
- * A {@link ServerCsrfTokenRepository} that persists the CSRF token in a cookie named "XSRF-TOKEN" and
- * reads from the header "X-XSRF-TOKEN" following the conventions of AngularJS. When using with
- * AngularJS be sure to use {@link #withHttpOnlyFalse()} .
+ * A {@link ServerCsrfTokenRepository} that persists the CSRF token in a cookie named
+ * "XSRF-TOKEN" and reads from the header "X-XSRF-TOKEN" following the conventions of
+ * AngularJS. When using with AngularJS be sure to use {@link #withHttpOnlyFalse()} .
  *
  * @author Eric Deandrea
+ * @author Thomas Vitale
  * @since 5.1
  */
 public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRepository {
+
 	static final String DEFAULT_CSRF_COOKIE_NAME = "XSRF-TOKEN";
 	static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
+
 	private String headerName = DEFAULT_CSRF_HEADER_NAME;
+
 	private String cookiePath;
+
 	private String cookieDomain;
+
 	private String cookieName = DEFAULT_CSRF_COOKIE_NAME;
+
 	private boolean cookieHttpOnly = true;
+
+	private Boolean secure;
 
 	/**
 	 * Factory method to conveniently create an instance that has
 	 * {@link #setCookieHttpOnly(boolean)} set to false.
-	 *
 	 * @return an instance of CookieCsrfTokenRepository with
 	 * {@link #setCookieHttpOnly(boolean)} set to false
 	 */
@@ -62,25 +71,23 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	@Override
 	public Mono<CsrfToken> generateToken(ServerWebExchange exchange) {
-		return Mono.fromCallable(this::createCsrfToken);
+		return Mono.fromCallable(this::createCsrfToken).subscribeOn(Schedulers.boundedElastic());
 	}
 
 	@Override
 	public Mono<Void> saveToken(ServerWebExchange exchange, CsrfToken token) {
 		return Mono.fromRunnable(() -> {
-			String tokenValue = token != null ? token.getToken() : "";
-			int maxAge = !tokenValue.isEmpty() ? -1 : 0;
-			String path = this.cookiePath != null ? this.cookiePath : getRequestContext(exchange.getRequest());
-			boolean secure = exchange.getRequest().getSslInfo() != null;
-
-			ResponseCookie cookie = ResponseCookie.from(this.cookieName, tokenValue)
+			String tokenValue = (token != null) ? token.getToken() : "";
+			// @formatter:off
+			ResponseCookie cookie = ResponseCookie
+					.from(this.cookieName, tokenValue)
 					.domain(this.cookieDomain)
 					.httpOnly(this.cookieHttpOnly)
-					.maxAge(maxAge)
-					.path(path)
-					.secure(secure)
+					.maxAge(!tokenValue.isEmpty() ? -1 : 0)
+					.path((this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest()))
+					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null))
 					.build();
-
+			// @formatter:on
 			exchange.getResponse().addCookie(cookie);
 		});
 	}
@@ -147,6 +154,16 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 		this.cookieDomain = cookieDomain;
 	}
 
+	/**
+	 * Sets the cookie secure flag. If not set, the value depends on
+	 * {@link ServerHttpRequest#getSslInfo()}.
+	 * @param secure The value for the secure flag
+	 * @since 5.5
+	 */
+	public void setSecure(boolean secure) {
+		this.secure = secure;
+	}
+
 	private CsrfToken createCsrfToken() {
 		return createCsrfToken(createNewToken());
 	}
@@ -163,4 +180,5 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 		String contextPath = request.getPath().contextPath().value();
 		return StringUtils.hasLength(contextPath) ? contextPath : "/";
 	}
+
 }

@@ -39,11 +39,13 @@ import reactor.core.publisher.Mono;
  */
 public class MapReactiveUserDetailsService implements ReactiveUserDetailsService, ReactiveUserDetailsPasswordService {
 	private final Log logger = LogFactory.getLog(MapReactiveUserDetailsService.class);
+
 	private final Map<String, UserDetails> users;
 	private AuthenticationManager authenticationManager;
 
 	/**
 	 * Creates a new instance using a {@link Map}
+	 * 
 	 * @param users a {@link Map} of users to use.
 	 */
 	public MapReactiveUserDetailsService(Map<String, UserDetails> users) {
@@ -52,6 +54,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	/**
 	 * Creates a new instance
+	 * 
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(UserDetails... users) {
@@ -60,6 +63,7 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	/**
 	 * Creates a new instance
+	 * 
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
@@ -73,74 +77,66 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	@Override
 	public Mono<UserDetails> findByUsername(String username) {
 		String key = getKey(username);
-		UserDetails result = users.get(key);
-		return result == null ? Mono.empty() : Mono.just(User.withUserDetails(result).build());
+		UserDetails result = this.users.get(key);
+		return (result != null) ? Mono.just(User.withUserDetails(result).build()) : Mono.empty();
 	}
 
 	@Override
 	public Mono<UserDetails> updatePassword(UserDetails user, String newPassword) {
+		// @formatter:off
 		return Mono.just(user)
-				.map(u ->
-					User.withUserDetails(u)
-						.password(newPassword)
-						.build()
-				)
-				.doOnNext(u -> {
+				.map((userDetails) -> withNewPassword(userDetails, newPassword))
+				.doOnNext((userDetails) -> {
 					String key = getKey(user.getUsername());
-					this.users.put(key, u);
+					this.users.put(key, userDetails);
 				});
+		// @formatter:on
+	}
+
+	private UserDetails withNewPassword(UserDetails userDetails, String newPassword) {
+		// @formatter:off
+		return User.withUserDetails(userDetails)
+				.password(newPassword)
+				.build();
+		// @formatter:on
 	}
 
 	public Mono<Void> createUser(UserDetails user) {
-		return userExists(user.getUsername())
-				.doOnNext(exists -> Assert.isTrue(!exists, "user should not exist"))
-				.thenReturn(getKey(user.getUsername()))
-				.doOnNext(key -> this.users.put(key, user))
-				.then();
+		return userExists(user.getUsername()).doOnNext(exists -> Assert.isTrue(!exists, "user should not exist"))
+				.thenReturn(getKey(user.getUsername())).doOnNext(key -> this.users.put(key, user)).then();
 	}
 
 	public Mono<Void> updateUser(UserDetails user) {
-		return userExists(user.getUsername())
-				.doOnNext(exists -> Assert.isTrue(exists, "user should exist"))
-				.thenReturn(getKey(user.getUsername()))
-				.doOnNext(key -> this.users.put(key, user))
-				.then();
+		return userExists(user.getUsername()).doOnNext(exists -> Assert.isTrue(exists, "user should exist"))
+				.thenReturn(getKey(user.getUsername())).doOnNext(key -> this.users.put(key, user)).then();
 	}
 
 	public Mono<Void> deleteUser(String username) {
-		return Mono.just(username)
-				.doOnNext(this.users::remove)
-				.then();
+		return Mono.just(username).doOnNext(this.users::remove).then();
 	}
 
 	public Mono<Boolean> userExists(String username) {
-		return Mono.just(username)
-				.map(this.users::containsKey);
+		return Mono.just(username).map(this.users::containsKey);
 	}
 
 	public Mono<Void> changePassword(String oldPassword, String newPassword) {
-		return Mono.from(ReactiveSecurityContextHolder.getContext())
-				.map(securityContext -> {
-					Authentication currentUser = securityContext.getAuthentication();
-					if (currentUser == null) {
-						throw new AccessDeniedException(
-								"Can't change password as no Authentication object found in context for current user.");
-					}
-					return currentUser;
-				})
-				.map(Authentication::getName)
-				.doOnNext(username -> {
-					if (authenticationManager != null) {
-						logger.debug("Reauthenticating user '" + username + "' for password change request.");
-						authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
-					} else {
-						logger.debug("No authentication manager set. Password won't be re-checked.");
-					}
-				})
-				.flatMap(this::findByUsername)
+		return Mono.from(ReactiveSecurityContextHolder.getContext()).map(securityContext -> {
+			Authentication currentUser = securityContext.getAuthentication();
+			if (currentUser == null) {
+				throw new AccessDeniedException(
+						"Can't change password as no Authentication object found in context for current user.");
+			}
+			return currentUser;
+		}).map(Authentication::getName).doOnNext(username -> {
+			if (authenticationManager != null) {
+				logger.debug("Reauthenticating user '" + username + "' for password change request.");
+				authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
+			} else {
+				logger.debug("No authentication manager set. Password won't be re-checked.");
+			}
+		}).flatMap(this::findByUsername)
 				.switchIfEmpty(Mono.error(new IllegalStateException("Current user doesn't exist in map.")))
-				.flatMap(user -> updatePassword(user, newPassword))
-				.then();
+				.flatMap(user -> updatePassword(user, newPassword)).then();
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {
@@ -150,4 +146,5 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 	private String getKey(String username) {
 		return username.toLowerCase();
 	}
+
 }

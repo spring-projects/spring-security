@@ -22,8 +22,6 @@ package org.springframework.security;
  * @author Ben Alex
  */
 public interface ITargetObject {
-	// ~ Methods
-	// ========================================================================================================
 
 	Integer computeHashCode(String input);
 
@@ -34,4 +32,5 @@ public interface ITargetObject {
 	String makeUpperCase(String input);
 
 	String publicMakeLowerCase(String input);
+
 }

@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
 import java.io.IOException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -54,14 +55,12 @@ public class RequestCacheAwareFilter extends GenericFilterBean {
 		this.requestCache = requestCache;
 	}
 
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
-
-		HttpServletRequest wrappedSavedRequest = requestCache.getMatchingRequest(
-				(HttpServletRequest) request, (HttpServletResponse) response);
-
-		chain.doFilter(wrappedSavedRequest == null ? request : wrappedSavedRequest,
-				response);
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		HttpServletRequest wrappedSavedRequest = this.requestCache.getMatchingRequest((HttpServletRequest) request,
+				(HttpServletResponse) response);
+		chain.doFilter((wrappedSavedRequest != null) ? wrappedSavedRequest : request, response);
 	}
 
 }

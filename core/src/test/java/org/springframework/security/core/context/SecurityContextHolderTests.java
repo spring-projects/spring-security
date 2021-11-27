@@ -16,12 +16,15 @@
 
 package org.springframework.security.core.context;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextImpl;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link SecurityContextHolder}.
@@ -30,12 +33,9 @@ import org.springframework.security.core.context.SecurityContextImpl;
  */
 public class SecurityContextHolderTests {
 
-	// ~ Methods
-	// ========================================================================================================
-	@Before
+	@BeforeEach
 	public final void setUp() {
-		SecurityContextHolder
-				.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+		SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
 	}
 
 	@Test
@@ -57,12 +57,21 @@ public class SecurityContextHolderTests {
 
 	@Test
 	public void testRejectsNulls() {
-		try {
-			SecurityContextHolder.setContext(null);
-			fail("Should have rejected null");
-		}
-		catch (IllegalArgumentException expected) {
+		assertThatIllegalArgumentException().isThrownBy(() -> SecurityContextHolder.setContext(null));
+	}
 
+	@Test
+	public void setContextHolderStrategyWhenCalledThenUsed() {
+		SecurityContextHolderStrategy original = SecurityContextHolder.getContextHolderStrategy();
+		try {
+			SecurityContextHolderStrategy delegate = mock(SecurityContextHolderStrategy.class);
+			SecurityContextHolder.setContextHolderStrategy(delegate);
+			SecurityContextHolder.getContext();
+			verify(delegate).getContext();
+		}
+		finally {
+			SecurityContextHolder.setContextHolderStrategy(original);
 		}
 	}
+
 }

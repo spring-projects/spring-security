@@ -13,68 +13,70 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.web.context.request.async;
 
-import static org.assertj.core.api.Assertions.assertThat;
+package org.springframework.security.web.context.request.async;
 
 import java.util.concurrent.Callable;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.context.request.NativeWebRequest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+
 /**
- *
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class SecurityContextCallableProcessingInterceptorTests {
+
 	@Mock
 	private SecurityContext securityContext;
+
 	@Mock
 	private Callable<?> callable;
+
 	@Mock
 	private NativeWebRequest webRequest;
 
-	@After
+	@AfterEach
 	public void clearSecurityContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNull() {
-		new SecurityContextCallableProcessingInterceptor(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SecurityContextCallableProcessingInterceptor(null));
 	}
 
 	@Test
 	public void currentSecurityContext() throws Exception {
 		SecurityContextCallableProcessingInterceptor interceptor = new SecurityContextCallableProcessingInterceptor();
-		SecurityContextHolder.setContext(securityContext);
-		interceptor.beforeConcurrentHandling(webRequest, callable);
+		SecurityContextHolder.setContext(this.securityContext);
+		interceptor.beforeConcurrentHandling(this.webRequest, this.callable);
 		SecurityContextHolder.clearContext();
-
-		interceptor.preProcess(webRequest, callable);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
-
-		interceptor.postProcess(webRequest, callable, null);
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+		interceptor.preProcess(this.webRequest, this.callable);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
+		interceptor.postProcess(this.webRequest, this.callable, null);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}
 
 	@Test
 	public void specificSecurityContext() throws Exception {
 		SecurityContextCallableProcessingInterceptor interceptor = new SecurityContextCallableProcessingInterceptor(
-				securityContext);
-
-		interceptor.preProcess(webRequest, callable);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(securityContext);
-
-		interceptor.postProcess(webRequest, callable, null);
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(securityContext);
+				this.securityContext);
+		interceptor.preProcess(this.webRequest, this.callable);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.securityContext);
+		interceptor.postProcess(this.webRequest, this.callable, null);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.securityContext);
 	}
+
 }

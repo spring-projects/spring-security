@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
+import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.client.registration.TestClientRegistrations.clientRegistration;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationExchanges.success;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationCodeGrantRequest}.
@@ -32,32 +34,36 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  * @author Joe Grandja
  */
 public class OAuth2AuthorizationCodeGrantRequestTests {
+
 	private ClientRegistration clientRegistration;
+
 	private OAuth2AuthorizationExchange authorizationExchange;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		this.clientRegistration = clientRegistration().build();
-		this.authorizationExchange = success();
+		this.clientRegistration = TestClientRegistrations.clientRegistration().build();
+		this.authorizationExchange = TestOAuth2AuthorizationExchanges.success();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(null, this.authorizationExchange));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationExchangeIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, null));
 	}
 
 	@Test
 	public void constructorWhenAllParametersProvidedAndValidThenCreated() {
-		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest =
-			new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration, this.authorizationExchange);
-
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = new OAuth2AuthorizationCodeGrantRequest(
+				this.clientRegistration, this.authorizationExchange);
 		assertThat(authorizationCodeGrantRequest.getClientRegistration()).isEqualTo(this.clientRegistration);
 		assertThat(authorizationCodeGrantRequest.getAuthorizationExchange()).isEqualTo(this.authorizationExchange);
 		assertThat(authorizationCodeGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.AUTHORIZATION_CODE);
 	}
+
 }

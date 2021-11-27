@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.encrypt;
 
 import java.security.InvalidAlgorithmParameterException;
@@ -33,81 +34,82 @@ import javax.crypto.spec.PBEParameterSpec;
 
 /**
  * Static helper for working with the Cipher API.
+ *
  * @author Keith Donald
  */
-class CipherUtils {
+final class CipherUtils {
+
+	private CipherUtils() {
+	}
 
 	/**
 	 * Generates a SecretKey.
 	 */
-	public static SecretKey newSecretKey(String algorithm, String password) {
+	static SecretKey newSecretKey(String algorithm, String password) {
 		return newSecretKey(algorithm, new PBEKeySpec(password.toCharArray()));
 	}
 
 	/**
 	 * Generates a SecretKey.
 	 */
-	public static SecretKey newSecretKey(String algorithm, PBEKeySpec keySpec) {
+	static SecretKey newSecretKey(String algorithm, PBEKeySpec keySpec) {
 		try {
 			SecretKeyFactory factory = SecretKeyFactory.getInstance(algorithm);
 			return factory.generateSecret(keySpec);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Not a valid encryption algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalArgumentException("Not a valid encryption algorithm", ex);
 		}
-		catch (InvalidKeySpecException e) {
-			throw new IllegalArgumentException("Not a valid secret key", e);
+		catch (InvalidKeySpecException ex) {
+			throw new IllegalArgumentException("Not a valid secret key", ex);
 		}
 	}
 
 	/**
 	 * Constructs a new Cipher.
 	 */
-	public static Cipher newCipher(String algorithm) {
+	static Cipher newCipher(String algorithm) {
 		try {
 			return Cipher.getInstance(algorithm);
 		}
-		catch (NoSuchAlgorithmException e) {
-			throw new IllegalArgumentException("Not a valid encryption algorithm", e);
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalArgumentException("Not a valid encryption algorithm", ex);
 		}
-		catch (NoSuchPaddingException e) {
-			throw new IllegalStateException("Should not happen", e);
+		catch (NoSuchPaddingException ex) {
+			throw new IllegalStateException("Should not happen", ex);
 		}
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher,
-			Class<T> parameterSpecClass) {
+	static <T extends AlgorithmParameterSpec> T getParameterSpec(Cipher cipher, Class<T> parameterSpecClass) {
 		try {
 			return cipher.getParameters().getParameterSpec(parameterSpecClass);
 		}
-		catch (InvalidParameterSpecException e) {
-			throw new IllegalArgumentException("Unable to access parameter", e);
+		catch (InvalidParameterSpecException ex) {
+			throw new IllegalArgumentException("Unable to access parameter", ex);
 		}
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey) {
 		initCipher(cipher, mode, secretKey, null);
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
-			byte[] salt, int iterationCount) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, byte[] salt, int iterationCount) {
 		initCipher(cipher, mode, secretKey, new PBEParameterSpec(salt, iterationCount));
 	}
 
 	/**
 	 * Initializes the Cipher for use.
 	 */
-	public static void initCipher(Cipher cipher, int mode, SecretKey secretKey,
-			AlgorithmParameterSpec parameterSpec) {
+	static void initCipher(Cipher cipher, int mode, SecretKey secretKey, AlgorithmParameterSpec parameterSpec) {
 		try {
 			if (parameterSpec != null) {
 				cipher.init(mode, secretKey, parameterSpec);
@@ -116,13 +118,11 @@ class CipherUtils {
 				cipher.init(mode, secretKey);
 			}
 		}
-		catch (InvalidKeyException e) {
-			throw new IllegalArgumentException(
-					"Unable to initialize due to invalid secret key", e);
+		catch (InvalidKeyException ex) {
+			throw new IllegalArgumentException("Unable to initialize due to invalid secret key", ex);
 		}
-		catch (InvalidAlgorithmParameterException e) {
-			throw new IllegalStateException(
-					"Unable to initialize due to invalid decryption parameter spec", e);
+		catch (InvalidAlgorithmParameterException ex) {
+			throw new IllegalStateException("Unable to initialize due to invalid decryption parameter spec", ex);
 		}
 	}
 
@@ -130,21 +130,16 @@ class CipherUtils {
 	 * Invokes the Cipher to perform encryption or decryption (depending on the
 	 * initialized mode).
 	 */
-	public static byte[] doFinal(Cipher cipher, byte[] input) {
+	static byte[] doFinal(Cipher cipher, byte[] input) {
 		try {
 			return cipher.doFinal(input);
 		}
-		catch (IllegalBlockSizeException e) {
-			throw new IllegalStateException(
-					"Unable to invoke Cipher due to illegal block size", e);
+		catch (IllegalBlockSizeException ex) {
+			throw new IllegalStateException("Unable to invoke Cipher due to illegal block size", ex);
 		}
-		catch (BadPaddingException e) {
-			throw new IllegalStateException("Unable to invoke Cipher due to bad padding",
-					e);
+		catch (BadPaddingException ex) {
+			throw new IllegalStateException("Unable to invoke Cipher due to bad padding", ex);
 		}
-	}
-
-	private CipherUtils() {
 	}
 
 }

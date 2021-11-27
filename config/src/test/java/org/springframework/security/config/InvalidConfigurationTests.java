@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.junit.Assert.fail;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.After;
-import org.junit.Test;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionStoreException;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests which make sure invalid configurations are rejected by the namespace. In
@@ -34,50 +36,50 @@ import org.springframework.security.config.util.InMemoryXmlApplicationContext;
  * @author Luke Taylor
  */
 public class InvalidConfigurationTests {
+
 	private InMemoryXmlApplicationContext appContext;
 
-	@After
+	@AfterEach
 	public void closeAppContext() {
-		if (appContext != null) {
-			appContext.close();
+		if (this.appContext != null) {
+			this.appContext.close();
 		}
 	}
 
 	// Parser should throw a SAXParseException
-	@Test(expected = XmlBeanDefinitionStoreException.class)
+	@Test
 	public void passwordEncoderCannotAppearAtTopLevel() {
-		setContext("<password-encoder hash='md5'/>");
+		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+				.isThrownBy(() -> setContext("<password-encoder hash='md5'/>"));
 	}
 
-	@Test(expected = XmlBeanDefinitionStoreException.class)
+	@Test
 	public void authenticationProviderCannotAppearAtTopLevel() {
-		setContext("<authentication-provider ref='blah'/>");
+		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
+				.isThrownBy(() -> setContext("<authentication-provider ref='blah'/>"));
 	}
 
 	@Test
 	public void missingAuthenticationManagerGivesSensibleErrorMessage() {
-		try {
-			setContext("<http auto-config='true' />");
-			fail();
-		}
-		catch (BeanCreationException e) {
-			Throwable cause = ultimateCause(e);
-			assertThat(cause instanceof NoSuchBeanDefinitionException).isTrue();
-			NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
-			assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
-			assertThat(nsbe.getMessage()).endsWith(
-					AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
-		}
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> setContext("<http auto-config='true' />")).satisfies((ex) -> {
+					Throwable cause = ultimateCause(ex);
+					assertThat(cause).isInstanceOf(NoSuchBeanDefinitionException.class);
+					NoSuchBeanDefinitionException nsbe = (NoSuchBeanDefinitionException) cause;
+					assertThat(nsbe.getBeanName()).isEqualTo(BeanIds.AUTHENTICATION_MANAGER);
+					assertThat(nsbe.getMessage()).endsWith(AuthenticationManagerFactoryBean.MISSING_BEAN_ERROR_MESSAGE);
+				});
 	}
 
-	private Throwable ultimateCause(Throwable e) {
-		if (e.getCause() == null) {
-			return e;
+	private Throwable ultimateCause(Throwable ex) {
+		if (ex.getCause() == null) {
+			return ex;
 		}
-		return ultimateCause(e.getCause());
+		return ultimateCause(ex.getCause());
 	}
 
 	private void setContext(String context) {
-		appContext = new InMemoryXmlApplicationContext(context);
+		this.appContext = new InMemoryXmlApplicationContext(context);
 	}
+
 }

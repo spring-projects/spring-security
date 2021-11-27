@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.context.annotation.Bean;
@@ -21,8 +22,10 @@ import org.springframework.context.annotation.Bean;
  * @author Josh Cummings
  */
 public class MethodSecurityServiceConfig {
+
 	@Bean
 	MethodSecurityService service() {
 		return new MethodSecurityServiceImpl();
 	}
+
 }

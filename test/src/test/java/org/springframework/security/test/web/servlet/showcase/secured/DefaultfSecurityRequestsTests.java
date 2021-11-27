@@ -13,31 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.web.servlet.showcase.secured;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = DefaultfSecurityRequestsTests.Config.class)
 @WebAppConfiguration
 public class DefaultfSecurityRequestsTests {
@@ -47,17 +51,16 @@ public class DefaultfSecurityRequestsTests {
 
 	private MockMvc mvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		mvc = MockMvcBuilders.webAppContextSetup(context)
-				.defaultRequest(get("/").with(user("user").roles("ADMIN")))
-				.apply(springSecurity()).build();
+		this.mvc = MockMvcBuilders.webAppContextSetup(this.context)
+				.defaultRequest(get("/").with(user("user").roles("ADMIN"))).apply(springSecurity()).build();
 	}
 
 	@Test
 	public void requestProtectedUrlWithUser() throws Exception {
-		mvc.perform(get("/"))
-		// Ensure we got past Security
+		this.mvc.perform(get("/"))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -65,8 +68,8 @@ public class DefaultfSecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAdmin() throws Exception {
-		mvc.perform(get("/admin"))
-		// Ensure we got past Security
+		this.mvc.perform(get("/admin"))
+				// Ensure we got past Security
 				.andExpect(status().isNotFound())
 				// Ensure it appears we are authenticated with user
 				.andExpect(authenticated().withUsername("user"));
@@ -74,7 +77,7 @@ public class DefaultfSecurityRequestsTests {
 
 	@Test
 	public void requestProtectedUrlWithAnonymous() throws Exception {
-		mvc.perform(get("/admin").with(anonymous()))
+		this.mvc.perform(get("/admin").with(anonymous()))
 				// Ensure we got past Security
 				.andExpect(status().isUnauthorized())
 				// Ensure it appears we are authenticated with user
@@ -85,25 +88,27 @@ public class DefaultfSecurityRequestsTests {
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
 
-		// @formatter:off
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.httpBasic();
+			// @formatter:on
 		}
-		// @formatter:on
 
-		// @formatter:off
 		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER");
+			// @formatter:on
 		}
-		// @formatter:on
+
 	}
+
 }

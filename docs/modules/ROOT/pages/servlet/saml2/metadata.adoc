@@ -1,0 +1,74 @@
+[[servlet-saml2login-metadata]]
+= Producing `<saml2:SPSSODescriptor>` Metadata
+
+You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the filter chain, as you'll see below:
+
+====
+.Java
+[source,java,role="primary"]
+----
+DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
+        new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository);
+Saml2MetadataFilter filter = new Saml2MetadataFilter(
+        relyingPartyRegistrationResolver,
+        new OpenSamlMetadataResolver());
+
+http
+    // ...
+    .saml2Login(withDefaults())
+    .addFilterBefore(filter, Saml2WebSsoAuthenticationFilter.class);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val relyingPartyRegistrationResolver: Converter<HttpServletRequest, RelyingPartyRegistration> =
+    DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository)
+val filter = Saml2MetadataFilter(
+    relyingPartyRegistrationResolver,
+    OpenSamlMetadataResolver()
+)
+
+http {
+    //...
+    saml2Login { }
+    addFilterBefore<Saml2WebSsoAuthenticationFilter>(filter)
+}
+----
+====
+
+You can use this metadata endpoint to register your relying party with your asserting party.
+This is often as simple as finding the correct form field to supply the metadata endpoint.
+
+By default, the metadata endpoint is `+/saml2/service-provider-metadata/{registrationId}+`.
+You can change this by calling the `setRequestMatcher` method on the filter:
+
+====
+.Java
+[source,java,role="primary"]
+----
+filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"))
+----
+====
+
+Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata", "GET"));
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata", "GET"))
+----
+====

@@ -1,0 +1,10 @@
+apply plugin: 'io.spring.convention.spring-module'
+
+dependencies {
+	api platform('org.springframework.boot:spring-boot-dependencies:2.5.2')
+	implementation 'org.springframework:spring-web'
+	implementation 'org.springframework:spring-core'
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+}
+

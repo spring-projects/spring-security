@@ -29,7 +29,10 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
  * @author Rob Winch
  * @since 5.1
  */
-public class TestOAuth2AuthorizationCodeAuthenticationTokens {
+public final class TestOAuth2AuthorizationCodeAuthenticationTokens {
+
+	private TestOAuth2AuthorizationCodeAuthenticationTokens() {
+	}
 
 	public static OAuth2AuthorizationCodeAuthenticationToken unauthenticated() {
 		ClientRegistration registration = TestClientRegistrations.clientRegistration().build();
@@ -44,4 +47,5 @@ public class TestOAuth2AuthorizationCodeAuthenticationTokens {
 		OAuth2RefreshToken refreshToken = TestOAuth2RefreshTokens.refreshToken();
 		return new OAuth2AuthorizationCodeAuthenticationToken(registration, exchange, accessToken, refreshToken);
 	}
+
 }

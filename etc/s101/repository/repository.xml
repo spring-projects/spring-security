@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<structure101-repository language="java" version="19139">
+  <xs-configuration>
+    <entry metric="Tangled" scope="design" threshold="0" color="153,53,0" />
+    <entry metric="Fat" scope="design" threshold="120" color="255,153,0" />
+    <entry metric="Fat" scope="leaf package" threshold="120" color="0,153,153" />
+    <entry metric="Fat" scope="class" threshold="120" color="255,153,153" />
+    <entry metric="Fat" scope="method" threshold="15" color="51,255,51" />
+  </xs-configuration>
+  <!--Note: All date strings are stored in short US format e.g. 2/1/06 for 1st Feb 2006-->
+  <project name="snapshots" dir="snapshots" baselineSnapshot="default" version="19139">
+    <snapshot label="baseline" location="baseline" timestamp="11/19/21, 11:32 AM" version="19161" detail="true" good="true" size="1500" />
+  </project>
+</structure101-repository>

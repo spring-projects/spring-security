@@ -1,0 +1,17 @@
+# Normalize line endings to auto.
+* text auto
+
+# Ensure that line endings for DOS batch files are not modified.
+*.bat -text
+
+# Ensure the following are treated as binary.
+*.cer      binary
+*.graffle  binary
+*.jar      binary
+*.jpeg     binary
+*.jpg      binary
+*.keystore binary
+*.odg      binary
+*.otg      binary
+*.png      binary
+*.hsx      binary

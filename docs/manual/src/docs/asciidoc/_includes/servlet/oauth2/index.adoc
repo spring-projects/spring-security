@@ -1,7 +1,0 @@
-= OAuth2
-
-include::oauth2-login.adoc[]
-
-include::oauth2-client.adoc[]
-
-include::oauth2-resourceserver.adoc[]

@@ -16,9 +16,9 @@
 
 package org.springframework.security.test.web.servlet.response;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,7 +26,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -42,7 +42,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
  * @author Rob Winch
  * @since 4.1
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WebAppConfiguration
 public class Gh3409Tests {
@@ -52,7 +52,7 @@ public class Gh3409Tests {
 
 	private MockMvc mockMvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		// @formatter:off
 		this.mockMvc = MockMvcBuilders
@@ -69,7 +69,6 @@ public class Gh3409Tests {
 		this.mockMvc
 			.perform(get("/public/")
 			.with(securityContext(new SecurityContextImpl())));
-
 		this.mockMvc
 			.perform(get("/public/"))
 			.andExpect(unauthenticated());
@@ -82,7 +81,6 @@ public class Gh3409Tests {
 		this.mockMvc
 			.perform(get("/")
 			.with(securityContext(new SecurityContextImpl())));
-
 		this.mockMvc
 			.perform(get("/"))
 			.andExpect(unauthenticated());
@@ -104,7 +102,8 @@ public class Gh3409Tests {
 				.formLogin().and()
 				.httpBasic();
 			// @formatter:on
-
 		}
+
 	}
+
 }

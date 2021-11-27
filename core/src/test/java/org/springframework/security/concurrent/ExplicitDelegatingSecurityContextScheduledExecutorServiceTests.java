@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
+
 import org.springframework.security.core.context.SecurityContext;
 
 /**
@@ -26,17 +28,17 @@ import org.springframework.security.core.context.SecurityContext;
  * @since 3.2
  *
  */
-public class ExplicitDelegatingSecurityContextScheduledExecutorServiceTests extends
-		AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
+public class ExplicitDelegatingSecurityContextScheduledExecutorServiceTests
+		extends AbstractDelegatingSecurityContextScheduledExecutorServiceTests {
 
-	@Before
+	@BeforeEach
 	public void setUp() throws Exception {
-		this.explicitSecurityContextPowermockSetup();
+		this.explicitSecurityContextSetup();
 	}
 
 	@Override
 	protected DelegatingSecurityContextScheduledExecutorService create() {
-		return new DelegatingSecurityContextScheduledExecutorService(delegate,
-				securityContext);
+		return new DelegatingSecurityContextScheduledExecutorService(this.delegate, this.securityContext);
 	}
+
 }

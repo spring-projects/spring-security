@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
 
-import org.springframework.core.convert.converter.Converter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
@@ -26,64 +24,38 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.net.URI;
 
 /**
- * A {@link Converter} that converts the provided {@link OAuth2RefreshTokenGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the Refresh Token Grant.
+ * An implementation of an {@link AbstractOAuth2AuthorizationGrantRequestEntityConverter}
+ * that converts the provided {@link OAuth2RefreshTokenGrantRequest} to a
+ * {@link RequestEntity} representation of an OAuth 2.0 Access Token Request for the
+ * Refresh Token Grant.
  *
  * @author Joe Grandja
  * @since 5.2
- * @see Converter
+ * @see AbstractOAuth2AuthorizationGrantRequestEntityConverter
  * @see OAuth2RefreshTokenGrantRequest
  * @see RequestEntity
  */
-public class OAuth2RefreshTokenGrantRequestEntityConverter implements Converter<OAuth2RefreshTokenGrantRequest, RequestEntity<?>> {
+public class OAuth2RefreshTokenGrantRequestEntityConverter
+		extends AbstractOAuth2AuthorizationGrantRequestEntityConverter<OAuth2RefreshTokenGrantRequest> {
 
-	/**
-	 * Returns the {@link RequestEntity} used for the Access Token Request.
-	 *
-	 * @param refreshTokenGrantRequest the refresh token grant request
-	 * @return the {@link RequestEntity} used for the Access Token Request
-	 */
 	@Override
-	public RequestEntity<?> convert(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
+	protected MultiValueMap<String, String> createParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
 		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
-
-		HttpHeaders headers = OAuth2AuthorizationGrantRequestEntityUtils.getTokenRequestHeaders(clientRegistration);
-		MultiValueMap<String, String> formParameters = buildFormParameters(refreshTokenGrantRequest);
-		URI uri = UriComponentsBuilder.fromUriString(clientRegistration.getProviderDetails().getTokenUri())
-				.build()
-				.toUri();
-
-		return new RequestEntity<>(formParameters, headers, HttpMethod.POST, uri);
-	}
-
-	/**
-	 * Returns a {@link MultiValueMap} of the form parameters used for the Access Token Request body.
-	 *
-	 * @param refreshTokenGrantRequest the refresh token grant request
-	 * @return a {@link MultiValueMap} of the form parameters used for the Access Token Request body
-	 */
-	private MultiValueMap<String, String> buildFormParameters(OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest) {
-		ClientRegistration clientRegistration = refreshTokenGrantRequest.getClientRegistration();
-
-		MultiValueMap<String, String> formParameters = new LinkedMultiValueMap<>();
-		formParameters.add(OAuth2ParameterNames.GRANT_TYPE, refreshTokenGrantRequest.getGrantType().getValue());
-		formParameters.add(OAuth2ParameterNames.REFRESH_TOKEN,
-				refreshTokenGrantRequest.getRefreshToken().getTokenValue());
+		MultiValueMap<String, String> parameters = new LinkedMultiValueMap<>();
+		parameters.add(OAuth2ParameterNames.GRANT_TYPE, refreshTokenGrantRequest.getGrantType().getValue());
+		parameters.add(OAuth2ParameterNames.REFRESH_TOKEN, refreshTokenGrantRequest.getRefreshToken().getTokenValue());
 		if (!CollectionUtils.isEmpty(refreshTokenGrantRequest.getScopes())) {
-			formParameters.add(OAuth2ParameterNames.SCOPE,
+			parameters.add(OAuth2ParameterNames.SCOPE,
 					StringUtils.collectionToDelimitedString(refreshTokenGrantRequest.getScopes(), " "));
 		}
-		if (ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
-			formParameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
-			formParameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
+		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())
+				|| ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
+			parameters.add(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
+			parameters.add(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
-
-		return formParameters;
+		return parameters;
 	}
+
 }

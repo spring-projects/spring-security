@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config;
 
 public abstract class ConfigTestUtils {
+
+	// @formatter:off
 	public static final String AUTH_PROVIDER_XML = "<authentication-manager alias='authManager'>"
 			+ "    <authentication-provider>"
 			+ "        <user-service id='us'>"
@@ -26,4 +29,6 @@ public abstract class ConfigTestUtils {
 			+ "        </user-service>"
 			+ "    </authentication-provider>"
 			+ "</authentication-manager>";
+	// @formatter:on
+
 }

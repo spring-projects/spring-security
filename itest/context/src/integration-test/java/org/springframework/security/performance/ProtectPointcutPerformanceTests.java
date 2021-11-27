@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.performance;
 
-import static org.assertj.core.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -27,19 +27,21 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StopWatch;
+
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * @author Luke Taylor
  */
 @ContextConfiguration(locations = { "/protect-pointcut-performance-app-context.xml" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class ProtectPointcutPerformanceTests implements ApplicationContextAware {
 
 	ApplicationContext ctx;
 
-	@Before
+	@BeforeEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
@@ -51,8 +53,7 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 		sw.start();
 		for (int i = 0; i < 1000; i++) {
 			try {
-				SessionRegistry reg = (SessionRegistry) ctx.getBean(
-						"sessionRegistryPrototype");
+				SessionRegistry reg = (SessionRegistry) this.ctx.getBean("sessionRegistryPrototype");
 				reg.getAllPrincipals();
 				fail("Expected AuthenticationCredentialsNotFoundException");
 			}
@@ -64,8 +65,9 @@ public class ProtectPointcutPerformanceTests implements ApplicationContextAware 
 
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		ctx = applicationContext;
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.ctx = applicationContext;
 	}
+
 }

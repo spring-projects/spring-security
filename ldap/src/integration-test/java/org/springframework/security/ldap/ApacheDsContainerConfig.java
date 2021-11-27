@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap;
 
-import javax.annotation.PreDestroy;
-
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.ContextSource;
@@ -26,25 +26,25 @@ import org.springframework.security.ldap.server.ApacheDSContainer;
  * @author Eddú Meléndez
  */
 @Configuration
-public class ApacheDsContainerConfig {
+public class ApacheDsContainerConfig implements DisposableBean {
 
 	private ApacheDSContainer container;
 
 	@Bean
 	ApacheDSContainer ldapContainer() throws Exception {
-		this.container = new ApacheDSContainer("dc=springframework,dc=org",
-				"classpath:test-server.ldif");
+		this.container = new ApacheDSContainer("dc=springframework,dc=org", "classpath:test-server.ldif");
+		this.container.setPort(0);
 		return this.container;
 	}
 
 	@Bean
-	ContextSource contextSource() throws Exception {
-		return new DefaultSpringSecurityContextSource("ldap://127.0.0.1:"
-				+ ldapContainer().getPort() + "/dc=springframework,dc=org");
+	ContextSource contextSource(ApacheDSContainer ldapContainer) throws Exception {
+		return new DefaultSpringSecurityContextSource(
+				"ldap://127.0.0.1:" + ldapContainer.getLocalPort() + "/dc=springframework,dc=org");
 	}
 
-	@PreDestroy
-	void shutdown() {
+	@Override
+	public void destroy() throws Exception {
 		this.container.stop();
 	}
 

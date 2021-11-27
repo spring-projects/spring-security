@@ -13,50 +13,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.firewall;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
  */
 public class DefaultHttpFirewallTests {
+
 	public String[] unnormalizedPaths = { "/..", "/./path/", "/path/path/.", "/path/path//.", "./path/../path//.",
 			"./path", ".//path", "." };
 
 	@Test
 	public void unnormalizedPathsAreRejected() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
-
-		MockHttpServletRequest request;
 		for (String path : this.unnormalizedPaths) {
-			request = new MockHttpServletRequest();
+			MockHttpServletRequest request = new MockHttpServletRequest();
 			request.setServletPath(path);
-			try {
-				fw.getFirewalledRequest(request);
-				fail(path + " is un-normalized");
-			} catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> fw.getFirewalledRequest(request));
 			request.setPathInfo(path);
-			try {
-				fw.getFirewalledRequest(request);
-				fail(path + " is un-normalized");
-			} catch (RequestRejectedException expected) {
-			}
+			assertThatExceptionOfType(RequestRejectedException.class)
+					.isThrownBy(() -> fw.getFirewalledRequest(request));
 		}
 	}
 
 	/**
-	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on
-	 * /a/b/c because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c
-	 * while Spring MVC will strip the ; content from requestURI before the path
-	 * is URL decoded.
+	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on /a/b/c
+	 * because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c while Spring MVC
+	 * will strip the ; content from requestURI before the path is URL decoded.
 	 */
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenLowercaseEncodedPathThenException() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -64,10 +57,10 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-		fw.getFirewalledRequest(request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> fw.getFirewalledRequest(request));
 	}
 
-	@Test(expected = RequestRejectedException.class)
+	@Test
 	public void getFirewalledRequestWhenUppercaseEncodedPathThenException() {
 		DefaultHttpFirewall fw = new DefaultHttpFirewall();
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -75,8 +68,7 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
-		fw.getFirewalledRequest(request);
+		assertThatExceptionOfType(RequestRejectedException.class).isThrownBy(() -> fw.getFirewalledRequest(request));
 	}
 
 	@Test
@@ -88,7 +80,6 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
 		fw.getFirewalledRequest(request);
 	}
 
@@ -101,7 +92,7 @@ public class DefaultHttpFirewallTests {
 		request.setContextPath("/context-root");
 		request.setServletPath("");
 		request.setPathInfo("/a/b;/1/c"); // URL decoded requestURI
-
 		fw.getFirewalledRequest(request);
 	}
+
 }

@@ -21,14 +21,15 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
 
 /**
- * The standard order for {@link PayloadInterceptor} to be
- * sorted. The actual values might change, so users should use the {@link #getOrder()} method to
- * calculate the position dynamically rather than copy values.
+ * The standard order for {@link PayloadInterceptor} to be sorted. The actual values might
+ * change, so users should use the {@link #getOrder()} method to calculate the position
+ * dynamically rather than copy values.
  *
  * @author Rob Winch
  * @since 5.2
  */
 public enum PayloadInterceptorOrder implements Ordered {
+
 	/**
 	 * Where basic authentication is placed.
 	 * @see RSocketSecurity#basicAuthentication(Customizer)
@@ -62,7 +63,9 @@ public enum PayloadInterceptorOrder implements Ordered {
 		this.order = ordinal() * INTERVAL;
 	}
 
+	@Override
 	public int getOrder() {
 		return this.order;
 	}
+
 }

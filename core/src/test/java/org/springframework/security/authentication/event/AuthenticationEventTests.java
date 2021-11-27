@@ -16,14 +16,15 @@
 
 package org.springframework.security.authentication.event;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests {@link AbstractAuthenticationEvent} and its subclasses.
@@ -31,14 +32,11 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class AuthenticationEventTests {
-	// ~ Methods
-	// ========================================================================================================
 
 	private Authentication getAuthentication() {
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-				"Principal", "Credentials");
+		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
+				"Credentials");
 		authentication.setDetails("127.0.0.1");
-
 		return authentication;
 	}
 
@@ -53,8 +51,7 @@ public class AuthenticationEventTests {
 	public void testAbstractAuthenticationFailureEvent() {
 		Authentication auth = getAuthentication();
 		AuthenticationException exception = new DisabledException("TEST");
-		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(
-				auth, exception);
+		AbstractAuthenticationFailureEvent event = new AuthenticationFailureDisabledEvent(auth, exception);
 		assertThat(event.getAuthentication()).isEqualTo(auth);
 		assertThat(event.getException()).isEqualTo(exception);
 	}
@@ -62,24 +59,13 @@ public class AuthenticationEventTests {
 	@Test
 	public void testRejectsNullAuthentication() {
 		AuthenticationException exception = new DisabledException("TEST");
-
-		try {
-			new AuthenticationFailureDisabledEvent(null, exception);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> new AuthenticationFailureDisabledEvent(null, exception));
 	}
 
 	@Test
 	public void testRejectsNullAuthenticationException() {
-		try {
-			new AuthenticationFailureDisabledEvent(getAuthentication(), null);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-
-		}
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new AuthenticationFailureDisabledEvent(getAuthentication(), null));
 	}
+
 }

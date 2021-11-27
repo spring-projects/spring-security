@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.context;
 
 import java.io.IOException;
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;
@@ -72,56 +74,53 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 		this.repo = repo;
 	}
 
-	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
+	@Override
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		HttpServletRequest request = (HttpServletRequest) req;
-		HttpServletResponse response = (HttpServletResponse) res;
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
 
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		// ensure that filter is only applied once per request
 		if (request.getAttribute(FILTER_APPLIED) != null) {
-			// ensure that filter is only applied once per request
 			chain.doFilter(request, response);
 			return;
 		}
-
-		final boolean debug = logger.isDebugEnabled();
-
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-
-		if (forceEagerSessionCreation) {
+		if (this.forceEagerSessionCreation) {
 			HttpSession session = request.getSession();
-
-			if (debug && session.isNew()) {
-				logger.debug("Eagerly created session: " + session.getId());
+			if (this.logger.isDebugEnabled() && session.isNew()) {
+				this.logger.debug(LogMessage.format("Created session %s eagerly", session.getId()));
 			}
 		}
-
-		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request,
-				response);
-		SecurityContext contextBeforeChainExecution = repo.loadContext(holder);
-
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
+		SecurityContext contextBeforeChainExecution = this.repo.loadContext(holder);
 		try {
 			SecurityContextHolder.setContext(contextBeforeChainExecution);
-
+			if (contextBeforeChainExecution.getAuthentication() == null) {
+				logger.debug("Set SecurityContextHolder to empty SecurityContext");
+			}
+			else {
+				if (this.logger.isDebugEnabled()) {
+					this.logger
+							.debug(LogMessage.format("Set SecurityContextHolder to %s", contextBeforeChainExecution));
+				}
+			}
 			chain.doFilter(holder.getRequest(), holder.getResponse());
-
 		}
 		finally {
-			SecurityContext contextAfterChainExecution = SecurityContextHolder
-					.getContext();
-			// Crucial removal of SecurityContextHolder contents - do this before anything
-			// else.
+			SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
+			// Crucial removal of SecurityContextHolder contents before anything else.
 			SecurityContextHolder.clearContext();
-			repo.saveContext(contextAfterChainExecution, holder.getRequest(),
-					holder.getResponse());
+			this.repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
 			request.removeAttribute(FILTER_APPLIED);
-
-			if (debug) {
-				logger.debug("SecurityContextHolder now cleared, as request processing completed");
-			}
+			this.logger.debug("Cleared SecurityContextHolder to complete request");
 		}
 	}
 
 	public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
 		this.forceEagerSessionCreation = forceEagerSessionCreation;
 	}
+
 }

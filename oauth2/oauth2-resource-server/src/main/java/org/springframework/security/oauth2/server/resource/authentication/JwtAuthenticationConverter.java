@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,26 +22,33 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.util.Assert;
 
 /**
  * @author Rob Winch
  * @author Josh Cummings
+ * @author Evgeniy Cheban
+ * @author Olivier Antoine
  * @since 5.1
  */
 public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
-	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter
-			= new JwtGrantedAuthoritiesConverter();
+
+	private Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+
+	private String principalClaimName = JwtClaimNames.SUB;
 
 	@Override
 	public final AbstractAuthenticationToken convert(Jwt jwt) {
 		Collection<GrantedAuthority> authorities = extractAuthorities(jwt);
-		return new JwtAuthenticationToken(jwt, authorities);
+
+		String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
+		return new JwtAuthenticationToken(jwt, authorities, principalClaimValue);
 	}
 
 	/**
-	 * Extracts the {@link GrantedAuthority}s from scope attributes typically found in a {@link Jwt}
-	 *
+	 * Extracts the {@link GrantedAuthority}s from scope attributes typically found in a
+	 * {@link Jwt}
 	 * @param jwt The token
 	 * @return The collection of {@link GrantedAuthority}s found on the token
 	 * @deprecated Since 5.2. Use your own custom converter instead
@@ -54,15 +61,26 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	}
 
 	/**
-	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;GrantedAuthority&gt;&gt;} to use.
-	 * Defaults to {@link JwtGrantedAuthoritiesConverter}.
-	 *
+	 * Sets the {@link Converter Converter&lt;Jwt, Collection&lt;GrantedAuthority&gt;&gt;}
+	 * to use. Defaults to {@link JwtGrantedAuthoritiesConverter}.
 	 * @param jwtGrantedAuthoritiesConverter The converter
 	 * @since 5.2
 	 * @see JwtGrantedAuthoritiesConverter
 	 */
-	public void setJwtGrantedAuthoritiesConverter(Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
+	public void setJwtGrantedAuthoritiesConverter(
+			Converter<Jwt, Collection<GrantedAuthority>> jwtGrantedAuthoritiesConverter) {
 		Assert.notNull(jwtGrantedAuthoritiesConverter, "jwtGrantedAuthoritiesConverter cannot be null");
 		this.jwtGrantedAuthoritiesConverter = jwtGrantedAuthoritiesConverter;
 	}
+
+	/**
+	 * Sets the principal claim name. Defaults to {@link JwtClaimNames#SUB}.
+	 * @param principalClaimName The principal claim name
+	 * @since 5.4
+	 */
+	public void setPrincipalClaimName(String principalClaimName) {
+		Assert.hasText(principalClaimName, "principalClaimName cannot be empty");
+		this.principalClaimName = principalClaimName;
+	}
+
 }

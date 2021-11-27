@@ -37,6 +37,7 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @since 5.1
  */
 class ReactiveRemoteJWKSource implements ReactiveJWKSource {
+
 	/**
 	 * The cached JWK set.
 	 */
@@ -51,85 +52,81 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 		this.jwkSetURL = jwkSetURL;
 	}
 
+	@Override
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
+		// @formatter:off
 		return this.cachedJWKSet.get()
 				.switchIfEmpty(Mono.defer(() -> getJWKSet()))
-				.flatMap(jwkSet -> get(jwkSelector, jwkSet))
-				.switchIfEmpty(Mono.defer(() -> getJWKSet().map(jwkSet -> jwkSelector.select(jwkSet))));
+				.flatMap((jwkSet) -> get(jwkSelector, jwkSet))
+				.switchIfEmpty(Mono.defer(() -> getJWKSet()
+						.map((jwkSet) -> jwkSelector.select(jwkSet)))
+				);
+		// @formatter:on
 	}
 
 	private Mono<List<JWK>> get(JWKSelector jwkSelector, JWKSet jwkSet) {
 		return Mono.defer(() -> {
 			// Run the selector on the JWK set
 			List<JWK> matches = jwkSelector.select(jwkSet);
-
 			if (!matches.isEmpty()) {
 				// Success
 				return Mono.just(matches);
 			}
-
 			// Refresh the JWK set if the sought key ID is not in the cached JWK set
-
 			// Looking for JWK with specific ID?
 			String soughtKeyID = getFirstSpecifiedKeyID(jwkSelector.getMatcher());
 			if (soughtKeyID == null) {
 				// No key ID specified, return no matches
 				return Mono.just(Collections.emptyList());
 			}
-
 			if (jwkSet.getKeyByKeyId(soughtKeyID) != null) {
 				// The key ID exists in the cached JWK set, matching
 				// failed for some other reason, return no matches
 				return Mono.just(Collections.emptyList());
 			}
-
 			return Mono.empty();
-
 		});
 	}
 
 	/**
 	 * Updates the cached JWK set from the configured URL.
-	 *
 	 * @return The updated JWK set.
-	 *
 	 * @throws RemoteKeySourceException If JWK retrieval failed.
 	 */
 	private Mono<JWKSet> getJWKSet() {
+		// @formatter:off
 		return this.webClient.get()
 				.uri(this.jwkSetURL)
 				.retrieve()
 				.bodyToMono(String.class)
 				.map(this::parse)
-				.doOnNext(jwkSet -> this.cachedJWKSet.set(Mono.just(jwkSet)))
+				.doOnNext((jwkSet) -> this.cachedJWKSet
+						.set(Mono.just(jwkSet))
+				)
 				.cache();
+		// @formatter:on
 	}
 
 	private JWKSet parse(String body) {
 		try {
 			return JWKSet.parse(body);
 		}
-		catch (ParseException e) {
-			throw new RuntimeException(e);
+		catch (ParseException ex) {
+			throw new RuntimeException(ex);
 		}
 	}
 
 	/**
 	 * Returns the first specified key ID (kid) for a JWK matcher.
-	 *
 	 * @param jwkMatcher The JWK matcher. Must not be {@code null}.
-	 *
 	 * @return The first key ID, {@code null} if none.
 	 */
 	protected static String getFirstSpecifiedKeyID(final JWKMatcher jwkMatcher) {
-
 		Set<String> keyIDs = jwkMatcher.getKeyIDs();
-
 		if (keyIDs == null || keyIDs.isEmpty()) {
 			return null;
 		}
-
-		for (String id: keyIDs) {
+		for (String id : keyIDs) {
 			if (id != null) {
 				return id;
 			}
@@ -137,7 +134,8 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 		return null; // No kid in matcher
 	}
 
-	public void setWebClient(WebClient webClient) {
+	void setWebClient(WebClient webClient) {
 		this.webClient = webClient;
 	}
+
 }

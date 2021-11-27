@@ -10,7 +10,7 @@ import org.gradle.api.Project;
 public class TrangPlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getTasks().register("rncToXsd", RncToXsd.class, rncToXsd -> {
+		project.getTasks().register("rncToXsd", RncToXsd.class, (rncToXsd) -> {
 			rncToXsd.setDescription("Converts .rnc to .xsd");
 			rncToXsd.setGroup("Build");
 		});

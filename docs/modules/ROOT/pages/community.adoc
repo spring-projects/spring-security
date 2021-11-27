@@ -1,0 +1,37 @@
+[[community]]
+= Spring Security Community
+
+Welcome to the Spring Security Community!
+This section discusses how you can make the most of our vast community.
+
+
+[[community-help]]
+== Getting Help
+If you need help with Spring Security, we are here to help.
+The following are some of the best ways to get help:
+
+* Read through this documentation.
+* Try one of our many xref:samples.adoc#samples[sample applications].
+* Ask a question on https://stackoverflow.com/questions/tagged/spring-security[https://stackoverflow.com] with the `spring-security` tag.
+* Report bugs and enhancement requests at https://github.com/spring-projects/spring-security/issues
+
+[[community-becoming-involved]]
+== Becoming Involved
+We welcome your involvement in the Spring Security project.
+There are many ways to contribute, including answering questions on Stack Overflow, writing new code, improving existing code, assisting with documentation, developing samples or tutorials, reporting bugs, or simply making suggestions.
+For more information, see our https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[Contributing] documentation.
+
+[[community-source]]
+== Source Code
+
+You can find Spring Security's source code on GitHub at https://github.com/spring-projects/spring-security/
+
+[[community-license]]
+== Apache 2 License
+
+Spring Security is Open Source software released under the https://www.apache.org/licenses/LICENSE-2.0.html[Apache 2.0 license].
+
+== Social Media
+
+You can follow https://twitter.com/SpringSecurity[@SpringSecurity] and the https://twitter.com/SpringSecurity/lists/team[Spring Security team] on Twitter to stay up to date with the latest news.
+You can also follow https://twitter.com/SpringCentral[@SpringCentral] to keep up to date with the entire Spring portfolio.

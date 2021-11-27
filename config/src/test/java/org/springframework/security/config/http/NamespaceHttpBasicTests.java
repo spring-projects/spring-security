@@ -19,12 +19,12 @@ package org.springframework.security.config.http;
 import java.lang.reflect.Method;
 import java.util.Base64;
 
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletResponse;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import org.springframework.context.ConfigurableApplicationContext;
@@ -39,18 +39,21 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Rob Winch
  */
 public class NamespaceHttpBasicTests {
+
 	@Mock
 	Method method;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	ConfigurableApplicationContext context;
 
 	Filter springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
@@ -58,7 +61,7 @@ public class NamespaceHttpBasicTests {
 		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void teardown() {
 		if (this.context != null) {
 			this.context.close();
@@ -69,28 +72,25 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void httpBasicWithPasswordEncoder() throws Exception {
 		// @formatter:off
-		loadContext("<http>\n" +
-			"		<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n" +
-			"		<http-basic />\n" +
-			"	</http>\n" +
-			"\n" +
-			"	<authentication-manager id=\"authenticationManager\">\n" +
-			"		<authentication-provider>\n" +
-			"			<password-encoder ref=\"passwordEncoder\" />\n" +
-			"			<user-service>\n" +
-			"				<user name=\"user\" password=\"$2a$10$Zk1MxFEt7YYji4Ccy9xlfuewWzUMsmHZfy4UcCmNKVV6z5i/JNGJW\" authorities=\"ROLE_USER\"/>\n" +
-			"			</user-service>\n" +
-			"		</authentication-provider>\n" +
-			"	</authentication-manager>\n" +
-			"	<b:bean id=\"passwordEncoder\"\n" +
-			"		class=\"org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder\" />");
-			// @formatter:on
-
+		loadContext("<http>\n"
+			+ "	<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n"
+			+ "	<http-basic />\n"
+			+ "</http>\n"
+			+  "\n"
+			+  "<authentication-manager id=\"authenticationManager\">\n"
+			+  "	<authentication-provider>\n"
+			+  "		<password-encoder ref=\"passwordEncoder\" />\n"
+			+  "		<user-service>\n"
+			+  "			<user name=\"user\" password=\"$2a$10$Zk1MxFEt7YYji4Ccy9xlfuewWzUMsmHZfy4UcCmNKVV6z5i/JNGJW\" authorities=\"ROLE_USER\"/>\n"
+			+  "		</user-service>\n"
+			+  "	</authentication-provider>\n"
+			+  "</authentication-manager>\n"
+			+  "<b:bean id=\"passwordEncoder\"\n"
+			+  "	class=\"org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder\" />");
+		// @formatter:on
 		this.request.addHeader("Authorization",
 				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
@@ -98,23 +98,21 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void httpBasicUnauthorizedOnDefault() throws Exception {
 		// @formatter:off
-		loadContext("<http>\n" +
-			"		<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n" +
-			"		<http-basic />\n" +
-			"	</http>\n" +
-			"\n" +
-			"	<authentication-manager />");
+		loadContext("<http>\n"
+			+  "	<intercept-url pattern=\"/**\" access=\"hasRole('USER')\" />\n"
+			+  "	<http-basic />\n"
+			+  "</http>\n"
+			+  "\n"
+			+  "<authentication-manager />");
 		// @formatter:on
-
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
-
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
 		assertThat(this.response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"Realm\"");
 	}
 
 	private void loadContext(String context) {
 		this.context = new InMemoryXmlApplicationContext(context);
-		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain",
-				Filter.class);
+		this.springSecurityFilterChain = this.context.getBean("springSecurityFilterChain", Filter.class);
 	}
+
 }

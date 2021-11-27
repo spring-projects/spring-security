@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,17 @@
 package org.springframework.security.oauth2.server.resource.web;
 
 import java.io.IOException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,38 +43,44 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Authenticates requests that contain an OAuth 2.0
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a>.
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * Token</a>.
  *
- * This filter should be wired with an {@link AuthenticationManager} that can authenticate a
- * {@link BearerTokenAuthenticationToken}.
+ * This filter should be wired with an {@link AuthenticationManager} that can authenticate
+ * a {@link BearerTokenAuthenticationToken}.
  *
  * @author Josh Cummings
  * @author Vedran Pavic
  * @author Joe Grandja
+ * @author Jeongjin Kim
  * @since 5.1
- * @see <a href="https://tools.ietf.org/html/rfc6750" target="_blank">The OAuth 2.0 Authorization Framework: Bearer Token Usage</a>
+ * @see <a href="https://tools.ietf.org/html/rfc6750" target="_blank">The OAuth 2.0
+ * Authorization Framework: Bearer Token Usage</a>
  * @see JwtAuthenticationProvider
  */
 public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+
 	private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
-
-	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource =
-			new WebAuthenticationDetailsSource();
-
-	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
-	private AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) ->
-		authenticationEntryPoint.commence(request, response, exception);
+	private AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) -> {
+		if (exception instanceof AuthenticationServiceException) {
+			throw exception;
+		}
+		this.authenticationEntryPoint.commence(request, response, exception);
+	};
+
+	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
+
+	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
 	 * @param authenticationManagerResolver
 	 */
-	public BearerTokenAuthenticationFilter
-			(AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
-
+	public BearerTokenAuthenticationFilter(
+			AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
 		Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
 		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
@@ -82,13 +91,13 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	 */
 	public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
 		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
-		this.authenticationManagerResolver = request -> authenticationManager;
+		this.authenticationManagerResolver = (request) -> authenticationManager;
 	}
 
 	/**
-	 * Extract any <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer Token</a> from
-	 * the request and attempt an authentication.
-	 *
+	 * Extract any
+	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+	 * Token</a> from the request and attempt an authentication.
 	 * @param request
 	 * @param response
 	 * @param filterChain
@@ -98,49 +107,45 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
-		final boolean debug = this.logger.isDebugEnabled();
-
 		String token;
-
 		try {
 			token = this.bearerTokenResolver.resolve(request);
-		} catch ( OAuth2AuthenticationException invalid ) {
+		}
+		catch (OAuth2AuthenticationException invalid) {
+			this.logger.trace("Sending to authentication entry point since failed to resolve bearer token", invalid);
 			this.authenticationEntryPoint.commence(request, response, invalid);
 			return;
 		}
-
 		if (token == null) {
+			this.logger.trace("Did not process request since did not find bearer token");
 			filterChain.doFilter(request, response);
 			return;
 		}
 
 		BearerTokenAuthenticationToken authenticationRequest = new BearerTokenAuthenticationToken(token);
-
 		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 
 		try {
 			AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
 			Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
-
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authenticationResult);
 			SecurityContextHolder.setContext(context);
-
-			filterChain.doFilter(request, response);
-		} catch (AuthenticationException failed) {
-			SecurityContextHolder.clearContext();
-
-			if (debug) {
-				this.logger.debug("Authentication request for failed!", failed);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authenticationResult));
 			}
-
+			filterChain.doFilter(request, response);
+		}
+		catch (AuthenticationException failed) {
+			SecurityContextHolder.clearContext();
+			this.logger.trace("Failed to process authentication request", failed);
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
 	}
 
 	/**
-	 * Set the {@link BearerTokenResolver} to use. Defaults to {@link DefaultBearerTokenResolver}.
+	 * Set the {@link BearerTokenResolver} to use. Defaults to
+	 * {@link DefaultBearerTokenResolver}.
 	 * @param bearerTokenResolver the {@code BearerTokenResolver} to use
 	 */
 	public void setBearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
@@ -149,7 +154,8 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	}
 
 	/**
-	 * Set the {@link AuthenticationEntryPoint} to use. Defaults to {@link BearerTokenAuthenticationEntryPoint}.
+	 * Set the {@link AuthenticationEntryPoint} to use. Defaults to
+	 * {@link BearerTokenAuthenticationEntryPoint}.
 	 * @param authenticationEntryPoint the {@code AuthenticationEntryPoint} to use
 	 */
 	public void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
@@ -158,7 +164,8 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	}
 
 	/**
-	 * Set the {@link AuthenticationFailureHandler} to use. Default implementation invokes {@link AuthenticationEntryPoint}.
+	 * Set the {@link AuthenticationFailureHandler} to use. Default implementation invokes
+	 * {@link AuthenticationEntryPoint}.
 	 * @param authenticationFailureHandler the {@code AuthenticationFailureHandler} to use
 	 * @since 5.2
 	 */
@@ -166,4 +173,17 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 		Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
 		this.authenticationFailureHandler = authenticationFailureHandler;
 	}
+
+	/**
+	 * Set the {@link AuthenticationDetailsSource} to use. Defaults to
+	 * {@link WebAuthenticationDetailsSource}.
+	 * @param authenticationDetailsSource the {@code AuthenticationConverter} to use
+	 * @since 5.5
+	 */
+	public void setAuthenticationDetailsSource(
+			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
+		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
+		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
+
 }

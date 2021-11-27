@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.prepost;
 
 import org.springframework.aop.framework.AopInfrastructureBean;
 
 /**
- *
  * @author Luke Taylor
  * @since 3.0
  */
 public interface PrePostInvocationAttributeFactory extends AopInfrastructureBean {
 
-	PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute,
-			String filterObject, String preAuthorizeAttribute);
+	PreInvocationAttribute createPreInvocationAttribute(String preFilterAttribute, String filterObject,
+			String preAuthorizeAttribute);
 
-	PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute,
-			String postAuthorizeAttribute);
+	PostInvocationAttribute createPostInvocationAttribute(String postFilterAttribute, String postAuthorizeAttribute);
+
 }

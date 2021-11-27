@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.annotation;
 
 import java.lang.annotation.Documented;
@@ -22,8 +23,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that is used to resolve the {@link org.springframework.security.core.context.SecurityContext} as a method
- * argument.
+ * Annotation that is used to resolve the
+ * {@link org.springframework.security.core.context.SecurityContext} as a method argument.
  *
  * @author Dan Zheng
  * @since 5.2
@@ -44,26 +45,27 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface CurrentSecurityContext {
+
 	/**
 	 * True if a {@link ClassCastException} should be thrown when the current
-	 * {@link org.springframework.security.core.context.SecurityContext} is the incorrect type. Default is false.
-	 *
+	 * {@link org.springframework.security.core.context.SecurityContext} is the incorrect
+	 * type. Default is false.
 	 * @return whether or not to error on an invalid type
 	 */
 	boolean errorOnInvalidType() default false;
 
 	/**
-	 * If specified, will use the provided SpEL expression to resolve the security context. This
-	 * is convenient if applications need to transform the result.
+	 * If specified, will use the provided SpEL expression to resolve the security
+	 * context. This is convenient if applications need to transform the result.
 	 *
-	 * For example, if an application needs to extract its custom {@code Authentication} implementation,
-	 * then it could specify the appropriate SpEL like so:
+	 * For example, if an application needs to extract its custom {@code Authentication}
+	 * implementation, then it could specify the appropriate SpEL like so:
 	 *
 	 * <pre>
 	 * &#64;CurrentSecurityContext(expression = "authentication") CustomAuthentication authentication
 	 * </pre>
-	 *
 	 * @return the expression to use
 	 */
 	String expression() default "";
+
 }

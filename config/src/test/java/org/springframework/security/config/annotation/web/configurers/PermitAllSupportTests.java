@@ -13,20 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -37,10 +40,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Josh Cummings
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class PermitAllSupportTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private MockMvc mvc;
@@ -48,21 +51,29 @@ public class PermitAllSupportTests {
 	@Test
 	public void performWhenUsingPermitAllExactUrlRequestMatcherThenMatchesExactUrl() throws Exception {
 		this.spring.register(PermitAllConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/app/xyz").contextPath("/app");
+		this.mvc.perform(request).andExpect(status().isNotFound());
+		MockHttpServletRequestBuilder getWithQuery = get("/app/xyz?def").contextPath("/app");
+		this.mvc.perform(getWithQuery).andExpect(status().isFound());
+		MockHttpServletRequestBuilder postWithQueryAndCsrf = post("/app/abc?def").with(csrf()).contextPath("/app");
+		this.mvc.perform(postWithQueryAndCsrf).andExpect(status().isNotFound());
+		MockHttpServletRequestBuilder getWithCsrf = get("/app/abc").with(csrf()).contextPath("/app");
+		this.mvc.perform(getWithCsrf).andExpect(status().isFound());
+	}
 
-		this.mvc.perform(get("/app/xyz").contextPath("/app"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/app/xyz?def").contextPath("/app"))
-				.andExpect(status().isFound());
-		this.mvc.perform(post("/app/abc?def").with(csrf()).contextPath("/app"))
-				.andExpect(status().isNotFound());
-		this.mvc.perform(get("/app/abc").with(csrf()).contextPath("/app"))
-				.andExpect(status().isFound());
+	@Test
+	public void configureWhenNotAuthorizeRequestsThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
+				.withMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
 	}
 
 	@EnableWebSecurity
 	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
+
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
@@ -70,14 +81,9 @@ public class PermitAllSupportTests {
 				.formLogin()
 					.loginPage("/xyz").permitAll()
 					.loginProcessingUrl("/abc?def").permitAll();
+			// @formatter:on
 		}
-	}
 
-	@Test
-	public void configureWhenNotAuthorizeRequestsThenException() {
-		assertThatCode(() -> this.spring.register(NoAuthorizedUrlsConfig.class).autowire())
-				.isInstanceOf(BeanCreationException.class)
-				.hasMessageContaining("permitAll only works with HttpSecurity.authorizeRequests");
 	}
 
 	@EnableWebSecurity
@@ -85,9 +91,13 @@ public class PermitAllSupportTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.formLogin()
 					.permitAll();
+			// @formatter:on
 		}
+
 	}
+
 }

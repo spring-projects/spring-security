@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.util;
 
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.*;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 
 /**
  * @author Luke Taylor
@@ -27,30 +28,28 @@ public class FieldUtilsTests {
 
 	@Test
 	public void gettingAndSettingProtectedFieldIsSuccessful() throws Exception {
-		new FieldUtils();
-
 		Object tc = new TestClass();
-
 		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("x");
 		assertThat(FieldUtils.getFieldValue(tc, "nested.protectedField")).isEqualTo("z");
 		FieldUtils.setProtectedFieldValue("protectedField", tc, "y");
 		assertThat(FieldUtils.getProtectedFieldValue("protectedField", tc)).isEqualTo("y");
-
-		try {
-			FieldUtils.getProtectedFieldValue("nonExistentField", tc);
-		}
-		catch (IllegalStateException expected) {
-		}
+		assertThatIllegalStateException().isThrownBy(() -> FieldUtils.getProtectedFieldValue("nonExistentField", tc));
 	}
-}
 
-@SuppressWarnings("unused")
-class TestClass {
-	private String protectedField = "x";
-	private Nested nested = new Nested();
-}
+	@SuppressWarnings("unused")
+	static class TestClass {
 
-@SuppressWarnings("unused")
-class Nested {
-	private String protectedField = "z";
+		private String protectedField = "x";
+
+		private Nested nested = new Nested();
+
+	}
+
+	@SuppressWarnings("unused")
+	static class Nested {
+
+		private String protectedField = "z";
+
+	}
+
 }

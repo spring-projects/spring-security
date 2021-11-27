@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Implementation of expression-based method security.
  *
  * @since 3.0
  */
 package org.springframework.security.access.expression.method;
-

@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.util.matcher;
 
 import java.util.List;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.messaging.Message;
 
 /**
@@ -26,9 +28,9 @@ import org.springframework.messaging.Message;
  * @since 4.0
  */
 public final class AndMessageMatcher<T> extends AbstractMessageMatcherComposite<T> {
+
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	public AndMessageMatcher(List<MessageMatcher<T>> messageMatchers) {
@@ -37,7 +39,6 @@ public final class AndMessageMatcher<T> extends AbstractMessageMatcherComposite<
 
 	/**
 	 * Creates a new instance
-	 *
 	 * @param messageMatchers the {@link MessageMatcher} instances to try
 	 */
 	@SafeVarargs
@@ -46,17 +47,17 @@ public final class AndMessageMatcher<T> extends AbstractMessageMatcherComposite<
 
 	}
 
+	@Override
 	public boolean matches(Message<? extends T> message) {
 		for (MessageMatcher<T> matcher : getMessageMatchers()) {
-			if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Trying to match using " + matcher);
-			}
+			this.logger.debug(LogMessage.format("Trying to match using %s", matcher));
 			if (!matcher.matches(message)) {
-				LOGGER.debug("Did not match");
+				this.logger.debug("Did not match");
 				return false;
 			}
 		}
-		LOGGER.debug("All messageMatchers returned true");
+		this.logger.debug("All messageMatchers returned true");
 		return true;
 	}
+
 }

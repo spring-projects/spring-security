@@ -1,0 +1,8 @@
+= Appendix
+
+This is an appendix for Servlet based Spring Security.
+It has the following sections:
+
+* xref:servlet/appendix/database-schema.adoc[Database Schemas]
+* xref:servlet/appendix/namespace/index.adoc[XML Namespace]
+* xref:servlet/appendix/faq.adoc[FAQ]

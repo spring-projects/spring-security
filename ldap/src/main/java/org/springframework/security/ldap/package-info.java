@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Spring Security's LDAP module.
  */
 package org.springframework.security.ldap;
-

@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * Indicates a secure object invocation failed because the principal could not be
@@ -35,55 +36,42 @@ import org.springframework.security.core.Authentication;
  * @author Ben Alex
  */
 public class AuthorizationFailureEvent extends AbstractAuthorizationEvent {
-	// ~ Instance fields
-	// ================================================================================================
 
-	private AccessDeniedException accessDeniedException;
-	private Authentication authentication;
-	private Collection<ConfigAttribute> configAttributes;
+	private final AccessDeniedException accessDeniedException;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final Authentication authentication;
+
+	private final Collection<ConfigAttribute> configAttributes;
 
 	/**
 	 * Construct the event.
-	 *
 	 * @param secureObject the secure object
 	 * @param attributes that apply to the secure object
 	 * @param authentication that was found in the <code>SecurityContextHolder</code>
 	 * @param accessDeniedException that was returned by the
 	 * <code>AccessDecisionManager</code>
-	 *
 	 * @throws IllegalArgumentException if any null arguments are presented.
 	 */
-	public AuthorizationFailureEvent(Object secureObject,
-			Collection<ConfigAttribute> attributes, Authentication authentication,
-			AccessDeniedException accessDeniedException) {
+	public AuthorizationFailureEvent(Object secureObject, Collection<ConfigAttribute> attributes,
+			Authentication authentication, AccessDeniedException accessDeniedException) {
 		super(secureObject);
-
-		if ((attributes == null) || (authentication == null)
-				|| (accessDeniedException == null)) {
-			throw new IllegalArgumentException(
-					"All parameters are required and cannot be null");
-		}
-
+		Assert.isTrue(attributes != null && authentication != null && accessDeniedException != null,
+				"All parameters are required and cannot be null");
 		this.configAttributes = attributes;
 		this.authentication = authentication;
 		this.accessDeniedException = accessDeniedException;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	public AccessDeniedException getAccessDeniedException() {
-		return accessDeniedException;
+		return this.accessDeniedException;
 	}
 
 	public Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
 	public Collection<ConfigAttribute> getConfigAttributes() {
-		return configAttributes;
+		return this.configAttributes;
 	}
+
 }

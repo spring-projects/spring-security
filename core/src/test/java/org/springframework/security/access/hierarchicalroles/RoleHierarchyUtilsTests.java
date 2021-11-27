@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.hierarchicalroles;
 
-import org.junit.Test;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
-import java.util.*;
+import org.junit.jupiter.api.Test;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link RoleHierarchyUtils}.
@@ -28,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Joe Grandja
  */
 public class RoleHierarchyUtilsTests {
+
 	private static final String EOL = System.lineSeparator();
 
 	@Test
@@ -38,56 +45,55 @@ public class RoleHierarchyUtilsTests {
 				"ROLE_B > ROLE_D" + EOL +
 				"ROLE_C > ROLE_D" + EOL;
 		// @formatter:on
-
 		Map<String, List<String>> roleHierarchyMap = new TreeMap<>();
-		roleHierarchyMap.put("ROLE_A", asList("ROLE_B", "ROLE_C"));
-		roleHierarchyMap.put("ROLE_B", asList("ROLE_D"));
-		roleHierarchyMap.put("ROLE_C", asList("ROLE_D"));
-
+		roleHierarchyMap.put("ROLE_A", Arrays.asList("ROLE_B", "ROLE_C"));
+		roleHierarchyMap.put("ROLE_B", Arrays.asList("ROLE_D"));
+		roleHierarchyMap.put("ROLE_C", Arrays.asList("ROLE_D"));
 		String roleHierarchy = RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
-
 		assertThat(roleHierarchy).isEqualTo(expectedRoleHierarchy);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenMapNullThenThrowsIllegalArgumentException() {
-		RoleHierarchyUtils.roleHierarchyFromMap(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenMapEmptyThenThrowsIllegalArgumentException() {
-		RoleHierarchyUtils.roleHierarchyFromMap(Collections.<String, List<String>>emptyMap());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> RoleHierarchyUtils.roleHierarchyFromMap(Collections.<String, List<String>>emptyMap()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenRoleNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
-		roleHierarchyMap.put(null, asList("ROLE_B", "ROLE_C"));
-
-		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		roleHierarchyMap.put(null, Arrays.asList("ROLE_B", "ROLE_C"));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenRoleEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
-		roleHierarchyMap.put("", asList("ROLE_B", "ROLE_C"));
-
-		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		roleHierarchyMap.put("", Arrays.asList("ROLE_B", "ROLE_C"));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenImpliedRolesNullThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", null);
-
-		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void roleHierarchyFromMapWhenImpliedRolesEmptyThenThrowsIllegalArgumentException() {
 		Map<String, List<String>> roleHierarchyMap = new HashMap<>();
 		roleHierarchyMap.put("ROLE_A", Collections.<String>emptyList());
-
-		RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> RoleHierarchyUtils.roleHierarchyFromMap(roleHierarchyMap));
 	}
+
 }

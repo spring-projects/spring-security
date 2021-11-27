@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.UUID;
@@ -34,6 +35,7 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.util.Assert;
 
 /**
  * Configures Remember Me authentication. This typically involves the user checking a box
@@ -79,21 +81,34 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
  */
 public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<RememberMeConfigurer<H>, H> {
+
 	/**
 	 * The default name for remember me parameter name and remember me cookie name
 	 */
 	private static final String DEFAULT_REMEMBER_ME_NAME = "remember-me";
+
 	private AuthenticationSuccessHandler authenticationSuccessHandler;
+
 	private String key;
+
 	private RememberMeServices rememberMeServices;
+
 	private LogoutHandler logoutHandler;
+
 	private String rememberMeParameter = DEFAULT_REMEMBER_ME_NAME;
+
 	private String rememberMeCookieName = DEFAULT_REMEMBER_ME_NAME;
+
 	private String rememberMeCookieDomain;
+
 	private PersistentTokenRepository tokenRepository;
+
 	private UserDetailsService userDetailsService;
+
 	private Integer tokenValiditySeconds;
+
 	private Boolean useSecureCookie;
+
 	private Boolean alwaysRemember;
 
 	/**
@@ -104,7 +119,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Allows specifying how long (in seconds) a token is valid for
-	 *
 	 * @param tokenValiditySeconds
 	 * @return {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices#setTokenValiditySeconds(int)
@@ -122,7 +136,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * By default the cookie will be secure if the request is secure. If you only want to
 	 * use remember-me over HTTPS (recommended) you should set this property to
 	 * {@code true}.
-	 *
 	 * @param useSecureCookie set to {@code true} to always user secure cookies,
 	 * {@code false} to disable their use.
 	 * @return the {@link RememberMeConfigurer} for further customization
@@ -140,13 +153,11 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link HttpSecurity#getSharedObject(Class)} which is set when using
 	 * {@link WebSecurityConfigurerAdapter#configure(AuthenticationManagerBuilder)}.
 	 * Alternatively, one can populate {@link #rememberMeServices(RememberMeServices)}.
-	 *
 	 * @param userDetailsService the {@link UserDetailsService} to configure
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices
 	 */
-	public RememberMeConfigurer<H> userDetailsService(
-			UserDetailsService userDetailsService) {
+	public RememberMeConfigurer<H> userDetailsService(UserDetailsService userDetailsService) {
 		this.userDetailsService = userDetailsService;
 		return this;
 	}
@@ -154,23 +165,19 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Specifies the {@link PersistentTokenRepository} to use. The default is to use
 	 * {@link TokenBasedRememberMeServices} instead.
-	 *
 	 * @param tokenRepository the {@link PersistentTokenRepository} to use
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 */
-	public RememberMeConfigurer<H> tokenRepository(
-			PersistentTokenRepository tokenRepository) {
+	public RememberMeConfigurer<H> tokenRepository(PersistentTokenRepository tokenRepository) {
 		this.tokenRepository = tokenRepository;
 		return this;
 	}
 
 	/**
 	 * Sets the key to identify tokens created for remember me authentication. Default is
-	 * a secure randomly generated key.
-	 * If {@link #rememberMeServices(RememberMeServices)} is specified and is of type
-	 * {@link AbstractRememberMeServices}, then the default is the key set in
-	 * {@link AbstractRememberMeServices}.
-	 *
+	 * a secure randomly generated key. If {@link #rememberMeServices(RememberMeServices)}
+	 * is specified and is of type {@link AbstractRememberMeServices}, then the default is
+	 * the key set in {@link AbstractRememberMeServices}.
 	 * @param key the key to identify tokens created for remember me authentication
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 */
@@ -181,7 +188,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * The HTTP parameter used to indicate to remember the user at time of login.
-	 *
 	 * @param rememberMeParameter the HTTP parameter used to indicate to remember the user
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 */
@@ -193,7 +199,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * The name of cookie which store the token for remember me authentication. Defaults
 	 * to 'remember-me'.
-	 *
 	 * @param rememberMeCookieName the name of cookie which store the token for remember
 	 * me authentication
 	 * @return the {@link RememberMeConfigurer} for further customization
@@ -206,7 +211,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * The domain name within which the remember me cookie is visible.
-	 *
 	 * @param rememberMeCookieDomain the domain name within which the remember me cookie
 	 * is visible.
 	 * @return the {@link RememberMeConfigurer} for further customization
@@ -224,7 +228,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * be invoked and the {@code doFilter()} method will return immediately, thus allowing
 	 * the application to redirect the user to a specific URL, regardless of what the
 	 * original request was for.
-	 *
 	 * @param authenticationSuccessHandler the strategy to invoke immediately before
 	 * returning from {@code doFilter()}.
 	 * @return {@link RememberMeConfigurer} for further customization
@@ -242,8 +245,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link RememberMeConfigurer} for further customizations
 	 * @see RememberMeServices
 	 */
-	public RememberMeConfigurer<H> rememberMeServices(
-			RememberMeServices rememberMeServices) {
+	public RememberMeConfigurer<H> rememberMeServices(RememberMeServices rememberMeServices) {
 		this.rememberMeServices = rememberMeServices;
 		return this;
 	}
@@ -253,7 +255,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * not set.
 	 * <p>
 	 * By default this will be set to {@code false}.
-	 *
 	 * @param alwaysRemember set to {@code true} to always trigger remember me,
 	 * {@code false} to use the remember-me parameter.
 	 * @return the {@link RememberMeConfigurer} for further customization
@@ -275,36 +276,30 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (logoutConfigurer != null && this.logoutHandler != null) {
 			logoutConfigurer.addLogoutHandler(this.logoutHandler);
 		}
-
-		RememberMeAuthenticationProvider authenticationProvider = new RememberMeAuthenticationProvider(
-				key);
+		RememberMeAuthenticationProvider authenticationProvider = new RememberMeAuthenticationProvider(key);
 		authenticationProvider = postProcess(authenticationProvider);
 		http.authenticationProvider(authenticationProvider);
-
 		initDefaultLoginFilter(http);
 	}
 
 	@Override
 	public void configure(H http) {
 		RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter(
-				http.getSharedObject(AuthenticationManager.class),
-				this.rememberMeServices);
+				http.getSharedObject(AuthenticationManager.class), this.rememberMeServices);
 		if (this.authenticationSuccessHandler != null) {
-			rememberMeFilter
-					.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
+			rememberMeFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 		}
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
 	}
 
 	/**
-	 * Validate rememberMeServices and rememberMeCookieName have not been set at
-	 * the same time.
+	 * Validate rememberMeServices and rememberMeCookieName have not been set at the same
+	 * time.
 	 */
 	private void validateInput() {
-		if (this.rememberMeServices != null && this.rememberMeCookieName != DEFAULT_REMEMBER_ME_NAME) {
-			throw new IllegalArgumentException("Can not set rememberMeCookieName " +
-					"and custom rememberMeServices.");
+		if (this.rememberMeServices != null && !DEFAULT_REMEMBER_ME_NAME.equals(this.rememberMeCookieName)) {
+			throw new IllegalArgumentException("Can not set rememberMeCookieName and custom rememberMeServices.");
 		}
 	}
 
@@ -319,7 +314,6 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * If available, initializes the {@link DefaultLoginPageGeneratingFilter} shared
 	 * object.
-	 *
 	 * @param http the {@link HttpSecurityBuilder} to use
 	 */
 	private void initDefaultLoginFilter(H http) {
@@ -337,17 +331,14 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link RememberMeServices} to use
 	 * @throws Exception
 	 */
-	private RememberMeServices getRememberMeServices(H http, String key)
-			throws Exception {
+	private RememberMeServices getRememberMeServices(H http, String key) throws Exception {
 		if (this.rememberMeServices != null) {
-			if (this.rememberMeServices instanceof LogoutHandler
-					&& this.logoutHandler == null) {
+			if (this.rememberMeServices instanceof LogoutHandler && this.logoutHandler == null) {
 				this.logoutHandler = (LogoutHandler) this.rememberMeServices;
 			}
 			return this.rememberMeServices;
 		}
-		AbstractRememberMeServices tokenRememberMeServices = createRememberMeServices(
-				http, key);
+		AbstractRememberMeServices tokenRememberMeServices = createRememberMeServices(http, key);
 		tokenRememberMeServices.setParameter(this.rememberMeParameter);
 		tokenRememberMeServices.setCookieName(this.rememberMeCookieName);
 		if (this.rememberMeCookieDomain != null) {
@@ -372,49 +363,41 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * Creates the {@link RememberMeServices} to use when none is provided. The result is
 	 * either {@link PersistentTokenRepository} (if a {@link PersistentTokenRepository} is
 	 * specified, else {@link TokenBasedRememberMeServices}.
-	 *
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link RememberMeServices} to use
 	 */
 	private AbstractRememberMeServices createRememberMeServices(H http, String key) {
-		return this.tokenRepository == null
-				? createTokenBasedRememberMeServices(http, key)
-				: createPersistentRememberMeServices(http, key);
+		return (this.tokenRepository != null) ? createPersistentRememberMeServices(http, key)
+				: createTokenBasedRememberMeServices(http, key);
 	}
 
 	/**
 	 * Creates {@link TokenBasedRememberMeServices}
-	 *
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link TokenBasedRememberMeServices}
 	 */
-	private AbstractRememberMeServices createTokenBasedRememberMeServices(H http,
-			String key) {
+	private AbstractRememberMeServices createTokenBasedRememberMeServices(H http, String key) {
 		UserDetailsService userDetailsService = getUserDetailsService(http);
 		return new TokenBasedRememberMeServices(key, userDetailsService);
 	}
 
 	/**
 	 * Creates {@link PersistentTokenBasedRememberMeServices}
-	 *
 	 * @param http the {@link HttpSecurity} to lookup shared objects
 	 * @param key the {@link #key(String)}
 	 * @return the {@link PersistentTokenBasedRememberMeServices}
 	 */
-	private AbstractRememberMeServices createPersistentRememberMeServices(H http,
-			String key) {
+	private AbstractRememberMeServices createPersistentRememberMeServices(H http, String key) {
 		UserDetailsService userDetailsService = getUserDetailsService(http);
-		return new PersistentTokenBasedRememberMeServices(key, userDetailsService,
-				this.tokenRepository);
+		return new PersistentTokenBasedRememberMeServices(key, userDetailsService, this.tokenRepository);
 	}
 
 	/**
 	 * Gets the {@link UserDetailsService} to use. Either the explicitly configure
 	 * {@link UserDetailsService} from {@link #userDetailsService(UserDetailsService)} or
 	 * a shared object from {@link HttpSecurity#getSharedObject(Class)}.
-	 *
 	 * @param http {@link HttpSecurity} to get the shared {@link UserDetailsService}
 	 * @return the {@link UserDetailsService} to use
 	 */
@@ -422,32 +405,30 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.userDetailsService == null) {
 			this.userDetailsService = http.getSharedObject(UserDetailsService.class);
 		}
-		if (this.userDetailsService == null) {
-			throw new IllegalStateException("userDetailsService cannot be null. Invoke "
-					+ RememberMeConfigurer.class.getSimpleName()
-					+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
-		}
+		Assert.state(this.userDetailsService != null,
+				() -> "userDetailsService cannot be null. Invoke " + RememberMeConfigurer.class.getSimpleName()
+						+ "#userDetailsService(UserDetailsService) or see its javadoc for alternative approaches.");
 		return this.userDetailsService;
 	}
 
 	/**
 	 * Gets the key to use for validating remember me tokens. If a value was passed into
-	 * {@link #key(String)}, then that is returned.
-	 * Alternatively, if a key was specified in the
-	 * {@link #rememberMeServices(RememberMeServices)}}, then that is returned.
-	 * If no key was specified in either of those cases, then a secure random string is
+	 * {@link #key(String)}, then that is returned. Alternatively, if a key was specified
+	 * in the {@link #rememberMeServices(RememberMeServices)}}, then that is returned. If
+	 * no key was specified in either of those cases, then a secure random string is
 	 * generated.
-	 *
 	 * @return the remember me key to use
 	 */
 	private String getKey() {
 		if (this.key == null) {
 			if (this.rememberMeServices instanceof AbstractRememberMeServices) {
-				this.key = ((AbstractRememberMeServices) rememberMeServices).getKey();
-			} else {
+				this.key = ((AbstractRememberMeServices) this.rememberMeServices).getKey();
+			}
+			else {
 				this.key = UUID.randomUUID().toString();
 			}
 		}
 		return this.key;
 	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.codec;
 
 import java.nio.ByteBuffer;
@@ -29,7 +30,11 @@ import java.nio.charset.StandardCharsets;
  * @author Luke Taylor
  */
 public final class Utf8 {
+
 	private static final Charset CHARSET = StandardCharsets.UTF_8;
+
+	private Utf8() {
+	}
 
 	/**
 	 * Get the bytes of the String in UTF-8 encoded form.
@@ -39,11 +44,10 @@ public final class Utf8 {
 			ByteBuffer bytes = CHARSET.newEncoder().encode(CharBuffer.wrap(string));
 			byte[] bytesCopy = new byte[bytes.limit()];
 			System.arraycopy(bytes.array(), 0, bytesCopy, 0, bytes.limit());
-
 			return bytesCopy;
 		}
-		catch (CharacterCodingException e) {
-			throw new IllegalArgumentException("Encoding failed", e);
+		catch (CharacterCodingException ex) {
+			throw new IllegalArgumentException("Encoding failed", ex);
 		}
 	}
 
@@ -54,8 +58,9 @@ public final class Utf8 {
 		try {
 			return CHARSET.newDecoder().decode(ByteBuffer.wrap(bytes)).toString();
 		}
-		catch (CharacterCodingException e) {
-			throw new IllegalArgumentException("Decoding failed", e);
+		catch (CharacterCodingException ex) {
+			throw new IllegalArgumentException("Decoding failed", ex);
 		}
 	}
+
 }

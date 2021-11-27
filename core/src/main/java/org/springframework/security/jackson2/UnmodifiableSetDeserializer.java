@@ -16,6 +16,11 @@
 
 package org.springframework.security.jackson2;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -24,17 +29,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Custom deserializer for {@link UnmodifiableSetMixin}.
  *
  * @author Jitendra Singh
- * @see UnmodifiableSetMixin
  * @since 4.2
+ * @see UnmodifiableSetMixin
  */
 class UnmodifiableSetDeserializer extends JsonDeserializer<Set> {
 
@@ -49,10 +49,12 @@ class UnmodifiableSetDeserializer extends JsonDeserializer<Set> {
 				for (JsonNode elementNode : arrayNode) {
 					resultSet.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}
-			} else {
+			}
+			else {
 				resultSet.add(mapper.readValue(node.traverse(mapper), Object.class));
 			}
 		}
 		return Collections.unmodifiableSet(resultSet);
 	}
+
 }

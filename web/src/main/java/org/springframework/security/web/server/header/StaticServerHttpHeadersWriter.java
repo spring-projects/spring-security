@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
 
 import java.util.Arrays;
 import java.util.Collections;
 
+import reactor.core.publisher.Mono;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ServerWebExchange;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Allows specifying {@link HttpHeaders} that should be written to the response.
@@ -30,23 +31,19 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
+
 	private final HttpHeaders headersToAdd;
 
 	public StaticServerHttpHeadersWriter(HttpHeaders headersToAdd) {
 		this.headersToAdd = headersToAdd;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.security.web.server.HttpHeadersWriter#writeHttpHeaders(org.springframework.web.server.ServerWebExchange)
-	 */
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		HttpHeaders headers = exchange.getResponse().getHeaders();
 		boolean containsOneHeaderToAdd = Collections.disjoint(headers.keySet(), this.headersToAdd.keySet());
 		if (containsOneHeaderToAdd) {
-			this.headersToAdd.forEach((name, values) -> {
-				headers.put(name, values);
-			});
+			this.headersToAdd.forEach(headers::put);
 		}
 		return Mono.empty();
 	}
@@ -56,15 +53,18 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	}
 
 	public static class Builder {
+
 		private HttpHeaders headers = new HttpHeaders();
 
-		public Builder header(String headerName, String...values) {
-			headers.put(headerName, Arrays.asList(values));
+		public Builder header(String headerName, String... values) {
+			this.headers.put(headerName, Arrays.asList(values));
 			return this;
 		}
 
 		public StaticServerHttpHeadersWriter build() {
-			return new StaticServerHttpHeadersWriter(headers);
+			return new StaticServerHttpHeadersWriter(this.headers);
 		}
+
 	}
+
 }

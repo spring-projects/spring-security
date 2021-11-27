@@ -16,16 +16,19 @@
 
 package org.springframework.security.web.session;
 
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpSessionEvent;
+import jakarta.servlet.http.HttpSessionIdListener;
+import jakarta.servlet.http.HttpSessionListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.context.support.SecurityWebApplicationContextUtils;
-
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpSessionEvent;
-import javax.servlet.http.HttpSessionListener;
 
 /**
  * Declared in web.xml as
@@ -37,21 +40,16 @@ import javax.servlet.http.HttpSessionListener;
  * </pre>
  *
  * Publishes <code>HttpSessionApplicationEvent</code>s to the Spring Root
- * WebApplicationContext. Maps javax.servlet.http.HttpSessionListener.sessionCreated() to
- * {@link HttpSessionCreatedEvent}. Maps
- * javax.servlet.http.HttpSessionListener.sessionDestroyed() to
+ * WebApplicationContext. Maps jakarta.servlet.http.HttpSessionListener.sessionCreated()
+ * to {@link HttpSessionCreatedEvent}. Maps
+ * jakarta.servlet.http.HttpSessionListener.sessionDestroyed() to
  * {@link HttpSessionDestroyedEvent}.
  *
  * @author Ray Krueger
  */
-public class HttpSessionEventPublisher implements HttpSessionListener {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class HttpSessionEventPublisher implements HttpSessionListener, HttpSessionIdListener {
 
 	private static final String LOGGER_NAME = HttpSessionEventPublisher.class.getName();
-
-	// ~ Methods
-	// ========================================================================================================
 
 	ApplicationContext getContext(ServletContext servletContext) {
 		return SecurityWebApplicationContextUtils.findRequiredWebApplicationContext(servletContext);
@@ -60,34 +58,32 @@ public class HttpSessionEventPublisher implements HttpSessionListener {
 	/**
 	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionCreatedEvent} to the
 	 * application appContext.
-	 *
 	 * @param event HttpSessionEvent passed in by the container
 	 */
+	@Override
 	public void sessionCreated(HttpSessionEvent event) {
-		HttpSessionCreatedEvent e = new HttpSessionCreatedEvent(event.getSession());
-		Log log = LogFactory.getLog(LOGGER_NAME);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Publishing event: " + e);
-		}
-
-		getContext(event.getSession().getServletContext()).publishEvent(e);
+		extracted(event.getSession(), new HttpSessionCreatedEvent(event.getSession()));
 	}
 
 	/**
 	 * Handles the HttpSessionEvent by publishing a {@link HttpSessionDestroyedEvent} to
 	 * the application appContext.
-	 *
 	 * @param event The HttpSessionEvent pass in by the container
 	 */
+	@Override
 	public void sessionDestroyed(HttpSessionEvent event) {
-		HttpSessionDestroyedEvent e = new HttpSessionDestroyedEvent(event.getSession());
-		Log log = LogFactory.getLog(LOGGER_NAME);
-
-		if (log.isDebugEnabled()) {
-			log.debug("Publishing event: " + e);
-		}
-
-		getContext(event.getSession().getServletContext()).publishEvent(e);
+		extracted(event.getSession(), new HttpSessionDestroyedEvent(event.getSession()));
 	}
+
+	@Override
+	public void sessionIdChanged(HttpSessionEvent event, String oldSessionId) {
+		extracted(event.getSession(), new HttpSessionIdChangedEvent(event.getSession(), oldSessionId));
+	}
+
+	private void extracted(HttpSession session, ApplicationEvent e) {
+		Log log = LogFactory.getLog(LOGGER_NAME);
+		log.debug(LogMessage.format("Publishing event: %s", e));
+		getContext(session.getServletContext()).publishEvent(e);
+	}
+
 }

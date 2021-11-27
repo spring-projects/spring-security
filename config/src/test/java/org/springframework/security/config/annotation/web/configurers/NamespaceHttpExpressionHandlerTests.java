@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.springframework.security.config.annotation.web.configurers;
 
+package org.springframework.security.config.annotation.web.configurers;
 
 import java.security.Principal;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -30,11 +29,12 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,18 +46,18 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
 /**
- * Tests to verify that all the functionality of <expression-handler> attributes is present
+ * Tests to verify that all the functionality of &lt;expression-handler&gt; attributes is
+ * present
  *
  * @author Rob Winch
  * @author Josh Cummings
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
 @SecurityTestExecutionListeners
 public class NamespaceHttpExpressionHandlerTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	MockMvc mvc;
@@ -70,44 +70,53 @@ public class NamespaceHttpExpressionHandlerTests {
 		verifyBean("expressionParser", ExpressionParser.class).parseExpression("hasRole('USER')");
 	}
 
+	private <T> T verifyBean(String beanName, Class<T> beanClass) {
+		return verify(this.spring.getContext().getBean(beanName, beanClass));
+	}
+
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
-		ExpressionHandlerConfig() {}
+
+		ExpressionHandlerConfig() {
+		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			DefaultWebSecurityExpressionHandler handler = new DefaultWebSecurityExpressionHandler();
 			handler.setExpressionParser(expressionParser());
-
+			// @formatter:off
 			http
 				.authorizeRequests()
 					.expressionHandler(handler)
 					.anyRequest().access("hasRole('USER')");
+			// @formatter:on
 		}
 
 		@Bean
 		ExpressionParser expressionParser() {
 			return spy(new SpelExpressionParser());
 		}
+
 	}
 
 	@RestController
 	private static class ExpressionHandlerController {
+
 		@GetMapping("/whoami")
 		String whoami(Principal user) {
 			return user.getName();
 		}
+
 	}
 
-	private <T> T verifyBean(String beanName, Class<T> beanClass) {
-		return verify(this.spring.getContext().getBean(beanName, beanClass));
-	}
 }

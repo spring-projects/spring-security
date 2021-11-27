@@ -16,82 +16,77 @@
 
 package org.springframework.security.web.server.util.matcher;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.web.server.ServerWebExchange;
-
 import java.util.Collections;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import org.springframework.web.server.ServerWebExchange;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OrServerWebExchangeMatcherTests {
+
 	@Mock
 	ServerWebExchange exchange;
+
 	@Mock
 	ServerWebExchangeMatcher matcher1;
+
 	@Mock
 	ServerWebExchangeMatcher matcher2;
 
 	OrServerWebExchangeMatcher matcher;
 
-	@Before
+	@BeforeEach
 	public void setUp() {
-		matcher = new OrServerWebExchangeMatcher(matcher1, matcher2);
+		this.matcher = new OrServerWebExchangeMatcher(this.matcher1, this.matcher2);
 	}
 
 	@Test
 	public void matchesWhenFalseFalseThenFalse() {
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
-
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 		assertThat(matches.isMatch()).isFalse();
 		assertThat(matches.getVariables()).isEmpty();
-
-		verify(matcher1).matches(exchange);
-		verify(matcher2).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenTrueFalseThenTrueAndMatcher2NotInvoked() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
-
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
-
-		verify(matcher1).matches(exchange);
-		verify(matcher2, never()).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2, never()).matches(this.exchange);
 	}
 
 	@Test
 	public void matchesWhenFalseTrueThenTrue() {
 		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		when(matcher1.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
-		when(matcher2.matches(exchange)).thenReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-
-		ServerWebExchangeMatcher.MatchResult matches = matcher.matches(exchange).block();
-
+		given(this.matcher1.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(this.matcher2.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+		ServerWebExchangeMatcher.MatchResult matches = this.matcher.matches(this.exchange).block();
 		assertThat(matches.isMatch()).isTrue();
 		assertThat(matches.getVariables()).isEqualTo(params);
-
-		verify(matcher1).matches(exchange);
-		verify(matcher2).matches(exchange);
+		verify(this.matcher1).matches(this.exchange);
+		verify(this.matcher2).matches(this.exchange);
 	}
+
 }

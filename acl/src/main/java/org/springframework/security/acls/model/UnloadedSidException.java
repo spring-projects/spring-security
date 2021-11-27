@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 /**
@@ -23,12 +24,9 @@ package org.springframework.security.acls.model;
  * @author Ben Alex
  */
 public class UnloadedSidException extends AclDataAccessException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs an <code>NotFoundException</code> with the specified message.
-	 *
 	 * @param msg the detail message
 	 */
 	public UnloadedSidException(String msg) {
@@ -38,11 +36,11 @@ public class UnloadedSidException extends AclDataAccessException {
 	/**
 	 * Constructs an <code>NotFoundException</code> with the specified message and root
 	 * cause.
-	 *
 	 * @param msg the detail message
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public UnloadedSidException(String msg, Throwable t) {
-		super(msg, t);
+	public UnloadedSidException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

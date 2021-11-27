@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.scrypt;
 
-import static org.assertj.core.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Shazin Sadakath
@@ -67,7 +69,6 @@ public class SCryptPasswordEncoderTests {
 	public void samePasswordWithDifferentParams() {
 		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
 		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
-
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
@@ -91,29 +92,32 @@ public class SCryptPasswordEncoderTests {
 		assertThat(encoder.matches("password", "012345678901234567890123456789")).isFalse();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidCpuCostParameter() {
-		new SCryptPasswordEncoder(Integer.MIN_VALUE, 16, 2, 32, 16);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new SCryptPasswordEncoder(Integer.MIN_VALUE, 16, 2, 32, 16));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidMemoryCostParameter() {
-		new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2, 32, 16);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new SCryptPasswordEncoder(2, Integer.MAX_VALUE, 2, 32, 16));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidParallelizationParameter() {
-		new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE, 32, 16);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new SCryptPasswordEncoder(2, 8, Integer.MAX_VALUE, 32, 16));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidSaltLengthParameter() {
-		new SCryptPasswordEncoder(2, 8, 1, 16, -1);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SCryptPasswordEncoder(2, 8, 1, 16, -1));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidKeyLengthParameter() {
-		new SCryptPasswordEncoder(2, 8, 1, -1, 16);
+		assertThatIllegalArgumentException().isThrownBy(() -> new SCryptPasswordEncoder(2, 8, 1, -1, 16));
 	}
 
 	@Test
@@ -139,10 +143,8 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenWeakerToStrongerThenFalse() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(weakEncoder.upgradeEncoding(strongPassword)).isFalse();
 	}
 
@@ -150,16 +152,15 @@ public class SCryptPasswordEncoderTests {
 	public void upgradeEncodingWhenStrongerToWeakerThenTrue() {
 		SCryptPasswordEncoder weakEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 10), 4, 1, 32, 64);
 		SCryptPasswordEncoder strongEncoder = new SCryptPasswordEncoder((int) Math.pow(2, 16), 8, 1, 32, 64);
-
 		String weakPassword = weakEncoder.encode("password");
 		String strongPassword = strongEncoder.encode("password");
-
 		assertThat(strongEncoder.upgradeEncoding(weakPassword)).isTrue();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void upgradeEncodingWhenInvalidInputThenException() {
-		new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password");
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password"));
 	}
-}
 
+}

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.expression;
 
 import java.io.Serializable;
@@ -33,22 +34,37 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @since 3.0
  */
 public abstract class SecurityExpressionRoot implements SecurityExpressionOperations {
+
 	protected final Authentication authentication;
+
 	private AuthenticationTrustResolver trustResolver;
+
 	private RoleHierarchy roleHierarchy;
+
 	private Set<String> roles;
+
 	private String defaultRolePrefix = "ROLE_";
 
-	/** Allows "permitAll" expression */
+	/**
+	 * Allows "permitAll" expression
+	 */
 	public final boolean permitAll = true;
 
-	/** Allows "denyAll" expression */
+	/**
+	 * Allows "denyAll" expression
+	 */
 	public final boolean denyAll = false;
+
 	private PermissionEvaluator permissionEvaluator;
+
 	public final String read = "read";
+
 	public final String write = "write";
+
 	public final String create = "create";
+
 	public final String delete = "delete";
+
 	public final String admin = "administration";
 
 	/**
@@ -62,62 +78,71 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		this.authentication = authentication;
 	}
 
+	@Override
 	public final boolean hasAuthority(String authority) {
 		return hasAnyAuthority(authority);
 	}
 
+	@Override
 	public final boolean hasAnyAuthority(String... authorities) {
 		return hasAnyAuthorityName(null, authorities);
 	}
 
+	@Override
 	public final boolean hasRole(String role) {
 		return hasAnyRole(role);
 	}
 
+	@Override
 	public final boolean hasAnyRole(String... roles) {
-		return hasAnyAuthorityName(defaultRolePrefix, roles);
+		return hasAnyAuthorityName(this.defaultRolePrefix, roles);
 	}
 
 	private boolean hasAnyAuthorityName(String prefix, String... roles) {
 		Set<String> roleSet = getAuthoritySet();
-
 		for (String role : roles) {
 			String defaultedRole = getRoleWithDefaultPrefix(prefix, role);
 			if (roleSet.contains(defaultedRole)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
+	@Override
 	public final Authentication getAuthentication() {
-		return authentication;
+		return this.authentication;
 	}
 
+	@Override
 	public final boolean permitAll() {
 		return true;
 	}
 
+	@Override
 	public final boolean denyAll() {
 		return false;
 	}
 
+	@Override
 	public final boolean isAnonymous() {
-		return trustResolver.isAnonymous(authentication);
+		return this.trustResolver.isAnonymous(this.authentication);
 	}
 
+	@Override
 	public final boolean isAuthenticated() {
 		return !isAnonymous();
 	}
 
+	@Override
 	public final boolean isRememberMe() {
-		return trustResolver.isRememberMe(authentication);
+		return this.trustResolver.isRememberMe(this.authentication);
 	}
 
+	@Override
 	public final boolean isFullyAuthenticated() {
-		return !trustResolver.isAnonymous(authentication)
-				&& !trustResolver.isRememberMe(authentication);
+		return !this.trustResolver.isAnonymous(this.authentication)
+				&& !this.trustResolver.isRememberMe(this.authentication);
 	}
 
 	/**
@@ -126,7 +151,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * @return
 	 */
 	public Object getPrincipal() {
-		return authentication.getPrincipal();
+		return this.authentication.getPrincipal();
 	}
 
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
@@ -148,7 +173,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * <p>
 	 * If null or empty, then no default role prefix is used.
 	 * </p>
-	 *
 	 * @param defaultRolePrefix the default prefix to add to roles. Default "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
@@ -156,28 +180,25 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	}
 
 	private Set<String> getAuthoritySet() {
-		if (roles == null) {
-			Collection<? extends GrantedAuthority> userAuthorities = authentication
-					.getAuthorities();
-
-			if (roleHierarchy != null) {
-				userAuthorities = roleHierarchy
-						.getReachableGrantedAuthorities(userAuthorities);
+		if (this.roles == null) {
+			Collection<? extends GrantedAuthority> userAuthorities = this.authentication.getAuthorities();
+			if (this.roleHierarchy != null) {
+				userAuthorities = this.roleHierarchy.getReachableGrantedAuthorities(userAuthorities);
 			}
-
-			roles = AuthorityUtils.authorityListToSet(userAuthorities);
+			this.roles = AuthorityUtils.authorityListToSet(userAuthorities);
 		}
-
-		return roles;
+		return this.roles;
 	}
 
+	@Override
 	public boolean hasPermission(Object target, Object permission) {
-		return permissionEvaluator.hasPermission(authentication, target, permission);
+		return this.permissionEvaluator.hasPermission(this.authentication, target, permission);
 	}
 
+	@Override
 	public boolean hasPermission(Object targetId, String targetType, Object permission) {
-		return permissionEvaluator.hasPermission(authentication, (Serializable) targetId,
-				targetType, permission);
+		return this.permissionEvaluator.hasPermission(this.authentication, (Serializable) targetId, targetType,
+				permission);
 	}
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
@@ -187,7 +208,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	/**
 	 * Prefixes role with defaultRolePrefix if defaultRolePrefix is non-null and if role
 	 * does not already start with defaultRolePrefix.
-	 *
 	 * @param defaultRolePrefix
 	 * @param role
 	 * @return
@@ -204,4 +224,5 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 		}
 		return defaultRolePrefix + role;
 	}
+
 }

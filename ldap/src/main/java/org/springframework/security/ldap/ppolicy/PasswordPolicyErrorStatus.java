@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.ppolicy;
 
 /**
@@ -39,20 +40,28 @@ package org.springframework.security.ldap.ppolicy;
  * @since 3.0
  */
 public enum PasswordPolicyErrorStatus {
-	PASSWORD_EXPIRED("ppolicy.expired", "Your password has expired"), ACCOUNT_LOCKED(
-			"ppolicy.locked", "Account is locked"), CHANGE_AFTER_RESET(
-			"ppolicy.change.after.reset",
-			"Your password must be changed after being reset"), PASSWORD_MOD_NOT_ALLOWED(
-			"ppolicy.mod.not.allowed", "Password cannot be changed"), MUST_SUPPLY_OLD_PASSWORD(
-			"ppolicy.must.supply.old.password", "The old password must be supplied"), INSUFFICIENT_PASSWORD_QUALITY(
-			"ppolicy.insufficient.password.quality",
-			"The supplied password is of insufficient quality"), PASSWORD_TOO_SHORT(
-			"ppolicy.password.too.short", "The supplied password is too short"), PASSWORD_TOO_YOUNG(
-			"ppolicy.password.too.young",
-			"Your password was changed too recently to be changed again"), PASSWORD_IN_HISTORY(
-			"ppolicy.password.in.history", "The supplied password has already been used");
+
+	PASSWORD_EXPIRED("ppolicy.expired", "Your password has expired"),
+
+	ACCOUNT_LOCKED("ppolicy.locked", "Account is locked"),
+
+	CHANGE_AFTER_RESET("ppolicy.change.after.reset", "Your password must be changed after being reset"),
+
+	PASSWORD_MOD_NOT_ALLOWED("ppolicy.mod.not.allowed", "Password cannot be changed"),
+
+	MUST_SUPPLY_OLD_PASSWORD("ppolicy.must.supply.old.password", "The old password must be supplied"),
+
+	INSUFFICIENT_PASSWORD_QUALITY("ppolicy.insufficient.password.quality",
+			"The supplied password is of insufficient quality"),
+
+	PASSWORD_TOO_SHORT("ppolicy.password.too.short", "The supplied password is too short"),
+
+	PASSWORD_TOO_YOUNG("ppolicy.password.too.young", "Your password was changed too recently to be changed again"),
+
+	PASSWORD_IN_HISTORY("ppolicy.password.in.history", "The supplied password has already been used");
 
 	private final String errorCode;
+
 	private final String defaultMessage;
 
 	PasswordPolicyErrorStatus(String errorCode, String defaultMessage) {
@@ -61,10 +70,11 @@ public enum PasswordPolicyErrorStatus {
 	}
 
 	public String getErrorCode() {
-		return errorCode;
+		return this.errorCode;
 	}
 
 	public String getDefaultMessage() {
-		return defaultMessage;
+		return this.defaultMessage;
 	}
+
 }

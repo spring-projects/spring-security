@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.itest.web;
 
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,4 +39,5 @@ public class TestController {
 	public String secure() {
 		return "A Secure Page";
 	}
+
 }

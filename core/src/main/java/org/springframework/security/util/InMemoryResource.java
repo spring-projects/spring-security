@@ -16,12 +16,12 @@
 
 package org.springframework.security.util;
 
-import org.springframework.core.io.AbstractResource;
-import org.springframework.util.Assert;
-
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Arrays;
+
+import org.springframework.core.io.AbstractResource;
+import org.springframework.util.Assert;
 
 /**
  * An in memory implementation of Spring's {@link org.springframework.core.io.Resource}
@@ -33,14 +33,10 @@ import java.util.Arrays;
  * @author Luke Taylor
  */
 public class InMemoryResource extends AbstractResource {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final byte[] source;
-	private final String description;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private final String description;
 
 	public InMemoryResource(String source) {
 		this(source.getBytes());
@@ -56,22 +52,14 @@ public class InMemoryResource extends AbstractResource {
 		this.description = description;
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
 	@Override
 	public String getDescription() {
-		return description;
+		return this.description;
 	}
 
 	@Override
 	public InputStream getInputStream() {
-		return new ByteArrayInputStream(source);
-	}
-
-	@Override
-	public int hashCode() {
-		return 1;
+		return new ByteArrayInputStream(this.source);
 	}
 
 	@Override
@@ -79,7 +67,12 @@ public class InMemoryResource extends AbstractResource {
 		if (!(res instanceof InMemoryResource)) {
 			return false;
 		}
-
-		return Arrays.equals(source, ((InMemoryResource) res).source);
+		return Arrays.equals(this.source, ((InMemoryResource) res).source);
 	}
+
+	@Override
+	public int hashCode() {
+		return 1;
+	}
+
 }

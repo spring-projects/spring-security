@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,22 @@
 
 package org.springframework.security.web;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.web.FilterInvocation;
+import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.web.FilterInvocation.DummyRequest;
 import org.springframework.security.web.util.UrlUtils;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests {@link FilterInvocation}.
@@ -36,9 +40,6 @@ import org.springframework.security.web.util.UrlUtils;
  * @author colin sampaleanu
  */
 public class FilterInvocationTests {
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Test
 	public void testGettersAndStringMethods() {
@@ -50,7 +51,6 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld/some/more/segments.html");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		FilterInvocation fi = new FilterInvocation(request, response, chain);
@@ -60,30 +60,29 @@ public class FilterInvocationTests {
 		assertThat(fi.getHttpResponse()).isEqualTo(response);
 		assertThat(fi.getChain()).isEqualTo(chain);
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld/some/more/segments.html");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld/some/more/segments.html");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld/some/more/segments.html]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld/some/more/segments.html");
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullFilterChain() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		new FilterInvocation(request, response, null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new FilterInvocation(request, response, null));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullServletRequest() {
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
-		new FilterInvocation(null, response, mock(FilterChain.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new FilterInvocation(null, response, mock(FilterChain.class)));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void testRejectsNullServletResponse() {
 		MockHttpServletRequest request = new MockHttpServletRequest(null, null);
-
-		new FilterInvocation(request, null, mock(FilterChain.class));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new FilterInvocation(request, null, mock(FilterChain.class)));
 	}
 
 	@Test
@@ -96,12 +95,10 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld?foo=bar");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld?foo=bar");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld?foo=bar]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld?foo=bar");
 	}
 
@@ -114,19 +111,17 @@ public class FilterInvocationTests {
 		request.setServerPort(80);
 		request.setContextPath("/mycontext");
 		request.setRequestURI("/mycontext/HelloWorld");
-
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		assertThat(fi.getRequestUrl()).isEqualTo("/HelloWorld");
-		assertThat(fi.toString()).isEqualTo("FilterInvocation: URL: /HelloWorld");
+		assertThat(fi.toString()).isEqualTo("filter invocation [/HelloWorld]");
 		assertThat(fi.getFullRequestUrl()).isEqualTo("http://localhost/mycontext/HelloWorld");
 	}
 
-	@Test(expected = UnsupportedOperationException.class)
+	@Test
 	public void dummyChainRejectsInvocation() throws Exception {
-		FilterInvocation.DUMMY_CHAIN.doFilter(mock(HttpServletRequest.class),
-				mock(HttpServletResponse.class));
+		assertThatExceptionOfType(UnsupportedOperationException.class).isThrownBy(() -> FilterInvocation.DUMMY_CHAIN
+				.doFilter(mock(HttpServletRequest.class), mock(HttpServletResponse.class)));
 	}
 
 	@Test
@@ -135,6 +130,16 @@ public class FilterInvocationTests {
 		request.setContextPath("");
 		request.setRequestURI("/something");
 		UrlUtils.buildRequestUrl(request);
+	}
+
+	@Test
+	public void constructorWhenServletContextProvidedThenSetServletContextInRequest() {
+		String contextPath = "";
+		String servletPath = "/path";
+		String method = "";
+		MockServletContext mockServletContext = new MockServletContext();
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, servletPath, method, mockServletContext);
+		assertThat(filterInvocation.getRequest().getServletContext()).isSameAs(mockServletContext);
 	}
 
 }

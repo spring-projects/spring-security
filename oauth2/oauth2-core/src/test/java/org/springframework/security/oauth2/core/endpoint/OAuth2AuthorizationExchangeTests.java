@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.endpoint;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests.request;
-import static org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationResponses.success;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Tests for {@link OAuth2AuthorizationExchange}.
@@ -28,23 +28,26 @@ import static org.springframework.security.oauth2.core.endpoint.TestOAuth2Author
  */
 public class OAuth2AuthorizationExchangeTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationRequestIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(null, success().build());
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2AuthorizationExchange(null, TestOAuth2AuthorizationResponses.success().build()));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorWhenAuthorizationResponseIsNullThenThrowIllegalArgumentException() {
-		new OAuth2AuthorizationExchange(request().build(), null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new OAuth2AuthorizationExchange(TestOAuth2AuthorizationRequests.request().build(), null));
 	}
 
 	@Test
 	public void constructorWhenRequiredArgsProvidedThenCreated() {
-		OAuth2AuthorizationRequest authorizationRequest = request().build();
-		OAuth2AuthorizationResponse authorizationResponse = success().build();
-		OAuth2AuthorizationExchange authorizationExchange =
-			new OAuth2AuthorizationExchange(authorizationRequest, authorizationResponse);
+		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request().build();
+		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success().build();
+		OAuth2AuthorizationExchange authorizationExchange = new OAuth2AuthorizationExchange(authorizationRequest,
+				authorizationResponse);
 		assertThat(authorizationExchange.getAuthorizationRequest()).isEqualTo(authorizationRequest);
 		assertThat(authorizationExchange.getAuthorizationResponse()).isEqualTo(authorizationResponse);
 	}
+
 }

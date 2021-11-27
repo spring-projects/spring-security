@@ -22,12 +22,15 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Provider-based implementation of {@link AfterInvocationManager}.
@@ -45,43 +48,24 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public class AfterInvocationProviderManager implements AfterInvocationManager,
-		InitializingBean {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
 
-	protected static final Log logger = LogFactory
-			.getLog(AfterInvocationProviderManager.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);
 
 	private List<AfterInvocationProvider> providers;
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public void afterPropertiesSet() {
 		checkIfValidList(this.providers);
 	}
 
-	private void checkIfValidList(List<?> listToCheck) {
-		if ((listToCheck == null) || (listToCheck.size() == 0)) {
-			throw new IllegalArgumentException(
-					"A list of AfterInvocationProviders is required");
-		}
-	}
-
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
-
+	@Override
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 		Object result = returnedObject;
-
-		for (AfterInvocationProvider provider : providers) {
+		for (AfterInvocationProvider provider : this.providers) {
 			result = provider.decide(authentication, object, config, result);
 		}
-
 		return result;
 	}
 
@@ -91,27 +75,26 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 
 	public void setProviders(List<?> newList) {
 		checkIfValidList(newList);
-		providers = new ArrayList<>(newList.size());
-
+		this.providers = new ArrayList<>(newList.size());
 		for (Object currentObject : newList) {
-			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject,
-					() -> "AfterInvocationProvider " + currentObject.getClass().getName()
-							+ " must implement AfterInvocationProvider");
-			providers.add((AfterInvocationProvider) currentObject);
+			Assert.isInstanceOf(AfterInvocationProvider.class, currentObject, () -> "AfterInvocationProvider "
+					+ currentObject.getClass().getName() + " must implement AfterInvocationProvider");
+			this.providers.add((AfterInvocationProvider) currentObject);
 		}
 	}
 
-	public boolean supports(ConfigAttribute attribute) {
-		for (AfterInvocationProvider provider : providers) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("Evaluating " + attribute + " against " + provider);
-			}
+	private void checkIfValidList(List<?> listToCheck) {
+		Assert.isTrue(!CollectionUtils.isEmpty(listToCheck), "A list of AfterInvocationProviders is required");
+	}
 
+	@Override
+	public boolean supports(ConfigAttribute attribute) {
+		for (AfterInvocationProvider provider : this.providers) {
+			logger.debug(LogMessage.format("Evaluating %s against %s", attribute, provider));
 			if (provider.supports(attribute)) {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -121,20 +104,19 @@ public class AfterInvocationProviderManager implements AfterInvocationManager,
 	 * <p>
 	 * If one or more providers cannot support the presented class, <code>false</code> is
 	 * returned.
-	 *
 	 * @param clazz the secure object class being queries
-	 *
 	 * @return if the <code>AfterInvocationProviderManager</code> can support the secure
 	 * object class, which requires every one of its <code>AfterInvocationProvider</code>s
 	 * to support the secure object class
 	 */
+	@Override
 	public boolean supports(Class<?> clazz) {
-		for (AfterInvocationProvider provider : providers) {
+		for (AfterInvocationProvider provider : this.providers) {
 			if (!provider.supports(clazz)) {
 				return false;
 			}
 		}
-
 		return true;
 	}
+
 }

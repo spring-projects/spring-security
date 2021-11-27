@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration.multiannotation;
 
 import org.springframework.security.access.annotation.Secured;
@@ -36,4 +37,5 @@ public interface MultiAnnotationService {
 
 	@Secured("ROLE_A")
 	void securedRoleAMethod();
+
 }

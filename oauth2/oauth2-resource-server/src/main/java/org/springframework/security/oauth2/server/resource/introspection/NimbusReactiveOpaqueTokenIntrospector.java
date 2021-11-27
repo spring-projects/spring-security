@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,59 +17,57 @@
 package org.springframework.security.oauth2.server.resource.introspection;
 
 import java.net.URI;
-import java.net.URL;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.ArrayList;
 
+import com.nimbusds.oauth2.sdk.ErrorObject;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionResponse;
 import com.nimbusds.oauth2.sdk.TokenIntrospectionSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.Audience;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
 import org.springframework.util.Assert;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.AUDIENCE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.CLIENT_ID;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.EXPIRES_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUED_AT;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.ISSUER;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.NOT_BEFORE;
-import static org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionClaimNames.SCOPE;
-
 /**
- * A Nimbus implementation of {@link ReactiveOpaqueTokenIntrospector} that verifies and introspects
- * a token using the configured
- * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection Endpoint</a>.
+ * A Nimbus implementation of {@link ReactiveOpaqueTokenIntrospector} that verifies and
+ * introspects a token using the configured
+ * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
+ * Endpoint</a>.
  *
  * @author Josh Cummings
  * @since 5.2
  */
 public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
-	private URI introspectionUri;
-	private WebClient webClient;
 
-	private String authorityPrefix = "SCOPE_";
+	private static final String AUTHORITY_PREFIX = "SCOPE_";
+
+	private final Log logger = LogFactory.getLog(getClass());
+
+	private final URI introspectionUri;
+
+	private final WebClient webClient;
 
 	/**
-	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
-	 *
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
+	 * parameters
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param clientId The client id authorized to introspect
 	 * @param clientSecret The client secret for the authorized client
@@ -78,83 +76,104 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 		Assert.hasText(introspectionUri, "introspectionUri cannot be empty");
 		Assert.hasText(clientId, "clientId cannot be empty");
 		Assert.notNull(clientSecret, "clientSecret cannot be null");
-
 		this.introspectionUri = URI.create(introspectionUri);
-		this.webClient = WebClient.builder()
-				.defaultHeaders(h -> h.setBasicAuth(clientId, clientSecret))
-				.build();
+		this.webClient = WebClient.builder().defaultHeaders((h) -> h.setBasicAuth(clientId, clientSecret)).build();
 	}
 
 	/**
-	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided parameters
-	 *
+	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
+	 * parameters
 	 * @param introspectionUri The introspection endpoint uri
 	 * @param webClient The client for performing the introspection request
 	 */
 	public NimbusReactiveOpaqueTokenIntrospector(String introspectionUri, WebClient webClient) {
 		Assert.hasText(introspectionUri, "introspectionUri cannot be null");
 		Assert.notNull(webClient, "webClient cannot be null");
-
 		this.introspectionUri = URI.create(introspectionUri);
 		this.webClient = webClient;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Mono<OAuth2AuthenticatedPrincipal> introspect(String token) {
+		// @formatter:off
 		return Mono.just(token)
 				.flatMap(this::makeRequest)
 				.flatMap(this::adaptToNimbusResponse)
 				.map(this::parseNimbusResponse)
 				.map(this::castToNimbusSuccess)
-				.doOnNext(response -> validate(token, response))
+				.doOnNext((response) -> validate(token, response))
 				.map(this::convertClaimsSet)
-				.onErrorMap(e -> !(e instanceof OAuth2IntrospectionException), this::onError);
+				.onErrorMap((e) -> !(e instanceof OAuth2IntrospectionException), this::onError);
+		// @formatter:on
 	}
 
 	private Mono<ClientResponse> makeRequest(String token) {
+		// @formatter:off
 		return this.webClient.post()
 				.uri(this.introspectionUri)
-				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_UTF8_VALUE)
+				.header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
 				.body(BodyInserters.fromFormData("token", token))
 				.exchange();
+		// @formatter:on
 	}
 
 	private Mono<HTTPResponse> adaptToNimbusResponse(ClientResponse responseEntity) {
-		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
-		response.setHeader(HttpHeaders.CONTENT_TYPE, responseEntity.headers().contentType().get().toString());
-		if (response.getStatusCode() != HTTPResponse.SC_OK) {
-			return responseEntity.bodyToFlux(DataBuffer.class)
-				.map(DataBufferUtils::release)
-				.then(Mono.error(new OAuth2IntrospectionException(
-					"Introspection endpoint responded with " + response.getStatusCode())));
+		MediaType contentType = responseEntity.headers().contentType().orElseThrow(() -> {
+			this.logger.trace("Did not receive Content-Type from introspection endpoint in response");
+
+			return new OAuth2IntrospectionException(
+					"Introspection endpoint response was invalid, as no Content-Type header was provided");
+		});
+
+		// Nimbus expects JSON, but does not appear to validate this header first.
+		if (!contentType.isCompatibleWith(MediaType.APPLICATION_JSON)) {
+			this.logger.trace("Did not receive JSON-compatible Content-Type from introspection endpoint in response");
+
+			throw new OAuth2IntrospectionException("Introspection endpoint response was invalid, as content type '"
+					+ contentType + "' is not compatible with JSON");
 		}
-		return responseEntity.bodyToMono(String.class)
-				.doOnNext(response::setContent)
-				.map(body -> response);
+
+		HTTPResponse response = new HTTPResponse(responseEntity.rawStatusCode());
+		response.setHeader(HttpHeaders.CONTENT_TYPE, contentType.toString());
+		if (response.getStatusCode() != HTTPResponse.SC_OK) {
+			this.logger.trace("Introspection endpoint returned non-OK status code");
+
+			// @formatter:off
+			return responseEntity.bodyToFlux(DataBuffer.class)
+					.map(DataBufferUtils::release)
+					.then(Mono.error(new OAuth2IntrospectionException(
+							"Introspection endpoint responded with HTTP status code " + response.getStatusCode()))
+					);
+			// @formatter:on
+		}
+		return responseEntity.bodyToMono(String.class).doOnNext(response::setContent).map((body) -> response);
 	}
 
 	private TokenIntrospectionResponse parseNimbusResponse(HTTPResponse response) {
 		try {
 			return TokenIntrospectionResponse.parse(response);
-		} catch (Exception ex) {
+		}
+		catch (Exception ex) {
 			throw new OAuth2IntrospectionException(ex.getMessage(), ex);
 		}
 	}
 
 	private TokenIntrospectionSuccessResponse castToNimbusSuccess(TokenIntrospectionResponse introspectionResponse) {
 		if (!introspectionResponse.indicatesSuccess()) {
-			throw new OAuth2IntrospectionException("Token introspection failed");
+			ErrorObject errorObject = introspectionResponse.toErrorResponse().getErrorObject();
+			String message = "Token introspection failed with response " + errorObject.toJSONObject().toJSONString();
+			this.logger.trace(message);
+			throw new OAuth2IntrospectionException(message);
 		}
 		return (TokenIntrospectionSuccessResponse) introspectionResponse;
 	}
 
 	private void validate(String token, TokenIntrospectionSuccessResponse response) {
-		// relying solely on the authorization server to validate this token (not checking 'exp', for example)
+		// relying solely on the authorization server to validate this token (not checking
+		// 'exp', for example)
 		if (!response.isActive()) {
-			throw new OAuth2IntrospectionException("Provided token [" + token + "] isn't active");
+			this.logger.trace("Did not validate token since it is inactive");
+			throw new BadOpaqueTokenException("Provided token isn't active");
 		}
 	}
 
@@ -166,46 +185,56 @@ public class NimbusReactiveOpaqueTokenIntrospector implements ReactiveOpaqueToke
 			for (Audience audience : response.getAudience()) {
 				audiences.add(audience.getValue());
 			}
-			claims.put(AUDIENCE, Collections.unmodifiableList(audiences));
+			claims.put(OAuth2TokenIntrospectionClaimNames.AUD, Collections.unmodifiableList(audiences));
 		}
 		if (response.getClientID() != null) {
-			claims.put(CLIENT_ID, response.getClientID().getValue());
+			claims.put(OAuth2TokenIntrospectionClaimNames.CLIENT_ID, response.getClientID().getValue());
 		}
 		if (response.getExpirationTime() != null) {
 			Instant exp = response.getExpirationTime().toInstant();
-			claims.put(EXPIRES_AT, exp);
+			claims.put(OAuth2TokenIntrospectionClaimNames.EXP, exp);
 		}
 		if (response.getIssueTime() != null) {
 			Instant iat = response.getIssueTime().toInstant();
-			claims.put(ISSUED_AT, iat);
+			claims.put(OAuth2TokenIntrospectionClaimNames.IAT, iat);
 		}
 		if (response.getIssuer() != null) {
-			claims.put(ISSUER, issuer(response.getIssuer().getValue()));
+			// RFC-7662 page 7 directs users to RFC-7519 for defining the values of these
+			// issuer fields.
+			// https://datatracker.ietf.org/doc/html/rfc7662#page-7
+			//
+			// RFC-7519 page 9 defines issuer fields as being 'case-sensitive' strings
+			// containing
+			// a 'StringOrURI', which is defined on page 5 as being any string, but
+			// strings containing ':'
+			// should be treated as valid URIs.
+			// https://datatracker.ietf.org/doc/html/rfc7519#section-2
+			//
+			// It is not defined however as to whether-or-not normalized URIs should be
+			// treated as the same literal
+			// value. It only defines validation itself, so to avoid potential ambiguity
+			// or unwanted side effects that
+			// may be awkward to debug, we do not want to manipulate this value. Previous
+			// versions of Spring Security
+			// would *only* allow valid URLs, which is not what we wish to achieve here.
+			claims.put(OAuth2TokenIntrospectionClaimNames.ISS, response.getIssuer().getValue());
 		}
 		if (response.getNotBeforeTime() != null) {
-			claims.put(NOT_BEFORE, response.getNotBeforeTime().toInstant());
+			claims.put(OAuth2TokenIntrospectionClaimNames.NBF, response.getNotBeforeTime().toInstant());
 		}
 		if (response.getScope() != null) {
 			List<String> scopes = Collections.unmodifiableList(response.getScope().toStringList());
-			claims.put(SCOPE, scopes);
+			claims.put(OAuth2TokenIntrospectionClaimNames.SCOPE, scopes);
 
 			for (String scope : scopes) {
-				authorities.add(new SimpleGrantedAuthority(this.authorityPrefix + scope));
+				authorities.add(new SimpleGrantedAuthority(AUTHORITY_PREFIX + scope));
 			}
 		}
-
-		return new DefaultOAuth2AuthenticatedPrincipal(claims, authorities);
+		return new OAuth2IntrospectionAuthenticatedPrincipal(claims, authorities);
 	}
 
-	private URL issuer(String uri) {
-		try {
-			return new URL(uri);
-		} catch (Exception ex) {
-			throw new OAuth2IntrospectionException("Invalid " + ISSUER + " value: " + uri);
-		}
+	private OAuth2IntrospectionException onError(Throwable ex) {
+		return new OAuth2IntrospectionException(ex.getMessage(), ex);
 	}
 
-	private OAuth2IntrospectionException onError(Throwable e) {
-		return new OAuth2IntrospectionException(e.getMessage(), e);
-	}
 }

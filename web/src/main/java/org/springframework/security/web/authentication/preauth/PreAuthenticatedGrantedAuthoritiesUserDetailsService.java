@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth;
 
-import java.util.*;
+import java.util.Collection;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,7 +25,6 @@ import org.springframework.security.core.authority.GrantedAuthoritiesContainer;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import org.springframework.util.Assert;
 
 /**
@@ -45,31 +45,31 @@ import org.springframework.util.Assert;
  * @author Ruud Senden
  * @since 2.0
  */
-public class PreAuthenticatedGrantedAuthoritiesUserDetailsService implements
-		AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+public class PreAuthenticatedGrantedAuthoritiesUserDetailsService
+		implements AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> {
+
 	/**
 	 * Get a UserDetails object based on the user name contained in the given token, and
 	 * the GrantedAuthorities as returned by the GrantedAuthoritiesContainer
 	 * implementation as returned by the token.getDetails() method.
 	 */
-	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token)
-			throws AuthenticationException {
+	@Override
+	public final UserDetails loadUserDetails(PreAuthenticatedAuthenticationToken token) throws AuthenticationException {
 		Assert.notNull(token.getDetails(), "token.getDetails() cannot be null");
 		Assert.isInstanceOf(GrantedAuthoritiesContainer.class, token.getDetails());
-		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token
-				.getDetails()).getGrantedAuthorities();
+		Collection<? extends GrantedAuthority> authorities = ((GrantedAuthoritiesContainer) token.getDetails())
+				.getGrantedAuthorities();
 		return createUserDetails(token, authorities);
 	}
 
 	/**
 	 * Creates the final <tt>UserDetails</tt> object. Can be overridden to customize the
 	 * contents.
-	 *
 	 * @param token the authentication request token
 	 * @param authorities the pre-authenticated authorities.
 	 */
-	protected UserDetails createUserDetails(Authentication token,
-			Collection<? extends GrantedAuthority> authorities) {
+	protected UserDetails createUserDetails(Authentication token, Collection<? extends GrantedAuthority> authorities) {
 		return new User(token.getName(), "N/A", true, true, true, true, authorities);
 	}
+
 }

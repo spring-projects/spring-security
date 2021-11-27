@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.context;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Used to pass the incoming request to
@@ -28,17 +29,18 @@ import javax.servlet.http.HttpServletResponse;
  * @since 3.0
  */
 public final class HttpRequestResponseHolder {
+
 	private HttpServletRequest request;
+
 	private HttpServletResponse response;
 
-	public HttpRequestResponseHolder(HttpServletRequest request,
-			HttpServletResponse response) {
+	public HttpRequestResponseHolder(HttpServletRequest request, HttpServletResponse response) {
 		this.request = request;
 		this.response = response;
 	}
 
 	public HttpServletRequest getRequest() {
-		return request;
+		return this.request;
 	}
 
 	public void setRequest(HttpServletRequest request) {
@@ -46,10 +48,11 @@ public final class HttpRequestResponseHolder {
 	}
 
 	public HttpServletResponse getResponse() {
-		return response;
+		return this.response;
 	}
 
 	public void setResponse(HttpServletResponse response) {
 		this.response = response;
 	}
+
 }

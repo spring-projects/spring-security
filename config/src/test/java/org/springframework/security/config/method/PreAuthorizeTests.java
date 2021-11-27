@@ -13,55 +13,65 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
- *
  * @author Rob Winch
  *
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class PreAuthorizeTests {
+
 	@Autowired
 	PreAuthorizeServiceImpl service;
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeAdminRoleDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
-		service.preAuthorizeAdminRole();
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_USER"));
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeAdminRole);
 	}
 
 	@Test
 	public void preAuthorizeAdminRoleGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.preAuthorizeAdminRole();
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		this.service.preAuthorizeAdminRole();
 	}
 
 	@Test
 	public void preAuthorizeContactPermissionGranted() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.contactPermission(new Contact("user"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		this.service.contactPermission(new Contact("user"));
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeContactPermissionDenied() {
-		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
-		service.contactPermission(new Contact("admin"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "pass", "ROLE_ADMIN"));
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.service.contactPermission(new Contact("admin")));
 	}
+
 }

@@ -27,9 +27,9 @@
 	<http auto-config="true" use-expressions="false">
 		<intercept-url pattern="/**" access="ROLE_USER"/>
 		<form-login
-				default-target-url="#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}/default"
-				authentication-failure-url="#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}/failure"
-				login-page="#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}/login"/>
+				default-target-url="#{T(org.springframework.security.config.http.WebConfigUtilsTests).URL}/default"
+				authentication-failure-url="#{T(org.springframework.security.config.http.WebConfigUtilsTests).URL}/failure"
+				login-page="#{T(org.springframework.security.config.http.WebConfigUtilsTests).URL}/login"/>
 	</http>
 
 	<b:import resource="userservice.xml"/>

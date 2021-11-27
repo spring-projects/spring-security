@@ -16,8 +16,11 @@
 
 package org.springframework.security.config.annotation.authentication;
 
-import org.junit.Rule;
-import org.junit.Test;
+import javax.sql.DataSource;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,14 +29,14 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
+import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.web.servlet.MockMvc;
-
-import javax.sql.DataSource;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
@@ -41,10 +44,10 @@ import static org.springframework.security.test.web.servlet.response.SecurityMoc
 /**
  * @author Rob Winch
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class NamespaceJdbcUserServiceTests {
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -52,48 +55,60 @@ public class NamespaceJdbcUserServiceTests {
 	@Test
 	public void jdbcUserService() throws Exception {
 		this.spring.register(DataSourceConfig.class, JdbcUserServiceConfig.class).autowire();
-
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user"));
-	}
-
-	@EnableWebSecurity
-	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
-		@Autowired
-		private DataSource dataSource;
-
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.jdbcAuthentication()
-					.withDefaultSchema()
-					.withUser(PasswordEncodedUser.user())
-					.dataSource(this.dataSource); // jdbc-user-service@data-source-ref
-		}
-	}
-
-	@Configuration
-	static class DataSourceConfig {
-		@Bean
-		public DataSource dataSource() {
-			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
-			return builder.setType(EmbeddedDatabaseType.HSQL).build();
-		}
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher user = authenticated().withUsername("user");
+		this.mockMvc.perform(formLogin()).andExpect(user);
 	}
 
 	@Test
 	public void jdbcUserServiceCustom() throws Exception {
 		this.spring.register(CustomDataSourceConfig.class, CustomJdbcUserServiceSampleConfig.class).autowire();
+		// @formatter:off
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher dba = authenticated()
+				.withUsername("user")
+				.withRoles("DBA", "USER");
+		// @formatter:on
+		this.mockMvc.perform(formLogin()).andExpect(dba);
+	}
 
-		this.mockMvc.perform(formLogin())
-			.andExpect(authenticated().withUsername("user").withRoles("DBA", "USER"));
+	@EnableWebSecurity
+	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
+
+		@Autowired
+		private DataSource dataSource;
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.jdbcAuthentication()
+					.withDefaultSchema()
+					.withUser(PasswordEncodedUser.user())
+					.dataSource(this.dataSource); // jdbc-user-service@data-source-ref
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	static class DataSourceConfig {
+
+		@Bean
+		DataSource dataSource() {
+			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder();
+			return builder.setType(EmbeddedDatabaseType.HSQL).build();
+		}
+
 	}
 
 	@EnableWebSecurity
 	static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
+
 		@Autowired
 		private DataSource dataSource;
 
+		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.jdbcAuthentication()
 				// jdbc-user-service@dataSource
@@ -105,10 +120,10 @@ public class NamespaceJdbcUserServiceTests {
 				// jdbc-user-service@authorities-by-username-query
 				.authoritiesByUsernameQuery("select principal,role from roles where principal = ?")
 				// jdbc-user-service@group-authorities-by-username-query
-				.groupAuthoritiesByUsername(JdbcUserDetailsManager.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
+				.groupAuthoritiesByUsername(JdbcDaoImpl.DEF_GROUP_AUTHORITIES_BY_USERNAME_QUERY)
 				// jdbc-user-service@role-prefix
 				.rolePrefix("ROLE_");
-
+			// @formatter:on
 		}
 
 		static class CustomUserCache implements UserCache {
@@ -125,16 +140,22 @@ public class NamespaceJdbcUserServiceTests {
 			@Override
 			public void removeUserFromCache(String username) {
 			}
+
 		}
+
 	}
+
 	@Configuration
 	static class CustomDataSourceConfig {
+
 		@Bean
-		public DataSource dataSource() {
+		DataSource dataSource() {
 			EmbeddedDatabaseBuilder builder = new EmbeddedDatabaseBuilder()
-				// simulate that the DB already has the schema loaded and users in it
-				.addScript("CustomJdbcUserServiceSampleConfig.sql");
+					// simulate that the DB already has the schema loaded and users in it
+					.addScript("CustomJdbcUserServiceSampleConfig.sql");
 			return builder.setType(EmbeddedDatabaseType.HSQL).build();
 		}
+
 	}
+
 }

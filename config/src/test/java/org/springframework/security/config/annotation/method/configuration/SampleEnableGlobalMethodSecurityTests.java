@@ -13,11 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import java.io.Serializable;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.access.AccessDeniedException;
@@ -26,14 +30,13 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.config.test.SpringTestRule;
+import org.springframework.security.config.test.SpringTestContext;
+import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.io.Serializable;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Demonstrate the samples
@@ -41,60 +44,60 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  * @author Rob Winch
  *
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class SampleEnableGlobalMethodSecurityTests {
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private MethodSecurityService methodSecurityService;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		SecurityContextHolder.getContext().setAuthentication(
-									new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.getContext()
+				.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 	}
 
 	@Test
 	public void preAuthorize() {
 		this.spring.register(SampleWebSecurityConfig.class).autowire();
-
 		assertThat(this.methodSecurityService.secured()).isNull();
 		assertThat(this.methodSecurityService.jsr250()).isNull();
-
-		assertThatThrownBy(() -> this.methodSecurityService.preAuthorize())
-			.isInstanceOf(AccessDeniedException.class);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.preAuthorize());
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	@Test
+	public void customPermissionHandler() {
+		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
+		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.hasPermission("denied"));
+	}
+
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class SampleWebSecurityConfig {
+
 		@Bean
-		public MethodSecurityService methodSecurityService() {
+		MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
 		}
 
 		@Autowired
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser("user").password("password").roles("USER").and()
 					.withUser("admin").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
+
 	}
 
-
-	@Test
-	public void customPermissionHandler() {
-		this.spring.register(CustomPermissionEvaluatorWebSecurityConfig.class).autowire();
-
-		assertThat(this.methodSecurityService.hasPermission("allowed")).isNull();
-
-		assertThatThrownBy(() -> this.methodSecurityService.hasPermission("denied"))
-			.isInstanceOf(AccessDeniedException.class);
-	}
-
-
-	@EnableGlobalMethodSecurity(prePostEnabled=true)
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomPermissionEvaluatorWebSecurityConfig extends GlobalMethodSecurityConfiguration {
+
 		@Bean
 		public MethodSecurityService methodSecurityService() {
 			return new MethodSecurityServiceImpl();
@@ -109,23 +112,29 @@ public class SampleEnableGlobalMethodSecurityTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication()
 				.withUser("user").password("password").roles("USER").and()
 				.withUser("admin").password("password").roles("USER", "ADMIN");
+			// @formatter:on
 		}
+
 	}
 
 	static class CustomPermissionEvaluator implements PermissionEvaluator {
-		public boolean hasPermission(Authentication authentication,
-				Object targetDomainObject, Object permission) {
+
+		@Override
+		public boolean hasPermission(Authentication authentication, Object targetDomainObject, Object permission) {
 			return !"denied".equals(targetDomainObject);
 		}
 
-		public boolean hasPermission(Authentication authentication,
-				Serializable targetId, String targetType, Object permission) {
+		@Override
+		public boolean hasPermission(Authentication authentication, Serializable targetId, String targetType,
+				Object permission) {
 			return !"denied".equals(targetId);
 		}
 
 	}
+
 }

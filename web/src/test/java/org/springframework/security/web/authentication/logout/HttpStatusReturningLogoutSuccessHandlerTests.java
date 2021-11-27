@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.authentication.logout;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -35,12 +35,9 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 	@Test
 	public void testDefaultHttpStatusBeingReturned() throws Exception {
 		final HttpStatusReturningLogoutSuccessHandler lsh = new HttpStatusReturningLogoutSuccessHandler();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
-
 		assertThat(request.getSession(false)).isNull();
 		assertThat(response.getRedirectedUrl()).isNull();
 		assertThat(response.getForwardedUrl()).isNull();
@@ -51,12 +48,9 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 	public void testCustomHttpStatusBeingReturned() throws Exception {
 		final HttpStatusReturningLogoutSuccessHandler lsh = new HttpStatusReturningLogoutSuccessHandler(
 				HttpStatus.NO_CONTENT);
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-
 		lsh.onLogoutSuccess(request, response, mock(Authentication.class));
-
 		assertThat(request.getSession(false)).isNull();
 		assertThat(response.getRedirectedUrl()).isNull();
 		assertThat(response.getForwardedUrl()).isNull();
@@ -65,16 +59,8 @@ public class HttpStatusReturningLogoutSuccessHandlerTests {
 
 	@Test
 	public void testThatSettNullHttpStatusThrowsException() {
-
-		try {
-			new HttpStatusReturningLogoutSuccessHandler(null);
-		}
-		catch (IllegalArgumentException e) {
-			assertThat(e).hasMessage("The provided HttpStatus must not be null.");
-			return;
-		}
-
-		fail("Expected an IllegalArgumentException to be thrown.");
+		assertThatIllegalArgumentException().isThrownBy(() -> new HttpStatusReturningLogoutSuccessHandler(null))
+				.withMessage("The provided HttpStatus must not be null.");
 	}
 
 }

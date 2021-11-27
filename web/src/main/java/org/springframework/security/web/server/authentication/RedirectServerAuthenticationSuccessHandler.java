@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.net.URI;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
@@ -24,18 +28,16 @@ import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 /**
- * Performs a redirect on authentication success. The default is to redirect to a saved request if present and
- * otherwise "/".
+ * Performs a redirect on authentication success. The default is to redirect to a saved
+ * request if present and otherwise "/".
+ *
  * @author Rob Winch
  * @since 5.0
  */
-public class RedirectServerAuthenticationSuccessHandler
-	implements ServerAuthenticationSuccessHandler {
+public class RedirectServerAuthenticationSuccessHandler implements ServerAuthenticationSuccessHandler {
+
 	private URI location = URI.create("/");
 
 	private ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
@@ -45,7 +47,8 @@ public class RedirectServerAuthenticationSuccessHandler
 	/**
 	 * Creates a new instance with location of "/"
 	 */
-	public RedirectServerAuthenticationSuccessHandler() {}
+	public RedirectServerAuthenticationSuccessHandler() {
+	}
 
 	/**
 	 * Creates a new instance with the specified location
@@ -57,7 +60,8 @@ public class RedirectServerAuthenticationSuccessHandler
 	}
 
 	/**
-	 * Sets the {@link ServerRequestCache} used to redirect to. Default is {@link WebSessionServerRequestCache}.
+	 * Sets the {@link ServerRequestCache} used to redirect to. Default is
+	 * {@link WebSessionServerRequestCache}.
 	 * @param requestCache the cache to use
 	 */
 	public void setRequestCache(ServerRequestCache requestCache) {
@@ -66,12 +70,10 @@ public class RedirectServerAuthenticationSuccessHandler
 	}
 
 	@Override
-	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange,
-		Authentication authentication) {
+	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
-		return this.requestCache.getRedirectUri(exchange)
-			.defaultIfEmpty(this.location)
-			.flatMap(location -> this.redirectStrategy.sendRedirect(exchange, location));
+		return this.requestCache.getRedirectUri(exchange).defaultIfEmpty(this.location)
+				.flatMap((location) -> this.redirectStrategy.sendRedirect(exchange, location));
 	}
 
 	/**
@@ -91,4 +93,5 @@ public class RedirectServerAuthenticationSuccessHandler
 		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
 		this.redirectStrategy = redirectStrategy;
 	}
+
 }

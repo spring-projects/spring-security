@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.userdetails;
 
 import org.springframework.beans.factory.InitializingBean;
@@ -28,8 +29,9 @@ import org.springframework.util.Assert;
  * @author Scott Battaglia
  * @since 2.0
  */
-public class UserDetailsByNameServiceWrapper<T extends Authentication> implements
-		AuthenticationUserDetailsService<T>, InitializingBean {
+public class UserDetailsByNameServiceWrapper<T extends Authentication>
+		implements AuthenticationUserDetailsService<T>, InitializingBean {
+
 	private UserDetailsService userDetailsService = null;
 
 	/**
@@ -44,7 +46,6 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 	 * Constructs a new wrapper using the supplied
 	 * {@link org.springframework.security.core.userdetails.UserDetailsService} as the
 	 * service to delegate to.
-	 *
 	 * @param userDetailsService the UserDetailsService to delegate to.
 	 */
 	public UserDetailsByNameServiceWrapper(final UserDetailsService userDetailsService) {
@@ -57,6 +58,7 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 	 *
 	 * @see org.springframework.beans.factory.InitializingBean#afterPropertiesSet()
 	 */
+	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "UserDetailsService must be set");
 	}
@@ -64,16 +66,17 @@ public class UserDetailsByNameServiceWrapper<T extends Authentication> implement
 	/**
 	 * Get the UserDetails object from the wrapped UserDetailsService implementation
 	 */
+	@Override
 	public UserDetails loadUserDetails(T authentication) throws UsernameNotFoundException {
 		return this.userDetailsService.loadUserByUsername(authentication.getName());
 	}
 
 	/**
 	 * Set the wrapped UserDetailsService implementation
-	 *
 	 * @param aUserDetailsService The wrapped UserDetailsService to set
 	 */
 	public void setUserDetailsService(UserDetailsService aUserDetailsService) {
 		this.userDetailsService = aUserDetailsService;
 	}
+
 }

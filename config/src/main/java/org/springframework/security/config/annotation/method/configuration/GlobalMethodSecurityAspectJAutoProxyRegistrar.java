@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -36,28 +37,22 @@ import org.springframework.core.type.AnnotationMetadata;
  * @author Rob Winch
  * @since 3.2
  */
-class GlobalMethodSecurityAspectJAutoProxyRegistrar implements
-		ImportBeanDefinitionRegistrar {
+class GlobalMethodSecurityAspectJAutoProxyRegistrar implements ImportBeanDefinitionRegistrar {
 
 	/**
 	 * Register, escalate, and configure the AspectJ auto proxy creator based on the value
 	 * of the @{@link EnableGlobalMethodSecurity#proxyTargetClass()} attribute on the
 	 * importing {@code @Configuration} class.
 	 */
-	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata,
-			BeanDefinitionRegistry registry) {
-
-		BeanDefinition interceptor = registry
-				.getBeanDefinition("methodSecurityInterceptor");
-
-		BeanDefinitionBuilder aspect = BeanDefinitionBuilder
-				.rootBeanDefinition("org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
+	@Override
+	public void registerBeanDefinitions(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry) {
+		BeanDefinition interceptor = registry.getBeanDefinition("methodSecurityInterceptor");
+		BeanDefinitionBuilder aspect = BeanDefinitionBuilder.rootBeanDefinition(
+				"org.springframework.security.access.intercept.aspectj.aspect.AnnotationSecurityAspect");
 		aspect.setFactoryMethod("aspectOf");
 		aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
 		aspect.addPropertyValue("securityInterceptor", interceptor);
-
-		registry.registerBeanDefinition("annotationSecurityAspect$0",
-				aspect.getBeanDefinition());
+		registry.registerBeanDefinition("annotationSecurityAspect$0", aspect.getBeanDefinition());
 	}
 
 }

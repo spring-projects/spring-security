@@ -19,8 +19,8 @@ package org.springframework.security.access.annotation;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 
@@ -29,8 +29,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 @Secured({ "ROLE_USER" })
 @PermitAll
 public interface BusinessService extends Serializable {
-	// ~ Methods
-	// ========================================================================================================
 
 	@Secured({ "ROLE_ADMIN" })
 	@RolesAllowed({ "ROLE_ADMIN" })
@@ -61,5 +59,11 @@ public interface BusinessService extends Serializable {
 	Object[] methodReturningAnArray(Object[] someArray);
 
 	List<?> methodReturningAList(String userName, String extraParam);
+
+	@RequireAdminRole
+	@RequireUserRole
+	default void repeatedAnnotations() {
+
+	}
 
 }

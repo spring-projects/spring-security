@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.server.header;
+
+import reactor.core.publisher.Mono;
 
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import reactor.core.publisher.Mono;
 
 /**
  * Invokes a {@link ServerHttpHeadersWriter} on
@@ -30,6 +31,7 @@ import reactor.core.publisher.Mono;
  * @since 5.0
  */
 public class HttpHeaderWriterWebFilter implements WebFilter {
+
 	private final ServerHttpHeadersWriter writer;
 
 	public HttpHeaderWriterWebFilter(ServerHttpHeadersWriter writer) {
@@ -38,7 +40,7 @@ public class HttpHeaderWriterWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		exchange.getResponse().beforeCommit(() -> writer.writeHttpHeaders(exchange));
+		exchange.getResponse().beforeCommit(() -> this.writer.writeHttpHeaders(exchange));
 		return chain.filter(exchange);
 	}
 

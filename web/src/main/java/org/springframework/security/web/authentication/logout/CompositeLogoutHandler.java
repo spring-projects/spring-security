@@ -19,17 +19,17 @@ package org.springframework.security.web.authentication.logout;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
 /**
- * Performs a logout through all the {@link LogoutHandler} implementations.
- * If any exception is thrown by
- * {@link #logout(HttpServletRequest, HttpServletResponse, Authentication)},
- * no additional LogoutHandler are invoked.
+ * Performs a logout through all the {@link LogoutHandler} implementations. If any
+ * exception is thrown by
+ * {@link #logout(HttpServletRequest, HttpServletResponse, Authentication)}, no additional
+ * LogoutHandler are invoked.
  *
  * @author Eddú Meléndez
  * @since 4.2.0
@@ -54,4 +54,5 @@ public final class CompositeLogoutHandler implements LogoutHandler {
 			handler.logout(request, response, authentication);
 		}
 	}
+
 }

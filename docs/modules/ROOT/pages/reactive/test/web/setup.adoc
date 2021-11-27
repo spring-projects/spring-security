@@ -1,0 +1,27 @@
+= WebTestClient Security Setup
+
+The basic setup looks like this:
+
+[source,java]
+----
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
+public class HelloWebfluxMethodApplicationTests {
+	@Autowired
+	ApplicationContext context;
+
+	WebTestClient rest;
+
+	@Before
+	public void setup() {
+		this.rest = WebTestClient
+			.bindToApplicationContext(this.context)
+			// add Spring Security test Support
+			.apply(springSecurity())
+			.configureClient()
+			.filter(basicAuthentication())
+			.build();
+	}
+	// ...
+}
+----

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.concurrent;
 
 import java.util.concurrent.Callable;
@@ -31,20 +32,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * @author Rob Winch
  * @since 3.2
  */
-public final class DelegatingSecurityContextScheduledExecutorService extends
-		DelegatingSecurityContextExecutorService implements ScheduledExecutorService {
+public final class DelegatingSecurityContextScheduledExecutorService extends DelegatingSecurityContextExecutorService
+		implements ScheduledExecutorService {
+
 	/**
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses
 	 * the specified {@link SecurityContext}.
-	 *
 	 * @param delegateScheduledExecutorService the {@link ScheduledExecutorService} to
 	 * delegate to. Cannot be null.
 	 * @param securityContext the {@link SecurityContext} to use for each
 	 * {@link DelegatingSecurityContextRunnable} and each
 	 * {@link DelegatingSecurityContextCallable}.
 	 */
-	public DelegatingSecurityContextScheduledExecutorService(
-			ScheduledExecutorService delegateScheduledExecutorService,
+	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegateScheduledExecutorService,
 			SecurityContext securityContext) {
 		super(delegateScheduledExecutorService, securityContext);
 	}
@@ -52,39 +52,35 @@ public final class DelegatingSecurityContextScheduledExecutorService extends
 	/**
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses
 	 * the current {@link SecurityContext} from the {@link SecurityContextHolder}.
-	 *
 	 * @param delegate the {@link ScheduledExecutorService} to delegate to. Cannot be
 	 * null.
 	 */
-	public DelegatingSecurityContextScheduledExecutorService(
-			ScheduledExecutorService delegate) {
+	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegate) {
 		this(delegate, null);
 	}
 
+	@Override
 	public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().schedule(command, delay, unit);
+		return getDelegate().schedule(wrap(command), delay, unit);
 	}
 
-	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay,
-			TimeUnit unit) {
-		callable = wrap(callable);
-		return getDelegate().schedule(callable, delay, unit);
+	@Override
+	public <V> ScheduledFuture<V> schedule(Callable<V> callable, long delay, TimeUnit unit) {
+		return getDelegate().schedule(wrap(callable), delay, unit);
 	}
 
-	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command,
-			long initialDelay, long period, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().scheduleAtFixedRate(command, initialDelay, period, unit);
+	@Override
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
+		return getDelegate().scheduleAtFixedRate(wrap(command), initialDelay, period, unit);
 	}
 
-	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command,
-			long initialDelay, long delay, TimeUnit unit) {
-		command = wrap(command);
-		return getDelegate().scheduleWithFixedDelay(command, initialDelay, delay, unit);
+	@Override
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit) {
+		return getDelegate().scheduleWithFixedDelay(wrap(command), initialDelay, delay, unit);
 	}
 
 	private ScheduledExecutorService getDelegate() {
 		return (ScheduledExecutorService) getDelegateExecutor();
 	}
+
 }

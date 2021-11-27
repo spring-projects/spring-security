@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
 
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,13 +25,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@SuppressWarnings({ "unused", "FieldCanBeLocal" })
 	private UserRepository userRepository;
 
+	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) {
 		return null;
 	}
 
-	@Required
 	public void setUserRepository(UserRepository userRepository) {
 		this.userRepository = userRepository;
 	}
+
 }

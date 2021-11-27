@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.http;
 
 import java.util.Arrays;
@@ -23,18 +24,21 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Assertions for tests that rely on confirming behavior of the package-private SecurityFilters enum
+ * Assertions for tests that rely on confirming behavior of the package-private
+ * SecurityFilters enum
  *
  * @author Josh Cummings
  */
-public class SecurityFiltersAssertions {
+public final class SecurityFiltersAssertions {
+
 	private static Collection<SecurityFilters> ordered = Arrays.asList(SecurityFilters.values());
 
-	public static void assertEquals(List<String> filters) {
-		List<String> expected = ordered.stream()
-				.map(SecurityFilters::name)
-				.collect(Collectors.toList());
+	private SecurityFiltersAssertions() {
+	}
 
+	public static void assertEquals(List<String> filters) {
+		List<String> expected = ordered.stream().map(SecurityFilters::name).collect(Collectors.toList());
 		assertThat(filters).isEqualTo(expected);
 	}
+
 }

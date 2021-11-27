@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.access.prepost;
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.core.Authentication;
@@ -37,8 +39,8 @@ import org.springframework.security.core.Authentication;
  * @author Luke Taylor
  * @since 3.0
  */
-public class PreInvocationAuthorizationAdviceVoter implements
-		AccessDecisionVoter<MethodInvocation> {
+public class PreInvocationAuthorizationAdviceVoter implements AccessDecisionVoter<MethodInvocation> {
+
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final PreInvocationAuthorizationAdvice preAdvice;
@@ -47,41 +49,35 @@ public class PreInvocationAuthorizationAdviceVoter implements
 		this.preAdvice = pre;
 	}
 
+	@Override
 	public boolean supports(ConfigAttribute attribute) {
 		return attribute instanceof PreInvocationAttribute;
 	}
 
+	@Override
 	public boolean supports(Class<?> clazz) {
 		return MethodInvocation.class.isAssignableFrom(clazz);
 	}
 
-	public int vote(Authentication authentication, MethodInvocation method,
-			Collection<ConfigAttribute> attributes) {
-
+	@Override
+	public int vote(Authentication authentication, MethodInvocation method, Collection<ConfigAttribute> attributes) {
 		// Find prefilter and preauth (or combined) attributes
-		// if both null, abstain
-		// else call advice with them
-
+		// if both null, abstain else call advice with them
 		PreInvocationAttribute preAttr = findPreInvocationAttribute(attributes);
-
 		if (preAttr == null) {
 			// No expression based metadata, so abstain
 			return ACCESS_ABSTAIN;
 		}
-
-		boolean allowed = preAdvice.before(authentication, method, preAttr);
-
-		return allowed ? ACCESS_GRANTED : ACCESS_DENIED;
+		return this.preAdvice.before(authentication, method, preAttr) ? ACCESS_GRANTED : ACCESS_DENIED;
 	}
 
-	private PreInvocationAttribute findPreInvocationAttribute(
-			Collection<ConfigAttribute> config) {
+	private PreInvocationAttribute findPreInvocationAttribute(Collection<ConfigAttribute> config) {
 		for (ConfigAttribute attribute : config) {
 			if (attribute instanceof PreInvocationAttribute) {
 				return (PreInvocationAttribute) attribute;
 			}
 		}
-
 		return null;
 	}
+
 }

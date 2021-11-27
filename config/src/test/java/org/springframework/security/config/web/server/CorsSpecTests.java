@@ -16,11 +16,18 @@
 
 package org.springframework.security.config.web.server;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpHeaders;
@@ -30,24 +37,20 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CorsSpecTests {
+
 	@Mock
 	private CorsConfigurationSource source;
+
 	@Mock
 	private ApplicationContext context;
 
@@ -57,17 +60,20 @@ public class CorsSpecTests {
 
 	Set<String> headerNamesNotPresent = new HashSet<>();
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		this.http = new TestingServerHttpSecurity()
-				.applicationContext(this.context);
+		this.http = new TestingServerHttpSecurity().applicationContext(this.context);
+	}
+
+	private void givenGetCorsConfigurationWillReturnWildcard() {
 		CorsConfiguration value = new CorsConfiguration();
 		value.setAllowedOrigins(Arrays.asList("*"));
-		when(this.source.getCorsConfiguration(any())).thenReturn(value);
+		given(this.source.getCorsConfiguration(any())).willReturn(value);
 	}
 
 	@Test
 	public void corsWhenEnabledThenAccessControlAllowOriginAndSecurityHeaders() {
+		givenGetCorsConfigurationWillReturnWildcard();
 		this.http.cors().configurationSource(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
@@ -76,7 +82,8 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenEnabledInLambdaThenAccessControlAllowOriginAndSecurityHeaders() {
-		this.http.cors(cors -> cors.configurationSource(this.source));
+		givenGetCorsConfigurationWillReturnWildcard();
+		this.http.cors((cors) -> cors.configurationSource(this.source));
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();
@@ -84,8 +91,10 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenCorsConfigurationSourceBeanThenAccessControlAllowOriginAndSecurityHeaders() {
-		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[] {"source"}, new String[0]);
-		when(this.context.getBean("source")).thenReturn(this.source);
+		givenGetCorsConfigurationWillReturnWildcard();
+		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[] { "source" },
+				new String[0]);
+		given(this.context.getBean("source")).willReturn(this.source);
 		this.expectedHeaders.set("Access-Control-Allow-Origin", "*");
 		this.expectedHeaders.set("X-Frame-Options", "DENY");
 		assertHeaders();
@@ -93,24 +102,23 @@ public class CorsSpecTests {
 
 	@Test
 	public void corsWhenNoConfigurationSourceThenNoCorsHeaders() {
-		when(this.context.getBeanNamesForType(any(ResolvableType.class))).thenReturn(new String[0]);
+		given(this.context.getBeanNamesForType(any(ResolvableType.class))).willReturn(new String[0]);
 		this.headerNamesNotPresent.add("Access-Control-Allow-Origin");
 		assertHeaders();
 	}
 
 	private void assertHeaders() {
 		WebTestClient client = buildClient();
+		// @formatter:off
 		FluxExchangeResult<String> response = client.get()
-			.uri("https://example.com/")
-			.headers(h -> h.setOrigin("https://origin.example.com"))
-			.exchange()
-			.returnResult(String.class);
-
+				.uri("https://example.com/")
+				.headers((h) -> h.setOrigin("https://origin.example.com"))
+				.exchange()
+				.returnResult(String.class);
+		// @formatter:on
 		Map<String, List<String>> responseHeaders = response.getResponseHeaders();
-
 		if (!this.expectedHeaders.isEmpty()) {
-			assertThat(responseHeaders).describedAs(response.toString())
-					.containsAllEntriesOf(this.expectedHeaders);
+			assertThat(responseHeaders).describedAs(response.toString()).containsAllEntriesOf(this.expectedHeaders);
 		}
 		if (!this.headerNamesNotPresent.isEmpty()) {
 			assertThat(responseHeaders.keySet()).doesNotContainAnyElementsOf(this.headerNamesNotPresent);
@@ -118,8 +126,10 @@ public class CorsSpecTests {
 	}
 
 	private WebTestClient buildClient() {
-		return WebTestClientBuilder
-				.bindToWebFilters(this.http.build())
+		// @formatter:off
+		return WebTestClientBuilder.bindToWebFilters(this.http.build())
 				.build();
+		// @formatter:on
 	}
+
 }

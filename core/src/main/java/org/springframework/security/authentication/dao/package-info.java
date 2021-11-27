@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * An {@code AuthenticationProvider} which relies upon a data access object.
  */
 package org.springframework.security.authentication.dao;
-

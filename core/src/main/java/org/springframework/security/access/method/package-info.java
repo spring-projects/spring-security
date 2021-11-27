@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
- * Provides {@code SecurityMetadataSource} implementations for securing Java method invocations via different
- * AOP libraries.
+ * Provides {@code SecurityMetadataSource} implementations for securing Java method
+ * invocations via different AOP libraries.
  */
 package org.springframework.security.access.method;
-

@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.access.expression;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import java.util.Collection;
-import java.util.LinkedHashMap;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Luke Taylor
@@ -40,22 +43,21 @@ public class ExpressionBasedFilterInvocationSecurityMetadataSourceTests {
 		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
 				requestMap, new DefaultWebSecurityExpressionHandler());
 		assertThat(mds.getAllConfigAttributes()).hasSize(1);
-		Collection<ConfigAttribute> attrs = mds.getAttributes(new FilterInvocation(
-				"/path", "GET"));
+		Collection<ConfigAttribute> attrs = mds.getAttributes(new FilterInvocation("/path", "GET"));
 		assertThat(attrs).hasSize(1);
-		WebExpressionConfigAttribute attribute = (WebExpressionConfigAttribute) attrs
-				.toArray()[0];
+		WebExpressionConfigAttribute attribute = (WebExpressionConfigAttribute) attrs.toArray()[0];
 		assertThat(attribute.getAttribute()).isNull();
 		assertThat(attribute.getAuthorizeExpression().getExpressionString()).isEqualTo(expression);
 		assertThat(attribute.toString()).isEqualTo(expression);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidExpressionIsRejected() {
 		LinkedHashMap<RequestMatcher, Collection<ConfigAttribute>> requestMap = new LinkedHashMap<>();
-		requestMap.put(AnyRequestMatcher.INSTANCE,
-				SecurityConfig.createList("hasRole('X'"));
-		ExpressionBasedFilterInvocationSecurityMetadataSource mds = new ExpressionBasedFilterInvocationSecurityMetadataSource(
-				requestMap, new DefaultWebSecurityExpressionHandler());
+		requestMap.put(AnyRequestMatcher.INSTANCE, SecurityConfig.createList("hasRole('X'"));
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ExpressionBasedFilterInvocationSecurityMetadataSource(requestMap,
+						new DefaultWebSecurityExpressionHandler()));
 	}
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.core.endpoint;
 
 /**
- * Standard and custom (non-standard) parameter names defined in the OAuth Parameters Registry
- * and used by the authorization endpoint and token endpoint.
+ * Standard and custom (non-standard) parameter names defined in the OAuth Parameters
+ * Registry and used by the authorization endpoint, token endpoint and token revocation
+ * endpoint.
  *
  * @author Joe Grandja
  * @since 5.0
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2 OAuth Parameters Registry</a>
+ * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2
+ * OAuth Parameters Registry</a>
  */
 public interface OAuth2ParameterNames {
 
@@ -46,12 +49,31 @@ public interface OAuth2ParameterNames {
 	String CLIENT_SECRET = "client_secret";
 
 	/**
+	 * {@code client_assertion_type} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String CLIENT_ASSERTION_TYPE = "client_assertion_type";
+
+	/**
+	 * {@code client_assertion} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String CLIENT_ASSERTION = "client_assertion";
+
+	/**
+	 * {@code assertion} - used in Access Token Request.
+	 * @since 5.5
+	 */
+	String ASSERTION = "assertion";
+
+	/**
 	 * {@code redirect_uri} - used in Authorization Request and Access Token Request.
 	 */
 	String REDIRECT_URI = "redirect_uri";
 
 	/**
-	 * {@code scope} - used in Authorization Request, Authorization Response, Access Token Request and Access Token Response.
+	 * {@code scope} - used in Authorization Request, Authorization Response, Access Token
+	 * Request and Access Token Response.
 	 */
 	String SCOPE = "scope";
 
@@ -101,7 +123,8 @@ public interface OAuth2ParameterNames {
 	String ERROR = "error";
 
 	/**
-	 * {@code error_description} - used in Authorization Response and Access Token Response.
+	 * {@code error_description} - used in Authorization Response and Access Token
+	 * Response.
 	 */
 	String ERROR_DESCRIPTION = "error_description";
 
@@ -114,5 +137,17 @@ public interface OAuth2ParameterNames {
 	 * Non-standard parameter (used internally).
 	 */
 	String REGISTRATION_ID = "registration_id";
+
+	/**
+	 * {@code token} - used in Token Revocation Request.
+	 * @since 5.5
+	 */
+	String TOKEN = "token";
+
+	/**
+	 * {@code token_type_hint} - used in Token Revocation Request.
+	 * @since 5.5
+	 */
+	String TOKEN_TYPE_HINT = "token_type_hint";
 
 }

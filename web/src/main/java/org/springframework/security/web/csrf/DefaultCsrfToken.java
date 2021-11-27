@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.csrf;
 
 import org.springframework.util.Assert;
@@ -48,30 +49,19 @@ public final class DefaultCsrfToken implements CsrfToken {
 		this.token = token;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getHeaderName()
-	 */
+	@Override
 	public String getHeaderName() {
 		return this.headerName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getParameterName()
-	 */
+	@Override
 	public String getParameterName() {
 		return this.parameterName;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.security.web.csrf.CsrfToken#getToken()
-	 */
+	@Override
 	public String getToken() {
 		return this.token;
 	}
+
 }

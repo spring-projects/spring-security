@@ -13,28 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 /**
  * @author Rob Winch
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DelegatingRequestMatcherHeaderWriterTests {
+
 	@Mock
 	private RequestMatcher matcher;
 
@@ -47,38 +51,37 @@ public class DelegatingRequestMatcherHeaderWriterTests {
 
 	private DelegatingRequestMatcherHeaderWriter headerWriter;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		request = new MockHttpServletRequest();
-		response = new MockHttpServletResponse();
-		headerWriter = new DelegatingRequestMatcherHeaderWriter(matcher, delegate);
+		this.request = new MockHttpServletRequest();
+		this.response = new MockHttpServletResponse();
+		this.headerWriter = new DelegatingRequestMatcherHeaderWriter(this.matcher, this.delegate);
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullRequestMatcher() {
-		new DelegatingRequestMatcherHeaderWriter(null, delegate);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(null, this.delegate));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorNullDelegate() {
-		new DelegatingRequestMatcherHeaderWriter(matcher, null);
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingRequestMatcherHeaderWriter(this.matcher, null));
 	}
 
 	@Test
 	public void writeHeadersOnMatch() {
-		when(matcher.matches(request)).thenReturn(true);
-
-		headerWriter.writeHeaders(request, response);
-
-		verify(delegate).writeHeaders(request, response);
+		given(this.matcher.matches(this.request)).willReturn(true);
+		this.headerWriter.writeHeaders(this.request, this.response);
+		verify(this.delegate).writeHeaders(this.request, this.response);
 	}
 
 	@Test
 	public void writeHeadersOnNoMatch() {
-		when(matcher.matches(request)).thenReturn(false);
-
-		headerWriter.writeHeaders(request, response);
-
-		verify(delegate, times(0)).writeHeaders(request, response);
+		given(this.matcher.matches(this.request)).willReturn(false);
+		this.headerWriter.writeHeaders(this.request, this.response);
+		verify(this.delegate, times(0)).writeHeaders(this.request, this.response);
 	}
+
 }

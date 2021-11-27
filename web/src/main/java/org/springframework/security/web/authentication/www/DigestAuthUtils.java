@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.www;
 
 import java.security.MessageDigest;
@@ -30,6 +31,9 @@ final class DigestAuthUtils {
 
 	private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
+	private DigestAuthUtils() {
+	}
+
 	static String encodePasswordInA1Format(String username, String realm, String password) {
 		String a1 = username + ":" + realm + ":" + password;
 
@@ -40,18 +44,14 @@ final class DigestAuthUtils {
 		if (str == null) {
 			return null;
 		}
-
 		int len = str.length();
-
 		if (len == 0) {
 			return EMPTY_STRING_ARRAY;
 		}
-
 		List<String> list = new ArrayList<>();
 		int i = 0;
 		int start = 0;
 		boolean match = false;
-
 		while (i < len) {
 			if (str.charAt(i) == '"') {
 				i++;
@@ -79,7 +79,6 @@ final class DigestAuthUtils {
 		if (match) {
 			list.add(str.substring(start, i));
 		}
-
 		return list.toArray(new String[0]);
 	}
 
@@ -87,7 +86,6 @@ final class DigestAuthUtils {
 	 * Computes the <code>response</code> portion of a Digest authentication header. Both
 	 * the server and user agent should compute the <code>response</code> independently.
 	 * Provided as a static method to simplify the coding of user agents.
-	 *
 	 * @param passwordAlreadyEncoded true if the password argument is already encoded in
 	 * the correct format. False if it is plain text.
 	 * @param username the user's login name.
@@ -102,37 +100,22 @@ final class DigestAuthUtils {
 	 * @return the MD5 of the digest authentication response, encoded in hex
 	 * @throws IllegalArgumentException if the supplied qop value is unsupported.
 	 */
-	static String generateDigest(boolean passwordAlreadyEncoded, String username,
-			String realm, String password, String httpMethod, String uri, String qop,
-			String nonce, String nc, String cnonce) throws IllegalArgumentException {
-		String a1Md5;
+	static String generateDigest(boolean passwordAlreadyEncoded, String username, String realm, String password,
+			String httpMethod, String uri, String qop, String nonce, String nc, String cnonce)
+			throws IllegalArgumentException {
 		String a2 = httpMethod + ":" + uri;
+		String a1Md5 = (!passwordAlreadyEncoded) ? DigestAuthUtils.encodePasswordInA1Format(username, realm, password)
+				: password;
 		String a2Md5 = md5Hex(a2);
-
-		if (passwordAlreadyEncoded) {
-			a1Md5 = password;
-		}
-		else {
-			a1Md5 = DigestAuthUtils.encodePasswordInA1Format(username, realm, password);
-		}
-
-		String digest;
-
 		if (qop == null) {
 			// as per RFC 2069 compliant clients (also reaffirmed by RFC 2617)
-			digest = a1Md5 + ":" + nonce + ":" + a2Md5;
+			return md5Hex(a1Md5 + ":" + nonce + ":" + a2Md5);
 		}
-		else if ("auth".equals(qop)) {
+		if ("auth".equals(qop)) {
 			// As per RFC 2617 compliant clients
-			digest = a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":"
-					+ a2Md5;
+			return md5Hex(a1Md5 + ":" + nonce + ":" + nc + ":" + cnonce + ":" + qop + ":" + a2Md5);
 		}
-		else {
-			throw new IllegalArgumentException("This method does not support a qop: '"
-					+ qop + "'");
-		}
-
-		return md5Hex(digest);
+		throw new IllegalArgumentException("This method does not support a qop: '" + qop + "'");
 	}
 
 	/**
@@ -143,7 +126,6 @@ final class DigestAuthUtils {
 	 * <p>
 	 * Will trim both the key and value before adding to the <code>Map</code>.
 	 * </p>
-	 *
 	 * @param array the array to process
 	 * @param delimiter to split each element using (typically the equals symbol)
 	 * @param removeCharacters one or more characters to remove from each element prior to
@@ -152,33 +134,20 @@ final class DigestAuthUtils {
 	 * @return a <code>Map</code> representing the array contents, or <code>null</code> if
 	 * the array to process was null or empty
 	 */
-	static Map<String, String> splitEachArrayElementAndCreateMap(String[] array,
-			String delimiter, String removeCharacters) {
+	static Map<String, String> splitEachArrayElementAndCreateMap(String[] array, String delimiter,
+			String removeCharacters) {
 		if ((array == null) || (array.length == 0)) {
 			return null;
 		}
-
 		Map<String, String> map = new HashMap<>();
-
 		for (String s : array) {
-			String postRemove;
-
-			if (removeCharacters == null) {
-				postRemove = s;
-			}
-			else {
-				postRemove = StringUtils.replace(s, removeCharacters, "");
-			}
-
+			String postRemove = (removeCharacters != null) ? StringUtils.replace(s, removeCharacters, "") : s;
 			String[] splitThisArrayElement = split(postRemove, delimiter);
-
 			if (splitThisArrayElement == null) {
 				continue;
 			}
-
 			map.put(splitThisArrayElement[0].trim(), splitThisArrayElement[1].trim());
 		}
-
 		return map;
 	}
 
@@ -187,7 +156,6 @@ final class DigestAuthUtils {
 	 * <p>
 	 * Does not include the delimiter in the response.
 	 * </p>
-	 *
 	 * @param toSplit the string to split
 	 * @param delimiter to split the string up with
 	 * @return a two element array with index 0 being before the delimiter, and index 1
@@ -196,35 +164,25 @@ final class DigestAuthUtils {
 	 */
 	static String[] split(String toSplit, String delimiter) {
 		Assert.hasLength(toSplit, "Cannot split a null or empty string");
-		Assert.hasLength(delimiter,
-				"Cannot use a null or empty delimiter to split a string");
-
-		if (delimiter.length() != 1) {
-			throw new IllegalArgumentException(
-					"Delimiter can only be one character in length");
-		}
-
+		Assert.hasLength(delimiter, "Cannot use a null or empty delimiter to split a string");
+		Assert.isTrue(delimiter.length() == 1, "Delimiter can only be one character in length");
 		int offset = toSplit.indexOf(delimiter);
-
 		if (offset < 0) {
 			return null;
 		}
-
 		String beforeDelimiter = toSplit.substring(0, offset);
 		String afterDelimiter = toSplit.substring(offset + 1);
-
 		return new String[] { beforeDelimiter, afterDelimiter };
 	}
 
 	static String md5Hex(String data) {
-		MessageDigest digest;
 		try {
-			digest = MessageDigest.getInstance("MD5");
+			MessageDigest digest = MessageDigest.getInstance("MD5");
+			return new String(Hex.encode(digest.digest(data.getBytes())));
 		}
-		catch (NoSuchAlgorithmException e) {
+		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalStateException("No MD5 algorithm available!");
 		}
-
-		return new String(Hex.encode(digest.digest(data.getBytes())));
 	}
+
 }

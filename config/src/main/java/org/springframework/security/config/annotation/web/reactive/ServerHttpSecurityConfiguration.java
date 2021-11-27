@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.reactive;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -44,7 +45,9 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  */
 @Configuration(proxyBeanMethods = false)
 class ServerHttpSecurityConfiguration {
+
 	private static final String BEAN_NAME_PREFIX = "org.springframework.security.config.annotation.web.reactive.HttpSecurityConfiguration.";
+
 	private static final String HTTPSECURITY_BEAN_NAME = BEAN_NAME_PREFIX + "httpSecurity";
 
 	private ReactiveAdapterRegistry adapterRegistry = new ReactiveAdapterRegistry();
@@ -86,20 +89,22 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	public WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
-			AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver) {
+	static WebFluxConfigurer authenticationPrincipalArgumentResolverConfigurer(
+			ObjectProvider<AuthenticationPrincipalArgumentResolver> authenticationPrincipalArgumentResolver) {
 		return new WebFluxConfigurer() {
+
 			@Override
 			public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-				configurer.addCustomResolver(authenticationPrincipalArgumentResolver);
+				configurer.addCustomResolver(authenticationPrincipalArgumentResolver.getObject());
 			}
+
 		};
 	}
 
 	@Bean
-	public AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
+	AuthenticationPrincipalArgumentResolver authenticationPrincipalArgumentResolver() {
 		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver(
-			this.adapterRegistry);
+				this.adapterRegistry);
 		if (this.beanFactory != null) {
 			resolver.setBeanResolver(new BeanFactoryResolver(this.beanFactory));
 		}
@@ -107,7 +112,7 @@ class ServerHttpSecurityConfiguration {
 	}
 
 	@Bean
-	public CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
+	CurrentSecurityContextArgumentResolver reactiveCurrentSecurityContextArgumentResolver() {
 		CurrentSecurityContextArgumentResolver resolver = new CurrentSecurityContextArgumentResolver(
 				this.adapterRegistry);
 		if (this.beanFactory != null) {
@@ -118,12 +123,13 @@ class ServerHttpSecurityConfiguration {
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
-	public ServerHttpSecurity httpSecurity() {
+	ServerHttpSecurity httpSecurity() {
 		ContextAwareServerHttpSecurity http = new ContextAwareServerHttpSecurity();
-		return http
-			.authenticationManager(authenticationManager())
+		// @formatter:off
+		return http.authenticationManager(authenticationManager())
 			.headers().and()
 			.logout().and();
+		// @formatter:on
 	}
 
 	private ReactiveAuthenticationManager authenticationManager() {
@@ -131,8 +137,8 @@ class ServerHttpSecurityConfiguration {
 			return this.authenticationManager;
 		}
 		if (this.reactiveUserDetailsService != null) {
-			UserDetailsRepositoryReactiveAuthenticationManager manager =
-				new UserDetailsRepositoryReactiveAuthenticationManager(this.reactiveUserDetailsService);
+			UserDetailsRepositoryReactiveAuthenticationManager manager = new UserDetailsRepositoryReactiveAuthenticationManager(
+					this.reactiveUserDetailsService);
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
@@ -142,12 +148,13 @@ class ServerHttpSecurityConfiguration {
 		return null;
 	}
 
-	private static class ContextAwareServerHttpSecurity extends ServerHttpSecurity implements
-			ApplicationContextAware {
+	private static class ContextAwareServerHttpSecurity extends ServerHttpSecurity implements ApplicationContextAware {
+
 		@Override
-		public void setApplicationContext(ApplicationContext applicationContext)
-				throws BeansException {
+		public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 			super.setApplicationContext(applicationContext);
 		}
+
 	}
+
 }

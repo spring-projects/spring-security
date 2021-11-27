@@ -21,13 +21,16 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 /**
- * A composite of the {@link ServerWebExchange} and the {@link WebFilterChain}. This is typically used as a value object
- * for handling success and failures.
+ * A composite of the {@link ServerWebExchange} and the {@link WebFilterChain}. This is
+ * typically used as a value object for handling success and failures.
+ *
  * @author Rob Winch
  * @since 5.0
  */
 public class WebFilterExchange {
+
 	private final ServerWebExchange exchange;
+
 	private final WebFilterChain chain;
 
 	public WebFilterExchange(ServerWebExchange exchange, WebFilterChain chain) {
@@ -52,4 +55,5 @@ public class WebFilterExchange {
 	public WebFilterChain getChain() {
 		return this.chain;
 	}
+
 }

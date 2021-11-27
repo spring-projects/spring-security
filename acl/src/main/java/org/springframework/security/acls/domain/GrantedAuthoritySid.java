@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.GrantedAuthority;
-
 import org.springframework.util.Assert;
 
 /**
@@ -31,13 +31,8 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class GrantedAuthoritySid implements Sid {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final String grantedAuthority;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public GrantedAuthoritySid(String grantedAuthority) {
 		Assert.hasText(grantedAuthority, "GrantedAuthority required");
@@ -46,25 +41,19 @@ public class GrantedAuthoritySid implements Sid {
 
 	public GrantedAuthoritySid(GrantedAuthority grantedAuthority) {
 		Assert.notNull(grantedAuthority, "GrantedAuthority required");
-		Assert.notNull(
-				grantedAuthority.getAuthority(),
+		Assert.notNull(grantedAuthority.getAuthority(),
 				"This Sid is only compatible with GrantedAuthoritys that provide a non-null getAuthority()");
 		this.grantedAuthority = grantedAuthority.getAuthority();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object object) {
 		if ((object == null) || !(object instanceof GrantedAuthoritySid)) {
 			return false;
 		}
-
 		// Delegate to getGrantedAuthority() to perform actual comparison (both should be
 		// identical)
-		return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(
-				this.getGrantedAuthority());
+		return ((GrantedAuthoritySid) object).getGrantedAuthority().equals(this.getGrantedAuthority());
 	}
 
 	@Override
@@ -73,11 +62,12 @@ public class GrantedAuthoritySid implements Sid {
 	}
 
 	public String getGrantedAuthority() {
-		return grantedAuthority;
+		return this.grantedAuthority;
 	}
 
 	@Override
 	public String toString() {
 		return "GrantedAuthoritySid[" + this.grantedAuthority + "]";
 	}
+
 }

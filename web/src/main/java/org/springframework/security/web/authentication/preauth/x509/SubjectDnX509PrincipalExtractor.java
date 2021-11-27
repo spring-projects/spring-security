@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication.preauth.x509;
 
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.SpringSecurityMessageSource;
-import org.springframework.util.Assert;
-import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.context.MessageSource;
+import java.security.cert.X509Certificate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.security.cert.X509Certificate;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import org.springframework.context.MessageSource;
+import org.springframework.context.MessageSourceAware;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.core.log.LogMessage;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.SpringSecurityMessageSource;
+import org.springframework.util.Assert;
 
 /**
  * Obtains the principal from a certificate using a regular expression match against the
  * Subject (as returned by a call to {@link X509Certificate#getSubjectDN()}).
  * <p>
  * The regular expression should contain a single group; for example the default
- * expression "CN=(.*?)(?:,|$)" matches the common name field. So
- * "CN=Jimi Hendrix, OU=..." will give a user name of "Jimi Hendrix".
+ * expression "CN=(.*?)(?:,|$)" matches the common name field. So "CN=Jimi Hendrix,
+ * OU=..." will give a user name of "Jimi Hendrix".
  * <p>
  * The matches are case insensitive. So "emailAddress=(.*?)," will match
  * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
  *
  * @author Luke Taylor
  */
-public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
-	// ~ Instance fields
-	// ================================================================================================
+public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor, MessageSourceAware {
+
 	protected final Log logger = LogFactory.getLog(getClass());
+
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private Pattern subjectDnPattern;
@@ -53,30 +56,19 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 		setSubjectDnRegex("CN=(.*?)(?:,|$)");
 	}
 
+	@Override
 	public Object extractPrincipal(X509Certificate clientCert) {
 		// String subjectDN = clientCert.getSubjectX500Principal().getName();
 		String subjectDN = clientCert.getSubjectDN().getName();
-
-		logger.debug("Subject DN is '" + subjectDN + "'");
-
-		Matcher matcher = subjectDnPattern.matcher(subjectDN);
-
+		this.logger.debug(LogMessage.format("Subject DN is '%s'", subjectDN));
+		Matcher matcher = this.subjectDnPattern.matcher(subjectDN);
 		if (!matcher.find()) {
-			throw new BadCredentialsException(messages.getMessage(
-					"SubjectDnX509PrincipalExtractor.noMatching",
-					new Object[] { subjectDN },
-					"No matching pattern was found in subject DN: {0}"));
+			throw new BadCredentialsException(this.messages.getMessage("SubjectDnX509PrincipalExtractor.noMatching",
+					new Object[] { subjectDN }, "No matching pattern was found in subject DN: {0}"));
 		}
-
-		if (matcher.groupCount() != 1) {
-			throw new IllegalArgumentException(
-					"Regular expression must contain a single group ");
-		}
-
+		Assert.isTrue(matcher.groupCount() == 1, "Regular expression must contain a single group ");
 		String username = matcher.group(1);
-
-		logger.debug("Extracted Principal name is '" + username + "'");
-
+		this.logger.debug(LogMessage.format("Extracted Principal name is '%s'", username));
 		return username;
 	}
 
@@ -90,15 +82,20 @@ public class SubjectDnX509PrincipalExtractor implements X509PrincipalExtractor {
 	 * <p>
 	 * The matches are case insensitive. So "emailAddress=(.?)," will match
 	 * "EMAILADDRESS=jimi@hendrix.org, CN=..." giving a user name "jimi@hendrix.org"
-	 *
 	 * @param subjectDnRegex the regular expression to find in the subject
 	 */
 	public void setSubjectDnRegex(String subjectDnRegex) {
 		Assert.hasText(subjectDnRegex, "Regular expression may not be null or empty");
-		subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
+		this.subjectDnPattern = Pattern.compile(subjectDnRegex, Pattern.CASE_INSENSITIVE);
 	}
 
+	/**
+	 * @since 5.5
+	 */
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
+		Assert.notNull(messageSource, "messageSource cannot be null");
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
+
 }

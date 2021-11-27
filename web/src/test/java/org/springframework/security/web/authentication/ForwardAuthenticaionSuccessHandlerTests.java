@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.authentication;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
-import static org.assertj.core.api.Assertions.*;
 
 /**
  * <p>
@@ -33,26 +36,24 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class ForwardAuthenticaionSuccessHandlerTests {
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void invalidForwardUrl() {
-		new ForwardAuthenticationSuccessHandler("aaa");
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardAuthenticationSuccessHandler("aaa"));
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void emptyForwardUrl() {
-		new ForwardAuthenticationSuccessHandler("");
+		assertThatIllegalArgumentException().isThrownBy(() -> new ForwardAuthenticationSuccessHandler(""));
 	}
 
 	@Test
 	public void responseIsForwarded() throws Exception {
 		ForwardAuthenticationSuccessHandler fash = new ForwardAuthenticationSuccessHandler("/forwardUrl");
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		Authentication authentication = mock(Authentication.class);
-
 		fash.onAuthenticationSuccess(request, response, authentication);
-
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
 	}
+
 }

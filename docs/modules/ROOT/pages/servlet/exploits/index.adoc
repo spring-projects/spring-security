@@ -1,0 +1,5 @@
+[[servlet-exploits]]
+= Protection Against Exploits
+:page-section-summary-toc: 1
+
+This section discusses Servlet specific support for xref:features/exploits/index.adoc#exploits[Spring Security's protection against common exploits].

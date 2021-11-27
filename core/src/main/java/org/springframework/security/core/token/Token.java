@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.token;
 
 /**
@@ -36,7 +37,6 @@ public interface Token {
 	 * Obtains the randomised, secure key assigned to this token. Presentation of this
 	 * token to {@link TokenService} will always return a <code>Token</code> that is equal
 	 * to the original <code>Token</code> issued for that key.
-	 *
 	 * @return a key with appropriate randomness and security.
 	 */
 	String getKey();
@@ -45,7 +45,6 @@ public interface Token {
 	 * The time the token key was initially created is available from this method. Note
 	 * that a given token must never have this creation time changed. If necessary, a new
 	 * token can be requested from the {@link TokenService} to replace the original token.
-	 *
 	 * @return the time this token key was created, in the same format as specified by
 	 * {@link java.util.Date#getTime()}.
 	 */
@@ -54,8 +53,8 @@ public interface Token {
 	/**
 	 * Obtains the extended information associated within the token, which was presented
 	 * when the token was first created.
-	 *
 	 * @return the user-specified extended information, if any
 	 */
 	String getExtendedInformation();
+
 }

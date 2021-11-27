@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client.endpoint;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
@@ -22,15 +28,11 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 
-import java.util.Collections;
-
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 /**
- * Utility methods used by the {@link Converter}'s that convert
- * from an implementation of an {@link AbstractOAuth2AuthorizationGrantRequest}
- * to a {@link RequestEntity} representation of an OAuth 2.0 Access Token Request
- * for the specific Authorization Grant.
+ * Utility methods used by the {@link Converter}'s that convert from an implementation of
+ * an {@link AbstractOAuth2AuthorizationGrantRequest} to a {@link RequestEntity}
+ * representation of an OAuth 2.0 Access Token Request for the specific Authorization
+ * Grant.
  *
  * @author Joe Grandja
  * @since 5.1
@@ -38,22 +40,40 @@ import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VAL
  * @see OAuth2ClientCredentialsGrantRequestEntityConverter
  */
 final class OAuth2AuthorizationGrantRequestEntityUtils {
+
 	private static HttpHeaders DEFAULT_TOKEN_REQUEST_HEADERS = getDefaultTokenRequestHeaders();
+
+	private OAuth2AuthorizationGrantRequestEntityUtils() {
+	}
 
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.addAll(DEFAULT_TOKEN_REQUEST_HEADERS);
-		if (ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
-			headers.setBasicAuth(clientRegistration.getClientId(), clientRegistration.getClientSecret());
+		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())
+				|| ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
+			String clientId = encodeClientCredential(clientRegistration.getClientId());
+			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
+			headers.setBasicAuth(clientId, clientSecret);
 		}
 		return headers;
+	}
+
+	private static String encodeClientCredential(String clientCredential) {
+		try {
+			return URLEncoder.encode(clientCredential, StandardCharsets.UTF_8.toString());
+		}
+		catch (UnsupportedEncodingException ex) {
+			// Will not happen since UTF-8 is a standard charset
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	private static HttpHeaders getDefaultTokenRequestHeaders() {
 		HttpHeaders headers = new HttpHeaders();
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON_UTF8));
-		final MediaType contentType = MediaType.valueOf(APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		final MediaType contentType = MediaType.valueOf(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
 		headers.setContentType(contentType);
 		return headers;
 	}
+
 }

@@ -13,19 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.util.Assert;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
- * An {@link OAuth2AuthorizedClientService} that stores
- * {@link OAuth2AuthorizedClient Authorized Client(s)} in-memory.
+ * An {@link OAuth2AuthorizedClientService} that stores {@link OAuth2AuthorizedClient
+ * Authorized Client(s)} in-memory.
  *
  * @author Joe Grandja
  * @author Vedran Pavic
@@ -37,12 +38,14 @@ import java.util.concurrent.ConcurrentHashMap;
  * @see Authentication
  */
 public final class InMemoryOAuth2AuthorizedClientService implements OAuth2AuthorizedClientService {
+
 	private final Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients;
+
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
 	/**
-	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
-	 *
+	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
 	 */
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository) {
@@ -52,14 +55,15 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 	}
 
 	/**
-	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided parameters.
-	 *
-	 * @since 5.2
+	 * Constructs an {@code InMemoryOAuth2AuthorizedClientService} using the provided
+	 * parameters.
 	 * @param clientRegistrationRepository the repository of client registrations
-	 * @param authorizedClients the initial {@code Map} of authorized client(s) keyed by {@link OAuth2AuthorizedClientId}
+	 * @param authorizedClients the initial {@code Map} of authorized client(s) keyed by
+	 * {@link OAuth2AuthorizedClientId}
+	 * @since 5.2
 	 */
 	public InMemoryOAuth2AuthorizedClientService(ClientRegistrationRepository clientRegistrationRepository,
-													Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients) {
+			Map<OAuth2AuthorizedClientId, OAuth2AuthorizedClient> authorizedClients) {
 		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
 		Assert.notEmpty(authorizedClients, "authorizedClients cannot be empty");
 		this.clientRegistrationRepository = clientRegistrationRepository;
@@ -68,7 +72,8 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId, String principalName) {
+	public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+			String principalName) {
 		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);
@@ -82,8 +87,8 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 	public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		Assert.notNull(authorizedClient, "authorizedClient cannot be null");
 		Assert.notNull(principal, "principal cannot be null");
-		this.authorizedClients.put(new OAuth2AuthorizedClientId(authorizedClient.getClientRegistration().getRegistrationId(),
-				principal.getName()), authorizedClient);
+		this.authorizedClients.put(new OAuth2AuthorizedClientId(
+				authorizedClient.getClientRegistration().getRegistrationId(), principal.getName()), authorizedClient);
 	}
 
 	@Override
@@ -95,4 +100,5 @@ public final class InMemoryOAuth2AuthorizedClientService implements OAuth2Author
 			this.authorizedClients.remove(new OAuth2AuthorizedClientId(clientRegistrationId, principalName));
 		}
 	}
+
 }

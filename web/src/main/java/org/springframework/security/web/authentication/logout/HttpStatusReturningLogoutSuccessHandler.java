@@ -18,8 +18,8 @@ package org.springframework.security.web.authentication.logout;
 
 import java.io.IOException;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -40,7 +40,6 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 	/**
 	 * Initialize the {@code HttpStatusLogoutSuccessHandler} with a user-defined
 	 * {@link HttpStatus}.
-	 *
 	 * @param httpStatusToReturn Must not be {@code null}.
 	 */
 	public HttpStatusReturningLogoutSuccessHandler(HttpStatus httpStatusToReturn) {
@@ -61,8 +60,9 @@ public class HttpStatusReturningLogoutSuccessHandler implements LogoutSuccessHan
 	 * {@link LogoutSuccessHandler#onLogoutSuccess(HttpServletRequest, HttpServletResponse, Authentication)}
 	 * . Sets the status on the {@link HttpServletResponse}.
 	 */
-	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response,
-			Authentication authentication) throws IOException {
+	@Override
+	public void onLogoutSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
+			throws IOException {
 		response.setStatus(this.httpStatusToReturn.value());
 		response.getWriter().flush();
 	}

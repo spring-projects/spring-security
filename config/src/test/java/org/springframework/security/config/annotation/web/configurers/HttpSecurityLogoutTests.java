@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.configurers;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
@@ -36,31 +36,36 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 /**
  * @author Rob Winch
  *
  */
 public class HttpSecurityLogoutTests {
+
 	AnnotationConfigWebApplicationContext context;
 
 	MockHttpServletRequest request;
+
 	MockHttpServletResponse response;
+
 	MockFilterChain chain;
 
 	@Autowired
 	FilterChainProxy springSecurityFilterChain;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		request = new MockHttpServletRequest("GET", "");
-		response = new MockHttpServletResponse();
-		chain = new MockFilterChain();
+		this.request = new MockHttpServletRequest("GET", "");
+		this.response = new MockHttpServletResponse();
+		this.chain = new MockFilterChain();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
-		if (context != null) {
-			context.close();
+		if (this.context != null) {
+			this.context.close();
 		}
 	}
 
@@ -68,43 +73,45 @@ public class HttpSecurityLogoutTests {
 	@Test
 	public void clearAuthenticationFalse() throws Exception {
 		loadConfig(ClearAuthenticationFalseConfig.class);
-
 		SecurityContext currentContext = SecurityContextHolder.createEmptyContext();
 		currentContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-
-		request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, currentContext);
-		request.setMethod("POST");
-		request.setServletPath("/logout");
-
-		springSecurityFilterChain.doFilter(request, response, chain);
-
+		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
+				currentContext);
+		this.request.setMethod("POST");
+		this.request.setServletPath("/logout");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(currentContext.getAuthentication()).isNotNull();
+	}
+
+	public void loadConfig(Class<?>... configs) {
+		this.context = new AnnotationConfigWebApplicationContext();
+		this.context.register(configs);
+		this.context.refresh();
+		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
 	@EnableWebSecurity
 	@Configuration
 	static class ClearAuthenticationFalseConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
 			http
 				.csrf().disable()
 				.logout()
 					.clearAuthentication(false);
+			// @formatter:on
 		}
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
 			auth
 				.inMemoryAuthentication();
+			// @formatter:on
 		}
+
 	}
-
-	public void loadConfig(Class<?>... configs) {
-		context = new AnnotationConfigWebApplicationContext();
-		context.register(configs);
-		context.refresh();
-
-		context.getAutowireCapableBeanFactory().autowireBean(this);
-	}
-
 
 }

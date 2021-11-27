@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.domain;
 
 import org.springframework.security.acls.model.Sid;
 import org.springframework.security.core.Authentication;
-
 import org.springframework.util.Assert;
 
 /**
@@ -31,13 +31,8 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class PrincipalSid implements Sid {
-	// ~ Instance fields
-	// ================================================================================================
 
 	private final String principal;
-
-	// ~ Constructors
-	// ===================================================================================================
 
 	public PrincipalSid(String principal) {
 		Assert.hasText(principal, "Principal required");
@@ -47,19 +42,14 @@ public class PrincipalSid implements Sid {
 	public PrincipalSid(Authentication authentication) {
 		Assert.notNull(authentication, "Authentication required");
 		Assert.notNull(authentication.getPrincipal(), "Principal required");
-
 		this.principal = authentication.getName();
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	@Override
 	public boolean equals(Object object) {
 		if ((object == null) || !(object instanceof PrincipalSid)) {
 			return false;
 		}
-
 		// Delegate to getPrincipal() to perform actual comparison (both should be
 		// identical)
 		return ((PrincipalSid) object).getPrincipal().equals(this.getPrincipal());
@@ -71,11 +61,12 @@ public class PrincipalSid implements Sid {
 	}
 
 	public String getPrincipal() {
-		return principal;
+		return this.principal;
 	}
 
 	@Override
 	public String toString() {
 		return "PrincipalSid[" + this.principal + "]";
 	}
+
 }

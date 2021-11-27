@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.afterinvocation;
 
 import java.util.Collection;
@@ -20,6 +21,7 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceAware;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -58,50 +60,34 @@ import org.springframework.security.core.SpringSecurityMessageSource;
  * <p>
  * All comparisons and prefixes are case sensitive.
  */
-public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements
-		MessageSourceAware {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class AclEntryAfterInvocationProvider extends AbstractAclProvider implements MessageSourceAware {
 
-	protected static final Log logger = LogFactory
-			.getLog(AclEntryAfterInvocationProvider.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	protected static final Log logger = LogFactory.getLog(AclEntryAfterInvocationProvider.class);
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
-	// ~ Constructors
-	// ===================================================================================================
-
-	public AclEntryAfterInvocationProvider(AclService aclService,
-			List<Permission> requirePermission) {
+	public AclEntryAfterInvocationProvider(AclService aclService, List<Permission> requirePermission) {
 		this(aclService, "AFTER_ACL_READ", requirePermission);
 	}
 
-	public AclEntryAfterInvocationProvider(AclService aclService,
-			String processConfigAttribute, List<Permission> requirePermission) {
+	public AclEntryAfterInvocationProvider(AclService aclService, String processConfigAttribute,
+			List<Permission> requirePermission) {
 		super(aclService, processConfigAttribute, requirePermission);
 	}
 
-	// ~ Methods
-	// ========================================================================================================
-
-	public Object decide(Authentication authentication, Object object,
-			Collection<ConfigAttribute> config, Object returnedObject)
-			throws AccessDeniedException {
+	@Override
+	public Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> config,
+			Object returnedObject) throws AccessDeniedException {
 
 		if (returnedObject == null) {
 			// AclManager interface contract prohibits nulls
 			// As they have permission to null/nothing, grant access
 			logger.debug("Return object is null, skipping");
-
 			return null;
 		}
 
 		if (!getProcessDomainObjectClass().isAssignableFrom(returnedObject.getClass())) {
 			logger.debug("Return object is not applicable for this provider, skipping");
-
 			return returnedObject;
 		}
 
@@ -109,24 +95,24 @@ public class AclEntryAfterInvocationProvider extends AbstractAclProvider impleme
 			if (!this.supports(attr)) {
 				continue;
 			}
-			// Need to make an access decision on this invocation
 
+			// Need to make an access decision on this invocation
 			if (hasPermission(authentication, returnedObject)) {
 				return returnedObject;
 			}
 
 			logger.debug("Denying access");
-
-			throw new AccessDeniedException(messages.getMessage(
-					"AclEntryAfterInvocationProvider.noPermission", new Object[] {
-							authentication.getName(), returnedObject },
+			throw new AccessDeniedException(this.messages.getMessage("AclEntryAfterInvocationProvider.noPermission",
+					new Object[] { authentication.getName(), returnedObject },
 					"Authentication {0} has NO permissions to the domain object {1}"));
 		}
 
 		return returnedObject;
 	}
 
+	@Override
 	public void setMessageSource(MessageSource messageSource) {
 		this.messages = new MessageSourceAccessor(messageSource);
 	}
+
 }

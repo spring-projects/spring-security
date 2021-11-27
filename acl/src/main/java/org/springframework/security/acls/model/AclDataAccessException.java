@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls.model;
 
 /**
@@ -26,7 +27,6 @@ public abstract class AclDataAccessException extends RuntimeException {
 	/**
 	 * Constructs an <code>AclDataAccessException</code> with the specified message and
 	 * root cause.
-	 *
 	 * @param msg the detail message
 	 * @param cause the root cause
 	 */
@@ -37,10 +37,10 @@ public abstract class AclDataAccessException extends RuntimeException {
 	/**
 	 * Constructs an <code>AclDataAccessException</code> with the specified message and no
 	 * root cause.
-	 *
 	 * @param msg the detail message
 	 */
 	public AclDataAccessException(String msg) {
 		super(msg);
 	}
+
 }

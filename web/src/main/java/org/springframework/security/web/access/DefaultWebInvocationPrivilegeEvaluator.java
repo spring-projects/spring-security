@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,19 @@ package org.springframework.security.web.access;
 
 import java.util.Collection;
 
+import jakarta.servlet.ServletContext;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.intercept.AbstractSecurityInterceptor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ServletContextAware;
 
 /**
  * Allows users to determine whether they have privileges for a given web URI.
@@ -34,44 +39,30 @@ import org.springframework.util.Assert;
  * @author Luke Taylor
  * @since 3.0
  */
-public class DefaultWebInvocationPrivilegeEvaluator implements
-		WebInvocationPrivilegeEvaluator {
-	// ~ Static fields/initializers
-	// =====================================================================================
+public class DefaultWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator, ServletContextAware {
 
-	protected static final Log logger = LogFactory
-			.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
-
-	// ~ Instance fields
-	// ================================================================================================
+	protected static final Log logger = LogFactory.getLog(DefaultWebInvocationPrivilegeEvaluator.class);
 
 	private final AbstractSecurityInterceptor securityInterceptor;
 
-	// ~ Constructors
-	// ===================================================================================================
+	private ServletContext servletContext;
 
-	public DefaultWebInvocationPrivilegeEvaluator(
-			AbstractSecurityInterceptor securityInterceptor) {
+	public DefaultWebInvocationPrivilegeEvaluator(AbstractSecurityInterceptor securityInterceptor) {
 		Assert.notNull(securityInterceptor, "SecurityInterceptor cannot be null");
-		Assert.isTrue(
-				FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
+		Assert.isTrue(FilterInvocation.class.equals(securityInterceptor.getSecureObjectClass()),
 				"AbstractSecurityInterceptor does not support FilterInvocations");
 		Assert.notNull(securityInterceptor.getAccessDecisionManager(),
 				"AbstractSecurityInterceptor must provide a non-null AccessDecisionManager");
-
 		this.securityInterceptor = securityInterceptor;
 	}
-
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Determines whether the user represented by the supplied <tt>Authentication</tt>
 	 * object is allowed to invoke the supplied URI.
-	 *
 	 * @param uri the URI excluding the context path (a default context path setting will
 	 * be used)
 	 */
+	@Override
 	public boolean isAllowed(String uri, Authentication authentication) {
 		return isAllowed(null, uri, null, authentication);
 	}
@@ -85,7 +76,6 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	 * metadata applies to a given request URI, so generally the <code>contextPath</code>
 	 * is unimportant unless you are using a custom
 	 * <code>FilterInvocationSecurityMetadataSource</code>.
-	 *
 	 * @param uri the URI excluding the context path
 	 * @param contextPath the context path (may be null, in which case a default value
 	 * will be used).
@@ -94,39 +84,31 @@ public class DefaultWebInvocationPrivilegeEvaluator implements
 	 * be used in evaluation whether access should be granted.
 	 * @return true if access is allowed, false if denied
 	 */
-	public boolean isAllowed(String contextPath, String uri, String method,
-			Authentication authentication) {
+	@Override
+	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
 		Assert.notNull(uri, "uri parameter is required");
-
-		FilterInvocation fi = new FilterInvocation(contextPath, uri, method);
-		Collection<ConfigAttribute> attrs = securityInterceptor
-				.obtainSecurityMetadataSource().getAttributes(fi);
-
-		if (attrs == null) {
-			if (securityInterceptor.isRejectPublicInvocations()) {
-				return false;
-			}
-
-			return true;
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
+		Collection<ConfigAttribute> attributes = this.securityInterceptor.obtainSecurityMetadataSource()
+				.getAttributes(filterInvocation);
+		if (attributes == null) {
+			return (!this.securityInterceptor.isRejectPublicInvocations());
 		}
-
 		if (authentication == null) {
 			return false;
 		}
-
 		try {
-			securityInterceptor.getAccessDecisionManager().decide(authentication, fi,
-					attrs);
+			this.securityInterceptor.getAccessDecisionManager().decide(authentication, filterInvocation, attributes);
+			return true;
 		}
-		catch (AccessDeniedException unauthorized) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(fi.toString() + " denied for " + authentication.toString(),
-						unauthorized);
-			}
-
+		catch (AccessDeniedException ex) {
+			logger.debug(LogMessage.format("%s denied for %s", filterInvocation, authentication), ex);
 			return false;
 		}
-
-		return true;
 	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
+	}
+
 }

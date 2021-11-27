@@ -17,6 +17,12 @@
 package org.springframework.security.test.context.support;
 
 import org.reactivestreams.Subscription;
+import reactor.core.CoreSubscriber;
+import reactor.core.publisher.Hooks;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Operators;
+import reactor.util.context.Context;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
@@ -25,11 +31,6 @@ import org.springframework.test.context.TestContext;
 import org.springframework.test.context.TestExecutionListener;
 import org.springframework.test.context.support.AbstractTestExecutionListener;
 import org.springframework.util.ClassUtils;
-import reactor.core.CoreSubscriber;
-import reactor.core.publisher.Hooks;
-import reactor.core.publisher.Mono;
-import reactor.core.publisher.Operators;
-import reactor.util.context.Context;
 
 /**
  * Sets up the Reactor Context with the Authentication from the TestSecurityContextHolder
@@ -40,10 +41,10 @@ import reactor.util.context.Context;
  * @see WithSecurityContextTestExecutionListener
  * @see org.springframework.security.test.context.annotation.SecurityTestExecutionListeners
  */
-public class ReactorContextTestExecutionListener
-	extends DelegatingTestExecutionListener {
+public class ReactorContextTestExecutionListener extends DelegatingTestExecutionListener {
 
 	private static final String HOOKS_CLASS_NAME = "reactor.core.publisher.Hooks";
+
 	private static final String CONTEXT_OPERATOR_KEY = SecurityContext.class.getName();
 
 	public ReactorContextTestExecutionListener() {
@@ -51,70 +52,11 @@ public class ReactorContextTestExecutionListener
 	}
 
 	private static TestExecutionListener createDelegate() {
-		return ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader()) ?
-			new DelegateTestExecutionListener() :
-			new AbstractTestExecutionListener() {};
-	}
-
-	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
-		@Override
-		public void beforeTestMethod(TestContext testContext) {
-			SecurityContext securityContext = TestSecurityContextHolder.getContext();
-			Hooks.onLastOperator(CONTEXT_OPERATOR_KEY, Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
+		if (!ClassUtils.isPresent(HOOKS_CLASS_NAME, ReactorContextTestExecutionListener.class.getClassLoader())) {
+			return new AbstractTestExecutionListener() {
+			};
 		}
-
-		@Override
-		public void afterTestMethod(TestContext testContext) {
-			Hooks.resetOnLastOperator(CONTEXT_OPERATOR_KEY);
-		}
-
-		private static class SecuritySubContext<T> implements CoreSubscriber<T> {
-			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName().concat(".CONTEXT_DEFAULTED_ATTR_NAME");
-
-			private final CoreSubscriber<T> delegate;
-			private final SecurityContext securityContext;
-
-			SecuritySubContext(CoreSubscriber<T> delegate, SecurityContext securityContext) {
-				this.delegate = delegate;
-				this.securityContext = securityContext;
-			}
-
-			@Override
-			public Context currentContext() {
-				Context context = delegate.currentContext();
-				if (context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
-					return context;
-				}
-				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);
-				Authentication authentication = securityContext.getAuthentication();
-				if (authentication == null) {
-					return context;
-				}
-				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(
-						Mono.just(this.securityContext));
-				return toMerge.putAll(context);
-			}
-
-			@Override
-			public void onSubscribe(Subscription s) {
-				delegate.onSubscribe(s);
-			}
-
-			@Override
-			public void onNext(T t) {
-				delegate.onNext(t);
-			}
-
-			@Override
-			public void onError(Throwable t) {
-				delegate.onError(t);
-			}
-
-			@Override
-			public void onComplete() {
-				delegate.onComplete();
-			}
-		}
+		return new DelegateTestExecutionListener();
 	}
 
 	/**
@@ -124,4 +66,72 @@ public class ReactorContextTestExecutionListener
 	public int getOrder() {
 		return 11000;
 	}
+
+	private static class DelegateTestExecutionListener extends AbstractTestExecutionListener {
+
+		@Override
+		public void beforeTestMethod(TestContext testContext) {
+			SecurityContext securityContext = TestSecurityContextHolder.getContext();
+			Hooks.onLastOperator(CONTEXT_OPERATOR_KEY,
+					Operators.lift((s, sub) -> new SecuritySubContext<>(sub, securityContext)));
+		}
+
+		@Override
+		public void afterTestMethod(TestContext testContext) {
+			Hooks.resetOnLastOperator(CONTEXT_OPERATOR_KEY);
+		}
+
+		private static class SecuritySubContext<T> implements CoreSubscriber<T> {
+
+			private static String CONTEXT_DEFAULTED_ATTR_NAME = SecuritySubContext.class.getName()
+					.concat(".CONTEXT_DEFAULTED_ATTR_NAME");
+
+			private final CoreSubscriber<T> delegate;
+
+			private final SecurityContext securityContext;
+
+			SecuritySubContext(CoreSubscriber<T> delegate, SecurityContext securityContext) {
+				this.delegate = delegate;
+				this.securityContext = securityContext;
+			}
+
+			@Override
+			public Context currentContext() {
+				Context context = this.delegate.currentContext();
+				if (context.hasKey(CONTEXT_DEFAULTED_ATTR_NAME)) {
+					return context;
+				}
+				context = context.put(CONTEXT_DEFAULTED_ATTR_NAME, Boolean.TRUE);
+				Authentication authentication = this.securityContext.getAuthentication();
+				if (authentication == null) {
+					return context;
+				}
+				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(this.securityContext));
+				return toMerge.putAll(context);
+			}
+
+			@Override
+			public void onSubscribe(Subscription s) {
+				this.delegate.onSubscribe(s);
+			}
+
+			@Override
+			public void onNext(T t) {
+				this.delegate.onNext(t);
+			}
+
+			@Override
+			public void onError(Throwable ex) {
+				this.delegate.onError(ex);
+			}
+
+			@Override
+			public void onComplete() {
+				this.delegate.onComplete();
+			}
+
+		}
+
+	}
+
 }

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.core.userdetails;
 
 import java.util.HashMap;
@@ -30,24 +31,25 @@ import org.springframework.security.core.authority.AuthorityUtils;
  * @author Luke Taylor
  */
 public class MockUserDetailsService implements UserDetailsService {
+
 	private Map<String, User> users = new HashMap<>();
-	private List<GrantedAuthority> auths = AuthorityUtils
-			.createAuthorityList("ROLE_USER");
+
+	private List<GrantedAuthority> auths = AuthorityUtils.createAuthorityList("ROLE_USER");
 
 	public MockUserDetailsService() {
-		users.put("valid", new User("valid", "", true, true, true, true, auths));
-		users.put("locked", new User("locked", "", true, true, true, false, auths));
-		users.put("disabled", new User("disabled", "", false, true, true, true, auths));
-		users.put("credentialsExpired", new User("credentialsExpired", "", true, true,
-				false, true, auths));
-		users.put("expired", new User("expired", "", true, false, true, true, auths));
+		this.users.put("valid", new User("valid", "", true, true, true, true, this.auths));
+		this.users.put("locked", new User("locked", "", true, true, true, false, this.auths));
+		this.users.put("disabled", new User("disabled", "", false, true, true, true, this.auths));
+		this.users.put("credentialsExpired", new User("credentialsExpired", "", true, true, false, true, this.auths));
+		this.users.put("expired", new User("expired", "", true, false, true, true, this.auths));
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
-		if (users.get(username) == null) {
+		if (this.users.get(username) == null) {
 			throw new UsernameNotFoundException("User not found: " + username);
 		}
-
-		return users.get(username);
+		return this.users.get(username);
 	}
+
 }

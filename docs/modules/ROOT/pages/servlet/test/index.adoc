@@ -1,0 +1,10 @@
+[[test]]
+= Testing
+:page-section-summary-toc: 1
+
+This section describes the testing support provided by Spring Security.
+
+To use the Spring Security test support, you must include `spring-security-test-{spring-security-version}.jar` as a dependency of your project.
+
+At a high level Spring Security's test support provides integration for:
+

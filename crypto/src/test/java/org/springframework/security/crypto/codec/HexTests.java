@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.crypto.codec;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * Test cases for {@link Hex}.
@@ -28,13 +28,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class HexTests {
 
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void encode() {
-		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-				(byte) 'D' })).isEqualTo(new char[] {'4', '1', '4', '2', '4', '3', '4', '4'});
+		assertThat(Hex.encode(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' }))
+				.isEqualTo(new char[] { '4', '1', '4', '2', '4', '3', '4', '4' });
 	}
 
 	@Test
@@ -44,8 +41,7 @@ public class HexTests {
 
 	@Test
 	public void decode() {
-		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C',
-			(byte) 'D' });
+		assertThat(Hex.decode("41424344")).isEqualTo(new byte[] { (byte) 'A', (byte) 'B', (byte) 'C', (byte) 'D' });
 	}
 
 	@Test
@@ -55,30 +51,26 @@ public class HexTests {
 
 	@Test
 	public void decodeNotEven() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Hex-encoded string must have an even number of characters");
-		Hex.decode("414243444");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("414243444"))
+				.withMessage("Hex-encoded string must have an even number of characters");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtFirst() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 1 or 2 position");
-		Hex.decode("G0");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("G0"))
+				.withMessage("Detected a Non-hex character at 1 or 2 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtSecond() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 3 or 4 position");
-		Hex.decode("410G");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("410G"))
+				.withMessage("Detected a Non-hex character at 3 or 4 position");
 	}
 
 	@Test
 	public void decodeExistNonHexCharAtBoth() {
-		expectedException.expect(IllegalArgumentException.class);
-		expectedException.expectMessage("Detected a Non-hex character at 5 or 6 position");
-		Hex.decode("4142GG");
+		assertThatIllegalArgumentException().isThrownBy(() -> Hex.decode("4142GG"))
+				.withMessage("Detected a Non-hex character at 5 or 6 position");
 	}
 
 }

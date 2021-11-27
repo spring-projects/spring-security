@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.configuration;
 
 import java.util.ArrayList;
@@ -39,24 +40,21 @@ import org.springframework.util.Assert;
  */
 final class AutowireBeanFactoryObjectPostProcessor
 		implements ObjectPostProcessor<Object>, DisposableBean, SmartInitializingSingleton {
+
 	private final Log logger = LogFactory.getLog(getClass());
+
 	private final AutowireCapableBeanFactory autowireBeanFactory;
+
 	private final List<DisposableBean> disposableBeans = new ArrayList<>();
+
 	private final List<SmartInitializingSingleton> smartSingletons = new ArrayList<>();
 
-	AutowireBeanFactoryObjectPostProcessor(
-			AutowireCapableBeanFactory autowireBeanFactory) {
+	AutowireBeanFactoryObjectPostProcessor(AutowireCapableBeanFactory autowireBeanFactory) {
 		Assert.notNull(autowireBeanFactory, "autowireBeanFactory cannot be null");
 		this.autowireBeanFactory = autowireBeanFactory;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.Initializer#initialize(java.
-	 * lang.Object)
-	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T postProcess(T object) {
 		if (object == null) {
@@ -64,13 +62,11 @@ final class AutowireBeanFactoryObjectPostProcessor
 		}
 		T result = null;
 		try {
-			result = (T) this.autowireBeanFactory.initializeBean(object,
-					object.toString());
+			result = (T) this.autowireBeanFactory.initializeBean(object, object.toString());
 		}
-		catch (RuntimeException e) {
+		catch (RuntimeException ex) {
 			Class<?> type = object.getClass();
-			throw new RuntimeException(
-					"Could not postProcess " + object + " of type " + type, e);
+			throw new RuntimeException("Could not postProcess " + object + " of type " + type, ex);
 		}
 		this.autowireBeanFactory.autowireBean(object);
 		if (result instanceof DisposableBean) {
@@ -82,28 +78,21 @@ final class AutowireBeanFactoryObjectPostProcessor
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.springframework.beans.factory.SmartInitializingSingleton#afterSingletonsInstantiated()
-	 */
 	@Override
 	public void afterSingletonsInstantiated() {
-		for (SmartInitializingSingleton singleton : smartSingletons) {
+		for (SmartInitializingSingleton singleton : this.smartSingletons) {
 			singleton.afterSingletonsInstantiated();
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.springframework.beans.factory.DisposableBean#destroy()
-	 */
+	@Override
 	public void destroy() {
 		for (DisposableBean disposable : this.disposableBeans) {
 			try {
 				disposable.destroy();
 			}
-			catch (Exception error) {
-				this.logger.error(error);
+			catch (Exception ex) {
+				this.logger.error(ex);
 			}
 		}
 	}

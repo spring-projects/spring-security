@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -27,77 +29,82 @@ import org.springframework.security.integration.multiannotation.MultiAnnotationS
 import org.springframework.security.integration.multiannotation.PreAuthorizeService;
 import org.springframework.security.integration.multiannotation.SecuredService;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * @author Luke Taylor
  */
 @ContextConfiguration(locations = { "/multi-sec-annotation-app-context.xml" })
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 public class MultiAnnotationTests {
-	private final TestingAuthenticationToken joe_a = new TestingAuthenticationToken(
-			"joe", "pass", "ROLE_A");
-	private final TestingAuthenticationToken joe_b = new TestingAuthenticationToken(
-			"joe", "pass", "ROLE_B");
+
+	private final TestingAuthenticationToken joe_a = new TestingAuthenticationToken("joe", "pass", "ROLE_A");
+
+	private final TestingAuthenticationToken joe_b = new TestingAuthenticationToken("joe", "pass", "ROLE_B");
 
 	@Autowired
 	MultiAnnotationService service;
+
 	@Autowired
 	PreAuthorizeService preService;
+
 	@Autowired
 	SecuredService secService;
 
-	@After
-	@Before
+	@AfterEach
+	@BeforeEach
 	public void clearContext() {
 		SecurityContextHolder.clearContext();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeDeniedIsDenied() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.preAuthorizeDenyAllMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeDenyAllMethod);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizeRoleAIsDeniedIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		service.preAuthorizeHasRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::preAuthorizeHasRoleAMethod);
 	}
 
 	@Test
 	public void preAuthorizeRoleAIsAllowedIfRolePresent() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.preAuthorizeHasRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.preAuthorizeHasRoleAMethod();
 	}
 
 	@Test
 	public void securedAnonymousIsAllowed() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.securedAnonymousMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.securedAnonymousMethod();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securedRoleAIsDeniedIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		service.securedRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.service::securedRoleAMethod);
 	}
 
 	@Test
 	public void securedRoleAIsAllowedIfRolePresent() {
-		SecurityContextHolder.getContext().setAuthentication(joe_a);
-		service.securedRoleAMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_a);
+		this.service.securedRoleAMethod();
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void preAuthorizedOnlyServiceDeniesIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		preService.preAuthorizedMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.preService::preAuthorizedMethod);
 	}
 
-	@Test(expected = AccessDeniedException.class)
+	@Test
 	public void securedOnlyRoleAServiceDeniesIfRoleMissing() {
-		SecurityContextHolder.getContext().setAuthentication(joe_b);
-		secService.securedMethod();
+		SecurityContextHolder.getContext().setAuthentication(this.joe_b);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.secService::securedMethod);
 	}
+
 }

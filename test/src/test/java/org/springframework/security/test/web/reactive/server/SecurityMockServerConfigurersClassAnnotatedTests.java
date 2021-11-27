@@ -16,8 +16,11 @@
 
 package org.springframework.security.test.web.reactive.server;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.security.Principal;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -25,66 +28,50 @@ import org.springframework.security.test.context.TestSecurityContextHolder;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-import java.security.Principal;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
-import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
 @WithMockUser
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SecurityTestExecutionListeners
 public class SecurityMockServerConfigurersClassAnnotatedTests extends AbstractMockServerConfigurersTests {
-	WebTestClient client = WebTestClient
-		.bindToController(controller)
-		.webFilter(new SecurityContextServerWebExchangeWebFilter())
-		.apply(springSecurity())
-		.configureClient()
-		.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-		.build();
+
+	WebTestClient client = WebTestClient.bindToController(this.controller)
+			.webFilter(new SecurityContextServerWebExchangeWebFilter())
+			.apply(SecurityMockServerConfigurers.springSecurity()).configureClient()
+			.defaultHeader(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE).build();
 
 	@Test
 	public void wheMockUserWhenClassAnnotatedThenSuccess() {
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
-
+		this.client.get().exchange().expectStatus().isOk().expectBody(String.class)
+				.consumeWith((response) -> assertThat(response.getResponseBody()).contains("\"username\":\"user\""));
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
-		controller.assertPrincipalIsEqualTo(authentication);
+		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	@WithMockUser("method-user")
 	public void withMockUserWhenClassAndMethodAnnotationThenMethodOverrides() {
-		client
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
-
+		this.client.get().exchange().expectStatus().isOk().expectBody(String.class).consumeWith(
+				(response) -> assertThat(response.getResponseBody()).contains("\"username\":\"method-user\""));
 		Authentication authentication = TestSecurityContextHolder.getContext().getAuthentication();
-		controller.assertPrincipalIsEqualTo(authentication);
+		this.controller.assertPrincipalIsEqualTo(authentication);
 	}
 
 	@Test
 	public void withMockUserWhenMutateWithThenMustateWithOverrides() {
-		client
-			.mutateWith(mockUser("mutateWith-mockUser"))
-			.get()
-			.exchange()
-			.expectStatus().isOk()
-			.expectBody(String.class).consumeWith( response -> assertThat(response.getResponseBody()).contains("\"username\":\"mutateWith-mockUser\""));
-
-		Principal principal = controller.removePrincipal();
-		assertPrincipalCreatedFromUserDetails(principal, userBuilder.username("mutateWith-mockUser").build());
+		this.client.mutateWith(SecurityMockServerConfigurers.mockUser("mutateWith-mockUser")).get().exchange()
+				.expectStatus().isOk().expectBody(String.class)
+				.consumeWith((response) -> assertThat(response.getResponseBody())
+						.contains("\"username\":\"mutateWith-mockUser\""));
+		Principal principal = this.controller.removePrincipal();
+		assertPrincipalCreatedFromUserDetails(principal, this.userBuilder.username("mutateWith-mockUser").build());
 	}
+
 }

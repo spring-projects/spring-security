@@ -1,0 +1,37 @@
+[[servlet-authentication-userdetailsservice]]
+= UserDetailsService
+
+{security-api-url}org/springframework/security/core/userdetails/UserDetailsService.html[`UserDetailsService`] is used by xref:servlet/authentication/passwords/dao-authentication-provider.adoc#servlet-authentication-daoauthenticationprovider[`DaoAuthenticationProvider`] for retrieving a username, password, and other attributes for authenticating with a username and password.
+Spring Security provides xref:servlet/authentication/passwords/in-memory.adoc#servlet-authentication-inmemory[in-memory] and xref:servlet/authentication/passwords/jdbc.adoc#servlet-authentication-jdbc[JDBC] implementations of `UserDetailsService`.
+
+You can define custom authentication by exposing a custom `UserDetailsService` as a bean.
+For example, the following will customize authentication assuming that `CustomUserDetailsService` implements `UserDetailsService`:
+
+NOTE: This is only used if the `AuthenticationManagerBuilder` has not been populated and no `AuthenticationProviderBean` is defined.
+
+.Custom UserDetailsService Bean
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+CustomUserDetailsService customUserDetailsService() {
+	return new CustomUserDetailsService();
+}
+----
+
+.XML
+[source,java,role="secondary"]
+----
+<b:bean class="example.CustomUserDetailsService"/>
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun customUserDetailsService() = CustomUserDetailsService()
+----
+====
+
+// FIXME: Add CustomUserDetails example with links to @AuthenticationPrincipal

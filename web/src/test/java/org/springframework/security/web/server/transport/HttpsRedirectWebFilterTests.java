@@ -16,11 +16,11 @@
 
 package org.springframework.security.web.server.transport;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpHeaders;
@@ -32,32 +32,34 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests for {@link HttpsRedirectWebFilter}
  *
  * @author Josh Cummings
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class HttpsRedirectWebFilterTests {
+
 	HttpsRedirectWebFilter filter;
 
 	@Mock
 	WebFilterChain chain;
 
-	@Before
+	@BeforeEach
 	public void configureFilter() {
 		this.filter = new HttpsRedirectWebFilter();
-		when(this.chain.filter(any(ServerWebExchange.class))).thenReturn(Mono.empty());
 	}
 
 	@Test
 	public void filterWhenExchangeIsInsecureThenRedirects() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchange exchange = get("http://localhost");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
@@ -66,6 +68,7 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenExchangeIsSecureThenNoRedirect() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchange exchange = get("https://localhost");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(exchange.getResponse().getStatusCode()).isNull();
@@ -73,11 +76,11 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenExchangeMismatchesThenNoRedirect() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class)))
-				.thenReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
+		given(matcher.matches(any(ServerWebExchange.class)))
+				.willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
-
 		ServerWebExchange exchange = get("http://localhost:8080");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(exchange.getResponse().getStatusCode()).isNull();
@@ -85,42 +88,40 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void filterWhenExchangeMatchesAndRequestIsInsecureThenRedirects() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchangeMatcher matcher = mock(ServerWebExchangeMatcher.class);
-		when(matcher.matches(any(ServerWebExchange.class)))
-				.thenReturn(ServerWebExchangeMatcher.MatchResult.match());
+		given(matcher.matches(any(ServerWebExchange.class))).willReturn(ServerWebExchangeMatcher.MatchResult.match());
 		this.filter.setRequiresHttpsRedirectMatcher(matcher);
-
 		ServerWebExchange exchange = get("http://localhost:8080");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
 		assertThat(redirectedUrl(exchange)).isEqualTo("https://localhost:8443");
-
 		verify(matcher).matches(any(ServerWebExchange.class));
 	}
 
 	@Test
 	public void filterWhenRequestIsInsecureThenPortMapperRemapsPort() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		PortMapper portMapper = mock(PortMapper.class);
-		when(portMapper.lookupHttpsPort(314)).thenReturn(159);
+		given(portMapper.lookupHttpsPort(314)).willReturn(159);
 		this.filter.setPortMapper(portMapper);
-
 		ServerWebExchange exchange = get("http://localhost:314");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
 		assertThat(redirectedUrl(exchange)).isEqualTo("https://localhost:159");
-
 		verify(portMapper).lookupHttpsPort(314);
 	}
 
 	@Test
 	public void filterWhenRequestIsInsecureAndNoPortMappingThenThrowsIllegalState() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchange exchange = get("http://localhost:1234");
-		assertThatCode(() -> this.filter.filter(exchange, this.chain).block())
-				.isInstanceOf(IllegalStateException.class);
+		assertThatIllegalStateException().isThrownBy(() -> this.filter.filter(exchange, this.chain).block());
 	}
 
 	@Test
 	public void filterWhenInsecureRequestHasAPathThenRedirects() {
+		given(this.chain.filter(any(ServerWebExchange.class))).willReturn(Mono.empty());
 		ServerWebExchange exchange = get("http://localhost:8080/path/page.html?query=string");
 		this.filter.filter(exchange, this.chain).block();
 		assertThat(statusCode(exchange)).isEqualTo(302);
@@ -129,19 +130,16 @@ public class HttpsRedirectWebFilterTests {
 
 	@Test
 	public void setRequiresTransportSecurityMatcherWhenSetWithNullValueThenThrowsIllegalArgument() {
-		assertThatCode(() -> this.filter.setRequiresHttpsRedirectMatcher(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequiresHttpsRedirectMatcher(null));
 	}
 
 	@Test
 	public void setPortMapperWhenSetWithNullValueThenThrowsIllegalArgument() {
-		assertThatCode(() -> this.filter.setPortMapper(null))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setPortMapper(null));
 	}
 
 	private String redirectedUrl(ServerWebExchange exchange) {
-		return exchange.getResponse().getHeaders().get(HttpHeaders.LOCATION)
-				.iterator().next();
+		return exchange.getResponse().getHeaders().get(HttpHeaders.LOCATION).iterator().next();
 	}
 
 	private int statusCode(ServerWebExchange exchange) {
@@ -149,7 +147,7 @@ public class HttpsRedirectWebFilterTests {
 	}
 
 	private ServerWebExchange get(String uri) {
-		return MockServerWebExchange.from(
-				MockServerHttpRequest.get(uri).build());
+		return MockServerWebExchange.from(MockServerHttpRequest.get(uri).build());
 	}
+
 }

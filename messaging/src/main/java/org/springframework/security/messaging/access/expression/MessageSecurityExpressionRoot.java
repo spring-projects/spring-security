@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.access.expression;
 
 import org.springframework.messaging.Message;
@@ -22,8 +23,8 @@ import org.springframework.security.core.Authentication;
 /**
  * The {@link SecurityExpressionRoot} used for {@link Message} expressions.
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 
@@ -33,4 +34,5 @@ public class MessageSecurityExpressionRoot extends SecurityExpressionRoot {
 		super(authentication);
 		this.message = message;
 	}
+
 }

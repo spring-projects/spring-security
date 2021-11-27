@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation;
 
 /**
@@ -28,4 +29,5 @@ public class AlreadyBuiltException extends IllegalStateException {
 	}
 
 	private static final long serialVersionUID = -5891004752785553015L;
+
 }

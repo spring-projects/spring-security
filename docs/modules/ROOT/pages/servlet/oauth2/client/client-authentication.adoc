@@ -1,0 +1,165 @@
+[[oauth2Client-client-auth-support]]
+= Client Authentication Support
+
+
+[[oauth2Client-jwt-bearer-auth]]
+== JWT Bearer
+
+[NOTE]
+Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication and Authorization Grants for further details on https://datatracker.ietf.org/doc/html/rfc7523#section-2.2[JWT Bearer] Client Authentication.
+
+The default implementation for JWT Bearer Client Authentication is `NimbusJwtClientAuthenticationParametersConverter`,
+which is a `Converter` that customizes the Token Request parameters by adding
+a signed JSON Web Token (JWS) in the `client_assertion` parameter.
+
+The `java.security.PrivateKey` or `javax.crypto.SecretKey` used for signing the JWS
+is supplied by the `com.nimbusds.jose.jwk.JWK` resolver associated with `NimbusJwtClientAuthenticationParametersConverter`.
+
+
+=== Authenticate using `private_key_jwt`
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-authentication-method: private_key_jwt
+            authorization-grant-type: authorization_code
+            ...
+----
+
+The following example shows how to configure `DefaultAuthorizationCodeTokenResponseClient`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
+	if (clientRegistration.getClientAuthenticationMethod().equals(ClientAuthenticationMethod.PRIVATE_KEY_JWT)) {
+		// Assuming RSA key type
+		RSAPublicKey publicKey = ...
+		RSAPrivateKey privateKey = ...
+		return new RSAKey.Builder(publicKey)
+				.privateKey(privateKey)
+				.keyID(UUID.randomUUID().toString())
+				.build();
+	}
+	return null;
+};
+
+OAuth2AuthorizationCodeGrantRequestEntityConverter requestEntityConverter =
+		new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+requestEntityConverter.addParametersConverter(
+		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
+
+DefaultAuthorizationCodeTokenResponseClient tokenResponseClient =
+		new DefaultAuthorizationCodeTokenResponseClient();
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwkResolver: Function<ClientRegistration, JWK> =
+    Function<ClientRegistration, JWK> { clientRegistration ->
+        if (clientRegistration.clientAuthenticationMethod.equals(ClientAuthenticationMethod.PRIVATE_KEY_JWT)) {
+            // Assuming RSA key type
+            var publicKey: RSAPublicKey
+            var privateKey: RSAPrivateKey
+            RSAKey.Builder(publicKey) = //...
+                .privateKey(privateKey) = //...
+                .keyID(UUID.randomUUID().toString())
+                .build()
+        }
+        null
+    }
+
+val requestEntityConverter = OAuth2AuthorizationCodeGrantRequestEntityConverter()
+requestEntityConverter.addParametersConverter(
+    NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
+)
+
+val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+----
+====
+
+
+=== Authenticate using `client_secret_jwt`
+
+Given the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          okta:
+            client-id: okta-client-id
+            client-secret: okta-client-secret
+            client-authentication-method: client_secret_jwt
+            authorization-grant-type: client_credentials
+            ...
+----
+
+The following example shows how to configure `DefaultClientCredentialsTokenResponseClient`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
+	if (clientRegistration.getClientAuthenticationMethod().equals(ClientAuthenticationMethod.CLIENT_SECRET_JWT)) {
+		SecretKeySpec secretKey = new SecretKeySpec(
+				clientRegistration.getClientSecret().getBytes(StandardCharsets.UTF_8),
+				"HmacSHA256");
+		return new OctetSequenceKey.Builder(secretKey)
+				.keyID(UUID.randomUUID().toString())
+				.build();
+	}
+	return null;
+};
+
+OAuth2ClientCredentialsGrantRequestEntityConverter requestEntityConverter =
+		new OAuth2ClientCredentialsGrantRequestEntityConverter();
+requestEntityConverter.addParametersConverter(
+		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
+
+DefaultClientCredentialsTokenResponseClient tokenResponseClient =
+		new DefaultClientCredentialsTokenResponseClient();
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: ClientRegistration ->
+    if (clientRegistration.clientAuthenticationMethod == ClientAuthenticationMethod.CLIENT_SECRET_JWT) {
+        val secretKey = SecretKeySpec(
+            clientRegistration.clientSecret.toByteArray(StandardCharsets.UTF_8),
+            "HmacSHA256"
+        )
+        OctetSequenceKey.Builder(secretKey)
+            .keyID(UUID.randomUUID().toString())
+            .build()
+    }
+    null
+}
+
+val requestEntityConverter = OAuth2ClientCredentialsGrantRequestEntityConverter()
+requestEntityConverter.addParametersConverter(
+    NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
+)
+
+val tokenResponseClient = DefaultClientCredentialsTokenResponseClient()
+tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
+----
+====

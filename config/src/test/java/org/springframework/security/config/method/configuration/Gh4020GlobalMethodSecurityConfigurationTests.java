@@ -16,8 +16,8 @@
 
 package org.springframework.security.config.method.configuration;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -29,28 +29,31 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
 
 /**
  * @author Rob Winch
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 public class Gh4020GlobalMethodSecurityConfigurationTests {
+
 	@Autowired
 	DenyAllService denyAll;
 
 	// gh-4020
-	@Test(expected = AuthenticationCredentialsNotFoundException.class)
+	@Test
 	public void denyAll() {
-		this.denyAll.denyAll();
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(this.denyAll::denyAll);
 	}
 
 	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class SecurityConfig {
+
 		@Bean
 		PermissionEvaluator permissionEvaluator() {
 			return mock(PermissionEvaluator.class);
@@ -68,19 +71,25 @@ public class Gh4020GlobalMethodSecurityConfigurationTests {
 
 		@Autowired
 		DenyAllService denyAll;
+
 	}
 
 	@Configuration
 	static class ServiceConfig {
+
 		@Bean
 		DenyAllService denyAllService() {
 			return new DenyAllService();
 		}
+
 	}
 
 	@PreAuthorize("denyAll")
 	static class DenyAllService {
+
 		void denyAll() {
 		}
+
 	}
+
 }

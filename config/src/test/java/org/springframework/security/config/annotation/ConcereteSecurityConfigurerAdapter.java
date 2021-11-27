@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation;
 
 import java.util.ArrayList;
@@ -22,17 +23,18 @@ import java.util.List;
  * @author Rob Winch
  *
  */
-class ConcereteSecurityConfigurerAdapter extends
-		SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+class ConcereteSecurityConfigurerAdapter extends SecurityConfigurerAdapter<Object, SecurityBuilder<Object>> {
+
 	private List<Object> list = new ArrayList<>();
 
 	@Override
 	public void configure(SecurityBuilder<Object> builder) {
-		list = postProcess(list);
+		this.list = postProcess(this.list);
 	}
 
-	public ConcereteSecurityConfigurerAdapter list(List<Object> l) {
+	ConcereteSecurityConfigurerAdapter list(List<Object> l) {
 		this.list = l;
 		return this;
 	}
+
 }

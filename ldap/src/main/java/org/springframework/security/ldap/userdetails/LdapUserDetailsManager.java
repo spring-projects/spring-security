@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.userdetails;
 
 import java.io.ByteArrayOutputStream;
@@ -22,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+
 import javax.naming.Context;
 import javax.naming.NameNotFoundException;
 import javax.naming.NamingEnumeration;
@@ -38,6 +40,7 @@ import javax.naming.ldap.LdapContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.ldap.core.AttributesMapper;
 import org.springframework.ldap.core.AttributesMapperCallbackHandler;
 import org.springframework.ldap.core.ContextExecutor;
@@ -76,14 +79,14 @@ import org.springframework.util.Assert;
  * @since 2.0
  */
 public class LdapUserDetailsManager implements UserDetailsManager {
+
 	private final Log logger = LogFactory.getLog(LdapUserDetailsManager.class);
 
 	/**
 	 * The strategy for mapping usernames to LDAP distinguished names. This will be used
 	 * when building DNs for creating new users etc.
 	 */
-	LdapUsernameToDnMapper usernameMapper = new DefaultLdapUsernameToDnMapper("cn=users",
-			"uid");
+	LdapUsernameToDnMapper usernameMapper = new DefaultLdapUsernameToDnMapper("cn=users", "uid");
 
 	/** The DN under which groups are stored */
 	private DistinguishedName groupSearchBase = new DistinguishedName("cn=groups");
@@ -93,6 +96,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	/** The attribute which corresponds to the role name of a group. */
 	private String groupRoleAttributeName = "cn";
+
 	/** The attribute which contains members of a group */
 	private String groupMemberAttributeName = "uniquemember";
 
@@ -100,6 +104,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	/** The pattern to be used for the user search. {0} is the user's DN */
 	private String groupSearchFilter = "(uniquemember={0})";
+
 	/**
 	 * The strategy used to create a UserDetails object from the LDAP context, username
 	 * and list of authorities. This should be set to match the required UserDetails
@@ -110,15 +115,12 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	private final LdapTemplate template;
 
 	/** Default context mapper used to create a set of roles from a list of attributes */
-	private AttributesMapper roleMapper = attributes -> {
-		Attribute roleAttr = attributes.get(groupRoleAttributeName);
-
+	private AttributesMapper roleMapper = (attributes) -> {
+		Attribute roleAttr = attributes.get(this.groupRoleAttributeName);
 		NamingEnumeration<?> ne = roleAttr.getAll();
-		// assert ne.hasMore();
 		Object group = ne.next();
 		String role = group.toString();
-
-		return new SimpleGrantedAuthority(rolePrefix + role.toUpperCase());
+		return new SimpleGrantedAuthority(this.rolePrefix + role.toUpperCase());
 	};
 
 	private String[] attributesToRetrieve;
@@ -126,30 +128,26 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	private boolean usePasswordModifyExtensionOperation = false;
 
 	public LdapUserDetailsManager(ContextSource contextSource) {
-		template = new LdapTemplate(contextSource);
+		this.template = new LdapTemplate(contextSource);
 	}
 
+	@Override
 	public UserDetails loadUserByUsername(String username) {
-		DistinguishedName dn = usernameMapper.buildDn(username);
+		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, username);
-
-		logger.debug("Loading user '" + username + "' with DN '" + dn + "'");
-
+		this.logger.debug(LogMessage.format("Loading user '%s' with DN '%s'", username, dn));
 		DirContextAdapter userCtx = loadUserAsContext(dn, username);
-
-		return userDetailsMapper.mapUserFromContext(userCtx, username, authorities);
+		return this.userDetailsMapper.mapUserFromContext(userCtx, username, authorities);
 	}
 
-	private DirContextAdapter loadUserAsContext(final DistinguishedName dn,
-			final String username) {
-		return (DirContextAdapter) template.executeReadOnly((ContextExecutor) ctx -> {
+	private DirContextAdapter loadUserAsContext(final DistinguishedName dn, final String username) {
+		return (DirContextAdapter) this.template.executeReadOnly((ContextExecutor) (ctx) -> {
 			try {
-				Attributes attrs = ctx.getAttributes(dn, attributesToRetrieve);
+				Attributes attrs = ctx.getAttributes(dn, this.attributesToRetrieve);
 				return new DirContextAdapter(attrs, LdapUtils.getFullDn(dn, ctx));
 			}
-			catch (NameNotFoundException notFound) {
-				throw new UsernameNotFoundException(
-						"User " + username + " not found", notFound);
+			catch (NameNotFoundException ex) {
+				throw new UsernameNotFoundException("User " + username + " not found", ex);
 			}
 		});
 	}
@@ -163,106 +161,85 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 *
 	 * <p>
 	 * Configured one way, this method will modify the user's password via the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">
-	 *     LDAP Password Modify Extended Operation
-	 * </a>.
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062"> LDAP Password Modify
+	 * Extended Operation </a>.
 	 *
-	 * See {@link LdapUserDetailsManager#setUsePasswordModifyExtensionOperation(boolean)} for details.
+	 * See {@link LdapUserDetailsManager#setUsePasswordModifyExtensionOperation(boolean)}
+	 * for details.
 	 * </p>
 	 *
 	 * <p>
-	 * By default, though, if the old password is supplied, the update will be made by rebinding as the user,
-	 * thus modifying the password using the user's permissions. If
+	 * By default, though, if the old password is supplied, the update will be made by
+	 * rebinding as the user, thus modifying the password using the user's permissions. If
 	 * <code>oldPassword</code> is null, the update will be attempted using a standard
 	 * read/write context supplied by the context source.
 	 * </p>
-	 *
 	 * @param oldPassword the old password
 	 * @param newPassword the new value of the password.
 	 */
+	@Override
 	public void changePassword(final String oldPassword, final String newPassword) {
-		Authentication authentication = SecurityContextHolder.getContext()
-				.getAuthentication();
-		Assert.notNull(
-				authentication,
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Assert.notNull(authentication,
 				"No authentication object found in security context. Can't change current user's password!");
-
 		String username = authentication.getName();
-
-		logger.debug("Changing password for user '" + username);
-
-		DistinguishedName userDn = usernameMapper.buildDn(username);
-
-		if (usePasswordModifyExtensionOperation) {
+		this.logger.debug(LogMessage.format("Changing password for user '%s'", username));
+		DistinguishedName userDn = this.usernameMapper.buildDn(username);
+		if (this.usePasswordModifyExtensionOperation) {
 			changePasswordUsingExtensionOperation(userDn, oldPassword, newPassword);
-		} else {
+		}
+		else {
 			changePasswordUsingAttributeModification(userDn, oldPassword, newPassword);
 		}
 	}
 
 	/**
-	 *
 	 * @param dn the distinguished name of the entry - may be either relative to the base
 	 * context or a complete DN including the name of the context (either is supported).
 	 * @param username the user whose roles are required.
 	 * @return the granted authorities returned by the group search
 	 */
 	@SuppressWarnings("unchecked")
-	List<GrantedAuthority> getUserAuthorities(final DistinguishedName dn,
-			final String username) {
-		SearchExecutor se = ctx -> {
+	List<GrantedAuthority> getUserAuthorities(final DistinguishedName dn, final String username) {
+		SearchExecutor se = (ctx) -> {
 			DistinguishedName fullDn = LdapUtils.getFullDn(dn, ctx);
 			SearchControls ctrls = new SearchControls();
-			ctrls.setReturningAttributes(new String[] { groupRoleAttributeName });
-
-			return ctx.search(groupSearchBase, groupSearchFilter, new String[] {
-					fullDn.toUrl(), username }, ctrls);
+			ctrls.setReturningAttributes(new String[] { this.groupRoleAttributeName });
+			return ctx.search(this.groupSearchBase, this.groupSearchFilter, new String[] { fullDn.toUrl(), username },
+					ctrls);
 		};
-
-		AttributesMapperCallbackHandler roleCollector = new AttributesMapperCallbackHandler(
-				roleMapper);
-
-		template.search(se, roleCollector);
+		AttributesMapperCallbackHandler roleCollector = new AttributesMapperCallbackHandler(this.roleMapper);
+		this.template.search(se, roleCollector);
 		return roleCollector.getList();
 	}
 
+	@Override
 	public void createUser(UserDetails user) {
 		DirContextAdapter ctx = new DirContextAdapter();
 		copyToContext(user, ctx);
-		DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
-
-		logger.debug("Creating new user '" + user.getUsername() + "' with DN '" + dn
-				+ "'");
-
-		template.bind(dn, ctx, null);
-
-		// Check for any existing authorities which might be set for this DN and remove
-		// them
+		DistinguishedName dn = this.usernameMapper.buildDn(user.getUsername());
+		this.logger.debug(LogMessage.format("Creating new user '%s' with DN '%s'", user.getUsername(), dn));
+		this.template.bind(dn, ctx, null);
+		// Check for any existing authorities which might be set for this
+		// DN and remove them
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
-
 		if (authorities.size() > 0) {
 			removeAuthorities(dn, authorities);
 		}
-
 		addAuthorities(dn, user.getAuthorities());
 	}
 
+	@Override
 	public void updateUser(UserDetails user) {
-		DistinguishedName dn = usernameMapper.buildDn(user.getUsername());
-
-		logger.debug("Updating user '" + user.getUsername() + "' with DN '" + dn + "'");
-
+		DistinguishedName dn = this.usernameMapper.buildDn(user.getUsername());
+		this.logger.debug(LogMessage.format("Updating new user '%s' with DN '%s'", user.getUsername(), dn));
 		List<GrantedAuthority> authorities = getUserAuthorities(dn, user.getUsername());
-
 		DirContextAdapter ctx = loadUserAsContext(dn, user.getUsername());
 		ctx.setUpdateMode(true);
 		copyToContext(user, ctx);
-
 		// Remove the objectclass attribute from the list of mods (if present).
-		List<ModificationItem> mods = new LinkedList<>(Arrays.asList(ctx
-				.getModificationItems()));
+		List<ModificationItem> mods = new LinkedList<>(Arrays.asList(ctx.getModificationItems()));
 		ListIterator<ModificationItem> modIt = mods.listIterator();
-
 		while (modIt.hasNext()) {
 			ModificationItem mod = modIt.next();
 			Attribute a = mod.getAttribute();
@@ -270,74 +247,67 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 				modIt.remove();
 			}
 		}
-
-		template.modifyAttributes(dn, mods.toArray(new ModificationItem[0]));
-
+		this.template.modifyAttributes(dn, mods.toArray(new ModificationItem[0]));
 		// template.rebind(dn, ctx, null);
 		// Remove the old authorities and replace them with the new one
 		removeAuthorities(dn, authorities);
 		addAuthorities(dn, user.getAuthorities());
 	}
 
+	@Override
 	public void deleteUser(String username) {
-		DistinguishedName dn = usernameMapper.buildDn(username);
+		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		removeAuthorities(dn, getUserAuthorities(dn, username));
-		template.unbind(dn);
+		this.template.unbind(dn);
 	}
 
+	@Override
 	public boolean userExists(String username) {
-		DistinguishedName dn = usernameMapper.buildDn(username);
-
+		DistinguishedName dn = this.usernameMapper.buildDn(username);
 		try {
-			Object obj = template.lookup(dn);
+			Object obj = this.template.lookup(dn);
 			if (obj instanceof Context) {
 				LdapUtils.closeContext((Context) obj);
 			}
 			return true;
 		}
-		catch (org.springframework.ldap.NameNotFoundException e) {
+		catch (org.springframework.ldap.NameNotFoundException ex) {
 			return false;
 		}
 	}
 
 	/**
 	 * Creates a DN from a group name.
-	 *
 	 * @param group the name of the group
 	 * @return the DN of the corresponding group, including the groupSearchBase
 	 */
 	protected DistinguishedName buildGroupDn(String group) {
-		DistinguishedName dn = new DistinguishedName(groupSearchBase);
-		dn.add(groupRoleAttributeName, group.toLowerCase());
-
+		DistinguishedName dn = new DistinguishedName(this.groupSearchBase);
+		dn.add(this.groupRoleAttributeName, group.toLowerCase());
 		return dn;
 	}
 
 	protected void copyToContext(UserDetails user, DirContextAdapter ctx) {
-		userDetailsMapper.mapUserToContext(user, ctx);
+		this.userDetailsMapper.mapUserToContext(user, ctx);
 	}
 
-	protected void addAuthorities(DistinguishedName userDn,
-			Collection<? extends GrantedAuthority> authorities) {
+	protected void addAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
 		modifyAuthorities(userDn, authorities, DirContext.ADD_ATTRIBUTE);
 	}
 
-	protected void removeAuthorities(DistinguishedName userDn,
-			Collection<? extends GrantedAuthority> authorities) {
+	protected void removeAuthorities(DistinguishedName userDn, Collection<? extends GrantedAuthority> authorities) {
 		modifyAuthorities(userDn, authorities, DirContext.REMOVE_ATTRIBUTE);
 	}
 
 	private void modifyAuthorities(final DistinguishedName userDn,
 			final Collection<? extends GrantedAuthority> authorities, final int modType) {
-		template.executeReadWrite((ContextExecutor) ctx -> {
+		this.template.executeReadWrite((ContextExecutor) (ctx) -> {
 			for (GrantedAuthority authority : authorities) {
 				String group = convertAuthorityToGroup(authority);
 				DistinguishedName fullDn = LdapUtils.getFullDn(userDn, ctx);
 				ModificationItem addGroup = new ModificationItem(modType,
-						new BasicAttribute(groupMemberAttributeName, fullDn.toUrl()));
-
-				ctx.modifyAttributes(buildGroupDn(group),
-						new ModificationItem[] { addGroup });
+						new BasicAttribute(this.groupMemberAttributeName, fullDn.toUrl()));
+				ctx.modifyAttributes(buildGroupDn(group), new ModificationItem[] { addGroup });
 			}
 			return null;
 		});
@@ -345,11 +315,9 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private String convertAuthorityToGroup(GrantedAuthority authority) {
 		String group = authority.getAuthority();
-
-		if (group.startsWith(rolePrefix)) {
-			group = group.substring(rolePrefix.length());
+		if (group.startsWith(this.rolePrefix)) {
+			group = group.substring(this.rolePrefix.length());
 		}
-
 		return group;
 	}
 
@@ -384,7 +352,6 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 * <p>
 	 * Usually this will be <tt>uniquemember</tt> (the default value) or <tt>member</tt>.
 	 * </p>
-	 *
 	 * @param groupMemberAttributeName the name of the attribute used to store group
 	 * members.
 	 */
@@ -401,17 +368,19 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	/**
 	 * Sets the method by which a user's password gets modified.
 	 *
-	 * If set to {@code true}, then {@link LdapUserDetailsManager#changePassword} will modify
-	 * the user's password by way of the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">Password Modify Extension Operation</a>.
+	 * If set to {@code true}, then {@link LdapUserDetailsManager#changePassword} will
+	 * modify the user's password by way of the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">Password Modify
+	 * Extension Operation</a>.
 	 *
-	 * If set to {@code false}, then {@link LdapUserDetailsManager#changePassword} will modify
-	 * the user's password by directly modifying attributes on the corresponding entry.
+	 * If set to {@code false}, then {@link LdapUserDetailsManager#changePassword} will
+	 * modify the user's password by directly modifying attributes on the corresponding
+	 * entry.
 	 *
-	 * Before using this setting, ensure that the corresponding LDAP server supports this extended operation.
+	 * Before using this setting, ensure that the corresponding LDAP server supports this
+	 * extended operation.
 	 *
 	 * By default, {@code usePasswordModifyExtensionOperation} is false.
-	 *
 	 * @param usePasswordModifyExtensionOperation
 	 * @since 4.2.9
 	 */
@@ -419,95 +388,82 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		this.usePasswordModifyExtensionOperation = usePasswordModifyExtensionOperation;
 	}
 
-	private void changePasswordUsingAttributeModification
-			(DistinguishedName userDn, String oldPassword, String newPassword) {
-
-		final ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(
-				DirContext.REPLACE_ATTRIBUTE, new BasicAttribute(passwordAttributeName,
-				newPassword)) };
-
+	private void changePasswordUsingAttributeModification(DistinguishedName userDn, String oldPassword,
+			String newPassword) {
+		ModificationItem[] passwordChange = new ModificationItem[] { new ModificationItem(DirContext.REPLACE_ATTRIBUTE,
+				new BasicAttribute(this.passwordAttributeName, newPassword)) };
 		if (oldPassword == null) {
-			template.modifyAttributes(userDn, passwordChange);
+			this.template.modifyAttributes(userDn, passwordChange);
 			return;
 		}
-
-		template.executeReadWrite(dirCtx -> {
+		this.template.executeReadWrite((dirCtx) -> {
 			LdapContext ctx = (LdapContext) dirCtx;
 			ctx.removeFromEnvironment("com.sun.jndi.ldap.connect.pool");
-			ctx.addToEnvironment(Context.SECURITY_PRINCIPAL,
-					LdapUtils.getFullDn(userDn, ctx).toString());
+			ctx.addToEnvironment(Context.SECURITY_PRINCIPAL, LdapUtils.getFullDn(userDn, ctx).toString());
 			ctx.addToEnvironment(Context.SECURITY_CREDENTIALS, oldPassword);
 			// TODO: reconnect doesn't appear to actually change the credentials
 			try {
 				ctx.reconnect(null);
-			} catch (javax.naming.AuthenticationException e) {
-				throw new BadCredentialsException(
-						"Authentication for password change failed.");
 			}
-
+			catch (javax.naming.AuthenticationException ex) {
+				throw new BadCredentialsException("Authentication for password change failed.");
+			}
 			ctx.modifyAttributes(userDn, passwordChange);
-
 			return null;
 		});
-
 	}
 
-	private void changePasswordUsingExtensionOperation
-			(DistinguishedName userDn, String oldPassword, String newPassword) {
-
-		template.executeReadWrite(dirCtx -> {
+	private void changePasswordUsingExtensionOperation(DistinguishedName userDn, String oldPassword,
+			String newPassword) {
+		this.template.executeReadWrite((dirCtx) -> {
 			LdapContext ctx = (LdapContext) dirCtx;
-
 			String userIdentity = LdapUtils.getFullDn(userDn, ctx).encode();
-			PasswordModifyRequest request =
-					new PasswordModifyRequest(userIdentity, oldPassword, newPassword);
-
+			PasswordModifyRequest request = new PasswordModifyRequest(userIdentity, oldPassword, newPassword);
 			try {
 				return ctx.extendedOperation(request);
-			} catch (javax.naming.AuthenticationException e) {
-				throw new BadCredentialsException(
-						"Authentication for password change failed.");
+			}
+			catch (javax.naming.AuthenticationException ex) {
+				throw new BadCredentialsException("Authentication for password change failed.");
 			}
 		});
 	}
 
 	/**
 	 * An implementation of the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062">
-	 *    LDAP Password Modify Extended Operation
-	 * </a>
-	 * client request.
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc3062"> LDAP Password Modify
+	 * Extended Operation </a> client request.
 	 *
-	 * Can be directed at any LDAP server that supports the Password Modify Extended Operation.
+	 * Can be directed at any LDAP server that supports the Password Modify Extended
+	 * Operation.
 	 *
 	 * @author Josh Cummings
 	 * @since 4.2.9
 	 */
 	private static class PasswordModifyRequest implements ExtendedRequest {
+
 		private static final byte SEQUENCE_TYPE = 48;
 
 		private static final String PASSWORD_MODIFY_OID = "1.3.6.1.4.1.4203.1.11.1";
+
 		private static final byte USER_IDENTITY_OCTET_TYPE = -128;
+
 		private static final byte OLD_PASSWORD_OCTET_TYPE = -127;
+
 		private static final byte NEW_PASSWORD_OCTET_TYPE = -126;
 
 		private final ByteArrayOutputStream value = new ByteArrayOutputStream();
 
 		PasswordModifyRequest(String userIdentity, String oldPassword, String newPassword) {
 			ByteArrayOutputStream elements = new ByteArrayOutputStream();
-
 			if (userIdentity != null) {
 				berEncode(USER_IDENTITY_OCTET_TYPE, userIdentity.getBytes(), elements);
 			}
-
 			if (oldPassword != null) {
 				berEncode(OLD_PASSWORD_OCTET_TYPE, oldPassword.getBytes(), elements);
 			}
-
 			if (newPassword != null) {
 				berEncode(NEW_PASSWORD_OCTET_TYPE, newPassword.getBytes(), elements);
 			}
-
 			berEncode(SEQUENCE_TYPE, elements.toByteArray(), this.value);
 		}
 
@@ -527,44 +483,47 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 		}
 
 		/**
-		 * Only minimal support for
-		 * <a target="_blank" href="https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf">
-		 *     BER encoding
-		 * </a>; just what is necessary for the Password Modify request.
+		 * Only minimal support for <a target="_blank" href=
+		 * "https://www.itu.int/ITU-T/studygroups/com17/languages/X.690-0207.pdf"> BER
+		 * encoding </a>; just what is necessary for the Password Modify request.
 		 *
 		 */
 		private void berEncode(byte type, byte[] src, ByteArrayOutputStream dest) {
 			int length = src.length;
-
 			dest.write(type);
-
 			if (length < 128) {
 				dest.write(length);
-			} else if ((length & 0x0000_00FF) == length) {
+			}
+			else if ((length & 0x0000_00FF) == length) {
 				dest.write((byte) 0x81);
 				dest.write((byte) (length & 0xFF));
-			} else if ((length & 0x0000_FFFF) == length) {
+			}
+			else if ((length & 0x0000_FFFF) == length) {
 				dest.write((byte) 0x82);
 				dest.write((byte) ((length >> 8) & 0xFF));
 				dest.write((byte) (length & 0xFF));
-			} else if ((length & 0x00FF_FFFF) == length) {
+			}
+			else if ((length & 0x00FF_FFFF) == length) {
 				dest.write((byte) 0x83);
 				dest.write((byte) ((length >> 16) & 0xFF));
 				dest.write((byte) ((length >> 8) & 0xFF));
 				dest.write((byte) (length & 0xFF));
-			} else {
+			}
+			else {
 				dest.write((byte) 0x84);
 				dest.write((byte) ((length >> 24) & 0xFF));
 				dest.write((byte) ((length >> 16) & 0xFF));
 				dest.write((byte) ((length >> 8) & 0xFF));
 				dest.write((byte) (length & 0xFF));
 			}
-
 			try {
 				dest.write(src);
-			} catch (IOException e) {
+			}
+			catch (IOException ex) {
 				throw new IllegalArgumentException("Failed to BER encode provided value of type: " + type);
 			}
 		}
+
 	}
+
 }

@@ -22,9 +22,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -33,6 +33,7 @@ import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.web.FilterInvocation;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
@@ -43,21 +44,14 @@ import static org.mockito.Mockito.mock;
  */
 @SuppressWarnings("unchecked")
 public class ChannelDecisionManagerImplTests {
-	// ~ Methods
-	// ========================================================================================================
+
 	@Test
 	public void testCannotSetEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
-		try {
+		assertThatIllegalArgumentException().isThrownBy(() -> {
 			cdm.setChannelProcessors(new Vector());
 			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
-		}
+		}).withMessage("A list of ChannelProcessors is required");
 	}
 
 	@Test
@@ -65,29 +59,16 @@ public class ChannelDecisionManagerImplTests {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		List list = new Vector();
 		list.add("THIS IS NOT A CHANNELPROCESSOR");
-
-		try {
-			cdm.setChannelProcessors(list);
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-
-		}
+		assertThatIllegalArgumentException().isThrownBy(() -> cdm.setChannelProcessors(list));
 	}
 
 	@Test
 	public void testCannotSetNullChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
-		try {
+		assertThatIllegalArgumentException().isThrownBy(() -> {
 			cdm.setChannelProcessors(null);
 			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
-		}
+		}).withMessage("A list of ChannelProcessors is required");
 	}
 
 	@Test
@@ -100,14 +81,10 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
-
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		List<ConfigAttribute> cad = SecurityConfig.createList("xyz");
-
 		cdm.decide(fi, cad);
 		assertThat(fi.getResponse().isCommitted()).isTrue();
 	}
@@ -120,12 +97,9 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
-
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		cdm.decide(fi, SecurityConfig.createList(new String[] { "abc", "ANY_CHANNEL" }));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -140,12 +114,9 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		FilterInvocation fi = new FilterInvocation(request, response,
-				mock(FilterChain.class));
-
+		FilterInvocation fi = new FilterInvocation(request, response, mock(FilterChain.class));
 		cdm.decide(fi, SecurityConfig.createList("SOME_ATTRIBUTE_NO_PROCESSORS_SUPPORT"));
 		assertThat(fi.getResponse().isCommitted()).isFalse();
 	}
@@ -160,7 +131,6 @@ public class ChannelDecisionManagerImplTests {
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
 		cdm.afterPropertiesSet();
-
 		assertThat(cdm.supports(new SecurityConfig("xyz"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("abc"))).isTrue();
 		assertThat(cdm.supports(new SecurityConfig("UNSUPPORTED"))).isFalse();
@@ -170,36 +140,26 @@ public class ChannelDecisionManagerImplTests {
 	public void testGettersSetters() {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
 		assertThat(cdm.getChannelProcessors()).isNull();
-
 		MockChannelProcessor cpXyz = new MockChannelProcessor("xyz", false);
 		MockChannelProcessor cpAbc = new MockChannelProcessor("abc", false);
 		List list = new Vector();
 		list.add(cpXyz);
 		list.add(cpAbc);
 		cdm.setChannelProcessors(list);
-
 		assertThat(cdm.getChannelProcessors()).isEqualTo(list);
 	}
 
 	@Test
 	public void testStartupFailsWithEmptyChannelProcessorsList() throws Exception {
 		ChannelDecisionManagerImpl cdm = new ChannelDecisionManagerImpl();
-
-		try {
-			cdm.afterPropertiesSet();
-			fail("Should have thrown IllegalArgumentException");
-		}
-		catch (IllegalArgumentException expected) {
-			assertThat(expected.getMessage())
-					.isEqualTo("A list of ChannelProcessors is required");
-		}
+		assertThatIllegalArgumentException().isThrownBy(cdm::afterPropertiesSet)
+				.withMessage("A list of ChannelProcessors is required");
 	}
 
-	// ~ Inner Classes
-	// ==================================================================================================
-
 	private class MockChannelProcessor implements ChannelProcessor {
+
 		private String configAttribute;
+
 		private boolean failIfCalled;
 
 		MockChannelProcessor(String configAttribute, boolean failIfCalled) {
@@ -207,33 +167,26 @@ public class ChannelDecisionManagerImplTests {
 			this.failIfCalled = failIfCalled;
 		}
 
-		public void decide(FilterInvocation invocation,
-				Collection<ConfigAttribute> config) throws IOException {
+		@Override
+		public void decide(FilterInvocation invocation, Collection<ConfigAttribute> config) throws IOException {
 			Iterator iter = config.iterator();
-
 			if (this.failIfCalled) {
-				fail("Should not have called this channel processor: "
-						+ this.configAttribute);
+				fail("Should not have called this channel processor: " + this.configAttribute);
 			}
-
 			while (iter.hasNext()) {
 				ConfigAttribute attr = (ConfigAttribute) iter.next();
-
 				if (attr.getAttribute().equals(this.configAttribute)) {
 					invocation.getHttpResponse().sendRedirect("/redirected");
-
 					return;
 				}
 			}
 		}
 
+		@Override
 		public boolean supports(ConfigAttribute attribute) {
-			if (attribute.getAttribute().equals(this.configAttribute)) {
-				return true;
-			}
-			else {
-				return false;
-			}
+			return attribute.getAttribute().equals(this.configAttribute);
 		}
+
 	}
+
 }

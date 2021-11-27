@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 /**
@@ -20,6 +21,7 @@ package org.springframework.security.config.method;
  *
  */
 public class Contact {
+
 	private String name;
 
 	/**
@@ -33,6 +35,7 @@ public class Contact {
 	 * @return the name
 	 */
 	public String getName() {
-		return name;
+		return this.name;
 	}
+
 }

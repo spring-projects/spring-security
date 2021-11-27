@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.authentication;
 
 /**
@@ -34,8 +35,7 @@ package org.springframework.security.authentication;
  * @author Rob Winch
  *
  */
-public class InternalAuthenticationServiceException extends
-		AuthenticationServiceException {
+public class InternalAuthenticationServiceException extends AuthenticationServiceException {
 
 	public InternalAuthenticationServiceException(String message, Throwable cause) {
 		super(message, cause);
@@ -44,4 +44,5 @@ public class InternalAuthenticationServiceException extends
 	public InternalAuthenticationServiceException(String message) {
 		super(message);
 	}
+
 }

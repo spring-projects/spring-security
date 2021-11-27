@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Security namespace support for LDAP authentication.
  */
 package org.springframework.security.config.ldap;
-

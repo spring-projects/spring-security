@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.web.builders;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.OrderComparator;
+import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -32,6 +47,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
@@ -42,6 +59,7 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.annotation.web.configurers.JeeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.PasswordManagementConfigurer;
 import org.springframework.security.config.annotation.web.configurers.PortMapperConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
@@ -54,6 +72,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -77,12 +96,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import javax.servlet.Filter;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * A {@link HttpSecurity} is similar to Spring Security's XML &lt;http&gt; element in the
@@ -120,14 +133,18 @@ import javax.servlet.http.HttpServletRequest;
  * @since 3.2
  * @see EnableWebSecurity
  */
-public final class HttpSecurity extends
-		AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
-		implements SecurityBuilder<DefaultSecurityFilterChain>,
-		HttpSecurityBuilder<HttpSecurity> {
+public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
+		implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
+
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
-	private List<Filter> filters = new ArrayList<>();
+
+	private List<OrderedFilter> filters = new ArrayList<>();
+
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
-	private FilterComparator comparator = new FilterComparator();
+
+	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
+
+	private AuthenticationManager authenticationManager;
 
 	/**
 	 * Creates a new instance
@@ -139,17 +156,14 @@ public final class HttpSecurity extends
 	 */
 	@SuppressWarnings("unchecked")
 	public HttpSecurity(ObjectPostProcessor<Object> objectPostProcessor,
-			AuthenticationManagerBuilder authenticationBuilder,
-			Map<Class<?>, Object> sharedObjects) {
+			AuthenticationManagerBuilder authenticationBuilder, Map<Class<?>, Object> sharedObjects) {
 		super(objectPostProcessor);
 		Assert.notNull(authenticationBuilder, "authenticationBuilder cannot be null");
 		setSharedObject(AuthenticationManagerBuilder.class, authenticationBuilder);
-		for (Map.Entry<Class<?>, Object> entry : sharedObjects
-				.entrySet()) {
+		for (Map.Entry<Class<?>, Object> entry : sharedObjects.entrySet()) {
 			setSharedObject((Class<Object>) entry.getKey(), entry.getValue());
 		}
-		ApplicationContext context = (ApplicationContext) sharedObjects
-				.get(ApplicationContext.class);
+		ApplicationContext context = (ApplicationContext) sharedObjects.get(ApplicationContext.class);
 		this.requestMatcherConfigurer = new RequestMatcherConfigurer(context);
 	}
 
@@ -231,12 +245,15 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link OpenIDLoginConfigurer} for further customizations.
-	 *
 	 * @throws Exception
+	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+	 * supported by <code>spring-security-oauth2</code>.
 	 * @see OpenIDLoginConfigurer
 	 */
+	@Deprecated
 	public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
 		return getOrApply(new OpenIDLoginConfigurer<>());
 	}
@@ -256,11 +273,11 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.openidLogin(openidLogin ->
+	 * 			.openidLogin((openidLogin) -&gt;
 	 * 				openidLogin
 	 * 					.permitAll()
 	 * 			);
@@ -289,48 +306,48 @@ public final class HttpSecurity extends
 	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests(authorizeRequests ->
+	 * 		http.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.openidLogin(openidLogin ->
+	 * 			.openidLogin((openidLogin) -&gt;
 	 * 				openidLogin
 	 * 					.loginPage(&quot;/login&quot;)
 	 * 					.permitAll()
 	 * 					.authenticationUserDetailsService(
 	 * 						new AutoProvisioningUserDetailsService())
-	 * 					.attributeExchange(googleExchange ->
+	 * 					.attributeExchange((googleExchange) -&gt;
 	 * 						googleExchange
 	 * 							.identifierPattern(&quot;https://www.google.com/.*&quot;)
-	 * 							.attribute(emailAttribute ->
+	 * 							.attribute((emailAttribute) -&gt;
 	 * 								emailAttribute
 	 * 									.name(&quot;email&quot;)
 	 * 									.type(&quot;https://axschema.org/contact/email&quot;)
 	 * 									.required(true)
 	 * 							)
-	 * 							.attribute(firstnameAttribute ->
+	 * 							.attribute((firstnameAttribute) -&gt;
 	 * 								firstnameAttribute
 	 * 									.name(&quot;firstname&quot;)
 	 * 									.type(&quot;https://axschema.org/namePerson/first&quot;)
 	 * 									.required(true)
 	 * 							)
-	 * 							.attribute(lastnameAttribute ->
+	 * 							.attribute((lastnameAttribute) -&gt;
 	 * 								lastnameAttribute
 	 * 									.name(&quot;lastname&quot;)
 	 * 									.type(&quot;https://axschema.org/namePerson/last&quot;)
 	 * 									.required(true)
 	 * 							)
 	 * 					)
-	 * 					.attributeExchange(yahooExchange ->
+	 * 					.attributeExchange((yahooExchange) -&gt;
 	 * 						yahooExchange
 	 * 							.identifierPattern(&quot;.*yahoo.com.*&quot;)
-	 * 							.attribute(emailAttribute ->
+	 * 							.attribute((emailAttribute) -&gt;
 	 * 								emailAttribute
 	 * 									.name(&quot;email&quot;)
 	 * 									.type(&quot;https://schema.openid.net/contact/email&quot;)
 	 * 									.required(true)
 	 * 							)
-	 * 							.attribute(fullnameAttribute ->
+	 * 							.attribute((fullnameAttribute) -&gt;
 	 * 								fullnameAttribute
 	 * 									.name(&quot;fullname&quot;)
 	 * 									.type(&quot;https://axschema.org/namePerson&quot;)
@@ -350,23 +367,27 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see OpenIDLoginConfigurer
-	 *
-	 * @param openidLoginCustomizer the {@link Customizer} to provide more options for
-	 * the {@link OpenIDLoginConfigurer}
+	 * @param openidLoginCustomizer the {@link Customizer} to provide more options for the
+	 * {@link OpenIDLoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
+	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
+	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
+	 * supported by <code>spring-security-oauth2</code>.
+	 * @see OpenIDLoginConfigurer
 	 */
-	public HttpSecurity openidLogin(Customizer<OpenIDLoginConfigurer<HttpSecurity>> openidLoginCustomizer) throws Exception {
+	@Deprecated
+	public HttpSecurity openidLogin(Customizer<OpenIDLoginConfigurer<HttpSecurity>> openidLoginCustomizer)
+			throws Exception {
 		openidLoginCustomizer.customize(getOrApply(new OpenIDLoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
 	 * Adds the Security headers to the response. This is activated by default when using
-	 * {@link WebSecurityConfigurerAdapter}'s default constructor. Accepting the
-	 * default provided by {@link WebSecurityConfigurerAdapter} or only invoking
+	 * {@link WebSecurityConfigurerAdapter}'s default constructor. Accepting the default
+	 * provided by {@link WebSecurityConfigurerAdapter} or only invoking
 	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
 	 *
 	 * <pre>
@@ -410,9 +431,9 @@ public final class HttpSecurity extends
 	 * </pre>
 	 *
 	 * You can enable only a few of the headers by first invoking
-	 * {@link HeadersConfigurer#defaultsDisabled()}
-	 * and then invoking the appropriate methods on the {@link #headers()} result.
-	 * For example, the following will enable {@link HeadersConfigurer#cacheControl()} and
+	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
+	 * methods on the {@link #headers()} result. For example, the following will enable
+	 * {@link HeadersConfigurer#cacheControl()} and
 	 * {@link HeadersConfigurer#frameOptions()} only.
 	 *
 	 * <pre>
@@ -434,8 +455,8 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * You can also choose to keep the defaults but explicitly disable a subset of headers.
-	 * For example, the following will enable all the default headers except
+	 * You can also choose to keep the defaults but explicitly disable a subset of
+	 * headers. For example, the following will enable all the default headers except
 	 * {@link HeadersConfigurer#frameOptions()}.
 	 *
 	 * <pre>
@@ -454,7 +475,6 @@ public final class HttpSecurity extends
 	 *     }
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link HeadersConfigurer} for further customizations
 	 * @throws Exception
 	 * @see HeadersConfigurer
@@ -469,8 +489,9 @@ public final class HttpSecurity extends
 	 *
 	 * <h2>Example Configurations</h2>
 	 *
-	 * Accepting the default provided by {@link WebSecurityConfigurerAdapter} or only invoking
-	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
+	 * Accepting the default provided by {@link WebSecurityConfigurerAdapter} or only
+	 * invoking {@link #headers()} without invoking additional methods on it, is the
+	 * equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -480,7 +501,7 @@ public final class HttpSecurity extends
 	 *	&#064;Override
 	 *	protected void configure(HttpSecurity http) throws Exception {
 	 *		http
-	 *			.headers(headers ->
+	 *			.headers((headers) -&gt;
 	 *				headers
 	 *					.contentTypeOptions(withDefaults())
 	 *					.xssProtection(withDefaults())
@@ -502,15 +523,15 @@ public final class HttpSecurity extends
 	 *	&#064;Override
 	 *	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.headers(headers -> headers.disable());
+	 * 			.headers((headers) -&gt; headers.disable());
 	 *	}
 	 * }
 	 * </pre>
 	 *
 	 * You can enable only a few of the headers by first invoking
-	 * {@link HeadersConfigurer#defaultsDisabled()}
-	 * and then invoking the appropriate methods on the {@link #headers()} result.
-	 * For example, the following will enable {@link HeadersConfigurer#cacheControl()} and
+	 * {@link HeadersConfigurer#defaultsDisabled()} and then invoking the appropriate
+	 * methods on the {@link #headers()} result. For example, the following will enable
+	 * {@link HeadersConfigurer#cacheControl()} and
 	 * {@link HeadersConfigurer#frameOptions()} only.
 	 *
 	 * <pre>
@@ -521,7 +542,7 @@ public final class HttpSecurity extends
 	 *	&#064;Override
 	 *	protected void configure(HttpSecurity http) throws Exception {
 	 *		http
-	 *			.headers(headers ->
+	 *			.headers((headers) -&gt;
 	 *				headers
 	 *			 		.defaultsDisabled()
 	 *			 		.cacheControl(withDefaults())
@@ -531,8 +552,8 @@ public final class HttpSecurity extends
 	 * }
 	 * </pre>
 	 *
-	 * You can also choose to keep the defaults but explicitly disable a subset of headers.
-	 * For example, the following will enable all the default headers except
+	 * You can also choose to keep the defaults but explicitly disable a subset of
+	 * headers. For example, the following will enable all the default headers except
 	 * {@link HeadersConfigurer#frameOptions()}.
 	 *
 	 * <pre>
@@ -543,15 +564,14 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 *  protected void configure(HttpSecurity http) throws Exception {
 	 *  	http
-	 *  		.headers(headers ->
+	 *  		.headers((headers) -&gt;
 	 *  			headers
-	 *  				.frameOptions(frameOptions -> frameOptions.disable())
+	 *  				.frameOptions((frameOptions) -&gt; frameOptions.disable())
 	 *  		);
 	 * }
 	 * </pre>
-	 *
-	 * @param headersCustomizer the {@link Customizer} to provide more options for
-	 * the {@link HeadersConfigurer}
+	 * @param headersCustomizer the {@link Customizer} to provide more options for the
+	 * {@link HeadersConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -565,7 +585,6 @@ public final class HttpSecurity extends
 	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
 	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
 	 * on the classpath a {@link HandlerMappingIntrospector} is used.
-	 *
 	 * @return the {@link CorsConfigurer} for customizations
 	 * @throws Exception
 	 */
@@ -577,8 +596,8 @@ public final class HttpSecurity extends
 	 * Adds a {@link CorsFilter} to be used. If a bean by the name of corsFilter is
 	 * provided, that {@link CorsFilter} is used. Else if corsConfigurationSource is
 	 * defined, then that {@link CorsConfiguration} is used. Otherwise, if Spring MVC is
-	 * on the classpath a {@link HandlerMappingIntrospector} is used.
-	 * You can enable CORS using:
+	 * on the classpath a {@link HandlerMappingIntrospector} is used. You can enable CORS
+	 * using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -592,9 +611,8 @@ public final class HttpSecurity extends
 	 *     }
 	 * }
 	 * </pre>
-	 *
-	 * @param corsCustomizer the {@link Customizer} to provide more options for
-	 * the {@link CorsConfigurer}
+	 * @param corsCustomizer the {@link Customizer} to provide more options for the
+	 * {@link CorsConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -647,7 +665,6 @@ public final class HttpSecurity extends
 	 * Alternatively,
 	 * {@link AbstractSecurityWebApplicationInitializer#enableHttpSessionEventPublisher()}
 	 * could return true.
-	 *
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -673,17 +690,17 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.anyRequest().hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.formLogin(formLogin ->
+	 * 			.formLogin((formLogin) -&gt;
 	 * 				formLogin
 	 * 					.permitAll()
 	 * 			)
-	 * 			.sessionManagement(sessionManagement ->
+	 * 			.sessionManagement((sessionManagement) -&gt;
 	 * 				sessionManagement
-	 * 					.sessionConcurrency(sessionConcurrency ->
+	 * 					.sessionConcurrency((sessionConcurrency) -&gt;
 	 * 						sessionConcurrency
 	 * 							.maximumSessions(1)
 	 * 							.expiredUrl(&quot;/login?expired&quot;)
@@ -708,13 +725,13 @@ public final class HttpSecurity extends
 	 * Alternatively,
 	 * {@link AbstractSecurityWebApplicationInitializer#enableHttpSessionEventPublisher()}
 	 * could return true.
-	 *
-	 * @param sessionManagementCustomizer the {@link Customizer} to provide more options for
-	 * the {@link SessionManagementConfigurer}
+	 * @param sessionManagementCustomizer the {@link Customizer} to provide more options
+	 * for the {@link SessionManagementConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity sessionManagement(Customizer<SessionManagementConfigurer<HttpSecurity>> sessionManagementCustomizer) throws Exception {
+	public HttpSecurity sessionManagement(
+			Customizer<SessionManagementConfigurer<HttpSecurity>> sessionManagementCustomizer) throws Exception {
 		sessionManagementCustomizer.customize(getOrApply(new SessionManagementConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -753,7 +770,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link PortMapperConfigurer} for further customizations
 	 * @throws Exception
 	 * @see #requiresChannel()
@@ -785,11 +801,11 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.requiresChannel(requiresChannel ->
+	 * 			.requiresChannel((requiresChannel) -&gt;
 	 * 				requiresChannel
 	 * 					.anyRequest().requiresSecure()
 	 * 			)
-	 * 			.portMapper(portMapper ->
+	 * 			.portMapper((portMapper) -&gt;
 	 * 				portMapper
 	 * 					.http(9090).mapsTo(9443)
 	 * 					.http(80).mapsTo(443)
@@ -797,21 +813,21 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see #requiresChannel()
-	 * @param portMapperCustomizer the {@link Customizer} to provide more options for
-	 * the {@link PortMapperConfigurer}
+	 * @param portMapperCustomizer the {@link Customizer} to provide more options for the
+	 * {@link PortMapperConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see #requiresChannel()
 	 */
-	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer) throws Exception {
+	public HttpSecurity portMapper(Customizer<PortMapperConfigurer<HttpSecurity>> portMapperCustomizer)
+			throws Exception {
 		portMapperCustomizer.customize(getOrApply(new PortMapperConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
-	 * Configures container based pre authentication. In this case, authentication
-	 * is managed by the Servlet Container.
+	 * Configures container based pre authentication. In this case, authentication is
+	 * managed by the Servlet Container.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -873,7 +889,6 @@ public final class HttpSecurity extends
 	 * Last you will need to configure your container to contain the user with the correct
 	 * roles. This configuration is specific to the Servlet Container, so consult your
 	 * Servlet Container's documentation.
-	 *
 	 * @return the {@link JeeConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -882,8 +897,8 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * Configures container based pre authentication. In this case, authentication
-	 * is managed by the Servlet Container.
+	 * Configures container based pre authentication. In this case, authentication is
+	 * managed by the Servlet Container.
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
@@ -899,11 +914,11 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.jee(jee ->
+	 * 			.jee((jee) -&gt;
 	 * 				jee
 	 * 					.mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;)
 	 * 			);
@@ -951,9 +966,8 @@ public final class HttpSecurity extends
 	 * Last you will need to configure your container to contain the user with the correct
 	 * roles. This configuration is specific to the Servlet Container, so consult your
 	 * Servlet Container's documentation.
-	 *
-	 * @param jeeCustomizer the {@link Customizer} to provide more options for
-	 * the {@link JeeConfigurer}
+	 * @param jeeCustomizer the {@link Customizer} to provide more options for the
+	 * {@link JeeConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -984,7 +998,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link X509Configurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1009,7 +1022,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1017,9 +1030,8 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param x509Customizer the {@link Customizer} to provide more options for
-	 * the {@link X509Configurer}
+	 * @param x509Customizer the {@link Customizer} to provide more options for the
+	 * {@link X509Configurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -1036,7 +1048,7 @@ public final class HttpSecurity extends
 	 * The following configuration demonstrates how to allow token based remember me
 	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
 	 * exists, then the user will be remembered even after their
-	 * {@link javax.servlet.http.HttpSession} expires.
+	 * {@link jakarta.servlet.http.HttpSession} expires.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -1057,7 +1069,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link RememberMeConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1073,7 +1084,7 @@ public final class HttpSecurity extends
 	 * The following configuration demonstrates how to allow token based remember me
 	 * authentication. Upon authenticating if the HTTP parameter named "remember-me"
 	 * exists, then the user will be remembered even after their
-	 * {@link javax.servlet.http.HttpSession} expires.
+	 * {@link jakarta.servlet.http.HttpSession} expires.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -1083,7 +1094,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1092,19 +1103,20 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param rememberMeCustomizer the {@link Customizer} to provide more options for
-	 * the {@link RememberMeConfigurer}
+	 * @param rememberMeCustomizer the {@link Customizer} to provide more options for the
+	 * {@link RememberMeConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer) throws Exception {
+	public HttpSecurity rememberMe(Customizer<RememberMeConfigurer<HttpSecurity>> rememberMeCustomizer)
+			throws Exception {
 		rememberMeCustomizer.customize(getOrApply(new RememberMeConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
 	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
 	 *
 	 * <h2>Example Configurations</h2>
 	 *
@@ -1161,17 +1173,14 @@ public final class HttpSecurity extends
 	 * http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).antMatchers(&quot;/admin/**&quot;)
 	 * 		.hasRole(&quot;ADMIN&quot;)
 	 * </pre>
-	 *
-	 * @see #requestMatcher(RequestMatcher)
-	 *
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
+	 * @see #requestMatcher(RequestMatcher)
 	 */
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
-		return getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context))
-				.getRegistry();
+		return getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry();
 	}
 
 	/**
@@ -1192,7 +1201,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1213,7 +1222,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -1235,7 +1244,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		 http
-	 * 		 	.authorizeRequests(authorizeRequests ->
+	 * 		 	.authorizeRequests((authorizeRequests) -&gt;
 	 * 		 		authorizeRequests
 	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
@@ -1243,19 +1252,181 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see #requestMatcher(RequestMatcher)
-	 *
-	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
+	 * @param authorizeRequestsCustomizer the {@link Customizer} to provide more options
+	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see #requestMatcher(RequestMatcher)
 	 */
-	public HttpSecurity authorizeRequests(Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
+	public HttpSecurity authorizeRequests(
+			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
 			throws Exception {
 		ApplicationContext context = getContext();
-		authorizeRequestsCustomizer.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context))
-				.getRegistry());
+		authorizeRequestsCustomizer
+				.customize(getOrApply(new ExpressionUrlAuthorizationConfigurer<>(context)).getRegistry());
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
+	 * The configuration below requires authentication to every URL and will grant access
+	 * to both the user "admin" and "user".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin();
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * We can also configure multiple URLs. The configuration below requires
+	 * authentication to every URL and will grant access to URLs starting with /admin/ to
+	 * only the "admin" user. All other URLs either user can access.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/admin&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.and()
+	 * 			.formLogin();
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Note that the matchers are considered in order. Therefore, the following is invalid
+	 * because the first matcher matches every request and will never get to the second
+	 * mapping:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests()
+	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 				.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 				.and()
+	 * 			.formLogin();
+	 * 	}
+	 * }
+	 * </pre>
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 5.6
+	 * @see #requestMatcher(RequestMatcher)
+	 */
+	public AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorizeHttpRequests()
+			throws Exception {
+		ApplicationContext context = getContext();
+		return getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry();
+	}
+
+	/**
+	 * Allows restricting access based upon the {@link HttpServletRequest} using
+	 * {@link RequestMatcher} implementations (i.e. via URL patterns).
+	 *
+	 * <h2>Example Configurations</h2>
+	 *
+	 * The most basic example is to configure all URLs to require the role "ROLE_USER".
+	 * The configuration below requires authentication to every URL and will grant access
+	 * to both the user "admin" and "user".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * We can also configure multiple URLs. The configuration below requires
+	 * authentication to every URL and will grant access to URLs starting with /admin/ to
+	 * only the "admin" user. All other URLs either user can access.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 				authorizeHttpRequests
+	 * 					.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.formLogin(withDefaults());
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * Note that the matchers are considered in order. Therefore, the following is invalid
+	 * because the first matcher matches every request and will never get to the second
+	 * mapping:
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
+	 * 		 		authorizeHttpRequests
+	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
+	 * 		 	);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @param authorizeHttpRequestsCustomizer the {@link Customizer} to provide more
+	 * options for the {@link AuthorizationManagerRequestMatcherRegistry}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 5.5
+	 * @see #requestMatcher(RequestMatcher)
+	 */
+	public HttpSecurity authorizeHttpRequests(
+			Customizer<AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry> authorizeHttpRequestsCustomizer)
+			throws Exception {
+		ApplicationContext context = getContext();
+		authorizeHttpRequestsCustomizer
+				.customize(getOrApply(new AuthorizeHttpRequestsConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 
@@ -1265,7 +1436,6 @@ public final class HttpSecurity extends
 	 * a login page. After authentication, Spring Security will redirect the user to the
 	 * originally requested protected page (/protected). This is automatically applied
 	 * when using {@link WebSecurityConfigurerAdapter}.
-	 *
 	 * @return the {@link RequestCacheConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1292,17 +1462,16 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.requestCache(requestCache ->
+	 * 			.requestCache((requestCache) -&gt;
 	 * 				requestCache.disable()
 	 * 			);
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @param requestCacheCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestCacheConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
@@ -1317,7 +1486,6 @@ public final class HttpSecurity extends
 	/**
 	 * Allows configuring exception handling. This is automatically applied when using
 	 * {@link WebSecurityConfigurerAdapter}.
-	 *
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1331,8 +1499,8 @@ public final class HttpSecurity extends
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
-	 * The following customization will ensure that users who are denied access are forwarded
-	 * to the page "/errors/access-denied".
+	 * The following customization will ensure that users who are denied access are
+	 * forwarded to the page "/errors/access-denied".
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -1342,25 +1510,25 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			// sample exception handling customization
-	 * 			.exceptionHandling(exceptionHandling ->
+	 * 			.exceptionHandling((exceptionHandling) -&gt;
 	 * 				exceptionHandling
 	 * 					.accessDeniedPage(&quot;/errors/access-denied&quot;)
 	 * 			);
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ExceptionHandlingConfigurer}
+	 * @param exceptionHandlingCustomizer the {@link Customizer} to provide more options
+	 * for the {@link ExceptionHandlingConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity exceptionHandling(Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
+	public HttpSecurity exceptionHandling(
+			Customizer<ExceptionHandlingConfigurer<HttpSecurity>> exceptionHandlingCustomizer) throws Exception {
 		exceptionHandlingCustomizer.customize(getOrApply(new ExceptionHandlingConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1369,7 +1537,6 @@ public final class HttpSecurity extends
 	 * Sets up management of the {@link SecurityContext} on the
 	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
 	 * automatically applied when using {@link WebSecurityConfigurerAdapter}.
-	 *
 	 * @return the {@link SecurityContextConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1392,20 +1559,20 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.securityContext(securityContext ->
+	 * 			.securityContext((securityContext) -&gt;
 	 * 				securityContext
 	 * 					.securityContextRepository(SCR)
 	 * 			);
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @param securityContextCustomizer the {@link Customizer} to provide more options for
 	 * the {@link SecurityContextConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity securityContext(Customizer<SecurityContextConfigurer<HttpSecurity>> securityContextCustomizer) throws Exception {
+	public HttpSecurity securityContext(Customizer<SecurityContextConfigurer<HttpSecurity>> securityContextCustomizer)
+			throws Exception {
 		securityContextCustomizer.customize(getOrApply(new SecurityContextConfigurer<>()));
 		return HttpSecurity.this;
 	}
@@ -1414,7 +1581,6 @@ public final class HttpSecurity extends
 	 * Integrates the {@link HttpServletRequest} methods with the values found on the
 	 * {@link SecurityContext}. This is automatically applied when using
 	 * {@link WebSecurityConfigurerAdapter}.
-	 *
 	 * @return the {@link ServletApiConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1435,25 +1601,25 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.servletApi(servletApi ->
+	 * 			.servletApi((servletApi) -&gt;
 	 * 				servletApi.disable()
 	 * 			);
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param servletApiCustomizer the {@link Customizer} to provide more options for
-	 * the {@link ServletApiConfigurer}
+	 * @param servletApiCustomizer the {@link Customizer} to provide more options for the
+	 * {@link ServletApiConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity servletApi(Customizer<ServletApiConfigurer<HttpSecurity>> servletApiCustomizer) throws Exception {
+	public HttpSecurity servletApi(Customizer<ServletApiConfigurer<HttpSecurity>> servletApiCustomizer)
+			throws Exception {
 		servletApiCustomizer.customize(getOrApply(new ServletApiConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
-	 * Adds CSRF support. This is activated by default when using
+	 * Enables CSRF protection. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
 	 * using:
 	 *
@@ -1470,8 +1636,7 @@ public final class HttpSecurity extends
 	 *     }
 	 * }
 	 * </pre>
-	 *
-	 * @return the {@link ServletApiConfigurer} for further customizations
+	 * @return the {@link CsrfConfigurer} for further customizations
 	 * @throws Exception
 	 */
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
@@ -1480,7 +1645,7 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * Adds CSRF support. This is activated by default when using
+	 * Enables CSRF protection. This is activated by default when using
 	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
 	 * using:
 	 *
@@ -1492,13 +1657,12 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 *     protected void configure(HttpSecurity http) throws Exception {
 	 *         http
-	 *             .csrf(csrf -> csrf.disable());
+	 *             .csrf((csrf) -&gt; csrf.disable());
 	 *     }
 	 * }
 	 * </pre>
-	 *
-	 * @param csrfCustomizer the {@link Customizer} to provide more options for
-	 * the {@link CsrfConfigurer}
+	 * @param csrfCustomizer the {@link Customizer} to provide more options for the
+	 * {@link CsrfConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -1541,7 +1705,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1570,13 +1733,13 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			// sample logout customization
-	 * 			.logout(logout ->
+	 * 			.logout((logout) -&gt;
 	 * 				logout.deleteCookies(&quot;remove&quot;)
 	 * 					.invalidateHttpSession(false)
 	 * 					.logoutUrl(&quot;/custom-logout&quot;)
@@ -1585,9 +1748,8 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param logoutCustomizer the {@link Customizer} to provide more options for
-	 * the {@link LogoutConfigurer}
+	 * @param logoutCustomizer the {@link Customizer} to provide more options for the
+	 * {@link LogoutConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -1659,7 +1821,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link AnonymousConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1687,13 +1848,13 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			// sample anonymous customization
-	 * 			.anonymous(anonymous ->
+	 * 			.anonymous((anonymous) -&gt;
 	 * 				anonymous
 	 * 					.authorities(&quot;ROLE_ANON&quot;)
 	 * 			)
@@ -1713,13 +1874,13 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			// sample anonymous customization
-	 * 			.anonymous(anonymous ->
+	 * 			.anonymous((anonymous) -&gt;
 	 * 				anonymous.disable()
 	 * 			);
 	 * 	}
@@ -1730,9 +1891,8 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param anonymousCustomizer the {@link Customizer} to provide more options for
-	 * the {@link AnonymousConfigurer}
+	 * @param anonymousCustomizer the {@link Customizer} to provide more options for the
+	 * {@link AnonymousConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -1740,7 +1900,6 @@ public final class HttpSecurity extends
 		anonymousCustomizer.customize(getOrApply(new AnonymousConfigurer<>()));
 		return HttpSecurity.this;
 	}
-
 
 	/**
 	 * Specifies to support form based authentication. If
@@ -1796,11 +1955,9 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see FormLoginConfigurer#loginPage(String)
-	 *
 	 * @return the {@link FormLoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @see FormLoginConfigurer#loginPage(String)
 	 */
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
 		return getOrApply(new FormLoginConfigurer<>());
@@ -1826,7 +1983,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -1845,11 +2002,11 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
-	 * 			.formLogin(formLogin ->
+	 * 			.formLogin((formLogin) -&gt;
 	 * 				formLogin
 	 * 					.usernameParameter(&quot;username&quot;)
 	 * 					.passwordParameter(&quot;password&quot;)
@@ -1860,13 +2017,11 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see FormLoginConfigurer#loginPage(String)
-	 *
-	 * @param formLoginCustomizer the {@link Customizer} to provide more options for
-	 * the {@link FormLoginConfigurer}
+	 * @param formLoginCustomizer the {@link Customizer} to provide more options for the
+	 * {@link FormLoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see FormLoginConfigurer#loginPage(String)
 	 */
 	public HttpSecurity formLogin(Customizer<FormLoginConfigurer<HttpSecurity>> formLoginCustomizer) throws Exception {
 		formLoginCustomizer.customize(getOrApply(new FormLoginConfigurer<>()));
@@ -1874,40 +2029,39 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * Configures authentication support using an SAML 2.0 Service Provider.
-	 * <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Web Browser SSO Profile, using POST and REDIRECT bindings</b>,
-	 * as documented in the <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0 Core,Profiles and Bindings</a>
-	 * specifications.
-	 * <br>
+	 * Configures authentication support using an SAML 2.0 Service Provider. <br>
 	 * <br>
 	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Identity Provider to provide an assertion.
-	 * The representation of the Service Provider, the relying party, and the remote Identity Provider, the asserting party
-	 * is contained within {@link RelyingPartyRegistration}.
+	 * The &quot;authentication flow&quot; is implemented using the <b>Web Browser SSO
+	 * Profile, using POST and REDIRECT bindings</b>, as documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core,Profiles and Bindings</a> specifications. <br>
 	 * <br>
+	 *
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Identity
+	 * Provider to provide an assertion. The representation of the Service Provider, the
+	 * relying party, and the remote Identity Provider, the asserting party is contained
+	 * within {@link RelyingPartyRegistration}. <br>
 	 * <br>
 	 *
 	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository},
-	 * which is <b>required</b> and must be registered with the {@link ApplicationContext} or
-	 * configured via <code>saml2Login().relyingPartyRegistrationRepository(..)</code>.
-	 * <br>
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * <code>saml2Login().relyingPartyRegistrationRepository(..)</code>. <br>
 	 * <br>
 	 *
-	 * The default configuration provides an auto-generated login page at <code>&quot;/login&quot;</code> and
-	 * redirects to <code>&quot;/login?error&quot;</code> when an authentication error occurs.
-	 * The login page will display each of the identity providers with a link
-	 * that is capable of initiating the &quot;authentication flow&quot;.
-	 * <br>
+	 * The default configuration provides an auto-generated login page at
+	 * <code>&quot;/login&quot;</code> and redirects to
+	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
+	 * login page will display each of the identity providers with a link that is capable
+	 * of initiating the &quot;authentication flow&quot;. <br>
 	 * <br>
 	 *
 	 * <p>
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example shows the minimal configuration required, using SimpleSamlPhp as the Authentication Provider.
+	 * The following example shows the minimal configuration required, using SimpleSamlPhp
+	 * as the Authentication Provider.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -1932,9 +2086,9 @@ public final class HttpSecurity extends
 	 *
 	 * 	private RelyingPartyRegistration getSaml2RelyingPartyRegistration() {
 	 * 		//remote IDP entity ID
-	 * 		String idpEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
+	 * 		String idpEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
 	 * 		//remote WebSSO Endpoint - Where to Send AuthNRequests to
-	 * 		String webSsoEndpoint = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php";
+	 * 		String webSsoEndpoint = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
 	 * 		//local registration ID
 	 * 		String registrationId = "simplesamlphp";
 	 * 		//local entity ID - autogenerated based on URL
@@ -1955,50 +2109,48 @@ public final class HttpSecurity extends
 	 * </pre>
 	 *
 	 * <p>
-	 *
-	 * @since 5.2
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @since 5.2
 	 */
 	public Saml2LoginConfigurer<HttpSecurity> saml2Login() throws Exception {
 		return getOrApply(new Saml2LoginConfigurer<>());
 	}
 
 	/**
-	 * Configures authentication support using an SAML 2.0 Service Provider.
-	 * <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Web Browser SSO Profile, using POST and REDIRECT bindings</b>,
-	 * as documented in the <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0 Core,Profiles and Bindings</a>
-	 * specifications.
-	 * <br>
+	 * Configures authentication support using an SAML 2.0 Service Provider. <br>
 	 * <br>
 	 *
-	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Identity Provider to provide an assertion.
-	 * The representation of the Service Provider, the relying party, and the remote Identity Provider, the asserting party
-	 * is contained within {@link RelyingPartyRegistration}.
+	 * The &quot;authentication flow&quot; is implemented using the <b>Web Browser SSO
+	 * Profile, using POST and REDIRECT bindings</b>, as documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core,Profiles and Bindings</a> specifications. <br>
 	 * <br>
+	 *
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Identity
+	 * Provider to provide an assertion. The representation of the Service Provider, the
+	 * relying party, and the remote Identity Provider, the asserting party is contained
+	 * within {@link RelyingPartyRegistration}. <br>
 	 * <br>
 	 *
 	 * {@link RelyingPartyRegistration}(s) are composed within a
-	 * {@link RelyingPartyRegistrationRepository},
-	 * which is <b>required</b> and must be registered with the {@link ApplicationContext} or
-	 * configured via <code>saml2Login().relyingPartyRegistrationRepository(..)</code>.
-	 * <br>
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * <code>saml2Login().relyingPartyRegistrationRepository(..)</code>. <br>
 	 * <br>
 	 *
-	 * The default configuration provides an auto-generated login page at <code>&quot;/login&quot;</code> and
-	 * redirects to <code>&quot;/login?error&quot;</code> when an authentication error occurs.
-	 * The login page will display each of the identity providers with a link
-	 * that is capable of initiating the &quot;authentication flow&quot;.
-	 * <br>
+	 * The default configuration provides an auto-generated login page at
+	 * <code>&quot;/login&quot;</code> and redirects to
+	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
+	 * login page will display each of the identity providers with a link that is capable
+	 * of initiating the &quot;authentication flow&quot;. <br>
 	 * <br>
 	 *
 	 * <p>
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example shows the minimal configuration required, using SimpleSamlPhp as the Authentication Provider.
+	 * The following example shows the minimal configuration required, using SimpleSamlPhp
+	 * as the Authentication Provider.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2023,9 +2175,9 @@ public final class HttpSecurity extends
 	 *
 	 * 	private RelyingPartyRegistration getSaml2RelyingPartyRegistration() {
 	 * 		//remote IDP entity ID
-	 * 		String idpEntityId = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/metadata.php";
+	 * 		String idpEntityId = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php";
 	 * 		//remote WebSSO Endpoint - Where to Send AuthNRequests to
-	 * 		String webSsoEndpoint = "https://simplesaml-for-spring-saml.cfapps.io/saml2/idp/SSOService.php";
+	 * 		String webSsoEndpoint = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
 	 * 		//local registration ID
 	 * 		String registrationId = "simplesamlphp";
 	 * 		//local entity ID - autogenerated based on URL
@@ -2046,55 +2198,195 @@ public final class HttpSecurity extends
 	 * </pre>
 	 *
 	 * <p>
-	 *
-	 * @since 5.2
-	 * @param saml2LoginCustomizer the {@link Customizer} to provide more options for
-	 * the {@link Saml2LoginConfigurer}
+	 * @param saml2LoginCustomizer the {@link Customizer} to provide more options for the
+	 * {@link Saml2LoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @since 5.2
 	 */
-	public HttpSecurity saml2Login(Customizer<Saml2LoginConfigurer<HttpSecurity>> saml2LoginCustomizer) throws Exception {
+	public HttpSecurity saml2Login(Customizer<Saml2LoginConfigurer<HttpSecurity>> saml2LoginCustomizer)
+			throws Exception {
 		saml2LoginCustomizer.customize(getOrApply(new Saml2LoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
-	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
-	 * <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code Grant</b>, as specified in the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0 Authorization Framework</a>
-	 * and <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect Core 1.0</a>
-	 * specification.
-	 * <br>
+	 * Configures logout support for an SAML 2.0 Relying Party. <br>
 	 * <br>
 	 *
-	 * As a prerequisite to using this feature, you must register a client with a provider.
-	 * The client registration information may than be used for configuring
-	 * a {@link org.springframework.security.oauth2.client.registration.ClientRegistration} using a
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder}.
-	 * <br>
-	 * <br>
-	 *
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s) are composed within a
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository},
-	 * which is <b>required</b> and must be registered with the {@link ApplicationContext} or
-	 * configured via <code>oauth2Login().clientRegistrationRepository(..)</code>.
-	 * <br>
+	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
+	 * documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core, Profiles and Bindings</a> specifications. <br>
 	 * <br>
 	 *
-	 * The default configuration provides an auto-generated login page at <code>&quot;/login&quot;</code> and
-	 * redirects to <code>&quot;/login?error&quot;</code> when an authentication error occurs.
-	 * The login page will display each of the clients with a link
-	 * that is capable of initiating the &quot;authentication flow&quot;.
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
+	 * Party to sent a logout request to. The representation of the relying party and the
+	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
 	 * <br>
+	 *
+	 * {@link RelyingPartyRegistration}(s) are composed within a
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * {@link #saml2Login(Customizer)}.<br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated logout endpoint at
+	 * <code>&quot;/logout&quot;</code> and redirects to <code>/login?logout</code> when
+	 * logout completes. <br>
 	 * <br>
 	 *
 	 * <p>
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example shows the minimal configuration required, using Google as the Authentication Provider.
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeRequests((authorize) -&gt; authorize
+	 *					.anyRequest().authenticated()
+	 *				)
+	 *				.saml2Login(withDefaults())
+	 *				.saml2Logout(withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 *
+	 * <p>
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 5.6
+	 */
+	public HttpSecurity saml2Logout(Customizer<Saml2LogoutConfigurer<HttpSecurity>> saml2LogoutCustomizer)
+			throws Exception {
+		saml2LogoutCustomizer.customize(getOrApply(new Saml2LogoutConfigurer<>(getContext())));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures logout support for an SAML 2.0 Relying Party. <br>
+	 * <br>
+	 *
+	 * Implements the <b>Single Logout Profile, using POST and REDIRECT bindings</b>, as
+	 * documented in the
+	 * <a target="_blank" href="https://docs.oasis-open.org/security/saml/">SAML V2.0
+	 * Core, Profiles and Bindings</a> specifications. <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, is that you have a SAML v2.0 Asserting
+	 * Party to sent a logout request to. The representation of the relying party and the
+	 * asserting party is contained within {@link RelyingPartyRegistration}. <br>
+	 * <br>
+	 *
+	 * {@link RelyingPartyRegistration}(s) are composed within a
+	 * {@link RelyingPartyRegistrationRepository}, which is <b>required</b> and must be
+	 * registered with the {@link ApplicationContext} or configured via
+	 * {@link #saml2Login()}.<br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated logout endpoint at
+	 * <code>&quot;/logout&quot;</code> and redirects to <code>/login?logout</code> when
+	 * logout completes. <br>
+	 * <br>
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeRequests()
+	 *					.anyRequest().authenticated()
+	 *					.and()
+	 *				.saml2Login()
+	 *					.and()
+	 *				.saml2Logout();
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 *
+	 * <p>
+	 * @return the {@link Saml2LoginConfigurer} for further customizations
+	 * @throws Exception
+	 * @since 5.6
+	 */
+	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
+		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
+	}
+
+	/**
+	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
+	 * Provider. <br>
+	 * <br>
+	 *
+	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code
+	 * Grant</b>, as specified in the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0
+	 * Authorization Framework</a> and <a target="_blank" href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect
+	 * Core 1.0</a> specification. <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, you must register a client with a
+	 * provider. The client registration information may than be used for configuring a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}
+	 * using a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder}.
+	 * <br>
+	 * <br>
+	 *
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s)
+	 * are composed within a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository},
+	 * which is <b>required</b> and must be registered with the {@link ApplicationContext}
+	 * or configured via <code>oauth2Login().clientRegistrationRepository(..)</code>. <br>
+	 * <br>
+	 *
+	 * The default configuration provides an auto-generated login page at
+	 * <code>&quot;/login&quot;</code> and redirects to
+	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
+	 * login page will display each of the clients with a link that is capable of
+	 * initiating the &quot;authentication flow&quot;. <br>
+	 * <br>
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using Google as the
+	 * Authentication Provider.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2121,9 +2413,9 @@ public final class HttpSecurity extends
 	 * 		return ClientRegistration.withRegistrationId("google")
 	 * 			.clientId("google-client-id")
 	 * 			.clientSecret("google-client-secret")
-	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 	 * 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-	 * 			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+	 * 			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 	 * 			.scope("openid", "profile", "email", "address", "phone")
 	 * 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
 	 * 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
@@ -2137,57 +2429,64 @@ public final class HttpSecurity extends
 	 * </pre>
 	 *
 	 * <p>
-	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available options to customize the defaults.
-	 *
-	 * @since 5.0
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
-	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
+	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available
+	 * options to customize the defaults.
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @since 5.0
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
+	 * Grant</a>
+	 * @see <a target="_blank" href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1
+	 * Authorization Code Flow</a>
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 */
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
 		return getOrApply(new OAuth2LoginConfigurer<>());
 	}
 
 	/**
-	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
-	 * <br>
-	 * <br>
-	 *
-	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code Grant</b>, as specified in the
-	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0 Authorization Framework</a>
-	 * and <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect Core 1.0</a>
-	 * specification.
-	 * <br>
+	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
+	 * Provider. <br>
 	 * <br>
 	 *
-	 * As a prerequisite to using this feature, you must register a client with a provider.
-	 * The client registration information may than be used for configuring
-	 * a {@link org.springframework.security.oauth2.client.registration.ClientRegistration} using a
+	 * The &quot;authentication flow&quot; is implemented using the <b>Authorization Code
+	 * Grant</b>, as specified in the
+	 * <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">OAuth 2.0
+	 * Authorization Framework</a> and <a target="_blank" href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">OpenID Connect
+	 * Core 1.0</a> specification. <br>
+	 * <br>
+	 *
+	 * As a prerequisite to using this feature, you must register a client with a
+	 * provider. The client registration information may than be used for configuring a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}
+	 * using a
 	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder}.
 	 * <br>
 	 * <br>
 	 *
-	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s) are composed within a
+	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistration}(s)
+	 * are composed within a
 	 * {@link org.springframework.security.oauth2.client.registration.ClientRegistrationRepository},
-	 * which is <b>required</b> and must be registered with the {@link ApplicationContext} or
-	 * configured via <code>oauth2Login().clientRegistrationRepository(..)</code>.
-	 * <br>
+	 * which is <b>required</b> and must be registered with the {@link ApplicationContext}
+	 * or configured via <code>oauth2Login().clientRegistrationRepository(..)</code>. <br>
 	 * <br>
 	 *
-	 * The default configuration provides an auto-generated login page at <code>&quot;/login&quot;</code> and
-	 * redirects to <code>&quot;/login?error&quot;</code> when an authentication error occurs.
-	 * The login page will display each of the clients with a link
-	 * that is capable of initiating the &quot;authentication flow&quot;.
-	 * <br>
+	 * The default configuration provides an auto-generated login page at
+	 * <code>&quot;/login&quot;</code> and redirects to
+	 * <code>&quot;/login?error&quot;</code> when an authentication error occurs. The
+	 * login page will display each of the clients with a link that is capable of
+	 * initiating the &quot;authentication flow&quot;. <br>
 	 * <br>
 	 *
 	 * <p>
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example shows the minimal configuration required, using Google as the Authentication Provider.
+	 * The following example shows the minimal configuration required, using Google as the
+	 * Authentication Provider.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2198,7 +2497,7 @@ public final class HttpSecurity extends
 	 * 		&#064;Override
 	 * 		protected void configure(HttpSecurity http) throws Exception {
 	 * 			http
-	 * 				.authorizeRequests(authorizeRequests ->
+	 * 				.authorizeRequests((authorizeRequests) -&gt;
 	 * 					authorizeRequests
 	 * 						.anyRequest().authenticated()
 	 * 				)
@@ -2215,9 +2514,9 @@ public final class HttpSecurity extends
 	 * 		return ClientRegistration.withRegistrationId("google")
 	 * 			.clientId("google-client-id")
 	 * 			.clientSecret("google-client-secret")
-	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.BASIC)
+	 * 			.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
 	 * 			.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-	 * 			.redirectUriTemplate("{baseUrl}/login/oauth2/code/{registrationId}")
+	 * 			.redirectUri("{baseUrl}/login/oauth2/code/{registrationId}")
 	 * 			.scope("openid", "profile", "email", "address", "phone")
 	 * 			.authorizationUri("https://accounts.google.com/o/oauth2/v2/auth")
 	 * 			.tokenUri("https://www.googleapis.com/oauth2/v4/token")
@@ -2231,30 +2530,35 @@ public final class HttpSecurity extends
 	 * </pre>
 	 *
 	 * <p>
-	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available options to customize the defaults.
-	 *
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code Grant</a>
-	 * @see <a target="_blank" href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1 Authorization Code Flow</a>
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
-	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-	 *
-	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for
-	 * the {@link OAuth2LoginConfigurer}
+	 * For more advanced configuration, see {@link OAuth2LoginConfigurer} for available
+	 * options to customize the defaults.
+	 * @param oauth2LoginCustomizer the {@link Customizer} to provide more options for the
+	 * {@link OAuth2LoginConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
+	 * Grant</a>
+	 * @see <a target="_blank" href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth">Section 3.1
+	 * Authorization Code Flow</a>
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
+	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 */
-	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer) throws Exception {
+	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer)
+			throws Exception {
 		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
 	 * Configures OAuth 2.0 Client support.
-	 *
-	 * @since 5.1
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
 	 * @return the {@link OAuth2ClientConfigurer} for further customizations
 	 * @throws Exception
+	 * @since 5.1
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
 	public OAuth2ClientConfigurer<HttpSecurity> oauth2Client() throws Exception {
 		OAuth2ClientConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ClientConfigurer<>());
@@ -2267,7 +2571,8 @@ public final class HttpSecurity extends
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example demonstrates how to enable OAuth 2.0 Client support for all endpoints.
+	 * The following example demonstrates how to enable OAuth 2.0 Client support for all
+	 * endpoints.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2276,7 +2581,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
@@ -2284,29 +2589,32 @@ public final class HttpSecurity extends
 	 *	}
 	 * }
 	 * </pre>
-	 *
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
-	 *
 	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
 	 * the {@link OAuth2ClientConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
-	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer) throws Exception {
+	public HttpSecurity oauth2Client(Customizer<OAuth2ClientConfigurer<HttpSecurity>> oauth2ClientCustomizer)
+			throws Exception {
 		oauth2ClientCustomizer.customize(getOrApply(new OAuth2ClientConfigurer<>()));
 		return HttpSecurity.this;
 	}
 
 	/**
 	 * Configures OAuth 2.0 Resource Server support.
-	 *
-	 * @since 5.1
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
 	 * @throws Exception
+	 * @since 5.1
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
 	public OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer() throws Exception {
-		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ResourceServerConfigurer<>(getContext()));
+		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
+				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		return configurer;
 	}
@@ -2316,45 +2624,51 @@ public final class HttpSecurity extends
 	 *
 	 * <h2>Example Configuration</h2>
 	 *
-	 * The following example demonstrates how to configure a custom JWT authentication converter.
+	 * The following example demonstrates how to configure a custom JWT authentication
+	 * converter.
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
 	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * &#064;Value("${spring.security.oauth2.resourceserver.jwt.key-value}")
+	 * RSAPublicKey key;
+	 *
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
-	 * 			.oauth2ResourceServer(oauth2ResourceServer ->
+	 * 			.oauth2ResourceServer((oauth2ResourceServer) -&gt;
 	 * 				oauth2ResourceServer
-	 * 					.jwt(jwt ->
+	 * 					.jwt((jwt) -&gt;
 	 * 						jwt
-	 * 							.jwtAuthenticationConverter(jwtDecoder())
+	 * 							.decoder(jwtDecoder())
 	 * 					)
 	 * 			);
 	 *	}
 	 *
 	 * 	&#064;Bean
 	 * 	public JwtDecoder jwtDecoder() {
-	 * 		return JwtDecoders.fromOidcIssuerLocation(issuerUri);
+	 * 		return NimbusJwtDecoder.withPublicKey(this.key).build();
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization Framework</a>
-	 *
-	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more options for
-	 * the {@link OAuth2ResourceServerConfigurer}
+	 * @param oauth2ResourceServerCustomizer the {@link Customizer} to provide more
+	 * options for the {@link OAuth2ResourceServerConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @see <a target="_blank" href=
+	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
+	 * Framework</a>
 	 */
-	public HttpSecurity oauth2ResourceServer(Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer)
-			throws Exception {
-		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ResourceServerConfigurer<>(getContext()));
+	public HttpSecurity oauth2ResourceServer(
+			Customizer<OAuth2ResourceServerConfigurer<HttpSecurity>> oauth2ResourceServerCustomizer) throws Exception {
+		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
+				new OAuth2ResourceServerConfigurer<>(getContext()));
 		this.postProcess(configurer);
 		oauth2ResourceServerCustomizer.customize(configurer);
 		return HttpSecurity.this;
@@ -2369,8 +2683,8 @@ public final class HttpSecurity extends
 	 * The example below demonstrates how to require HTTPs for every request. Only
 	 * requiring HTTPS for some requests is supported, but not recommended since an
 	 * application that allows for HTTP introduces many security vulnerabilities. For one
-	 * such example, read about <a
-	 * href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
+	 * such example, read about
+	 * <a href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2389,16 +2703,12 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 *
 	 * @return the {@link ChannelSecurityConfigurer} for further customizations
 	 * @throws Exception
 	 */
-	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel()
-			throws Exception {
+	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel() throws Exception {
 		ApplicationContext context = getContext();
-		return getOrApply(new ChannelSecurityConfigurer<>(context))
-				.getRegistry();
+		return getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry();
 	}
 
 	/**
@@ -2410,8 +2720,8 @@ public final class HttpSecurity extends
 	 * The example below demonstrates how to require HTTPs for every request. Only
 	 * requiring HTTPS for some requests is supported, but not recommended since an
 	 * application that allows for HTTP introduces many security vulnerabilities. For one
-	 * such example, read about <a
-	 * href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
+	 * such example, read about
+	 * <a href="https://en.wikipedia.org/wiki/Firesheep">Firesheep</a>.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2421,29 +2731,28 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults())
-	 * 			.requiresChannel(requiresChannel ->
+	 * 			.requiresChannel((requiresChannel) -&gt;
 	 * 				requiresChannel
 	 * 					.anyRequest().requiresSecure()
 	 * 			);
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @param requiresChannelCustomizer the {@link Customizer} to provide more options for
 	 * the {@link ChannelSecurityConfigurer.ChannelRequestMatcherRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
-	public HttpSecurity requiresChannel(Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
+	public HttpSecurity requiresChannel(
+			Customizer<ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry> requiresChannelCustomizer)
 			throws Exception {
 		ApplicationContext context = getContext();
-		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context))
-				.getRegistry());
+		requiresChannelCustomizer.customize(getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry());
 		return HttpSecurity.this;
 	}
 
@@ -2453,8 +2762,8 @@ public final class HttpSecurity extends
 	 * <h2>Example Configuration</h2>
 	 *
 	 * The example below demonstrates how to configure HTTP Basic authentication for an
-	 * application. The default realm is "Realm", but can be
-	 * customized using {@link HttpBasicConfigurer#realmName(String)}.
+	 * application. The default realm is "Realm", but can be customized using
+	 * {@link HttpBasicConfigurer#realmName(String)}.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2472,7 +2781,6 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link HttpBasicConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -2486,8 +2794,8 @@ public final class HttpSecurity extends
 	 * <h2>Example Configuration</h2>
 	 *
 	 * The example below demonstrates how to configure HTTP Basic authentication for an
-	 * application. The default realm is "Realm", but can be
-	 * customized using {@link HttpBasicConfigurer#realmName(String)}.
+	 * application. The default realm is "Realm", but can be customized using
+	 * {@link HttpBasicConfigurer#realmName(String)}.
 	 *
 	 * <pre>
 	 * &#064;Configuration
@@ -2497,7 +2805,7 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -2505,9 +2813,8 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
-	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for
-	 * the {@link HttpBasicConfigurer}
+	 * @param httpBasicCustomizer the {@link Customizer} to provide more options for the
+	 * {@link HttpBasicConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 */
@@ -2516,43 +2823,90 @@ public final class HttpSecurity extends
 		return HttpSecurity.this;
 	}
 
+	/**
+	 * Adds support for the password management.
+	 *
+	 * <h2>Example Configuration</h2> The example below demonstrates how to configure
+	 * password management for an application. The default change password page is
+	 * "/change-password", but can be customized using
+	 * {@link PasswordManagementConfigurer#changePasswordPage(String)}.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class PasswordManagementSecurityConfig extends WebSecurityConfigurerAdapter {
+	 *
+	 * 	&#064;Override
+	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests(authorizeRequests -&gt;
+	 * 				authorizeRequests
+	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.passwordManagement(passwordManagement -&gt;
+	 * 				passwordManagement
+	 * 					.changePasswordPage(&quot;/custom-change-password-page&quot;)
+	 * 			);
+	 *  }
+	 * }
+	 * </pre>
+	 * @param passwordManagementCustomizer the {@link Customizer} to provide more options
+	 * for the {@link PasswordManagementConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 5.6
+	 */
+	public HttpSecurity passwordManagement(
+			Customizer<PasswordManagementConfigurer<HttpSecurity>> passwordManagementCustomizer) throws Exception {
+		passwordManagementCustomizer.customize(getOrApply(new PasswordManagementConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configure the default {@link AuthenticationManager}.
+	 * @param authenticationManager the {@link AuthenticationManager} to use
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @since 5.6
+	 */
+	public HttpSecurity authenticationManager(AuthenticationManager authenticationManager) {
+		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		this.authenticationManager = authenticationManager;
+		return HttpSecurity.this;
+	}
+
+	@Override
 	public <C> void setSharedObject(Class<C> sharedType, C object) {
 		super.setSharedObject(sharedType, object);
 	}
 
 	@Override
 	protected void beforeConfigure() throws Exception {
-		setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+		if (this.authenticationManager != null) {
+			setSharedObject(AuthenticationManager.class, this.authenticationManager);
+		}
+		else {
+			setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+		}
 	}
 
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
-		filters.sort(comparator);
-		return new DefaultSecurityFilterChain(requestMatcher, filters);
+		this.filters.sort(OrderComparator.INSTANCE);
+		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
+		for (Filter filter : this.filters) {
+			sortedFilters.add(((OrderedFilter) filter).filter);
+		}
+		return new DefaultSecurityFilterChain(this.requestMatcher, sortedFilters);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#authenticationProvider
-	 * (org.springframework.security.authentication.AuthenticationProvider)
-	 */
-	public HttpSecurity authenticationProvider(
-			AuthenticationProvider authenticationProvider) {
+	@Override
+	public HttpSecurity authenticationProvider(AuthenticationProvider authenticationProvider) {
 		getAuthenticationRegistry().authenticationProvider(authenticationProvider);
 		return this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#userDetailsService
-	 * (org.springframework.security.core.userdetails.UserDetailsService)
-	 */
-	public HttpSecurity userDetailsService(UserDetailsService userDetailsService)
-			throws Exception {
+	@Override
+	public HttpSecurity userDetailsService(UserDetailsService userDetailsService) throws Exception {
 		getAuthenticationRegistry().userDetailsService(userDetailsService);
 		return this;
 	}
@@ -2561,47 +2915,31 @@ public final class HttpSecurity extends
 		return getSharedObject(AuthenticationManagerBuilder.class);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilterAfter(javax
-	 * .servlet.Filter, java.lang.Class)
-	 */
+	@Override
 	public HttpSecurity addFilterAfter(Filter filter, Class<? extends Filter> afterFilter) {
-		comparator.registerAfter(filter.getClass(), afterFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 1, afterFilter);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilterBefore(
-	 * javax.servlet.Filter, java.lang.Class)
-	 */
-	public HttpSecurity addFilterBefore(Filter filter,
-			Class<? extends Filter> beforeFilter) {
-		comparator.registerBefore(filter.getClass(), beforeFilter);
-		return addFilter(filter);
+	@Override
+	public HttpSecurity addFilterBefore(Filter filter, Class<? extends Filter> beforeFilter) {
+		return addFilterAtOffsetOf(filter, -1, beforeFilter);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.springframework.security.config.annotation.web.HttpSecurityBuilder#addFilter(javax.
-	 * servlet.Filter)
-	 */
+	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
+		int order = this.filterOrders.getOrder(registeredFilter) + offset;
+		this.filters.add(new OrderedFilter(filter, order));
+		this.filterOrders.put(filter.getClass(), order);
+		return this;
+	}
+
+	@Override
 	public HttpSecurity addFilter(Filter filter) {
-		Class<? extends Filter> filterClass = filter.getClass();
-		if (!comparator.isRegistered(filterClass)) {
-			throw new IllegalArgumentException(
-					"The Filter class "
-							+ filterClass.getName()
-							+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
+		Integer order = this.filterOrders.getOrder(filter.getClass());
+		if (order == null) {
+			throw new IllegalArgumentException("The Filter class " + filter.getClass().getName()
+					+ " does not have a registered order and cannot be added without a specified order. Consider using addFilterBefore or addFilterAfter instead.");
 		}
-		this.filters.add(filter);
+		this.filters.add(new OrderedFilter(filter, order));
 		return this;
 	}
 
@@ -2618,29 +2956,28 @@ public final class HttpSecurity extends
 	 * deterministic. More concretely, registering multiple Filters in the same location
 	 * does not override existing Filters. Instead, do not register Filters you do not
 	 * want to use.
-	 *
 	 * @param filter the Filter to register
 	 * @param atFilter the location of another {@link Filter} that is already registered
 	 * (i.e. known) with Spring Security.
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity addFilterAt(Filter filter, Class<? extends Filter> atFilter) {
-		this.comparator.registerAt(filter.getClass(), atFilter);
-		return addFilter(filter);
+		return addFilterAtOffsetOf(filter, 0, atFilter);
 	}
 
 	/**
 	 * Allows specifying which {@link HttpServletRequest} instances this
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
-	 * only a single {@link RequestMatcher} is necessary consider using {@link #mvcMatcher(String)},
-	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, or
-	 * {@link #requestMatcher(RequestMatcher)}.
+	 * only a single {@link RequestMatcher} is necessary consider using
+	 * {@link #mvcMatcher(String)}, {@link #antMatcher(String)},
+	 * {@link #regexMatcher(String)}, or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #requestMatchers()} will not override previous invocations of {@link #mvcMatcher(String)}},
-	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * Invoking {@link #requestMatchers()} will not override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
 	 *
 	 * <h3>Example Configurations</h3>
@@ -2733,25 +3070,25 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @return the {@link RequestMatcherConfigurer} for further customizations
 	 */
 	public RequestMatcherConfigurer requestMatchers() {
-		return requestMatcherConfigurer;
+		return this.requestMatcherConfigurer;
 	}
 
 	/**
 	 * Allows specifying which {@link HttpServletRequest} instances this
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
-	 * only a single {@link RequestMatcher} is necessary consider using {@link #mvcMatcher(String)},
-	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, or
-	 * {@link #requestMatcher(RequestMatcher)}.
+	 * only a single {@link RequestMatcher} is necessary consider using
+	 * {@link #mvcMatcher(String)}, {@link #antMatcher(String)},
+	 * {@link #regexMatcher(String)}, or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #requestMatchers()} will not override previous invocations of {@link #mvcMatcher(String)}},
-	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * Invoking {@link #requestMatchers()} will not override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
 	 *
 	 * <h3>Example Configurations</h3>
@@ -2767,11 +3104,11 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.requestMatchers(requestMatchers ->
+	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
 	 * 					.antMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
 	 * 			)
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -2790,12 +3127,12 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.requestMatchers(requestMatchers ->
+	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
 	 * 					.antMatchers(&quot;/api/**&quot;)
 	 * 					.antMatchers(&quot;/oauth/**&quot;)
 	 * 			)
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -2814,15 +3151,15 @@ public final class HttpSecurity extends
 	 * 	&#064;Override
 	 * 	protected void configure(HttpSecurity http) throws Exception {
 	 * 		http
-	 * 			.requestMatchers(requestMatchers ->
+	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
 	 * 					.antMatchers(&quot;/api/**&quot;)
 	 * 			)
-	 *			.requestMatchers(requestMatchers ->
+	 *			.requestMatchers((requestMatchers) -&gt;
 	 *			requestMatchers
 	 * 				.antMatchers(&quot;/oauth/**&quot;)
 	 * 			)
-	 * 			.authorizeRequests(authorizeRequests ->
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
@@ -2830,13 +3167,12 @@ public final class HttpSecurity extends
 	 * 	}
 	 * }
 	 * </pre>
-	 *
 	 * @param requestMatcherCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestMatcherConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
 	 */
 	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) {
-		requestMatcherCustomizer.customize(requestMatcherConfigurer);
+		requestMatcherCustomizer.customize(this.requestMatcherConfigurer);
 		return HttpSecurity.this;
 	}
 
@@ -2847,10 +3183,10 @@ public final class HttpSecurity extends
 	 *
 	 * <p>
 	 * Invoking {@link #requestMatcher(RequestMatcher)} will override previous invocations
-	 * of {@link #requestMatchers()}, {@link #mvcMatcher(String)}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * of {@link #requestMatchers()}, {@link #mvcMatcher(String)},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
-	 *
 	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
 	 * AntPathRequestMatcher("/admin/**","GET") )
 	 * @return the {@link HttpSecurity} for further customizations
@@ -2869,11 +3205,11 @@ public final class HttpSecurity extends
 	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #antMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
-	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * Invoking {@link #antMatcher(String)} will override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
-	 *
 	 * @param antPattern the Ant Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see AntPathRequestMatcher
@@ -2884,21 +3220,23 @@ public final class HttpSecurity extends
 
 	/**
 	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
-	 * provided Spring MVC pattern. If more advanced configuration is necessary, consider using
-	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
+	 * provided Spring MVC pattern. If more advanced configuration is necessary, consider
+	 * using {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #mvcMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
-	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * Invoking {@link #mvcMatcher(String)} will override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
-	 *
 	 * @param mvcPattern the Spring MVC Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see MvcRequestMatcher
 	 */
 	public HttpSecurity mvcMatcher(String mvcPattern) {
-		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector(getContext());
+		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector();
+		introspector.setApplicationContext(getContext());
+		introspector.afterPropertiesSet();
 		return requestMatcher(new MvcRequestMatcher(introspector, mvcPattern));
 	}
 
@@ -2908,17 +3246,35 @@ public final class HttpSecurity extends
 	 * {@link #requestMatchers()} or {@link #requestMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #regexMatcher(String)} will override previous invocations of {@link #mvcMatcher(String)}},
-	 * {@link #requestMatchers()}, {@link #antMatcher(String)},
-	 * {@link #regexMatcher(String)}, and {@link #requestMatcher(RequestMatcher)}.
+	 * Invoking {@link #regexMatcher(String)} will override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
-	 *
 	 * @param pattern the Regular Expression to match on (i.e. "/admin/.+")
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see RegexRequestMatcher
 	 */
 	public HttpSecurity regexMatcher(String pattern) {
 		return requestMatcher(new RegexRequestMatcher(pattern, null));
+	}
+
+	/**
+	 * If the {@link SecurityConfigurer} has already been specified get the original,
+	 * otherwise apply the new {@link SecurityConfigurerAdapter}.
+	 * @param configurer the {@link SecurityConfigurer} to apply if one is not found for
+	 * this {@link SecurityConfigurer} class.
+	 * @return the current {@link SecurityConfigurer} for the configurer passed in
+	 * @throws Exception
+	 */
+	@SuppressWarnings("unchecked")
+	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(C configurer)
+			throws Exception {
+		C existingConfig = (C) getConfigurer(configurer.getClass());
+		if (existingConfig != null) {
+			return existingConfig;
+		}
+		return apply(configurer);
 	}
 
 	/**
@@ -2935,8 +3291,7 @@ public final class HttpSecurity extends
 		 * @param matchers the {@link MvcRequestMatcher} instances to set the servlet path
 		 * on if {@link #servletPath(String)} is set.
 		 */
-		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context,
-				List<MvcRequestMatcher> matchers) {
+		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context, List<MvcRequestMatcher> matchers) {
 			super(context);
 			this.matchers = new ArrayList<>(matchers);
 		}
@@ -2956,21 +3311,16 @@ public final class HttpSecurity extends
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
-	public class RequestMatcherConfigurer
-			extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
+	public class RequestMatcherConfigurer extends AbstractRequestMatcherRegistry<RequestMatcherConfigurer> {
 
 		protected List<RequestMatcher> matchers = new ArrayList<>();
 
-		/**
-		 * @param context
-		 */
-		private RequestMatcherConfigurer(ApplicationContext context) {
+		RequestMatcherConfigurer(ApplicationContext context) {
 			setApplicationContext(context);
 		}
 
 		@Override
-		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method,
-				String... mvcPatterns) {
+		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			setMatchers(mvcMatchers);
 			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers);
@@ -2982,8 +3332,7 @@ public final class HttpSecurity extends
 		}
 
 		@Override
-		protected RequestMatcherConfigurer chainRequestMatchers(
-				List<RequestMatcher> requestMatchers) {
+		protected RequestMatcherConfigurer chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			setMatchers(requestMatchers);
 			return this;
 		}
@@ -2995,7 +3344,6 @@ public final class HttpSecurity extends
 
 		/**
 		 * Return the {@link HttpSecurity} for further customizations
-		 *
 		 * @return the {@link HttpSecurity} for further customizations
 		 */
 		public HttpSecurity and() {
@@ -3005,21 +3353,36 @@ public final class HttpSecurity extends
 	}
 
 	/**
-	 * If the {@link SecurityConfigurer} has already been specified get the original,
-	 * otherwise apply the new {@link SecurityConfigurerAdapter}.
-	 *
-	 * @param configurer the {@link SecurityConfigurer} to apply if one is not found for
-	 * this {@link SecurityConfigurer} class.
-	 * @return the current {@link SecurityConfigurer} for the configurer passed in
-	 * @throws Exception
+	 * A Filter that implements Ordered to be sorted. After sorting occurs, the original
+	 * filter is what is used by FilterChainProxy
 	 */
-	@SuppressWarnings("unchecked")
-	private <C extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> C getOrApply(
-			C configurer) throws Exception {
-		C existingConfig = (C) getConfigurer(configurer.getClass());
-		if (existingConfig != null) {
-			return existingConfig;
+	private static final class OrderedFilter implements Ordered, Filter {
+
+		private final Filter filter;
+
+		private final int order;
+
+		private OrderedFilter(Filter filter, int order) {
+			this.filter = filter;
+			this.order = order;
 		}
-		return apply(configurer);
+
+		@Override
+		public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
+				throws IOException, ServletException {
+			this.filter.doFilter(servletRequest, servletResponse, filterChain);
+		}
+
+		@Override
+		public int getOrder() {
+			return this.order;
+		}
+
+		@Override
+		public String toString() {
+			return "OrderedFilter{" + "filter=" + this.filter + ", order=" + this.order + '}';
+		}
+
 	}
+
 }

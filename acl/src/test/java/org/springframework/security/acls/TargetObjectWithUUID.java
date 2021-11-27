@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.acls;
 
 import java.util.UUID;
@@ -27,10 +28,11 @@ public final class TargetObjectWithUUID {
 	private UUID id;
 
 	public UUID getId() {
-		return id;
+		return this.id;
 	}
 
 	public void setId(UUID id) {
 		this.id = id;
 	}
+
 }

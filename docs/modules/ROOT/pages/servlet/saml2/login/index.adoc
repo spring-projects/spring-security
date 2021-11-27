@@ -1,0 +1,18 @@
+[[servlet-saml2login]]
+= SAML 2.0 Login
+:page-section-summary-toc: 1
+
+The SAML 2.0 Login feature provides an application with the capability to act as a SAML 2.0 Relying Party, having users https://wiki.shibboleth.net/confluence/display/CONCEPT/FlowsAndConfig[log in] to the application by using their existing account at a SAML 2.0 Asserting Party (Okta, ADFS, etc).
+
+NOTE: SAML 2.0 Login is implemented by using the *Web Browser SSO Profile*, as specified in
+https://www.oasis-open.org/committees/download.php/35389/sstc-saml-profiles-errata-2.0-wd-06-diff.pdf#page=15[SAML 2 Profiles].
+
+[[servlet-saml2login-spring-security-history]]
+Since 2009, support for relying parties has existed as an https://github.com/spring-projects/spring-security-saml/tree/1e013b07a7772defd6a26fcfae187c9bf661ee8f#spring-saml[extension project].
+In 2019, the process began to port that into https://github.com/spring-projects/spring-security[Spring Security] proper.
+This process is similar to the one started in 2017 for xref:servlet/oauth2/index.adoc[Spring Security's OAuth 2.0 support].
+
+[NOTE]
+====
+A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2-login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security Samples repository].
+====

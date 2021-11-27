@@ -21,6 +21,7 @@ import java.util.Collection;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.security.access.ConfigAttribute;
 
@@ -31,22 +32,18 @@ import org.springframework.security.access.ConfigAttribute;
  * @author Ben Alex
  * @author Luke Taylor
  */
-public abstract class AbstractMethodSecurityMetadataSource implements
-		MethodSecurityMetadataSource {
+public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 
 	protected final Log logger = LogFactory.getLog(getClass());
 
-	// ~ Methods
-	// ========================================================================================================
-
+	@Override
 	public final Collection<ConfigAttribute> getAttributes(Object object) {
 		if (object instanceof MethodInvocation) {
 			MethodInvocation mi = (MethodInvocation) object;
 			Object target = mi.getThis();
 			Class<?> targetClass = null;
-
 			if (target != null) {
-				targetClass = target instanceof Class<?> ? (Class<?>) target
+				targetClass = (target instanceof Class<?>) ? (Class<?>) target
 						: AopProxyUtils.ultimateTargetClass(target);
 			}
 			Collection<ConfigAttribute> attrs = getAttributes(mi.getMethod(), targetClass);
@@ -58,11 +55,12 @@ public abstract class AbstractMethodSecurityMetadataSource implements
 			}
 			return attrs;
 		}
-
 		throw new IllegalArgumentException("Object must be a non-null MethodInvocation");
 	}
 
+	@Override
 	public final boolean supports(Class<?> clazz) {
 		return (MethodInvocation.class.isAssignableFrom(clazz));
 	}
+
 }

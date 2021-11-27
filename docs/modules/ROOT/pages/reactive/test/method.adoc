@@ -1,0 +1,75 @@
+[[test-erms]]
+= Testing Method Security
+
+For example, we can test our example from xref:reactive/authorization/method.adoc#jc-erms[EnableReactiveMethodSecurity] using the same setup and annotations we did in xref:servlet/test/method.adoc#test-method[Testing Method Security].
+Here is a minimal sample of what we can do:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@RunWith(SpringRunner.class)
+@ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
+public class HelloWorldMessageServiceTests {
+	@Autowired
+	HelloWorldMessageService messages;
+
+	@Test
+	public void messagesWhenNotAuthenticatedThenDenied() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectError(AccessDeniedException.class)
+			.verify();
+	}
+
+	@Test
+	@WithMockUser
+	public void messagesWhenUserThenDenied() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectError(AccessDeniedException.class)
+			.verify();
+	}
+
+	@Test
+	@WithMockUser(roles = "ADMIN")
+	public void messagesWhenAdminThenOk() {
+		StepVerifier.create(this.messages.findMessage())
+			.expectNext("Hello World!")
+			.verifyComplete();
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@RunWith(SpringRunner::class)
+@ContextConfiguration(classes = [HelloWebfluxMethodApplication::class])
+class HelloWorldMessageServiceTests {
+    @Autowired
+    lateinit var messages: HelloWorldMessageService
+
+    @Test
+    fun messagesWhenNotAuthenticatedThenDenied() {
+        StepVerifier.create(messages.findMessage())
+            .expectError(AccessDeniedException::class.java)
+            .verify()
+    }
+
+    @Test
+    @WithMockUser
+    fun messagesWhenUserThenDenied() {
+        StepVerifier.create(messages.findMessage())
+            .expectError(AccessDeniedException::class.java)
+            .verify()
+    }
+
+    @Test
+    @WithMockUser(roles = ["ADMIN"])
+    fun messagesWhenAdminThenOk() {
+        StepVerifier.create(messages.findMessage())
+            .expectNext("Hello World!")
+            .verifyComplete()
+    }
+}
+----
+====

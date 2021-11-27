@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 /**
  * Logout functionality based around a filter which handles a specific logout URL.
  */
 package org.springframework.security.web.authentication.logout;
-

@@ -13,31 +13,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.integration;
+
+import org.junit.jupiter.api.Test;
+
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.Test;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-
 public class BasicAuthenticationTests extends AbstractWebServerIntegrationTests {
 
 	@Test
 	public void httpBasicWhenAuthenticationRequiredAndNotAuthenticatedThen401() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
-		mockMvc.perform(get("secure/index"))
-			.andExpect(status().isUnauthorized());
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		// @formatter:off
+		mockMvc.perform(get("/secure/index"))
+				.andExpect(status().isUnauthorized());
+		// @formatter:on
 	}
 
 	@Test
 	public void httpBasicWhenProvidedThen200() throws Exception {
-		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml", "classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		MockMvc mockMvc = createMockMvc("classpath:/spring/http-security-basic.xml",
+				"classpath:/spring/in-memory-provider.xml", "classpath:/spring/testapp-servlet.xml");
+		// @formatter:off
 		MockHttpServletRequestBuilder request = get("/secure/index")
 				.with(httpBasic("johnc", "johncspassword"));
-		mockMvc.perform(request)
-			.andExpect(status().isOk());
+		// @formatter:on
+		mockMvc.perform(request).andExpect(status().isOk());
 	}
+
 }

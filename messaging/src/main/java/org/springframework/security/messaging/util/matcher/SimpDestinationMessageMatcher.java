@@ -13,7 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.messaging.util.matcher;
+
+import java.util.Collections;
+import java.util.Map;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
@@ -22,9 +26,6 @@ import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 
-import java.util.Collections;
-import java.util.Map;
-
 /**
  * <p>
  * MessageMatcher which compares a pre-defined pattern against the destination of a
@@ -32,13 +33,13 @@ import java.util.Map;
  * {@link SimpMessageType}.
  * </p>
  *
- * @since 4.0
  * @author Rob Winch
+ * @since 4.0
  */
 public final class SimpDestinationMessageMatcher implements MessageMatcher<Object> {
-	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = message -> {
-		String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
+
+	public static final MessageMatcher<Object> NULL_DESTINATION_MATCHER = (message) -> {
+		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
 		return destination == null;
 	};
 
@@ -49,6 +50,7 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * null, this matcher will match every Message.
 	 */
 	private final MessageMatcher<Object> messageTypeMatcher;
+
 	private final String pattern;
 
 	/**
@@ -77,7 +79,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <li>{@code com/&#42;&#42;/test} - matches all destinations ending with {@code test}
 	 * underneath the {@code com} path</li>
 	 * </ul>
-	 *
 	 * @param pattern the pattern to use
 	 */
 	public SimpDestinationMessageMatcher(String pattern) {
@@ -87,7 +88,6 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param pathMatcher the {@link PathMatcher} to use.
 	 */
@@ -99,89 +99,70 @@ public final class SimpDestinationMessageMatcher implements MessageMatcher<Objec
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@link SimpMessageType}, and
 	 * {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param type the {@link SimpMessageType} to match on or null if any
 	 * {@link SimpMessageType} should be matched.
 	 * @param pathMatcher the {@link PathMatcher} to use.
 	 */
-	private SimpDestinationMessageMatcher(String pattern, SimpMessageType type,
-			PathMatcher pathMatcher) {
+	private SimpDestinationMessageMatcher(String pattern, SimpMessageType type, PathMatcher pathMatcher) {
 		Assert.notNull(pattern, "pattern cannot be null");
 		Assert.notNull(pathMatcher, "pathMatcher cannot be null");
-		if (!isTypeWithDestination(type)) {
-			throw new IllegalArgumentException("SimpMessageType " + type
-					+ " does not contain a destination and so cannot be matched on.");
-		}
-
+		Assert.isTrue(isTypeWithDestination(type),
+				() -> "SimpMessageType " + type + " does not contain a destination and so cannot be matched on.");
 		this.matcher = pathMatcher;
-		this.messageTypeMatcher = type == null ? ANY_MESSAGE
-				: new SimpMessageTypeMatcher(type);
+		this.messageTypeMatcher = (type != null) ? new SimpMessageTypeMatcher(type) : ANY_MESSAGE;
 		this.pattern = pattern;
 	}
 
+	@Override
 	public boolean matches(Message<?> message) {
-		if (!messageTypeMatcher.matches(message)) {
+		if (!this.messageTypeMatcher.matches(message)) {
 			return false;
 		}
-
-		String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
-		return destination != null && matcher.match(pattern, destination);
+		String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
+		return destination != null && this.matcher.match(this.pattern, destination);
 	}
 
-
-	public Map<String, String> extractPathVariables(Message<?> message){
-		final String destination = SimpMessageHeaderAccessor.getDestination(message
-				.getHeaders());
-		return destination != null ? matcher.extractUriTemplateVariables(pattern, destination)
+	public Map<String, String> extractPathVariables(Message<?> message) {
+		final String destination = SimpMessageHeaderAccessor.getDestination(message.getHeaders());
+		return (destination != null) ? this.matcher.extractUriTemplateVariables(this.pattern, destination)
 				: Collections.emptyMap();
 	}
 
 	public MessageMatcher<Object> getMessageTypeMatcher() {
-		return messageTypeMatcher;
+		return this.messageTypeMatcher;
 	}
 
 	@Override
 	public String toString() {
-		return "SimpDestinationMessageMatcher [matcher=" + matcher
-				+ ", messageTypeMatcher=" + messageTypeMatcher + ", pattern=" + pattern
-				+ "]";
+		return "SimpDestinationMessageMatcher [matcher=" + this.matcher + ", messageTypeMatcher="
+				+ this.messageTypeMatcher + ", pattern=" + this.pattern + "]";
 	}
 
 	private boolean isTypeWithDestination(SimpMessageType type) {
-		if (type == null) {
-			return true;
-		}
-		return SimpMessageType.MESSAGE.equals(type)
-				|| SimpMessageType.SUBSCRIBE.equals(type);
+		return type == null || SimpMessageType.MESSAGE.equals(type) || SimpMessageType.SUBSCRIBE.equals(type);
 	}
 
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern,
 	 * {@code SimpMessageType.SUBSCRIBE}, and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param matcher the {@link PathMatcher} to use.
 	 */
-	public static SimpDestinationMessageMatcher createSubscribeMatcher(String pattern,
-			PathMatcher matcher) {
-		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.SUBSCRIBE,
-				matcher);
+	public static SimpDestinationMessageMatcher createSubscribeMatcher(String pattern, PathMatcher matcher) {
+		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.SUBSCRIBE, matcher);
 	}
 
 	/**
 	 * <p>
 	 * Creates a new instance with the specified pattern, {@code SimpMessageType.MESSAGE},
 	 * and {@link PathMatcher}.
-	 *
 	 * @param pattern the pattern to use
 	 * @param matcher the {@link PathMatcher} to use.
 	 */
-	public static SimpDestinationMessageMatcher createMessageMatcher(String pattern,
-			PathMatcher matcher) {
-		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.MESSAGE,
-				matcher);
+	public static SimpDestinationMessageMatcher createMessageMatcher(String pattern, PathMatcher matcher) {
+		return new SimpDestinationMessageMatcher(pattern, SimpMessageType.MESSAGE, matcher);
 	}
+
 }

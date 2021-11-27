@@ -1,26 +1,36 @@
 apply plugin: 'io.spring.convention.spring-module'
 
 dependencies {
-	compile project(':spring-security-core')
-	compile project(':spring-security-web')
-	compile 'org.springframework:spring-core'
-	compile 'org.springframework:spring-test'
+	management platform(project(":spring-security-dependencies"))
+	api project(':spring-security-core')
+	api project(':spring-security-web')
+	api 'org.springframework:spring-core'
+	api 'org.springframework:spring-test'
 
 	optional project(':spring-security-config')
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
 	optional 'io.projectreactor:reactor-core'
+	optional 'org.springframework:spring-webmvc'
 	optional 'org.springframework:spring-webflux'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
-	testCompile project(path : ':spring-security-config', configuration : 'tests')
-	testCompile 'com.fasterxml.jackson.core:jackson-databind'
-	testCompile 'io.projectreactor:reactor-test'
-	testCompile 'javax.xml.bind:jaxb-api'
-	testCompile 'org.skyscreamer:jsonassert'
-	testCompile 'org.springframework:spring-webmvc'
-	testCompile 'org.springframework:spring-tx'
-	testCompile powerMock2Dependencies
+	testImplementation project(path : ':spring-security-config', configuration : 'tests')
+	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
+	testImplementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+	testImplementation "org.assertj:assertj-core"
+	testImplementation "org.junit.jupiter:junit-jupiter-api"
+	testImplementation "org.junit.jupiter:junit-jupiter-params"
+	testImplementation "org.junit.jupiter:junit-jupiter-engine"
+	testImplementation "org.mockito:mockito-core"
+	testImplementation 'org.mockito:mockito-inline'
+	testImplementation "org.mockito:mockito-junit-jupiter"
+	testImplementation "org.springframework:spring-test"
+	testImplementation 'org.skyscreamer:jsonassert'
+	testImplementation 'org.springframework:spring-webmvc'
+	testImplementation 'org.springframework:spring-tx'
 }

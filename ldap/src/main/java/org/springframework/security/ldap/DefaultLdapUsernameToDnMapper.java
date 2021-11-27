@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap;
 
 import org.springframework.ldap.core.DistinguishedName;
@@ -26,7 +27,9 @@ import org.springframework.ldap.core.DistinguishedName;
  * @author Luke Taylor
  */
 public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
+
 	private final String userDnBase;
+
 	private final String usernameAttribute;
 
 	/**
@@ -41,11 +44,11 @@ public class DefaultLdapUsernameToDnMapper implements LdapUsernameToDnMapper {
 	/**
 	 * Assembles the Distinguished Name that should be used the given username.
 	 */
+	@Override
 	public DistinguishedName buildDn(String username) {
-		DistinguishedName dn = new DistinguishedName(userDnBase);
-
-		dn.add(usernameAttribute, username);
-
+		DistinguishedName dn = new DistinguishedName(this.userDnBase);
+		dn.add(this.usernameAttribute, username);
 		return dn;
 	}
+
 }

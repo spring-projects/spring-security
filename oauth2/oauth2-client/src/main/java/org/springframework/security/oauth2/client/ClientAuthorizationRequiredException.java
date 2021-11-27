@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,42 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.oauth2.client;
 
-import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
-import org.springframework.util.Assert;
 
 /**
- * This exception is thrown when an OAuth 2.0 Client is required
- * to obtain authorization from the Resource Owner.
+ * This exception is thrown when an OAuth 2.0 Client is required to obtain authorization
+ * from the Resource Owner.
  *
  * @author Joe Grandja
  * @since 5.1
  * @see OAuth2AuthorizedClient
  */
-public class ClientAuthorizationRequiredException extends OAuth2AuthorizationException {
+public class ClientAuthorizationRequiredException extends ClientAuthorizationException {
+
 	private static final String CLIENT_AUTHORIZATION_REQUIRED_ERROR_CODE = "client_authorization_required";
-	private final String clientRegistrationId;
 
 	/**
-	 * Constructs a {@code ClientAuthorizationRequiredException} using the provided parameters.
-	 *
+	 * Constructs a {@code ClientAuthorizationRequiredException} using the provided
+	 * parameters.
 	 * @param clientRegistrationId the identifier for the client's registration
 	 */
 	public ClientAuthorizationRequiredException(String clientRegistrationId) {
 		super(new OAuth2Error(CLIENT_AUTHORIZATION_REQUIRED_ERROR_CODE,
-				"Authorization required for Client Registration Id: " + clientRegistrationId, null));
-		Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-		this.clientRegistrationId = clientRegistrationId;
+				"Authorization required for Client Registration Id: " + clientRegistrationId, null),
+				clientRegistrationId);
 	}
 
-	/**
-	 * Returns the identifier for the client's registration.
-	 *
-	 * @return the identifier for the client's registration
-	 */
-	public String getClientRegistrationId() {
-		return this.clientRegistrationId;
-	}
 }

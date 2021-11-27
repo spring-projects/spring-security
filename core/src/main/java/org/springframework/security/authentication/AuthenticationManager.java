@@ -25,8 +25,6 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public interface AuthenticationManager {
-	// ~ Methods
-	// ========================================================================================================
 
 	/**
 	 * Attempts to authenticate the passed {@link Authentication} object, returning a
@@ -48,13 +46,10 @@ public interface AuthenticationManager {
 	 * above (i.e. if an account is disabled or locked, the authentication request is
 	 * immediately rejected and the credentials testing process is not performed). This
 	 * prevents credentials being tested against disabled or locked accounts.
-	 *
 	 * @param authentication the authentication request object
-	 *
 	 * @return a fully authenticated object including credentials
-	 *
 	 * @throws AuthenticationException if authentication fails
 	 */
-	Authentication authenticate(Authentication authentication)
-			throws AuthenticationException;
+	Authentication authenticate(Authentication authentication) throws AuthenticationException;
+
 }

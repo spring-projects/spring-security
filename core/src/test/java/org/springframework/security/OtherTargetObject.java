@@ -34,18 +34,20 @@ package org.springframework.security;
  * @author Ben Alex
  */
 public class OtherTargetObject extends TargetObject implements ITargetObject {
-	// ~ Methods
-	// ========================================================================================================
 
+	@Override
 	public String makeLowerCase(String input) {
 		return super.makeLowerCase(input);
 	}
 
+	@Override
 	public String makeUpperCase(String input) {
 		return super.makeUpperCase(input);
 	}
 
+	@Override
 	public String publicMakeLowerCase(String input) {
 		return super.publicMakeLowerCase(input);
 	}
+
 }

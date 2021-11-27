@@ -1,0 +1,23 @@
+[[servlet-authentication]]
+= Authentication
+
+Spring Security provides comprehensive support for xref:features/authentication/index.adoc#authentication[Authentication].
+We start by discussing the overall xref:servlet/architecture.adoc#servlet-architecture[Servlet Authentication Architecture].
+As you might expect, this section is more abstract describing the architecture without much discussion on how it applies to concrete flows.
+
+If you prefer, you can refer to <<servlet-authentication-mechanisms,Authentication Mechanisms>> for concrete ways in which users can authenticate.
+These sections focus on specific ways you may want to authenticate and point back at the architecture sections to describe how the specific flows work.
+
+[[servlet-authentication-mechanisms]]
+== Authentication Mechanisms
+
+// FIXME: brief description
+
+* xref:servlet/authentication/passwords/index.adoc#servlet-authentication-unpwd[Username and Password] - how to authenticate with a username/password
+* xref:servlet/oauth2/login/index.adoc#oauth2login[OAuth 2.0 Login] - OAuth 2.0 Log In with OpenID Connect and non-standard OAuth 2.0 Login (i.e. GitHub)
+* xref:servlet/saml2/index.adoc#servlet-saml2[SAML 2.0 Login] - SAML 2.0 Log In
+* xref:servlet/authentication/rememberme.adoc#servlet-rememberme[Remember Me] - how to remember a user past session expiration
+* xref:servlet/authentication/jaas.adoc#servlet-jaas[JAAS Authentication] - authenticate with JAAS
+* xref:servlet/authentication/openid.adoc#servlet-openid[OpenID] - OpenID Authentication (not to be confused with OpenID Connect)
+* xref:servlet/authentication/preauth.adoc#servlet-preauth[Pre-Authentication Scenarios] - authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
+* xref:servlet/authentication/x509.adoc#servlet-x509[X509 Authentication] - X509 Authentication

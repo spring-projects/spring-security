@@ -16,18 +16,19 @@
 
 package org.springframework.security.rsocket.authentication;
 
+import java.util.List;
+
+import reactor.core.publisher.Mono;
+
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.util.Assert;
-import reactor.core.publisher.Mono;
-import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
-
-import java.util.List;
+import org.springframework.security.rsocket.api.PayloadInterceptorChain;
+import org.springframework.util.Assert;
 
 /**
  * If {@link ReactiveSecurityContextHolder} is empty populates an
@@ -38,16 +39,17 @@ import java.util.List;
  */
 public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered {
 
-	private String key;
-	private Object principal;
-	private List<GrantedAuthority> authorities;
+	private final String key;
+
+	private final Object principal;
+
+	private final List<GrantedAuthority> authorities;
 
 	private int order;
 
 	/**
 	 * Creates a filter with a principal named "anonymousUser" and the single authority
 	 * "ROLE_ANONYMOUS".
-	 *
 	 * @param key the key to identify tokens created by this filter
 	 */
 	public AnonymousPayloadInterceptor(String key) {
@@ -55,12 +57,11 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 	}
 
 	/**
-	 * @param key         key the key to identify tokens created by this filter
-	 * @param principal   the principal which will be used to represent anonymous users
+	 * @param key key the key to identify tokens created by this filter
+	 * @param principal the principal which will be used to represent anonymous users
 	 * @param authorities the authority list for anonymous users
 	 */
-	public AnonymousPayloadInterceptor(String key, Object principal,
-			List<GrantedAuthority> authorities) {
+	public AnonymousPayloadInterceptor(String key, Object principal, List<GrantedAuthority> authorities) {
 		Assert.hasLength(key, "key cannot be null or empty");
 		Assert.notNull(principal, "Anonymous authentication principal must be set");
 		Assert.notNull(authorities, "Anonymous authorities must be set");
@@ -80,14 +81,13 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 
 	@Override
 	public Mono<Void> intercept(PayloadExchange exchange, PayloadInterceptorChain chain) {
-		return ReactiveSecurityContextHolder.getContext()
-				.switchIfEmpty(Mono.defer(() -> {
-					AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(
-							this.key, this.principal, this.authorities);
-					return chain.next(exchange)
-							.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-							.then(Mono.empty());
-				}))
-				.flatMap(securityContext -> chain.next(exchange));
+		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
+			AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(this.key, this.principal,
+					this.authorities);
+			return chain.next(exchange)
+					.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+					.then(Mono.empty());
+		})).flatMap((securityContext) -> chain.next(exchange));
 	}
+
 }

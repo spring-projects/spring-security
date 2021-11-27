@@ -19,6 +19,7 @@ package org.springframework.security.util;
 import java.lang.reflect.Method;
 
 import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.util.Assert;
@@ -34,37 +35,30 @@ import org.springframework.util.Assert;
  */
 public final class MethodInvocationUtils {
 
-	// ~ Methods
-	// ========================================================================================================
+	private MethodInvocationUtils() {
+	}
 
 	/**
 	 * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on
 	 * the passed object, using the <code>args</code> to locate the method.
-	 *
 	 * @param object the object that will be used to find the relevant <code>Method</code>
 	 * @param methodName the name of the method to find
 	 * @param args arguments that are required as part of the method signature (can be
 	 * empty)
-	 *
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation create(Object object, String methodName,
-			Object... args) {
+	public static MethodInvocation create(Object object, String methodName, Object... args) {
 		Assert.notNull(object, "Object required");
-
 		Class<?>[] classArgs = null;
-
 		if (args != null) {
 			classArgs = new Class<?>[args.length];
-
 			for (int i = 0; i < args.length; i++) {
 				classArgs[i] = args[i].getClass();
 			}
 		}
-
-		// Determine the type that declares the requested method, taking into account
-		// proxies
+		// Determine the type that declares the requested method,
+		// taking into account proxies
 		Class<?> target = AopUtils.getTargetClass(object);
 		if (object instanceof Advised) {
 			Advised a = (Advised) object;
@@ -77,13 +71,12 @@ public final class MethodInvocationUtils {
 						target = possibleInterface;
 						break;
 					}
-					catch (Exception ignored) {
+					catch (Exception ex) {
 						// try the next one
 					}
 				}
 			}
 		}
-
 		return createFromClass(object, target, methodName, classArgs, args);
 	}
 
@@ -95,37 +88,29 @@ public final class MethodInvocationUtils {
 	 * through the declared methods on the class, until one is found matching the supplied
 	 * name. If more than one method name matches, an <tt>IllegalArgumentException</tt>
 	 * will be raised.
-	 *
 	 * @param clazz the class of object that will be used to find the relevant
 	 * <code>Method</code>
 	 * @param methodName the name of the method to find
-	 *
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
 	public static MethodInvocation createFromClass(Class<?> clazz, String methodName) {
-		MethodInvocation mi = createFromClass(null, clazz, methodName, null, null);
-
-		if (mi == null) {
-			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.getName().equals(methodName)) {
-					if (mi != null) {
-						throw new IllegalArgumentException("The class " + clazz
-								+ " has more than one method named" + " '" + methodName
-								+ "'");
-					}
-					mi = new SimpleMethodInvocation(null, m);
+		MethodInvocation invocation = createFromClass(null, clazz, methodName, null, null);
+		if (invocation == null) {
+			for (Method method : clazz.getDeclaredMethods()) {
+				if (method.getName().equals(methodName)) {
+					Assert.isTrue(invocation == null,
+							() -> "The class " + clazz + " has more than one method named" + " '" + methodName + "'");
+					invocation = new SimpleMethodInvocation(null, method);
 				}
 			}
 		}
-
-		return mi;
+		return invocation;
 	}
 
 	/**
 	 * Generates a <code>MethodInvocation</code> for specified <code>methodName</code> on
 	 * the passed class, using the <code>args</code> to locate the method.
-	 *
 	 * @param targetObject the object being invoked
 	 * @param clazz the class of object that will be used to find the relevant
 	 * <code>Method</code>
@@ -136,20 +121,17 @@ public final class MethodInvocationUtils {
 	 * @return a <code>MethodInvocation</code>, or <code>null</code> if there was a
 	 * problem
 	 */
-	public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz,
-			String methodName, Class<?>[] classArgs, Object[] args) {
+	public static MethodInvocation createFromClass(Object targetObject, Class<?> clazz, String methodName,
+			Class<?>[] classArgs, Object[] args) {
 		Assert.notNull(clazz, "Class required");
 		Assert.hasText(methodName, "MethodName required");
-
-		Method method;
-
 		try {
-			method = clazz.getMethod(methodName, classArgs);
+			Method method = clazz.getMethod(methodName, classArgs);
+			return new SimpleMethodInvocation(targetObject, method, args);
 		}
-		catch (NoSuchMethodException e) {
+		catch (NoSuchMethodException ex) {
 			return null;
 		}
-
-		return new SimpleMethodInvocation(targetObject, method, args);
 	}
+
 }

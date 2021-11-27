@@ -13,41 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.test.context;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class TestSecurityContextHolderTests {
 
 	private SecurityContext context;
 
-	@Before
+	@BeforeEach
 	public void setup() {
-		context = SecurityContextHolder.createEmptyContext();
+		this.context = SecurityContextHolder.createEmptyContext();
 	}
 
-	@After
+	@AfterEach
 	public void cleanup() {
 		TestSecurityContextHolder.clearContext();
 	}
 
 	@Test
 	public void clearContextClearsBoth() {
-		SecurityContextHolder.setContext(context);
-		TestSecurityContextHolder.setContext(context);
-
+		SecurityContextHolder.setContext(this.context);
+		TestSecurityContextHolder.setContext(this.context);
 		TestSecurityContextHolder.clearContext();
-
-		assertThat(SecurityContextHolder.getContext()).isNotSameAs(context);
-		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(context);
+		assertThat(SecurityContextHolder.getContext()).isNotSameAs(this.context);
+		assertThat(TestSecurityContextHolder.getContext()).isNotSameAs(this.context);
 	}
 
 	@Test
@@ -58,18 +58,16 @@ public class TestSecurityContextHolderTests {
 
 	@Test
 	public void setContextSetsBoth() {
-		TestSecurityContextHolder.setContext(context);
-
-		assertThat(TestSecurityContextHolder.getContext()).isSameAs(context);
-		assertThat(SecurityContextHolder.getContext()).isSameAs(context);
+		TestSecurityContextHolder.setContext(this.context);
+		assertThat(TestSecurityContextHolder.getContext()).isSameAs(this.context);
+		assertThat(SecurityContextHolder.getContext()).isSameAs(this.context);
 	}
 
 	@Test
 	public void setContextWithAuthentication() {
 		Authentication authentication = mock(Authentication.class);
-
 		TestSecurityContextHolder.setAuthentication(authentication);
-
 		assertThat(TestSecurityContextHolder.getContext().getAuthentication()).isSameAs(authentication);
 	}
+
 }

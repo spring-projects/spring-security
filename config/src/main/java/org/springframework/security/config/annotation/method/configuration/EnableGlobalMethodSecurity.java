@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.AdviceMode;
@@ -28,8 +31,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 
 /**
  * <p>
- * Enables Spring Security global method security similar to the &lt;global-method-security&gt;
- * xml support.
+ * Enables Spring Security global method security similar to the
+ * &lt;global-method-security&gt; xml support.
  *
  * <p>
  * More advanced configurations may wish to extend
@@ -41,8 +44,8 @@ import org.springframework.security.config.annotation.authentication.configurati
  * @author Rob Winch
  * @since 3.2
  */
-@Retention(value = java.lang.annotation.RetentionPolicy.RUNTIME)
-@Target(value = { java.lang.annotation.ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
 @Documented
 @Import({ GlobalMethodSecuritySelector.class })
 @EnableGlobalAuthentication
@@ -82,7 +85,6 @@ public @interface EnableGlobalMethodSecurity {
 	 * annotation will be upgraded to subclass proxying at the same time. This approach
 	 * has no negative impact in practice unless one is explicitly expecting one type of
 	 * proxy vs another, e.g. in tests.
-	 *
 	 * @return true if CGILIB proxies should be created instead of interface based
 	 * proxies, else false
 	 */
@@ -92,7 +94,6 @@ public @interface EnableGlobalMethodSecurity {
 	 * Indicate how security advice should be applied. The default is
 	 * {@link AdviceMode#PROXY}.
 	 * @see AdviceMode
-	 *
 	 * @return the {@link AdviceMode} to use
 	 */
 	AdviceMode mode() default AdviceMode.PROXY;
@@ -101,8 +102,8 @@ public @interface EnableGlobalMethodSecurity {
 	 * Indicate the ordering of the execution of the security advisor when multiple
 	 * advices are applied at a specific joinpoint. The default is
 	 * {@link Ordered#LOWEST_PRECEDENCE}.
-	 *
 	 * @return the order the security advisor should be applied
 	 */
 	int order() default Ordered.LOWEST_PRECEDENCE;
+
 }

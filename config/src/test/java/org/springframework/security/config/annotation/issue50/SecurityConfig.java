@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.annotation.issue50;
 
-import org.spockframework.util.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.Assert;
 
 /**
  * @author Rob Winch
@@ -42,25 +43,26 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
 	@Autowired
 	private UserRepository myUserRepository;
 
-	// @formatter:off
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) {
+		// @formatter:off
 		auth
 			.authenticationProvider(authenticationProvider());
+		// @formatter:on
 	}
-	// @formatter:on
 
-	// @formatter:off
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
+		// @formatter:off
 		http
 			.authorizeRequests()
 				.antMatchers("/*").permitAll();
+		// @formatter:on
 	}
-	// @formatter:on
 
 	@Bean
 	@Override
@@ -70,20 +72,20 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public AuthenticationProvider authenticationProvider() {
-		Assert.notNull(myUserRepository);
+		Assert.notNull(this.myUserRepository);
 		return new AuthenticationProvider() {
+			@Override
 			public boolean supports(Class<?> authentication) {
 				return true;
 			}
 
-			public Authentication authenticate(Authentication authentication)
-					throws AuthenticationException {
+			@Override
+			public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 				Object principal = authentication.getPrincipal();
 				String username = String.valueOf(principal);
-				User user = myUserRepository.findByUsername(username);
+				User user = SecurityConfig.this.myUserRepository.findByUsername(username);
 				if (user == null) {
-					throw new UsernameNotFoundException("No user for principal "
-							+ principal);
+					throw new UsernameNotFoundException("No user for principal " + principal);
 				}
 				if (!authentication.getCredentials().equals(user.getPassword())) {
 					throw new BadCredentialsException("Invalid password");
@@ -92,4 +94,5 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			}
 		};
 	}
+
 }

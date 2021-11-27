@@ -16,37 +16,41 @@
 
 package org.springframework.security.config.provisioning;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.util.InMemoryResource;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class UserDetailsManagerResourceFactoryBeanPropertiesResourceITests {
+
 	@Autowired
 	UserDetailsManager users;
 
 	@Test
 	public void loadUserByUsernameWhenUserFoundThenNotNull() {
-		assertThat(users.loadUserByUsername("user")).isNotNull();
+		assertThat(this.users.loadUserByUsername("user")).isNotNull();
 	}
 
 	@Configuration
 	static class Config {
+
 		@Bean
-		public UserDetailsManagerResourceFactoryBean userDetailsService() {
+		UserDetailsManagerResourceFactoryBean userDetailsService() {
 			return UserDetailsManagerResourceFactoryBean.fromResource(new InMemoryResource("user=password,ROLE_USER"));
 		}
+
 	}
+
 }

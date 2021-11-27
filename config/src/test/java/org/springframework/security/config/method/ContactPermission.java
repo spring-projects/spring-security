@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.config.method;
 
 import java.lang.annotation.Retention;
@@ -26,4 +27,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @PreAuthorize("#contact.name == authentication.name")
-public @interface ContactPermission {}
+public @interface ContactPermission {
+
+}

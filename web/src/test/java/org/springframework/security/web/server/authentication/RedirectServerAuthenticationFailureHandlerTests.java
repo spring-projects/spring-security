@@ -16,10 +16,15 @@
 
 package org.springframework.security.web.server.authentication;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.Collections;
+
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
@@ -28,43 +33,41 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
-import reactor.core.publisher.Mono;
-import reactor.test.publisher.PublisherProbe;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
 /**
  * @author Rob Winch
  * @since 5.0
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class RedirectServerAuthenticationFailureHandlerTests {
 
 	private WebFilterExchange exchange;
+
 	@Mock
 	private ServerRedirectStrategy redirectStrategy;
 
 	private String location = "/login";
 
-	private RedirectServerAuthenticationFailureHandler handler =
-		new RedirectServerAuthenticationFailureHandler(this.location);
+	private RedirectServerAuthenticationFailureHandler handler = new RedirectServerAuthenticationFailureHandler(
+			this.location);
 
-	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException("Authentication Required");
+	private AuthenticationException exception = new AuthenticationCredentialsNotFoundException(
+			"Authentication Required");
 
-
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void constructorStringWhenNullLocationThenException() {
-		new RedirectServerAuthenticationEntryPoint(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> new RedirectServerAuthenticationEntryPoint(null));
 	}
 
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.exchange = createExchange();
-		this.handler.onAuthenticationFailure(this.exchange,
-			this.exception);
-
+		this.handler.onAuthenticationFailure(this.exchange, this.exception);
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).isNull();
 		assertThat(this.exchange.getExchange().getSession().block().isStarted()).isFalse();
 	}
@@ -72,32 +75,29 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void commenceWhenSubscribeThenStatusAndLocationSet() {
 		this.exchange = createExchange();
-
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
-
-		assertThat(this.exchange.getExchange().getResponse().getStatusCode()).isEqualTo(
-			HttpStatus.FOUND);
+		assertThat(this.exchange.getExchange().getResponse().getStatusCode()).isEqualTo(HttpStatus.FOUND);
 		assertThat(this.exchange.getExchange().getResponse().getHeaders().getLocation()).hasPath(this.location);
 	}
 
 	@Test
 	public void commenceWhenCustomServerRedirectStrategyThenCustomServerRedirectStrategyUsed() {
 		PublisherProbe<Void> redirectResult = PublisherProbe.empty();
-		when(this.redirectStrategy.sendRedirect(any(), any())).thenReturn(redirectResult.mono());
+		given(this.redirectStrategy.sendRedirect(any(), any())).willReturn(redirectResult.mono());
 		this.handler.setRedirectStrategy(this.redirectStrategy);
 		this.exchange = createExchange();
-
 		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
-
 		redirectResult.assertWasSubscribed();
 	}
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test
 	public void setRedirectStrategyWhenNullThenException() {
-		this.handler.setRedirectStrategy(null);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
 	}
 
 	private WebFilterExchange createExchange() {
-		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()), new DefaultWebFilterChain(e -> Mono.empty()));
+		return new WebFilterExchange(MockServerWebExchange.from(MockServerHttpRequest.get("/").build()),
+				new DefaultWebFilterChain((e) -> Mono.empty(), Collections.emptyList()));
 	}
+
 }

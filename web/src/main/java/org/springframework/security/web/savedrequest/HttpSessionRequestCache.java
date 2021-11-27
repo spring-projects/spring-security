@@ -13,14 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.savedrequest;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.UrlUtils;
@@ -37,80 +40,87 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * @since 3.0
  */
 public class HttpSessionRequestCache implements RequestCache {
+
 	static final String SAVED_REQUEST = "SPRING_SECURITY_SAVED_REQUEST";
+
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	private PortResolver portResolver = new PortResolverImpl();
+
 	private boolean createSessionAllowed = true;
+
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
+
 	private String sessionAttrName = SAVED_REQUEST;
 
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
 	 */
+	@Override
 	public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (requestMatcher.matches(request)) {
-			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request,
-					portResolver);
-
-			if (createSessionAllowed || request.getSession(false) != null) {
-				// Store the HTTP request itself. Used by
-				// AbstractAuthenticationProcessingFilter
-				// for redirection after successful authentication (SEC-29)
-				request.getSession().setAttribute(this.sessionAttrName, savedRequest);
-				logger.debug("DefaultSavedRequest added to Session: " + savedRequest);
+		if (!this.requestMatcher.matches(request)) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(
+						LogMessage.format("Did not save request since it did not match [%s]", this.requestMatcher));
+			}
+			return;
+		}
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
+		if (this.createSessionAllowed || request.getSession(false) != null) {
+			// Store the HTTP request itself. Used by
+			// AbstractAuthenticationProcessingFilter
+			// for redirection after successful authentication (SEC-29)
+			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Saved request %s to session", savedRequest.getRedirectUrl()));
 			}
 		}
 		else {
-			logger.debug("Request not saved as configured RequestMatcher did not match");
+			this.logger.trace("Did not save request since there's no session and createSessionAllowed is false");
 		}
 	}
 
-	public SavedRequest getRequest(HttpServletRequest currentRequest,
-			HttpServletResponse response) {
+	@Override
+	public SavedRequest getRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
-
-		if (session != null) {
-			return (SavedRequest) session.getAttribute(this.sessionAttrName);
-		}
-
-		return null;
+		return (session != null) ? (SavedRequest) session.getAttribute(this.sessionAttrName) : null;
 	}
 
-	public void removeRequest(HttpServletRequest currentRequest,
-			HttpServletResponse response) {
+	@Override
+	public void removeRequest(HttpServletRequest currentRequest, HttpServletResponse response) {
 		HttpSession session = currentRequest.getSession(false);
-
 		if (session != null) {
-			logger.debug("Removing DefaultSavedRequest from session if present");
+			this.logger.trace("Removing DefaultSavedRequest from session if present");
 			session.removeAttribute(this.sessionAttrName);
 		}
 	}
 
-	public HttpServletRequest getMatchingRequest(HttpServletRequest request,
-			HttpServletResponse response) {
+	@Override
+	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
 		SavedRequest saved = getRequest(request, response);
-
-		if (!matchesSavedRequest(request, saved)) {
-			logger.debug("saved request doesn't match");
+		if (saved == null) {
+			this.logger.trace("No saved request");
 			return null;
 		}
-
+		if (!matchesSavedRequest(request, saved)) {
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(LogMessage.format("Did not match request %s to the saved one %s",
+						UrlUtils.buildRequestUrl(request), saved));
+			}
+			return null;
+		}
 		removeRequest(request, response);
-
+		if (this.logger.isDebugEnabled()) {
+			this.logger.debug(LogMessage.format("Loaded matching saved request %s", saved.getRedirectUrl()));
+		}
 		return new SavedRequestAwareWrapper(saved, request);
 	}
 
 	private boolean matchesSavedRequest(HttpServletRequest request, SavedRequest savedRequest) {
-		if (savedRequest == null) {
-			return false;
-		}
-
 		if (savedRequest instanceof DefaultSavedRequest) {
 			DefaultSavedRequest defaultSavedRequest = (DefaultSavedRequest) savedRequest;
 			return defaultSavedRequest.doesRequestMatch(request, this.portResolver);
 		}
-
 		String currentUrl = UrlUtils.buildFullRequestUrl(request);
 		return savedRequest.getRedirectUrl().equals(currentUrl);
 	}
@@ -120,7 +130,6 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * request will be cached by the {@code saveRequest} method.
 	 * <p>
 	 * If set, only matching requests will be cached.
-	 *
 	 * @param requestMatcher a request matching strategy which defines which requests
 	 * should be cached.
 	 */
@@ -144,14 +153,13 @@ public class HttpSessionRequestCache implements RequestCache {
 	}
 
 	/**
-	 * If the {@code sessionAttrName} property is set, the request is stored in
-	 * the session using this attribute name. Default is
-	 * "SPRING_SECURITY_SAVED_REQUEST".
-	 *
+	 * If the {@code sessionAttrName} property is set, the request is stored in the
+	 * session using this attribute name. Default is "SPRING_SECURITY_SAVED_REQUEST".
 	 * @param sessionAttrName a new session attribute name.
 	 * @since 4.2.1
 	 */
 	public void setSessionAttrName(String sessionAttrName) {
 		this.sessionAttrName = sessionAttrName;
 	}
+
 }

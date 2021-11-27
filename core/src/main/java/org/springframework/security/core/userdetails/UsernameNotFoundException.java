@@ -25,12 +25,9 @@ import org.springframework.security.core.AuthenticationException;
  * @author Ben Alex
  */
 public class UsernameNotFoundException extends AuthenticationException {
-	// ~ Constructors
-	// ===================================================================================================
 
 	/**
 	 * Constructs a <code>UsernameNotFoundException</code> with the specified message.
-	 *
 	 * @param msg the detail message.
 	 */
 	public UsernameNotFoundException(String msg) {
@@ -40,11 +37,11 @@ public class UsernameNotFoundException extends AuthenticationException {
 	/**
 	 * Constructs a {@code UsernameNotFoundException} with the specified message and root
 	 * cause.
-	 *
 	 * @param msg the detail message.
-	 * @param t root cause
+	 * @param cause root cause
 	 */
-	public UsernameNotFoundException(String msg, Throwable t) {
-		super(msg, t);
+	public UsernameNotFoundException(String msg, Throwable cause) {
+		super(msg, cause);
 	}
+
 }

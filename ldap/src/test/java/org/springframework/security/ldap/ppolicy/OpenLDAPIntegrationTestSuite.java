@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.ppolicy;
 
 /**
@@ -27,6 +28,7 @@ package org.springframework.security.ldap.ppolicy;
 public class OpenLDAPIntegrationTestSuite {
 
 	PasswordPolicyAwareContextSource cs;
+
 	/*
 	 * @Before public void createContextSource() throws Exception { cs = new
 	 * PasswordPolicyAwareContextSource("ldap://localhost:22389/dc=springsource,dc=com");
@@ -60,4 +62,5 @@ public class OpenLDAPIntegrationTestSuite {
 	 * = (LdapUserDetailsImpl) a.getPrincipal(); assertTrue(ud.getTimeBeforeExpiration() <
 	 * Integer.MAX_VALUE && ud.getTimeBeforeExpiration() > 0); }
 	 */
+
 }

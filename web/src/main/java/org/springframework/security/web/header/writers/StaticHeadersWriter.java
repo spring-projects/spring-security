@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.web.header.writers;
 
 import java.util.Collections;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.web.header.Header;
 import org.springframework.security.web.header.HeaderWriter;
@@ -55,8 +56,9 @@ public class StaticHeadersWriter implements HeaderWriter {
 		this(Collections.singletonList(new Header(headerName, headerValues)));
 	}
 
+	@Override
 	public void writeHeaders(HttpServletRequest request, HttpServletResponse response) {
-		for (Header header : headers) {
+		for (Header header : this.headers) {
 			if (!response.containsHeader(header.getName())) {
 				for (String value : header.getValues()) {
 					response.addHeader(header.getName(), value);
@@ -67,6 +69,7 @@ public class StaticHeadersWriter implements HeaderWriter {
 
 	@Override
 	public String toString() {
-		return getClass().getName() + " [headers=" + headers + "]";
+		return getClass().getName() + " [headers=" + this.headers + "]";
 	}
+
 }
