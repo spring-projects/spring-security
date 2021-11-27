@@ -45,7 +45,6 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	/**
 	 * Creates a new instance using a {@link Map}
-	 * 
 	 * @param users a {@link Map} of users to use.
 	 */
 	public MapReactiveUserDetailsService(Map<String, UserDetails> users) {
@@ -54,7 +53,6 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	/**
 	 * Creates a new instance
-	 * 
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(UserDetails... users) {
@@ -63,7 +61,6 @@ public class MapReactiveUserDetailsService implements ReactiveUserDetailsService
 
 	/**
 	 * Creates a new instance
-	 * 
 	 * @param users the {@link UserDetails} to use
 	 */
 	public MapReactiveUserDetailsService(Collection<UserDetails> users) {
