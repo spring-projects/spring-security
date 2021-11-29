@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,13 @@ import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 import org.springframework.security.ldap.userdetails.Person;
 
 /**
- * Jackson module for spring-security-ldap. This module registers
+ * Jackson module for {@code spring-security-ldap}. This module registers
  * {@link LdapAuthorityMixin}, {@link LdapUserDetailsImplMixin}, {@link PersonMixin},
- * {@link InetOrgPersonMixin}. If no default typing enabled by default then it'll enable
- * it because typing info is needed to properly serialize/deserialize objects. In order to
- * use this module just add this module into your ObjectMapper configuration.
+ * {@link InetOrgPersonMixin}.
+ *
+ * If not already enabled, default typing will be automatically enabled as type info is
+ * required to properly serialize/deserialize objects. In order to use this module just
+ * add it to your {@code ObjectMapper} configuration.
  *
  * <pre>
  *     ObjectMapper mapper = new ObjectMapper();
@@ -40,6 +42,7 @@ import org.springframework.security.ldap.userdetails.Person;
  * <b>Note: use {@link SecurityJackson2Modules#getModules(ClassLoader)} to get list of all
  * security modules.</b>
  *
+ * @since 5.7
  * @see SecurityJackson2Modules
  */
 public class LdapJackson2Module extends SimpleModule {

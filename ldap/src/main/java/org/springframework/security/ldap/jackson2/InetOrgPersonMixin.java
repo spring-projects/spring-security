@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2020 the original author or authors.
+ * Copyright 2015-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,19 +21,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
 /**
- * This is a Jackson mixin class helps in serialize/deserialize
- * {@link org.springframework.security.ldap.userdetails.InetOrgPerson} class. To use this
- * class you need to register it with {@link com.fasterxml.jackson.databind.ObjectMapper}.
+ * This Jackson mixin is used to serialize/deserialize {@link InetOrgPerson}.
  *
- * <pre>
- *     ObjectMapper mapper = new ObjectMapper();
- *     mapper.registerModule(new LdapJackson2Module());
- * </pre>
- *
- * <i>Note: This class will save full class name into a property called @class</i>
- *
+ * @since 5.7
  * @see LdapJackson2Module
  * @see SecurityJackson2Modules
  */

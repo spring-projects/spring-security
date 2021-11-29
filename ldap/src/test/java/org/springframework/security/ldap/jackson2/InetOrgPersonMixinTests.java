@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,27 +13,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.security.ldap.jackson2;
 
-import org.springframework.ldap.core.DirContextAdapter;
-import org.springframework.ldap.core.DistinguishedName;
-import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
-import org.springframework.security.ldap.userdetails.Person;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 
+import org.springframework.ldap.core.DirContextAdapter;
+import org.springframework.ldap.core.DistinguishedName;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
+import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link InetOrgPersonMixin}.
  */
-class InetOrgPersonMixinTests {
+public class InetOrgPersonMixinTests {
+
+	private static final String USER_PASSWORD = "Password1234";
+
+	private static final String AUTHORITIES_ARRAYLIST_JSON = "[\"java.util.Collections$UnmodifiableRandomAccessList\", []]";
+
+	// @formatter:off
+	private static final String INET_ORG_PERSON_JSON = "{\n"
+			+ "\"@class\": \"org.springframework.security.ldap.userdetails.InetOrgPerson\","
+			+ "\"dn\": \"ignored=ignored\","
+			+ "\"uid\": \"ghengis\","
+			+ "\"username\": \"ghengis\","
+			+ "\"password\": \"" + USER_PASSWORD + "\","
+			+ "\"carLicense\": \"HORS1\","
+			+ "\"givenName\": \"Ghengis\","
+			+ "\"destinationIndicator\": \"West\","
+			+ "\"displayName\": \"Ghengis McCann\","
+			+ "\"givenName\": \"Ghengis\","
+			+ "\"homePhone\": \"+467575436521\","
+			+ "\"initials\": \"G\","
+			+ "\"employeeNumber\": \"00001\","
+			+ "\"homePostalAddress\": \"Steppes\","
+			+ "\"mail\": \"ghengis@mongolia\","
+			+ "\"mobile\": \"always\","
+			+ "\"o\": \"Hordes\","
+			+ "\"ou\": \"Horde1\","
+			+ "\"postalAddress\": \"On the Move\","
+			+ "\"postalCode\": \"Changes Frequently\","
+			+ "\"roomNumber\": \"Yurt 1\","
+			+ "\"sn\": \"Khan\","
+			+ "\"street\": \"Westward Avenue\","
+			+ "\"telephoneNumber\": \"+442075436521\","
+			+ "\"departmentNumber\": \"5679\","
+			+ "\"title\": \"T\","
+			+ "\"cn\": [\"java.util.Arrays$ArrayList\",[\"Ghengis Khan\"]],"
+			+ "\"description\": \"Scary\","
+			+ "\"accountNonExpired\": true, "
+			+ "\"accountNonLocked\": true, "
+			+ "\"credentialsNonExpired\": true, "
+			+ "\"enabled\": true, "
+			+ "\"authorities\": " + AUTHORITIES_ARRAYLIST_JSON + ","
+			+ "\"graceLoginsRemaining\": " + Integer.MAX_VALUE + ","
+			+ "\"timeBeforeExpiration\": " + Integer.MAX_VALUE
+			+ "}";
+	// @formatter:on
 
 	private ObjectMapper mapper;
 
@@ -44,22 +91,83 @@ class InetOrgPersonMixinTests {
 		this.mapper.registerModules(SecurityJackson2Modules.getModules(loader));
 	}
 
-	@Disabled
 	@Test
 	public void serializeWhenMixinRegisteredThenSerializes() throws Exception {
-		InetOrgPerson.Essence essence = new InetOrgPerson.Essence(createUserContext());
-		InetOrgPerson p = (InetOrgPerson) essence.createUserDetails();
+		InetOrgPersonContextMapper mapper = new InetOrgPersonContextMapper();
+		InetOrgPerson p = (InetOrgPerson) mapper.mapUserFromContext(createUserContext(), "ghengis",
+				AuthorityUtils.NO_AUTHORITIES);
 
-		String expectedJson = asJson(p);
 		String json = this.mapper.writeValueAsString(p);
-		JSONAssert.assertEquals(expectedJson, json, true);
+		JSONAssert.assertEquals(INET_ORG_PERSON_JSON, json, true);
+	}
+
+	@Test
+	public void serializeWhenEraseCredentialInvokedThenUserPasswordIsNull()
+			throws JsonProcessingException, JSONException {
+		InetOrgPersonContextMapper mapper = new InetOrgPersonContextMapper();
+		InetOrgPerson p = (InetOrgPerson) mapper.mapUserFromContext(createUserContext(), "ghengis",
+				AuthorityUtils.NO_AUTHORITIES);
+		p.eraseCredentials();
+		String actualJson = this.mapper.writeValueAsString(p);
+		JSONAssert.assertEquals(INET_ORG_PERSON_JSON.replaceAll("\"" + USER_PASSWORD + "\"", "null"), actualJson, true);
+	}
+
+	@Test
+	public void deserializeWhenMixinNotRegisteredThenThrowJsonProcessingException() {
+		assertThatExceptionOfType(JsonProcessingException.class)
+				.isThrownBy(() -> new ObjectMapper().readValue(INET_ORG_PERSON_JSON, InetOrgPerson.class));
+	}
+
+	@Test
+	public void deserializeWhenMixinRegisteredThenDeserializes() throws Exception {
+		InetOrgPersonContextMapper mapper = new InetOrgPersonContextMapper();
+		InetOrgPerson expectedAuthentication = (InetOrgPerson) mapper.mapUserFromContext(createUserContext(), "ghengis",
+				AuthorityUtils.NO_AUTHORITIES);
+
+		InetOrgPerson authentication = this.mapper.readValue(INET_ORG_PERSON_JSON, InetOrgPerson.class);
+		assertThat(authentication.getAuthorities()).containsExactlyElementsOf(expectedAuthentication.getAuthorities());
+		assertThat(authentication.getCarLicense()).isEqualTo(expectedAuthentication.getCarLicense());
+		assertThat(authentication.getDepartmentNumber()).isEqualTo(expectedAuthentication.getDepartmentNumber());
+		assertThat(authentication.getDestinationIndicator())
+				.isEqualTo(expectedAuthentication.getDestinationIndicator());
+		assertThat(authentication.getDn()).isEqualTo(expectedAuthentication.getDn());
+		assertThat(authentication.getDescription()).isEqualTo(expectedAuthentication.getDescription());
+		assertThat(authentication.getDisplayName()).isEqualTo(expectedAuthentication.getDisplayName());
+		assertThat(authentication.getUid()).isEqualTo(expectedAuthentication.getUid());
+		assertThat(authentication.getUsername()).isEqualTo(expectedAuthentication.getUsername());
+		assertThat(authentication.getPassword()).isEqualTo(expectedAuthentication.getPassword());
+		assertThat(authentication.getHomePhone()).isEqualTo(expectedAuthentication.getHomePhone());
+		assertThat(authentication.getEmployeeNumber()).isEqualTo(expectedAuthentication.getEmployeeNumber());
+		assertThat(authentication.getHomePostalAddress()).isEqualTo(expectedAuthentication.getHomePostalAddress());
+		assertThat(authentication.getInitials()).isEqualTo(expectedAuthentication.getInitials());
+		assertThat(authentication.getMail()).isEqualTo(expectedAuthentication.getMail());
+		assertThat(authentication.getMobile()).isEqualTo(expectedAuthentication.getMobile());
+		assertThat(authentication.getO()).isEqualTo(expectedAuthentication.getO());
+		assertThat(authentication.getOu()).isEqualTo(expectedAuthentication.getOu());
+		assertThat(authentication.getPostalAddress()).isEqualTo(expectedAuthentication.getPostalAddress());
+		assertThat(authentication.getPostalCode()).isEqualTo(expectedAuthentication.getPostalCode());
+		assertThat(authentication.getRoomNumber()).isEqualTo(expectedAuthentication.getRoomNumber());
+		assertThat(authentication.getStreet()).isEqualTo(expectedAuthentication.getStreet());
+		assertThat(authentication.getSn()).isEqualTo(expectedAuthentication.getSn());
+		assertThat(authentication.getTitle()).isEqualTo(expectedAuthentication.getTitle());
+		assertThat(authentication.getGivenName()).isEqualTo(expectedAuthentication.getGivenName());
+		assertThat(authentication.getTelephoneNumber()).isEqualTo(expectedAuthentication.getTelephoneNumber());
+		assertThat(authentication.getGraceLoginsRemaining())
+				.isEqualTo(expectedAuthentication.getGraceLoginsRemaining());
+		assertThat(authentication.getTimeBeforeExpiration())
+				.isEqualTo(expectedAuthentication.getTimeBeforeExpiration());
+		assertThat(authentication.isAccountNonExpired()).isEqualTo(expectedAuthentication.isAccountNonExpired());
+		assertThat(authentication.isAccountNonLocked()).isEqualTo(expectedAuthentication.isAccountNonLocked());
+		assertThat(authentication.isEnabled()).isEqualTo(expectedAuthentication.isEnabled());
+		assertThat(authentication.isCredentialsNonExpired())
+				.isEqualTo(expectedAuthentication.isCredentialsNonExpired());
 	}
 
 	private DirContextAdapter createUserContext() {
 		DirContextAdapter ctx = new DirContextAdapter();
 		ctx.setDn(new DistinguishedName("ignored=ignored"));
 		ctx.setAttributeValue("uid", "ghengis");
-		ctx.setAttributeValue("userPassword", "pillage");
+		ctx.setAttributeValue("userPassword", USER_PASSWORD);
 		ctx.setAttributeValue("carLicense", "HORS1");
 		ctx.setAttributeValue("cn", "Ghengis Khan");
 		ctx.setAttributeValue("description", "Scary");
@@ -77,19 +185,12 @@ class InetOrgPersonMixinTests {
 		ctx.setAttributeValue("postalAddress", "On the Move");
 		ctx.setAttributeValue("postalCode", "Changes Frequently");
 		ctx.setAttributeValue("roomNumber", "Yurt 1");
-		ctx.setAttributeValue("roomNumber", "Yurt 1");
 		ctx.setAttributeValue("sn", "Khan");
 		ctx.setAttributeValue("street", "Westward Avenue");
 		ctx.setAttributeValue("telephoneNumber", "+442075436521");
+		ctx.setAttributeValue("departmentNumber", "5679");
+		ctx.setAttributeValue("title", "T");
 		return ctx;
-	}
-
-	private String asJson(Person person) {
-		// @formatter:off
-		return "{\n" +
-			   "    \"@class\": \"org.springframework.security.ldap.userdetails.InetOrgPerson\"\n" +
-			   "}";
-		// @formatter:on
 	}
 
 }
