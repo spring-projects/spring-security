@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.core;
 
 import java.io.Serializable;
+import java.util.Locale;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
@@ -102,12 +103,12 @@ public final class ClientAuthenticationMethod implements Serializable {
 			return false;
 		}
 		ClientAuthenticationMethod that = (ClientAuthenticationMethod) obj;
-		return this.getValue().equalsIgnoreCase(that.getValue());
+		return this.getValue().toLowerCase(Locale.ROOT).equals(that.getValue().toLowerCase(Locale.ROOT));
 	}
 
 	@Override
 	public int hashCode() {
-		return this.getValue().hashCode();
+		return this.getValue().toLowerCase(Locale.ROOT).hashCode();
 	}
 
 }
