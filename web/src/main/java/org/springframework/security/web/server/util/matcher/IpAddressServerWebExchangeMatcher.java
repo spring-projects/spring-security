@@ -29,7 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Guirong Hu
  * @since 5.7
  */
-public class IpAddressServerWebExchangeMatcher implements ServerWebExchangeMatcher {
+public final class IpAddressServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	private final IpAddressMatcher ipAddressMatcher;
 
