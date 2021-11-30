@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,7 +31,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -86,11 +84,6 @@ public class DefaultFilterInvocationSecurityMetadataSourceTests {
 		Collection<ConfigAttribute> response = this.fids.getAttributes(fi);
 		assertThat(response); // see SEC-161 (it should truncate after ?
 								// sign).isEqualTo(def)
-	}
-
-	@Test
-	public void unknownHttpMethodIsRejected() {
-		assertThatIllegalArgumentException().isThrownBy(() -> createFids("/someAdminPage.html**", "UNKNOWN"));
 	}
 
 	@Test
