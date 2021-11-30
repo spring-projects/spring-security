@@ -119,6 +119,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		 * @param mappingsConsumer used to configure the {@link RequestMatcher} to
 		 * {@link AuthorizationManager} mappings.
 		 * @return the {@link Builder} for further customizations
+		 * @since 5.7
 		 */
 		public Builder mappings(
 				Consumer<Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>>> mappingsConsumer) {
