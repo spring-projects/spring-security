@@ -1689,6 +1689,7 @@ public class ServerHttpSecurity {
 			 * @param ipAddress the address or range of addresses from which the request
 			 * must come.
 			 * @return the {@link AuthorizeExchangeSpec} to configure
+			 * @since 5.7
 			 */
 			public AuthorizeExchangeSpec hasIpAddress(String ipAddress) {
 				return access(IpAddressReactiveAuthorizationManager.hasIpAddress(ipAddress));
