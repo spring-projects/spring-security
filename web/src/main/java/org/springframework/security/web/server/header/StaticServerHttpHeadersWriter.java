@@ -17,7 +17,6 @@
 package org.springframework.security.web.server.header;
 
 import java.util.Arrays;
-import java.util.Collections;
 
 import reactor.core.publisher.Mono;
 
@@ -41,8 +40,16 @@ public class StaticServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 	@Override
 	public Mono<Void> writeHttpHeaders(ServerWebExchange exchange) {
 		HttpHeaders headers = exchange.getResponse().getHeaders();
-		boolean containsOneHeaderToAdd = Collections.disjoint(headers.keySet(), this.headersToAdd.keySet());
-		if (containsOneHeaderToAdd) {
+		// Note: We need to ensure that the following algorithm compares headers
+		// case insensitively, which should be true of headers.containsKey().
+		boolean containsNoHeadersToAdd = true;
+		for (String headerName : this.headersToAdd.keySet()) {
+			if (headers.containsKey(headerName)) {
+				containsNoHeadersToAdd = false;
+				break;
+			}
+		}
+		if (containsNoHeadersToAdd) {
 			this.headersToAdd.forEach(headers::put);
 		}
 		return Mono.empty();
