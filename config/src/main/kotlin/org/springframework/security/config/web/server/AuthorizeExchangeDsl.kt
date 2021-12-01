@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.security.authorization.AuthorizationDecision
 import org.springframework.security.authorization.ReactiveAuthorizationManager
 import org.springframework.security.core.Authentication
 import org.springframework.security.web.server.authorization.AuthorizationContext
+import org.springframework.security.web.server.authorization.IpAddressReactiveAuthorizationManager
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -107,6 +108,13 @@ class AuthorizeExchangeDsl {
      */
     fun hasAnyAuthority(vararg authorities: String): ReactiveAuthorizationManager<AuthorizationContext> =
             AuthorityReactiveAuthorizationManager.hasAnyAuthority<AuthorizationContext>(*authorities)
+
+    /**
+     * Require a specific IP or range of IP addresses.
+     * @since 5.7
+     */
+    fun hasIpAddress(ipAddress: String): ReactiveAuthorizationManager<AuthorizationContext> =
+            IpAddressReactiveAuthorizationManager.hasIpAddress(ipAddress)
 
     /**
      * Require an authenticated user.
