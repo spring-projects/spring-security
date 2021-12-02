@@ -21,7 +21,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -90,11 +89,6 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 		AuthenticationTrustResolver trustResolver = http.getSharedObject(AuthenticationTrustResolver.class);
 		if (trustResolver != null) {
 			this.securityContextRequestFilter.setTrustResolver(trustResolver);
-		}
-		AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = http
-				.getSharedObject(AuthenticationDetailsSource.class);
-		if (authenticationDetailsSource != null) {
-			this.securityContextRequestFilter.setAuthenticationDetailsSource(authenticationDetailsSource);
 		}
 		ApplicationContext context = http.getSharedObject(ApplicationContext.class);
 		if (context != null) {

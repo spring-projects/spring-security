@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2004, 2005, 2006, 2021 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -45,12 +46,14 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -59,6 +62,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestFilter}.
@@ -215,6 +219,27 @@ public class SecurityContextHolderAwareRequestFilterTests {
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> wrappedRequest().login(username, password))
 				.isEqualTo(authException);
 		verifyZeroInteractions(this.authenticationEntryPoint, this.authenticationManager, this.logoutHandler);
+	}
+
+	@Test
+	public void loginWhenHttpServletRequestHasAuthenticationDetailsThenAuthenticationRequestHasDetails()
+			throws Exception {
+		String ipAddress = "10.0.0.100";
+		String sessionId = "session-id";
+		when(this.request.getRemoteAddr()).thenReturn(ipAddress);
+		when(this.request.getSession(anyBoolean())).thenReturn(new MockHttpSession(null, sessionId));
+		wrappedRequest().login("username", "password");
+
+		ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor = ArgumentCaptor
+				.forClass(UsernamePasswordAuthenticationToken.class);
+		verify(this.authenticationManager).authenticate(authenticationCaptor.capture());
+
+		UsernamePasswordAuthenticationToken authenticationRequest = authenticationCaptor.getValue();
+		assertThat(authenticationRequest.getDetails()).isInstanceOf(WebAuthenticationDetails.class);
+
+		WebAuthenticationDetails details = (WebAuthenticationDetails) authenticationRequest.getDetails();
+		assertThat(details.getRemoteAddress()).isEqualTo(ipAddress);
+		assertThat(details.getSessionId()).isEqualTo(sessionId);
 	}
 
 	@Test

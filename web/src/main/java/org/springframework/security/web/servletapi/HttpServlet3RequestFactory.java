@@ -81,7 +81,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
-	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+	private final AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -160,18 +160,6 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 	void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
-	}
-
-	/**
-	 * Sets the {@link AuthenticationDetailsSource} to be used. The default is
-	 * {@link WebAuthenticationDetailsSource}.
-	 * @param authenticationDetailsSource the {@link AuthenticationDetailsSource} to use.
-	 * Cannot be null.
-	 */
-	void setAuthenticationDetailsSource(
-			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
-		Assert.notNull(authenticationDetailsSource, "authenticationDetailsSource cannot be null");
-		this.authenticationDetailsSource = authenticationDetailsSource;
 	}
 
 	@Override
