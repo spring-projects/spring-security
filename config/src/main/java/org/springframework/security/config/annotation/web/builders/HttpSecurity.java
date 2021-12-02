@@ -2889,8 +2889,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected DefaultSecurityFilterChain performBuild() {
+		ExpressionUrlAuthorizationConfigurer<?> expressionConfigurer = getConfigurer(
+				ExpressionUrlAuthorizationConfigurer.class);
+		AuthorizeHttpRequestsConfigurer<?> httpConfigurer = getConfigurer(AuthorizeHttpRequestsConfigurer.class);
+		boolean oneConfigurerPresent = expressionConfigurer == null ^ httpConfigurer == null;
+		Assert.state((expressionConfigurer == null && httpConfigurer == null) || oneConfigurerPresent,
+				"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 		this.filters.sort(OrderComparator.INSTANCE);
 		List<Filter> sortedFilters = new ArrayList<>(this.filters.size());
 		for (Filter filter : this.filters) {
