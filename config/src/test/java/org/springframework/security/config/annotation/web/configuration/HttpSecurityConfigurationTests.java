@@ -24,6 +24,7 @@ import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,6 +48,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -200,6 +202,24 @@ public class HttpSecurityConfigurationTests {
 		this.mockMvc.perform(get("/login?logout")).andExpect(status().isOk());
 	}
 
+	@Test
+	public void configureWhenAuthorizeHttpRequestsBeforeAuthorizeRequestThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(
+						() -> this.spring.register(AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig.class).autowire())
+				.withMessageContaining(
+						"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
+	}
+
+	@Test
+	public void configureWhenAuthorizeHttpRequestsAfterAuthorizeRequestThenException() {
+		assertThatExceptionOfType(BeanCreationException.class)
+				.isThrownBy(
+						() -> this.spring.register(AuthorizeHttpRequestsAfterAuthorizeRequestsConfig.class).autowire())
+				.withMessageContaining(
+						"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
+	}
+
 	@RestController
 	static class NameController {
 
@@ -266,6 +286,44 @@ public class HttpSecurityConfigurationTests {
 					.build();
 			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().authenticated()
+					)
+					.authorizeRequests((requests) -> requests
+							.anyRequest().authenticated()
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AuthorizeHttpRequestsAfterAuthorizeRequestsConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeRequests((requests) -> requests
+							.anyRequest().authenticated()
+					)
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().authenticated()
+					)
+					.build();
+			// @formatter:on
 		}
 
 	}
