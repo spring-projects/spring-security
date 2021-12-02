@@ -62,7 +62,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 /**
  * Tests {@link SecurityContextHolderAwareRequestFilter}.
@@ -226,8 +225,8 @@ public class SecurityContextHolderAwareRequestFilterTests {
 			throws Exception {
 		String ipAddress = "10.0.0.100";
 		String sessionId = "session-id";
-		when(this.request.getRemoteAddr()).thenReturn(ipAddress);
-		when(this.request.getSession(anyBoolean())).thenReturn(new MockHttpSession(null, sessionId));
+		given(this.request.getRemoteAddr()).willReturn(ipAddress);
+		given(this.request.getSession(anyBoolean())).willReturn(new MockHttpSession(null, sessionId));
 		wrappedRequest().login("username", "password");
 
 		ArgumentCaptor<UsernamePasswordAuthenticationToken> authenticationCaptor = ArgumentCaptor
