@@ -341,14 +341,12 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        http {
+        return http {
             authorizeExchange {
                 authorize(anyExchange, authenticated)
             }
             oauth2Login { }
         }
-
-        return http.build()
     }
 }
 ----
@@ -411,14 +409,12 @@ class OAuth2LoginConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        http {
+        return http {
             authorizeExchange {
                 authorize(anyExchange, authenticated)
             }
             oauth2Login { }
         }
-
-        return http.build()
     }
 
     @Bean
@@ -505,14 +501,12 @@ class OAuth2LoginConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        http {
+        return http {
             authorizeExchange {
                 authorize(anyExchange, authenticated)
             }
             oauth2Login { }
         }
-
-        return http.build()
     }
 
     @Bean
