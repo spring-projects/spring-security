@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.test.web.servlet.MockMvc;
@@ -52,6 +57,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eddú Meléndez
  * @author Vedran Pavic
  * @author Eleftheria Stein
+ * @author Marcus Da Coregio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerTests {
@@ -512,6 +518,30 @@ public class HeadersConfigurerTests {
 				.andReturn();
 		// @formatter:on
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.STRICT_TRANSPORT_SECURITY);
+	}
+
+	@Test
+	public void getWhenCustomCrossOriginPoliciesInLambdaThenCrossOriginPolicyHeadersWithCustomValuesInResponse()
+			throws Exception {
+		this.spring.register(CrossOriginCustomPoliciesInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_OPENER_POLICY, "same-origin"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, "require-corp"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY, "same-origin")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CROSS_ORIGIN_OPENER_POLICY,
+				HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY);
+	}
+
+	@Test
+	public void getWhenCustomCrossOriginPoliciesThenCrossOriginPolicyHeadersWithCustomValuesInResponse()
+			throws Exception {
+		this.spring.register(CrossOriginCustomPoliciesConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_OPENER_POLICY, "same-origin"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, "require-corp"))
+				.andExpect(header().string(HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY, "same-origin")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.CROSS_ORIGIN_OPENER_POLICY,
+				HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY);
 	}
 
 	@EnableWebSecurity
@@ -1142,6 +1172,52 @@ public class HeadersConfigurerTests {
 						.httpStrictTransportSecurity((hstsConfig) -> hstsConfig.preload(true))
 				);
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CrossOriginCustomPoliciesInLambdaConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http.headers((headers) -> headers
+					.defaultsDisabled()
+					.crossOriginOpenerPolicy((policy) -> policy
+						.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN)
+					)
+					.crossOriginEmbedderPolicy((policy) -> policy
+						.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP)
+					)
+					.crossOriginResourcePolicy((policy) -> policy
+						.policy(CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy.SAME_ORIGIN)
+					)
+			);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class CrossOriginCustomPoliciesConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http.headers()
+					.defaultsDisabled()
+					.crossOriginOpenerPolicy()
+						.policy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.SAME_ORIGIN)
+						.and()
+					.crossOriginEmbedderPolicy()
+						.policy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.REQUIRE_CORP)
+						.and()
+					.crossOriginResourcePolicy()
+						.policy(CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy.SAME_ORIGIN);
+			// @formatter:on
+			return http.build();
 		}
 
 	}

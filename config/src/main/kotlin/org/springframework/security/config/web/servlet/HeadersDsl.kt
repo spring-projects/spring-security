@@ -42,6 +42,9 @@ class HeadersDsl {
     private var referrerPolicy: ((HeadersConfigurer<HttpSecurity>.ReferrerPolicyConfig) -> Unit)? = null
     private var featurePolicyDirectives: String? = null
     private var permissionsPolicy: ((HeadersConfigurer<HttpSecurity>.PermissionsPolicyConfig) -> Unit)? = null
+    private var crossOriginOpenerPolicy: ((HeadersConfigurer<HttpSecurity>.CrossOriginOpenerPolicyConfig) -> Unit)? = null
+    private var crossOriginEmbedderPolicy: ((HeadersConfigurer<HttpSecurity>.CrossOriginEmbedderPolicyConfig) -> Unit)? = null
+    private var crossOriginResourcePolicy: ((HeadersConfigurer<HttpSecurity>.CrossOriginResourcePolicyConfig) -> Unit)? = null
     private var disabled = false
     private var headerWriters = mutableListOf<HeaderWriter>()
 
@@ -182,6 +185,54 @@ class HeadersDsl {
     }
 
     /**
+     * Allows configuration for <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
+     * Cross-Origin-Opener-Policy</a> header.
+     *
+     * <p>
+     * Calling this method automatically enables (includes) the Cross-Origin-Opener-Policy
+     * header in the response using the supplied policy.
+     * <p>
+     *
+     * @since 5.7
+     * @param crossOriginOpenerPolicyConfig the customization to apply to the header
+     */
+    fun crossOriginOpenerPolicy(crossOriginOpenerPolicyConfig: CrossOriginOpenerPolicyDsl.() -> Unit) {
+        this.crossOriginOpenerPolicy = CrossOriginOpenerPolicyDsl().apply(crossOriginOpenerPolicyConfig).get()
+    }
+
+    /**
+     * Allows configuration for <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
+     * Cross-Origin-Embedder-Policy</a> header.
+     *
+     * <p>
+     * Calling this method automatically enables (includes) the Cross-Origin-Embedder-Policy
+     * header in the response using the supplied policy.
+     * <p>
+     *
+     * @since 5.7
+     * @param crossOriginEmbedderPolicyConfig the customization to apply to the header
+     */
+    fun crossOriginEmbedderPolicy(crossOriginEmbedderPolicyConfig: CrossOriginEmbedderPolicyDsl.() -> Unit) {
+        this.crossOriginEmbedderPolicy = CrossOriginEmbedderPolicyDsl().apply(crossOriginEmbedderPolicyConfig).get()
+    }
+
+    /**
+     * Configures the <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
+     * Cross-Origin-Resource-Policy</a> header.
+     *
+     * <p>
+     * Calling this method automatically enables (includes) the Cross-Origin-Resource-Policy
+     * header in the response using the supplied policy.
+     * <p>
+     *
+     * @since 5.7
+     * @param crossOriginResourcePolicyConfig the customization to apply to the header
+     */
+    fun crossOriginResourcePolicy(crossOriginResourcePolicyConfig: CrossOriginResourcePolicyDsl.() -> Unit) {
+        this.crossOriginResourcePolicy = CrossOriginResourcePolicyDsl().apply(crossOriginResourcePolicyConfig).get()
+    }
+
+    /**
      * Adds a [HeaderWriter] instance.
      *
      * @param headerWriter the [HeaderWriter] instance to add
@@ -237,6 +288,15 @@ class HeadersDsl {
             }
             permissionsPolicy?.also {
                 headers.permissionsPolicy(permissionsPolicy)
+            }
+            crossOriginOpenerPolicy?.also {
+                headers.crossOriginOpenerPolicy(crossOriginOpenerPolicy)
+            }
+            crossOriginEmbedderPolicy?.also {
+                headers.crossOriginEmbedderPolicy(crossOriginEmbedderPolicy)
+            }
+            crossOriginResourcePolicy?.also {
+                headers.crossOriginResourcePolicy(crossOriginResourcePolicy)
             }
             headerWriters.forEach { headerWriter ->
                 headers.addHeaderWriter(headerWriter)

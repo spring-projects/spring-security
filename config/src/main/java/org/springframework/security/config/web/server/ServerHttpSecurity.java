@@ -149,6 +149,12 @@ import org.springframework.security.web.server.header.CacheControlServerHttpHead
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.CrossOriginEmbedderPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.CrossOriginEmbedderPolicyServerHttpHeadersWriter.CrossOriginEmbedderPolicy;
+import org.springframework.security.web.server.header.CrossOriginOpenerPolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.CrossOriginOpenerPolicyServerHttpHeadersWriter.CrossOriginOpenerPolicy;
+import org.springframework.security.web.server.header.CrossOriginResourcePolicyServerHttpHeadersWriter;
+import org.springframework.security.web.server.header.CrossOriginResourcePolicyServerHttpHeadersWriter.CrossOriginResourcePolicy;
 import org.springframework.security.web.server.header.FeaturePolicyServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.HttpHeaderWriterWebFilter;
 import org.springframework.security.web.server.header.PermissionsPolicyServerHttpHeadersWriter;
@@ -2380,10 +2386,17 @@ public class ServerHttpSecurity {
 
 		private ReferrerPolicyServerHttpHeadersWriter referrerPolicy = new ReferrerPolicyServerHttpHeadersWriter();
 
+		private CrossOriginOpenerPolicyServerHttpHeadersWriter crossOriginOpenerPolicy = new CrossOriginOpenerPolicyServerHttpHeadersWriter();
+
+		private CrossOriginEmbedderPolicyServerHttpHeadersWriter crossOriginEmbedderPolicy = new CrossOriginEmbedderPolicyServerHttpHeadersWriter();
+
+		private CrossOriginResourcePolicyServerHttpHeadersWriter crossOriginResourcePolicy = new CrossOriginResourcePolicyServerHttpHeadersWriter();
+
 		private HeaderSpec() {
 			this.writers = new ArrayList<>(Arrays.asList(this.cacheControl, this.contentTypeOptions, this.hsts,
 					this.frameOptions, this.xss, this.featurePolicy, this.permissionsPolicy, this.contentSecurityPolicy,
-					this.referrerPolicy));
+					this.referrerPolicy, this.crossOriginOpenerPolicy, this.crossOriginEmbedderPolicy,
+					this.crossOriginResourcePolicy));
 		}
 
 		/**
@@ -2592,6 +2605,84 @@ public class ServerHttpSecurity {
 		 */
 		public HeaderSpec referrerPolicy(Customizer<ReferrerPolicySpec> referrerPolicyCustomizer) {
 			referrerPolicyCustomizer.customize(new ReferrerPolicySpec());
+			return this;
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
+		 * Cross-Origin-Opener-Policy</a> header.
+		 * @return the {@link CrossOriginOpenerPolicySpec} to configure
+		 * @since 5.7
+		 * @see CrossOriginOpenerPolicyServerHttpHeadersWriter
+		 */
+		public CrossOriginOpenerPolicySpec crossOriginOpenerPolicy() {
+			return new CrossOriginOpenerPolicySpec();
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
+		 * Cross-Origin-Opener-Policy</a> header.
+		 * @return the {@link HeaderSpec} to customize
+		 * @since 5.7
+		 * @see CrossOriginOpenerPolicyServerHttpHeadersWriter
+		 */
+		public HeaderSpec crossOriginOpenerPolicy(
+				Customizer<CrossOriginOpenerPolicySpec> crossOriginOpenerPolicyCustomizer) {
+			crossOriginOpenerPolicyCustomizer.customize(new CrossOriginOpenerPolicySpec());
+			return this;
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
+		 * Cross-Origin-Embedder-Policy</a> header.
+		 * @return the {@link CrossOriginEmbedderPolicySpec} to configure
+		 * @since 5.7
+		 * @see CrossOriginEmbedderPolicyServerHttpHeadersWriter
+		 */
+		public CrossOriginEmbedderPolicySpec crossOriginEmbedderPolicy() {
+			return new CrossOriginEmbedderPolicySpec();
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
+		 * Cross-Origin-Embedder-Policy</a> header.
+		 * @return the {@link HeaderSpec} to customize
+		 * @since 5.7
+		 * @see CrossOriginEmbedderPolicyServerHttpHeadersWriter
+		 */
+		public HeaderSpec crossOriginEmbedderPolicy(
+				Customizer<CrossOriginEmbedderPolicySpec> crossOriginEmbedderPolicyCustomizer) {
+			crossOriginEmbedderPolicyCustomizer.customize(new CrossOriginEmbedderPolicySpec());
+			return this;
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
+		 * Cross-Origin-Resource-Policy</a> header.
+		 * @return the {@link CrossOriginResourcePolicySpec} to configure
+		 * @since 5.7
+		 * @see CrossOriginResourcePolicyServerHttpHeadersWriter
+		 */
+		public CrossOriginResourcePolicySpec crossOriginResourcePolicy() {
+			return new CrossOriginResourcePolicySpec();
+		}
+
+		/**
+		 * Configures the <a href=
+		 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
+		 * Cross-Origin-Resource-Policy</a> header.
+		 * @return the {@link HeaderSpec} to customize
+		 * @since 5.7
+		 * @see CrossOriginResourcePolicyServerHttpHeadersWriter
+		 */
+		public HeaderSpec crossOriginResourcePolicy(
+				Customizer<CrossOriginResourcePolicySpec> crossOriginResourcePolicyCustomizer) {
+			crossOriginResourcePolicyCustomizer.customize(new CrossOriginResourcePolicySpec());
 			return this;
 		}
 
@@ -2896,6 +2987,99 @@ public class ServerHttpSecurity {
 			 */
 			public ReferrerPolicySpec policy(ReferrerPolicy referrerPolicy) {
 				HeaderSpec.this.referrerPolicy.setPolicy(referrerPolicy);
+				return this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+		}
+
+		/**
+		 * Configures the Cross-Origin-Opener-Policy header
+		 *
+		 * @since 5.7
+		 */
+		public final class CrossOriginOpenerPolicySpec {
+
+			private CrossOriginOpenerPolicySpec() {
+			}
+
+			/**
+			 * Sets the value to be used in the `Cross-Origin-Opener-Policy` header
+			 * @param openerPolicy a opener policy
+			 * @return the {@link CrossOriginOpenerPolicySpec} to continue configuring
+			 */
+			public CrossOriginOpenerPolicySpec policy(CrossOriginOpenerPolicy openerPolicy) {
+				HeaderSpec.this.crossOriginOpenerPolicy.setPolicy(openerPolicy);
+				return this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+		}
+
+		/**
+		 * Configures the Cross-Origin-Embedder-Policy header
+		 *
+		 * @since 5.7
+		 */
+		public final class CrossOriginEmbedderPolicySpec {
+
+			private CrossOriginEmbedderPolicySpec() {
+			}
+
+			/**
+			 * Sets the value to be used in the `Cross-Origin-Embedder-Policy` header
+			 * @param embedderPolicy a opener policy
+			 * @return the {@link CrossOriginEmbedderPolicySpec} to continue configuring
+			 */
+			public CrossOriginEmbedderPolicySpec policy(CrossOriginEmbedderPolicy embedderPolicy) {
+				HeaderSpec.this.crossOriginEmbedderPolicy.setPolicy(embedderPolicy);
+				return this;
+			}
+
+			/**
+			 * Allows method chaining to continue configuring the
+			 * {@link ServerHttpSecurity}.
+			 * @return the {@link HeaderSpec} to continue configuring
+			 */
+			public HeaderSpec and() {
+				return HeaderSpec.this;
+			}
+
+		}
+
+		/**
+		 * Configures the Cross-Origin-Resource-Policy header
+		 *
+		 * @since 5.7
+		 */
+		public final class CrossOriginResourcePolicySpec {
+
+			private CrossOriginResourcePolicySpec() {
+			}
+
+			/**
+			 * Sets the value to be used in the `Cross-Origin-Resource-Policy` header
+			 * @param resourcePolicy a opener policy
+			 * @return the {@link CrossOriginResourcePolicySpec} to continue configuring
+			 */
+			public CrossOriginResourcePolicySpec policy(CrossOriginResourcePolicy resourcePolicy) {
+				HeaderSpec.this.crossOriginResourcePolicy.setPolicy(resourcePolicy);
 				return this;
 			}
 
