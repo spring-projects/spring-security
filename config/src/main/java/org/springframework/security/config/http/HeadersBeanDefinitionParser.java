@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,9 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
 import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.FeaturePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.HpkpHeaderWriter;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
@@ -122,6 +125,12 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String PERMISSIONS_POLICY_ELEMENT = "permissions-policy";
 
+	private static final String CROSS_ORIGIN_OPENER_POLICY_ELEMENT = "cross-origin-opener-policy";
+
+	private static final String CROSS_ORIGIN_EMBEDDER_POLICY_ELEMENT = "cross-origin-embedder-policy";
+
+	private static final String CROSS_ORIGIN_RESOURCE_POLICY_ELEMENT = "cross-origin-resource-policy";
+
 	private static final String ALLOW_FROM = "ALLOW-FROM";
 
 	private ManagedList<BeanMetadataElement> headerWriters;
@@ -144,6 +153,9 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 		parseReferrerPolicyElement(element, parserContext);
 		parseFeaturePolicyElement(element, parserContext);
 		parsePermissionsPolicyElement(element, parserContext);
+		parseCrossOriginOpenerPolicy(disabled, element);
+		parseCrossOriginEmbedderPolicy(disabled, element);
+		parseCrossOriginResourcePolicy(disabled, element);
 		parseHeaderElements(element);
 		boolean noWriters = this.headerWriters.isEmpty();
 		if (disabled && !noWriters) {
@@ -374,6 +386,75 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 			headersWriter.addConstructorArgValue(policyDirectives);
 		}
 		this.headerWriters.add(headersWriter.getBeanDefinition());
+	}
+
+	private void parseCrossOriginOpenerPolicy(boolean elementDisabled, Element element) {
+		if (elementDisabled || element == null) {
+			return;
+		}
+		CrossOriginOpenerPolicyHeaderWriter writer = new CrossOriginOpenerPolicyHeaderWriter();
+		Element crossOriginOpenerPolicyElement = DomUtils.getChildElementByTagName(element,
+				CROSS_ORIGIN_OPENER_POLICY_ELEMENT);
+		if (crossOriginOpenerPolicyElement != null) {
+			addCrossOriginOpenerPolicy(crossOriginOpenerPolicyElement, writer);
+		}
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.genericBeanDefinition(CrossOriginOpenerPolicyHeaderWriter.class, () -> writer);
+		this.headerWriters.add(builder.getBeanDefinition());
+	}
+
+	private void parseCrossOriginEmbedderPolicy(boolean elementDisabled, Element element) {
+		if (elementDisabled || element == null) {
+			return;
+		}
+		CrossOriginEmbedderPolicyHeaderWriter writer = new CrossOriginEmbedderPolicyHeaderWriter();
+		Element crossOriginEmbedderPolicyElement = DomUtils.getChildElementByTagName(element,
+				CROSS_ORIGIN_EMBEDDER_POLICY_ELEMENT);
+		if (crossOriginEmbedderPolicyElement != null) {
+			addCrossOriginEmbedderPolicy(crossOriginEmbedderPolicyElement, writer);
+		}
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.genericBeanDefinition(CrossOriginEmbedderPolicyHeaderWriter.class, () -> writer);
+		this.headerWriters.add(builder.getBeanDefinition());
+	}
+
+	private void parseCrossOriginResourcePolicy(boolean elementDisabled, Element element) {
+		if (elementDisabled || element == null) {
+			return;
+		}
+		CrossOriginResourcePolicyHeaderWriter writer = new CrossOriginResourcePolicyHeaderWriter();
+		Element crossOriginResourcePolicyElement = DomUtils.getChildElementByTagName(element,
+				CROSS_ORIGIN_RESOURCE_POLICY_ELEMENT);
+		if (crossOriginResourcePolicyElement != null) {
+			addCrossOriginResourcePolicy(crossOriginResourcePolicyElement, writer);
+		}
+		BeanDefinitionBuilder builder = BeanDefinitionBuilder
+				.genericBeanDefinition(CrossOriginResourcePolicyHeaderWriter.class, () -> writer);
+		this.headerWriters.add(builder.getBeanDefinition());
+	}
+
+	private void addCrossOriginResourcePolicy(Element crossOriginResourcePolicyElement,
+			CrossOriginResourcePolicyHeaderWriter writer) {
+		String policy = crossOriginResourcePolicyElement.getAttribute(ATT_POLICY);
+		if (StringUtils.hasText(policy)) {
+			writer.setPolicy(CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy.from(policy));
+		}
+	}
+
+	private void addCrossOriginEmbedderPolicy(Element crossOriginEmbedderPolicyElement,
+			CrossOriginEmbedderPolicyHeaderWriter writer) {
+		String policy = crossOriginEmbedderPolicyElement.getAttribute(ATT_POLICY);
+		if (StringUtils.hasText(policy)) {
+			writer.setPolicy(CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy.from(policy));
+		}
+	}
+
+	private void addCrossOriginOpenerPolicy(Element crossOriginOpenerPolicyElement,
+			CrossOriginOpenerPolicyHeaderWriter writer) {
+		String policy = crossOriginOpenerPolicyElement.getAttribute(ATT_POLICY);
+		if (StringUtils.hasText(policy)) {
+			writer.setPolicy(CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy.from(policy));
+		}
 	}
 
 	private void attrNotAllowed(ParserContext context, String attrName, String otherAttrName, Element element) {
