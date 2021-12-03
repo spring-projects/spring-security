@@ -2768,6 +2768,9 @@
             <xs:element ref="security:referrer-policy"/>
             <xs:element ref="security:feature-policy"/>
             <xs:element ref="security:permissions-policy"/>
+            <xs:element ref="security:cross-origin-opener-policy"/>
+            <xs:element ref="security:cross-origin-embedder-policy"/>
+            <xs:element ref="security:cross-origin-resource-policy"/>
             <xs:element ref="security:header"/>
          </xs:choice>
          <xs:attributeGroup ref="security:headers-options.attlist"/>
@@ -3149,6 +3152,77 @@
             <xs:documentation>If disabled, the X-Content-Type-Options header will not be included. Default false.
                 </xs:documentation>
          </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="cross-origin-opener-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Cross-Origin-Opener-Policy header
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:cross-origin-opener-policy-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="cross-origin-opener-policy-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>The policies for the Cross-Origin-Opener-Policy header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="unsafe-none"/>
+               <xs:enumeration value="same-origin"/>
+               <xs:enumeration value="same-origin-allow-popups"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="cross-origin-embedder-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Cross-Origin-Embedder-Policy header
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:cross-origin-embedder-policy-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="cross-origin-embedder-policy-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>The policies for the Cross-Origin-Embedder-Policy header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="unsafe-none"/>
+               <xs:enumeration value="require-corp"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+  </xs:attributeGroup>
+  <xs:element name="cross-origin-resource-policy">
+      <xs:annotation>
+         <xs:documentation>Adds support for Cross-Origin-Resource-Policy header
+                </xs:documentation>
+      </xs:annotation>
+      <xs:complexType>
+         <xs:attributeGroup ref="security:cross-origin-resource-policy-options.attlist"/>
+      </xs:complexType>
+   </xs:element>
+  <xs:attributeGroup name="cross-origin-resource-policy-options.attlist">
+      <xs:attribute name="policy">
+         <xs:annotation>
+            <xs:documentation>The policies for the Cross-Origin-Resource-Policy header.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="cross-origin"/>
+               <xs:enumeration value="same-origin"/>
+               <xs:enumeration value="same-site"/>
+            </xs:restriction>
+         </xs:simpleType>
       </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="header">

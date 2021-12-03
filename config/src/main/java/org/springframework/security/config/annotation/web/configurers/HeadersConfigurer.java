@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,9 @@ import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
 import org.springframework.security.web.header.writers.ContentSecurityPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.FeaturePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.HpkpHeaderWriter;
 import org.springframework.security.web.header.writers.HstsHeaderWriter;
@@ -96,6 +99,12 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	private final FeaturePolicyConfig featurePolicy = new FeaturePolicyConfig();
 
 	private final PermissionsPolicyConfig permissionsPolicy = new PermissionsPolicyConfig();
+
+	private final CrossOriginOpenerPolicyConfig crossOriginOpenerPolicy = new CrossOriginOpenerPolicyConfig();
+
+	private final CrossOriginEmbedderPolicyConfig crossOriginEmbedderPolicy = new CrossOriginEmbedderPolicyConfig();
+
+	private final CrossOriginResourcePolicyConfig crossOriginResourcePolicy = new CrossOriginResourcePolicyConfig();
 
 	/**
 	 * Creates a new instance
@@ -392,6 +401,9 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		addIfNotNull(writers, this.referrerPolicy.writer);
 		addIfNotNull(writers, this.featurePolicy.writer);
 		addIfNotNull(writers, this.permissionsPolicy.writer);
+		addIfNotNull(writers, this.crossOriginOpenerPolicy.writer);
+		addIfNotNull(writers, this.crossOriginEmbedderPolicy.writer);
+		addIfNotNull(writers, this.crossOriginResourcePolicy.writer);
 		writers.addAll(this.headerWriters);
 		return writers;
 	}
@@ -542,6 +554,129 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
 		permissionsPolicyCustomizer.customize(this.permissionsPolicy);
 		return this.permissionsPolicy;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
+	 * Cross-Origin-Opener-Policy</a> header.
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginOpenerPolicyHeaderWriter} which
+	 * responsible for writing the header.
+	 * </p>
+	 * @return the {@link CrossOriginOpenerPolicyConfig} for additional confniguration
+	 * @since 5.7
+	 * @see CrossOriginOpenerPolicyHeaderWriter
+	 */
+	public CrossOriginOpenerPolicyConfig crossOriginOpenerPolicy() {
+		this.crossOriginOpenerPolicy.writer = new CrossOriginOpenerPolicyHeaderWriter();
+		return this.crossOriginOpenerPolicy;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy">
+	 * Cross-Origin-Opener-Policy</a> header.
+	 * <p>
+	 * Calling this method automatically enables (includes) the
+	 * {@code Cross-Origin-Opener-Policy} header in the response using the supplied
+	 * policy.
+	 * <p>
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginOpenerPolicyHeaderWriter} which
+	 * responsible for writing the header.
+	 * </p>
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @since 5.7
+	 * @see CrossOriginOpenerPolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> crossOriginOpenerPolicy(
+			Customizer<CrossOriginOpenerPolicyConfig> crossOriginOpenerPolicyCustomizer) {
+		this.crossOriginOpenerPolicy.writer = new CrossOriginOpenerPolicyHeaderWriter();
+		crossOriginOpenerPolicyCustomizer.customize(this.crossOriginOpenerPolicy);
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
+	 * Cross-Origin-Embedder-Policy</a> header.
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginEmbedderPolicyHeaderWriter}
+	 * which is responsible for writing the header.
+	 * </p>
+	 * @return the {@link CrossOriginEmbedderPolicyConfig} for additional customizations
+	 * @since 5.7
+	 * @see CrossOriginEmbedderPolicyHeaderWriter
+	 */
+	public CrossOriginEmbedderPolicyConfig crossOriginEmbedderPolicy() {
+		this.crossOriginEmbedderPolicy.writer = new CrossOriginEmbedderPolicyHeaderWriter();
+		return this.crossOriginEmbedderPolicy;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy">
+	 * Cross-Origin-Embedder-Policy</a> header.
+	 * <p>
+	 * Calling this method automatically enables (includes) the
+	 * {@code Cross-Origin-Embedder-Policy} header in the response using the supplied
+	 * policy.
+	 * <p>
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginEmbedderPolicyHeaderWriter}
+	 * which is responsible for writing the header.
+	 * </p>
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @since 5.7
+	 * @see CrossOriginEmbedderPolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> crossOriginEmbedderPolicy(
+			Customizer<CrossOriginEmbedderPolicyConfig> crossOriginEmbedderPolicyCustomizer) {
+		this.crossOriginEmbedderPolicy.writer = new CrossOriginEmbedderPolicyHeaderWriter();
+		crossOriginEmbedderPolicyCustomizer.customize(this.crossOriginEmbedderPolicy);
+		return HeadersConfigurer.this;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
+	 * Cross-Origin-Resource-Policy</a> header.
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginResourcePolicyHeaderWriter}
+	 * which is responsible for writing the header:
+	 * </p>
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @since 5.7
+	 * @see CrossOriginResourcePolicyHeaderWriter
+	 */
+	public CrossOriginResourcePolicyConfig crossOriginResourcePolicy() {
+		this.crossOriginResourcePolicy.writer = new CrossOriginResourcePolicyHeaderWriter();
+		return this.crossOriginResourcePolicy;
+	}
+
+	/**
+	 * Allows configuration for <a href=
+	 * "https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy">
+	 * Cross-Origin-Resource-Policy</a> header.
+	 * <p>
+	 * Calling this method automatically enables (includes) the
+	 * {@code Cross-Origin-Resource-Policy} header in the response using the supplied
+	 * policy.
+	 * <p>
+	 * <p>
+	 * Configuration is provided to the {@link CrossOriginResourcePolicyHeaderWriter}
+	 * which is responsible for writing the header:
+	 * </p>
+	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @since 5.7
+	 * @see CrossOriginResourcePolicyHeaderWriter
+	 */
+	public HeadersConfigurer<H> crossOriginResourcePolicy(
+			Customizer<CrossOriginResourcePolicyConfig> crossOriginResourcePolicyCustomizer) {
+		this.crossOriginResourcePolicy.writer = new CrossOriginResourcePolicyHeaderWriter();
+		crossOriginResourcePolicyCustomizer.customize(this.crossOriginResourcePolicy);
+		return HeadersConfigurer.this;
 	}
 
 	public final class ContentTypeOptionsConfig {
@@ -1133,6 +1268,98 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		/**
 		 * Allows completing configuration of Permissions Policy and continuing
+		 * configuration of headers.
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
+	public final class CrossOriginOpenerPolicyConfig {
+
+		private CrossOriginOpenerPolicyHeaderWriter writer;
+
+		public CrossOriginOpenerPolicyConfig() {
+		}
+
+		/**
+		 * Sets the policy to be used in the {@code Cross-Origin-Opener-Policy} header
+		 * @param openerPolicy a {@code Cross-Origin-Opener-Policy}
+		 * @return the {@link CrossOriginOpenerPolicyConfig} for additional configuration
+		 * @throws IllegalArgumentException if openerPolicy is null
+		 */
+		public CrossOriginOpenerPolicyConfig policy(
+				CrossOriginOpenerPolicyHeaderWriter.CrossOriginOpenerPolicy openerPolicy) {
+			this.writer.setPolicy(openerPolicy);
+			return this;
+		}
+
+		/**
+		 * Allows completing configuration of Cross Origin Opener Policy and continuing
+		 * configuration of headers.
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
+	public final class CrossOriginEmbedderPolicyConfig {
+
+		private CrossOriginEmbedderPolicyHeaderWriter writer;
+
+		public CrossOriginEmbedderPolicyConfig() {
+		}
+
+		/**
+		 * Sets the policy to be used in the {@code Cross-Origin-Embedder-Policy} header
+		 * @param embedderPolicy a {@code Cross-Origin-Embedder-Policy}
+		 * @return the {@link CrossOriginEmbedderPolicyConfig} for additional
+		 * configuration
+		 * @throws IllegalArgumentException if embedderPolicy is null
+		 */
+		public CrossOriginEmbedderPolicyConfig policy(
+				CrossOriginEmbedderPolicyHeaderWriter.CrossOriginEmbedderPolicy embedderPolicy) {
+			this.writer.setPolicy(embedderPolicy);
+			return this;
+		}
+
+		/**
+		 * Allows completing configuration of Cross-Origin-Embedder-Policy and continuing
+		 * configuration of headers.
+		 * @return the {@link HeadersConfigurer} for additional configuration
+		 */
+		public HeadersConfigurer<H> and() {
+			return HeadersConfigurer.this;
+		}
+
+	}
+
+	public final class CrossOriginResourcePolicyConfig {
+
+		private CrossOriginResourcePolicyHeaderWriter writer;
+
+		public CrossOriginResourcePolicyConfig() {
+		}
+
+		/**
+		 * Sets the policy to be used in the {@code Cross-Origin-Resource-Policy} header
+		 * @param resourcePolicy a {@code Cross-Origin-Resource-Policy}
+		 * @return the {@link CrossOriginResourcePolicyConfig} for additional
+		 * configuration
+		 * @throws IllegalArgumentException if resourcePolicy is null
+		 */
+		public CrossOriginResourcePolicyConfig policy(
+				CrossOriginResourcePolicyHeaderWriter.CrossOriginResourcePolicy resourcePolicy) {
+			this.writer.setPolicy(resourcePolicy);
+			return this;
+		}
+
+		/**
+		 * Allows completing configuration of Cross-Origin-Resource-Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
 		 */

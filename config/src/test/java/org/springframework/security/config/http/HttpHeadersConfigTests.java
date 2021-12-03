@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Tim Ysewyn
  * @author Josh Cummings
  * @author Rafiullah Hamedy
+ * @author Marcus Da Coregio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HttpHeadersConfigTests {
@@ -730,6 +731,53 @@ public class HttpHeadersConfigTests {
 				.andExpect(status().isOk())
 				.andExpect(excludesDefaults())
 				.andExpect(header().string("Referrer-Policy", "same-origin"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenCrossOriginOpenerPolicyWithSameOriginAllowPopupsThenRespondsWithSameOriginAllowPopups()
+			throws Exception {
+		this.spring.configLocations(this.xml("DefaultsDisabledWithCrossOriginOpenerPolicy")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults())
+				.andExpect(header().string("Cross-Origin-Opener-Policy", "same-origin-allow-popups"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenCrossOriginEmbedderPolicyWithRequireCorpThenRespondsWithRequireCorp() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsDisabledWithCrossOriginEmbedderPolicy")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults())
+				.andExpect(header().string("Cross-Origin-Embedder-Policy", "require-corp"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenCrossOriginResourcePolicyWithSameOriginThenRespondsWithSameOrigin() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsDisabledWithCrossOriginResourcePolicy")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults())
+				.andExpect(header().string("Cross-Origin-Resource-Policy", "same-origin"));
+		// @formatter:on
+	}
+
+	@Test
+	public void requestWhenCrossOriginPoliciesRespondsCrossOriginPolicies() throws Exception {
+		this.spring.configLocations(this.xml("DefaultsDisabledWithCrossOriginPolicies")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/"))
+				.andExpect(status().isOk())
+				.andExpect(excludesDefaults())
+				.andExpect(header().string("Cross-Origin-Opener-Policy", "same-origin"))
+				.andExpect(header().string("Cross-Origin-Embedder-Policy", "require-corp"))
+				.andExpect(header().string("Cross-Origin-Resource-Policy", "same-origin"));
 		// @formatter:on
 	}
 

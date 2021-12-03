@@ -943,7 +943,7 @@ csrf-options.attlist &=
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
-element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & permissions-policy? & header*)}
+element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & permissions-policy? & cross-origin-opener-policy? & cross-origin-embedder-policy? & cross-origin-resource-policy? & header*)}
 headers-options.attlist &=
 	## Specifies if the default headers should be disabled. Default false.
 	attribute defaults-disabled {xsd:token}?
@@ -1091,6 +1091,27 @@ content-type-options =
 content-type-options.attlist &=
 	## If disabled, the X-Content-Type-Options header will not be included. Default false.
 	attribute disabled {xsd:boolean}?
+
+cross-origin-opener-policy =
+	## Adds support for Cross-Origin-Opener-Policy header
+	element cross-origin-opener-policy {cross-origin-opener-policy-options.attlist,empty}
+cross-origin-opener-policy-options.attlist &=
+	## The policies for the Cross-Origin-Opener-Policy header.
+	attribute policy {"unsafe-none","same-origin","same-origin-allow-popups"}?
+
+cross-origin-embedder-policy =
+	## Adds support for Cross-Origin-Embedder-Policy header
+	element cross-origin-embedder-policy {cross-origin-embedder-policy-options.attlist,empty}
+cross-origin-embedder-policy-options.attlist &=
+	## The policies for the Cross-Origin-Embedder-Policy header.
+	attribute policy {"unsafe-none","require-corp"}?
+
+cross-origin-resource-policy =
+	## Adds support for Cross-Origin-Resource-Policy header
+	element cross-origin-resource-policy {cross-origin-resource-policy-options.attlist,empty}
+cross-origin-resource-policy-options.attlist &=
+	## The policies for the Cross-Origin-Resource-Policy header.
+	attribute policy {"cross-origin","same-origin","same-site"}?
 
 header=
 	## Add additional headers to the response.

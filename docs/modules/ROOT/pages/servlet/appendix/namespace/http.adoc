@@ -238,6 +238,9 @@ This allows HTTPS websites to resist impersonation by attackers using mis-issued
 https://www.w3.org/TR/CSP2/[Content Security Policy (CSP)] is a mechanism that web applications can leverage to mitigate content injection vulnerabilities, such as cross-site scripting (XSS).
 ** `Referrer-Policy` - Can be set using the <<nsa-referrer-policy,referrer-policy>> element, https://www.w3.org/TR/referrer-policy/[Referrer-Policy] is a mechanism that web applications can leverage to manage the referrer field, which contains the last page the user was on.
 ** `Feature-Policy` - Can be set using the <<nsa-feature-policy,feature-policy>> element, https://wicg.github.io/feature-policy/[Feature-Policy] is a mechanism that allows web developers to selectively enable, disable, and modify the behavior of certain APIs and web features in the browser.
+** `Cross-Origin-Opener-Policy` - Can be set using the <<nsa-cross-origin-opener-policy,cross-origin-opener-policy>> element, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy[Cross-Origin-Opener-Policy] is a mechanism that allows you to ensure a top-level document does not share a browsing context group with cross-origin documents.
+** `Cross-Origin-Embedder-Policy` - Can be set using the <<nsa-cross-origin-embedder-policy,cross-origin-embedder-policy>> element, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy[Cross-Origin-Embedder-Policy] is a mechanism that prevents a document from loading any cross-origin resources that don't explicitly grant the document permission.
+** `Cross-Origin-Resource-Policy` - Can be set using the <<nsa-cross-origin-resource-policy,cross-origin-resource-policy>> element, https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy[Cross-Origin-Resource-Policy] is a mechanism that conveys a desire that the browser blocks no-cors cross-origin/cross-site requests to the given resource.
 
 [[nsa-headers-attributes]]
 === <headers> Attributes
@@ -269,6 +272,9 @@ The default is false (the headers are enabled).
 * <<nsa-cache-control,cache-control>>
 * <<nsa-content-security-policy,content-security-policy>>
 * <<nsa-content-type-options,content-type-options>>
+* <<nsa-cross-origin-embedder-policy,cross-origin-embedder-policy>>
+* <<nsa-cross-origin-opener-policy,cross-origin-opener-policy>>
+* <<nsa-cross-origin-resource-policy,cross-origin-resource-policy>>
 * <<nsa-feature-policy,feature-policy>>
 * <<nsa-frame-options,frame-options>>
 * <<nsa-header,header>>
@@ -578,6 +584,66 @@ Default false.
 
 [[nsa-content-type-options-parents]]
 === Parent Elements of <content-type-options>
+
+
+* <<nsa-headers,headers>>
+
+
+
+[[nsa-cross-origin-embedder-policy]]
+==== <cross-origin-embedder-policy>
+When enabled adds the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Embedder-Policy[Cross-Origin-Embedder-Policy] header to the response.
+
+
+[[nsa-cross-origin-embedder-policy-attributes]]
+===== <cross-origin-embedder-policy> Attributes
+
+[[nsa-cross-origin-embedder-policy-policy]]
+* **policy**
+The policy for the `Cross-Origin-Embedder-Policy` header.
+
+[[nsa-cross-origin-embedder-policy-parents]]
+===== Parent Elements of <cross-origin-embedder-policy>
+
+
+* <<nsa-headers,headers>>
+
+
+
+[[nsa-cross-origin-opener-policy]]
+==== <cross-origin-opener-policy>
+When enabled adds the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Opener-Policy[Cross-Origin-Opener-Policy] header to the response.
+
+
+[[nsa-cross-origin-opener-policy-attributes]]
+===== <cross-origin-opener-policy> Attributes
+
+[[nsa-cross-origin-opener-policy-policy]]
+* **policy**
+The policy for the `Cross-Origin-Opener-Policy` header.
+
+[[nsa-cross-origin-opener-policy-parents]]
+===== Parent Elements of <cross-origin-opener-policy>
+
+
+* <<nsa-headers,headers>>
+
+
+
+[[nsa-cross-origin-resource-policy]]
+==== <cross-origin-resource-policy>
+When enabled adds the https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cross-Origin-Resource-Policy[Cross-Origin-Resource-Policy] header to the response.
+
+
+[[nsa-cross-origin-resource-policy-attributes]]
+===== <cross-origin-resource-policy> Attributes
+
+[[nsa-cross-origin-resource-policy-policy]]
+* **policy**
+The policy for the `Cross-Origin-Resource-Policy` header.
+
+[[nsa-cross-origin-resource-policy-parents]]
+===== Parent Elements of <cross-origin-resource-policy>
 
 
 * <<nsa-headers,headers>>
