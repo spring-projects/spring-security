@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
@@ -62,7 +63,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
+import org.springframework.security.web.access.RequestMatcherDelegatingWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.test.web.servlet.MockMvc;
@@ -84,6 +85,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Joe Grandja
  * @author Evgeniy Cheban
+ * @author Marcus Da Coregio
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class WebSecurityConfigurationTests {
@@ -218,10 +220,10 @@ public class WebSecurityConfigurationTests {
 	}
 
 	@Test
-	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenDefaultIsRegistered() {
+	public void loadConfigWhenDefaultWebInvocationPrivilegeEvaluatorThenRequestMatcherIsRegistered() {
 		this.spring.register(WebInvocationPrivilegeEvaluatorDefaultsConfig.class).autowire();
 		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
-				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
+				.isInstanceOf(RequestMatcherDelegatingWebInvocationPrivilegeEvaluator.class);
 	}
 
 	@Test
@@ -229,7 +231,7 @@ public class WebSecurityConfigurationTests {
 		this.spring.register(AuthorizeRequestsFilterChainConfig.class).autowire();
 
 		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
-				.isInstanceOf(DefaultWebInvocationPrivilegeEvaluator.class);
+				.isInstanceOf(RequestMatcherDelegatingWebInvocationPrivilegeEvaluator.class);
 	}
 
 	// SEC-2303
@@ -373,6 +375,69 @@ public class WebSecurityConfigurationTests {
 		assertThat(filterChains.get(0).matches(request)).isTrue();
 		request.setServletPath("/role2");
 		assertThat(filterChains.get(1).matches(request)).isTrue();
+	}
+
+	@Test
+	public void loadConfigWhenTwoSecurityFilterChainsThenRequestMatcherDelegatingWebInvocationPrivilegeEvaluator() {
+		this.spring.register(TwoSecurityFilterChainConfig.class).autowire();
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+				.isInstanceOf(RequestMatcherDelegatingWebInvocationPrivilegeEvaluator.class);
+	}
+
+	@Test
+	public void loadConfigWhenTwoSecurityFilterChainDebugThenRequestMatcherDelegatingWebInvocationPrivilegeEvaluator() {
+		this.spring.register(TwoSecurityFilterChainConfig.class).autowire();
+		assertThat(this.spring.getContext().getBean(WebInvocationPrivilegeEvaluator.class))
+				.isInstanceOf(RequestMatcherDelegatingWebInvocationPrivilegeEvaluator.class);
+	}
+
+	// gh-10554
+	@Test
+	public void loadConfigWhenMultipleSecurityFilterChainsThenWebInvocationPrivilegeEvaluatorApplySecurity() {
+		this.spring.register(MultipleSecurityFilterChainConfig.class).autowire();
+		WebInvocationPrivilegeEvaluator privilegeEvaluator = this.spring.getContext()
+				.getBean(WebInvocationPrivilegeEvaluator.class);
+		assertUserPermissions(privilegeEvaluator);
+		assertAdminPermissions(privilegeEvaluator);
+		assertAnotherUserPermission(privilegeEvaluator);
+	}
+
+	// gh-10554
+	@Test
+	public void loadConfigWhenMultipleSecurityFilterChainAndIgnoringThenWebInvocationPrivilegeEvaluatorAcceptsNullAuthenticationOnIgnored() {
+		this.spring.register(MultipleSecurityFilterChainIgnoringConfig.class).autowire();
+		WebInvocationPrivilegeEvaluator privilegeEvaluator = this.spring.getContext()
+				.getBean(WebInvocationPrivilegeEvaluator.class);
+		assertUserPermissions(privilegeEvaluator);
+		assertAdminPermissions(privilegeEvaluator);
+		assertAnotherUserPermission(privilegeEvaluator);
+		// null authentication
+		assertThat(privilegeEvaluator.isAllowed("/user", null)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/admin", null)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/another", null)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/ignoring1", null)).isTrue();
+		assertThat(privilegeEvaluator.isAllowed("/ignoring1/child", null)).isTrue();
+	}
+
+	private void assertAnotherUserPermission(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
+		Authentication anotherUser = new TestingAuthenticationToken("anotherUser", "password", "ROLE_ANOTHER");
+		assertThat(privilegeEvaluator.isAllowed("/user", anotherUser)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/admin", anotherUser)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/another", anotherUser)).isTrue();
+	}
+
+	private void assertAdminPermissions(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
+		Authentication admin = new TestingAuthenticationToken("admin", "password", "ROLE_ADMIN");
+		assertThat(privilegeEvaluator.isAllowed("/user", admin)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/admin", admin)).isTrue();
+		assertThat(privilegeEvaluator.isAllowed("/another", admin)).isTrue();
+	}
+
+	private void assertUserPermissions(WebInvocationPrivilegeEvaluator privilegeEvaluator) {
+		Authentication user = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		assertThat(privilegeEvaluator.isAllowed("/user", user)).isTrue();
+		assertThat(privilegeEvaluator.isAllowed("/admin", user)).isFalse();
+		assertThat(privilegeEvaluator.isAllowed("/another", user)).isTrue();
 	}
 
 	@EnableWebSecurity
@@ -1004,6 +1069,127 @@ public class WebSecurityConfigurationTests {
 				return authenticationManager2();
 			}
 
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class TwoSecurityFilterChainConfig {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestMatchers((requests) -> requests.antMatchers("/path1/**"))
+				.authorizeRequests((requests) -> requests.anyRequest().authenticated());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.LOWEST_PRECEDENCE)
+		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
+			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity(debug = true)
+	static class TwoSecurityFilterChainDebugConfig {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.requestMatchers((requests) -> requests.antMatchers("/path1/**"))
+					.authorizeRequests((requests) -> requests.anyRequest().authenticated());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.LOWEST_PRECEDENCE)
+		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
+			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class MultipleSecurityFilterChainConfig {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		public SecurityFilterChain notAuthorized(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestMatchers((requests) -> requests.antMatchers("/user"))
+				.authorizeRequests((requests) -> requests.anyRequest().hasRole("USER"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+		public SecurityFilterChain path1(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.requestMatchers((requests) -> requests.antMatchers("/admin"))
+				.authorizeRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.LOWEST_PRECEDENCE)
+		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
+			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(AuthenticationTestConfiguration.class)
+	static class MultipleSecurityFilterChainIgnoringConfig {
+
+		@Bean
+		public WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/ignoring1/**");
+		}
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		public SecurityFilterChain notAuthorized(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.requestMatchers((requests) -> requests.antMatchers("/user"))
+					.authorizeRequests((requests) -> requests.anyRequest().hasRole("USER"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+		public SecurityFilterChain admin(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.requestMatchers((requests) -> requests.antMatchers("/admin"))
+					.authorizeRequests((requests) -> requests.anyRequest().hasRole("ADMIN"));
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		@Order(Ordered.LOWEST_PRECEDENCE)
+		public SecurityFilterChain permitAll(HttpSecurity http) throws Exception {
+			http.authorizeRequests((requests) -> requests.anyRequest().permitAll());
+			return http.build();
 		}
 
 	}
