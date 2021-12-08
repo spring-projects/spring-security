@@ -27,6 +27,7 @@ import reactor.test.StepVerifier;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -86,6 +87,24 @@ public class AuthorityReactiveAuthorizationManagerTests {
 		this.authentication = new TestingAuthenticationToken("rob", "secret", "ADMIN");
 		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
 		assertThat(granted).isTrue();
+	}
+
+	@Test
+	public void checkWhenHasCustomAuthorityAndAuthorizedThenReturnTrue() {
+		GrantedAuthority customGrantedAuthority = () -> "ADMIN";
+		this.authentication = new TestingAuthenticationToken("rob", "secret",
+				Collections.singletonList(customGrantedAuthority));
+		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		assertThat(granted).isTrue();
+	}
+
+	@Test
+	public void checkWhenHasCustomAuthorityAndAuthenticatedAndWrongAuthoritiesThenReturnFalse() {
+		GrantedAuthority customGrantedAuthority = () -> "USER";
+		this.authentication = new TestingAuthenticationToken("rob", "secret",
+				Collections.singletonList(customGrantedAuthority));
+		boolean granted = this.manager.check(Mono.just(this.authentication), null).block().isGranted();
+		assertThat(granted).isFalse();
 	}
 
 	@Test

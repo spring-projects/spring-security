@@ -16,12 +16,14 @@
 
 package org.springframework.security.authorization;
 
+import java.util.Collections;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -128,6 +130,30 @@ public class AuthorityAuthorizationManagerTests {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAuthority("ADMIN");
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "USER");
+		Object object = new Object();
+
+		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+	}
+
+	@Test
+	public void hasAuthorityWhenUserHasCustomAuthorityThenGrantedDecision() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAuthority("ADMIN");
+		GrantedAuthority customGrantedAuthority = () -> "ADMIN";
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				Collections.singletonList(customGrantedAuthority));
+		Object object = new Object();
+
+		assertThat(manager.check(authentication, object).isGranted()).isTrue();
+	}
+
+	@Test
+	public void hasAuthorityWhenUserHasNotCustomAuthorityThenDeniedDecision() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasAuthority("ADMIN");
+		GrantedAuthority customGrantedAuthority = () -> "USER";
+
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				Collections.singletonList(customGrantedAuthority));
 		Object object = new Object();
 
 		assertThat(manager.check(authentication, object).isGranted()).isFalse();

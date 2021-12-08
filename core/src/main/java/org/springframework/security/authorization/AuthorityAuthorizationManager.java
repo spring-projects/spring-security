@@ -133,8 +133,10 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private boolean isAuthorized(Authentication authentication) {
 		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
-			if (this.authorities.contains(grantedAuthority)) {
-				return true;
+			for (GrantedAuthority authority : this.authorities) {
+				if (authority.getAuthority().equals(grantedAuthority.getAuthority())) {
+					return true;
+				}
 			}
 		}
 		return false;
