@@ -199,9 +199,14 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * If set to true, allows HTTP sessions to be rewritten in the URLs when using
 	 * {@link HttpServletResponse#encodeRedirectURL(String)} or
-	 * {@link HttpServletResponse#encodeURL(String)}, otherwise disallows all URL
-	 * rewriting, including resource chain functionality.
-	 * This prevents leaking information to external domains.
+	 * {@link HttpServletResponse#encodeURL(String)}, otherwise disallows HTTP sessions to
+	 * be included in the URL. This prevents leaking information to external domains.
+	 * <p>
+	 * This is achieved by guarding {@link HttpServletResponse#encodeURL} and
+	 * {@link HttpServletResponse#encodeRedirectURL} invocations. Any code that also
+	 * overrides either of these two methods, like
+	 * {@link org.springframework.web.servlet.resource.ResourceUrlEncodingFilter}, needs
+	 * to come after the security filter chain or risk being skipped.
 	 * @param enableSessionUrlRewriting true if should allow the JSESSIONID to be
 	 * rewritten into the URLs, else false (default)
 	 * @return the {@link SessionManagementConfigurer} for further customization
