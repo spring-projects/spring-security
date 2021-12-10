@@ -44,11 +44,19 @@ dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-web')
 	api "org.opensaml:opensaml-core"
-	api "org.opensaml:opensaml-saml-api"
-	api "org.opensaml:opensaml-saml-impl"
+	api ("org.opensaml:opensaml-saml-api")  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	api ("org.opensaml:opensaml-saml-impl")  {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 	opensaml4MainImplementation "org.opensaml:opensaml-core:4.1.0"
-	opensaml4MainImplementation "org.opensaml:opensaml-saml-api:4.1.0"
-	opensaml4MainImplementation "org.opensaml:opensaml-saml-impl:4.1.0"
+	opensaml4MainImplementation ("org.opensaml:opensaml-saml-api:4.1.0") {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
+	opensaml4MainImplementation ("org.opensaml:opensaml-saml-impl:4.1.0") {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
