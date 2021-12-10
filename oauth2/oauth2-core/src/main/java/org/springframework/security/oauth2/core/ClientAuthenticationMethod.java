@@ -103,12 +103,12 @@ public final class ClientAuthenticationMethod implements Serializable {
 			return false;
 		}
 		ClientAuthenticationMethod that = (ClientAuthenticationMethod) obj;
-		return this.getValue().toLowerCase(Locale.ROOT).equals(that.getValue().toLowerCase(Locale.ROOT));
+		return this.getValue().equals(that.getValue());
 	}
 
 	@Override
 	public int hashCode() {
-		return this.getValue().toLowerCase(Locale.ROOT).hashCode();
+		return this.getValue().hashCode();
 	}
 
 }
