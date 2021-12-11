@@ -279,6 +279,19 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		return this;
 	}
 
+	/**
+	 * Sets the handler to handle
+	 * {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * @param requestRejectedHandler
+	 * @return the {@link WebSecurity} for further customizations
+	 * @since 5.7
+	 */
+	public WebSecurity requestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		Assert.notNull(requestRejectedHandler, "requestRejectedHandler cannot be null");
+		this.requestRejectedHandler = requestRejectedHandler;
+		return this;
+	}
+
 	@Override
 	protected Filter performBuild() throws Exception {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
