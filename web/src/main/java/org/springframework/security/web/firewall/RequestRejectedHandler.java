@@ -25,8 +25,13 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Used by {@link org.springframework.security.web.FilterChainProxy} to handle an
  * <code>RequestRejectedException</code>.
+ * Supports multiple beans of this handler. The handler is chosen by the result of
+ * <code>shouldHandle</code> method - <code>true</code> means it is chosen.
+ * If there are more than one handler to choose from, the first matching is used.
+ * If no suitable handler is found, the {@link DefaultRequestRejectedHandler} is used.
  *
  * @author Leonard Brünings
+ * @author Adam Ostrožlík
  * @since 5.4
  */
 public interface RequestRejectedHandler {
@@ -42,4 +47,12 @@ public interface RequestRejectedHandler {
 	void handle(HttpServletRequest request, HttpServletResponse response,
 			RequestRejectedException requestRejectedException) throws IOException, ServletException;
 
+	/**
+	 * Determines if this handler should be invoked.
+	 * First available handler is invoked if there are multiple suitables ones.
+	 * @param request that resulted in an <code>RequestRejectedException</code>
+	 */
+	default boolean shouldHandle(HttpServletRequest request) {
+		return true;
+	}
 }

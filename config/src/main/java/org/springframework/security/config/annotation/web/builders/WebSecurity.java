@@ -16,15 +16,10 @@
 
 package org.springframework.security.config.annotation.web.builders;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -59,6 +54,11 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -95,7 +95,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private HttpFirewall httpFirewall;
 
-	private RequestRejectedHandler requestRejectedHandler;
+	private Collection<RequestRejectedHandler> requestRejectedHandlers;
 
 	private boolean debugEnabled;
 
@@ -268,6 +268,17 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		return this;
 	}
 
+	/**
+	 * Sets the handlers to handle {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * @param requestRejectedHandlers
+	 * @return the {@link WebSecurity} for further customizations
+	 */
+	public WebSecurity requestRejectedHandlers(RequestRejectedHandler... requestRejectedHandlers) {
+		Assert.notNull(requestRejectedHandlers, "requestRejectedHandlers cannot be null");
+		this.requestRejectedHandlers = Arrays.asList(requestRejectedHandlers);
+		return this;
+	}
+
 	@Override
 	protected Filter performBuild() throws Exception {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
@@ -288,8 +299,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.httpFirewall != null) {
 			filterChainProxy.setFirewall(this.httpFirewall);
 		}
-		if (this.requestRejectedHandler != null) {
-			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
+		if (this.requestRejectedHandlers != null) {
+			filterChainProxy.setRequestRejectedHandlers(this.requestRejectedHandlers);
 		}
 		filterChainProxy.afterPropertiesSet();
 
@@ -326,11 +337,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
-		try {
-			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
-		}
-		catch (NoSuchBeanDefinitionException ex) {
-		}
+		this.requestRejectedHandlers = applicationContext.getBeansOfType(RequestRejectedHandler.class).values();
 	}
 
 	/**
