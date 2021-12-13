@@ -2,4 +2,4 @@
 = Reading the Username & Password
 :page-section-summary-toc: 1
 
-Spring Security provides the following built in mechanisms for reading a username and password from the `HttpServletRequest`:
+Spring Security provides the following built-in mechanisms for reading a username and password from `HttpServletRequest`:

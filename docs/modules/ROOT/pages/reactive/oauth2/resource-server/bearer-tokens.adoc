@@ -4,10 +4,10 @@
 == Bearer Token Resolution
 
 By default, Resource Server looks for a bearer token in the `Authorization` header.
-This, however, can be customized.
+However, you can verify this token.
 
 For example, you may have a need to read the bearer token from a custom header.
-To achieve this, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL, as you can see in the following example:
+To do so, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL:
 
 .Custom Bearer Token Header
 ====
@@ -37,8 +37,8 @@ return http {
 
 == Bearer Token Propagation
 
-Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
-This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`, which you can see in the following example:
+Now that you have a bearer token, you can pass that to downstream services.
+This is possible with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`:
 
 ====
 .Java
@@ -64,10 +64,8 @@ fun rest(): WebClient {
 ----
 ====
 
-When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
-Then, it will propagate that token in the `Authorization` header.
-
-For example:
+When the `WebClient` shown in the preceding example performs requests, Spring Security looks up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
+Then, it propagates that token in the `Authorization` header -- for example:
 
 ====
 .Java
@@ -89,9 +87,9 @@ this.rest.get()
 ----
 ====
 
-Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
+The prececing example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
-In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
+In places where you need to override this behavior, you can supply the header yourself:
 
 ====
 .Java
@@ -115,8 +113,9 @@ rest.get()
 ----
 ====
 
-In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
+In this case, the filter falls back and forwards the request onto the rest of the web filter chain.
 
 [NOTE]
+====
 Unlike the https://docs.spring.io/spring-security/site/docs/current-SNAPSHOT/api/org/springframework/security/oauth2/client/web/reactive/function/client/ServerOAuth2AuthorizedClientExchangeFilterFunction.html[OAuth 2.0 Client filter function], this filter function makes no attempt to renew the token, should it be expired.
-To obtain this level of support, please use the OAuth 2.0 Client filter.
+====

@@ -60,7 +60,7 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login {
                 authenticationConverter = authenticationConverter()
                 authenticationMatcher = authenticationMatcher()
@@ -75,6 +75,8 @@ class OAuth2LoginSecurityConfig {
                 securityContextRepository = securityContextRepository()
             }
         }
+
+        return http.build()
     }
 }
 ----
@@ -117,7 +119,7 @@ The following listing shows an example:
 .OAuth2 Login Page Configuration
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
@@ -149,14 +151,14 @@ public class OAuth2LoginSecurityConfig {
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             exceptionHandling {
                 authenticationEntryPoint = RedirectServerAuthenticationEntryPoint("/login/oauth2")
             }
@@ -164,6 +166,8 @@ class OAuth2LoginSecurityConfig {
                 authorizationRequestResolver = authorizationRequestResolver()
             }
         }
+
+        return http.build()
     }
 
     private fun authorizationRequestResolver(): ServerOAuth2AuthorizationRequestResolver {
@@ -207,14 +211,14 @@ The Redirection Endpoint is used by the Authorization Server for returning the A
 OAuth 2.0 Login leverages the Authorization Code Grant.
 Therefore, the authorization credential is the authorization code.
 
-The default Authorization Response redirection endpoint is `/login/oauth2/code/{registrationId}`.
+The default Authorization Response redirection endpoint is `+/login/oauth2/code/{registrationId}+`.
 
 If you would like to customize the Authorization Response redirection endpoint, configure it as shown in the following example:
 
 .Redirection Endpoint Configuration
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
@@ -232,18 +236,20 @@ public class OAuth2LoginSecurityConfig {
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login {
                 authenticationMatcher = PathPatternParserServerWebExchangeMatcher("/login/oauth2/callback/{registrationId}")
             }
         }
+
+        return http.build()
     }
 }
 ----
@@ -256,7 +262,7 @@ You also need to ensure the `ClientRegistration.redirectUri` matches the custom 
 The following listing shows an example:
 
 .Java
-[source,java,role="primary",attrs="-attributes"]
+[source,java,role="primary",subs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.clientId("google-client-id")
@@ -266,7 +272,7 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 ----
 
 .Kotlin
-[source,kotlin,role="secondary",attrs="-attributes"]
+[source,kotlin,role="secondary",subs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
     .clientId("google-client-id")
@@ -363,9 +369,11 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login { }
         }
+
+        return http.build()
     }
 
     @Bean
@@ -450,9 +458,11 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login { }
         }
+
+        return http.build()
     }
 
     @Bean
@@ -526,9 +536,11 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login { }
         }
+
+        return http.build()
     }
 
     @Bean
@@ -582,9 +594,11 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Login { }
         }
+
+        return http.build()
     }
 
     @Bean
@@ -670,7 +684,7 @@ spring:
 
 ====
 .Java
-[source,java,role="primary"]
+[source,java,role="primary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
@@ -706,7 +720,7 @@ public class OAuth2LoginSecurityConfig {
 ----
 
 .Kotlin
-[source,kotlin,role="secondary"]
+[source,kotlin,role="secondary",subs="-attributes"]
 ----
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
@@ -716,7 +730,7 @@ class OAuth2LoginSecurityConfig {
 
     @Bean
     fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             authorizeExchange {
                 authorize(anyExchange, authenticated)
             }
@@ -725,6 +739,8 @@ class OAuth2LoginSecurityConfig {
                 logoutSuccessHandler = oidcLogoutSuccessHandler()
             }
         }
+
+        return http.build()
     }
 
     private fun oidcLogoutSuccessHandler(): ServerLogoutSuccessHandler {
@@ -739,5 +755,5 @@ class OAuth2LoginSecurityConfig {
 ----
 ====
 
-NOTE: `OidcClientInitiatedServerLogoutSuccessHandler` supports the `{baseUrl}` placeholder.
+NOTE: `OidcClientInitiatedServerLogoutSuccessHandler` supports the `+{baseUrl}+` placeholder.
 If used, the application's base URL, like `https://app.example.org`, will replace it at request time.

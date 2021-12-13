@@ -5,5 +5,5 @@
 :icondir: images/icons
 
 One of the most common ways to authenticate a user is by validating a username and password.
-As such, Spring Security provides comprehensive support for authenticating with a username and password.
+Spring Security provides comprehensive support for authenticating with a username and password.
 

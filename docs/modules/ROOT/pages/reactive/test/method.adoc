@@ -1,8 +1,8 @@
 [[test-erms]]
 = Testing Method Security
 
-For example, we can test our example from xref:reactive/authorization/method.adoc#jc-erms[EnableReactiveMethodSecurity] using the same setup and annotations we did in xref:servlet/test/method.adoc#test-method[Testing Method Security].
-Here is a minimal sample of what we can do:
+For example, we can test our example from xref:reactive/authorization/method.adoc#jc-erms[EnableReactiveMethodSecurity] by using the same setup and annotations that we used in xref:servlet/test/method.adoc#test-method[Testing Method Security].
+The following minimal sample shows what we can do:
 
 ====
 .Java

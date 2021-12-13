@@ -2,7 +2,7 @@
 = OAuth 2.0 Resource Server
 :figures: servlet/oauth2
 
-Spring Security supports protecting endpoints using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
+Spring Security supports protecting endpoints by using two forms of OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens]:
 
 * https://tools.ietf.org/html/rfc7519[JWT]
 * Opaque Tokens
@@ -10,31 +10,31 @@ Spring Security supports protecting endpoints using two forms of OAuth 2.0 https
 This is handy in circumstances where an application has delegated its authority management to an https://tools.ietf.org/html/rfc6749[authorization server] (for example, Okta or Ping Identity).
 This authorization server can be consulted by resource servers to authorize requests.
 
-This section provides details on how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
+This section details how Spring Security provides support for OAuth 2.0 https://tools.ietf.org/html/rfc6750.html[Bearer Tokens].
 
 [NOTE]
 ====
 Working samples for both {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/jwe[JWTs] and {gh-samples-url}/servlet/spring-boot/java/oauth2/resource-server/opaque[Opaque Tokens] are available in the {gh-samples-url}[Spring Security Samples repository].
 ====
 
-Let's take a look at how Bearer Token Authentication works within Spring Security.
-First, we see that, like xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[Basic Authentication], the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client.
+Now we can consider how Bearer Token Authentication works within Spring Security.
+First, we see that, as with xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[Basic Authentication], the https://tools.ietf.org/html/rfc7235#section-4.1[WWW-Authenticate] header is sent back to an unauthenticated client:
 
 .Sending WWW-Authenticate Header
 image::{figures}/bearerauthenticationentrypoint.png[]
 
 The figure above builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 
-image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
+image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the `/private` resource for which the user is not authorized.
 
-image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is _Denied_ by throwing an `AccessDeniedException`.
 
-image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
-The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/web/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`] which sends a WWW-Authenticate header.
-The `RequestCache` is typically a `NullRequestCache` that does not save the request since the client is capable of replaying the requests it originally requested.
+image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates _Start Authentication_.
+The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/oauth2/server/resource/authentication/BearerTokenAuthenticationEntryPoint.html[`BearerTokenAuthenticationEntryPoint`], which sends a `WWW-Authenticate` header.
+The `RequestCache` is typically a `NullRequestCache` that does not save the request, since the client is capable of replaying the requests it originally requested.
 
 When a client receives the `WWW-Authenticate: Bearer` header, it knows it should retry with a bearer token.
-Below is the flow for the bearer token being processed.
+The following image shows the flow for the bearer token being processed:
 
 [[oauth2resourceserver-authentication-bearertokenauthenticationfilter]]
 .Authenticating Bearer Token

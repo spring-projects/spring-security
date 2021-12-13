@@ -2,7 +2,10 @@
 = OAuth 2.0 Login
 :page-section-summary-toc: 1
 
-The OAuth 2.0 Login feature provides an application with the capability to have users log in to the application by using their existing account at an OAuth 2.0 Provider (e.g. GitHub) or OpenID Connect 1.0 Provider (such as Google).
-OAuth 2.0 Login implements the use cases: "Login with Google" or "Login with GitHub".
+The OAuth 2.0 Login feature lets an application have users log in to the application by using their existing account at an OAuth 2.0 Provider (such as GitHub) or OpenID Connect 1.0 Provider (such as Google).
+OAuth 2.0 Login implements two use cases: "`Login with Google`" or "`Login with GitHub`".
 
-NOTE: OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+[NOTE]
+====
+OAuth 2.0 Login is implemented by using the *Authorization Code Grant*, as specified in the https://tools.ietf.org/html/rfc6749#section-4.1[OAuth 2.0 Authorization Framework] and https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowAuth[OpenID Connect Core 1.0].
+====

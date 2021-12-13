@@ -1,12 +1,12 @@
 [[jc-erms]]
 = EnableReactiveMethodSecurity
 
-Spring Security supports method security using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context] which is setup using `ReactiveSecurityContextHolder`.
-For example, this demonstrates how to retrieve the currently logged in user's message.
+Spring Security supports method security by using https://projectreactor.io/docs/core/release/reference/#context[Reactor's Context], which is set up by `ReactiveSecurityContextHolder`.
+The following example shows how to retrieve the currently logged in user's message:
 
 [NOTE]
 ====
-For this to work the return type of the method must be a `org.reactivestreams.Publisher` (i.e. `Mono`/`Flux`) or the function must be a Kotlin coroutine function.
+For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`) or the function must be a Kotlin coroutine function.
 This is necessary to integrate with Reactor's `Context`.
 ====
 
@@ -45,7 +45,7 @@ StepVerifier.create(messageByUsername)
 ----
 ====
 
-with `this::findMessageByUsername` defined as:
+Where `this::findMessageByUsername` is defined as:
 
 ====
 .Java
@@ -65,7 +65,7 @@ fun findMessageByUsername(username: String): Mono<String> {
 ----
 ====
 
-Below is a minimal method security configuration when using method security in reactive applications.
+The following minimal method security configures method security in reactive applications:
 
 ====
 .Java
@@ -139,7 +139,7 @@ class HelloWorldMessageService {
 ----
 ====
 
-Or, the following class using Kotlin coroutines:
+Alternatively, the following class uses Kotlin coroutines:
 
 ====
 .Kotlin
@@ -157,12 +157,12 @@ class HelloWorldMessageService {
 ====
 
 
-Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` will ensure that `findByMessage` is only invoked by a user with the role `ADMIN`.
-It is important to note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
-However, at this time we only support return type of `Boolean` or `boolean` of the expression.
+Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` ensures that `findByMessage` is invoked only by a user with the `ADMIN` role.
+Note that any of the expressions in standard method security work for `@EnableReactiveMethodSecurity`.
+However, at this time, we support only a return type of `Boolean` or `boolean` of the expression.
 This means that the expression must not block.
 
-When integrating with xref:reactive/configuration/webflux.adoc#jc-webflux[WebFlux Security], the Reactor Context is automatically established by Spring Security according to the authenticated user.
+When integrating with xref:reactive/configuration/webflux.adoc#jc-webflux[WebFlux Security], the Reactor Context is automatically established by Spring Security according to the authenticated user:
 
 ====
 .Java
@@ -198,7 +198,6 @@ public class SecurityConfig {
 		return new MapReactiveUserDetailsService(rob, admin);
 	}
 }
-
 ----
 
 .Kotlin
@@ -234,4 +233,4 @@ class SecurityConfig {
 ----
 ====
 
-You can find a complete sample in {gh-samples-url}/reactive/webflux/java/method[hellowebflux-method]
+You can find a complete sample in {gh-samples-url}/reactive/webflux/java/method[hellowebflux-method].

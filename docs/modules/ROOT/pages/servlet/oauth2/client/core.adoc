@@ -1,6 +1,7 @@
 [[oauth2Client-core-interface-class]]
-= Core Interfaces / Classes
+= Core Interfaces and Classes
 
+This section describes the OAuth2 core interfaces and classes that Spring Security offers.
 
 [[oauth2Client-client-registration]]
 == ClientRegistration
@@ -8,9 +9,11 @@
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
 A client registration holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
+A `ClientRegistration` object holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
 
 `ClientRegistration` and its properties are defined as follows:
 
+====
 [source,java]
 ----
 public final class ClientRegistration {
@@ -56,18 +59,19 @@ The name may be used in certain scenarios, such as when displaying the name of t
 <9> `authorizationUri`: The Authorization Endpoint URI for the Authorization Server.
 <10> `tokenUri`: The Token Endpoint URI for the Authorization Server.
 <11> `jwkSetUri`: The URI used to retrieve the https://tools.ietf.org/html/rfc7517[JSON Web Key (JWK)] Set from the Authorization Server,
- which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and optionally the UserInfo Response.
-<12> `issuerUri`: Returns the issuer identifier uri for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
+which contains the cryptographic key(s) used to verify the https://tools.ietf.org/html/rfc7515[JSON Web Signature (JWS)] of the ID Token and (optionally) the UserInfo Response.
+<12> `issuerUri`: Returns the issuer identifier URI for the OpenID Connect 1.0 provider or the OAuth 2.0 Authorization Server.
 <13> `configurationMetadata`: The https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[OpenID Provider Configuration Information].
- This information will only be available if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
-<14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
+This information is available only if the Spring Boot 2.x property `spring.security.oauth2.client.provider.[providerId].issuerUri` is configured.
+<14> `(userInfoEndpoint)uri`: The UserInfo Endpoint URI used to access the claims and attributes of the authenticated end-user.
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
-The supported values are *header*, *form* and *query*.
+The supported values are *header*, *form*, and *query*.
 <16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+====
 
-A `ClientRegistration` can be initially configured using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
+You can initially configure a `ClientRegistration` by using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
-`ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as can be seen in the following example:
+`ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as follows:
 
 ====
 .Java
@@ -84,9 +88,9 @@ val clientRegistration = ClientRegistrations.fromIssuerLocation("https://idp.exa
 ----
 ====
 
-The above code will query in series `https://idp.example.com/issuer/.well-known/openid-configuration`, and then `https://idp.example.com/.well-known/openid-configuration/issuer`, and finally `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
+The preceding code queries, in series, `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, and `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
 
-As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to only query the OpenID Connect Provider's Configuration endpoint.
+As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to query only the OpenID Connect Provider's Configuration endpoint.
 
 [[oauth2Client-client-registration-repo]]
 == ClientRegistrationRepository
@@ -94,15 +98,19 @@ As an alternative, you can use `ClientRegistrations.fromOidcIssuerLocation()` to
 The `ClientRegistrationRepository` serves as a repository for OAuth 2.0 / OpenID Connect 1.0 `ClientRegistration`(s).
 
 [NOTE]
+====
 Client registration information is ultimately stored and owned by the associated Authorization Server.
-This repository provides the ability to retrieve a sub-set of the primary client registration information, which is stored with the Authorization Server.
+This repository provides the ability to retrieve a subset of the primary client registration information, which is stored with the Authorization Server.
+====
 
 Spring Boot 2.x auto-configuration binds each of the properties under `spring.security.oauth2.client.registration._[registrationId]_` to an instance of `ClientRegistration` and then composes each of the `ClientRegistration` instance(s) within a `ClientRegistrationRepository`.
 
 [NOTE]
+====
 The default implementation of `ClientRegistrationRepository` is `InMemoryClientRegistrationRepository`.
+====
 
-The auto-configuration also registers the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext` so that it is available for dependency-injection, if needed by the application.
+The auto-configuration also registers the `ClientRegistrationRepository` as a `@Bean` in the `ApplicationContext` so that it is available for dependency injection, if needed by the application.
 
 The following listing shows an example:
 
@@ -154,18 +162,17 @@ class OAuth2ClientController {
 == OAuth2AuthorizedClient
 
 `OAuth2AuthorizedClient` is a representation of an Authorized Client.
-A client is considered to be authorized when the end-user (Resource Owner) has granted authorization to the client to access its protected resources.
+A client is considered to be authorized when the end-user (the Resource Owner) has granted authorization to the client to access its protected resources.
 
 `OAuth2AuthorizedClient` serves the purpose of associating an `OAuth2AccessToken` (and optional `OAuth2RefreshToken`) to a `ClientRegistration` (client) and resource owner, who is the `Principal` end-user that granted the authorization.
 
 
 [[oauth2Client-authorized-repo-service]]
-== OAuth2AuthorizedClientRepository / OAuth2AuthorizedClientService
+== OAuth2AuthorizedClientRepository and OAuth2AuthorizedClientService
 
-`OAuth2AuthorizedClientRepository` is responsible for persisting `OAuth2AuthorizedClient`(s) between web requests.
-Whereas, the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient`(s) at the application-level.
+`OAuth2AuthorizedClientRepository` is responsible for persisting `OAuth2AuthorizedClient`(s) between web requests, whereas the primary role of `OAuth2AuthorizedClientService` is to manage `OAuth2AuthorizedClient`(s) at the application-level.
 
-From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` provides the capability to lookup an `OAuth2AccessToken` associated with a client so that it may be used to initiate a protected resource request.
+From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` provides the ability to look up an `OAuth2AccessToken` associated with a client so that it can be used to initiate a protected resource request.
 
 The following listing shows an example:
 
@@ -217,36 +224,40 @@ class OAuth2ClientController {
 ====
 
 [NOTE]
-Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` and/or `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
-However, the application may choose to override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
+====
+Spring Boot 2.x auto-configuration registers an `OAuth2AuthorizedClientRepository` or an `OAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
+However, the application can override and register a custom `OAuth2AuthorizedClientRepository` or `OAuth2AuthorizedClientService` `@Bean`.
+====
 
-The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient`(s) in-memory.
+The default implementation of `OAuth2AuthorizedClientService` is `InMemoryOAuth2AuthorizedClientService`, which stores `OAuth2AuthorizedClient` objects in-memory.
 
-Alternatively, the JDBC implementation `JdbcOAuth2AuthorizedClientService` may be configured for persisting `OAuth2AuthorizedClient`(s) in a database.
+Alternatively, you can configure the JDBC implementation `JdbcOAuth2AuthorizedClientService` to persist `OAuth2AuthorizedClient` instances in a database.
 
 [NOTE]
+====
 `JdbcOAuth2AuthorizedClientService` depends on the table definition described in xref:servlet/appendix/database-schema.adoc#dbschema-oauth2-client[ OAuth 2.0 Client Schema].
+====
 
 
 [[oauth2Client-authorized-manager-provider]]
-== OAuth2AuthorizedClientManager / OAuth2AuthorizedClientProvider
+== OAuth2AuthorizedClientManager and OAuth2AuthorizedClientProvider
 
 The `OAuth2AuthorizedClientManager` is responsible for the overall management of `OAuth2AuthorizedClient`(s).
 
 The primary responsibilities include:
 
-* Authorizing (or re-authorizing) an OAuth 2.0 Client, using an `OAuth2AuthorizedClientProvider`.
-* Delegating the persistence of an `OAuth2AuthorizedClient`, typically using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
+* Authorizing (or re-authorizing) an OAuth 2.0 Client, by using an `OAuth2AuthorizedClientProvider`.
+* Delegating the persistence of an `OAuth2AuthorizedClient`, typically by using an `OAuth2AuthorizedClientService` or `OAuth2AuthorizedClientRepository`.
 * Delegating to an `OAuth2AuthorizationSuccessHandler` when an OAuth 2.0 Client has been successfully authorized (or re-authorized).
 * Delegating to an `OAuth2AuthorizationFailureHandler` when an OAuth 2.0 Client fails to authorize (or re-authorize).
 
 An `OAuth2AuthorizedClientProvider` implements a strategy for authorizing (or re-authorizing) an OAuth 2.0 Client.
-Implementations will typically implement an authorization grant type, eg. `authorization_code`, `client_credentials`, etc.
+Implementations typically implement an authorization grant type, such as `authorization_code`, `client_credentials`, and others.
 
 The default implementation of `OAuth2AuthorizedClientManager` is `DefaultOAuth2AuthorizedClientManager`, which is associated with an `OAuth2AuthorizedClientProvider` that may support multiple authorization grant types using a delegation-based composite.
-The `OAuth2AuthorizedClientProviderBuilder` may be used to configure and build the delegation-based composite.
+You can use `OAuth2AuthorizedClientProviderBuilder` to configure and build the delegation-based composite.
 
-The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
+The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials`, and `password` authorization grant types:
 
 ====
 .Java
@@ -295,9 +306,9 @@ fun authorizedClientManager(
 ----
 ====
 
-When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` will delegate to the `OAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `OAuth2AuthorizedClientRepository`.
-In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `OAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
-The default behaviour may be customized via `setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)`.
+When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` delegates to the `OAuth2AuthorizationSuccessHandler`, which (by default) saves the `OAuth2AuthorizedClient` through the `OAuth2AuthorizedClientRepository`.
+In the case of a re-authorization failure (for example, a refresh token is no longer valid), the previously saved `OAuth2AuthorizedClient` is removed from the `OAuth2AuthorizedClientRepository` through the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
+You can customize the default behavior through `setAuthorizationSuccessHandler(OAuth2AuthorizationSuccessHandler)` and `setAuthorizationFailureHandler(OAuth2AuthorizationFailureHandler)`.
 
 The `DefaultOAuth2AuthorizedClientManager` is also associated with a `contextAttributesMapper` of type `Function<OAuth2AuthorizeRequest, Map<String, Object>>`, which is responsible for mapping attribute(s) from the `OAuth2AuthorizeRequest` to a `Map` of attributes to be associated to the `OAuth2AuthorizationContext`.
 This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` with required (supported) attribute(s), eg. the `PasswordOAuth2AuthorizedClientProvider` requires the resource owner's `username` and `password` to be available in `OAuth2AuthorizationContext.getAttributes()`.
@@ -389,10 +400,10 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, MutableM
 ----
 ====
 
-The `DefaultOAuth2AuthorizedClientManager` is designed to be used *_within_* the context of a `HttpServletRequest`.
-When operating *_outside_* of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
+The `DefaultOAuth2AuthorizedClientManager` is designed to be used _within_ the context of a `HttpServletRequest`.
+When operating _outside_ of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
 
-A _service application_ is a common use case for when to use an `AuthorizedClientServiceOAuth2AuthorizedClientManager`.
+A service application is a common use case for when to use an `AuthorizedClientServiceOAuth2AuthorizedClientManager`.
 Service applications often run in the background, without any user interaction, and typically run under a system-level account instead of a user account.
 An OAuth 2.0 Client configured with the `client_credentials` grant type can be considered a type of service application.
 

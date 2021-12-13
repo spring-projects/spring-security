@@ -2,4 +2,4 @@
 :page-section-summary-toc: 1
 
 Spring Security integrates with numerous frameworks and APIs.
-In this section, we discuss Spring Security integration with:
+This section describes various integrations that Spring Security has with other technologies:

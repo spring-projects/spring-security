@@ -162,7 +162,7 @@ class SecurityConfig {
 
     @Bean
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             authorizeExchange {
                 authorize(anyExchange, authenticated)
             }
@@ -170,6 +170,8 @@ class SecurityConfig {
                 authorizationRequestResolver = authorizationRequestResolver(customClientRegistrationRepository)
             }
         }
+
+        return http.build()
     }
 
     private fun authorizationRequestResolver(
@@ -280,11 +282,13 @@ class OAuth2ClientSecurityConfig {
 
     @Bean
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Client {
                 authorizationRequestRepository = authorizationRequestRepository()
             }
         }
+
+        return http.build()
     }
 }
 ----
@@ -359,11 +363,13 @@ class OAuth2ClientSecurityConfig {
 
     @Bean
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Client {
                 authenticationManager = authorizationCodeAuthenticationManager()
             }
         }
+
+        return http.build()
     }
 
     private fun authorizationCodeAuthenticationManager(): ReactiveAuthenticationManager {

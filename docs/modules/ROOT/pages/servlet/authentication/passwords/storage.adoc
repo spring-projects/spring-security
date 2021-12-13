@@ -2,7 +2,7 @@
 = Storage Mechanisms
 :page-section-summary-toc: 1
 
-Each of the supported mechanisms for reading a username and password can leverage any of the supported storage mechanisms:
+Each of the supported mechanisms for reading a username and password can use any of the supported storage mechanisms:
 
 * Simple Storage with xref:servlet/authentication/passwords/in-memory.adoc#servlet-authentication-inmemory[In-Memory Authentication]
 * Relational Databases with xref:servlet/authentication/passwords/jdbc.adoc#servlet-authentication-jdbc[JDBC Authentication]

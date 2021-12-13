@@ -6,6 +6,6 @@ Authentication is how we verify the identity of who is trying to access a partic
 A common way to authenticate users is by requiring the user to enter a username and password.
 Once authentication is performed we know the identity and can perform authorization.
 
-Spring Security provides built in support for authenticating users.
+Spring Security provides built-in support for authenticating users.
 This section is dedicated to generic authentication support that applies in both Servlet and WebFlux environments.
-Refer to the sections on authentication for xref:servlet/authentication/index.adoc#servlet-authentication[Servlet] and WebFlux for details on what is supported for each stack.
+See the sections on authentication for xref:servlet/authentication/index.adoc#servlet-authentication[Servlet] and WebFlux for details on what is supported for each stack.

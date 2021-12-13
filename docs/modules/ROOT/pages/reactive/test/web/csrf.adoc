@@ -1,7 +1,6 @@
 = Testing with CSRF
 
-Spring Security also provides support for CSRF testing with `WebTestClient`.
-For example:
+Spring Security also provides support for CSRF testing with `WebTestClient` -- for example:
 
 ====
 .Java

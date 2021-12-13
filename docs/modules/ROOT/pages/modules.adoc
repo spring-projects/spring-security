@@ -8,20 +8,20 @@ Even if you do not use Maven, we recommend that you consult the `pom.xml` files 
 Another good idea is to examine the libraries that are included in the sample applications.
 
 This section provides a reference of the modules in Spring Security and the additional dependencies that they require in order to function in a running application.
-We don't include dependencies that are only used when building or testing Spring Security itself.
-Nor do we include transitive dependencies which are required by external dependencies.
+We do not include dependencies that are used only when building or testing Spring Security itself.
+Nor do we include transitive dependencies that are required by external dependencies.
 
-The version of Spring required is listed on the project website, so the specific versions are omitted for Spring dependencies below.
-Note that some of the dependencies listed as "optional" below may still be required for other non-security functionality in a Spring application.
-Also dependencies listed as "optional" may not actually be marked as such in the project's Maven POM files if they are used in most applications.
-They are "optional" only in the sense that you don't need them unless you are using the specified functionality.
+The version of Spring required is listed on the project website, so the specific versions are omitted for Spring dependencies in the examples.
+Note that some of the dependencies listed as "`optional`" in the examples may still be required for other non-security functionality in a Spring application
+Also dependencies listed as "`optional`" may not actually be marked as such in the project's Maven POM files if they are used in most applications.
+They are "`optional`" only in the sense that you do not need them unless you use the specified functionality.
 
 Where a module depends on another Spring Security module, the non-optional dependencies of the module it depends on are also assumed to be required and are not listed separately.
 
 
 [[spring-security-core]]
 == Core -- `spring-security-core.jar`
-This module contains core authentication and access-contol classes and interfaces, and basic provisioning APIs.
+This module contains core authentication and access-contol classes and interfaces, remoting support, and basic provisioning APIs.
 It is required by any application that uses Spring Security.
 It supports standalone applications, remote clients, method (service layer) security, and JDBC user provisioning.
 It contains the following top-level packages:
@@ -69,6 +69,25 @@ It contains the following top-level packages:
 |===
 
 
+[[spring-security-remoting]]
+== Remoting -- `spring-security-remoting.jar`
+This module provides integration with Spring Remoting.
+You do not need this unless you are writing a remote client that uses Spring Remoting.
+The main package is `org.springframework.security.remoting`.
+
+.Remoting Dependencies
+|===
+| Dependency | Version | Description
+
+| spring-security-core
+|
+|
+
+| spring-web
+|
+| Required for clients which use HTTP remoting support.
+|===
+
 [[spring-security-web]]
 == Web -- `spring-security-web.jar`
 This module contains filters and related web-security infrastructure code.
@@ -86,11 +105,11 @@ The main package is `org.springframework.security.web`.
 
 | spring-web
 |
-| Spring web support classes are used extensively.
+| Required for clients that use HTTP remoting support.
 
 | spring-jdbc
 |
-| Required for JDBC-based persistent remember-me token repository (optional).
+| Required for a JDBC-based persistent remember-me token repository (optional).
 
 | spring-tx
 |
@@ -151,10 +170,9 @@ The top-level package is `org.springframework.security.ldap`.
 |
 | Data exception classes are required.
 
-| apache-ds footnote:[The modules `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` are required.
-]
+| apache-ds
 | 1.5.5
-| Required if you are using an embedded LDAP server (optional).
+| Required if you are using an embedded LDAP server (optional). If you use `apache-ds`, the `apacheds-core`, `apacheds-core-entry`, `apacheds-protocol-shared`, `apacheds-protocol-ldap` and `apacheds-server-jndi` modules are required.
 
 | shared-ldap
 | 0.9.15
@@ -176,8 +194,8 @@ The top-level package is `org.springframework.security.oauth2.core`.
 [[spring-security-oauth2-client]]
 == OAuth 2.0 Client -- `spring-security-oauth2-client.jar`
 `spring-security-oauth2-client.jar` contains Spring Security's client support for OAuth 2.0 Authorization Framework and OpenID Connect Core 1.0.
-It is required by applications that use OAuth 2.0 Login or OAuth Client support.
-The top-level package is `org.springframework.security.oauth2.client`.
+It is required by applications that use OAuth 2.0 or OpenID Connect Core 1.0, such as the client, the resource server, and the authorization server.
+The top-level package is `org.springframework.security.oauth2.core`.
 
 
 [[spring-security-oauth2-jose]]
@@ -199,7 +217,7 @@ It contains the following top-level packages:
 [[spring-security-oauth2-resource-server]]
 == OAuth 2.0 Resource Server -- `spring-security-oauth2-resource-server.jar`
 `spring-security-oauth2-resource-server.jar` contains Spring Security's support for OAuth 2.0 Resource Servers.
-It is used to protect APIs via OAuth 2.0 Bearer Tokens.
+It is used to protect APIs by using OAuth 2.0 Bearer Tokens.
 The top-level package is `org.springframework.security.oauth2.server.resource`.
 
 [[spring-security-acl]]
@@ -218,7 +236,7 @@ The top-level package is `org.springframework.security.acls`.
 
 | ehcache
 | 1.6.2
-| Required if the Ehcache-based ACL cache implementation is used (optional if you are using your own implementation).
+| Required if the Ehcache-based ACL cache implementation is used (optional if you use your own implementation).
 
 | spring-jdbc
 |
@@ -259,8 +277,11 @@ This is the basis of the Spring Security integration.
 
 [[spring-security-openid]]
 == OpenID -- `spring-security-openid.jar`
+
 [NOTE]
+====
 The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
+====
 
 This module contains OpenID web authentication support.
 It is used to authenticate users against an external OpenID server.

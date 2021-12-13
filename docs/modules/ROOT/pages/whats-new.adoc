@@ -1,57 +1,5 @@
 [[new]]
-= What's New in Spring Security 5.6
+= What's New in Spring Security 6.0
 
-Spring Security 5.6 provides a number of new features.
+Spring Security 6.0 provides a number of new features.
 Below are the highlights of the release.
-
-* All new https://antora.org/[Antora] based https://docs.spring.io/spring-security/[documentation].
-
-[[whats-new-servlet]]
-== Servlet
-* Core
-
-** Introduced https://github.com/spring-projects/spring-security/issues/10226[`SecurityContextChangedListener`]
-** Improved https://github.com/spring-projects/spring-security/pull/10279[Method Security Logging]
-
-* Configuration
-
-** Introduced https://github.com/spring-projects/spring-security/pull/9630[`AuthorizationManager`] for method security
-
-* SAML 2.0 Service Provider
-
-** Added xref:servlet/saml2/logout.adoc[SAML 2.0 Single Logout Support]
-** Added xref:servlet/saml2/login/authentication-requests.adoc#servlet-saml2login-store-authn-request[Saml2AuthenticationRequestRepository]
-** Added xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-relyingpartyregistrationresolver[`RelyingPartyRegistrationResolver`]
-** Improved ``Saml2LoginConfigurer``'s handling of https://github.com/spring-projects/spring-security/issues/10268[`Saml2AuthenticationTokenConverter`]
-
-
-* OAuth 2.0 Login
-
-** Added https://github.com/spring-projects/spring-security/pull/10041[`Converter` for `Authentication` result]
-
-* OAuth 2.0 Client
-
-** Improved https://github.com/spring-projects/spring-security/pull/9791[Client Credentials encoding]
-** Improved https://github.com/spring-projects/spring-security/pull/9779[Access Token Response parsing]
-** Added https://github.com/spring-projects/spring-security/pull/10155[custom grant types support] for Authorization Requests
-** Introduced https://github.com/spring-projects/spring-security/pull/9208[JwtEncoder]
-
-* Testing
-
-** Added support to https://github.com/spring-projects/spring-security/pull/9737[propagate the TestSecurityContextHolder to SecurityContextHolder]
-
-[[whats-new-webflux]]
-== WebFlux
-
-* OAuth 2.0 Login
-
-** Improved xref:reactive/oauth2/login/index.adoc[Reactive OAuth 2.0 Login Documentation]
-
-* OAuth 2.0 Client
-
-** Improved https://github.com/spring-projects/spring-security/pull/9791[Client Credentials encoding]
-** Added https://github.com/spring-projects/spring-security/pull/10131[custom headers support] for Access Token Requests
-** Added https://github.com/spring-projects/spring-security/pull/10269[custom response parsing] for Access Token Requests
-** Added https://github.com/spring-projects/spring-security/pull/10327[jwt-bearer Grant Type support] for Access Token Requests
-** Added https://github.com/spring-projects/spring-security/pull/10336[JWT Client Authentication support] for Access Token Requests
-** Improved xref:reactive/oauth2/client/index.adoc[Reactive OAuth 2.0 Client Documentation]

@@ -1,7 +1,7 @@
 [[test-mockmvc-csrf]]
 = Testing with CSRF Protection
 
-When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must be sure to include a valid CSRF Token in the request.
+When testing any non-safe HTTP methods and using Spring Security's CSRF protection, you must include a valid CSRF Token in the request.
 To specify a valid CSRF token as a request parameter use the CSRF xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`] like so:
 
 ====
@@ -21,7 +21,7 @@ mvc.post("/") {
 ----
 ====
 
-If you like you can include CSRF token in the header instead:
+If you like, you can include CSRF token in the header instead:
 
 ====
 .Java
@@ -40,7 +40,7 @@ mvc.post("/") {
 ----
 ====
 
-You can also test providing an invalid CSRF token using the following:
+You can also test providing an invalid CSRF token by using the following:
 
 ====
 .Java

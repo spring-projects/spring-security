@@ -1,7 +1,6 @@
 = Testing Authentication
 
-After xref:reactive/test/web/setup.adoc[applying the Spring Security support to `WebTestClient`] we can use either annotations or `mutateWith` support.
-For example:
+After xref:reactive/test/web/setup.adoc[applying the Spring Security support to `WebTestClient`], we can use either annotations or `mutateWith` support -- for example:
 
 ====
 .Java

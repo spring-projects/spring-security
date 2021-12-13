@@ -1,42 +1,43 @@
 [[nsa-authentication]]
 = Authentication Services
 Before Spring Security 3.0, an `AuthenticationManager` was automatically registered internally.
-Now you must register one explicitly using the `<authentication-manager>` element.
-This creates an instance of Spring Security's `ProviderManager` class, which needs to be configured with a list of one or more `AuthenticationProvider` instances.
-These can either be created using syntax elements provided by the namespace, or they can be standard bean definitions, marked for addition to the list using the `authentication-provider` element.
+Now you must register one explicitly by using the `<authentication-manager>` element.
+Doing so creates an instance of Spring Security's `ProviderManager` class, which needs to be configured with a list of one or more `AuthenticationProvider` instances.
+You can create these instances either by using syntax elements provided by the namespace or by using standard bean definitions, marked for addition to the list by using the `authentication-provider` element.
 
 
 [[nsa-authentication-manager]]
 == <authentication-manager>
-Every Spring Security application which uses the namespace must have include this element somewhere.
-It is responsible for registering the `AuthenticationManager` which provides authentication services to the application.
-All elements which create `AuthenticationProvider` instances should be children of this element.
-
+Every Spring Security application that uses the namespace must include the `<authentication-manager>` element somewhere.
+It is responsible for registering the `AuthenticationManager`, which provides authentication services to the application.
+All elements that create `AuthenticationProvider` instances should be children of this element.
 
 [[nsa-authentication-manager-attributes]]
 === <authentication-manager> Attributes
 
+The `<authentication-manager>` element has the following attributes:
 
 [[nsa-authentication-manager-alias]]
-* **alias**
-This attribute allows you to define an alias name for the internal instance for use in your own configuration.
+`alias`::
+This attribute lets you define an alias name for the internal instance to use in your own configuration.
 
 
 [[nsa-authentication-manager-erase-credentials]]
-* **erase-credentials**
-If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
-Literally it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
+`erase-credentials`::
+If set to `true`, the `AuthenticationManager` tries to clear any credentials data in the returned `Authentication` object, once the user has been authenticated.
+Literally, it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
 
 [[nsa-authentication-manager-id]]
-* **id**
-This attribute allows you to define an id for the internal instance for use in your own configuration.
-It is the same as the alias element, but provides a more consistent experience with elements that use the id attribute.
+`id`::
+This attribute lets you define an ID for the internal instance to use in your own configuration.
+It is the same as the `alias` element but provides a more consistent experience with elements that use the `id` attribute.
 
 
 [[nsa-authentication-manager-children]]
 === Child Elements of <authentication-manager>
 
+The `<authentication-manager>` element has the following child elements:
 
 * <<nsa-authentication-provider,authentication-provider>>
 * xref:servlet/appendix/namespace/ldap.adoc#nsa-ldap-authentication-provider[ldap-authentication-provider]
@@ -45,9 +46,9 @@ It is the same as the alias element, but provides a more consistent experience w
 
 [[nsa-authentication-provider]]
 == <authentication-provider>
-Unless used with a `ref` attribute, this element is shorthand for configuring a `DaoAuthenticationProvider`.
-`DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username/password combination with the values supplied at login.
-The `UserDetailsService` instance can be defined either by using an available namespace element (`jdbc-user-service` or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context).
+Unless used with a `ref` attribute, the `<authentication-provider>` element is shorthand for configuring a `DaoAuthenticationProvider`.
+A `DaoAuthenticationProvider` loads user information from a `UserDetailsService` and compares the username and password combination with the values supplied at login.
+You can define the `UserDetailsService` instance either by using an available namespace element (`jdbc-user-service`) or by using the `user-service-ref` attribute to point to a bean defined elsewhere in the application context.
 
 
 
@@ -55,41 +56,43 @@ The `UserDetailsService` instance can be defined either by using an available na
 === Parent Elements of <authentication-provider>
 
 
-* <<nsa-authentication-manager,authentication-manager>>
+The parent element of the `<authentication-provider>` element is the <<nsa-authentication-manager,authentication-manager>> element.
 
 
 
 [[nsa-authentication-provider-attributes]]
 === <authentication-provider> Attributes
 
+The `<authentication-provider>` element has the following attributes:
 
 [[nsa-authentication-provider-ref]]
-* **ref**
+ref::
 Defines a reference to a Spring bean that implements `AuthenticationProvider`.
-
-If you have written your own `AuthenticationProvider` implementation (or want to configure one of Spring Security's own implementations as a traditional bean for some reason, then you can use the following syntax to add it to the internal list of `ProviderManager`:
-
++
+If you have written your own `AuthenticationProvider` implementation (or want to configure one of Spring Security's implementations as a traditional bean for some reason), you can use the following syntax to add it to the internal list of `ProviderManager`:
++
+====
 [source,xml]
 ----
-
 <security:authentication-manager>
   <security:authentication-provider ref="myAuthenticationProvider" />
 </security:authentication-manager>
 <bean id="myAuthenticationProvider" class="com.something.MyAuthenticationProvider"/>
-
 ----
+====
 
 
 
 
 [[nsa-authentication-provider-user-service-ref]]
-* **user-service-ref**
-A reference to a bean that implements UserDetailsService that may be created using the standard bean element or the custom user-service element.
+`user-service-ref`::
+A reference to a bean that implements `UserDetailsService`, which may be created by using the standard bean element or the custom user-service element.
 
 
 [[nsa-authentication-provider-children]]
 === Child Elements of <authentication-provider>
 
+The `<authentication-provider>` element has the following child elements:
 
 * <<nsa-jdbc-user-service,jdbc-user-service>>
 * xref:servlet/appendix/namespace/ldap.adoc#nsa-ldap-user-service[ldap-user-service]
@@ -97,47 +100,44 @@ A reference to a bean that implements UserDetailsService that may be created usi
 * <<nsa-user-service,user-service>>
 
 
-
 [[nsa-jdbc-user-service]]
 == <jdbc-user-service>
-Causes creation of a JDBC-based UserDetailsService.
+The `<jdbc-user-service>` element causes the creation of a JDBC-based `UserDetailsService`.
 
 
 [[nsa-jdbc-user-service-attributes]]
 === <jdbc-user-service> Attributes
 
+The `<jdbc-user-service>` element has the following attributes:
 
 [[nsa-jdbc-user-service-authorities-by-username-query]]
-* **authorities-by-username-query**
+`authorities-by-username-query`::
 An SQL statement to query for a user's granted authorities given a username.
-
-The default is
-
++
+The default is as follows:
+====
 [source]
 ----
 select username, authority from authorities where username = ?
 ----
-
-
-
+====
 
 [[nsa-jdbc-user-service-cache-ref]]
-* **cache-ref**
-Defines a reference to a cache for use with a UserDetailsService.
+`cache-ref`::
+Defines a reference to a cache for use with a `UserDetailsService`.
 
 
 [[nsa-jdbc-user-service-data-source-ref]]
-* **data-source-ref**
-The bean ID of the DataSource which provides the required tables.
+`data-source-ref`::
+The bean ID of the DataSource that provides the required tables.
 
 
 [[nsa-jdbc-user-service-group-authorities-by-username-query]]
-* **group-authorities-by-username-query**
-An SQL statement to query user's group authorities given a username.
-The default is
-
+`group-authorities-by-username-query`::
+An SQL statement to query user's group authorities, given a username.
+The default is as follows:
 +
-
+====
 [source]
 ----
 select
@@ -147,45 +147,43 @@ groups g, group_members gm, group_authorities ga
 where
 gm.username = ? and g.id = ga.group_id and g.id = gm.group_id
 ----
-
-
+====
 
 
 [[nsa-jdbc-user-service-id]]
-* **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+`id`::
+A bean identifier, which is used for referring to the bean elsewhere in the context.
 
 
 [[nsa-jdbc-user-service-role-prefix]]
-* **role-prefix**
-A non-empty string prefix that will be added to role strings loaded from persistent storage (default is "ROLE_").
-Use the value "none" for no prefix in cases where the default is non-empty.
+`role-prefix`::
+A non-empty string prefix that is added to role strings loaded from persistent storage.
+Default: `ROLE_`
+Use a value of `none` for no prefix in cases where the default should be non-empty.
 
 
 [[nsa-jdbc-user-service-users-by-username-query]]
-* **users-by-username-query**
-An SQL statement to query a username, password, and enabled status given a username.
-The default is
-
+`users-by-username-query`::
+An SQL statement to query a username, password, and enabled status, given a username.
+The default is as follows:
 +
-
+====
 [source]
 ----
 select username, password, enabled from users where username = ?
 ----
-
-
-
+====
 
 [[nsa-password-encoder]]
 == <password-encoder>
-Authentication providers can optionally be configured to use a password encoder as described in the xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage].
-This will result in the bean being injected with the appropriate `PasswordEncoder` instance.
+Injects a bean with the  appropriate `PasswordEncoder` instance.
+Authentication providers can optionally be configured to use a password encoder, as described in the xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage].
 
 
 [[nsa-password-encoder-parents]]
 === Parent Elements of <password-encoder>
 
+The `<password-encoder>` element has the following parent elements:
 
 * <<nsa-authentication-provider,authentication-provider>>
 * xref:servlet/appendix/namespace/authentication-manager.adoc#nsa-password-compare[password-compare]
@@ -195,98 +193,94 @@ This will result in the bean being injected with the appropriate `PasswordEncode
 [[nsa-password-encoder-attributes]]
 === <password-encoder> Attributes
 
+The `<password-encoder>` element has the following attributes:
 
 [[nsa-password-encoder-hash]]
-* **hash**
-Defines the hashing algorithm used on user passwords.
+`hash`::
+Defines the hashing algorithm for user passwords.
+
+[IMPORTANT]
+====
 We recommend strongly against using MD4, as it is a very weak hashing algorithm.
+====
 
 
 [[nsa-password-encoder-ref]]
-* **ref**
+`ref`::
 Defines a reference to a Spring bean that implements `PasswordEncoder`.
 
 
 [[nsa-user-service]]
 == <user-service>
-Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements.
-Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.
+The `<user-service>` element creates an in-memory `UserDetailsService` from a properties file or a list of `<user>` child elements.
+Usernames are converted to lower case internally, to allow for case-insensitive lookups, so do not use this element if you need case-sensitivity.
 
 
 [[nsa-user-service-attributes]]
 === <user-service> Attributes
 
+The `<user-service>` element has the following attributes:
 
 [[nsa-user-service-id]]
-* **id**
-A bean identifier, used for referring to the bean elsewhere in the context.
+`id`::
+A bean identifier, used to refer to the bean elsewhere in the context.
 
 
 [[nsa-user-service-properties]]
-* **properties**
-The location of a Properties file where each line is in the format of
-
+`properties`::
+The location of a properties file, in which each line is in the format of
 +
-
+====
 [source]
 ----
 username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
 ----
-
-
-
+====
 
 [[nsa-user-service-children]]
 === Child Elements of <user-service>
 
-
-* <<nsa-user,user>>
-
-
+The `<user-service>` element has a single child element: <<nsa-user,user>>.
+Multiple `<user>` elements can be present.
 
 [[nsa-user]]
 == <user>
-Represents a user in the application.
+The `<user>` represents a user in the application.
 
 
 [[nsa-user-parents]]
 === Parent Elements of <user>
 
-
-* <<nsa-user-service,user-service>>
-
-
+The parent element of the `<user>` element is the <<nsa-user-service,user-service>> element.
 
 [[nsa-user-attributes]]
 === <user> Attributes
 
 
 [[nsa-user-authorities]]
-* **authorities**
-One of more authorities granted to the user.
-Separate authorities with a comma (but no space).
-For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+`authorities`::
+One of more authorities to be granted to the user.
+Separate authorities with a comma (but no space) -- for example, `ROLE_USER,ROLE_ADMINISTRATOR`.
 
 
 [[nsa-user-disabled]]
-* **disabled**
-Can be set to "true" to mark an account as disabled and unusable.
+`disabled`::
+Set to `true` to mark an account as disabled and unusable.
 
 
 [[nsa-user-locked]]
-* **locked**
-Can be set to "true" to mark an account as locked and unusable.
+`locked`::
+Set to `true` to mark an account as locked and unusable.
 
 
 [[nsa-user-name]]
-* **name**
+`name`::
 The username assigned to the user.
 
 
 [[nsa-user-password]]
-* **password**
-The password assigned to the user.
-This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element).
-This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities.
-If omitted, the namespace will generate a random value, preventing its accidental use for authentication.
-Cannot be empty.
+`password`::
+This value may be hashed if the corresponding authentication provider supports hashing (remember to set the `hash` attribute of the `user-service` element).
+You can omit this attribute when the data is not used for authentication but only for accessing authorities.
+If omitted, the namespace generates a random value, preventing its accidental use for authentication.
+This attribute cannot be empty.

@@ -55,7 +55,7 @@ class OAuth2ClientSecurityConfig {
 
     @Bean
     fun securityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        return http {
+        http {
             oauth2Client {
                 clientRegistrationRepository = clientRegistrationRepository()
                 authorizedClientRepository = authorizedClientRepository()
@@ -64,6 +64,8 @@ class OAuth2ClientSecurityConfig {
                 authenticationManager = authenticationManager()
             }
         }
+
+        return http.build()
     }
 }
 ----

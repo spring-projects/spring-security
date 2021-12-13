@@ -2,28 +2,28 @@
 = Architecture
 :figures: servlet/architecture
 
-This section discusses Spring Security's high level architecture within Servlet based applications.
-We build on this high level understanding within xref:servlet/authentication/index.adoc#servlet-authentication[Authentication], xref:servlet/authorization/index.adoc#servlet-authorization[Authorization], xref:servlet/exploits/index.adoc#servlet-exploits[Protection Against Exploits] sections of the reference.
+This section discusses Spring Security's high-level architecture within Servlet based applications.
+We build on this high-level understanding within the xref:servlet/authentication/index.adoc#servlet-authentication[Authentication], xref:servlet/authorization/index.adoc#servlet-authorization[Authorization], and xref:servlet/exploits/index.adoc#servlet-exploits[Protection Against Exploits] sections of the reference.
 // FIXME: Add links to other sections of architecture
 
 [[servlet-filters-review]]
-== A Review of ``Filter``s
+== A Review of Filters
 
-Spring Security's Servlet support is based on Servlet ``Filter``s, so it is helpful to look at the role of ``Filter``s generally first.
-The picture below shows the typical layering of the handlers for a single HTTP request.
+Spring Security's Servlet support is based on Servlet Filters, so it is helpful to look at the role of Filters generally first.
+The following image shows the typical layering of the handlers for a single HTTP request.
 
 .FilterChain
 [[servlet-filterchain-figure]]
 image::{figures}/filterchain.png[]
 
-The client sends a request to the application, and the container creates a `FilterChain` which contains the ``Filter``s and `Servlet` that should process the `HttpServletRequest` based on the path of the request URI.
-In a Spring MVC application the `Servlet` is an instance of {spring-framework-reference-url}web.html#mvc-servlet[`DispatcherServlet`].
-At most one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
+The client sends a request to the application, and the container creates a `FilterChain`, which contains the `Filter` instances and `Servlet` that should process the `HttpServletRequest`, based on the path of the request URI.
+In a Spring MVC application, the `Servlet` is an instance of {spring-framework-reference-url}web.html#mvc-servlet[`DispatcherServlet`].
+At most, one `Servlet` can handle a single `HttpServletRequest` and `HttpServletResponse`.
 However, more than one `Filter` can be used to:
 
-* Prevent downstream ``Filter``s or the `Servlet` from being invoked.
-In this instance the `Filter` will typically write the `HttpServletResponse`.
-* Modify the `HttpServletRequest` or `HttpServletResponse` used by the downstream ``Filter``s and `Servlet`
+* Prevent downstream `Filter` instances or the `Servlet` from being invoked.
+In this case, the `Filter` typically writes the `HttpServletResponse`.
+* Modify the `HttpServletRequest` or `HttpServletResponse` used by the downstream `Filter` instances and the `Servlet`.
 
 The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
@@ -50,24 +50,23 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 ----
 ====
 
-Since a `Filter` only impacts downstream ``Filter``s and the `Servlet`, the order each `Filter` is invoked is extremely important.
-
+Since a `Filter` impacts only downstream `Filter` instances and the `Servlet`, the order in which each `Filter` is invoked is extremely important.
 
 [[servlet-delegatingfilterproxy]]
 == DelegatingFilterProxy
 
 Spring provides a `Filter` implementation named {spring-framework-api-url}org/springframework/web/filter/DelegatingFilterProxy.html[`DelegatingFilterProxy`] that allows bridging between the Servlet container's lifecycle and Spring's `ApplicationContext`.
-The Servlet container allows registering ``Filter``s using its own standards, but it is not aware of Spring defined Beans.
-`DelegatingFilterProxy` can be registered via standard Servlet container mechanisms, but delegate all the work to a Spring Bean that implements `Filter`.
+The Servlet container allows registering `Filter` instances by using its own standards, but it is not aware of Spring-defined Beans.
+You can register `DelegatingFilterProxy` through the standard Servlet container mechanisms but delegate all the work to a Spring Bean that implements `Filter`.
 
-Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filters-review,``Filter``s and the `FilterChain`>>.
+Here is a picture of how `DelegatingFilterProxy` fits into the <<servlet-filters-review,`Filter` instances and the `FilterChain`>>.
 
 .DelegatingFilterProxy
 [[servlet-delegatingfilterproxy-figure]]
 image::{figures}/delegatingfilterproxy.png[]
 
 `DelegatingFilterProxy` looks up __Bean Filter~0~__ from the `ApplicationContext` and then invokes __Bean Filter~0~__.
-The pseudo code of `DelegatingFilterProxy` can be seen below.
+The following listing shows pseudo code of `DelegatingFilterProxy`:
 
 .`DelegatingFilterProxy` Pseudo Code
 ====
@@ -96,9 +95,9 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 ----
 ====
 
-Another benefit of `DelegatingFilterProxy` is that it allows delaying looking `Filter` bean instances.
-This is important because the container needs to register the `Filter` instances before the container can startup.
-However, Spring typically uses a `ContextLoaderListener` to load the Spring Beans which will not be done until after the `Filter` instances need to be registered.
+Another benefit of `DelegatingFilterProxy` is that it allows delaying looking up `Filter` bean instances.
+This is important because the container needs to register the `Filter` instances before the container can start up.
+However, Spring typically uses a `ContextLoaderListener` to load the Spring Beans, which is not done until after the `Filter` instances need to be registered.
 
 [[servlet-filterchainproxy]]
 == FilterChainProxy
@@ -107,6 +106,8 @@ Spring Security's Servlet support is contained within `FilterChainProxy`.
 `FilterChainProxy` is a special `Filter` provided by Spring Security that allows delegating to many `Filter` instances through <<servlet-securityfilterchain,`SecurityFilterChain`>>.
 Since `FilterChainProxy` is a Bean, it is typically wrapped in a <<servlet-delegatingfilterproxy>>.
 
+The following image shows the role of `FilterChainProxy`.
+
 .FilterChainProxy
 [[servlet-filterchainproxy-figure]]
 image::{figures}/filterchainproxy.png[]
@@ -114,7 +115,9 @@ image::{figures}/filterchainproxy.png[]
 [[servlet-securityfilterchain]]
 == SecurityFilterChain
 
-{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`] is used by <<servlet-filterchainproxy>> to determine which Spring Security ``Filter``s should be invoked for this request.
+{security-api-url}org/springframework/security/web/SecurityFilterChain.html[`SecurityFilterChain`]  is used by <<servlet-filterchainproxy>> to determine which Spring Security `Filter` instances should be invoked for the current request.
+
+The following image shows the role of `SecurityFilterChain`.
 
 .SecurityFilterChain
 [[servlet-securityfilterchain-figure]]
@@ -123,80 +126,79 @@ image::{figures}/securityfilterchain.png[]
 The <<servlet-security-filters,Security Filters>> in `SecurityFilterChain` are typically Beans, but they are registered with `FilterChainProxy` instead of <<servlet-delegatingfilterproxy>>.
 `FilterChainProxy` provides a number of advantages to registering directly with the Servlet container or <<servlet-delegatingfilterproxy>>.
 First, it provides a starting point for all of Spring Security's Servlet support.
-For that reason, if you are attempting to troubleshoot Spring Security's Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
+For that reason, if you try to troubleshoot Spring Security's Servlet support, adding a debug point in `FilterChainProxy` is a great place to start.
 
-Second, since `FilterChainProxy` is central to Spring Security usage it can perform tasks that are not viewed as optional.
+Second, since `FilterChainProxy` is central to Spring Security usage, it can perform tasks that are not viewed as optional.
 // FIXME: Add a link to SecurityContext
 For example, it clears out the `SecurityContext` to avoid memory leaks.
 It also applies Spring Security's xref:servlet/exploits/firewall.adoc#servlet-httpfirewall[`HttpFirewall`] to protect applications against certain types of attacks.
 
 In addition, it provides more flexibility in determining when a `SecurityFilterChain` should be invoked.
-In a Servlet container, ``Filter``s are invoked based upon the URL alone.
+In a Servlet container, `Filter` instances are invoked based upon the URL alone.
 // FIXME: Link to RequestMatcher
-However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by leveraging the `RequestMatcher` interface.
+However, `FilterChainProxy` can determine invocation based upon anything in the `HttpServletRequest` by using the `RequestMatcher` interface.
 
-In fact, `FilterChainProxy` can be used to determine which `SecurityFilterChain` should be used.
-This allows providing a totally separate configuration for different _slices_ of your application.
+The following image shows multiple `SecurityFilterChain` instances:
 
 .Multiple SecurityFilterChain
 [[servlet-multi-securityfilterchain-figure]]
 image::{figures}/multi-securityfilterchain.png[]
 
-In the <<servlet-multi-securityfilterchain-figure>> Figure `FilterChainProxy` decides which `SecurityFilterChain` should be used.
-Only the first `SecurityFilterChain` that matches will be invoked.
-If a URL of `/api/messages/` is requested, it will first match on ``SecurityFilterChain~0~``'s pattern of `+/api/**+`, so only `SecurityFilterChain~0~` will be invoked even though it also matches on ``SecurityFilterChain~n~``.
-If a URL of `/messages/` is requested, it will not match on ``SecurityFilterChain~0~``'s pattern of `+/api/**+`, so `FilterChainProxy` will continue trying each `SecurityFilterChain`.
-Assuming that no other, `SecurityFilterChain` instances match `SecurityFilterChain~n~` will be invoked.
-// FIXME add link to pattern matching
+In the <<servlet-multi-securityfilterchain-figure>> figure, `FilterChainProxy` decides which `SecurityFilterChain` should be used.
+Only the first `SecurityFilterChain` that matches is invoked.
+If a URL of `/api/messages/` is requested, it first matches on the `SecurityFilterChain~0~` pattern of `+/api/**+`, so only `SecurityFilterChain~0~` is invoked, even though it also matches on ``SecurityFilterChain~n~``.
+If a URL of `/messages/` is requested, it does not match on the `SecurityFilterChain~0~` pattern of `+/api/**+`, so `FilterChainProxy` continues trying each `SecurityFilterChain`.
+Assuming that no other `SecurityFilterChain` instances match, `SecurityFilterChain~n~` is invoked.
+// FIXME: add link to pattern matching
 
-Notice that `SecurityFilterChain~0~` has only three security ``Filter``s instances configured.
-However, `SecurityFilterChain~n~` has four security ``Filter``s configured.
-It is important to note that each `SecurityFilterChain` can be unique and configured in isolation.
-In fact, a `SecurityFilterChain` might have zero security ``Filter``s if the application wants Spring Security to ignore certain requests.
+Notice that `SecurityFilterChain~0~` has only three security `Filter` instances configured.
+However, `SecurityFilterChain~n~` has four security `Filter` instanes configured.
+It is important to note that each `SecurityFilterChain` can be unique and can be configured in isolation.
+In fact, a `SecurityFilterChain` might have zero security `Filter` instances if the application wants Spring Security to ignore certain requests.
 // FIXME: add link to configuring multiple `SecurityFilterChain` instances
 
 [[servlet-security-filters]]
 == Security Filters
 
 The Security Filters are inserted into the <<servlet-filterchainproxy>> with the <<servlet-securityfilterchain>> API.
-The <<servlet-filters-review,order of ``Filter``>>s matters.
-It is typically not necessary to know the ordering of Spring Security's ``Filter``s.
-However, there are times that it is beneficial to know the ordering
+The <<servlet-filters-review,order of `Filter`>> instances matters.
+It is typically not necessary to know the ordering of Spring Security's `Filter` instances.
+However, there are times that it is beneficial to know the ordering.
 
-Below is a comprehensive list of Spring Security Filter ordering:
+The following is a comprehensive list of Spring Security Filter ordering:
 
-* ChannelProcessingFilter
-* WebAsyncManagerIntegrationFilter
-* SecurityContextPersistenceFilter
-* HeaderWriterFilter
-* CorsFilter
-* CsrfFilter
-* LogoutFilter
-* OAuth2AuthorizationRequestRedirectFilter
-* Saml2WebSsoAuthenticationRequestFilter
-* X509AuthenticationFilter
-* AbstractPreAuthenticatedProcessingFilter
-* CasAuthenticationFilter
-* OAuth2LoginAuthenticationFilter
-* Saml2WebSsoAuthenticationFilter
+* `ChannelProcessingFilter`
+* `WebAsyncManagerIntegrationFilter`
+* `SecurityContextPersistenceFilter`
+* `HeaderWriterFilter`
+* `CorsFilter`
+* `CsrfFilter`
+* `LogoutFilter`
+* `OAuth2AuthorizationRequestRedirectFilter`
+* `Saml2WebSsoAuthenticationRequestFilter`
+* `X509AuthenticationFilter`
+* `AbstractPreAuthenticatedProcessingFilter`
+* `CasAuthenticationFilter`
+* `OAuth2LoginAuthenticationFilter`
+* `Saml2WebSsoAuthenticationFilter`
 * xref:servlet/authentication/passwords/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`]
-* OpenIDAuthenticationFilter
-* DefaultLoginPageGeneratingFilter
-* DefaultLogoutPageGeneratingFilter
-* ConcurrentSessionFilter
+* `OpenIDAuthenticationFilter`
+* `DefaultLoginPageGeneratingFilter`
+* `DefaultLogoutPageGeneratingFilter`
+* `ConcurrentSessionFilter`
 * xref:servlet/authentication/passwords/digest.adoc#servlet-authentication-digest[`DigestAuthenticationFilter`]
-* BearerTokenAuthenticationFilter
+* `BearerTokenAuthenticationFilter`
 * xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[`BasicAuthenticationFilter`]
-* RequestCacheAwareFilter
-* SecurityContextHolderAwareRequestFilter
-* JaasApiIntegrationFilter
-* RememberMeAuthenticationFilter
-* AnonymousAuthenticationFilter
-* OAuth2AuthorizationCodeGrantFilter
-* SessionManagementFilter
+* `RequestCacheAwareFilter`
+* `SecurityContextHolderAwareRequestFilter`
+* `JaasApiIntegrationFilter`
+* `RememberMeAuthenticationFilter`
+* `AnonymousAuthenticationFilter`
+* `OAuth2AuthorizationCodeGrantFilter`
+* `SessionManagementFilter`
 * <<servlet-exceptiontranslationfilter,`ExceptionTranslationFilter`>>
 * xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`]
-* SwitchUserFilter
+* `SwitchUserFilter`
 
 [[servlet-exceptiontranslationfilter]]
 == Handling Security Exceptions
@@ -206,19 +208,21 @@ The {security-api-url}org/springframework/security/web/access/ExceptionTranslati
 
 `ExceptionTranslationFilter` is inserted into the <<servlet-filterchainproxy>> as one of the <<servlet-security-filters>>.
 
+The following image shows the relationship of `ExceptionTranslationFilter` to other components:
+
 image::{figures}/exceptiontranslationfilter.png[]
 
 
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
-** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out
+** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
 ** The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
 When the user successfully authenticates, the `RequestCache` is used to replay the original request.
 // FIXME: add link to authentication success
 ** The `AuthenticationEntryPoint` is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
 // FIXME: link to AuthenticationEntryPoint
-* image:{icondir}/number_3.png[] Otherwise if it is an `AccessDeniedException`, then __Access Denied__.
+* image:{icondir}/number_3.png[] Otherwise, if it is an `AccessDeniedException`, then __Access Denied__.
 The `AccessDeniedHandler` is invoked to handle access denied.
 // FIXME: link to AccessDeniedHandler
 
@@ -229,6 +233,7 @@ If the application does not throw an `AccessDeniedException` or an `Authenticati
 
 The pseudocode for `ExceptionTranslationFilter` looks something like this:
 
+====
 .ExceptionTranslationFilter pseudocode
 [source,java]
 ----
@@ -242,7 +247,8 @@ try {
 	}
 }
 ----
-<1> You will recall from <<servlet-filters-review>> that invoking `FilterChain.doFilter(request, response)` is the equivalent of invoking the rest of the application.
-This means that if another part of the application, (i.e. xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] or method security) throws an `AuthenticationException` or `AccessDeniedException` it will be caught and handled here.
-<2> If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
+<1> As described in <<servlet-filters-review>>, invoking `FilterChain.doFilter(request, response)` is the equivalent of invoking the rest of the application.
+This means that if another part of the application, (<<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> or method security) throws an `AuthenticationException` or `AccessDeniedException` it is caught and handled here.
+<2> If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
 <3> Otherwise, __Access Denied__
+====

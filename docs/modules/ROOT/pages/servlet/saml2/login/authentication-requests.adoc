@@ -187,7 +187,7 @@ But, if you do need something from the request, then you can use create a custom
 ----
 @Component
 public class AuthnRequestConverter implements
-        Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
+        Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
 
     private final AuthnRequestBuilder authnRequestBuilder;
     private final IssuerBuilder issuerBuilder;
@@ -216,12 +216,12 @@ public class AuthnRequestConverter implements
 [source,kotlin,role="secondary"]
 ----
 @Component
-class AuthnRequestConverter : Converter<Saml2AuthenticationRequestContext, AuthnRequest> {
+class AuthnRequestConverter : Converter<MySaml2AuthenticationRequestContext, AuthnRequest> {
     private val authnRequestBuilder: AuthnRequestBuilder? = null
     private val issuerBuilder: IssuerBuilder? = null
 
     // ... constructor
-    override fun convert(context: Saml2AuthenticationRequestContext): AuthnRequest {
+    override fun convert(context: MySaml2AuthenticationRequestContext): AuthnRequest {
         val myContext: MySaml2AuthenticationRequestContext = context
         val issuer: Issuer = issuerBuilder.buildObject()
         issuer.value = myContext.getIssuer()

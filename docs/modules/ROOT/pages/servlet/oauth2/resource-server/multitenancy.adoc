@@ -323,7 +323,7 @@ Next, we can construct a `JWTProcessor`:
 JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
 	ConfigurableJWTProcessor<SecurityContext> jwtProcessor =
             new DefaultJWTProcessor();
-	jwtProcessor.setJWTClaimsSetAwareJWSKeySelector(keySelector);
+	jwtProcessor.setJWTClaimSetJWSKeySelector(keySelector);
 	return jwtProcessor;
 }
 ----
@@ -416,9 +416,9 @@ Now that we have a tenant-aware processor and a tenant-aware validator, we can p
 ----
 @Bean
 JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
-	NimbusJwtDecoder decoder = new NimbusJwtDecoder(jwtProcessor);
+	NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
 	OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>
-			(JwtValidators.createDefault(), jwtValidator);
+			(JwtValidators.createDefault(), this.jwtValidator);
 	decoder.setJwtValidator(validator);
 	return decoder;
 }

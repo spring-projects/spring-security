@@ -6,7 +6,7 @@ This section covers the minimum setup for how to use Spring Security with Spring
 [NOTE]
 ====
 The completed application can be found {gh-samples-url}/servlet/spring-boot/java/hello-security[in our samples repository].
-For your convenience, you can download a minimal Spring Boot + Spring Security application by https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[clicking here].
+For your convenience, you can download https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[a minimal Spring Boot + Spring Security application].
 ====
 
 [[servlet-hello-dependencies]]
@@ -40,12 +40,12 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 
 // FIXME: Link to relevant portions of documentation
 // FIXME: Link to Spring Boot's Security Auto configuration classes
-// FIXME: Add a links for what user's should do next
+// FIXME: Add links for what user's should do next
 
 Spring Boot automatically:
 
 * Enables Spring Security's default configuration, which creates a servlet `Filter` as a bean named `springSecurityFilterChain`.
-This bean is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
+This bean is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the login form, and so on) within your application.
 * Creates a `UserDetailsService` bean with a username of `user` and a randomly generated password that is logged to the console.
 * Registers the `Filter` with a bean named `springSecurityFilterChain` with the Servlet container for every request.
 

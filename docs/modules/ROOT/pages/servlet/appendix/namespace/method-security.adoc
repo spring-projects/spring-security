@@ -35,77 +35,81 @@ Defaults to "false".
 
 [[nsa-global-method-security]]
 == <global-method-security>
-This element is the primary means of adding support for securing methods on Spring Security beans.
-Methods can be secured by the use of annotations (defined at the interface or class level) or by defining a set of pointcuts as child elements, using AspectJ syntax.
+The `<global-method-security>` element is the primary means of adding support for securing methods on Spring Security beans.
+You can secure methods by using annotations (defined at the interface or class level) or by defining a set of pointcuts as child elements with AspectJ syntax.
 
 
 [[nsa-global-method-security-attributes]]
 === <global-method-security> Attributes
 
+The `<global-method-security>` element has the following attributes:
 
 [[nsa-global-method-security-access-decision-manager-ref]]
-* **access-decision-manager-ref**
-Method security uses the same `AccessDecisionManager` configuration as web security, but this can be overridden using this attribute.
-By default an AffirmativeBased implementation is used for with a RoleVoter and an AuthenticatedVoter.
+`access-decision-manager-ref`::
+Method security uses the same `AccessDecisionManager` configuration as web security, but using this attribute can override this arrangement.
+By default, an `AffirmativeBased` implementation is used with a `RoleVoter` and an `AuthenticatedVoter`.
 
 
 [[nsa-global-method-security-authentication-manager-ref]]
-* **authentication-manager-ref**
-A reference to an `AuthenticationManager` that should be used for method security.
+`authentication-manager-ref`::
+A reference to the `AuthenticationManager` that should be used for method security.
 
 
 [[nsa-global-method-security-jsr250-annotations]]
-* **jsr250-annotations**
-Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed").
-This will require the javax.annotation.security classes on the classpath.
-Setting this to true also adds a `Jsr250Voter` to the `AccessDecisionManager`, so you need to make sure you do this if you are using a custom implementation and want to use these annotations.
+`jsr250-annotations`::
+Specifies whether JSR-250 style attributes are to be used (for example, `RolesAllowed`).
+Doing so requires the `javax.annotation.security` classes to be on the classpath.
+Setting this to `true` also adds a `Jsr250Voter` to the `AccessDecisionManager`, so you need to make sure that you do so if you  use a custom implementation and want to use these annotations.
 
 
 [[nsa-global-method-security-metadata-source-ref]]
-* **metadata-source-ref**
-An external `MethodSecurityMetadataSource` instance can be supplied which will take priority over other sources (such as the default annotations).
+`metadata-source-ref`::
+You can supply an external `MethodSecurityMetadataSource` instance, which will take priority over other sources (such as the default annotations).
 
 
 [[nsa-global-method-security-mode]]
-* **mode**
-This attribute can be set to "aspectj" to specify that AspectJ should be used instead of the default Spring AOP.
-Secured methods must be woven with the `AnnotationSecurityAspect` from the `spring-security-aspects` module.
-
-It is important to note that AspectJ follows Java's rule that annotations on interfaces are not inherited.
-This means that methods that define the Security annotations on the interface will not be secured.
-Instead, you must place the Security annotation on the class when using AspectJ.
+`mode`::
+You can set this attribute to `aspectj` to specify that AspectJ should be used instead of the default Spring AOP.
+You must weave secured methods with the `AnnotationSecurityAspect` from the `spring-security-aspects` module.
++
+[NOTE]
+====
+AspectJ follows Java's rule that annotations on interfaces are not inherited.
+This means that methods that define the Security annotations on the interface are not secured.
+Instead, you must place the Security annotation on the class when you use AspectJ.
+====
 
 
 [[nsa-global-method-security-order]]
-* **order**
-Allows the advice "order" to be set for the method security interceptor.
-
+`order`::
+Lets the `order` advice be set for the method security interceptor.
 
 [[nsa-global-method-security-pre-post-annotations]]
-* **pre-post-annotations**
-Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context.
-Defaults to "disabled".
+`pre-post-annotations`::
+Specifies whether the use of Spring Security's pre- and post-invocation annotations (`@PreFilter`, `@PreAuthorize`, `@PostFilter`, and `@PostAuthorize`) should be enabled for this application context.
+Default: `disabled`
 
 
 [[nsa-global-method-security-proxy-target-class]]
-* **proxy-target-class**
-If true, class based proxying will be used instead of interface based proxying.
+`proxy-target-class`::
+If `true`, class-based proxying is used instead of interface-based proxying.
 
 
 [[nsa-global-method-security-run-as-manager-ref]]
-* **run-as-manager-ref**
-A reference to an optional `RunAsManager` implementation which will be used by the configured `MethodSecurityInterceptor`
+`run-as-manager-ref`::
+A reference to an optional `RunAsManager` implementation, which is used by the configured `MethodSecurityInterceptor`.
 
 
 [[nsa-global-method-security-secured-annotations]]
-* **secured-annotations**
-Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context.
-Defaults to "disabled".
+`secured-annotations`::
+Specifies whether the use of Spring Security's `@Secured` annotations should be enabled for this application context.
+Default: `disabled`
 
 
 [[nsa-global-method-security-children]]
 === Child Elements of <global-method-security>
 
+The `<global-method-security>` has the following child elements:
 
 * <<nsa-after-invocation-provider,after-invocation-provider>>
 * xref:servlet/appendix/namespace/http.adoc#nsa-expression-handler[expression-handler]
@@ -116,44 +120,41 @@ Defaults to "disabled".
 
 [[nsa-after-invocation-provider]]
 == <after-invocation-provider>
-This element can be used to decorate an `AfterInvocationProvider` for use by the security interceptor maintained by the `<global-method-security>` namespace.
-You can define zero or more of these within the `global-method-security` element, each with a `ref` attribute pointing to an `AfterInvocationProvider` bean instance within your application context.
-
+You can use the `<after-invocation-provider>` element to decorate an `AfterInvocationProvider` for use by the security interceptor that is maintained by the `<global-method-security>` namespace.
+You can define zero or more of these elements within the `global-method-security` element, each with a `ref` attribute that points to an `AfterInvocationProvider` bean instance within your application context.
 
 [[nsa-after-invocation-provider-parents]]
 === Parent Elements of <after-invocation-provider>
 
-
-* <<nsa-global-method-security,global-method-security>>
-
+The parent element of the `<after-invocation-provider>` is the <<nsa-global-method-security,global-method-security>> element.
 
 
 [[nsa-after-invocation-provider-attributes]]
 === <after-invocation-provider> Attributes
 
+The `<after-invocation-provider>` element has a single attribute:
 
 [[nsa-after-invocation-provider-ref]]
-* **ref**
+`ref`::
 Defines a reference to a Spring bean that implements `AfterInvocationProvider`.
 
 
 [[nsa-pre-post-annotation-handling]]
 == <pre-post-annotation-handling>
-Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replaced entirely.
-Only applies if these annotations are enabled.
+The `<pre-post-annotation-handling>` lets us entirely replace the default expression-based mechanism for handling Spring Security's pre- and post-invocation annotations (`@PreFilter`, `@PreAuthorize`, `@PostFilter`, `@PostAuthorize`).
+It applies only if these annotations are enabled.
 
 
 [[nsa-pre-post-annotation-handling-parents]]
 === Parent Elements of <pre-post-annotation-handling>
 
-
-* <<nsa-global-method-security,global-method-security>>
-
+The parent element of the `<pre-post-annotation-handling>` element is the  <<nsa-global-method-security,global-method-security>> element.
 
 
 [[nsa-pre-post-annotation-handling-children]]
 === Child Elements of <pre-post-annotation-handling>
 
+The `<pre-post-annotation-handling>` element has the following children:
 
 * <<nsa-invocation-attribute-factory,invocation-attribute-factory>>
 * <<nsa-post-invocation-advice,post-invocation-advice>>
@@ -163,150 +164,140 @@ Only applies if these annotations are enabled.
 
 [[nsa-invocation-attribute-factory]]
 == <invocation-attribute-factory>
-Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.
-
+The `<invocation-attribute-factory>` element defines the `PrePostInvocationAttributeFactory` instance to use to generate pre- and post-invocation metadata from the annotated methods.
 
 [[nsa-invocation-attribute-factory-parents]]
 === Parent Elements of <invocation-attribute-factory>
 
-
-* <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
-
-
+The parent element of the `<invocation-attribute-factory>` element is the  <<nsa-pre-post-annotation-handling,`pre-post-annotation-handling`>> element.
 
 [[nsa-invocation-attribute-factory-attributes]]
 === <invocation-attribute-factory> Attributes
 
+The `<invocation-attribute-factory>` has a single attribute:
 
 [[nsa-invocation-attribute-factory-ref]]
-* **ref**
-Defines a reference to a Spring bean Id.
+`ref`::
+Defines a reference to a Spring bean ID.
 
 
 [[nsa-post-invocation-advice]]
 == <post-invocation-advice>
-Customizes the `PostInvocationAdviceProvider` with the ref as the `PostInvocationAuthorizationAdvice` for the <pre-post-annotation-handling> element.
+The `<post-invocation-advice>` element customizes the `PostInvocationAdviceProvider` with the value of the `ref` attribute as the `PostInvocationAuthorizationAdvice` for the `<pre-post-annotation-handling>` element.
 
 
 [[nsa-post-invocation-advice-parents]]
 === Parent Elements of <post-invocation-advice>
 
-
-* <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
-
+The parent element of the `<post-invocation-advice>` element is the <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>> element.
 
 
 [[nsa-post-invocation-advice-attributes]]
 === <post-invocation-advice> Attributes
 
+The `<post-invocation-advice>` has a single attribute:
 
 [[nsa-post-invocation-advice-ref]]
-* **ref**
-Defines a reference to a Spring bean Id.
+`ref`::
+Defines a reference to a Spring bean ID.
 
 
 [[nsa-pre-invocation-advice]]
 == <pre-invocation-advice>
-Customizes the `PreInvocationAuthorizationAdviceVoter` with the ref as the `PreInvocationAuthorizationAdviceVoter` for the <pre-post-annotation-handling> element.
+The `<pre-invocation-advice>` element customizes the `PreInvocationAuthorizationAdviceVoter` with the value of the `ref` attribute as the `PreInvocationAuthorizationAdviceVoter` for the `<pre-post-annotation-handling>` element.
 
 
 [[nsa-pre-invocation-advice-parents]]
 === Parent Elements of <pre-invocation-advice>
 
-
-* <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>>
-
+The parent element of the `<pre-invocation-advice>` is the <<nsa-pre-post-annotation-handling,pre-post-annotation-handling>> element.
 
 
 [[nsa-pre-invocation-advice-attributes]]
 === <pre-invocation-advice> Attributes
 
+The `<pre-invocation-advice>` element has a single attribute:
 
 [[nsa-pre-invocation-advice-ref]]
-* **ref**
-Defines a reference to a Spring bean Id.
+ref::
+Defines a reference to a Spring bean ID.
 
 
 [[nsa-protect-pointcut]]
-== Securing Methods using
-`<protect-pointcut>`
-Rather than defining security attributes on an individual method or class basis using the `@Secured` annotation, you can define cross-cutting security constraints across whole sets of methods and interfaces in your service layer using the `<protect-pointcut>` element.
+== Securing Methods using <protect-pointcut>
+Rather than defining security attributes on an individual method or class basis by using the `@Secured` annotation, you can define cross-cutting security constraints across whole sets of methods and interfaces in your service layer by using the `<protect-pointcut>` element.
 You can find an example in the xref:servlet/authorization/method-security.adoc#ns-protect-pointcut[namespace introduction].
 
 
 [[nsa-protect-pointcut-parents]]
 === Parent Elements of <protect-pointcut>
 
-
-* <<nsa-global-method-security,global-method-security>>
-
-
+The parent element of the `<protect-pointcut>` element is the <<nsa-global-method-security,global-method-security>> element.
 
 [[nsa-protect-pointcut-attributes]]
 === <protect-pointcut> Attributes
 
+The `<protect-pointcut>` has the following attributes:
 
 [[nsa-protect-pointcut-access]]
-* **access**
-Access configuration attributes list that applies to all methods matching the pointcut, e.g.
-"ROLE_A,ROLE_B"
+`access`::
+Access configuration attributes list that applies to all methods that match the pointcut -- for example,
+`ROLE_A,ROLE_B`.
 
 
 [[nsa-protect-pointcut-expression]]
-* **expression**
-An AspectJ expression, including the `execution` keyword.
-For example, `execution(int com.foo.TargetObject.countLength(String))`.
+`expression`::
+An AspectJ expression, including the `execution` keyword -- for example, `execution(int com.foo.TargetObject.countLength(String))`.
 
 
 [[nsa-intercept-methods]]
 == <intercept-methods>
-Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
+You can use the `<intercept-methods>` element inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
 
 
 [[nsa-intercept-methods-attributes]]
 === <intercept-methods> Attributes
 
+The `<intercept-methods>` element has a single attribute:
 
 [[nsa-intercept-methods-access-decision-manager-ref]]
-* **access-decision-manager-ref**
-Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
+`access-decision-manager-ref`::
+Optional `AccessDecisionManager` bean ID to be used by the created method security interceptor.
 
 
 [[nsa-intercept-methods-children]]
 === Child Elements of <intercept-methods>
 
-
-* <<nsa-protect,protect>>
-
-
+The child element of the `<intercept-methods>` is the <<nsa-protect,protect>> element.
 
 [[nsa-method-security-metadata-source]]
 == <method-security-metadata-source>
-Creates a MethodSecurityMetadataSource instance
+The `<method-security-metadata-source>` element creates a `MethodSecurityMetadataSource` instance.
 
 
 [[nsa-method-security-metadata-source-attributes]]
 === <method-security-metadata-source> Attributes
 
+The `<method-security-metadata-source>` element has the following attributes:
 
 [[nsa-method-security-metadata-source-id]]
-* **id**
+`id`::
 A bean identifier, used for referring to the bean elsewhere in the context.
 
 
 [[nsa-method-security-metadata-source-use-expressions]]
-* **use-expressions**
-Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes.
-Defaults to 'false'.
+`use-expressions`::
+Enables the use of expressions in the `access` attributes of `<intercept-url>` elements rather than the traditional list of configuration attributes.
+Default: `false`
 If enabled, each attribute should contain a single Boolean expression.
-If the expression evaluates to 'true', access will be granted.
+If the expression evaluates to `true`, access is granted.
 
 
 [[nsa-method-security-metadata-source-children]]
 === Child Elements of <method-security-metadata-source>
 
 
-* <<nsa-protect,protect>>
+The `<method-security-metadata-source>` element has a single child element: <<nsa-protect,protect>>.
 
 
 
@@ -319,22 +310,22 @@ We strongly advise you NOT to mix "protect" declarations with any services provi
 [[nsa-protect-parents]]
 === Parent Elements of <protect>
 
+The `<protect>` element has two parent elements:
 
 * <<nsa-intercept-methods,intercept-methods>>
 * <<nsa-method-security-metadata-source,method-security-metadata-source>>
 
-
-
 [[nsa-protect-attributes]]
 === <protect> Attributes
 
+The `<protect>` element has the following attributes:
 
 [[nsa-protect-access]]
-* **access**
-Access configuration attributes list that applies to the method, e.g.
-"ROLE_A,ROLE_B".
+`access`::
+Access configuration attributes list that applies to the method -- for example,
+`ROLE_A,ROLE_B`.
 
 
 [[nsa-protect-method]]
-* **method**
-A method name
+`method`::
+A method name.
