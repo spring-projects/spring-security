@@ -7,46 +7,40 @@ One concrete example of where this is useful is to provide authorization in WebS
 [[nsa-websocket-message-broker]]
 == <websocket-message-broker>
 
-The `<websocket-message-broker>` element has two different modes.
-If the <<nsa-websocket-message-broker-id,`websocket-message-broker@id`>> is not specified, it does the following things:
+The websocket-message-broker element has two different modes.
+If the <<nsa-websocket-message-broker-id,websocket-message-broker@id>> is not specified, then it will do the following things:
 
-* Ensure that any `SimpAnnotationMethodMessageHandler` has the `AuthenticationPrincipalArgumentResolver` registered as a custom argument resolver.
-This allows the use of `@AuthenticationPrincipal` to resolve the principal of the current `Authentication`.
-* Ensures that the `SecurityContextChannelInterceptor` is automatically registered for the `clientInboundChannel`.
-This populates the `SecurityContextHolder` with the user that is found in the message.
-* Ensures that a `CsrfChannelInterceptor` is registered with the `clientInboundChannel`.
+* Ensure that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver.
+This allows the use of `@AuthenticationPrincipal` to resolve the principal of the current `Authentication`
+* Ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel.
+This populates the SecurityContextHolder with the user that is found in the Message
+* Ensures that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
 This allows authorization rules to be specified for a message.
 * Ensures that a CsrfChannelInterceptor is registered with the clientInboundChannel.
 This ensures that only requests from the original domain are enabled.
-* Ensures that a `CsrfTokenHandshakeInterceptor` is registered with a `WebSocketHttpRequestHandler`, a `TransportHandlingSockJsService`, or a `DefaultSockJsService`.
-This ensures that the expected `CsrfToken` from the `HttpServletRequest` is copied into the WebSocket Session attributes.
+* Ensures that a CsrfTokenHandshakeInterceptor is registered with WebSocketHttpRequestHandler, TransportHandlingSockJsService, or DefaultSockJsService.
+This ensures that the expected CsrfToken from the HttpServletRequest is copied into the WebSocket Session attributes.
 
-If additional control is necessary, you can specify the ID, and a `ChannelSecurityInterceptor` is assigned to the specified ID.
-You can then manually wire Spring's messaging infrastructure.
-This is more cumbersome, but doing so provides greater control over the configuration.
+If additional control is necessary, the id can be specified and a ChannelSecurityInterceptor will be assigned to the specified id.
+All the wiring with Spring's messaging infrastructure can then be done manually.
+This is more cumbersome, but provides greater control over the configuration.
 
 
 [[nsa-websocket-message-broker-attributes]]
 === <websocket-message-broker> Attributes
 
-The `<websocket-message-broker>` element has the following attributes:
-
 [[nsa-websocket-message-broker-id]]
-`id`::
-A bean identifier, used to refer to the `ChannelSecurityInterceptor` bean elsewhere in the context.
+* **id** A bean identifier, used for referring to the ChannelSecurityInterceptor bean elsewhere in the context.
 If specified, Spring Security requires explicit configuration within Spring Messaging.
-If not specified, Spring Security automatically integrates with the messaging infrastructure, as described in <<nsa-websocket-message-broker>>
+If not specified, Spring Security will automatically integrate with the messaging infrastructure as described in <<nsa-websocket-message-broker>>
 
 [[nsa-websocket-message-broker-same-origin-disabled]]
-`same-origin-disabled`::
-Disables the requirement for a CSRF token to be present in the Stomp headers.
-Default: `false`
-Changing the default lets other origins make SockJS connections.
+* **same-origin-disabled** Disables the requirement for CSRF token to be present in the Stomp headers (default false).
+Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
 
 [[nsa-websocket-message-broker-children]]
 === Child Elements of <websocket-message-broker>
 
-The `<websocket-message-broker>` element has the following child elements:
 
 * xref:servlet/appendix/namespace/http.adoc#nsa-expression-handler[expression-handler]
 * <<nsa-intercept-message,intercept-message>>
@@ -54,36 +48,27 @@ The `<websocket-message-broker>` element has the following child elements:
 [[nsa-intercept-message]]
 == <intercept-message>
 
-The `<intercept-message>` defines an authorization rule for a message.
+Defines an authorization rule for a message.
 
 
 [[nsa-intercept-message-parents]]
 === Parent Elements of <intercept-message>
 
 
-The parent element of the `<intercept-message>` element is the <<nsa-websocket-message-broker,`websocket-message-broker`>> element.
+* <<nsa-websocket-message-broker,websocket-message-broker>>
 
 
 [[nsa-intercept-message-attributes]]
 === <intercept-message> Attributes
 
-The `<intercept-message>` element has the following attributes:
-
 [[nsa-intercept-message-pattern]]
-`pattern`::
-An Ant-based pattern that matches on the message destination.
-For example, `/**` matches any message with a destination, while `/admin/**` matches any message that has a destination that starts with `/admin/`.
+* **pattern** An ant based pattern that matches on the Message destination.
+For example, "/**" matches any Message with a destination; "/admin/**" matches any Message that has a destination that starts with "/admin/**".
 
 [[nsa-intercept-message-type]]
-`type`::
-The type of message to match on.
-SimpMessageType defines the valid values: `CONNECT`, `CONNECT_ACK`, `HEARTBEAT`, `MESSAGE`, `SUBSCRIBE`, `UNSUBSCRIBE`, `DISCONNECT`, `DISCONNECT_ACK`, and `OTHER`).
+* **type** The type of message to match on.
+Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
 
 [[nsa-intercept-message-access]]
-`access`::
-The expression used to secure the message.
-Here are some examples:
-+
-* `denyAll`: Denies access to all of the matching messages.
-* `permitAll`: Grants access to all of the matching Messages.
-* `hasRole('ADMIN')`: Requires the current user to have a role of `ROLE_ADMIN` for the matching messages.
+* **access** The expression used to secure the Message.
+For example, "denyAll" will deny access to all of the matching Messages; "permitAll" will grant access to all of the matching Messages; "hasRole('ADMIN') requires the current user to have the role 'ROLE_ADMIN' for the matching Messages.
