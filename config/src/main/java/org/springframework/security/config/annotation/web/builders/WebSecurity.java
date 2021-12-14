@@ -95,8 +95,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private HttpFirewall httpFirewall;
 
-	private Collection<RequestRejectedHandler> requestRejectedHandlers;
-
 	private boolean debugEnabled;
 
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
@@ -265,17 +263,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 */
 	public WebSecurity postBuildAction(Runnable postBuildAction) {
 		this.postBuildAction = postBuildAction;
-		return this;
-	}
-
-	/**
-	 * Sets the handlers to handle {@link org.springframework.security.web.firewall.RequestRejectedException}
-	 * @param requestRejectedHandlers
-	 * @return the {@link WebSecurity} for further customizations
-	 */
-	public WebSecurity requestRejectedHandlers(RequestRejectedHandler... requestRejectedHandlers) {
-		Assert.notNull(requestRejectedHandlers, "requestRejectedHandlers cannot be null");
-		this.requestRejectedHandlers = Arrays.asList(requestRejectedHandlers);
 		return this;
 	}
 

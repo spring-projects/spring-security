@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.web;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -153,7 +152,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private HttpFirewall firewall = new StrictHttpFirewall();
 
-	private Collection<RequestRejectedHandler> requestRejectedHandlers = List.of(new DefaultRequestRejectedHandler());
+	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
 
 	public FilterChainProxy() {
 	}
@@ -184,22 +183,11 @@ public class FilterChainProxy extends GenericFilterBean {
 			doFilterInternal(request, response, chain);
 		}
 		catch (RequestRejectedException ex) {
-			handleRequestRejectedException((HttpServletRequest) request, (HttpServletResponse) response, ex);
+			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
 		}
 		finally {
 			SecurityContextHolder.clearContext();
 			request.removeAttribute(FILTER_APPLIED);
-		}
-	}
-
-	private void handleRequestRejectedException(HttpServletRequest request, HttpServletResponse response, RequestRejectedException ex) throws ServletException, IOException {
-		var handlerOpt = this.requestRejectedHandlers.stream()
-			.filter(handler -> handler.shouldHandle(request))
-			.findFirst();
-		if (handlerOpt.isPresent()) {
-			handlerOpt.get().handle(request, response, ex);
-		} else {
-			new DefaultRequestRejectedHandler().handle(request, response, ex);
 		}
 	}
 
@@ -282,15 +270,12 @@ public class FilterChainProxy extends GenericFilterBean {
 	/**
 	 * Sets the {@link RequestRejectedHandler} to be used for requests rejected by the
 	 * firewall.
-	 * @param requestRejectedHandlers the {@link RequestRejectedHandler}
+	 * @param requestRejectedHandler the {@link RequestRejectedHandler}
 	 * @since 5.2
 	 */
-	public void setRequestRejectedHandlers(Collection<RequestRejectedHandler> requestRejectedHandlers) {
-		Assert.notNull(requestRejectedHandlers, "requestRejectedHandlers may not be null");
-		if (requestRejectedHandlers.isEmpty()) {
-			return;
-		}
-		this.requestRejectedHandlers = requestRejectedHandlers;
+	public void setRequestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		Assert.notNull(requestRejectedHandler, "requestRejectedHandler may not be null");
+		this.requestRejectedHandler = requestRejectedHandler;
 	}
 
 	@Override

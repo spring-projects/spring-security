@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2020 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,7 +49,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Luke Taylor
@@ -235,35 +237,19 @@ public class FilterChainProxyTests {
 
 	@Test
 	public void setRequestRejectedHandlerDoesNotAcceptNull() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.fcp.setRequestRejectedHandlers(null));
+		assertThatIllegalArgumentException().isThrownBy(() -> this.fcp.setRequestRejectedHandler(null));
 	}
 
 	@Test
 	public void requestRejectedHandlerIsCalledIfFirewallThrowsRequestRejectedException() throws Exception {
 		HttpFirewall fw = mock(HttpFirewall.class);
 		RequestRejectedHandler rjh = mock(RequestRejectedHandler.class);
-		when(rjh.shouldHandle(this.request)).thenReturn(true);
 		this.fcp.setFirewall(fw);
-		this.fcp.setRequestRejectedHandlers(List.of(rjh));
+		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
 		given(fw.getFirewalledRequest(this.request)).willThrow(requestRejectedException);
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
-	}
-
-	@Test
-	public void oneOfRequestRejectedHandlerIsCalledIfFirewallThrowsRequestRejectedException() throws Exception {
-		HttpFirewall fw = mock(HttpFirewall.class);
-		RequestRejectedHandler rjh1 = mock(RequestRejectedHandler.class);
-		RequestRejectedHandler rjh2 = mock(RequestRejectedHandler.class);
-		when(rjh1.shouldHandle(this.request)).thenReturn(false);
-		when(rjh2.shouldHandle(this.request)).thenReturn(true);
-		this.fcp.setFirewall(fw);
-		this.fcp.setRequestRejectedHandlers(List.of(rjh1, rjh2));
-		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
-		given(fw.getFirewalledRequest(this.request)).willThrow(requestRejectedException);
-		this.fcp.doFilter(this.request, this.response, this.chain);
-		verify(rjh2).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
 	}
 
 }
