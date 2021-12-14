@@ -56,8 +56,6 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -94,6 +92,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private FilterSecurityInterceptor filterSecurityInterceptor;
 
 	private HttpFirewall httpFirewall;
+
+	private RequestRejectedHandler requestRejectedHandler;
 
 	private boolean debugEnabled;
 
@@ -266,6 +266,18 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		return this;
 	}
 
+	/**
+	 * Sets the handler to handle {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * @param requestRejectedHandler
+	 * @return the {@link WebSecurity} for further customizations
+	 * @since 5.7
+	 */
+	public WebSecurity requestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		Assert.notNull(this.requestRejectedHandler, "requestRejectedHandlers cannot be null");
+		this.requestRejectedHandler = requestRejectedHandler;
+		return this;
+	}
+
 	@Override
 	protected Filter performBuild() throws Exception {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
@@ -286,8 +298,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.httpFirewall != null) {
 			filterChainProxy.setFirewall(this.httpFirewall);
 		}
-		if (this.requestRejectedHandlers != null) {
-			filterChainProxy.setRequestRejectedHandlers(this.requestRejectedHandlers);
+		if (this.requestRejectedHandler != null) {
+			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
 		filterChainProxy.afterPropertiesSet();
 
@@ -324,7 +336,11 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
-		this.requestRejectedHandlers = applicationContext.getBeansOfType(RequestRejectedHandler.class).values();
+		try {
+			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+		}
 	}
 
 	/**
