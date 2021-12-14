@@ -267,7 +267,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	}
 
 	/**
-	 * Sets the handler to handle {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * Sets the handler to handle
+	 * {@link org.springframework.security.web.firewall.RequestRejectedException}
 	 * @param requestRejectedHandler
 	 * @return the {@link WebSecurity} for further customizations
 	 * @since 5.7

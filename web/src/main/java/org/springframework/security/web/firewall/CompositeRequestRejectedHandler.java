@@ -26,7 +26,8 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * A {@link RequestRejectedHandler} that delegates to several other {@link RequestRejectedHandler}s.
+ * A {@link RequestRejectedHandler} that delegates to several other
+ * {@link RequestRejectedHandler}s.
  *
  * @author Adam Ostrožlík
  * @since 5.7
@@ -37,7 +38,8 @@ public class CompositeRequestRejectedHandler implements RequestRejectedHandler {
 
 	/**
 	 * Creates a new instance.
-	 * @param requestRejectedhandlers the {@link RequestRejectedHandler} instances to handle {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * @param requestRejectedhandlers the {@link RequestRejectedHandler} instances to
+	 * handle {@link org.springframework.security.web.firewall.RequestRejectedException}
 	 */
 	public CompositeRequestRejectedHandler(List<RequestRejectedHandler> requestRejectedhandlers) {
 		Assert.notEmpty(requestRejectedhandlers, "requestRejectedhandlers cannot be empty");
@@ -45,9 +47,11 @@ public class CompositeRequestRejectedHandler implements RequestRejectedHandler {
 	}
 
 	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response, RequestRejectedException requestRejectedException) throws IOException, ServletException {
+	public void handle(HttpServletRequest request, HttpServletResponse response,
+			RequestRejectedException requestRejectedException) throws IOException, ServletException {
 		for (RequestRejectedHandler requestRejectedhandler : requestRejectedhandlers) {
 			requestRejectedhandler.handle(request, response, requestRejectedException);
 		}
 	}
+
 }
