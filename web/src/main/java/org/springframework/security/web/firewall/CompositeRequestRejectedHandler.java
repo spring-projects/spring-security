@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,10 @@ package org.springframework.security.web.firewall;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.util.Assert;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -32,7 +32,7 @@ import java.util.List;
  * @author Adam Ostrožlík
  * @since 5.7
  */
-public class CompositeRequestRejectedHandler implements RequestRejectedHandler {
+public final class CompositeRequestRejectedHandler implements RequestRejectedHandler {
 
 	private final List<RequestRejectedHandler> requestRejectedhandlers;
 
@@ -41,9 +41,9 @@ public class CompositeRequestRejectedHandler implements RequestRejectedHandler {
 	 * @param requestRejectedhandlers the {@link RequestRejectedHandler} instances to
 	 * handle {@link org.springframework.security.web.firewall.RequestRejectedException}
 	 */
-	public CompositeRequestRejectedHandler(List<RequestRejectedHandler> requestRejectedhandlers) {
+	public CompositeRequestRejectedHandler(RequestRejectedHandler... requestRejectedhandlers) {
 		Assert.notEmpty(requestRejectedhandlers, "requestRejectedhandlers cannot be empty");
-		this.requestRejectedhandlers = requestRejectedhandlers;
+		this.requestRejectedhandlers = Arrays.asList(requestRejectedhandlers);
 	}
 
 	@Override

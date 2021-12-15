@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -274,7 +274,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @since 5.7
 	 */
 	public WebSecurity requestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
-		Assert.notNull(this.requestRejectedHandler, "requestRejectedHandlers cannot be null");
+		Assert.notNull(requestRejectedHandler, "requestRejectedHandler cannot be null");
 		this.requestRejectedHandler = requestRejectedHandler;
 		return this;
 	}
