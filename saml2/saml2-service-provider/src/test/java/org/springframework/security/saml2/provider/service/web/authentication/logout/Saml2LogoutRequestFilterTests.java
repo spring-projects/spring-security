@@ -153,4 +153,20 @@ public class Saml2LogoutRequestFilterTests {
 		verifyNoInteractions(this.logoutHandler);
 	}
 
+	@Test
+	public void doFilterWhenNoRelyingPartyLogoutThen401() throws Exception {
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
+		request.setServletPath("/logout/saml2/slo");
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, "request");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().singleLogoutServiceLocation(null)
+				.build();
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		this.logoutRequestProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
+		assertThat(response.getStatus()).isEqualTo(401);
+		verifyNoInteractions(this.logoutHandler);
+	}
+
 }

@@ -111,6 +111,9 @@ final class OpenSamlLogoutRequestResolver {
 		if (registration == null) {
 			return null;
 		}
+		if (registration.getAssertingPartyDetails().getSingleLogoutServiceLocation() == null) {
+			return null;
+		}
 		LogoutRequest logoutRequest = this.logoutRequestBuilder.buildObject();
 		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
