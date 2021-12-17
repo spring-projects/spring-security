@@ -53,7 +53,10 @@ public class OpenSaml3LogoutResponseResolverTests {
 		Consumer<LogoutResponseParameters> parametersConsumer = mock(Consumer.class);
 		logoutResponseResolver.setParametersConsumer(parametersConsumer);
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+				.assertingPartyDetails(
+						(party) -> party.singleLogoutServiceResponseLocation("https://ap.example.com/logout"))
+				.build();
 		Authentication authentication = new TestingAuthenticationToken("user", "password");
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
 		request.setParameter(Saml2ParameterNames.SAML_REQUEST,

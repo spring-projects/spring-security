@@ -61,4 +61,13 @@ public class OpenSamlMetadataResolverTests {
 				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
+	@Test
+	public void resolveWhenRelyingPartyNoLogoutThenMetadataMatches() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+				.singleLogoutServiceLocation(null).build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata).doesNotContain("ResponseLocation");
+	}
+
 }

@@ -106,6 +106,8 @@ public final class RelyingPartyRegistration {
 		Assert.hasText(entityId, "entityId cannot be empty");
 		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
 		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
+		Assert.isTrue(singleLogoutServiceLocation == null || singleLogoutServiceBinding != null,
+				"singleLogoutServiceBinding cannot be null when singleLogoutServiceLocation is set");
 		Assert.notNull(providerDetails, "providerDetails cannot be null");
 		Assert.notEmpty(credentials, "credentials cannot be empty");
 		for (org.springframework.security.saml2.credentials.Saml2X509Credential c : credentials) {

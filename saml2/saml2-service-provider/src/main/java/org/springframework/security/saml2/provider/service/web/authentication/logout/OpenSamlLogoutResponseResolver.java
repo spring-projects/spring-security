@@ -132,6 +132,9 @@ final class OpenSamlLogoutResponseResolver {
 		if (registration == null) {
 			return null;
 		}
+		if (registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation() == null) {
+			return null;
+		}
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		byte[] b = Saml2Utils.samlDecode(serialized);
 		LogoutRequest logoutRequest = parse(inflateIfRequired(registration, b));

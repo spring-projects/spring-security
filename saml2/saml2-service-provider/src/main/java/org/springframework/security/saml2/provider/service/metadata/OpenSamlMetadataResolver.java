@@ -86,7 +86,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		spSsoDescriptor.getKeyDescriptors()
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
-		spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
+		if (registration.getSingleLogoutServiceLocation() != null) {
+			spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
+		}
 		return spSsoDescriptor;
 	}
 
