@@ -35,6 +35,7 @@ RelyingPartyRegistrationRepository registrations() {
     RelyingPartyRegistration registration = RelyingPartyRegistrations
             .fromMetadataLocation("https://ap.example.org/metadata")
             .registrationId("id")
+            .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
             .signingX509Credentials((signing) -> signing.add(credential)) <1>
             .build();
     return new InMemoryRelyingPartyRegistrationRepository(registration);
@@ -72,6 +73,10 @@ Also, your application can participate in an AP-initiated logout when the assert
 2. Logout the user and invalidate the session
 3. Create, sign, and serialize a `<saml2:LogoutResponse>` based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`] associated with the just logged-out user
 4. Send a redirect or post to the asserting party based on the xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[`RelyingPartyRegistration`]
+
+NOTE: Adding `saml2Logout` adds the capability for logout to the service provider.
+Because it is an optional capability, you need to enable it for each individual `RelyingPartyRegistration`.
+You can do this by setting the `RelyingPartyRegistration.Builder#singleLogoutServiceLocation` property.
 
 == Configuring Logout Endpoints
 

@@ -1014,7 +1014,7 @@ public final class RelyingPartyRegistration {
 
 		private Saml2MessageBinding assertionConsumerServiceBinding = Saml2MessageBinding.POST;
 
-		private String singleLogoutServiceLocation = "{baseUrl}/logout/saml2/slo";
+		private String singleLogoutServiceLocation;
 
 		private String singleLogoutServiceResponseLocation;
 
