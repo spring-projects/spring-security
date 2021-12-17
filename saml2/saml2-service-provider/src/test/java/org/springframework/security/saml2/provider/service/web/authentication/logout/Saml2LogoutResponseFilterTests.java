@@ -37,6 +37,7 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
@@ -148,6 +149,25 @@ public class Saml2LogoutResponseFilterTests {
 				.willReturn(Saml2LogoutValidatorResult.withErrors(new Saml2Error("error", "description")).build());
 		this.logoutResponseProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
 		verify(this.logoutResponseValidator).validate(any());
+		verifyNoInteractions(this.logoutSuccessHandler);
+	}
+
+	@Test
+	public void doFilterWhenNoRelyingPartyLogoutThen401() throws Exception {
+		Authentication authentication = new TestingAuthenticationToken("user", "password");
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/saml2/slo");
+		request.setServletPath("/logout/saml2/slo");
+		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "response");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().singleLogoutServiceLocation(null)
+				.singleLogoutServiceResponseLocation(null).build();
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
+				.samlRequest("request").build();
+		given(this.logoutRequestRepository.removeLogoutRequest(request, response)).willReturn(logoutRequest);
+		this.logoutResponseProcessingFilter.doFilterInternal(request, response, new MockFilterChain());
+		assertThat(response.getStatus()).isEqualTo(401);
 		verifyNoInteractions(this.logoutSuccessHandler);
 	}
 

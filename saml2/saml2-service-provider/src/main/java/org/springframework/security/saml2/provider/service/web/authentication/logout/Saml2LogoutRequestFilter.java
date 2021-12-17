@@ -120,6 +120,12 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
+		if (registration.getSingleLogoutServiceLocation() == null) {
+			this.logger.trace(
+					"Did not process logout request since RelyingPartyRegistration has not been configured with a logout request endpoint");
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
+		}
 		if (!isCorrectBinding(request, registration)) {
 			this.logger.trace("Did not process logout request since used incorrect binding");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
