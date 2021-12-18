@@ -82,6 +82,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		SPSSODescriptor spSsoDescriptor = build(SPSSODescriptor.DEFAULT_ELEMENT_NAME);
 		spSsoDescriptor.addSupportedProtocol(SAMLConstants.SAML20P_NS);
 		spSsoDescriptor.setWantAssertionsSigned(true);
+		spSsoDescriptor.setAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned());
 		spSsoDescriptor.getKeyDescriptors()
 				.addAll(buildKeys(registration.getSigningX509Credentials(), UsageType.SIGNING));
 		spSsoDescriptor.getKeyDescriptors()

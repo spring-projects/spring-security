@@ -70,4 +70,27 @@ public class OpenSamlMetadataResolverTests {
 		assertThat(metadata).contains("<md:NameIDFormat>format</md:NameIDFormat>");
 	}
 
+	@Test
+	public void setAuthnRequestsSignedToTrue() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+				.assertingPartyDetails(party -> party.wantAuthnRequestsSigned(true))
+				.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata)
+				.contains("AuthnRequestsSigned=\"true\"");
+	}
+
+	@Test
+	public void setAuthnRequestsSignedToFalse() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+				.assertingPartyDetails(party -> party.wantAuthnRequestsSigned(false))
+				.build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata)
+				.contains("AuthnRequestsSigned=\"false\"");
+	}
+
+
 }
