@@ -38,7 +38,7 @@ dependencies {
 
 	testCompile "com.google.appengine:appengine-testing:$gaeVersion"
 
-	testRuntime "com.google.appengine:appengine-api-labs:$gaeVersion"
+	testRuntime "com.google.appengine:appengine-api-labs:1.9.88"
 }
 
 appengineRun.onlyIf { !gradle.taskGraph.hasTask(appengineFunctionalTest) }
