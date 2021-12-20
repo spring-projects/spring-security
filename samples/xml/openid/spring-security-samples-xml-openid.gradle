@@ -12,3 +12,7 @@ dependencies {
 	runtime jstlDependencies
 	runtime slf4jDependencies
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

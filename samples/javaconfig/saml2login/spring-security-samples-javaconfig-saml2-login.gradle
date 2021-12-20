@@ -9,3 +9,7 @@ dependencies {
 
 	testCompile project(':spring-security-test')
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

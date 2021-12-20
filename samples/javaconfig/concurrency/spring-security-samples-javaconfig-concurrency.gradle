@@ -18,3 +18,7 @@ dependencies {
 	runtime 'ch.qos.logback:logback-classic'
 	runtime 'opensymphony:sitemesh'
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

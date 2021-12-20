@@ -29,3 +29,7 @@ dependencies {
 
 	providedCompile 'javax.servlet:javax.servlet-api'
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}
