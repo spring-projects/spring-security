@@ -40,8 +40,8 @@ dependencyManagement {
 	dependencies {
 		dependency 'antlr:antlr:2.7.7'
 		dependency 'asm:asm:3.1'
-		dependency 'ch.qos.logback:logback-classic:1.2.3'
-		dependency 'ch.qos.logback:logback-core:1.2.3'
+		dependency 'ch.qos.logback:logback-classic:1.2.9'
+		dependency 'ch.qos.logback:logback-core:1.2.9'
 		dependency 'com.fasterxml.jackson.core:jackson-annotations:2.10.5'
 		dependency 'com.fasterxml.jackson.core:jackson-core:2.10.5'
 		dependency 'com.fasterxml.jackson.core:jackson-databind:2.10.5.1'
