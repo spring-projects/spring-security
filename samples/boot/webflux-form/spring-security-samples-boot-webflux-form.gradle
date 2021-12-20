@@ -16,6 +16,8 @@
 
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+ext['thymeleaf.version']='3.0.14.RELEASE'
+
 dependencies {
 	compile project(':spring-security-core')
 	compile project(':spring-security-config')

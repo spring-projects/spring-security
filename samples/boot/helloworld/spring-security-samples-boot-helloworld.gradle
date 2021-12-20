@@ -1,5 +1,7 @@
 apply plugin: 'io.spring.convention.spring-sample-boot'
 
+ext['thymeleaf.version']='3.0.14.RELEASE'
+
 dependencies {
 	compile project(':spring-security-config')
 	compile project(':spring-security-web')
