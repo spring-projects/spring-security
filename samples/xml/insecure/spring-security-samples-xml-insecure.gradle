@@ -26,3 +26,7 @@ dependencies {
 
 	integrationTestCompile seleniumDependencies
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

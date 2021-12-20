@@ -7,3 +7,7 @@ dependencies {
 
 	testCompile 'org.springframework:spring-test'
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

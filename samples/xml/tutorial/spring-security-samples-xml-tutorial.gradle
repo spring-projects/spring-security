@@ -14,3 +14,7 @@ dependencies {
 	runtime project(':spring-security-web')
 	runtime jstlDependencies
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}
