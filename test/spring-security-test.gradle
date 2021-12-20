@@ -18,6 +18,7 @@ dependencies {
 
 	testCompile project(path : ':spring-security-config', configuration : 'tests')
 	testCompile 'com.fasterxml.jackson.core:jackson-databind'
+	testCompile 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 	testCompile 'io.projectreactor:reactor-test'
 	testCompile 'javax.xml.bind:jaxb-api'
 	testCompile 'org.skyscreamer:jsonassert'
