@@ -53,4 +53,5 @@ gretty {
 	sslKeyStorePath = keystore
 	sslKeyStorePassword = password
 	jvmArgs = ["-Djavax.net.ssl.trustStore=${keystore}", "-Djavax.net.ssl.trustStorePassword=${password}"]
+	logbackConfigFile = "src/main/resources/logback.xml"
 }

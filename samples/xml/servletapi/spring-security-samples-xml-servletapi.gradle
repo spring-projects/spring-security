@@ -19,3 +19,7 @@ dependencies {
 }
 
 eclipse.wtp.component.contextPath = 'servletapi'
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}

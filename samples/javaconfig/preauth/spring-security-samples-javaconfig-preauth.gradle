@@ -17,3 +17,7 @@ dependencies {
 
 	runtime 'opensymphony:sitemesh'
 }
+
+gretty {
+	logbackConfigFile = "src/main/resources/logback.xml"
+}
