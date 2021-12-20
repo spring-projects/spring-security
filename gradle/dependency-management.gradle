@@ -30,7 +30,7 @@ dependencies {
 		management "com.fasterxml.jackson.core:jackson-databind:2.10.+"
 		management 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.10.+'
 		management "com.google.appengine:appengine-api-1.0-sdk:$gaeVersion"
-		management "com.google.appengine:appengine-api-labs:$gaeVersion"
+		management "com.google.appengine:appengine-api-labs:1.9.88"
 		management "com.google.appengine:appengine-api-stubs:$gaeVersion"
 		management "com.google.appengine:appengine-testing:$gaeVersion"
 		management "com.google.appengine:appengine:$gaeVersion"
