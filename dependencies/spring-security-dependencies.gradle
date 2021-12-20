@@ -8,7 +8,7 @@ javaPlatform {
 
 dependencies {
 	api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
-	api platform("io.projectreactor:reactor-bom:2020.0.13")
+	api platform("io.projectreactor:reactor-bom:2020.0.14")
 	api platform("io.rsocket:rsocket-bom:1.1.1")
 	api platform("org.junit:junit-bom:5.8.1")
 	api platform("org.springframework.data:spring-data-bom:2021.1.0")
