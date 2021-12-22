@@ -22,6 +22,7 @@ apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
+apply plugin: 'org.springframework.github.release'
 
 group = 'org.springframework.security'
 description = 'Spring Security'
@@ -40,6 +41,13 @@ tasks.named("saganCreateRelease") {
 }
 
 tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("createGitHubRelease") {
 	repository {
 		owner = "spring-projects"
 		name = "spring-security"
