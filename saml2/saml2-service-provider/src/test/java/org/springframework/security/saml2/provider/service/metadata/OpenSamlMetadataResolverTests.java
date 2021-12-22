@@ -73,7 +73,7 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void setAuthnRequestsSignedToTrue() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails(party -> party.wantAuthnRequestsSigned(true))
+				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(true))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
@@ -84,7 +84,7 @@ public class OpenSamlMetadataResolverTests {
 	@Test
 	public void setAuthnRequestsSignedToFalse() {
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails(party -> party.wantAuthnRequestsSigned(false))
+				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(true))
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
