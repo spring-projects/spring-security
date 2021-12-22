@@ -16,6 +16,9 @@
 
 package org.springframework.gradle.github.changelog;
 
+import java.io.File;
+import java.nio.file.Paths;
+
 import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -28,12 +31,10 @@ import org.gradle.api.artifacts.repositories.IvyArtifactRepository;
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout;
 import org.gradle.api.tasks.JavaExec;
 
-import java.io.File;
-import java.nio.file.Paths;
-
 public class GitHubChangelogPlugin implements Plugin<Project> {
 
 	public static final String CHANGELOG_GENERATOR_CONFIGURATION_NAME = "changelogGenerator";
+	public static final String RELEASE_NOTES_PATH = "changelog/release-notes.md";
 
 	@Override
 	public void apply(Project project) {
@@ -42,7 +43,7 @@ public class GitHubChangelogPlugin implements Plugin<Project> {
 		project.getTasks().register("generateChangelog", JavaExec.class, new Action<JavaExec>() {
 			@Override
 			public void execute(JavaExec generateChangelog) {
-				File outputFile = project.file(Paths.get(project.getBuildDir().getPath(), "changelog/release-notes.md"));
+				File outputFile = project.file(Paths.get(project.getBuildDir().getPath(), RELEASE_NOTES_PATH));
 				outputFile.getParentFile().mkdirs();
 				generateChangelog.setGroup("Release");
 				generateChangelog.setDescription("Generates the changelog");
