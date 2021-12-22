@@ -21,6 +21,8 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
+import org.springframework.gradle.github.RepositoryRef;
+
 public class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 	@Input
 	private RepositoryRef repository = new RepositoryRef();

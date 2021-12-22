@@ -1,10 +1,11 @@
-package org.springframework.gradle.github.milestones;
+package org.springframework.gradle.github;
+
 public class RepositoryRef {
 	private String owner;
 
 	private String name;
 
-	RepositoryRef() {
+	public RepositoryRef() {
 	}
 
 	public RepositoryRef(String owner, String name) {
@@ -62,4 +63,3 @@ public class RepositoryRef {
 		}
 	}
 }
-
