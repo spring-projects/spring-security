@@ -64,7 +64,6 @@ class InitializeUserDetailsBeanManagerConfigurer extends GlobalAuthenticationCon
 				return;
 			}
 			PasswordEncoder passwordEncoder = getBeanOrNull(PasswordEncoder.class);
-			UserDetailsPasswordService passwordManager = getBeanOrNull(UserDetailsPasswordService.class);
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(userDetailsService);
 			if (passwordEncoder != null) {
