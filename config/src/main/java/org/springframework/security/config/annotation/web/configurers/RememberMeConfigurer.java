@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,7 +92,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private String key;
 
-	private RememberMeHashingAlgorithm hashingAlgorithm = RememberMeHashingAlgorithm.UNSET;
+	private RememberMeHashingAlgorithm hashingAlgorithm = RememberMeHashingAlgorithm.MD5;
 
 	private RememberMeServices rememberMeServices;
 
@@ -199,9 +199,10 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link #rememberMeServices(RememberMeServices)} are used.
 	 * @param hashingAlgorithm the algorithm used when creating new cookies
 	 * @return the {@link RememberMeConfigurer} for further customization
-	 * @since 5.5
+	 * @since 5.7
 	 */
 	public RememberMeConfigurer<H> hashingAlgorithm(RememberMeHashingAlgorithm hashingAlgorithm) {
+		Assert.notNull(hashingAlgorithm, "hashingAlgorithm cannot be null");
 		this.hashingAlgorithm = hashingAlgorithm;
 		return this;
 	}

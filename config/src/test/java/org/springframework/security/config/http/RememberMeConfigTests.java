@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.http;
 
+import java.util.Base64;
 import java.util.Collections;
 
 import javax.servlet.http.Cookie;
@@ -59,6 +60,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Rob Winch
  * @author Oliver Becker
  */
+@ExtendWith(SpringTestContextExtension.class)
 public class RememberMeConfigTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/RememberMeConfigTests";
@@ -66,8 +68,7 @@ public class RememberMeConfigTests {
 	@Autowired
 	MockMvc mvc;
 
-	@Rule
-	public final SpringTestRule spring = new SpringTestRule();
+	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Test
 	public void requestWithRememberMeWhenUsingCustomTokenRepositoryThenAutomaticallyReauthenticates() throws Exception {
@@ -165,8 +166,8 @@ public class RememberMeConfigTests {
 		MvcResult result = rememberAuthentication("user", "password").andReturn();
 		Cookie cookie = rememberMeCookie(result);
 		assertThat(cookie).isNotNull();
-		assertThat(new String(Base64.decodeBase64(cookie.getValue())))
-				.contains(RememberMeHashingAlgorithm.SHA256.getIdentifier());
+		assertThat(new String(Base64.getDecoder().decode(cookie.getValue())))
+				.contains(RememberMeHashingAlgorithm.SHA256.name());
 	}
 
 	@Test

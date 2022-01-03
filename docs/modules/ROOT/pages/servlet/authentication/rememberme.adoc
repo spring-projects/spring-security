@@ -36,6 +36,7 @@ username:          As identifiable to the UserDetailsService
 password:          That matches the one in the retrieved UserDetails
 expirationTime:    The date and time when the remember-me token expires, expressed in milliseconds
 key:               A private key to prevent modification of the remember-me token
+algorithmName      The name of the algorithm used to create the hash
 ----
 
 As such the remember-me token is valid only for the period specified, and provided that the username, password and key does not change.

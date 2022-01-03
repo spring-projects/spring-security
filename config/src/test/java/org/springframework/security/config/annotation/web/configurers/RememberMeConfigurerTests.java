@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.Base64;
 import java.util.Collections;
 
 import javax.servlet.http.Cookie;
@@ -30,6 +31,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -42,6 +44,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.RememberMeHashingAlgorithm;
@@ -101,7 +104,8 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(RememberMeAuthenticationFilter.class));
+		verify(this.spring.getContext().getBean(ObjectPostProcessor.class))
+				.postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 
 	@Test
@@ -132,7 +136,7 @@ public class RememberMeConfigurerTests {
 	}
 
 	@Test
-	public void loginWithSha256HashingAlgorithmThenRespondsWithSha256RememberMeCookie() throws Exception {
+	public void loginWhenSha256HashingAlgorithmThenRespondsWithSha256RememberMeCookie() throws Exception {
 		this.spring.register(RememberMeWithSha256Config.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder request = post("/login")
@@ -144,8 +148,26 @@ public class RememberMeConfigurerTests {
 		MvcResult result = this.mvc.perform(request).andReturn();
 		Cookie rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull();
-		assertThat(new String(Base64.decodeBase64(rememberMe.getValue())))
-				.contains(RememberMeHashingAlgorithm.SHA256.getIdentifier());
+		assertThat(new String(Base64.getDecoder().decode(rememberMe.getValue())))
+				.contains(RememberMeHashingAlgorithm.SHA256.name());
+	}
+
+	@Test
+	public void loginWhenSha256HashingAlgorithmConfiguredInLambdaThenRespondsWithSha256RememberMeCookie()
+			throws Exception {
+		this.spring.register(RememberMeWithSha256InLambdaConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder request = post("/login")
+				.with(csrf())
+				.param("username", "user")
+				.param("password", "password")
+				.param("remember-me", "true");
+		// @formatter:on
+		MvcResult result = this.mvc.perform(request).andReturn();
+		Cookie rememberMe = result.getResponse().getCookie("remember-me");
+		assertThat(rememberMe).isNotNull();
+		assertThat(new String(Base64.getDecoder().decode(rememberMe.getValue())))
+				.contains(RememberMeHashingAlgorithm.SHA256.name());
 	}
 
 	@Test
@@ -319,14 +341,14 @@ public class RememberMeConfigurerTests {
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
-					.userDetailsService(new AuthenticationManagerBuilder(objectPostProcessor).getDefaultUserDetailsService());
+					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService());
 			// @formatter:on
 		}
 
@@ -339,8 +361,8 @@ public class RememberMeConfigurerTests {
 		}
 
 		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
+		ObjectPostProcessor<Object> objectPostProcessor() {
+			return this.objectPostProcessor;
 		}
 
 	}
@@ -416,10 +438,10 @@ public class RememberMeConfigurerTests {
 	}
 
 	@EnableWebSecurity
-	static class RememberMeWithSha256Config extends WebSecurityConfigurerAdapter {
+	static class RememberMeWithSha256Config {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain app(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests()
@@ -428,17 +450,41 @@ public class RememberMeConfigurerTests {
 					.formLogin()
 						.and()
 					.rememberMe()
-						.hashingAlgorithm(RememberMeHashingAlgorithm.SHA256);
+						.hashingAlgorithm(RememberMeHashingAlgorithm.SHA256)
+						.userDetailsService(userDetailsService);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RememberMeWithSha256InLambdaConfig {
+
+		@Bean
+		SecurityFilterChain app(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
 			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
+			http
+					.authorizeRequests((requests) -> requests
+							.anyRequest().hasRole("USER")
+					)
+					.formLogin(Customizer.withDefaults())
+					.rememberMe((rememberMe) -> rememberMe
+							.hashingAlgorithm(RememberMeHashingAlgorithm.SHA256)
+							.userDetailsService(userDetailsService)
+					);
 			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}

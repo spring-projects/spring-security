@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2021 Acegi Technology Pty Limited
+ * Copyright 2004-2022 Acegi Technology Pty Limited
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -96,48 +95,51 @@ import org.springframework.util.StringUtils;
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
-	private RememberMeHashingAlgorithm hashingAlgorithm;
+	private static final RememberMeHashingAlgorithm DEFAULT_HASHING_ALGORITHM = RememberMeHashingAlgorithm.MD5;
+
+	private RememberMeHashingAlgorithm hashingAlgorithm = DEFAULT_HASHING_ALGORITHM;
 
 	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
-		this(key, userDetailsService, RememberMeHashingAlgorithm.UNSET);
+		super(key, userDetailsService);
 	}
 
 	/**
-	 * @since 5.5
+	 * Constructs a {@link TokenBasedRememberMeServices} using the provided parameters
+	 * @param key the key to use in the hashing algorithm
+	 * @param userDetailsService the {@link UserDetailsService} to retrieve users from
+	 * @param hashingAlgorithm the hashing algorithm to use in the Cookie value
 	 */
 	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
 			RememberMeHashingAlgorithm hashingAlgorithm) {
-		super(key, userDetailsService);
+		this(key, userDetailsService);
+		Assert.notNull(hashingAlgorithm, "hashingAlgorithm cannot be null");
 		this.hashingAlgorithm = hashingAlgorithm;
 	}
 
 	@Override
 	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (!(cookieTokens.length == 3 || cookieTokens.length == 4)) {
-			throw new InvalidCookieException(
-					"Cookie token did not contain 3 or 4 tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
+		CookieTokens properties = new CookieTokens(cookieTokens);
+		if (isTokenExpired(properties.expirationTime)) {
+			throw new InvalidCookieException("Cookie token[1] has expired (expired on '"
+					+ new Date(properties.expirationTime) + "'; current time is '" + new Date() + "')");
 		}
-		long tokenExpiryTime = getTokenExpiryTime(cookieTokens);
-		if (isTokenExpired(tokenExpiryTime)) {
-			throw new InvalidCookieException("Cookie token[1] has expired (expired on '" + new Date(tokenExpiryTime)
-					+ "'; current time is '" + new Date() + "')");
-		}
-		RememberMeHashingAlgorithm algorithm = getTokenHashingAlgorithm(cookieTokens);
+		RememberMeHashingAlgorithm algorithm = properties.algorithm;
 		// Check the user exists. Defer lookup until after expiry time checked, to
 		// possibly avoid expensive database call.
-		UserDetails userDetails = getUserDetailsService().loadUserByUsername(cookieTokens[0]);
-		Assert.notNull(userDetails, () -> "UserDetailsService " + getUserDetailsService()
-				+ " returned null for username " + cookieTokens[0] + ". " + "This is an interface contract violation");
+		UserDetails userDetails = getUserDetailsService().loadUserByUsername(properties.username);
+		Assert.notNull(userDetails,
+				() -> "UserDetailsService " + getUserDetailsService() + " returned null for username "
+						+ properties.username + ". " + "This is an interface contract violation");
 		// Check signature of token matches remaining details. Must do this after user
 		// lookup, as we need the DAO-derived password. If efficiency was a major issue,
 		// just add in a UserCache implementation, but recall that this method is usually
 		// only called once per HttpSession - if the token is valid, it will cause
 		// SecurityContextHolder population, whilst if invalid, will cause the cookie to
 		// be cancelled.
-		String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails.getUsername(),
+		String expectedTokenSignature = makeTokenSignature(properties.expirationTime, userDetails.getUsername(),
 				userDetails.getPassword(), algorithm);
-		String tokenSignature = (cookieTokens.length == 4) ? cookieTokens[3] : cookieTokens[2];
+		String tokenSignature = properties.signature;
 		if (!equals(expectedTokenSignature, tokenSignature)) {
 			throw new InvalidCookieException("Last Cookie token contained signature '" + tokenSignature
 					+ "' but expected '" + expectedTokenSignature + "'");
@@ -145,31 +147,12 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		return userDetails;
 	}
 
-	private long getTokenExpiryTime(String[] cookieTokens) {
-		try {
-			return new Long(cookieTokens[1]);
-		}
-		catch (NumberFormatException nfe) {
-			throw new InvalidCookieException(
-					"Cookie token[1] did not contain a valid number (contained '" + cookieTokens[1] + "')");
-		}
-	}
-
-	private RememberMeHashingAlgorithm getTokenHashingAlgorithm(String[] cookieTokens) {
-		if (cookieTokens.length == 3) {
-			return RememberMeHashingAlgorithm.UNSET;
-		}
-		return RememberMeHashingAlgorithm.findByIdentifier(cookieTokens[2]).orElseThrow(IllegalArgumentException::new);
-	}
-
 	/**
-	 * Calculates the digital signature expected in the cookie if no algorithm is declared
-	 * or configured.
-	 *
-	 * Default value is MD5("username:tokenExpiryTime:password:key")
+	 * Calculates the digital signature to be put in the cookie. Default value is the
+	 * hashing algorithm applied to "username:tokenExpiryTime:password:key"
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
-		return makeTokenSignature(tokenExpiryTime, username, password, RememberMeHashingAlgorithm.MD5);
+		return makeTokenSignature(tokenExpiryTime, username, password, this.hashingAlgorithm);
 	}
 
 	/**
@@ -178,12 +161,12 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	 *
 	 * Default value is the hashing algorithm applied to
 	 * "username:tokenExpiryTime:password:key"
-	 * @since 5.5
+	 * @since 5.7
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
 			RememberMeHashingAlgorithm algorithm) {
-		if (algorithm == RememberMeHashingAlgorithm.UNSET) {
-			return makeTokenSignature(tokenExpiryTime, username, password);
+		if (algorithm == null) {
+			algorithm = DEFAULT_HASHING_ALGORITHM;
 		}
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
@@ -191,7 +174,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 			return new String(Hex.encode(digest.digest(data.getBytes())));
 		}
 		catch (NoSuchAlgorithmException ex) {
-			throw new IllegalStateException("No MD5 algorithm available!");
+			throw new IllegalStateException("No " + algorithm.getDigestAlgorithm() + " algorithm available!");
 		}
 	}
 
@@ -224,9 +207,8 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		// SEC-949
 		expiryTime += 1000L * ((tokenLifetime < 0) ? TWO_WEEKS_S : tokenLifetime);
 		String signatureValue = makeTokenSignature(expiryTime, username, password, this.hashingAlgorithm);
-		String[] cookieTokens = (this.hashingAlgorithm == RememberMeHashingAlgorithm.UNSET)
-				? new String[] { username, Long.toString(expiryTime), signatureValue } : new String[] { username,
-						Long.toString(expiryTime), this.hashingAlgorithm.getIdentifier(), signatureValue };
+		String[] cookieTokens = new String[] { username, Long.toString(expiryTime), this.hashingAlgorithm.name(),
+				signatureValue };
 		setCookie(cookieTokens, tokenLifetime, request, response);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(
@@ -287,20 +269,52 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		return (s != null) ? Utf8.encode(s) : null;
 	}
 
-	/**
-	 * @since 5.5
-	 */
-	public RememberMeHashingAlgorithm getHashAlgorithm() {
-		return this.hashingAlgorithm;
-	}
+	private static final class CookieTokens {
 
-	/**
-	 * Sets the hashing algorithm used in new cookies
-	 * @throws NullPointerException when the algorithm is null
-	 * @since 5.5
-	 */
-	public void setHashAlgorithm(RememberMeHashingAlgorithm hashingAlgorithm) {
-		this.hashingAlgorithm = Objects.requireNonNull(hashingAlgorithm);
+		private final String username;
+
+		private final long expirationTime;
+
+		private final RememberMeHashingAlgorithm algorithm;
+
+		private final String signature;
+
+		private CookieTokens(String[] cookieTokens) {
+			if (!(cookieTokens.length == 3 || cookieTokens.length == 4)) {
+				throw new InvalidCookieException("Cookie token did not contain 3 or 4 tokens, but contained '"
+						+ Arrays.asList(cookieTokens) + "'");
+			}
+			this.username = getUsername(cookieTokens);
+			this.expirationTime = getTokenExpiryTime(cookieTokens);
+			this.algorithm = getTokenHashingAlgorithm(cookieTokens);
+			this.signature = getSignature(cookieTokens);
+		}
+
+		private String getUsername(String[] cookieTokens) {
+			return cookieTokens[0];
+		}
+
+		private long getTokenExpiryTime(String[] cookieTokens) {
+			try {
+				return Long.parseLong(cookieTokens[1]);
+			}
+			catch (NumberFormatException nfe) {
+				throw new InvalidCookieException(
+						"Cookie token[1] did not contain a valid number (contained '" + cookieTokens[1] + "')");
+			}
+		}
+
+		private RememberMeHashingAlgorithm getTokenHashingAlgorithm(String[] cookieTokens) {
+			if (cookieTokens.length == 3) {
+				return null;
+			}
+			return RememberMeHashingAlgorithm.from(cookieTokens[2]);
+		}
+
+		private String getSignature(String[] cookieTokens) {
+			return (cookieTokens.length == 4) ? cookieTokens[3] : cookieTokens[2];
+		}
+
 	}
 
 }

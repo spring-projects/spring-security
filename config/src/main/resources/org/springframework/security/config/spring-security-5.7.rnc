@@ -790,6 +790,9 @@ remember-me.attlist &=
 remember-me.attlist &=
 	## The name of cookie which store the token for remember-me authentication. Defaults to 'remember-me'.
 	attribute remember-me-cookie {xsd:token}?
+remember-me.attlist &=
+	## The algorithm of cookie which store the token for remember-me authentication.
+	attribute hashing-algorithm {"MD5" | "SHA256"}?
 
 token-repository-ref =
 	## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.
