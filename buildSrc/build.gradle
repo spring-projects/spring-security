@@ -26,6 +26,10 @@ sourceSets {
 
 gradlePlugin {
 	plugins {
+		checkAntoraVersion {
+			id = "org.springframework.antora.check-version"
+			implementationClass = "org.springframework.gradle.antora.CheckAntoraVersionPlugin"
+		}
 		trang {
 			id = "trang"
 			implementationClass = "trang.TrangPlugin"
@@ -75,6 +79,7 @@ dependencies {
 	implementation 'com.google.code.gson:gson:2.8.6'
 	implementation 'com.thaiopensource:trang:20091111'
 	implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
+	implementation 'org.yaml:snakeyaml:1.30'
 	implementation localGroovy()
 
 	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
@@ -102,7 +107,11 @@ dependencies {
 }
 
 
-test {
+tasks.named('test', Test).configure {
 	onlyIf { !project.hasProperty("buildSrc.skipTests") }
 	useJUnitPlatform()
+	jvmArgs(
+			'--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+			'--add-opens', 'java.base/java.util=ALL-UNNAMED'
+	)
 }

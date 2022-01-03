@@ -1,5 +1,6 @@
 plugins {
 	id "io.github.rwinch.antora" version "0.0.2"
+	id "org.springframework.antora.check-version"
 }
 
 apply plugin: 'io.spring.convention.docs'
