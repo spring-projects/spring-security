@@ -1,5 +1,11 @@
 image::https://badges.gitter.im/Join%20Chat.svg[Gitter,link=https://gitter.im/spring-projects/spring-security?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge]
 
+[NOTE]
+======
+This branch of Spring Security has reached its https://github.com/spring-projects/spring-framework/wiki/Spring-Framework-Versions#supported-versions[End of Life], meaning that there are no further maintenance releases or security patches planned.
+Please migrate to a supported branch as soon as possible.
+======
+
 = Spring Security
 
 Spring Security provides security services for the https://docs.spring.io[Spring IO Platform]. Spring Security 5.0 requires Spring 5.0 as
