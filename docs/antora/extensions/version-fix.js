@@ -13,6 +13,12 @@ module.exports.register = (pipeline, { config }) => {
                 aggregate.displayVersion = `${aggregate.version}`
                 delete aggregate.prerelease
             }
+            if (aggregate.version === "5.6.1" &&
+                    aggregate.prerelease == "-SNAPSHOT") {
+                aggregate.version = "5.6.1"
+                aggregate.displayVersion = `${aggregate.version}`
+                delete aggregate.prerelease
+            }
         })
     })
 }
