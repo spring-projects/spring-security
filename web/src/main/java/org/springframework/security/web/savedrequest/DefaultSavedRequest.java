@@ -61,6 +61,8 @@ import org.springframework.util.ObjectUtils;
  */
 public class DefaultSavedRequest implements SavedRequest {
 
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 
 	private static final String HEADER_IF_NONE_MATCH = "If-None-Match";

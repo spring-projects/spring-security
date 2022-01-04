@@ -27,6 +27,8 @@ import jakarta.servlet.http.Cookie;
  */
 public class SavedCookie implements Serializable {
 
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
+
 	private final java.lang.String name;
 
 	private final java.lang.String value;
