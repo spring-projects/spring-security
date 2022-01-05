@@ -2,9 +2,8 @@
 'use strict'
 
 
-module.exports.register = (pipeline, { config }) => {
-
-    pipeline.on('contentAggregated', ({ contentAggregate }) => {
+module.exports.register = function({ config }) {
+    this.on('contentAggregated', ({ contentAggregate }) => {
         contentAggregate.forEach(aggregate => {
             if (aggregate.name === "" && aggregate.displayVersion === 5.6) {
                 aggregate.name = "ROOT";

@@ -7,7 +7,7 @@ apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	antoraVersion = "3.0.0-alpha.8"
+	antoraVersion = "3.0.0"
 	arguments = ["--fetch", "--stacktrace"]
 }
 
