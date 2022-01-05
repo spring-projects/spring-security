@@ -118,6 +118,10 @@ subprojects {
 
 
 allprojects {
+    tasks.withType(JavaCompile).configureEach {
+        options.fork = true
+    }
+
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
 		apply plugin: 'io.spring.javaformat'
 		apply plugin: 'checkstyle'
