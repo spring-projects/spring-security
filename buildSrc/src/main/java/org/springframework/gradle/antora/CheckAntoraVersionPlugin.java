@@ -38,14 +38,20 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 
 	private static String getDefaultAntoraVersion(Project project) {
 		String projectVersion = getProjectVersion(project);
-		int preReleaseIndex = getPreReleaseIndex(projectVersion);
-		return isPreRelease(projectVersion) ? projectVersion.substring(0, preReleaseIndex) : projectVersion;
+		int preReleaseIndex = getSnapshotIndex(projectVersion);
+		return isSnapshot(projectVersion) ? projectVersion.substring(0, preReleaseIndex) : projectVersion;
 	}
 
 	private static String getDefaultAntoraPrerelease(Project project) {
 		String projectVersion = getProjectVersion(project);
-		int preReleaseIndex = getPreReleaseIndex(projectVersion);
-		return isPreRelease(projectVersion) ? projectVersion.substring(preReleaseIndex) : null;
+		if (isSnapshot(projectVersion)) {
+			int preReleaseIndex = getSnapshotIndex(projectVersion);
+			return projectVersion.substring(preReleaseIndex);
+		}
+		if (isPreRelease(projectVersion)) {
+			return Boolean.TRUE.toString();
+		}
+		return null;
 	}
 
 	private static String getProjectVersion(Project project) {
@@ -56,11 +62,15 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 		return String.valueOf(projectVersion);
 	}
 
-	private static int getPreReleaseIndex(String projectVersion) {
-		return projectVersion.lastIndexOf("-");
+	private static boolean isSnapshot(String projectVersion) {
+		return getSnapshotIndex(projectVersion) >= 0;
+	}
+
+	private static int getSnapshotIndex(String projectVersion) {
+		return projectVersion.lastIndexOf("-SNAPSHOT");
 	}
 
 	private static boolean isPreRelease(String projectVersion) {
-		return getPreReleaseIndex(projectVersion) >= 0;
+		return projectVersion.lastIndexOf("-") >= 0;
 	}
 }

@@ -46,8 +46,8 @@ class CheckAntoraVersionPluginTests {
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
-		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0");
-		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("-M1");
+		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0-M1");
+		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("true");
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -63,8 +63,8 @@ class CheckAntoraVersionPluginTests {
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
-		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0");
-		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("-RC1");
+		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0-RC1");
+		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("true");
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -170,7 +170,7 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-M1";
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
-		IOUtils.write("version: '1.0.0'\nprerelease: '-M1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
+		IOUtils.write("version: '1.0.0-M1'\nprerelease: 'true'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
 		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
 
@@ -187,7 +187,7 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-RC1";
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
-		IOUtils.write("version: '1.0.0'\nprerelease: '-RC1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
+		IOUtils.write("version: '1.0.0-RC1'\nprerelease: 'true'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
 		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
 
