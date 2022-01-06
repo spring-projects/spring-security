@@ -32,7 +32,7 @@ import org.springframework.util.Assert;
  * {@link org.springframework.security.web.util.matcher.RequestMatcher} evaluation
  *
  * @author Marcus Da Coregio
- * @since 5.7
+ * @since 5.5.5
  */
 public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
