@@ -29,7 +29,7 @@ import org.springframework.util.Assert;
  * to an instance of {@link AuthorizationManager}
  *
  * @author Marcus Da Coregio
- * @since 5.7
+ * @since 5.5.5
  */
 public final class AuthorizationManagerWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
 
