@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Function;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.oauth2.client.endpoint.DefaultJwtBearerTokenResponseClient;
@@ -44,6 +45,8 @@ import org.springframework.util.Assert;
 public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
 	private OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new DefaultJwtBearerTokenResponseClient();
+
+	private Function<OAuth2AuthorizationContext, Jwt> jwtAssertionResolver = this::resolveJwtAssertion;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -75,10 +78,10 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 			// need for re-authorization
 			return null;
 		}
-		if (!(context.getPrincipal().getPrincipal() instanceof Jwt)) {
+		Jwt jwt = this.jwtAssertionResolver.apply(context);
+		if (jwt == null) {
 			return null;
 		}
-		Jwt jwt = (Jwt) context.getPrincipal().getPrincipal();
 		// As per spec, in section 4.1 Using Assertions as Authorization Grants
 		// https://tools.ietf.org/html/rfc7521#section-4.1
 		//
@@ -95,6 +98,13 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, jwtBearerGrantRequest);
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 				tokenResponse.getAccessToken());
+	}
+
+	private Jwt resolveJwtAssertion(OAuth2AuthorizationContext context) {
+		if (!(context.getPrincipal().getPrincipal() instanceof Jwt)) {
+			return null;
+		}
+		return (Jwt) context.getPrincipal().getPrincipal();
 	}
 
 	private OAuth2AccessTokenResponse getTokenResponse(ClientRegistration clientRegistration,
@@ -121,6 +131,17 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 			OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
+	}
+
+	/**
+	 * Sets the resolver used for resolving the {@link Jwt} assertion.
+	 * @param jwtAssertionResolver the resolver used for resolving the {@link Jwt}
+	 * assertion
+	 * @since 5.7
+	 */
+	public void setJwtAssertionResolver(Function<OAuth2AuthorizationContext, Jwt> jwtAssertionResolver) {
+		Assert.notNull(jwtAssertionResolver, "jwtAssertionResolver cannot be null");
+		this.jwtAssertionResolver = jwtAssertionResolver;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 
@@ -44,6 +45,8 @@ import org.springframework.util.Assert;
 public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements ReactiveOAuth2AuthorizedClientProvider {
 
 	private ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient = new WebClientReactiveJwtBearerTokenResponseClient();
+
+	private Function<OAuth2AuthorizationContext, Mono<Jwt>> jwtAssertionResolver = this::resolveJwtAssertion;
 
 	private Duration clockSkew = Duration.ofSeconds(60);
 
@@ -74,10 +77,7 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 			// need for re-authorization
 			return Mono.empty();
 		}
-		if (!(context.getPrincipal().getPrincipal() instanceof Jwt)) {
-			return Mono.empty();
-		}
-		Jwt jwt = (Jwt) context.getPrincipal().getPrincipal();
+
 		// As per spec, in section 4.1 Using Assertions as Authorization Grants
 		// https://tools.ietf.org/html/rfc7521#section-4.1
 		//
@@ -90,13 +90,26 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 		// issued with a reasonably short lifetime. Clients can refresh an
 		// expired access token by requesting a new one using the same
 		// assertion, if it is still valid, or with a new assertion.
-		return Mono.just(new JwtBearerGrantRequest(clientRegistration, jwt))
+
+		// @formatter:off
+		return this.jwtAssertionResolver.apply(context)
+				.map((jwt) -> new JwtBearerGrantRequest(clientRegistration, jwt))
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
 						(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(),
 								ex))
 				.map((tokenResponse) -> new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 						tokenResponse.getAccessToken()));
+		// @formatter:on
+	}
+
+	private Mono<Jwt> resolveJwtAssertion(OAuth2AuthorizationContext context) {
+		// @formatter:off
+		return Mono.just(context)
+				.map((ctx) -> ctx.getPrincipal().getPrincipal())
+				.filter((principal) -> principal instanceof Jwt)
+				.cast(Jwt.class);
+		// @formatter:on
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
@@ -113,6 +126,17 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 			ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient) {
 		Assert.notNull(accessTokenResponseClient, "accessTokenResponseClient cannot be null");
 		this.accessTokenResponseClient = accessTokenResponseClient;
+	}
+
+	/**
+	 * Sets the resolver used for resolving the {@link Jwt} assertion.
+	 * @param jwtAssertionResolver the resolver used for resolving the {@link Jwt}
+	 * assertion
+	 * @since 5.7
+	 */
+	public void setJwtAssertionResolver(Function<OAuth2AuthorizationContext, Mono<Jwt>> jwtAssertionResolver) {
+		Assert.notNull(jwtAssertionResolver, "jwtAssertionResolver cannot be null");
+		this.jwtAssertionResolver = jwtAssertionResolver;
 	}
 
 	/**
