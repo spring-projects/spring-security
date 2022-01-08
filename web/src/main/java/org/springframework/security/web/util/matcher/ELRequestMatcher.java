@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.DelegatingAuthenticationE
  *
  * <p>
  * With the default EvaluationContext ({@link ELRequestMatcherContext}) you can use
- * <code>hasIpAdress()</code> and <code>hasHeader()</code>
+ * <code>hasIpAddress()</code> and <code>hasHeader()</code>
  * </p>
  *
  * <p>
