@@ -369,9 +369,7 @@ public final class ExpressionUrlAuthorizationConfigurer<H extends HttpSecurityBu
 		}
 
 		/**
-		 * Specify that URLs requires a specific IP Address or <a href=
-		 * "https://forum.spring.io/showthread.php?102783-How-to-use-hasIpAddress&p=343971#post343971"
-		 * >subnet</a>.
+		 * Specify that URLs requires a specific IP Address or subnet.
 		 * @param ipaddressExpression the ipaddress (i.e. 192.168.1.79) or local subnet
 		 * (i.e. 192.168.0/24)
 		 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further
