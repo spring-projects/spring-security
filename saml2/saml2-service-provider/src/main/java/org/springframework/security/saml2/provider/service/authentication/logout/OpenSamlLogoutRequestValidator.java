@@ -25,6 +25,8 @@ import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestUnmarshaller;
@@ -118,7 +120,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		return (errors) -> {
 			validateIssuer(request, registration).accept(errors);
 			validateDestination(request, registration).accept(errors);
-			validateName(request, authentication).accept(errors);
+			validateSubject(request, registration, authentication).accept(errors);
 		};
 	}
 
@@ -153,23 +155,44 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		};
 	}
 
-	private Consumer<Collection<Saml2Error>> validateName(LogoutRequest request, Authentication authentication) {
+	private Consumer<Collection<Saml2Error>> validateSubject(LogoutRequest request,
+			RelyingPartyRegistration registration, Authentication authentication) {
 		return (errors) -> {
 			if (authentication == null) {
 				return;
 			}
 			NameID nameId = request.getNameID();
-			if (nameId == null) {
+			EncryptedID encryptedID = request.getEncryptedID();
+			if (nameId == null && encryptedID == null) {
 				errors.add(
 						new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, "Failed to find subject in LogoutRequest"));
 				return;
 			}
-			String name = nameId.getValue();
-			if (!name.equals(authentication.getName())) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
-						"Failed to match subject in LogoutRequest with currently logged in user"));
+
+			if (nameId != null) {
+				validateNameID(nameId, authentication, errors);
+			}
+			else {
+				final NameID nameIDFromEncryptedID = decryptNameID(encryptedID, registration);
+				validateNameID(nameIDFromEncryptedID, authentication, errors);
 			}
 		};
+	}
+
+	private void validateNameID(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
+		String name = nameId.getValue();
+		if (!name.equals(authentication.getName())) {
+			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
+					"Failed to match subject in LogoutRequest with currently logged in user"));
+		}
+	}
+
+	private NameID decryptNameID(EncryptedID encryptedID, RelyingPartyRegistration registration) {
+		final SAMLObject decryptedId = LogoutRequestEncryptedIDUtils.decryptEncryptedID(encryptedID, registration);
+		if (decryptedId instanceof NameID) {
+			return ((NameID) decryptedId);
+		}
+		return null;
 	}
 
 }

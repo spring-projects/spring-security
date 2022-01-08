@@ -61,6 +61,21 @@ public class OpenSamlLogoutRequestValidatorTests {
 	}
 
 	@Test
+	public void handleWhenNameIdInEncryptedIdPostThenValidates() {
+
+		RelyingPartyRegistration registration = registrationWithEncryption()
+				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequestNameIdInEncryptedId(registration);
+		sign(logoutRequest, registration);
+		Saml2LogoutRequest request = post(logoutRequest, registration);
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).withFailMessage(() -> result.getErrors().toString()).isFalse().isFalse();
+
+	}
+
+	@Test
 	public void handleWhenRedirectBindingThenValidatesSignatureParameter() {
 		RelyingPartyRegistration registration = registration()
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
@@ -132,6 +147,12 @@ public class OpenSamlLogoutRequestValidatorTests {
 	private RelyingPartyRegistration.Builder registration() {
 		return signing(verifying(TestRelyingPartyRegistrations.noCredentials()))
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
+	}
+
+	private RelyingPartyRegistration.Builder registrationWithEncryption() {
+		return signing(verifying(TestRelyingPartyRegistrations.full()))
+				.assertingPartyDetails((party) -> party.encryptionX509Credentials(
+						(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
