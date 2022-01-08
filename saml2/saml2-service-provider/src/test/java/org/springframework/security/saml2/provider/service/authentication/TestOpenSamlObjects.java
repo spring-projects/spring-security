@@ -365,6 +365,24 @@ public final class TestOpenSamlObjects {
 		return logoutRequest;
 	}
 
+	public static LogoutRequest assertingPartyLogoutRequestNameIdInEncryptedId(RelyingPartyRegistration registration) {
+		LogoutRequestBuilder logoutRequestBuilder = new LogoutRequestBuilder();
+		LogoutRequest logoutRequest = logoutRequestBuilder.buildObject();
+		logoutRequest.setID("id");
+		NameIDBuilder nameIdBuilder = new NameIDBuilder();
+		NameID nameId = nameIdBuilder.buildObject();
+		nameId.setValue("user");
+		logoutRequest.setNameID(null);
+		logoutRequest.setEncryptedID(encrypted(nameId,
+				registration.getAssertingPartyDetails().getEncryptionX509Credentials().stream().findFirst().get()));
+		IssuerBuilder issuerBuilder = new IssuerBuilder();
+		Issuer issuer = issuerBuilder.buildObject();
+		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
+		logoutRequest.setIssuer(issuer);
+		logoutRequest.setDestination(registration.getSingleLogoutServiceLocation());
+		return logoutRequest;
+	}
+
 	public static LogoutResponse assertingPartyLogoutResponse(RelyingPartyRegistration registration) {
 		LogoutResponseBuilder logoutResponseBuilder = new LogoutResponseBuilder();
 		LogoutResponse logoutResponse = logoutResponseBuilder.buildObject();
