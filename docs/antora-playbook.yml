@@ -21,8 +21,7 @@ ui:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
 
-pipeline:
+antora:
   extensions:
     - require: ./antora/extensions/version-fix.js
     - require: ./antora/extensions/major-minor-segment.js
-    - require: ./antora/extensions/root-component-name.js

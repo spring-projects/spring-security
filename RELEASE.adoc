@@ -78,6 +78,16 @@ Alternatively, you can manually check using https://github.com/spring-projects/s
 
 Update the version number in `gradle.properties` for the release, for example `5.5.0-M1`, `5.5.0-RC1`, `5.5.0`
 
+= Update Antora Version
+
+You will need to update the antora.yml version.
+If you are unsure of what the values should be, the following task will instruct you what the expected values are:
+
+[source,bash]
+----
+./gradlew :spring-security-docs:antoraCheckVersion
+----
+
 = Build Locally
 
 Run the build using
@@ -119,7 +129,7 @@ git push origin 5.4.0-RC1
 
 == 7. Update to Next Development Version
 
-* Update `gradle.properties` version to next `+SNAPSHOT+` version and then push
+* Update `gradle.properties` version to next `+SNAPSHOT+` version, update antora.yml, and then push
 
 == 8. Update version on project page
 

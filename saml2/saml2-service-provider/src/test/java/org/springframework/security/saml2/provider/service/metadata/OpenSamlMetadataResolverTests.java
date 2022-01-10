@@ -92,5 +92,12 @@ public class OpenSamlMetadataResolverTests {
 				.contains("AuthnRequestsSigned=\"false\"");
 	}
 
-
+  @Test
+	public void resolveWhenRelyingPartyNoLogoutThenMetadataMatches() {
+		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.full()
+				.singleLogoutServiceLocation(null).nameIdFormat("format").build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
+		assertThat(metadata).doesNotContain("ResponseLocation");
+	}
 }

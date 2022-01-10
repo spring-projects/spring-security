@@ -29,7 +29,7 @@ public class GitHubMilestonePlugin implements Plugin<Project> {
 				githubCheckMilestoneHasNoOpenIssues.setGroup("Release");
 				githubCheckMilestoneHasNoOpenIssues.setDescription("Checks if there are any open issues for the specified repository and milestone");
 				githubCheckMilestoneHasNoOpenIssues.setMilestoneTitle((String) project.findProperty("nextVersion"));
-				if (project.hasProperty("githubAccessToken")) {
+				if (project.hasProperty("gitHubAccessToken")) {
 					githubCheckMilestoneHasNoOpenIssues.setGitHubAccessToken((String) project.findProperty("gitHubAccessToken"));
 				}
 			}

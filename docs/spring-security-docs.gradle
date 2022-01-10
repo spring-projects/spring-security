@@ -1,12 +1,13 @@
 plugins {
 	id "io.github.rwinch.antora" version "0.0.2"
+	id "org.springframework.antora.check-version"
 }
 
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	antoraVersion = "3.0.0-alpha.8"
+	antoraVersion = "3.0.0"
 	arguments = ["--fetch", "--stacktrace"]
 }
 

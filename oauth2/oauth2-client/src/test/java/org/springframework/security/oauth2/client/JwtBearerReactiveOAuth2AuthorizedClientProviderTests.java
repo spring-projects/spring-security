@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.oauth2.client;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -91,6 +92,13 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setAccessTokenResponseClient(null))
 				.withMessage("accessTokenResponseClient cannot be null");
+	}
+
+	@Test
+	public void setJwtAssertionResolverWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.authorizedClientProvider.setJwtAssertionResolver(null))
+				.withMessage("jwtAssertionResolver cannot be null");
 	}
 
 	@Test
@@ -222,7 +230,7 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenJwtBearerAndNotAuthorizedAndPrincipalNotJwtThenUnableToAuthorize() {
+	public void authorizeWhenJwtBearerAndNotAuthorizedAndJwtDoesNotResolveThenUnableToAuthorize() {
 		// @formatter:off
 		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
 				.withClientRegistration(this.clientRegistration)
@@ -251,7 +259,7 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 	}
 
 	@Test
-	public void authorizeWhenJwtBearerAndNotAuthorizedAndPrincipalJwtThenAuthorize() {
+	public void authorizeWhenJwtBearerAndNotAuthorizedAndJwtResolvesThenAuthorize() {
 		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
 		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
 		// @formatter:off
@@ -263,6 +271,27 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
 		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(authorizedClient.getPrincipalName()).isEqualTo(this.principal.getName());
+		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
+	}
+
+	@Test
+	public void authorizeWhenCustomJwtAssertionResolverSetThenUsed() {
+		Function<OAuth2AuthorizationContext, Mono<Jwt>> jwtAssertionResolver = mock(Function.class);
+		given(jwtAssertionResolver.apply(any())).willReturn(Mono.just(this.jwtAssertion));
+		this.authorizedClientProvider.setJwtAssertionResolver(jwtAssertionResolver);
+		OAuth2AccessTokenResponse accessTokenResponse = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(this.accessTokenResponseClient.getTokenResponse(any())).willReturn(Mono.just(accessTokenResponse));
+		// @formatter:off
+		TestingAuthenticationToken principal = new TestingAuthenticationToken("user", "password");
+		OAuth2AuthorizationContext authorizationContext = OAuth2AuthorizationContext
+				.withClientRegistration(this.clientRegistration)
+				.principal(principal)
+				.build();
+		// @formatter:on
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientProvider.authorize(authorizationContext).block();
+		verify(jwtAssertionResolver).apply(any());
+		assertThat(authorizedClient.getClientRegistration()).isSameAs(this.clientRegistration);
+		assertThat(authorizedClient.getPrincipalName()).isEqualTo(principal.getName());
 		assertThat(authorizedClient.getAccessToken()).isEqualTo(accessTokenResponse.getAccessToken());
 	}
 
