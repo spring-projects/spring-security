@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,6 +79,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.Saml2VersionUtils;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -159,6 +160,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	 * Creates an {@link OpenSaml4AuthenticationProvider}
 	 */
 	public OpenSaml4AuthenticationProvider() {
+		Saml2VersionUtils.checkOpenSAML4VersionSupported();
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.responseUnmarshaller = (ResponseUnmarshaller) registry.getUnmarshallerFactory()
 				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);

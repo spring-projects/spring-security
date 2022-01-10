@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.saml2.Saml2VersionUtils;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlSigningUtils.QueryParametersPartial;
@@ -68,6 +69,7 @@ public final class OpenSaml4AuthenticationRequestFactory implements Saml2Authent
 	 * Creates an {@link OpenSaml4AuthenticationRequestFactory}
 	 */
 	public OpenSaml4AuthenticationRequestFactory() {
+		Saml2VersionUtils.checkOpenSAML4VersionSupported();
 		this.authenticationRequestContextConverter = this::createAuthnRequest;
 		XMLObjectProviderRegistry registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.authnRequestBuilder = (AuthnRequestBuilder) registry.getBuilderFactory()

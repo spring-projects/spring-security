@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.saml2.Saml2VersionUtils;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
@@ -50,6 +51,7 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	 * Construct a {@link OpenSaml4LogoutRequestResolver}
 	 */
 	public OpenSaml4LogoutRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		Saml2VersionUtils.checkOpenSAML4VersionSupported();
 		this.logoutRequestResolver = new OpenSamlLogoutRequestResolver(relyingPartyRegistrationResolver);
 	}
 

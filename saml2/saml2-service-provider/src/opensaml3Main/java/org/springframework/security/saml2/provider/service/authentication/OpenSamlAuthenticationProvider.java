@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.Saml2VersionUtils;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -174,6 +175,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 	 * Creates an {@link OpenSamlAuthenticationProvider}
 	 */
 	public OpenSamlAuthenticationProvider() {
+		Saml2VersionUtils.checkOpenSAML3VersionSupported();
 		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.responseUnmarshaller = (ResponseUnmarshaller) this.registry.getUnmarshallerFactory()
 				.getUnmarshaller(Response.DEFAULT_ELEMENT_NAME);
