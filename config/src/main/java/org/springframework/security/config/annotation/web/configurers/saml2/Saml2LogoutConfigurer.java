@@ -319,8 +319,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		if (version != null) {
 			return version;
 		}
-		return Version.class.getModule().getDescriptor().version().map(Object::toString)
-				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
+		return Version.getVersion();
 	}
 
 	/**
