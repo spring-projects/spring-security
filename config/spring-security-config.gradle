@@ -113,8 +113,8 @@ rncToXsd {
 
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
-		languageVersion = "1.3"
-		apiVersion = "1.3"
+		languageVersion = "1.6"
+		apiVersion = "1.6"
 		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
 		jvmTarget = "11"
 	}
