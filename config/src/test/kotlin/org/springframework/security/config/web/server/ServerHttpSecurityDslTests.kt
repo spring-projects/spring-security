@@ -31,6 +31,7 @@ import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter
@@ -223,7 +224,7 @@ class ServerHttpSecurityDslTests {
     @EnableWebFluxSecurity
     open class AuthenticationManagerConfig {
         companion object {
-            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = ReactiveAuthenticationManager { Mono.empty() }
+            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = NoopReactiveAuthenticationManager()
         }
 
         @Bean
@@ -235,6 +236,12 @@ class ServerHttpSecurityDslTests {
                 }
                 httpBasic { }
             }
+        }
+    }
+
+    class NoopReactiveAuthenticationManager: ReactiveAuthenticationManager {
+        override fun authenticate(authentication: Authentication?): Mono<Authentication> {
+            return Mono.empty()
         }
     }
 }

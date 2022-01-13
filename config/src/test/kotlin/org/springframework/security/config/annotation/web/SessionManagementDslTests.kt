@@ -36,6 +36,7 @@ import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationException
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy
@@ -210,7 +211,7 @@ class SessionManagementDslTests {
     open class SessionAuthenticationStrategyConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val STRATEGY: SessionAuthenticationStrategy = SessionAuthenticationStrategy { _, _, _ ->  }
+            val STRATEGY: SessionAuthenticationStrategy = NullAuthenticatedSessionStrategy()
         }
 
         override fun configure(http: HttpSecurity) {

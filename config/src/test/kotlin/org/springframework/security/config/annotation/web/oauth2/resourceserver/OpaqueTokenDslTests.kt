@@ -43,6 +43,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimNames
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
+import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
@@ -147,9 +148,7 @@ class OpaqueTokenDslTests {
     open class CustomIntrospectorConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val INTROSPECTOR: OpaqueTokenIntrospector = OpaqueTokenIntrospector {
-                DefaultOAuth2AuthenticatedPrincipal(emptyMap(), emptyList())
-            }
+            val INTROSPECTOR: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector("uri", "clientId", "clientSecret")
         }
 
         override fun configure(http: HttpSecurity) {
@@ -185,9 +184,7 @@ class OpaqueTokenDslTests {
     open class IntrospectorAfterClientCredentialsConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val INTROSPECTOR: OpaqueTokenIntrospector = OpaqueTokenIntrospector {
-                DefaultOAuth2AuthenticatedPrincipal(emptyMap(), emptyList())
-            }
+            val INTROSPECTOR: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector("uri", "clientId", "clientSecret")
         }
 
         override fun configure(http: HttpSecurity) {

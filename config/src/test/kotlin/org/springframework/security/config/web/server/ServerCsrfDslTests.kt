@@ -24,11 +24,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.security.web.server.csrf.CsrfToken
 import org.springframework.security.web.server.csrf.DefaultCsrfToken
@@ -175,7 +177,7 @@ class ServerCsrfDslTests {
     @EnableWebFlux
     open class CustomAccessDeniedHandlerConfig {
         companion object {
-            val ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = ServerAccessDeniedHandler { _, _ -> Mono.empty() }
+            val ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN)
         }
 
         @Bean

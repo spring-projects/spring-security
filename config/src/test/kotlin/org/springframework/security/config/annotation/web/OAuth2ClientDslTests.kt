@@ -30,6 +30,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
@@ -123,9 +124,7 @@ class OAuth2ClientDslTests {
             val REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
                 HttpSessionOAuth2AuthorizationRequestRepository()
             val CLIENT: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> =
-                OAuth2AccessTokenResponseClient {
-                    OAuth2AccessTokenResponse.withToken("some tokenValue").build()
-                }
+                DefaultAuthorizationCodeTokenResponseClient()
             val CLIENT_REPOSITORY: OAuth2AuthorizedClientRepository = HttpSessionOAuth2AuthorizedClientRepository()
         }
 

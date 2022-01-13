@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.web.authentication.logout.LogoutHandler
@@ -300,7 +303,7 @@ class LogoutDslTests {
     open class CustomLogoutHandlerConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val HANDLER: LogoutHandler = LogoutHandler { _, _, _ -> }
+            val HANDLER: LogoutHandler = NoopLogoutHandler()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -310,5 +313,14 @@ class LogoutDslTests {
                 }
             }
         }
+    }
+
+    class NoopLogoutHandler: LogoutHandler {
+        override fun logout(
+            request: HttpServletRequest?,
+            response: HttpServletResponse?,
+            authentication: Authentication?
+        ) { }
+
     }
 }

@@ -27,9 +27,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationManagerResolver
-import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -39,10 +39,13 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
 import org.springframework.security.web.access.AccessDeniedHandler
+import org.springframework.security.web.access.AccessDeniedHandlerImpl
+import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -79,7 +82,7 @@ class OAuth2ResourceServerDslTests {
     open class EntryPointConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val ENTRY_POINT: AuthenticationEntryPoint = AuthenticationEntryPoint { _, _, _ ->  }
+            val ENTRY_POINT: AuthenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
         }
 
         override fun configure(http: HttpSecurity) {
@@ -116,12 +119,7 @@ class OAuth2ResourceServerDslTests {
 
         companion object {
             val RESOLVER: BearerTokenResolver = DefaultBearerTokenResolver()
-            val DECODER: JwtDecoder =  JwtDecoder {
-                Jwt.withTokenValue("token")
-                    .header("alg", "none")
-                    .claim(SUB, "user")
-                    .build()
-            }
+            val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -138,6 +136,16 @@ class OAuth2ResourceServerDslTests {
 
         @Bean
         open fun jwtDecoder(): JwtDecoder = DECODER
+    }
+
+    class MockJwtDecoder: JwtDecoder {
+        override fun decode(token: String?): Jwt {
+            return Jwt.withTokenValue("token")
+                .header("alg", "none")
+                .claim(SUB, "user")
+                .build()
+        }
+
     }
 
     @Test
@@ -163,13 +171,8 @@ class OAuth2ResourceServerDslTests {
     open class AccessDeniedHandlerConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val DECODER: JwtDecoder = JwtDecoder { _ ->
-                Jwt.withTokenValue("token")
-                    .header("alg", "none")
-                    .claim(SUB, "user")
-                    .build()
-            }
-            val DENIED_HANDLER: AccessDeniedHandler = AccessDeniedHandler { _, _, _ ->  }
+            val DECODER: JwtDecoder = MockJwtDecoder()
+            val DENIED_HANDLER: AccessDeniedHandler = AccessDeniedHandlerImpl()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -210,11 +213,7 @@ class OAuth2ResourceServerDslTests {
 
         companion object {
             val RESOLVER: AuthenticationManagerResolver<HttpServletRequest> =
-                AuthenticationManagerResolver {
-                    AuthenticationManager {
-                        TestingAuthenticationToken("a,", "b", "c")
-                    }
-                }
+                JwtIssuerAuthenticationManagerResolver("issuer")
         }
 
         override fun configure(http: HttpSecurity) {

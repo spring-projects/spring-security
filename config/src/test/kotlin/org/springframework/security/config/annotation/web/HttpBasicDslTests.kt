@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web
 
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import jakarta.servlet.http.HttpServletRequest
@@ -25,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -36,6 +38,8 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.authentication.HttpStatusEntryPoint
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
@@ -136,7 +140,7 @@ class HttpBasicDslTests {
     open class CustomAuthenticationEntryPointConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val ENTRY_POINT: AuthenticationEntryPoint = AuthenticationEntryPoint { _, _, _ ->  }
+            val ENTRY_POINT: AuthenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
         }
 
         override fun configure(http: HttpSecurity) {
@@ -159,7 +163,7 @@ class HttpBasicDslTests {
         mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE)
         every {
             CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any())
-        } returns Any()
+        } returns mockk()
 
         this.mockMvc.get("/") {
             with(httpBasic("username", "password"))
@@ -172,8 +176,7 @@ class HttpBasicDslTests {
     open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val AUTHENTICATION_DETAILS_SOURCE: AuthenticationDetailsSource<HttpServletRequest, *> =
-                AuthenticationDetailsSource<HttpServletRequest, Any> { Any() }
+            val AUTHENTICATION_DETAILS_SOURCE = WebAuthenticationDetailsSource()
         }
 
         override fun configure(http: HttpSecurity) {

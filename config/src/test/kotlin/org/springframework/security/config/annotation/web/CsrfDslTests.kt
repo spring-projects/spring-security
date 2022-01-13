@@ -33,6 +33,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.DefaultCsrfToken
@@ -180,7 +181,7 @@ class CsrfDslTests {
     open class CustomStrategyConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val STRATEGY: SessionAuthenticationStrategy = SessionAuthenticationStrategy { _, _, _ -> }
+            var STRATEGY: SessionAuthenticationStrategy = NullAuthenticatedSessionStrategy()
         }
 
         override fun configure(http: HttpSecurity) {

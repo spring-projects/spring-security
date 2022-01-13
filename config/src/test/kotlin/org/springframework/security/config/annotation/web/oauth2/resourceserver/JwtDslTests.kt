@@ -130,10 +130,8 @@ class JwtDslTests {
     open class CustomJwtAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = Converter { _ ->
-                TestingAuthenticationToken("a", "b",  "c")
-            }
-            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
+            val CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = MockConverter()
+            val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -151,6 +149,12 @@ class JwtDslTests {
 
         @Bean
         open fun jwtDecoder(): JwtDecoder = DECODER
+    }
+
+    class MockConverter: Converter<Jwt, AbstractAuthenticationToken> {
+        override fun convert(source: Jwt): AbstractAuthenticationToken {
+            return TestingAuthenticationToken("a", "b",  "c")
+        }
     }
 
     @Test
@@ -175,7 +179,7 @@ class JwtDslTests {
     open class JwtDecoderAfterJwkSetUriConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
+            val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -190,6 +194,12 @@ class JwtDslTests {
                     }
                 }
             }
+        }
+    }
+
+    class MockJwtDecoder: JwtDecoder {
+        override fun decode(token: String?): Jwt {
+            return Jwt.withTokenValue("some tokenValue").build()
         }
     }
 

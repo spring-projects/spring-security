@@ -25,11 +25,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authentication.logout.HttpStatusReturningServerLogoutSuccessHandler
+import org.springframework.security.web.server.authentication.logout.SecurityContextServerLogoutHandler
 import org.springframework.security.web.server.authentication.logout.ServerLogoutHandler
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
@@ -171,7 +174,7 @@ class ServerLogoutDslTests {
     open class CustomLogoutHandlerConfig {
 
         companion object {
-            val LOGOUT_HANDLER: ServerLogoutHandler = ServerLogoutHandler { _, _ -> Mono.empty() }
+            val LOGOUT_HANDLER: ServerLogoutHandler = SecurityContextServerLogoutHandler()
         }
 
         @Bean
@@ -206,7 +209,7 @@ class ServerLogoutDslTests {
     open class CustomLogoutSuccessHandlerConfig {
 
         companion object {
-            val LOGOUT_HANDLER: ServerLogoutSuccessHandler = ServerLogoutSuccessHandler { _, _ -> Mono.empty() }
+            val LOGOUT_HANDLER: ServerLogoutSuccessHandler = HttpStatusReturningServerLogoutSuccessHandler(HttpStatus.OK)
         }
 
         @Bean

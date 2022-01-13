@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web
 
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import org.junit.jupiter.api.Test
@@ -41,6 +42,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.security.web.authentication.WebAuthenticationDetails
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 
 /**
  * Tests for [FormLoginDsl]
@@ -293,7 +296,7 @@ class FormLoginDslTests {
         mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE)
         every {
             CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any())
-        } returns Any()
+        } returns mockk()
 
         this.mockMvc.perform(formLogin())
             .andExpect {
@@ -308,8 +311,7 @@ class FormLoginDslTests {
     open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
 
         companion object {
-            val AUTHENTICATION_DETAILS_SOURCE: AuthenticationDetailsSource<HttpServletRequest, *> =
-                AuthenticationDetailsSource<HttpServletRequest, Any> { Any() }
+            val AUTHENTICATION_DETAILS_SOURCE = WebAuthenticationDetailsSource()
         }
 
         override fun configure(http: HttpSecurity) {

@@ -33,6 +33,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerReactiveAuthenticationManagerResolver
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
@@ -186,7 +187,7 @@ class ServerOAuth2ResourceServerDslTests {
     open class AuthenticationManagerResolverConfig {
 
         companion object {
-            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = ReactiveAuthenticationManagerResolver { Mono.empty() }
+            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = JwtIssuerReactiveAuthenticationManagerResolver("issuer")
         }
 
         @Bean

@@ -41,12 +41,14 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.security.web.authentication.NullRememberMeServices
 import org.springframework.security.web.authentication.RememberMeServices
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -438,7 +440,7 @@ internal class RememberMeDslTests {
     open class RememberMeSuccessHandlerConfig : DefaultUserConfig() {
 
         companion object {
-            val SUCCESS_HANDLER: AuthenticationSuccessHandler = AuthenticationSuccessHandler { _ , _, _ -> }
+            val SUCCESS_HANDLER: AuthenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler()
         }
 
         override fun configure(http: HttpSecurity) {
@@ -549,9 +551,9 @@ internal class RememberMeDslTests {
     open class RememberMeDefaultUserDetailsServiceConfig : DefaultUserConfig() {
 
         companion object {
-            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+            val USER_DETAIL_SERVICE: UserDetailsService = InMemoryUserDetailsManager(
                 User("username", "password", emptyList())
-            }
+            )
             val PASSWORD_ENCODER: PasswordEncoder = BCryptPasswordEncoder()
         }
 
@@ -575,9 +577,9 @@ internal class RememberMeDslTests {
     open class RememberMeUserDetailsServiceConfig : DefaultUserConfig() {
 
         companion object {
-            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+            val USER_DETAIL_SERVICE: UserDetailsService = InMemoryUserDetailsManager(
                 User("username", "password", emptyList())
-            }
+            )
         }
 
         override fun configure(http: HttpSecurity) {

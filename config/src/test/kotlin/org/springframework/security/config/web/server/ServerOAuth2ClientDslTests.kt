@@ -31,12 +31,14 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.client.registration.InMemoryReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -162,7 +164,7 @@ class ServerOAuth2ClientDslTests {
 
         companion object {
             val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerAuthenticationConverter { Mono.empty() }
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean
@@ -214,8 +216,8 @@ class ServerOAuth2ClientDslTests {
 
         companion object {
             val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerAuthenticationConverter { Mono.empty() }
-            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = ReactiveAuthenticationManager { Mono.empty() }
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
+            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = NoopReactiveAuthenticationManager()
         }
 
         @Bean
@@ -227,6 +229,12 @@ class ServerOAuth2ClientDslTests {
                     authenticationManager = AUTHENTICATION_MANAGER
                 }
             }
+        }
+    }
+
+    class NoopReactiveAuthenticationManager: ReactiveAuthenticationManager {
+        override fun authenticate(authentication: Authentication?): Mono<Authentication> {
+            return Mono.empty()
         }
     }
 

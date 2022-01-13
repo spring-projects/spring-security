@@ -146,7 +146,7 @@ class ServerJwtDslTests {
     open class CustomDecoderConfig {
 
         companion object {
-            val JWT_DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
+            val JWT_DECODER: ReactiveJwtDecoder = NullReactiveJwtDecoder()
         }
 
         @Bean
@@ -161,6 +161,12 @@ class ServerJwtDslTests {
                     }
                 }
             }
+        }
+    }
+
+    class NullReactiveJwtDecoder: ReactiveJwtDecoder {
+        override fun decode(token: String?): Mono<Jwt> {
+            return Mono.empty()
         }
     }
 
@@ -242,7 +248,7 @@ class ServerJwtDslTests {
 
         companion object {
             val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = Converter { Mono.empty() }
-            val DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
+            val DECODER: ReactiveJwtDecoder = NullReactiveJwtDecoder()
         }
 
         @Bean

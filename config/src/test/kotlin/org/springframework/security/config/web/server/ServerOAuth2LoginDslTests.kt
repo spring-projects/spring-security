@@ -34,8 +34,10 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.security.web.server.util.matcher.IpAddressServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
@@ -159,7 +161,7 @@ class ServerOAuth2LoginDslTests {
     open class AuthenticationMatcherConfig {
 
         companion object {
-            val AUTHENTICATION_MATCHER: ServerWebExchangeMatcher = ServerWebExchangeMatcher { Mono.empty() }
+            val AUTHENTICATION_MATCHER: ServerWebExchangeMatcher = IpAddressServerWebExchangeMatcher("127.0.0.1")
         }
 
         @Bean
@@ -192,7 +194,7 @@ class ServerOAuth2LoginDslTests {
     open class AuthenticationConverterConfig {
 
         companion object {
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerAuthenticationConverter { Mono.empty() }
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean
