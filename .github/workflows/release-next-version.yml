@@ -1,0 +1,91 @@
+name: Release Next Version
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * MON' # Every Monday
+  workflow_dispatch: # Manual trigger
+
+env:
+  SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+  GRADLE_ENTERPRISE_CACHE_USER: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+  GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+  GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
+
+jobs:
+  prerequisites:
+    name: Pre-requisites for building
+    runs-on: ubuntu-latest
+    outputs:
+      runjobs: ${{ steps.continue.outputs.runjobs }}
+    steps:
+      - id: continue
+        name: Determine if should continue
+        if: env.RUN_JOBS == 'true'
+        run: echo "::set-output name=runjobs::true"
+  check_release_due:
+    name: Check if the release is due today
+    needs: [prerequisites]
+    runs-on: ubuntu-latest
+    if: needs.prerequisites.outputs.runjobs
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+      - name: Check release
+        env:
+          GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
+          GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
+          GRADLE_ENTERPRISE_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
+        run: ./gradlew gitHubCheckNextVersionDueToday
+  release:
+    name: Release next version
+    needs: [check_release_due]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Deploy artifacts
+        run: |
+          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+          echo "Release task: use input from gitHubNextReleaseMilestone task"
+          ./gradlew gitHubNextReleaseMilestone
+        env:
+          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
+          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
+          OSSRH_TOKEN_USERNAME: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
+          OSSRH_TOKEN_PASSWORD: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
+  notify_result:
+    name: Check for failures
+    needs: [release]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack message
+        uses: Gamesight/slack-workflow-status@v1.0.1
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          channel: '#spring-security-ci'
+          name: 'CI Notifier'

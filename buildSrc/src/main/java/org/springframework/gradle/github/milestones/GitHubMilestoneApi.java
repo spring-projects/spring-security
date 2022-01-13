@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,11 @@
 package org.springframework.gradle.github.milestones;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
@@ -86,6 +90,128 @@ public class GitHubMilestoneApi {
 			return !issues.isEmpty();
 		} catch (IOException e) {
 			throw new RuntimeException("Could not find issues for milestone number " + milestoneNumber + " for repository " + repositoryRef, e);
+		}
+	}
+
+	/**
+	 * Check if the given milestone is due today or past due.
+	 *
+	 * @param repositoryRef The repository owner/name
+	 * @param milestoneTitle The title of the milestone whose due date should be checked
+	 * @return true if the given milestone is due today or past due, false otherwise
+	 */
+	public boolean isMilestoneDueToday(RepositoryRef repositoryRef, String milestoneTitle) {
+		String url = this.baseUrl + "/repos/" + repositoryRef.getOwner() + "/" + repositoryRef.getName()
+				+ "/milestones?per_page=100";
+		Request request = new Request.Builder().get().url(url).build();
+		try {
+			Response response = this.client.newCall(request).execute();
+			if (!response.isSuccessful()) {
+				throw new RuntimeException("Could not find milestone with title " + milestoneTitle + " for repository "
+						+ repositoryRef + ". Response " + response);
+			}
+			List<Milestone> milestones = this.gson.fromJson(response.body().charStream(),
+					new TypeToken<List<Milestone>>() {
+					}.getType());
+			for (Milestone milestone : milestones) {
+				if (milestoneTitle.equals(milestone.getTitle())) {
+					Instant now = Instant.now();
+					return milestone.getDueOn() != null && now.isAfter(milestone.getDueOn().toInstant());
+				}
+			}
+			if (milestones.size() <= 100) {
+				throw new RuntimeException("Could not find open milestone with title " + milestoneTitle
+						+ " for repository " + repositoryRef + " Got " + milestones);
+			}
+			throw new RuntimeException(
+					"It is possible there are too many open milestones open (only 100 are supported). Could not find open milestone with title "
+							+ milestoneTitle + " for repository " + repositoryRef + " Got " + milestones);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(
+					"Could not find open milestone with title " + milestoneTitle + " for repository " + repositoryRef,
+					e);
+		}
+	}
+
+	/**
+	 * Calculate the next release version based on the current version.
+	 *
+	 * The current version must conform to the pattern MAJOR.MINOR.PATCH-SNAPSHOT. If the
+	 * current version is a snapshot of a patch release, then the patch release will be
+	 * returned. For example, if the current version is 5.6.1-SNAPSHOT, then 5.6.1 will be
+	 * returned. If the current version is a snapshot of a version that is not GA (i.e the
+	 * PATCH segment is 0), then GitHub will be queried to find the next milestone or
+	 * release candidate. If no pre-release versions are found, then the next version will
+	 * be assumed to be the GA.
+	 * @param repositoryRef The repository owner/name
+	 * @param currentVersion The current project version
+	 * @return the next matching milestone/release candidate or null if none exist
+	 */
+	public String getNextReleaseMilestone(RepositoryRef repositoryRef, String currentVersion) {
+		Pattern snapshotPattern = Pattern.compile("^([0-9]+)\\.([0-9]+)\\.([0-9]+)-SNAPSHOT$");
+		Matcher snapshotVersion = snapshotPattern.matcher(currentVersion);
+
+		if (snapshotVersion.find()) {
+			String patchSegment = snapshotVersion.group(3);
+			String currentVersionNoIdentifier = currentVersion.replace("-SNAPSHOT", "");
+			if (patchSegment.equals("0")) {
+				String nextPreRelease = getNextPreRelease(repositoryRef, currentVersionNoIdentifier);
+				return nextPreRelease != null ? nextPreRelease : currentVersionNoIdentifier;
+			}
+			else {
+				return currentVersionNoIdentifier;
+			}
+		}
+		else {
+			throw new IllegalStateException(
+					"Cannot calculate next release version because the current project version does not conform to the expected format");
+		}
+	}
+
+	/**
+	 * Calculate the next pre-release version (milestone or release candidate) based on
+	 * the current version.
+	 *
+	 * The current version must conform to the pattern MAJOR.MINOR.PATCH. If no matching
+	 * milestone or release candidate is found in GitHub then it will return null.
+	 * @param repositoryRef The repository owner/name
+	 * @param currentVersionNoIdentifier The current project version without any
+	 * identifier
+	 * @return the next matching milestone/release candidate or null if none exist
+	 */
+	private String getNextPreRelease(RepositoryRef repositoryRef, String currentVersionNoIdentifier) {
+		String url = this.baseUrl + "/repos/" + repositoryRef.getOwner() + "/" + repositoryRef.getName()
+				+ "/milestones?per_page=100";
+		Request request = new Request.Builder().get().url(url).build();
+		try {
+			Response response = this.client.newCall(request).execute();
+			if (!response.isSuccessful()) {
+				throw new RuntimeException(
+						"Could not get milestones for repository " + repositoryRef + ". Response " + response);
+			}
+			List<Milestone> milestones = this.gson.fromJson(response.body().charStream(),
+					new TypeToken<List<Milestone>>() {
+					}.getType());
+			Optional<String> nextPreRelease = milestones.stream().map(Milestone::getTitle)
+					.filter(m -> m.startsWith(currentVersionNoIdentifier + "-"))
+					.min((m1, m2) -> {
+						Pattern preReleasePattern = Pattern.compile("^.*-([A-Z]+)([0-9]+)$");
+						Matcher matcher1 = preReleasePattern.matcher(m1);
+						Matcher matcher2 = preReleasePattern.matcher(m2);
+						matcher1.find();
+						matcher2.find();
+						if (!matcher1.group(1).equals(matcher2.group(1))) {
+							return m1.compareTo(m2);
+						}
+						else {
+							return Integer.valueOf(matcher1.group(2)).compareTo(Integer.valueOf(matcher2.group(2)));
+						}
+					});
+			return nextPreRelease.orElse(null);
+		}
+		catch (IOException e) {
+			throw new RuntimeException("Could not find open milestones with for repository " + repositoryRef, e);
 		}
 	}
 
