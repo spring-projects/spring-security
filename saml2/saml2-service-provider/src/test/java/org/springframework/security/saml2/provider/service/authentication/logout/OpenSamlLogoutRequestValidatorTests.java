@@ -61,17 +61,16 @@ public class OpenSamlLogoutRequestValidatorTests {
 	}
 
 	@Test
-	public void handleWhenNameIdInEncryptedIdPostThenValidates() {
+	public void handleWhenNameIdIsEncryptedIdPostThenValidates() {
 
-		RelyingPartyRegistration registration = registrationWithEncryption()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+		RelyingPartyRegistration registration = decrypting(encrypting(registration())).build();
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequestNameIdInEncryptedId(registration);
 		sign(logoutRequest, registration);
 		Saml2LogoutRequest request = post(logoutRequest, registration);
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
 				registration, authentication(registration));
 		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
-		assertThat(result.hasErrors()).withFailMessage(() -> result.getErrors().toString()).isFalse().isFalse();
+		assertThat(result.hasErrors()).withFailMessage(() -> result.getErrors().toString()).isFalse();
 
 	}
 
@@ -149,10 +148,14 @@ public class OpenSamlLogoutRequestValidatorTests {
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
 	}
 
-	private RelyingPartyRegistration.Builder registrationWithEncryption() {
-		return signing(verifying(TestRelyingPartyRegistrations.full()))
-				.assertingPartyDetails((party) -> party.encryptionX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
+	private RelyingPartyRegistration.Builder decrypting(RelyingPartyRegistration.Builder builder) {
+		return builder
+				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()));
+	}
+
+	private RelyingPartyRegistration.Builder encrypting(RelyingPartyRegistration.Builder builder) {
+		return builder.assertingPartyDetails((party) -> party.encryptionX509Credentials(
+				(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {

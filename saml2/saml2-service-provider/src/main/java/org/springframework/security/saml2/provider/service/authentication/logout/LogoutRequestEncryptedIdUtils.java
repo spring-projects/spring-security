@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,16 +46,16 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
  *
  * @author Robert Stoiber
  */
-final class LogoutRequestEncryptedIDUtils {
+final class LogoutRequestEncryptedIdUtils {
 
 	private static final EncryptedKeyResolver encryptedKeyResolver = new ChainingEncryptedKeyResolver(
 			Arrays.asList(new InlineEncryptedKeyResolver(), new EncryptedElementTypeEncryptedKeyResolver(),
 					new SimpleRetrievalMethodEncryptedKeyResolver()));
 
-	static SAMLObject decryptEncryptedID(EncryptedID encryptedID, RelyingPartyRegistration registration) {
+	static SAMLObject decryptEncryptedId(EncryptedID encryptedId, RelyingPartyRegistration registration) {
 		Decrypter decrypter = decrypter(registration);
 		try {
-			return decrypter.decrypt(encryptedID);
+			return decrypter.decrypt(encryptedId);
 
 		}
 		catch (Exception ex) {
@@ -75,7 +75,7 @@ final class LogoutRequestEncryptedIDUtils {
 		return decrypter;
 	}
 
-	private LogoutRequestEncryptedIDUtils() {
+	private LogoutRequestEncryptedIdUtils() {
 	}
 
 }

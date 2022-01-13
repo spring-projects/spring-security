@@ -373,8 +373,10 @@ public final class TestOpenSamlObjects {
 		NameID nameId = nameIdBuilder.buildObject();
 		nameId.setValue("user");
 		logoutRequest.setNameID(null);
-		logoutRequest.setEncryptedID(encrypted(nameId,
-				registration.getAssertingPartyDetails().getEncryptionX509Credentials().stream().findFirst().get()));
+		Saml2X509Credential credential = registration.getAssertingPartyDetails().getEncryptionX509Credentials()
+				.iterator().next();
+		EncryptedID encrypted = encrypted(nameId, credential);
+		logoutRequest.setEncryptedID(encrypted);
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
 		issuer.setValue(registration.getAssertingPartyDetails().getEntityId());
