@@ -47,6 +47,20 @@ tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
 	}
 }
 
+tasks.named("gitHubNextReleaseMilestone") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("gitHubCheckNextVersionDueToday") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
 tasks.named("createGitHubRelease") {
 	repository {
 		owner = "spring-projects"
