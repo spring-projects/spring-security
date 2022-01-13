@@ -62,9 +62,12 @@ public class OpenSamlLogoutRequestValidatorTests {
 
 	@Test
 	public void handleWhenNameIdInEncryptedIdPostThenValidates() {
+		RelyingPartyRegistration registration = registrationWithEncryption().assertingPartyDetails((party) -> {
+			party.singleLogoutServiceBinding(Saml2MessageBinding.POST);
+			party.wantAuthnRequestsSigned(false);
+		}
 
-		RelyingPartyRegistration registration = registrationWithEncryption()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+		).build();
 		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequestNameIdInEncryptedId(registration);
 		sign(logoutRequest, registration);
 		Saml2LogoutRequest request = post(logoutRequest, registration);
@@ -150,9 +153,12 @@ public class OpenSamlLogoutRequestValidatorTests {
 	}
 
 	private RelyingPartyRegistration.Builder registrationWithEncryption() {
-		return signing(verifying(TestRelyingPartyRegistrations.full()))
-				.assertingPartyDetails((party) -> party.encryptionX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
+		return decrypting(signing(verifying(TestRelyingPartyRegistrations.noCredentials())))
+				.assertingPartyDetails((party) -> {
+					party.encryptionX509Credentials(
+							(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential()));
+					party.singleLogoutServiceBinding(Saml2MessageBinding.POST);
+				});
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {
@@ -162,6 +168,12 @@ public class OpenSamlLogoutRequestValidatorTests {
 
 	private RelyingPartyRegistration.Builder signing(RelyingPartyRegistration.Builder builder) {
 		return builder.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartySigningCredential()));
+	}
+
+	private RelyingPartyRegistration.Builder decrypting(RelyingPartyRegistration.Builder builder) {
+		return builder
+				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()));
+
 	}
 
 	private Authentication authentication(RelyingPartyRegistration registration) {
