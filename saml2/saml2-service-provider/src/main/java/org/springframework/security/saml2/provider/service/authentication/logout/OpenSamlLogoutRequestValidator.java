@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,25 +161,30 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 			if (authentication == null) {
 				return;
 			}
-			NameID nameId = request.getNameID();
-			EncryptedID encryptedID = request.getEncryptedID();
-			if (nameId == null && encryptedID == null) {
+			NameID nameId = getNameId(request, registration);
+			if (nameId == null) {
 				errors.add(
 						new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, "Failed to find subject in LogoutRequest"));
 				return;
 			}
 
-			if (nameId != null) {
-				validateNameID(nameId, authentication, errors);
-			}
-			else {
-				final NameID nameIDFromEncryptedID = decryptNameID(encryptedID, registration);
-				validateNameID(nameIDFromEncryptedID, authentication, errors);
-			}
+			validateNameId(nameId, authentication, errors);
 		};
 	}
 
-	private void validateNameID(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
+	private NameID getNameId(LogoutRequest request, RelyingPartyRegistration registration) {
+		NameID nameId = request.getNameID();
+		if (nameId != null) {
+			return nameId;
+		}
+		EncryptedID encryptedId = request.getEncryptedID();
+		if (encryptedId == null) {
+			return null;
+		}
+		return decryptNameId(encryptedId, registration);
+	}
+
+	private void validateNameId(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
 		String name = nameId.getValue();
 		if (!name.equals(authentication.getName())) {
 			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
@@ -187,8 +192,8 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		}
 	}
 
-	private NameID decryptNameID(EncryptedID encryptedID, RelyingPartyRegistration registration) {
-		final SAMLObject decryptedId = LogoutRequestEncryptedIDUtils.decryptEncryptedID(encryptedID, registration);
+	private NameID decryptNameId(EncryptedID encryptedId, RelyingPartyRegistration registration) {
+		final SAMLObject decryptedId = LogoutRequestEncryptedIdUtils.decryptEncryptedId(encryptedId, registration);
 		if (decryptedId instanceof NameID) {
 			return ((NameID) decryptedId);
 		}
