@@ -247,7 +247,7 @@ class ServerJwtDslTests {
     open class CustomJwtAuthenticationConverterConfig {
 
         companion object {
-            val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = Converter { Mono.empty() }
+            val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = NullConverter()
             val DECODER: ReactiveJwtDecoder = NullReactiveJwtDecoder()
         }
 
@@ -267,6 +267,13 @@ class ServerJwtDslTests {
 
         @Bean
         open fun jwtDecoder(): ReactiveJwtDecoder = DECODER
+    }
+
+    class NullConverter: Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+        override fun convert(source: Jwt): Mono<AbstractAuthenticationToken>? {
+            return Mono.empty()
+        }
+
     }
 
     @RestController
