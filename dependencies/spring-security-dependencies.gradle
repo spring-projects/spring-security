@@ -55,7 +55,7 @@ dependencies {
 		api "org.hamcrest:hamcrest:2.2"
 		api "org.hibernate:hibernate-entitymanager:5.6.3.Final"
 		api "org.hsqldb:hsqldb:2.6.1"
-		api "org.jasig.cas.client:cas-client-core:3.6.2"
+		api "org.jasig.cas.client:cas-client-core:3.6.4"
 		api "org.mockito:mockito-core:3.12.4"
 		api "org.mockito:mockito-inline:3.12.4"
 		api "org.mockito:mockito-junit-jupiter:3.12.4"
