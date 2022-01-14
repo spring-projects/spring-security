@@ -28,6 +28,7 @@ dependencies {
 		api "io.mockk:mockk:1.12.2"
 		api "io.projectreactor.tools:blockhound:1.0.6.RELEASE"
 		api "javax.annotation:jsr250-api:1.0"
+		api "jakarta.inject:jakarta.inject-api:1.0.5"
 		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
 		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
 		api "javax.servlet:javax.servlet-api:4.0.1"

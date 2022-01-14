@@ -10,6 +10,7 @@ dependencies {
 	api project(':spring-security-web')
 	api('com.google.inject:guice') {
 		exclude group: 'aopalliance', module: 'aopalliance'
+		exclude group: 'javax.inject', module: 'javax.inject'
 	}
 	// openid4java has a compile time dep on guice with a group
 	// name which is different from the maven central one.
@@ -31,6 +32,7 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
+	testImplementation "jakarta.inject:jakarta.inject-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
