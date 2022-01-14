@@ -167,3 +167,8 @@ tasks.register('checkSamples') {
 s101 {
 	configurationDirectory = project.file("etc/s101")
 }
+
+tasks.register('checkForProhibitedDependencies', check -> {
+	check.setGroup(LifecycleBasePlugin.VERIFICATION_GROUP)
+	check.setDescription("Checks for prohibited dependencies")
+})

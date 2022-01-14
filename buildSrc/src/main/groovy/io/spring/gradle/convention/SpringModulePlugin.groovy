@@ -20,6 +20,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaLibraryPlugin;
 import org.gradle.api.plugins.MavenPlugin;
 import org.gradle.api.plugins.PluginManager
+import org.springframework.gradle.classpath.CheckClasspathForProhibitedDependenciesPlugin;
 import org.springframework.gradle.maven.SpringMavenPlugin;
 
 /**
@@ -32,6 +33,7 @@ class SpringModulePlugin extends AbstractSpringJavaPlugin {
 		PluginManager pluginManager = project.getPluginManager();
 		pluginManager.apply(JavaLibraryPlugin.class)
 		pluginManager.apply(SpringMavenPlugin.class);
+		pluginManager.apply(CheckClasspathForProhibitedDependenciesPlugin.class);
 		pluginManager.apply("io.spring.convention.jacoco");
 
 		def deployArtifacts = project.task("deployArtifacts")
