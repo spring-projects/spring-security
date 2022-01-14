@@ -25,7 +25,6 @@ dependencies {
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
 		api "commons-codec:commons-codec:1.15"
 		api "commons-collections:commons-collections:3.2.2"
-		api "commons-logging:commons-logging:1.2"
 		api "io.mockk:mockk:1.12.2"
 		api "jakarta.annotation:jakarta.annotation-api:2.1.0-B1"
 		api "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0"
