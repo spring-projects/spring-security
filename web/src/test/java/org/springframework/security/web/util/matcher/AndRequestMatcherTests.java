@@ -56,6 +56,11 @@ public class AndRequestMatcherTests {
 	}
 
 	@Test
+	public void constructorListOfDoesNotThrowNullPointer() {
+		new AndRequestMatcher(List.of(new AntPathRequestMatcher("/test")));
+	}
+
+	@Test
 	public void constructorArrayContainsNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new AndRequestMatcher((RequestMatcher) null));
 	}

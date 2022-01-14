@@ -66,7 +66,7 @@ public class MediaTypeServerWebExchangeMatcher implements ServerWebExchangeMatch
 	 */
 	public MediaTypeServerWebExchangeMatcher(Collection<MediaType> matchingMediaTypes) {
 		Assert.notEmpty(matchingMediaTypes, "matchingMediaTypes cannot be null");
-		Assert.isTrue(!matchingMediaTypes.contains(null),
+		Assert.noNullElements(matchingMediaTypes,
 				() -> "matchingMediaTypes cannot contain null. Got " + matchingMediaTypes);
 		this.matchingMediaTypes = matchingMediaTypes;
 	}
