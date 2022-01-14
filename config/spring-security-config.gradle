@@ -50,6 +50,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'opensaml4MainImplementation')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
+	testImplementation "jakarta.inject:jakarta.inject-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
