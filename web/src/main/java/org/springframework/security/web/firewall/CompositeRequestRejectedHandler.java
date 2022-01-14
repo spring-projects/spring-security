@@ -50,7 +50,7 @@ public final class CompositeRequestRejectedHandler implements RequestRejectedHan
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			RequestRejectedException requestRejectedException) throws IOException, ServletException {
-		for (RequestRejectedHandler requestRejectedhandler : requestRejectedhandlers) {
+		for (RequestRejectedHandler requestRejectedhandler : this.requestRejectedhandlers) {
 			requestRejectedhandler.handle(request, response, requestRejectedException);
 		}
 	}
