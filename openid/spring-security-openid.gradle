@@ -16,6 +16,7 @@ dependencies {
 	// We use the maven central version here instead.
 	api('org.openid4java:openid4java-nodeps') {
 		exclude group: 'com.google.code.guice', module: 'guice'
+		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 	api 'org.springframework:spring-aop'
 	api 'org.springframework:spring-beans'
@@ -26,7 +27,9 @@ dependencies {
 	provided 'javax.servlet:javax.servlet-api'
 
 	runtimeOnly 'net.sourceforge.nekohtml:nekohtml'
-	runtimeOnly 'org.apache.httpcomponents:httpclient'
+	runtimeOnly('org.apache.httpcomponents:httpclient') {
+		exclude group: 'commons-logging', module: 'commons-logging'
+	}
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

@@ -25,7 +25,6 @@ dependencies {
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
 		api "commons-codec:commons-codec:1.15"
 		api "commons-collections:commons-collections:3.2.2"
-		api "commons-logging:commons-logging:1.2"
 		api "io.mockk:mockk:1.12.2"
 		api "io.projectreactor.tools:blockhound:1.0.6.RELEASE"
 		api "javax.annotation:jsr250-api:1.0"
