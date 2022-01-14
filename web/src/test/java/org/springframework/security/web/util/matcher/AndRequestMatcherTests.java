@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.util.matcher;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +54,22 @@ public class AndRequestMatcherTests {
 	@Test
 	public void constructorNullArray() {
 		assertThatNullPointerException().isThrownBy(() -> new AndRequestMatcher((RequestMatcher[]) null));
+	}
+
+	// gh-10703
+	@Test
+	public void constructorListOfDoesNotThrowNullPointer() {
+		List<RequestMatcher> requestMatchers = new ArrayList<RequestMatcher>(
+				Arrays.asList(AnyRequestMatcher.INSTANCE)) {
+			@Override
+			public boolean contains(Object o) {
+				if (o == null) {
+					throw new NullPointerException();
+				}
+				return super.contains(o);
+			}
+		};
+		new AndRequestMatcher(requestMatchers);
 	}
 
 	@Test
