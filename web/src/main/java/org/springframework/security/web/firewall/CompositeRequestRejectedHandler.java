@@ -16,14 +16,15 @@
 
 package org.springframework.security.web.firewall;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.util.Assert;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.util.Assert;
 
 /**
  * A {@link RequestRejectedHandler} that delegates to several other
@@ -49,7 +50,7 @@ public final class CompositeRequestRejectedHandler implements RequestRejectedHan
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response,
 			RequestRejectedException requestRejectedException) throws IOException, ServletException {
-		for (RequestRejectedHandler requestRejectedhandler : requestRejectedhandlers) {
+		for (RequestRejectedHandler requestRejectedhandler : this.requestRejectedhandlers) {
 			requestRejectedhandler.handle(request, response, requestRejectedException);
 		}
 	}
