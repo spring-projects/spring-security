@@ -26,7 +26,7 @@ dependencies {
 		api "commons-codec:commons-codec:1.15"
 		api "commons-collections:commons-collections:3.2.2"
 		api "commons-logging:commons-logging:1.2"
-		api "io.mockk:mockk:1.12.0"
+		api "io.mockk:mockk:1.12.2"
 		api "jakarta.annotation:jakarta.annotation-api:2.0.0"
 		api "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0"
 		api "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0"
