@@ -13,7 +13,7 @@ dependencies {
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'net.sf.ehcache:ehcache'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

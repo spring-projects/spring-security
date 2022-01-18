@@ -17,7 +17,7 @@ dependencies {
 	optional 'org.springframework:spring-webflux'
 	optional 'org.springframework:spring-webmvc'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
 	testImplementation 'commons-codec:commons-codec'

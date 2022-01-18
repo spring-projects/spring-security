@@ -31,7 +31,7 @@ dependencies {
 		api "jakarta.inject:jakarta.inject-api:1.0.5"
 		api "javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api:1.2.2"
 		api "javax.servlet.jsp:javax.servlet.jsp-api:2.3.3"
-		api "javax.servlet:javax.servlet-api:4.0.1"
+		api "jakarta.servlet:jakarta.servlet-api:4.0.4"
 		api "javax.xml.bind:jaxb-api:2.3.1"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sf.ehcache:ehcache:2.10.9.2"

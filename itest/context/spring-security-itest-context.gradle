@@ -10,7 +10,7 @@ dependencies {
 	implementation 'org.springframework:spring-tx'
 
 	testImplementation project(':spring-security-web')
-	testImplementation 'javax.servlet:javax.servlet-api'
+	testImplementation 'jakarta.servlet:jakarta.servlet-api'
 	testImplementation 'org.springframework:spring-web'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
