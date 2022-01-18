@@ -22,6 +22,7 @@ public abstract class CheckAntoraVersionTask extends DefaultTask {
 		File antoraYmlFile = getAntoraYmlFile().getAsFile().get();
 		String expectedAntoraVersion = getAntoraVersion().get();
 		String expectedAntoraPrerelease = getAntoraPrerelease().getOrElse(null);
+		String expectedAntoraDisplayVersion = getAntoraDisplayVersion().getOrElse(null);
 
 		Representer representer = new Representer();
 		representer.getPropertyUtils().setSkipMissingProperties(true);
@@ -32,10 +33,17 @@ public abstract class CheckAntoraVersionTask extends DefaultTask {
 		String actualAntoraPrerelease = antoraYml.getPrerelease();
 		boolean preReleaseMatches = antoraYml.getPrerelease() == null && expectedAntoraPrerelease == null ||
 				(actualAntoraPrerelease != null && actualAntoraPrerelease.equals(expectedAntoraPrerelease));
+		String actualAntoraDisplayVersion = antoraYml.getDisplay_version();
+		boolean displayVersionMatches = antoraYml.getDisplay_version() == null && expectedAntoraDisplayVersion == null ||
+				(actualAntoraDisplayVersion != null && actualAntoraDisplayVersion.equals(expectedAntoraDisplayVersion));
 		String actualAntoraVersion = antoraYml.getVersion();
 		if (!preReleaseMatches ||
+				!displayVersionMatches ||
 				!expectedAntoraVersion.equals(actualAntoraVersion)) {
-			throw new GradleException("The Gradle version of '" + getProject().getVersion() + "' should have version: '" + expectedAntoraVersion + "' and prerelease: '" + expectedAntoraPrerelease + "' defined in " + antoraYmlFile + " but got version: '" + actualAntoraVersion+"' and prerelease: '" + actualAntoraPrerelease + "'");
+			throw new GradleException("The Gradle version of '" + getProject().getVersion() + "' should have version: '"
+					+ expectedAntoraVersion + "' prerelease: '" + expectedAntoraPrerelease + "' display_version: '"
+					+ expectedAntoraDisplayVersion + "' defined in " + antoraYmlFile + " but got version: '"
+					+ actualAntoraVersion + "' prerelease: '" + actualAntoraPrerelease + "' display_version: '" + actualAntoraDisplayVersion + "'");
 		}
 	}
 
@@ -48,10 +56,15 @@ public abstract class CheckAntoraVersionTask extends DefaultTask {
 	@Input
 	public abstract Property<String> getAntoraPrerelease();
 
+	@Input
+	public abstract Property<String> getAntoraDisplayVersion();
+
 	public static class AntoraYml {
 		private String version;
 
 		private String prerelease;
+
+		private String display_version;
 
 		public String getVersion() {
 			return version;
@@ -67,6 +80,14 @@ public abstract class CheckAntoraVersionTask extends DefaultTask {
 
 		public void setPrerelease(String prerelease) {
 			this.prerelease = prerelease;
+		}
+
+		public String getDisplay_version() {
+			return display_version;
+		}
+
+		public void setDisplay_version(String display_version) {
+			this.display_version = display_version;
 		}
 	}
 }
