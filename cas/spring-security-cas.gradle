@@ -4,7 +4,10 @@ dependencies {
 	management platform(project(":spring-security-dependencies"))
 	api project(':spring-security-core')
 	api project(':spring-security-web')
-	api 'org.jasig.cas.client:cas-client-core'
+	api('org.jasig.cas.client:cas-client-core') {
+		exclude group: 'org.glassfish.jaxb', module: 'jaxb-core'
+		exclude group: 'javax.xml.bind', module: 'jaxb-api'
+	}
 	api 'org.springframework:spring-beans'
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
