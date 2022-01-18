@@ -15,7 +15,7 @@ dependencies {
 	optional 'org.springframework:spring-webmvc'
 	optional 'org.springframework:spring-webflux'
 
-	provided 'javax.servlet:javax.servlet-api'
+	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path : ':spring-security-config', configuration : 'tests')
 	testImplementation 'com.fasterxml.jackson.core:jackson-databind'
