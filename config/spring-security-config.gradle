@@ -63,7 +63,7 @@ dependencies {
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.rsocket:rsocket-transport-netty'
 	testImplementation 'javax.annotation:jsr250-api:1.0'
-	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'

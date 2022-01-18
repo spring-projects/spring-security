@@ -22,7 +22,7 @@ dependencies {
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
 	testImplementation 'commons-codec:commons-codec'
 	testImplementation 'io.projectreactor:reactor-test'
-	testImplementation 'javax.xml.bind:jaxb-api'
+	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'org.hamcrest:hamcrest'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation 'org.mockito:mockito-inline'
