@@ -1,0 +1,17 @@
+name: sigrid-publish
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  sigridci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - run: "git clone https://github.com/Software-Improvement-Group/sigridci.git sigridci"
+      - name: "Run Sigrid CI"
+        env:
+          SIGRID_CI_ACCOUNT: "${{ secrets.SIGRID_CI_ACCOUNT }}"
+          SIGRID_CI_TOKEN: "${{ secrets.SIGRID_CI_TOKEN }}"
+        run: "./sigridci/sigridci/sigridci.py --customer ssm --system spring-security-sgondron --source . --targetquality 4.0 --publish" 
