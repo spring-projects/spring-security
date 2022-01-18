@@ -18,9 +18,6 @@ module.exports.register = function({ config }) {
                 aggregate.displayVersion = `${aggregate.version}`
                 delete aggregate.prerelease
             }
-            if (aggregate.prerelease === "true" && !aggregate.displayVersion) {
-                aggregate.displayVersion = `${aggregate.version}`
-            }
         })
     })
 }
