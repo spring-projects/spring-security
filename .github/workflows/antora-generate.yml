@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - 'gh-pages'
+    tags: '**'
 
 env:
   GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
