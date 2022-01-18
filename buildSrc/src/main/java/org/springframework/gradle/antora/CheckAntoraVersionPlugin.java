@@ -20,6 +20,7 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 				antoraCheckVersion.setDescription("Checks the antora.yml version properties match the Gradle version");
 				antoraCheckVersion.getAntoraVersion().convention(project.provider(() -> getDefaultAntoraVersion(project)));
 				antoraCheckVersion.getAntoraPrerelease().convention(project.provider(() -> getDefaultAntoraPrerelease(project)));
+				antoraCheckVersion.getAntoraDisplayVersion().convention(project.provider(() -> getDefaultAntoraDisplayVersion(project)));
 				antoraCheckVersion.getAntoraYmlFile().fileProvider(project.provider(() -> project.file("antora.yml")));
 			}
 		});
@@ -50,6 +51,14 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 		}
 		if (isPreRelease(projectVersion)) {
 			return Boolean.TRUE.toString();
+		}
+		return null;
+	}
+
+	private static String getDefaultAntoraDisplayVersion(Project project) {
+		String projectVersion = getProjectVersion(project);
+		if (!isSnapshot(projectVersion) && isPreRelease(projectVersion)) {
+			return getDefaultAntoraVersion(project);
 		}
 		return null;
 	}

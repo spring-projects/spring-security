@@ -1,9 +1,11 @@
 name: Generate Antora Files and Request Build
 
 on:
+  workflow_dispatch:
   push:
     branches-ignore:
       - 'gh-pages'
+    tags: '**'
 
 env:
   GH_ACTIONS_REPO_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}

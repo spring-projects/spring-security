@@ -31,6 +31,7 @@ class CheckAntoraVersionPluginTests {
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
 		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0");
 		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("-SNAPSHOT");
+		assertThat(checkAntoraVersionTask.getAntoraDisplayVersion().isPresent()).isFalse();
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -48,6 +49,7 @@ class CheckAntoraVersionPluginTests {
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
 		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0-M1");
 		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("true");
+		assertThat(checkAntoraVersionTask.getAntoraDisplayVersion().get()).isEqualTo(checkAntoraVersionTask.getAntoraVersion().get());
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -65,6 +67,7 @@ class CheckAntoraVersionPluginTests {
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
 		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0-RC1");
 		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("true");
+		assertThat(checkAntoraVersionTask.getAntoraDisplayVersion().get()).isEqualTo(checkAntoraVersionTask.getAntoraVersion().get());
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -82,6 +85,7 @@ class CheckAntoraVersionPluginTests {
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
 		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0");
 		assertThat(checkAntoraVersionTask.getAntoraPrerelease().isPresent()).isFalse();
+		assertThat(checkAntoraVersionTask.getAntoraDisplayVersion().isPresent()).isFalse();
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -97,6 +101,7 @@ class CheckAntoraVersionPluginTests {
 		checkAntoraVersionTask.getAntoraPrerelease().set("-SNAPSHOT");
 		assertThat(checkAntoraVersionTask.getAntoraVersion().get()).isEqualTo("1.0.0");
 		assertThat(checkAntoraVersionTask.getAntoraPrerelease().get()).isEqualTo("-SNAPSHOT");
+		assertThat(checkAntoraVersionTask.getAntoraDisplayVersion().isPresent()).isFalse();
 		assertThat(checkAntoraVersionTask.getAntoraYmlFile().getAsFile().get()).isEqualTo(project.file("antora.yml"));
 	}
 
@@ -170,7 +175,7 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-M1";
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
-		IOUtils.write("version: '1.0.0-M1'\nprerelease: 'true'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
+		IOUtils.write("version: '1.0.0-M1'\nprerelease: 'true'\ndisplay_version: '1.0.0-M1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
 		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
 
@@ -187,7 +192,7 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-RC1";
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
-		IOUtils.write("version: '1.0.0-RC1'\nprerelease: 'true'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
+		IOUtils.write("version: '1.0.0-RC1'\nprerelease: 'true'\ndisplay_version: '1.0.0-RC1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
 		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
 
