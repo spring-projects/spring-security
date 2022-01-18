@@ -61,6 +61,89 @@ import java.util.Arrays;
  */
 public class BCrypt {
 
+  public String aComplexMethod() {
+		int a = 3;
+        switch (a) {
+			case 1: return "a";
+			case 2: return "b";
+			case 3: return "c";
+			case 4: return "d";
+			case 5: return "e";
+			case 6: return "f";
+			case 7: return "g";
+			case 8: return "h";
+      case 9: return "i";
+      case 10: return "j";
+      case 11: return "k";
+      case 12: return "l":
+      case 13: return "m";
+      case 14: return "n";
+      case 15: return "o";
+      case 16: return "p";
+      case 17: return "q";
+      case 18: return "r";
+      case 19: return "s";
+      case 20: return "t";
+      case 21: return "u";
+      case 22: return "v";
+      case 23: return "w";
+      case 24: return "x";
+      case 25: return "y";
+			case 26: return "aa";
+			case 27: return "ab";
+			case 28: return "ac";
+			case 29: return "ad";
+			case 30: return "ae";
+			case 31: return "af";
+			case 32: return "ag";
+			case 33: return "ah";
+      case 34: return "ai";
+      case 35: return "aj";
+      case 36: return "ak";
+      case 37: return "al":
+      case 38: return "am";
+      case 39: return "an";
+      case 40: return "ao";
+      case 41: return "ap";
+      case 42: return "aq";
+      case 43: return "ar";
+      case 44: return "as";
+      case 45: return "at";
+      case 46: return "au";
+      case 47: return "av";
+      case 48: return "aw";
+      case 49: return "ax";
+      case 50: return "ay";
+      case 51: return "az";
+			case 52: return "ba";
+			case 53: return "bb";
+			case 54: return "bc";
+			case 55: return "bd";
+			case 56: return "bb";
+			case 57: return "bf";
+			case 58: return "bg";
+			case 59: return "bh";
+      case 60: return "bi";
+      case 61: return "bj";
+      case 62: return "bk";
+      case 63: return "bl":
+      case 64: return "bm";
+      case 65: return "bn";
+      case 66: return "bo";
+      case 67: return "bp";
+      case 68: return "bq";
+      case 69: return "br";
+      case 70: return "bs";
+      case 71: return "bt";
+      case 72: return "bu";
+      case 73: return "bv";
+      case 74: return "bw";
+      case 75: return "bx";
+      case 76: return "by";
+			default: return "z";
+		}
+	}
+
 	// BCrypt parameters
 	private static final int GENSALT_DEFAULT_LOG2_ROUNDS = 10;
 
