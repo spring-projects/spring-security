@@ -32,6 +32,7 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
 
+	testImplementation "jakarta.inject:jakarta.inject-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"

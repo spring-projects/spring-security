@@ -27,6 +27,7 @@ dependencies {
 		api "commons-collections:commons-collections:3.2.2"
 		api "io.mockk:mockk:1.12.2"
 		api "jakarta.annotation:jakarta.annotation-api:2.1.0-B1"
+		api "jakarta.inject:jakarta.inject-api:1.0.5"
 		api "jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api:2.0.0"
 		api "jakarta.servlet.jsp:jakarta.servlet.jsp-api:3.0.0"
 		api "jakarta.servlet:jakarta.servlet-api:5.0.0"
