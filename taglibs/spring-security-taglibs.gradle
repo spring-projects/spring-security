@@ -12,7 +12,7 @@ dependencies {
 	api 'org.springframework:spring-expression'
 	api 'org.springframework:spring-web'
 
-	provided 'javax.servlet.jsp:javax.servlet.jsp-api'
+	provided 'jakarta.servlet.jsp:jakarta.servlet.jsp-api'
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
 	testRuntimeOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
