@@ -37,7 +37,7 @@ dependencies {
 	optional'org.springframework:spring-websocket'
 	optional 'org.jetbrains.kotlin:kotlin-reflect'
 	optional 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-	optional 'javax.annotation:jsr250-api'
+	optional 'jakarta.annotation:jakarta.annotation-api'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
@@ -62,7 +62,7 @@ dependencies {
 	testImplementation 'ch.qos.logback:logback-classic'
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.rsocket:rsocket-transport-netty'
-	testImplementation 'javax.annotation:jsr250-api:1.0'
+	testImplementation 'jakarta.annotation:jakarta.annotation-api:1.0'
 	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
