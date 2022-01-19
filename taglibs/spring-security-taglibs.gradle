@@ -15,7 +15,7 @@ dependencies {
 	provided 'javax.servlet.jsp:javax.servlet.jsp-api'
 	provided 'jakarta.servlet:jakarta.servlet-api'
 
-	testRuntimeOnly 'javax.servlet.jsp.jstl:javax.servlet.jsp.jstl-api'
+	testRuntimeOnly 'jakarta.servlet.jsp.jstl:jakarta.servlet.jsp.jstl-api'
 
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
