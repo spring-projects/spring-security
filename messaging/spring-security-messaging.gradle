@@ -24,7 +24,6 @@ dependencies {
 	testImplementation "org.mockito:mockito-junit-jupiter"
 	testImplementation "org.springframework:spring-test"
 	testImplementation "org.slf4j:slf4j-api"
-	testImplementation "org.slf4j:jcl-over-slf4j"
 	testImplementation "org.slf4j:log4j-over-slf4j"
 	testImplementation "ch.qos.logback:logback-classic"
 

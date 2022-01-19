@@ -25,7 +25,6 @@ dependencies {
 	}
 
 	testImplementation project(':spring-security-test')
-	testImplementation 'org.slf4j:jcl-over-slf4j'
 	testImplementation 'org.slf4j:slf4j-api'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"

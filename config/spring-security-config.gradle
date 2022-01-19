@@ -90,7 +90,6 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'io.netty', module: 'netty'
 	}
-	testImplementation 'org.slf4j:jcl-over-slf4j'
 	testImplementation 'org.springframework.ldap:spring-ldap-core'
 	testImplementation 'org.springframework:spring-expression'
 	testImplementation 'org.springframework:spring-jdbc'
