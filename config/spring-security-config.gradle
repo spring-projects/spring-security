@@ -79,6 +79,9 @@ dependencies {
 	testImplementation "com.unboundid:unboundid-ldapsdk"
 	testImplementation 'org.eclipse.persistence:javax.persistence'
 	testImplementation('org.hibernate:hibernate-entitymanager') {
+		exclude group: 'javax.activation', module: 'javax.activation-api'
+		exclude group: 'javax.persistence', module: 'javax.persistence-api'
+		exclude group: 'javax.xml.bind', module: 'jaxb-api'
 		exclude group: 'org.jboss.spec.javax.transaction', module: 'jboss-transaction-api_1.2_spec'
 	}
 	testImplementation 'org.hsqldb:hsqldb'
