@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.web.csrf;
 
 import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -32,7 +31,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.UrlUtils;
@@ -121,8 +119,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
-		// if (!csrfToken.matches(actualToken)) { // TODO: Fix default matches() method to use constant time.
-		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
+		// Default matches method uses constant-time comparison
+		if (!csrfToken.matches(actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
 			AccessDeniedException exception = (!missingToken) ? new InvalidCsrfTokenException(csrfToken, actualToken)
@@ -166,25 +164,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
-	}
-
-	/**
-	 * Constant time comparison to prevent against timing attacks.
-	 * @param expected
-	 * @param actual
-	 * @return
-	 */
-	private static boolean equalsConstantTime(String expected, String actual) {
-		if (expected == actual) {
-			return true;
-		}
-		if (expected == null || actual == null) {
-			return false;
-		}
-		// Encode after ensure that the string is not null
-		byte[] expectedBytes = Utf8.encode(expected);
-		byte[] actualBytes = Utf8.encode(actual);
-		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {

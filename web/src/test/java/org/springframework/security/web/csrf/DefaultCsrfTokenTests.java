@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,26 +70,29 @@ public class DefaultCsrfTokenTests {
 	}
 
 	@Test
-	public void matchesTokenValue() {
+	public void matchesWhenTokenValuesEqualThenTrue() {
 		String tokenStr = "123456";
-		DefaultCsrfToken token = new DefaultCsrfToken(headerName, parameterName, tokenStr);
-		String csrfToken = token.getToken();
-		String csrfToken2 = token.getToken();
-
-		assertThat(token.getToken()).isEqualTo(csrfToken);
-		assertThat(token.getToken()).isEqualTo(csrfToken2);
-		assertThat(csrfToken).isEqualTo(csrfToken2);
-		assertThat(token.matches(csrfToken)).isTrue();
-		assertThat(token.matches(csrfToken2)).isTrue();
-	}
-
-	@Test
-	public void notMatchesTokenValue() {
-		DefaultCsrfToken token1 = new DefaultCsrfToken(headerName, parameterName, "token1");
-		DefaultCsrfToken token2 = new DefaultCsrfToken(headerName, parameterName, "token2");
+		DefaultCsrfToken token1 = new DefaultCsrfToken(this.headerName, this.parameterName, tokenStr);
+		DefaultCsrfToken token2 = new DefaultCsrfToken(this.headerName, this.parameterName, tokenStr);
 		String csrfToken1 = token1.getToken();
 		String csrfToken2 = token2.getToken();
 
+		assertThat(token1.getToken()).isEqualTo(csrfToken1);
+		assertThat(token2.getToken()).isEqualTo(csrfToken2);
+		assertThat(csrfToken1).isEqualTo(csrfToken2);
+		assertThat(token1.matches(csrfToken2)).isTrue();
+		assertThat(token2.matches(csrfToken1)).isTrue();
+	}
+
+	@Test
+	public void matchesWhenTokenValuesNotEqualThenFalse() {
+		DefaultCsrfToken token1 = new DefaultCsrfToken(this.headerName, this.parameterName, "token1");
+		DefaultCsrfToken token2 = new DefaultCsrfToken(this.headerName, this.parameterName, "token2");
+		String csrfToken1 = token1.getToken();
+		String csrfToken2 = token2.getToken();
+
+		assertThat(token1.getToken()).isEqualTo(csrfToken1);
+		assertThat(token2.getToken()).isEqualTo(csrfToken2);
 		assertThat(csrfToken1).isNotEqualTo(csrfToken2);
 		assertThat(token1.matches(csrfToken2)).isFalse();
 		assertThat(token2.matches(csrfToken1)).isFalse();

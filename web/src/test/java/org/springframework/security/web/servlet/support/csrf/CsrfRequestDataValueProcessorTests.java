@@ -74,7 +74,9 @@ public class CsrfRequestDataValueProcessorTests {
 	@Test
 	public void getExtraHiddenFieldsHasCsrfTokenNoMethodSet() {
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
-		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
+		assertThat(this.token
+				.matches(this.processor.getExtraHiddenFields(this.request).get(this.token.getParameterName())))
+						.isTrue();
 	}
 
 	@Test
@@ -93,14 +95,18 @@ public class CsrfRequestDataValueProcessorTests {
 	public void getExtraHiddenFieldsHasCsrfToken_POST() {
 		this.processor.processAction(this.request, "action", "POST");
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
-		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
+		assertThat(this.token
+				.matches(this.processor.getExtraHiddenFields(this.request).get(this.token.getParameterName())))
+						.isTrue();
 	}
 
 	@Test
 	public void getExtraHiddenFieldsHasCsrfToken_post() {
 		this.processor.processAction(this.request, "action", "post");
 		assertThat(this.processor.getExtraHiddenFields(this.request)).isEqualTo(this.expected);
-		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
+		assertThat(this.token
+				.matches(this.processor.getExtraHiddenFields(this.request).get(this.token.getParameterName())))
+						.isTrue();
 	}
 
 	@Test
@@ -135,7 +141,7 @@ public class CsrfRequestDataValueProcessorTests {
 		expected.put(token.getParameterName(), token.getToken());
 		RequestDataValueProcessor processor = new CsrfRequestDataValueProcessor();
 		assertThat(processor.getExtraHiddenFields(this.request)).isEqualTo(expected);
-		assertThat(token.matches(processor.getExtraHiddenFields(request).get(token.getParameterName()))).isTrue();
+		assertThat(token.matches(processor.getExtraHiddenFields(this.request).get(token.getParameterName()))).isTrue();
 	}
 
 }

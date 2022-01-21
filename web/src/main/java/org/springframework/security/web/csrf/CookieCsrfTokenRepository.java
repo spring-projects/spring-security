@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2020 the original author or authors.
+ * Copyright 2012-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.csrf;
 
+import java.security.SecureRandom;
 import java.util.UUID;
-import java.util.function.Function;
 
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
@@ -60,20 +60,26 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	private Function<String, CsrfToken> generateTokenProvider = (value) -> new DefaultCsrfToken(this.headerName,
-			this.parameterName, value);
+	private SecureRandom secureRandom;
 
 	public CookieCsrfTokenRepository() {
 	}
 
+	private CookieCsrfTokenRepository(SecureRandom secureRandom) {
+		Assert.notNull(secureRandom, "secureRandom cannot be null");
+		this.secureRandom = secureRandom;
+	}
+
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
-		return this.generateTokenProvider.apply(createNewToken());
+		return this.isXorRandomSecretEnabled()
+				? new DefaultCsrfToken(this.headerName, this.parameterName, createNewToken(), this.secureRandom)
+				: new DefaultCsrfToken(this.headerName, this.parameterName, createNewToken());
 	}
 
 	@Override
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
-		String tokenValue = (token != null) ? token.getToken() : "";
+		String tokenValue = getTokenValue(token);
 		Cookie cookie = new Cookie(this.cookieName, tokenValue);
 		cookie.setSecure((this.secure != null) ? this.secure : request.isSecure());
 		cookie.setPath(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request));
@@ -95,16 +101,16 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		if (!StringUtils.hasLength(token)) {
 			return null;
 		}
-		return this.generateTokenProvider.apply(token);
+		return this.isXorRandomSecretEnabled()
+				? new DefaultCsrfToken(this.headerName, this.parameterName, token, this.secureRandom)
+				: new DefaultCsrfToken(this.headerName, this.parameterName, token);
 	}
 
 	/**
 	 * Sets the name of the HTTP request parameter that should be used to provide a token.
 	 * @param parameterName the name of the HTTP request parameter that should be used to
 	 * provide a token
-	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the parameterName instead.
 	 */
-	@Deprecated
 	public void setParameterName(String parameterName) {
 		Assert.notNull(parameterName, "parameterName cannot be null");
 		this.parameterName = parameterName;
@@ -114,9 +120,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 * Sets the name of the HTTP header that should be used to provide the token.
 	 * @param headerName the name of the HTTP header that should be used to provide the
 	 * token
-	 * @deprecated use {@link #setGenerateToken(generateTokenProvider)} and pass the headerName instead.
 	 */
-	@Deprecated
 	public void setHeaderName(String headerName) {
 		Assert.notNull(headerName, "headerName cannot be null");
 		this.headerName = headerName;
@@ -142,6 +146,20 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieHttpOnly = cookieHttpOnly;
 	}
 
+	/**
+	 * Enables generating random secrets to XOR with the csrf token on each request.
+	 * @param enabled {@code true} sets the {@link SecureRandom} used for generating
+	 * random secrets, {@code false} causes it to be set to null
+	 */
+	public void setXorRandomSecretEnabled(boolean enabled) {
+		if (enabled) {
+			this.secureRandom = new SecureRandom();
+		}
+		else {
+			this.secureRandom = null;
+		}
+	}
+
 	private String getRequestContext(HttpServletRequest request) {
 		String contextPath = request.getContextPath();
 		return (contextPath.length() > 0) ? contextPath : "/";
@@ -157,6 +175,43 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
 		result.setCookieHttpOnly(false);
 		return result;
+	}
+
+	/**
+	 * Factory method to create an instance of {@link CookieCsrfTokenRepository} that has
+	 * {@link #setXorRandomSecretEnabled(boolean)} set to {@code true}.
+	 * @return an instance of {@link CookieCsrfTokenRepository} with
+	 * {@link #setXorRandomSecretEnabled(boolean)} set to {@code true}
+	 */
+	public static CookieCsrfTokenRepository withXorRandomSecretEnabled() {
+		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
+		result.setXorRandomSecretEnabled(true);
+		return result;
+	}
+
+	/**
+	 * Factory method to create an instance of {@link CookieCsrfTokenRepository} that has
+	 * {@link #setXorRandomSecretEnabled(boolean)} set to {@code true}.
+	 * @param secureRandom the {@link SecureRandom} to use for generating random secrets
+	 * @return an instance of {@link CookieCsrfTokenRepository} with
+	 * {@link #setXorRandomSecretEnabled(boolean)} set to {@code true}
+	 */
+	public static CookieCsrfTokenRepository withXorRandomSecretEnabled(SecureRandom secureRandom) {
+		return new CookieCsrfTokenRepository(secureRandom);
+	}
+
+	private boolean isXorRandomSecretEnabled() {
+		return (this.secureRandom != null);
+	}
+
+	private String getTokenValue(CsrfToken token) {
+		if (token == null) {
+			return "";
+		}
+		else if (token instanceof DefaultCsrfToken) {
+			return ((DefaultCsrfToken) token).getRawToken();
+		}
+		return token.getToken();
 	}
 
 	private String createNewToken() {
@@ -228,21 +283,4 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		this.cookieMaxAge = cookieMaxAge;
 	}
 
-	/**
-	 * Sets generate token provider<br/>
-	 * <br/>
-	 * Example : <br/>
-	 * <br/>
-	 * {@code (headerName, parameterName, value) -> new  DefaultCsrfToken(headerName, parameterName, value)}<br/>
-	 *
-	 * @param generateTokenProvider provider to be used for generateToken and
-	 *                              loadToken
-	 * @since 5.4
-	 * @see GenerateTokenProvider
-	 * @see XorCsrfToken
-	 */
-	public void setGenerateToken(GenerateTokenProvider<? extends CsrfToken> generateTokenProvider) {
-		this.generateTokenProvider = (value) -> generateTokenProvider.generateToken(this.headerName, this.parameterName,
-				value);
-	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,61 +70,6 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void customGenerateToken() {
-		this.repository.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
-		CsrfToken generateToken = this.repository.generateToken(this.request);
-
-		assertThat(generateToken).isNotNull();
-		assertThat(generateToken).isInstanceOf(XorCsrfToken.class);
-		assertThat(generateToken.getHeaderName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME);
-		assertThat(generateToken.getParameterName())
-				.isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_PARAMETER_NAME);
-		assertThat(generateToken.getToken()).isNotEmpty();
-	}
-
-	@Test
-	public void customGenerateTokenWithCustomHeaderAndParameter() {
-		// hardcoded the headerName and parameterName instead of using this.repository.setHeaderName
-		this.repository.setGenerateToken(
-				(pHeaderName, pParameterName, tokenValue) -> new DefaultCsrfToken("header", "parameter", tokenValue));
-
-		CsrfToken generateToken = this.repository.generateToken(this.request);
-
-		assertThat(generateToken).isNotNull();
-		assertThat(generateToken.getHeaderName()).isEqualTo("header");
-		assertThat(generateToken.getParameterName()).isEqualTo("parameter");
-		assertThat(generateToken.getToken()).isNotEmpty();
-	}
-
-	@Test
-	public void customGenerateTokenWithCustomHeaderAndParameterFromInstance() {
-		// a sample test where configuration instance was used to maintain headerName and parameterName
-		class ParameterConfiguration {
-			String header = "header";
-			String parameter = "parameter";
-		}
-
-		ParameterConfiguration paramConfig = new ParameterConfiguration();
-
-		// set the header and parameter
-		this.repository.setGenerateToken((pHeaderName, pParameterName,
-				tokenValue) -> new DefaultCsrfToken(paramConfig.header, paramConfig.parameter, tokenValue));
-
-		// if instance was modified then it will reflect on the generated token
-		paramConfig.header = "customHeader";
-		paramConfig.parameter = "customParameter";
-
-		CsrfToken generateToken = this.repository.generateToken(this.request);
-
-		assertThat(generateToken).isNotNull();
-		assertThat(generateToken).isInstanceOf(DefaultCsrfToken.class);
-		assertThat(generateToken.getHeaderName()).isEqualTo("customHeader");
-		assertThat(generateToken.getParameterName()).isEqualTo("customParameter");
-		assertThat(generateToken.getToken()).isNotEmpty();
-	}
-
-	@Test
 	public void saveToken() {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
@@ -133,7 +78,7 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
-		assertThat(token.matches(tokenCookie.getValue())).isTrue();
+		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
 		assertThat(tokenCookie.isHttpOnly()).isEqualTo(true);
 	}
 
@@ -298,26 +243,7 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(loadToken).isNotNull();
 		assertThat(loadToken.getHeaderName()).isEqualTo(headerName);
 		assertThat(loadToken.getParameterName()).isEqualTo(parameterName);
-		assertThat(loadToken.matches(value)).isTrue();
-	}
-
-	@Test
-	public void loadTokenWithCustomGenerateToken() {
-		this.repository.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
-		CsrfToken generateToken = this.repository.generateToken(this.request);
-
-		this.request
-				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME,
-						generateToken.getToken()));
-
-		CsrfToken loadToken = this.repository.loadToken(this.request);
-
-		assertThat(loadToken).isNotNull();
-		assertThat(loadToken).isInstanceOf(XorCsrfToken.class);
-		assertThat(loadToken.getHeaderName()).isEqualTo(generateToken.getHeaderName());
-		assertThat(loadToken.getParameterName())
-				.isEqualTo(generateToken.getParameterName());
-		assertThat(loadToken.getToken()).isNotEmpty();
+		assertThat(loadToken.getToken()).isEqualTo(value);
 	}
 
 	@Test
@@ -338,6 +264,84 @@ public class CookieCsrfTokenRepositoryTests {
 	@Test
 	public void setCookieMaxAgeZeroIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieMaxAge(0));
+	}
+
+	@Test
+	public void withXorRandomSecretEnabledWhenSecureRandomIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> CookieCsrfTokenRepository.withXorRandomSecretEnabled(null))
+				.withMessage("secureRandom cannot be null");
+	}
+
+	@Test
+	public void withXorRandomSecretEnabledWhenUsedThenReturnsUniqueTokens() {
+		CookieCsrfTokenRepository repo = CookieCsrfTokenRepository.withXorRandomSecretEnabled();
+
+		CsrfToken csrfToken = repo.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void generateTokenWhenSetXorRandomSecretEnabledTrueThenReturnsUniqueTokens() {
+		this.repository.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken = this.repository.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void generateTokenWhenSetXorRandomSecretEnabledFalseThenReturnsNonUniqueTokens() {
+		this.repository.setXorRandomSecretEnabled(false);
+
+		CsrfToken csrfToken = this.repository.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void loadTokenWhenSetXorRandomSecretEnabledTrueThenReturnsUniqueTokens() {
+		CsrfToken generateToken = this.repository.generateToken(this.request);
+		this.repository.setXorRandomSecretEnabled(true);
+		this.request
+				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generateToken.getToken()));
+
+		CsrfToken csrfToken = this.repository.loadToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void saveTokenWhenSetXorRandomSecretEnabledTrueThenRawTokenIsSaved() {
+		this.repository.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken = this.repository.generateToken(this.request);
+		this.repository.saveToken(csrfToken, this.request, this.response);
+
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getValue()).isEqualTo(((DefaultCsrfToken) csrfToken).getRawToken());
+	}
+
+	@Test
+	public void matchesWhenSetXorRandomSecretEnabledTrueAndTokensNotEqualThenFalse() {
+		this.repository.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken1 = this.repository.generateToken(this.request);
+		CsrfToken csrfToken2 = this.repository.generateToken(this.request);
+		assertThat(csrfToken1.matches(csrfToken2.getToken())).isFalse();
 	}
 
 }

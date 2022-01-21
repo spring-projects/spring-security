@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 /**
  * @author Rob Winch
- *
  */
 public class HttpSessionCsrfTokenRepositoryTests {
 
@@ -53,61 +52,6 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		assertThat(this.token.getToken()).isNotEmpty();
 		CsrfToken loadedToken = this.repo.loadToken(this.request);
 		assertThat(loadedToken).isNull();
-	}
-
-	@Test
-	public void customGenerateToken() {
-		repo.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
-		token = repo.generateToken(request);
-
-		assertThat(token).isInstanceOf(XorCsrfToken.class);
-		assertThat(token.getParameterName()).isEqualTo("_csrf");
-		assertThat(token.getToken()).isNotEmpty();
-
-		CsrfToken loadedToken = repo.loadToken(request);
-
-		assertThat(loadedToken).isNull();
-	}
-
-	@Test
-	public void customGenerateTokenWithCustomHeaderAndParameter() {
-		// hardcoded the headerName and parameterName instead of using this.repository.setHeaderName
-		this.repo.setGenerateToken(
-				(pHeaderName, pParameterName, tokenValue) -> new DefaultCsrfToken("header", "parameter", tokenValue));
-
-		CsrfToken generateToken = this.repo.generateToken(this.request);
-
-		assertThat(generateToken).isNotNull();
-		assertThat(generateToken.getHeaderName()).isEqualTo("header");
-		assertThat(generateToken.getParameterName()).isEqualTo("parameter");
-		assertThat(generateToken.getToken()).isNotEmpty();
-	}
-
-	@Test
-	public void customGenerateTokenWithCustomHeaderAndParameterFromInstance() {
-		// a sample test where configuration instance was used to maintain headerName and parameterName
-		class ParameterConfiguration {
-			String header = "header";
-			String parameter = "parameter";
-		}
-
-		ParameterConfiguration paramInstance = new ParameterConfiguration();
-
-		// set the header and parameter
-		this.repo.setGenerateToken((pHeaderName, pParameterName,
-				tokenValue) -> new DefaultCsrfToken(paramInstance.header, paramInstance.parameter, tokenValue));
-
-		// if instance was modified then it will reflect on the generated token
-		paramInstance.header = "customHeader";
-		paramInstance.parameter = "customParameter";
-
-		CsrfToken generateToken = this.repo.generateToken(this.request);
-
-		assertThat(generateToken).isNotNull();
-		assertThat(generateToken).isInstanceOf(DefaultCsrfToken.class);
-		assertThat(generateToken.getHeaderName()).isEqualTo("customHeader");
-		assertThat(generateToken.getParameterName()).isEqualTo("customParameter");
-		assertThat(generateToken.getToken()).isNotEmpty();
 	}
 
 	@Test
@@ -145,22 +89,8 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
 		this.repo.saveToken(tokenToSave, this.request, this.response);
 		String attrName = this.request.getSession().getAttributeNames().nextElement();
-		CsrfToken loadedToken = (CsrfToken) this.request.getSession().getAttribute(attrName);
-		assertThat(loadedToken).isEqualTo(tokenToSave);
-	}
-
-	@Test
-	public void saveTokenWithCustomGenerateToken() {
-		repo.setGenerateToken(XorCsrfToken.createGenerateTokenProvider());
-		CsrfToken tokenToSave = repo.generateToken(request);
-		repo.saveToken(tokenToSave, request, response);
-
-		CsrfToken loadedToken = (CsrfToken) repo.loadToken(request);
-
-		assertThat(tokenToSave).isInstanceOf(XorCsrfToken.class);
-		assertThat(loadedToken).isInstanceOf(XorCsrfToken.class);
-		assertThat(loadedToken).isSameAs(tokenToSave);
-		assertThat(loadedToken.matches(tokenToSave.getToken())).isTrue();
+		String loadedToken = (String) this.request.getSession().getAttribute(attrName);
+		assertThat(loadedToken).isEqualTo(tokenToSave.getToken());
 	}
 
 	@Test
@@ -169,8 +99,8 @@ public class HttpSessionCsrfTokenRepositoryTests {
 		String sessionAttributeName = "custom";
 		this.repo.setSessionAttributeName(sessionAttributeName);
 		this.repo.saveToken(tokenToSave, this.request, this.response);
-		CsrfToken loadedToken = (CsrfToken) this.request.getSession().getAttribute(sessionAttributeName);
-		assertThat(loadedToken).isEqualTo(tokenToSave);
+		String loadedToken = (String) this.request.getSession().getAttribute(sessionAttributeName);
+		assertThat(loadedToken).isEqualTo(tokenToSave.getToken());
 	}
 
 	@Test
@@ -204,6 +134,83 @@ public class HttpSessionCsrfTokenRepositoryTests {
 	@Test
 	public void setParameterNameNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repo.setParameterName(null));
+	}
+
+	@Test
+	public void withXorRandomSecretEnabledWhenSecureRandomIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> HttpSessionCsrfTokenRepository.withXorRandomSecretEnabled(null))
+				.withMessage("secureRandom cannot be null");
+	}
+
+	@Test
+	public void withXorRandomSecretEnabledWhenUsedThenReturnsUniqueTokens() {
+		HttpSessionCsrfTokenRepository repo = HttpSessionCsrfTokenRepository.withXorRandomSecretEnabled();
+
+		CsrfToken csrfToken = repo.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void generateTokenWhenSetXorRandomSecretEnabledTrueThenReturnsUniqueTokens() {
+		this.repo.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken = this.repo.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void generateTokenWhenSetXorRandomSecretEnabledFalseThenReturnsNonUniqueTokens() {
+		this.repo.setXorRandomSecretEnabled(false);
+
+		CsrfToken csrfToken = this.repo.generateToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void loadTokenWhenSetXorRandomSecretEnabledTrueThenReturnsUniqueTokens() {
+		this.repo.saveToken(new DefaultCsrfToken("123", "abc", "def"), this.request, this.response);
+		this.repo.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken = this.repo.loadToken(this.request);
+		String token1 = csrfToken.getToken();
+		String token2 = csrfToken.getToken();
+		assertThat(token1).isNotEqualTo(token2);
+		assertThat(csrfToken.matches(token1)).isTrue();
+		assertThat(csrfToken.matches(token2)).isTrue();
+	}
+
+	@Test
+	public void saveTokenWhenSetXorRandomSecretEnabledTrueThenRawTokenIsSaved() {
+		this.repo.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken = this.repo.generateToken(this.request);
+		this.repo.saveToken(csrfToken, this.request, this.response);
+
+		String sessionAttributeName = this.request.getSession().getAttributeNames().nextElement();
+		String tokenValue = (String) this.request.getSession().getAttribute(sessionAttributeName);
+		assertThat(tokenValue).isEqualTo(((DefaultCsrfToken) csrfToken).getRawToken());
+	}
+
+	@Test
+	public void matchesWhenSetXorRandomSecretEnabledTrueAndTokensNotEqualThenFalse() {
+		this.repo.setXorRandomSecretEnabled(true);
+
+		CsrfToken csrfToken1 = this.repo.generateToken(this.request);
+		CsrfToken csrfToken2 = this.repo.generateToken(this.request);
+		assertThat(csrfToken1.matches(csrfToken2.getToken())).isFalse();
 	}
 
 }

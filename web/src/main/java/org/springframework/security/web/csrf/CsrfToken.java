@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,9 @@
 package org.springframework.security.web.csrf;
 
 import java.io.Serializable;
+import java.security.MessageDigest;
+
+import org.springframework.security.crypto.codec.Utf8;
 
 /**
  * Provides the information about an expected CSRF token.
@@ -24,7 +27,6 @@ import java.io.Serializable;
  * @author Rob Winch
  * @since 3.2
  * @see DefaultCsrfToken
- * @see XorCsrfToken
  */
 public interface CsrfToken extends Serializable {
 
@@ -49,13 +51,24 @@ public interface CsrfToken extends Serializable {
 	String getToken();
 
 	/**
-	 * Compare if this token matches with another token.
-	 *
-	 * @param token to be matched
+	 * Determine if this token matches with another token. Implementations should use a
+	 * constant time comparison to protect against timing attacks.
+	 * @param token The token to be matched against
 	 * @return true if this instance token matches the token, otherwise false.
-	 * @since 5.4
+	 * @since 5.7
 	 */
 	default boolean matches(String token) {
-		return getToken().equals(token);
+		String expectedToken = getToken();
+		if (expectedToken == token) {
+			return true;
+		}
+		if (expectedToken == null || token == null) {
+			return false;
+		}
+		// Encode after ensuring that the string is not null
+		byte[] expectedBytes = Utf8.encode(expectedToken);
+		byte[] actualBytes = Utf8.encode(token);
+		return MessageDigest.isEqual(expectedBytes, actualBytes);
 	}
+
 }
