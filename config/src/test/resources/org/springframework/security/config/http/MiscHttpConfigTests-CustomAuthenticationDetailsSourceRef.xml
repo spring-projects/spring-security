@@ -28,7 +28,6 @@
 		<http-basic authentication-details-source-ref="authenticationDetailsSource"/>
 		<form-login authentication-details-source-ref="authenticationDetailsSource"/>
 		<x509 subject-principal-regex="OU=(.*?)(?:,|$)" authentication-details-source-ref="authenticationDetailsSource"/>
-		<openid-login authentication-details-source-ref="authenticationDetailsSource"/>
 	</http>
 
 	<b:bean name="authenticationDetailsSource" class="org.mockito.Mockito" factory-method="mock">

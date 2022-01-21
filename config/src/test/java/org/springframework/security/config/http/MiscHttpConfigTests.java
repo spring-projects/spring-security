@@ -78,7 +78,6 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
-import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -105,7 +104,6 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -624,8 +622,6 @@ public class MiscHttpConfigTests {
 		this.mvc.perform(get("/details").session(session))
 				.andExpect(content().string(details.getClass().getName()));
 		// @formatter:on
-		assertThat(ReflectionTestUtils.getField(getFilter(OpenIDAuthenticationFilter.class),
-				"authenticationDetailsSource")).isEqualTo(source);
 	}
 
 	@Test

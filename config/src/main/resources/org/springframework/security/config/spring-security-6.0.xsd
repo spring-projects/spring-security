@@ -1015,28 +1015,6 @@
             <xs:element ref="security:oauth2-login"/>
             <xs:element ref="security:oauth2-client"/>
             <xs:element ref="security:oauth2-resource-server"/>
-            <xs:element name="openid-login">
-               <xs:annotation>
-                  <xs:documentation>Sets up form login for authentication with an Open ID identity. NOTE: The OpenID 1.0 and
-                2.0 protocols have been deprecated and users are &lt;a
-                href="https://openid.net/specs/openid-connect-migration-1_0.html"&gt;encouraged to
-                migrate&lt;/a&gt; to &lt;a href="https://openid.net/connect/"&gt;OpenID Connect&lt;/a&gt;, which is
-                supported by &lt;code&gt;spring-security-oauth2&lt;/code&gt;.
-                </xs:documentation>
-               </xs:annotation>
-               <xs:complexType>
-                  <xs:sequence>
-                     <xs:element minOccurs="0" maxOccurs="unbounded" ref="security:attribute-exchange"/>
-                  </xs:sequence>
-                  <xs:attributeGroup ref="security:form-login.attlist"/>
-                  <xs:attribute name="user-service-ref" type="xs:token">
-                     <xs:annotation>
-                        <xs:documentation>A reference to a user-service (or UserDetailsService bean) Id
-                </xs:documentation>
-                     </xs:annotation>
-                  </xs:attribute>
-               </xs:complexType>
-            </xs:element>
             <xs:element name="x509">
                <xs:annotation>
                   <xs:documentation>Adds support for X.509 client authentication.
@@ -1938,73 +1916,6 @@
       <xs:attribute name="introspector-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to an OpaqueTokenIntrospector
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-  </xs:attributeGroup>
-  
-  <xs:element name="attribute-exchange">
-      <xs:annotation>
-         <xs:documentation>Sets up an attribute exchange configuration to request specified attributes from the
-                OpenID identity provider. When multiple elements are used, each must have an
-                identifier-attribute attribute. Each configuration will be matched in turn against the
-                supplied login identifier until a match is found.
-                </xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:sequence>
-            <xs:element maxOccurs="unbounded" ref="security:openid-attribute"/>
-         </xs:sequence>
-         <xs:attributeGroup ref="security:attribute-exchange.attlist"/>
-      </xs:complexType>
-   </xs:element>
-  <xs:attributeGroup name="attribute-exchange.attlist">
-      <xs:attribute name="identifier-match" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>A regular expression which will be compared against the claimed identity, when deciding
-                which attribute-exchange configuration to use during authentication.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-  </xs:attributeGroup>
-  <xs:element name="openid-attribute">
-      <xs:annotation>
-         <xs:documentation>Attributes used when making an OpenID AX Fetch Request. NOTE: The OpenID 1.0 and 2.0
-                protocols have been deprecated and users are &lt;a
-                href="https://openid.net/specs/openid-connect-migration-1_0.html"&gt;encouraged to
-                migrate&lt;/a&gt; to &lt;a href="https://openid.net/connect/"&gt;OpenID Connect&lt;/a&gt;, which is
-                supported by &lt;code&gt;spring-security-oauth2&lt;/code&gt;.
-                </xs:documentation>
-      </xs:annotation>
-      <xs:complexType>
-         <xs:attributeGroup ref="security:openid-attribute.attlist"/>
-      </xs:complexType>
-   </xs:element>
-  <xs:attributeGroup name="openid-attribute.attlist">
-      <xs:attribute name="name" use="required" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Specifies the name of the attribute that you wish to get back. For example, email.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="type" use="required" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>Specifies the attribute type. For example, https://axschema.org/contact/email. See your
-                OP's documentation for valid attribute types.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="required" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>Specifies if this attribute is required to the OP, but does not error out if the OP does
-                not return the attribute. Default is false.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="count" type="xs:int">
-         <xs:annotation>
-            <xs:documentation>Specifies the number of attributes that you wish to get back. For example, return 3
-                emails. The default value is 1.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -3335,7 +3246,6 @@
          <xs:enumeration value="CAS_FILTER"/>
          <xs:enumeration value="OAUTH2_LOGIN_FILTER"/>
          <xs:enumeration value="FORM_LOGIN_FILTER"/>
-         <xs:enumeration value="OPENID_FILTER"/>
          <xs:enumeration value="LOGIN_PAGE_FILTER"/>
          <xs:enumeration value="LOGOUT_PAGE_FILTER"/>
          <xs:enumeration value="DIGEST_AUTH_FILTER"/>

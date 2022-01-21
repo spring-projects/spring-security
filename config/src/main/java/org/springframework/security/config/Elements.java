@@ -72,12 +72,6 @@ public abstract class Elements {
 
 	public static final String FORM_LOGIN = "form-login";
 
-	public static final String OPENID_LOGIN = "openid-login";
-
-	public static final String OPENID_ATTRIBUTE_EXCHANGE = "attribute-exchange";
-
-	public static final String OPENID_ATTRIBUTE = "openid-attribute";
-
 	public static final String BASIC_AUTH = "http-basic";
 
 	public static final String REMEMBER_ME = "remember-me";

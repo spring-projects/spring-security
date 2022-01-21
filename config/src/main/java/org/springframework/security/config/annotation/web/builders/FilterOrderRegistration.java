@@ -91,7 +91,6 @@ final class FilterOrderRegistration {
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105
-		this.filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());
 		put(DefaultLogoutPageGeneratingFilter.class, order.next());
 		put(ConcurrentSessionFilter.class, order.next());

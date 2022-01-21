@@ -93,21 +93,6 @@ public class UserServiceBeanDefinitionParserTests {
 	}
 
 	@Test
-	public void worksWithOpenIDUrlsAsNames() {
-		// @formatter:off
-		setContext("<user-service id='service'>"
-				+ "    <user name='https://joe.myopenid.com/' authorities='ROLE_A'/>"
-				+ "    <user name='https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9' authorities='ROLE_A'/>"
-				+ "</user-service>");
-		// @formatter:on
-		UserDetailsService userService = (UserDetailsService) this.appContext.getBean("service");
-		assertThat(userService.loadUserByUsername("https://joe.myopenid.com/").getUsername())
-				.isEqualTo("https://joe.myopenid.com/");
-		assertThat(userService.loadUserByUsername("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9")
-				.getUsername()).isEqualTo("https://www.google.com/accounts/o8/id?id=MPtOaenBIk5yzW9n7n9");
-	}
-
-	@Test
 	public void disabledAndEmbeddedFlagsAreSupported() {
 		// @formatter:off
 		setContext("<user-service id='service'>"

@@ -280,7 +280,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	 * </ol>
 	 * @param request from which to extract parameters and perform the authentication
 	 * @param response the response, which may be needed if the implementation has to do a
-	 * redirect as part of a multi-stage authentication process (such as OpenID).
+	 * redirect as part of a multi-stage authentication process (such as OIDC).
 	 * @return the authenticated user token, or null if authentication is incomplete.
 	 * @throws AuthenticationException if authentication fails.
 	 */

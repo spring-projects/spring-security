@@ -312,7 +312,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -629,36 +629,6 @@ opaque-token.attlist &=
 opaque-token.attlist &=
     ## Reference to an OpaqueTokenIntrospector
     attribute introspector-ref {xsd:token}?
-
-openid-login =
-	## Sets up form login for authentication with an Open ID identity. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
-	element openid-login {form-login.attlist, user-service-ref?, attribute-exchange*}
-
-attribute-exchange =
-	## Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found.
-	element attribute-exchange {attribute-exchange.attlist, openid-attribute+}
-
-attribute-exchange.attlist &=
-	## A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
-	attribute identifier-match {xsd:token}?
-
-openid-attribute =
-	## Attributes used when making an OpenID AX Fetch Request. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
-	element openid-attribute {openid-attribute.attlist}
-
-openid-attribute.attlist &=
-	## Specifies the name of the attribute that you wish to get back. For example, email.
-	attribute name {xsd:token}
-openid-attribute.attlist &=
-	## Specifies the attribute type. For example, https://axschema.org/contact/email. See your OP's documentation for valid attribute types.
-	attribute type {xsd:token}
-openid-attribute.attlist &=
-	## Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute. Default is false.
-	attribute required {xsd:boolean}?
-openid-attribute.attlist &=
-	## Specifies the number of attributes that you wish to get back. For example, return 3 emails. The default value is 1.
-	attribute count {xsd:int}?
-
 
 filter-chain-map =
 	## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
@@ -1148,4 +1118,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "FORM_LOGIN_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"

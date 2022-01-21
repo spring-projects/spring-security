@@ -182,7 +182,6 @@ The following is a comprehensive list of Spring Security Filter ordering:
 * `OAuth2LoginAuthenticationFilter`
 * `Saml2WebSsoAuthenticationFilter`
 * xref:servlet/authentication/passwords/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`]
-* `OpenIDAuthenticationFilter`
 * `DefaultLoginPageGeneratingFilter`
 * `DefaultLogoutPageGeneratingFilter`
 * `ConcurrentSessionFilter`

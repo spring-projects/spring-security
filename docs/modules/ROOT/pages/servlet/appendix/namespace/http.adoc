@@ -159,7 +159,6 @@ The default value is true.
 * <<nsa-oauth2-client,oauth2-client>>
 * <<nsa-oauth2-login,oauth2-login>>
 * <<nsa-oauth2-resource-server,oauth2-resource-server>>
-* <<nsa-openid-login,openid-login>>
 * <<nsa-password-management,password-management>>
 * <<nsa-port-mappings,port-mappings>>
 * <<nsa-remember-me,remember-me>>
@@ -838,7 +837,7 @@ Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an
 This will always take precedence over other namespace-created entry points.
 If no attributes are supplied, a login page will be generated automatically at the URL "/login" footnote:[
 This feature is really just provided for convenience and is not intended for production (where a view technology will have been chosen and can be used to render a customized login page).
-The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OpenID if required.
+The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OIDC if required.
 ] The behaviour can be customized using the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
 
 
@@ -1475,182 +1474,6 @@ Defaults to "/logout".
 * **success-handler-ref**
 May be used to supply an instance of `LogoutSuccessHandler` which will be invoked to control the navigation after logging out.
 
-
-[[nsa-openid-login]]
-== <openid-login>
-Similar to `<form-login>` and has the same attributes.
-The default value for `login-processing-url` is "/login/openid".
-An `OpenIDAuthenticationFilter` and `OpenIDAuthenticationProvider` will be registered.
-The latter requires a reference to a `UserDetailsService`.
-Again, this can be specified by `id`, using the `user-service-ref` attribute, or will be located automatically in the application context.
-
-
-[[nsa-openid-login-parents]]
-=== Parent Elements of <openid-login>
-
-
-* <<nsa-http,http>>
-
-
-
-[[nsa-openid-login-attributes]]
-=== <openid-login> Attributes
-
-
-[[nsa-openid-login-always-use-default-target]]
-* **always-use-default-target**
-Whether the user should always be redirected to the default-target-url after login.
-
-
-[[nsa-openid-login-authentication-details-source-ref]]
-* **authentication-details-source-ref**
-Reference to an AuthenticationDetailsSource which will be used by the authentication filter
-
-
-[[nsa-openid-login-authentication-failure-handler-ref]]
-* **authentication-failure-handler-ref**
-Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request.
-Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
-
-
-[[nsa-openid-login-authentication-failure-url]]
-* **authentication-failure-url**
-The URL for the login failure page.
-If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?login_error and a corresponding filter to render that login failure URL when requested.
-
-
-[[nsa-openid-login-authentication-success-forward-url]]
-* **authentication-success-forward-url**
-Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
-
-
-[[nsa-openid-login-authentication-failure-forward-url]]
-* **authentication-failure-forward-url**
-Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
-
-
-[[nsa-openid-login-authentication-success-handler-ref]]
-* **authentication-success-handler-ref**
-Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request.
-Should not be used in combination with <<nsa-openid-login-default-target-url,default-target-url>> (or <<nsa-openid-login-always-use-default-target, always-use-default-target>>) as the implementation should always deal with navigation to the subsequent destination
-
-
-[[nsa-openid-login-default-target-url]]
-* **default-target-url**
-The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed.
-This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication.
-If unspecified, defaults to the root of the application.
-
-
-[[nsa-openid-login-login-page]]
-* **login-page**
-The URL for the login page.
-If no login URL is specified, Spring Security will automatically create a login URL at /login and a corresponding filter to render that login URL when requested.
-
-
-[[nsa-openid-login-login-processing-url]]
-* **login-processing-url**
-The URL that the login form is posted to.
-If unspecified, it defaults to /login.
-
-
-[[nsa-openid-login-password-parameter]]
-* **password-parameter**
-The name of the request parameter which contains the password.
-Defaults to "password".
-
-
-[[nsa-openid-login-user-service-ref]]
-* **user-service-ref**
-A reference to a user-service (or UserDetailsService bean) Id
-
-
-[[nsa-openid-login-username-parameter]]
-* **username-parameter**
-The name of the request parameter which contains the username.
-Defaults to "username".
-
-
-[[nsa-openid-login-children]]
-=== Child Elements of <openid-login>
-* <<nsa-attribute-exchange,attribute-exchange>>
-
-
-
-[[nsa-attribute-exchange]]
-== <attribute-exchange>
-The `attribute-exchange` element defines the list of attributes which should be requested from the identity provider.
-An example can be found in the xref:servlet/authentication/openid.adoc#servlet-openid[OpenID Support] section of the namespace configuration chapter.
-More than one can be used, in which case each must have an `identifier-match` attribute, containing a regular expression which is matched against the supplied OpenID identifier.
-This allows different attribute lists to be fetched from different providers (Google, Yahoo etc).
-
-
-[[nsa-attribute-exchange-parents]]
-=== Parent Elements of <attribute-exchange>
-
-
-* <<nsa-openid-login,openid-login>>
-
-
-
-[[nsa-attribute-exchange-attributes]]
-=== <attribute-exchange> Attributes
-
-
-[[nsa-attribute-exchange-identifier-match]]
-* **identifier-match**
-A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
-
-
-[[nsa-attribute-exchange-children]]
-=== Child Elements of <attribute-exchange>
-
-
-* <<nsa-openid-attribute,openid-attribute>>
-
-
-
-[[nsa-openid-attribute]]
-== <openid-attribute>
-Attributes used when making an OpenID AX https://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ Fetch Request]
-
-
-[[nsa-openid-attribute-parents]]
-=== Parent Elements of <openid-attribute>
-
-
-* <<nsa-attribute-exchange,attribute-exchange>>
-
-
-
-[[nsa-openid-attribute-attributes]]
-=== <openid-attribute> Attributes
-
-
-[[nsa-openid-attribute-count]]
-* **count**
-Specifies the number of attributes that you wish to get back.
-For example, return 3 emails.
-The default value is 1.
-
-
-[[nsa-openid-attribute-name]]
-* **name**
-Specifies the name of the attribute that you wish to get back.
-For example, email.
-
-
-[[nsa-openid-attribute-required]]
-* **required**
-Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute.
-Default is false.
-
-
-[[nsa-openid-attribute-type]]
-* **type**
-Specifies the attribute type.
-For example, https://axschema.org/contact/email.
-See your OP's documentation for valid attribute types.
 
 [[nsa-password-management]]
 == <password-management>

@@ -85,16 +85,6 @@ final class AuthenticationConfigBuilder {
 
 	private static final String DEF_REALM = "Realm";
 
-	static final String OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationFilter";
-
-	static final String OPEN_ID_AUTHENTICATION_PROVIDER_CLASS = "org.springframework.security.openid.OpenIDAuthenticationProvider";
-
-	private static final String OPEN_ID_CONSUMER_CLASS = "org.springframework.security.openid.OpenID4JavaConsumer";
-
-	static final String OPEN_ID_ATTRIBUTE_CLASS = "org.springframework.security.openid.OpenIDAttribute";
-
-	private static final String OPEN_ID_ATTRIBUTE_FACTORY_CLASS = "org.springframework.security.openid.RegexBasedAxFetchListFactory";
-
 	static final String AUTHENTICATION_PROCESSING_FILTER_CLASS = "org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter";
 
 	static final String ATT_AUTH_DETAILS_SOURCE_REF = "authentication-details-source-ref";
@@ -135,13 +125,7 @@ final class AuthenticationConfigBuilder {
 
 	private BeanDefinition formEntryPoint;
 
-	private BeanDefinition openIDEntryPoint;
-
-	private BeanReference openIDProviderRef;
-
 	private String formFilterId = null;
-
-	private String openIDFilterId = null;
 
 	private BeanDefinition x509Filter;
 
@@ -180,11 +164,7 @@ final class AuthenticationConfigBuilder {
 
 	private String loginProcessingUrl;
 
-	private String openidLoginProcessingUrl;
-
 	private String formLoginPage;
-
-	private String openIDLoginPage;
 
 	private boolean oauth2LoginEnabled;
 
@@ -237,7 +217,6 @@ final class AuthenticationConfigBuilder {
 		createBearerTokenAuthenticationFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager);
 		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager);
-		createOpenIDLoginFilter(sessionStrategy, authenticationManager);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
 		createLogoutFilter();
@@ -395,106 +374,6 @@ final class AuthenticationConfigBuilder {
 		}
 	}
 
-	void createOpenIDLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
-		Element openIDLoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OPENID_LOGIN);
-		RootBeanDefinition openIDFilter = null;
-		if (openIDLoginElt != null) {
-			openIDFilter = parseOpenIDFilter(sessionStrategy, openIDLoginElt);
-		}
-		if (openIDFilter != null) {
-			openIDFilter.getPropertyValues().addPropertyValue("allowSessionCreation", this.allowSessionCreation);
-			openIDFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
-			// Required by login page filter
-			this.openIDFilterId = this.pc.getReaderContext().generateBeanName(openIDFilter);
-			this.pc.registerBeanComponent(new BeanComponentDefinition(openIDFilter, this.openIDFilterId));
-			injectRememberMeServicesRef(openIDFilter, this.rememberMeServicesId);
-			createOpenIDProvider();
-		}
-	}
-
-	/**
-	 * Parses OpenID 1.0 and 2.0 - related parts of configuration xmls
-	 * @param sessionStrategy sessionStrategy
-	 * @param openIDLoginElt the element from the xml file
-	 * @return the parsed filter as rootBeanDefinition
-	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
-	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
-	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
-	 * supported by <code>spring-security-oauth2</code>.
-	 */
-	@Deprecated
-	private RootBeanDefinition parseOpenIDFilter(BeanReference sessionStrategy, Element openIDLoginElt) {
-		RootBeanDefinition openIDFilter;
-		FormLoginBeanDefinitionParser parser = new FormLoginBeanDefinitionParser("/login/openid", null,
-				OPEN_ID_AUTHENTICATION_PROCESSING_FILTER_CLASS, this.requestCache, sessionStrategy,
-				this.allowSessionCreation, this.portMapper, this.portResolver);
-
-		parser.parse(openIDLoginElt, this.pc);
-		openIDFilter = parser.getFilterBean();
-		this.openIDEntryPoint = parser.getEntryPointBean();
-		this.openidLoginProcessingUrl = parser.getLoginProcessingUrl();
-		this.openIDLoginPage = parser.getLoginPage();
-		List<Element> attrExElts = DomUtils.getChildElementsByTagName(openIDLoginElt,
-				Elements.OPENID_ATTRIBUTE_EXCHANGE);
-		if (!attrExElts.isEmpty()) {
-			// Set up the consumer with the required attribute list
-			BeanDefinitionBuilder consumerBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_CONSUMER_CLASS);
-			BeanDefinitionBuilder axFactory = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_FACTORY_CLASS);
-			ManagedMap<String, ManagedList<BeanDefinition>> axMap = new ManagedMap<>();
-			for (Element attrExElt : attrExElts) {
-				String identifierMatch = attrExElt.getAttribute("identifier-match");
-				if (!StringUtils.hasText(identifierMatch)) {
-					if (attrExElts.size() > 1) {
-						this.pc.getReaderContext().error("You must supply an identifier-match attribute if using more"
-								+ " than one " + Elements.OPENID_ATTRIBUTE_EXCHANGE + " element", attrExElt);
-					}
-					// Match anything
-					identifierMatch = ".*";
-				}
-				axMap.put(identifierMatch, parseOpenIDAttributes(attrExElt));
-			}
-			axFactory.addConstructorArgValue(axMap);
-			consumerBldr.addConstructorArgValue(axFactory.getBeanDefinition());
-			openIDFilter.getPropertyValues().addPropertyValue("consumer", consumerBldr.getBeanDefinition());
-		}
-		return openIDFilter;
-	}
-
-	private ManagedList<BeanDefinition> parseOpenIDAttributes(Element attrExElt) {
-		ManagedList<BeanDefinition> attributes = new ManagedList<>();
-		for (Element attElt : DomUtils.getChildElementsByTagName(attrExElt, Elements.OPENID_ATTRIBUTE)) {
-			String name = attElt.getAttribute("name");
-			String type = attElt.getAttribute("type");
-			String required = attElt.getAttribute("required");
-			String count = attElt.getAttribute("count");
-			BeanDefinitionBuilder attrBldr = BeanDefinitionBuilder.rootBeanDefinition(OPEN_ID_ATTRIBUTE_CLASS);
-			attrBldr.addConstructorArgValue(name);
-			attrBldr.addConstructorArgValue(type);
-			if (StringUtils.hasLength(required)) {
-				attrBldr.addPropertyValue("required", Boolean.valueOf(required));
-			}
-			if (StringUtils.hasLength(count)) {
-				attrBldr.addPropertyValue("count", Integer.parseInt(count));
-			}
-			attributes.add(attrBldr.getBeanDefinition());
-		}
-		return attributes;
-	}
-
-	private void createOpenIDProvider() {
-		Element openIDLoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OPENID_LOGIN);
-		BeanDefinitionBuilder openIDProviderBuilder = BeanDefinitionBuilder
-				.rootBeanDefinition(OPEN_ID_AUTHENTICATION_PROVIDER_CLASS);
-		RootBeanDefinition uds = new RootBeanDefinition();
-		uds.setFactoryBeanName(BeanIds.USER_DETAILS_SERVICE_FACTORY);
-		uds.setFactoryMethodName("authenticationUserDetailsService");
-		uds.getConstructorArgumentValues().addGenericArgumentValue(openIDLoginElt.getAttribute(ATT_USER_SERVICE_REF));
-		openIDProviderBuilder.addPropertyValue("authenticationUserDetailsService", uds);
-		BeanDefinition openIDProvider = openIDProviderBuilder.getBeanDefinition();
-		this.openIDProviderRef = new RuntimeBeanReference(
-				this.pc.getReaderContext().registerWithGeneratedName(openIDProvider));
-	}
-
 	private void injectRememberMeServicesRef(RootBeanDefinition bean, String rememberMeServicesId) {
 		if (rememberMeServicesId != null) {
 			bean.getPropertyValues().addPropertyValue("rememberMeServices",
@@ -640,10 +519,9 @@ final class AuthenticationConfigBuilder {
 	}
 
 	void createLoginPageFilterIfNeeded() {
-		boolean needLoginPage = this.formFilterId != null || this.openIDFilterId != null
-				|| this.oauth2LoginFilterId != null;
+		boolean needLoginPage = this.formFilterId != null || this.oauth2LoginFilterId != null;
 		// If no login page has been defined, add in the default page generator.
-		if (needLoginPage && this.formLoginPage == null && this.openIDLoginPage == null) {
+		if (needLoginPage && this.formLoginPage == null) {
 			this.logger.info("No login page configured. The default internal one will be used. Use the '"
 					+ FormLoginBeanDefinitionParser.ATT_LOGIN_PAGE + "' attribute to set the URL of the login page.");
 			BeanDefinitionBuilder loginPageFilter = BeanDefinitionBuilder
@@ -657,12 +535,7 @@ final class AuthenticationConfigBuilder {
 				loginPageFilter.addConstructorArgReference(this.formFilterId);
 				loginPageFilter.addPropertyValue("authenticationUrl", this.loginProcessingUrl);
 			}
-			if (this.openIDFilterId != null) {
-				loginPageFilter.addConstructorArgReference(this.openIDFilterId);
-				loginPageFilter.addPropertyValue("openIDauthenticationUrl", this.openidLoginProcessingUrl);
-			}
 			if (this.oauth2LoginFilterId != null) {
-				loginPageFilter.addConstructorArgReference(this.oauth2LoginFilterId);
 				loginPageFilter.addPropertyValue("Oauth2LoginEnabled", true);
 				loginPageFilter.addPropertyValue("Oauth2AuthenticationUrlToClientName", this.oauth2LoginLinks);
 			}
@@ -820,21 +693,11 @@ final class AuthenticationConfigBuilder {
 		}
 		Element basicAuthElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.BASIC_AUTH);
 		Element formLoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.FORM_LOGIN);
-		Element openIDLoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OPENID_LOGIN);
 		// Basic takes precedence if explicit element is used and no others are configured
-		if (basicAuthElt != null && formLoginElt == null && openIDLoginElt == null
-				&& this.oauth2LoginEntryPoint == null) {
+		if (basicAuthElt != null && formLoginElt == null && this.oauth2LoginEntryPoint == null) {
 			return this.basicEntryPoint;
 		}
-		// If formLogin has been enabled either through an element or auto-config, then it
-		// is used if no openID login page
-		// has been set.
-		if (this.formLoginPage != null && this.openIDLoginPage != null) {
-			this.pc.getReaderContext().error(
-					"Only one login-page can be defined, either for OpenID or form-login, " + "but not both.",
-					this.pc.extractSource(openIDLoginElt));
-		}
-		if (this.formFilterId != null && this.openIDLoginPage == null) {
+		if (this.formFilterId != null) {
 			// If form login was enabled through element and Oauth2 login was enabled from
 			// element then use form login (gh-6802)
 			if (formLoginElt != null && this.oauth2LoginEntryPoint != null) {
@@ -845,10 +708,6 @@ final class AuthenticationConfigBuilder {
 			if (this.oauth2LoginEntryPoint == null) {
 				return this.formEntryPoint;
 			}
-		}
-		// Otherwise use OpenID if enabled
-		if (this.openIDFilterId != null) {
-			return this.openIDEntryPoint;
 		}
 		// If X.509 or JEE have been enabled, use the preauth entry point.
 		if (this.preAuthEntryPoint != null) {
@@ -902,10 +761,6 @@ final class AuthenticationConfigBuilder {
 			filters.add(new OrderDecorator(this.oauth2AuthorizationRequestRedirectFilter,
 					SecurityFilters.OAUTH2_AUTHORIZATION_REQUEST_FILTER));
 		}
-		if (this.openIDFilterId != null) {
-			filters.add(
-					new OrderDecorator(new RuntimeBeanReference(this.openIDFilterId), SecurityFilters.OPENID_FILTER));
-		}
 		if (this.loginPageGenerationFilter != null) {
 			filters.add(new OrderDecorator(this.loginPageGenerationFilter, SecurityFilters.LOGIN_PAGE_FILTER));
 			filters.add(new OrderDecorator(this.logoutPageGenerationFilter, SecurityFilters.LOGOUT_PAGE_FILTER));
@@ -934,9 +789,6 @@ final class AuthenticationConfigBuilder {
 		}
 		if (this.rememberMeProviderRef != null) {
 			providers.add(this.rememberMeProviderRef);
-		}
-		if (this.openIDProviderRef != null) {
-			providers.add(this.openIDProviderRef);
 		}
 		if (this.x509ProviderRef != null) {
 			providers.add(this.x509ProviderRef);

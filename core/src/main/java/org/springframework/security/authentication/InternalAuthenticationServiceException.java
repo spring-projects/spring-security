@@ -29,7 +29,7 @@ package org.springframework.security.authentication;
  * <p>
  * This might be thrown if a backend authentication repository is unavailable, for
  * example. However, it would not be thrown in the event that an error occurred when
- * validating an OpenID response with an OpenID Provider.
+ * validating an OIDC response from an OIDC provider.
  * </p>
  *
  * @author Rob Winch

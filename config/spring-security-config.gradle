@@ -23,7 +23,6 @@ dependencies {
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
-	optional project(':spring-security-openid')
 	optional project(':spring-security-rsocket')
 	optional project(':spring-security-web')
 	optional 'io.projectreactor:reactor-core'
@@ -80,10 +79,6 @@ dependencies {
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation "org.mockito:mockito-inline"
-	testImplementation ('org.openid4java:openid4java-nodeps') {
-		exclude group: 'com.google.code.guice', module: 'guice'
-		exclude group: 'commons-logging', module: 'commons-logging'
-	}
 	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}

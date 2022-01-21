@@ -18,6 +18,5 @@ These sections focus on specific ways you may want to authenticate and point bac
 * xref:servlet/saml2/index.adoc#servlet-saml2[SAML 2.0 Login] - SAML 2.0 Log In
 * xref:servlet/authentication/rememberme.adoc#servlet-rememberme[Remember Me] - how to remember a user past session expiration
 * xref:servlet/authentication/jaas.adoc#servlet-jaas[JAAS Authentication] - authenticate with JAAS
-* xref:servlet/authentication/openid.adoc#servlet-openid[OpenID] - OpenID Authentication (not to be confused with OpenID Connect)
 * xref:servlet/authentication/preauth.adoc#servlet-preauth[Pre-Authentication Scenarios] - authenticate with an external mechanism such as https://www.siteminder.com/[SiteMinder] or Java EE security but still use Spring Security for authorization and protection against common exploits.
 * xref:servlet/authentication/x509.adoc#servlet-x509[X509 Authentication] - X509 Authentication

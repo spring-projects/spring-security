@@ -71,7 +71,7 @@ You can do so by adding a Maven property:
 ----
 ====
 
-If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
+If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
 [[getting-maven-no-boot]]
 === Maven Without Spring Boot
@@ -117,7 +117,7 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 ----
 ====
 
-If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
+If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
 Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x.
 Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-core-version}, which can cause strange classpath problems.
@@ -238,7 +238,7 @@ ext['spring.version']='{spring-core-version}'
 ----
 ====
 
-If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
+If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
 === Gradle Without Spring Boot
 
@@ -276,7 +276,7 @@ dependencies {
 ----
 ====
 
-If you use additional features (such as LDAP, OpenID, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
+If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
 Spring Security builds against Spring Framework {spring-core-version} but should generally work with any newer version of Spring Framework 5.x.
 Many users are likely to run afoul of the fact that Spring Security's transitive dependencies resolve Spring Framework {spring-core-version}, which can cause strange classpath problems.

@@ -109,7 +109,7 @@ public class UserDetailsServiceFactoryBean implements ApplicationContextAware {
 		}
 		if (beans.size() > 1) {
 			throw new ApplicationContextException("More than one UserDetailsService registered. Please "
-					+ "use a specific Id reference in <remember-me/> <openid-login/> or <x509 /> elements.");
+					+ "use a specific Id reference in <remember-me/> or <x509 /> elements.");
 		}
 		return (UserDetailsService) beans.values().toArray()[0];
 	}
