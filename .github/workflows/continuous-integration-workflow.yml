@@ -111,11 +111,15 @@ jobs:
         env:
           GRADLE_USER_HOME: ~/.gradle
       - name: Check samples project
+        env:
+          LOCAL_REPOSITORY_PATH: ${{ github.workspace }}/build/publications/repos
+          SAMPLES_INIT_SCRIPT: ${{ github.workspace }}/build/includeRepo/spring-security-ci.gradle
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew checkSamples --stacktrace
+          ./gradlew publishMavenJavaPublicationToLocalRepository
+          ./gradlew checkSamples -PsamplesInitScript="$SAMPLES_INIT_SCRIPT" -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" --stacktrace
   check_tangles:
     name: Check for Package Tangles
     needs: [ prerequisites ]
