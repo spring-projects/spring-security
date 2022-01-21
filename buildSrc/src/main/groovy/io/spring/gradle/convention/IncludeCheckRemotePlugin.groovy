@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -19,7 +19,6 @@ package io.spring.gradle.convention
 import io.spring.gradle.IncludeRepoTask
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.GradleBuild
 import org.gradle.api.tasks.TaskProvider
 
@@ -40,6 +39,12 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 			it.dependsOn 'includeRepo'
 			it.dir = includeRepoTask.get().outputDirectory
 			it.tasks = extension.getTasks()
+			extension.getInitScripts().forEach {script ->
+				it.startParameter.addInitScript(new File(script))
+			}
+			extension.getProjectProperties().entrySet().forEach { entry ->
+				it.startParameter.projectProperties.put(entry.getKey(), entry.getValue())
+			}
 		}
 	}
 
@@ -59,6 +64,16 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 		 * Task to run in the repository
 		 */
 		List<String> tasks = ['check']
+
+		/**
+		 * Init scripts for the build
+		 */
+		List<String> initScripts = []
+
+		/**
+		 * Map of properties for the build
+		 */
+		Map<String, String> projectProperties = [:]
 
 	}
 

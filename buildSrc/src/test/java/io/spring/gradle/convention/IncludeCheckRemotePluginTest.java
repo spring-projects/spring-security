@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -16,6 +16,11 @@
 
 package io.spring.gradle.convention;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
 import io.spring.gradle.IncludeRepoTask;
 import org.apache.commons.io.FileUtils;
 import org.gradle.api.Project;
@@ -23,8 +28,6 @@ import org.gradle.api.tasks.GradleBuild;
 import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,6 +69,40 @@ class IncludeCheckRemotePluginTest {
 
 		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
 		assertThat(checkRemote.getTasks()).containsExactly("clean", "build", "test");
+	}
+
+	@Test
+	void applyWhenExtensionPropertiesInitScriptsThenCreateCheckRemoteWithProvidedTasks() {
+		this.rootProject = ProjectBuilder.builder().build();
+		this.rootProject.getPluginManager().apply(IncludeCheckRemotePlugin.class);
+		this.rootProject.getExtensions().configure(IncludeCheckRemotePlugin.IncludeCheckRemoteExtension.class,
+				(includeCheckRemoteExtension) -> {
+					includeCheckRemoteExtension.setProperty("repository", "my-project/my-repository");
+					includeCheckRemoteExtension.setProperty("ref", "main");
+					includeCheckRemoteExtension.setProperty("initScripts", Arrays.asList("spring-security-ci.gradle"));
+				});
+
+		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
+		assertThat(checkRemote.getStartParameter().getAllInitScripts()).extracting(File::getName).containsExactly("spring-security-ci.gradle");
+	}
+
+	@Test
+	void applyWhenExtensionPropertiesBuildPropertiesThenCreateCheckRemoteWithProvidedTasks() {
+		Map<String, String> projectProperties = new HashMap<>();
+		projectProperties.put("localRepositoryPath", "~/local/repository");
+		projectProperties.put("anotherProperty", "some_value");
+		this.rootProject = ProjectBuilder.builder().build();
+		this.rootProject.getPluginManager().apply(IncludeCheckRemotePlugin.class);
+		this.rootProject.getExtensions().configure(IncludeCheckRemotePlugin.IncludeCheckRemoteExtension.class,
+				(includeCheckRemoteExtension) -> {
+					includeCheckRemoteExtension.setProperty("repository", "my-project/my-repository");
+					includeCheckRemoteExtension.setProperty("ref", "main");
+					includeCheckRemoteExtension.setProperty("projectProperties", projectProperties);
+				});
+
+		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
+		assertThat(checkRemote.getStartParameter().getProjectProperties()).containsEntry("localRepositoryPath", "~/local/repository")
+				.containsEntry("anotherProperty", "some_value");
 	}
 
 	@Test
