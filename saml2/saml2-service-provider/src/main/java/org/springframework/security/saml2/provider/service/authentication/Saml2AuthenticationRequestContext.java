@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ import org.springframework.util.Assert;
  * @since 5.3
  * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
  * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
+ * @deprecated Use
+ * {@link org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver}
+ * instead
  */
+@Deprecated
 public class Saml2AuthenticationRequestContext {
 
 	private final RelyingPartyRegistration relyingPartyRegistration;
