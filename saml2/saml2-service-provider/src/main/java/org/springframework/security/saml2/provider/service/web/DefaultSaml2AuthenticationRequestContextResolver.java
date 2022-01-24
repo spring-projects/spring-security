@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,11 @@ import org.springframework.util.Assert;
  * @author Shazin Sadakath
  * @author Josh Cummings
  * @since 5.4
+ * @deprecated Use
+ * {@link org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver}
+ * instead
  */
+@Deprecated
 public final class DefaultSaml2AuthenticationRequestContextResolver
 		implements Saml2AuthenticationRequestContextResolver {
 
