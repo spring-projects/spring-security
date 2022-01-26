@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,7 @@ import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionVali
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.OneTimeUse;
@@ -425,7 +426,9 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
 			String username = assertion.getSubject().getNameID().getValue();
 			Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
-			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes);
+			List<String> sessionIndexes = getSessionIndexes(assertion);
+			DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal(username, attributes,
+					sessionIndexes);
 			String registrationId = responseToken.token.getRelyingPartyRegistration().getRegistrationId();
 			principal.setRelyingPartyRegistrationId(registrationId);
 			return new Saml2Authentication(principal, token.getSaml2Response(),
@@ -615,6 +618,14 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			}
 		}
 		return attributeMap;
+	}
+
+	private static List<String> getSessionIndexes(Assertion assertion) {
+		List<String> sessionIndexes = new ArrayList<>();
+		for (AuthnStatement statement : assertion.getAuthnStatements()) {
+			sessionIndexes.add(statement.getSessionIndex());
+		}
+		return sessionIndexes;
 	}
 
 	private static Object getXmlObjectValue(XMLObject xmlObject) {
