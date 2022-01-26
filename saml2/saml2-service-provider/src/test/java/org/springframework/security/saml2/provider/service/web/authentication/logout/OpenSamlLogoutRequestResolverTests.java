@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.saml2.provider.service.web.authentication.l
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -86,10 +87,13 @@ public class OpenSamlLogoutRequestResolverTests {
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
 		LogoutRequest logoutRequest = getLogoutRequest(saml2LogoutRequest.getSamlRequest(), binding);
 		assertThat(logoutRequest.getNameID().getValue()).isEqualTo(authentication.getName());
+		assertThat(logoutRequest.getSessionIndexes()).hasSize(1);
+		assertThat(logoutRequest.getSessionIndexes().get(0).getSessionIndex()).isEqualTo("session-index");
 	}
 
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {
-		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", new HashMap<>());
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", new HashMap<>(),
+				Arrays.asList("session-index"));
 		principal.setRelyingPartyRegistrationId(registration.getRegistrationId());
 		return new Saml2Authentication(principal, "response", new ArrayList<>());
 	}
