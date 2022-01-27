@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import net.shibboleth.utilities.java.support.xml.ParserPool;
@@ -63,8 +65,24 @@ class OpenSamlAssertingPartyMetadataConverter {
 		this.parserPool = this.registry.getParserPool();
 	}
 
-	RelyingPartyRegistration.Builder convert(InputStream inputStream) {
-		EntityDescriptor descriptor = entityDescriptor(inputStream);
+	Collection<RelyingPartyRegistration.Builder> convert(InputStream inputStream) {
+		List<RelyingPartyRegistration.Builder> builders = new ArrayList<>();
+		XMLObject xmlObject = xmlObject(inputStream);
+		if (xmlObject instanceof EntitiesDescriptor) {
+			EntitiesDescriptor descriptors = (EntitiesDescriptor) xmlObject;
+			for (EntityDescriptor descriptor : descriptors.getEntityDescriptors()) {
+				builders.add(convert(descriptor));
+			}
+			return builders;
+		}
+		if (xmlObject instanceof EntityDescriptor) {
+			EntityDescriptor descriptor = (EntityDescriptor) xmlObject;
+			return Arrays.asList(convert(descriptor));
+		}
+		throw new Saml2Exception("Unsupported element of type " + xmlObject.getClass());
+	}
+
+	RelyingPartyRegistration.Builder convert(EntityDescriptor descriptor) {
 		IDPSSODescriptor idpssoDescriptor = descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 		if (idpssoDescriptor == null) {
 			throw new Saml2Exception("Metadata response is missing the necessary IDPSSODescriptor element");
@@ -167,7 +185,7 @@ class OpenSamlAssertingPartyMetadataConverter {
 		return signingMethods(extensions);
 	}
 
-	private EntityDescriptor entityDescriptor(InputStream inputStream) {
+	private XMLObject xmlObject(InputStream inputStream) {
 		Document document = document(inputStream);
 		Element element = document.getDocumentElement();
 		Unmarshaller unmarshaller = this.registry.getUnmarshallerFactory().getUnmarshaller(element);
@@ -175,18 +193,11 @@ class OpenSamlAssertingPartyMetadataConverter {
 			throw new Saml2Exception("Unsupported element of type " + element.getTagName());
 		}
 		try {
-			XMLObject object = unmarshaller.unmarshall(element);
-			if (object instanceof EntitiesDescriptor) {
-				return ((EntitiesDescriptor) object).getEntityDescriptors().get(0);
-			}
-			if (object instanceof EntityDescriptor) {
-				return (EntityDescriptor) object;
-			}
+			return unmarshaller.unmarshall(element);
 		}
 		catch (Exception ex) {
 			throw new Saml2Exception(ex);
 		}
-		throw new Saml2Exception("Unsupported element of type " + element.getTagName());
 	}
 
 	private Document document(InputStream inputStream) {
