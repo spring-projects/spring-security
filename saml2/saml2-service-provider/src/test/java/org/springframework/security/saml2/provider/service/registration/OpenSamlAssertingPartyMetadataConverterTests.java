@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -98,7 +98,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
 								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).registrationId("one").build();
+		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
+				.registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSigningAlgorithms()).containsExactly(SignatureConstants.ALGO_ID_DIGEST_SHA512);
@@ -123,7 +124,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 										+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
 										+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE))));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).registrationId("one").build();
+		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
+				.registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
@@ -142,7 +144,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
 				String.format(KEY_DESCRIPTOR_TEMPLATE, "") + String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).registrationId("one").build();
+		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
+				.registrationId("one").build();
 		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
 				.isEqualTo(x509Certificate(CERTIFICATE));
