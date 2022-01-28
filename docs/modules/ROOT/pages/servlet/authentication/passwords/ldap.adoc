@@ -408,7 +408,7 @@ fun authenticationManager(contextSource: BaseLdapPathContextSource): Authenticat
 ====
 
 If used with the `ContextSource` <<servlet-authentication-ldap-contextsource,definition shown earlier>>, this would perform a search under the DN `ou=people,dc=springframework,dc=org` by using `+(uid={0})+` as a filter.
-Again, the user login name is substituted for the parameter in the filter name, so it searchs for an entry with the `uid` attribute equal to the user name.
+Again, the user login name is substituted for the parameter in the filter name, so it searches for an entry with the `uid` attribute equal to the user name.
 If a user search base is not supplied, the search is performed from the root.
 
 [[servlet-authentication-ldap-pwd]]
