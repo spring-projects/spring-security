@@ -36,7 +36,7 @@ If you are unfamiliar with how to do this, you can refer to the https://docs.ora
 == Setting up an Embedded LDAP Server
 
 The first thing you will need to do is to ensure that you have an LDAP Server to point your configuration to.
-For simplicity, it often best to start with an embedded LDAP Server.
+For simplicity, it is often best to start with an embedded LDAP Server.
 Spring Security supports using either:
 
 * <<servlet-authentication-ldap-unboundid>>
