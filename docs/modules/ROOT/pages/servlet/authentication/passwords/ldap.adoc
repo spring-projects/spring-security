@@ -118,9 +118,34 @@ depenendencies {
 ----
 ====
 
-You can then configure the Embedded LDAP Server
+You can then configure the Embedded LDAP Server using an `EmbeddedLdapServerContextSourceFactoryBean`.
+This will instruct Spring Security to start an in-memory LDAP server.
 
 .Embedded LDAP Server Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public EmbeddedLdapServerContextSourceFactoryBean contextSourceFactoryBean() {
+	return EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun contextSourceFactoryBean(): EmbeddedLdapServerContextSourceFactoryBean {
+    return EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer()
+}
+----
+====
+
+Alternatively, you can manually configure the Embedded LDAP Server.
+If you choose this approach, you will be responsible for managing the lifecycle of the Embedded LDAP Server.
+
+.Explicit Embedded LDAP Server Configuration
 ====
 .Java
 [source,java,role="primary"]
@@ -228,6 +253,35 @@ fun ldapContainer(): ApacheDSContainer {
 
 Once you have an LDAP Server to point your configuration to, you need configure Spring Security to point to an LDAP server that should be used to authenticate users.
 This is done by creating an LDAP `ContextSource`, which is the equivalent of a JDBC `DataSource`.
+If you have already configured an `EmbeddedLdapServerContextSourceFactoryBean`, Spring Security will create an LDAP `ContextSource` that points to the embedded LDAP server.
+
+.LDAP Context Source with Embedded LDAP Server
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public EmbeddedLdapServerContextSourceFactoryBean contextSourceFactoryBean() {
+	EmbeddedLdapServerContextSourceFactoryBean contextSourceFactoryBean =
+			EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer();
+	contextSourceFactoryBean.setPort(0);
+	return contextSourceFactoryBean;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun contextSourceFactoryBean(): EmbeddedLdapServerContextSourceFactoryBean {
+    val contextSourceFactoryBean = EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer()
+    contextSourceFactoryBean.setPort(0)
+    return contextSourceFactoryBean
+}
+----
+====
+
+Alternatively, you can explicitly configure the LDAP `ContextSource` to connect to the supplied LDAP server.
 
 .LDAP Context Source
 ====
@@ -287,15 +341,10 @@ An example of bind authentication configuration can be found below.
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
-BindAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
-	BindAuthenticator authenticator = new BindAuthenticator(contextSource);
-	authenticator.setUserDnPatterns(new String[] { "uid={0},ou=people" });
-	return authenticator;
-}
-
-@Bean
-LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticator) {
-	return new LdapAuthenticationProvider(authenticator);
+AuthenticationManager authenticationManager(BaseLdapPathContextSource contextSource) {
+	LdapBindAuthenticationManagerFactory factory = new LdapBindAuthenticationManagerFactory(contextSource);
+	factory.setUserDnPatterns("uid={0},ou=people");
+	return factory.createAuthenticationManager();
 }
 ----
 
@@ -310,15 +359,10 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
-fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
-    val authenticator = BindAuthenticator(contextSource)
-    authenticator.setUserDnPatterns(arrayOf("uid={0},ou=people"))
-    return authenticator
-}
-
-@Bean
-fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
-    return LdapAuthenticationProvider(authenticator)
+fun authenticationManager(contextSource: BaseLdapPathContextSource): AuthenticationManager {
+    val factory = LdapBindAuthenticationManagerFactory(contextSource)
+    factory.setUserDnPatterns("uid={0},ou=people")
+    return factory.createAuthenticationManager()
 }
 ----
 ====
@@ -333,19 +377,11 @@ If instead you wished to configure an LDAP search filter to locate the user, you
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
-BindAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
-	String searchBase = "ou=people";
-	String filter = "(uid={0})";
-	FilterBasedLdapUserSearch search =
-		new FilterBasedLdapUserSearch(searchBase, filter, contextSource);
-	BindAuthenticator authenticator = new BindAuthenticator(contextSource);
-	authenticator.setUserSearch(search);
-	return authenticator;
-}
-
-@Bean
-LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticator) {
-	return new LdapAuthenticationProvider(authenticator);
+AuthenticationManager authenticationManager(BaseLdapPathContextSource contextSource) {
+	LdapBindAuthenticationManagerFactory factory = new LdapBindAuthenticationManagerFactory(contextSource);
+	factory.setUserSearchFilter("(uid={0})");
+	factory.setUserSearchBase("ou=people");
+	return factory.createAuthenticationManager();
 }
 ----
 
@@ -361,18 +397,11 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
-fun authenticator(contextSource: BaseLdapPathContextSource): BindAuthenticator {
-    val searchBase = "ou=people"
-    val filter = "(uid={0})"
-    val search = FilterBasedLdapUserSearch(searchBase, filter, contextSource)
-    val authenticator = BindAuthenticator(contextSource)
-    authenticator.setUserSearch(search)
-    return authenticator
-}
-
-@Bean
-fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
-    return LdapAuthenticationProvider(authenticator)
+fun authenticationManager(contextSource: BaseLdapPathContextSource): AuthenticationManager {
+    val factory = LdapBindAuthenticationManagerFactory(contextSource)
+    factory.setUserSearchFilter("(uid={0})")
+    factory.setUserSearchBase("ou=people")
+    return factory.createAuthenticationManager()
 }
 ----
 ====
@@ -394,13 +423,11 @@ An LDAP compare cannot be done when the password is properly hashed with a rando
 [source,java,role="primary"]
 ----
 @Bean
-PasswordComparisonAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
-	return new PasswordComparisonAuthenticator(contextSource);
-}
-
-@Bean
-LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticator) {
-	return new LdapAuthenticationProvider(authenticator);
+AuthenticationManager authenticationManager(BaseLdapPathContextSource contextSource) {
+	LdapPasswordComparisonAuthenticationManagerFactory factory = new LdapPasswordComparisonAuthenticationManagerFactory(
+			contextSource, NoOpPasswordEncoder.getInstance());
+	factory.setUserDnPatterns("uid={0},ou=people");
+	return factory.createAuthenticationManager();
 }
 ----
 
@@ -417,13 +444,12 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun authenticator(contextSource: BaseLdapPathContextSource): PasswordComparisonAuthenticator {
-    return PasswordComparisonAuthenticator(contextSource)
-}
-
-@Bean
-fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
-    return LdapAuthenticationProvider(authenticator)
+fun authenticationManager(contextSource: BaseLdapPathContextSource?): AuthenticationManager? {
+    val factory = LdapPasswordComparisonAuthenticationManagerFactory(
+        contextSource, NoOpPasswordEncoder.getInstance()
+    )
+    factory.setUserDnPatterns("uid={0},ou=people")
+    return factory.createAuthenticationManager()
 }
 ----
 ====
@@ -436,17 +462,12 @@ A more advanced configuration with some customizations can be found below.
 [source,java,role="primary"]
 ----
 @Bean
-PasswordComparisonAuthenticator authenticator(BaseLdapPathContextSource contextSource) {
-	PasswordComparisonAuthenticator authenticator =
-		new PasswordComparisonAuthenticator(contextSource);
-	authenticator.setPasswordAttributeName("pwd"); // <1>
-	authenticator.setPasswordEncoder(new BCryptPasswordEncoder()); // <2>
-	return authenticator;
-}
-
-@Bean
-LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticator) {
-	return new LdapAuthenticationProvider(authenticator);
+AuthenticationManager authenticationManager(BaseLdapPathContextSource contextSource) {
+	LdapPasswordComparisonAuthenticationManagerFactory factory = new LdapPasswordComparisonAuthenticationManagerFactory(
+			contextSource, new BCryptPasswordEncoder());
+	factory.setUserDnPatterns("uid={0},ou=people");
+	factory.setPasswordAttribute("pwd");  // <1>
+	return factory.createAuthenticationManager();
 }
 ----
 
@@ -467,23 +488,18 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 [source,kotlin,role="secondary"]
 ----
 @Bean
-fun authenticator(contextSource: BaseLdapPathContextSource): PasswordComparisonAuthenticator {
-    val authenticator = PasswordComparisonAuthenticator(contextSource)
-    authenticator.setPasswordAttributeName("pwd") // <1>
-    authenticator.setPasswordEncoder(BCryptPasswordEncoder()) // <2>
-    return authenticator
-}
-
-@Bean
-fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthenticationProvider {
-    return LdapAuthenticationProvider(authenticator)
+fun authenticationManager(contextSource: BaseLdapPathContextSource): AuthenticationManager {
+    val factory = LdapPasswordComparisonAuthenticationManagerFactory(
+        contextSource, BCryptPasswordEncoder()
+    )
+    factory.setUserDnPatterns("uid={0},ou=people")
+    factory.setPasswordAttribute("pwd") // <1>
+    return factory.createAuthenticationManager()
 }
 ----
 ====
 
 <1> Specify the password attribute as `pwd`
-<2> Use `BCryptPasswordEncoder`
-
 
 == LdapAuthoritiesPopulator
 
@@ -504,8 +520,11 @@ LdapAuthoritiesPopulator authorities(BaseLdapPathContextSource contextSource) {
 }
 
 @Bean
-LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticator, LdapAuthoritiesPopulator authorities) {
-	return new LdapAuthenticationProvider(authenticator, authorities);
+AuthenticationManager authenticationManager(BaseLdapPathContextSource contextSource, LdapAuthoritiesPopulator authorities) {
+	LdapBindAuthenticationManagerFactory factory = new LdapBindAuthenticationManagerFactory(contextSource);
+	factory.setUserDnPatterns("uid={0},ou=people");
+	factory.setLdapAuthoritiesPopulator(authorities);
+	return factory.createAuthenticationManager();
 }
 ----
 
@@ -529,8 +548,13 @@ fun authorities(contextSource: BaseLdapPathContextSource): LdapAuthoritiesPopula
 }
 
 @Bean
-fun authenticationProvider(authenticator: LdapAuthenticator, authorities: LdapAuthoritiesPopulator): LdapAuthenticationProvider {
-    return LdapAuthenticationProvider(authenticator, authorities)
+fun authenticationManager(
+    contextSource: BaseLdapPathContextSource,
+    authorities: LdapAuthoritiesPopulator): AuthenticationManager {
+    val factory = LdapBindAuthenticationManagerFactory(contextSource)
+    factory.setUserDnPatterns("uid={0},ou=people")
+    factory.setLdapAuthoritiesPopulator(authorities)
+    return factory.createAuthenticationManager()
 }
 ----
 ====
