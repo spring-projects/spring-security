@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +20,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -156,6 +160,23 @@ class RequestMatcherDelegatingWebInvocationPrivilegeEvaluatorTests {
 		verify(spyDeny).isAllowed(any(), any());
 		verify(spyDeny).isAllowed(any(), any(), any(), any());
 		verifyNoMoreInteractions(spyDeny);
+	}
+
+	@Test
+	void isAllowedWhenServletContextIsSetThenPassedFilterInvocationHttpServletRequestHasServletContext() {
+		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
+		MockServletContext servletContext = new MockServletContext();
+		ArgumentCaptor<HttpServletRequest> argumentCaptor = ArgumentCaptor.forClass(HttpServletRequest.class);
+		RequestMatcher requestMatcher = mock(RequestMatcher.class);
+		WebInvocationPrivilegeEvaluator wipe = mock(WebInvocationPrivilegeEvaluator.class);
+		RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate = new RequestMatcherEntry<>(requestMatcher,
+				Collections.singletonList(wipe));
+		RequestMatcherDelegatingWebInvocationPrivilegeEvaluator requestMatcherWipe = new RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(
+				Collections.singletonList(delegate));
+		requestMatcherWipe.setServletContext(servletContext);
+		requestMatcherWipe.isAllowed("/foo/index.jsp", token);
+		verify(requestMatcher).matches(argumentCaptor.capture());
+		assertThat(argumentCaptor.getValue().getServletContext()).isNotNull();
 	}
 
 	@Test
