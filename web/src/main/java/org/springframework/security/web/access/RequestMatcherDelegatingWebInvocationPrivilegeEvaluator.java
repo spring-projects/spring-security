@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ package org.springframework.security.web.access;
 import java.util.Collections;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ServletContextAware;
 
 /**
  * A {@link WebInvocationPrivilegeEvaluator} which delegates to a list of
@@ -34,9 +36,12 @@ import org.springframework.util.Assert;
  * @author Marcus Da Coregio
  * @since 5.5.5
  */
-public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
+public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator
+		implements WebInvocationPrivilegeEvaluator, ServletContextAware {
 
 	private final List<RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>>> delegates;
+
+	private ServletContext servletContext;
 
 	public RequestMatcherDelegatingWebInvocationPrivilegeEvaluator(
 			List<RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>>> requestMatcherPrivilegeEvaluatorsEntries) {
@@ -110,13 +115,18 @@ public final class RequestMatcherDelegatingWebInvocationPrivilegeEvaluator imple
 	}
 
 	private List<WebInvocationPrivilegeEvaluator> getDelegate(String contextPath, String uri, String method) {
-		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method);
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		for (RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>> delegate : this.delegates) {
 			if (delegate.getRequestMatcher().matches(filterInvocation.getHttpRequest())) {
 				return delegate.getEntry();
 			}
 		}
 		return Collections.emptyList();
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 
 }
