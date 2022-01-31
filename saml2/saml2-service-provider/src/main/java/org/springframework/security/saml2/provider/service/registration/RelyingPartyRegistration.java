@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -422,6 +422,21 @@ public final class RelyingPartyRegistration {
 		return new Builder(registrationId);
 	}
 
+	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
+		Assert.notNull(assertingPartyDetails, "assertingPartyDetails cannot be null");
+		return withRegistrationId(assertingPartyDetails.getEntityId()).assertingPartyDetails((party) -> party
+				.entityId(assertingPartyDetails.getEntityId())
+				.wantAuthnRequestsSigned(assertingPartyDetails.getWantAuthnRequestsSigned())
+				.signingAlgorithms((algorithms) -> algorithms.addAll(assertingPartyDetails.getSigningAlgorithms()))
+				.verificationX509Credentials((c) -> c.addAll(assertingPartyDetails.getVerificationX509Credentials()))
+				.encryptionX509Credentials((c) -> c.addAll(assertingPartyDetails.getEncryptionX509Credentials()))
+				.singleSignOnServiceLocation(assertingPartyDetails.getSingleSignOnServiceLocation())
+				.singleSignOnServiceBinding(assertingPartyDetails.getSingleSignOnServiceBinding())
+				.singleLogoutServiceLocation(assertingPartyDetails.getSingleLogoutServiceLocation())
+				.singleLogoutServiceResponseLocation(assertingPartyDetails.getSingleLogoutServiceResponseLocation())
+				.singleLogoutServiceBinding(assertingPartyDetails.getSingleLogoutServiceBinding()));
+	}
+
 	/**
 	 * Creates a {@code RelyingPartyRegistration} {@link Builder} based on an existing
 	 * object
@@ -510,7 +525,7 @@ public final class RelyingPartyRegistration {
 	 *
 	 * @since 5.4
 	 */
-	public static final class AssertingPartyDetails {
+	public static class AssertingPartyDetails {
 
 		private final String entityId;
 
@@ -532,7 +547,7 @@ public final class RelyingPartyRegistration {
 
 		private final Saml2MessageBinding singleLogoutServiceBinding;
 
-		private AssertingPartyDetails(String entityId, boolean wantAuthnRequestsSigned, List<String> signingAlgorithms,
+		AssertingPartyDetails(String entityId, boolean wantAuthnRequestsSigned, List<String> signingAlgorithms,
 				Collection<Saml2X509Credential> verificationX509Credentials,
 				Collection<Saml2X509Credential> encryptionX509Credentials, String singleSignOnServiceLocation,
 				Saml2MessageBinding singleSignOnServiceBinding, String singleLogoutServiceLocation,
@@ -701,7 +716,7 @@ public final class RelyingPartyRegistration {
 			return this.singleLogoutServiceBinding;
 		}
 
-		public static final class Builder {
+		public static class Builder {
 
 			private String entityId;
 
@@ -951,7 +966,7 @@ public final class RelyingPartyRegistration {
 		@Deprecated
 		public static final class Builder {
 
-			private final AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
+			private AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
 
 			/**
 			 * Set the asserting party's <a href=
