@@ -24,6 +24,7 @@ import java.util.Base64;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.security.saml2.Saml2Exception;
@@ -31,7 +32,7 @@ import org.springframework.security.saml2.Saml2Exception;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class OpenSamlAssertingPartyMetadataConverterTests {
+public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 
 	private static final String CERTIFICATE = "MIIEEzCCAvugAwIBAgIJAIc1qzLrv+5nMA0GCSqGSIb3DQEBCwUAMIGfMQswCQYDVQQGEwJVUzELMAkGA1UECAwCQ08xFDASBgNVBAcMC0Nhc3RsZSBSb2NrMRwwGgYDVQQKDBNTYW1sIFRlc3RpbmcgU2VydmVyMQswCQYDVQQLDAJJVDEgMB4GA1UEAwwXc2ltcGxlc2FtbHBocC5jZmFwcHMuaW8xIDAeBgkqhkiG9w0BCQEWEWZoYW5pa0BwaXZvdGFsLmlvMB4XDTE1MDIyMzIyNDUwM1oXDTI1MDIyMjIyNDUwM1owgZ8xCzAJBgNVBAYTAlVTMQswCQYDVQQIDAJDTzEUMBIGA1UEBwwLQ2FzdGxlIFJvY2sxHDAaBgNVBAoME1NhbWwgVGVzdGluZyBTZXJ2ZXIxCzAJBgNVBAsMAklUMSAwHgYDVQQDDBdzaW1wbGVzYW1scGhwLmNmYXBwcy5pbzEgMB4GCSqGSIb3DQEJARYRZmhhbmlrQHBpdm90YWwuaW8wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4cn62E1xLqpN34PmbrKBbkOXFjzWgJ9b+pXuaRft6A339uuIQeoeH5qeSKRVTl32L0gdz2ZivLwZXW+cqvftVW1tvEHvzJFyxeTW3fCUeCQsebLnA2qRa07RkxTo6Nf244mWWRDodcoHEfDUSbxfTZ6IExSojSIU2RnD6WllYWFdD1GFpBJOmQB8rAc8wJIBdHFdQnX8Ttl7hZ6rtgqEYMzYVMuJ2F2r1HSU1zSAvwpdYP6rRGFRJEfdA9mm3WKfNLSc5cljz0X/TXy0vVlAV95l9qcfFzPmrkNIst9FZSwpvB49LyAVke04FQPPwLgVH4gphiJH3jvZ7I+J5lS8VAgMBAAGjUDBOMB0GA1UdDgQWBBTTyP6Cc5HlBJ5+ucVCwGc5ogKNGzAfBgNVHSMEGDAWgBTTyP6Cc5HlBJ5+ucVCwGc5ogKNGzAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQAvMS4EQeP/ipV4jOG5lO6/tYCb/iJeAduOnRhkJk0DbX329lDLZhTTL/x/w/9muCVcvLrzEp6PN+VWfw5E5FWtZN0yhGtP9R+vZnrV+oc2zGD+no1/ySFOe3EiJCO5dehxKjYEmBRv5sU/LZFKZpozKN/BMEa6CqLuxbzb7ykxVr7EVFXwltPxzE9TmL9OACNNyF5eJHWMRMllarUvkcXlh4pux4ks9e6zV9DQBy2zds9f1I3qxg0eX6JnGrXi/ZiCT+lJgVe3ZFXiejiLAiKB04sXW3ti0LW3lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk";
 
@@ -56,11 +57,11 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 	private static final String SINGLE_SIGN_ON_SERVICE_TEMPLATE = "<md:SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" "
 			+ "Location=\"sso-location\"/>";
 
-	private OpenSamlAssertingPartyMetadataConverter converter;
+	private OpenSamlMetadataAssertingPartyDetailsConverter converter;
 
 	@BeforeEach
 	public void setup() {
-		this.converter = new OpenSamlAssertingPartyMetadataConverter();
+		this.converter = new OpenSamlMetadataAssertingPartyDetailsConverter();
 	}
 
 	@Test
@@ -98,9 +99,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
 								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
-				.registrationId("one").build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
+				.build();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSigningAlgorithms()).containsExactly(SignatureConstants.ALGO_ID_DIGEST_SHA512);
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
@@ -112,6 +112,11 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
 				.isEqualTo(x509Certificate(CERTIFICATE));
+		assertThat(details).isInstanceOf(OpenSamlAssertingPartyDetails.class);
+		OpenSamlAssertingPartyDetails openSamlDetails = (OpenSamlAssertingPartyDetails) details;
+		EntityDescriptor entityDescriptor = openSamlDetails.getEntityDescriptor();
+		assertThat(entityDescriptor).isNotNull();
+		assertThat(entityDescriptor.getEntityID()).isEqualTo(details.getEntityId());
 	}
 
 	// gh-9051
@@ -124,9 +129,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 										+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
 										+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE))));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
-				.registrationId("one").build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
+				.build();
 		assertThat(details.getWantAuthnRequestsSigned()).isFalse();
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
@@ -144,9 +148,8 @@ public class OpenSamlAssertingPartyMetadataConverterTests {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
 				String.format(KEY_DESCRIPTOR_TEMPLATE, "") + String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
-		RelyingPartyRegistration registration = this.converter.convert(inputStream).iterator().next()
-				.registrationId("one").build();
-		RelyingPartyRegistration.AssertingPartyDetails details = registration.getAssertingPartyDetails();
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
+				.build();
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
 				.isEqualTo(x509Certificate(CERTIFICATE));
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);

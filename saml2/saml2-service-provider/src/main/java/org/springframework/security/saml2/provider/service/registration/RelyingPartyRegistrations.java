@@ -18,11 +18,13 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 
 /**
  * A utility class for constructing instances of {@link RelyingPartyRegistration}
@@ -34,7 +36,7 @@ import org.springframework.security.saml2.Saml2Exception;
  */
 public final class RelyingPartyRegistrations {
 
-	private static final OpenSamlAssertingPartyMetadataConverter assertingPartyMetadataConverter = new OpenSamlAssertingPartyMetadataConverter();
+	private static final OpenSamlMetadataAssertingPartyDetailsConverter assertingPartyMetadataConverter = new OpenSamlMetadataAssertingPartyDetailsConverter();
 
 	private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -123,7 +125,7 @@ public final class RelyingPartyRegistrations {
 	 * @since 5.6
 	 */
 	public static RelyingPartyRegistration.Builder fromMetadata(InputStream source) {
-		return assertingPartyMetadataConverter.convert(source).iterator().next();
+		return collectionFromMetadata(source).iterator().next();
 	}
 
 	/**
@@ -213,7 +215,11 @@ public final class RelyingPartyRegistrations {
 	 * @since 5.7
 	 */
 	public static Collection<RelyingPartyRegistration.Builder> collectionFromMetadata(InputStream source) {
-		return assertingPartyMetadataConverter.convert(source);
+		Collection<RelyingPartyRegistration.Builder> builders = new ArrayList<>();
+		for (AssertingPartyDetails.Builder builder : assertingPartyMetadataConverter.convert(source)) {
+			builders.add(RelyingPartyRegistration.withAssertingPartyDetails(builder.build()));
+		}
+		return builders;
 	}
 
 }
