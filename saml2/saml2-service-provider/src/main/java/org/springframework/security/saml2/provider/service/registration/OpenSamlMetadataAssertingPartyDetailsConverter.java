@@ -47,7 +47,7 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 
-class OpenSamlAssertingPartyMetadataConverter {
+class OpenSamlMetadataAssertingPartyDetailsConverter {
 
 	static {
 		OpenSamlInitializationService.initialize();
@@ -58,15 +58,15 @@ class OpenSamlAssertingPartyMetadataConverter {
 	private final ParserPool parserPool;
 
 	/**
-	 * Creates a {@link OpenSamlAssertingPartyMetadataConverter}
+	 * Creates a {@link OpenSamlMetadataAssertingPartyDetailsConverter}
 	 */
-	OpenSamlAssertingPartyMetadataConverter() {
+	OpenSamlMetadataAssertingPartyDetailsConverter() {
 		this.registry = ConfigurationService.get(XMLObjectProviderRegistry.class);
 		this.parserPool = this.registry.getParserPool();
 	}
 
-	Collection<RelyingPartyRegistration.Builder> convert(InputStream inputStream) {
-		List<RelyingPartyRegistration.Builder> builders = new ArrayList<>();
+	Collection<RelyingPartyRegistration.AssertingPartyDetails.Builder> convert(InputStream inputStream) {
+		List<RelyingPartyRegistration.AssertingPartyDetails.Builder> builders = new ArrayList<>();
 		XMLObject xmlObject = xmlObject(inputStream);
 		if (xmlObject instanceof EntitiesDescriptor) {
 			EntitiesDescriptor descriptors = (EntitiesDescriptor) xmlObject;
@@ -82,7 +82,7 @@ class OpenSamlAssertingPartyMetadataConverter {
 		throw new Saml2Exception("Unsupported element of type " + xmlObject.getClass());
 	}
 
-	RelyingPartyRegistration.Builder convert(EntityDescriptor descriptor) {
+	RelyingPartyRegistration.AssertingPartyDetails.Builder convert(EntityDescriptor descriptor) {
 		IDPSSODescriptor idpssoDescriptor = descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 		if (idpssoDescriptor == null) {
 			throw new Saml2Exception("Metadata response is missing the necessary IDPSSODescriptor element");
@@ -114,15 +114,14 @@ class OpenSamlAssertingPartyMetadataConverter {
 			throw new Saml2Exception(
 					"Metadata response is missing verification certificates, necessary for verifying SAML assertions");
 		}
-		RelyingPartyRegistration.Builder builder = RelyingPartyRegistration.withRegistrationId(descriptor.getEntityID())
-				.assertingPartyDetails((party) -> party.entityId(descriptor.getEntityID())
-						.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
-						.verificationX509Credentials((c) -> c.addAll(verification))
-						.encryptionX509Credentials((c) -> c.addAll(encryption)));
+		RelyingPartyRegistration.AssertingPartyDetails.Builder party = OpenSamlAssertingPartyDetails
+				.withEntityDescriptor(descriptor).entityId(descriptor.getEntityID())
+				.wantAuthnRequestsSigned(Boolean.TRUE.equals(idpssoDescriptor.getWantAuthnRequestsSigned()))
+				.verificationX509Credentials((c) -> c.addAll(verification))
+				.encryptionX509Credentials((c) -> c.addAll(encryption));
 		List<SigningMethod> signingMethods = signingMethods(idpssoDescriptor);
 		for (SigningMethod method : signingMethods) {
-			builder.assertingPartyDetails(
-					(party) -> party.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm())));
+			party.signingAlgorithms((algorithms) -> algorithms.add(method.getAlgorithm()));
 		}
 		if (idpssoDescriptor.getSingleSignOnServices().isEmpty()) {
 			throw new Saml2Exception(
@@ -139,9 +138,7 @@ class OpenSamlAssertingPartyMetadataConverter {
 			else {
 				continue;
 			}
-			builder.assertingPartyDetails(
-					(party) -> party.singleSignOnServiceLocation(singleSignOnService.getLocation())
-							.singleSignOnServiceBinding(binding));
+			party.singleSignOnServiceLocation(singleSignOnService.getLocation()).singleSignOnServiceBinding(binding);
 			break;
 		}
 		for (SingleLogoutService singleLogoutService : idpssoDescriptor.getSingleLogoutServices()) {
@@ -157,12 +154,11 @@ class OpenSamlAssertingPartyMetadataConverter {
 			}
 			String responseLocation = (singleLogoutService.getResponseLocation() == null)
 					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
-			builder.assertingPartyDetails(
-					(party) -> party.singleLogoutServiceLocation(singleLogoutService.getLocation())
-							.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding));
+			party.singleLogoutServiceLocation(singleLogoutService.getLocation())
+					.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding);
 			break;
 		}
-		return builder;
+		return party;
 	}
 
 	private List<X509Certificate> certificates(KeyDescriptor keyDescriptor) {
