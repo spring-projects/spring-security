@@ -359,7 +359,8 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (version != null) {
 			return version;
 		}
-		return Version.getVersion();
+		return Version.class.getModule().getDescriptor().version().map(Object::toString)
+				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {
