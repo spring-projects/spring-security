@@ -138,6 +138,13 @@ allprojects {
 			}
 		}
 	}
+
+	tasks.withType(JavaCompile).configureEach {
+		javaCompiler = javaToolchains.compilerFor {
+			languageVersion = JavaLanguageVersion.of(8)
+		}
+	}
+
 }
 
 if (hasProperty('buildScan')) {
