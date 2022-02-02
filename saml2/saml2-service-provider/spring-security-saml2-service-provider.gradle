@@ -36,8 +36,17 @@ configurations {
 }
 
 compileOpensaml4MainJava {
+	javaCompiler = javaToolchains.compilerFor {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
 	sourceCompatibility = '11'
 	targetCompatibility = '11'
+}
+
+compileOpensaml4TestJava {
+	javaCompiler = javaToolchains.compilerFor {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
 }
 
 dependencies {
