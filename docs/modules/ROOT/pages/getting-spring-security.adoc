@@ -52,7 +52,7 @@ If you wish to override the Spring Security version, you can do so by providing 
 <properties>
 	<!-- ... -->
 	<spring-security.version>{spring-security-version}</spring-security.version>
-</dependencies>
+</properties>
 ----
 ====
 
@@ -67,7 +67,7 @@ You can do so by adding a Maven property:
 <properties>
 	<!-- ... -->
 	<spring.version>{spring-core-version}</spring.version>
-</dependencies>
+</properties>
 ----
 ====
 
