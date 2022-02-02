@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers.oauth2.se
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
@@ -159,12 +161,17 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	private OpaqueTokenConfigurer opaqueTokenConfigurer;
 
 	private AccessDeniedHandler accessDeniedHandler = new DelegatingAccessDeniedHandler(
-			new LinkedHashMap<>(Map.of(CsrfException.class, new AccessDeniedHandlerImpl())),
-			new BearerTokenAccessDeniedHandler());
+			new LinkedHashMap<>(createAccessDeniedHandlers()), new BearerTokenAccessDeniedHandler());
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
 	private BearerTokenRequestMatcher requestMatcher = new BearerTokenRequestMatcher();
+
+	private static Map<Class<? extends AccessDeniedException>, AccessDeniedHandler> createAccessDeniedHandlers() {
+		Map<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new HashMap<>();
+		handlers.put(CsrfException.class, new AccessDeniedHandlerImpl());
+		return handlers;
+	}
 
 	public OAuth2ResourceServerConfigurer(ApplicationContext context) {
 		Assert.notNull(context, "context cannot be null");
