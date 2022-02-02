@@ -18,7 +18,6 @@ package org.springframework.security.core;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -61,24 +60,15 @@ public class SpringSecurityCoreVersionTests {
 
 	@BeforeEach
 	public void setup() throws Exception {
-		setFinalStaticField(SpringSecurityCoreVersion.class, "logger", this.logger);
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, this.logger);
 	}
 
 	@AfterEach
 	public void cleanup() throws Exception {
 		System.clearProperty(getDisableChecksProperty());
-		setFinalStaticField(SpringSecurityCoreVersion.class, "logger",
-				LogFactory.getLog(SpringSecurityCoreVersion.class));
-	}
-
-	private static void setFinalStaticField(Class<?> clazz, String fieldName, Object value)
-			throws ReflectiveOperationException {
-		Field field = clazz.getDeclaredField(fieldName);
-		field.setAccessible(true);
-		Field modifiers = Field.class.getDeclaredField("modifiers");
-		modifiers.setAccessible(true);
-		modifiers.setInt(field, field.getModifiers() & ~Modifier.FINAL);
-		field.set(null, value);
+		Field logger = ReflectionUtils.findField(SpringSecurityCoreVersion.class, "logger");
+		StaticFinalReflectionUtils.setField(logger, LogFactory.getLog(SpringSecurityCoreVersion.class));
 	}
 
 	@Test
