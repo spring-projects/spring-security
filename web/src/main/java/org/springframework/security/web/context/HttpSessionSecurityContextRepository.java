@@ -232,11 +232,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		this.springSecurityContextKey = springSecurityContextKey;
 	}
 
-	private boolean isTransientAuthentication(Authentication authentication) {
-		if (authentication == null) {
+	private boolean isTransient(Object object) {
+		if (object == null) {
 			return false;
 		}
-		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
+		return AnnotationUtils.getAnnotation(object.getClass(), Transient.class) != null;
 	}
 
 	/**
@@ -329,8 +329,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		 */
 		@Override
 		protected void saveContext(SecurityContext context) {
+			if (isTransient(context)) {
+				return;
+			}
 			final Authentication authentication = context.getAuthentication();
-			if (isTransientAuthentication(authentication)) {
+			if (isTransient(authentication)) {
 				return;
 			}
 			HttpSession httpSession = this.request.getSession(false);
