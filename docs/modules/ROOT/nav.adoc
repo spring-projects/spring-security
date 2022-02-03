@@ -122,6 +122,7 @@
 *** xref:reactive/authentication/x509.adoc[X.509 Authentication]
 *** xref:reactive/authentication/logout.adoc[Logout]
 ** Authorization
+*** xref:reactive/authorization/authorize-http-requests.adoc[Authorize HTTP Requests]
 *** xref:reactive/authorization/method.adoc[EnableReactiveMethodSecurity]
 ** xref:reactive/oauth2/index.adoc[OAuth2]
 *** xref:reactive/oauth2/login/index.adoc[OAuth2 Log In]
