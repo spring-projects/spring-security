@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,8 +47,6 @@ import org.springframework.security.saml2.provider.service.web.RelyingPartyRegis
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml3LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml3LogoutResponseResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
@@ -67,6 +65,8 @@ import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * Adds SAML 2.0 logout support.
@@ -112,6 +112,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  */
 public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<Saml2LogoutConfigurer<H>, H> {
+
+	private static final String OPEN_SAML_4_VERSION = "4";
 
 	private ApplicationContext context;
 
@@ -304,6 +306,19 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.logoutResponseConfigurer.logoutResponseResolver(relyingPartyRegistrationResolver);
 	}
 
+	private String version() {
+		String version = Version.getVersion();
+		if (StringUtils.hasText(version)) {
+			return version;
+		}
+		boolean openSaml4ClassPresent = ClassUtils
+				.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+		if (openSaml4ClassPresent) {
+			return OPEN_SAML_4_VERSION;
+		}
+		throw new IllegalStateException("cannot determine OpenSAML version");
+	}
+
 	private <C> C getBeanOrNull(Class<C> clazz) {
 		if (this.context == null) {
 			return null;
@@ -312,15 +327,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return null;
 		}
 		return this.context.getBean(clazz);
-	}
-
-	private String version() {
-		String version = Version.getVersion();
-		if (version != null) {
-			return version;
-		}
-		return Version.class.getModule().getDescriptor().version().map(Object::toString)
-				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
 	}
 
 	/**
@@ -403,7 +409,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 				return this.logoutRequestResolver;
 			}
 			if (version().startsWith("4")) {
-				return new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+				return OpenSaml4LogoutSupportFactory.getLogoutRequestResolver(relyingPartyRegistrationResolver);
 			}
 			return new OpenSaml3LogoutRequestResolver(relyingPartyRegistrationResolver);
 		}
@@ -471,13 +477,13 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private Saml2LogoutResponseResolver logoutResponseResolver(
 				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-			if (this.logoutResponseResolver == null) {
-				if (version().startsWith("4")) {
-					return new OpenSaml4LogoutResponseResolver(relyingPartyRegistrationResolver);
-				}
-				return new OpenSaml3LogoutResponseResolver(relyingPartyRegistrationResolver);
+			if (this.logoutResponseResolver != null) {
+				return this.logoutResponseResolver;
 			}
-			return this.logoutResponseResolver;
+			if (version().startsWith("4")) {
+				return OpenSaml4LogoutSupportFactory.getLogoutResponseResolver(relyingPartyRegistrationResolver);
+			}
+			return new OpenSaml3LogoutResponseResolver(relyingPartyRegistrationResolver);
 		}
 
 	}
@@ -516,6 +522,40 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 		@Override
 		public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+		}
+
+	}
+
+	private static class OpenSaml4LogoutSupportFactory {
+
+		private static Saml2LogoutResponseResolver getLogoutResponseResolver(
+				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+			try {
+				Class<?> logoutResponseResolver = ClassUtils.forName(
+						"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver",
+						OpenSaml4LogoutSupportFactory.class.getClassLoader());
+				return (Saml2LogoutResponseResolver) logoutResponseResolver
+						.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
+						.newInstance(relyingPartyRegistrationResolver);
+			}
+			catch (ReflectiveOperationException ex) {
+				throw new IllegalStateException("Could not instantiate OpenSaml4LogoutResponseResolver", ex);
+			}
+		}
+
+		private static Saml2LogoutRequestResolver getLogoutRequestResolver(
+				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+			try {
+				Class<?> logoutRequestResolver = ClassUtils.forName(
+						"org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver",
+						OpenSaml4LogoutSupportFactory.class.getClassLoader());
+				return (Saml2LogoutRequestResolver) logoutRequestResolver
+						.getDeclaredConstructor(RelyingPartyRegistrationResolver.class)
+						.newInstance(relyingPartyRegistrationResolver);
+			}
+			catch (ReflectiveOperationException ex) {
+				throw new IllegalStateException("Could not instantiate OpenSaml4LogoutRequestResolver", ex);
+			}
 		}
 
 	}
