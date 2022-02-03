@@ -41,8 +41,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.nimbusds.oauth2.sdk.util.StringUtils;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -102,6 +100,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -1206,7 +1205,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				return getAuthorities((Collection) scope);
 			}
 			String scopes = scope.toString();
-			if (StringUtils.isBlank(scopes)) {
+			if (!StringUtils.hasText(scopes)) {
 				return Collections.emptyList();
 			}
 			return getAuthorities(Arrays.asList(scopes.split(" ")));
