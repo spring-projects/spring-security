@@ -1,7 +1,6 @@
 name: Release Next Version
 
 on:
-  push:
   schedule:
     - cron: '0 0 * * MON' # Every Monday
   workflow_dispatch: # Manual trigger
