@@ -113,7 +113,6 @@ dependencies {
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
-
 rncToXsd {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
 	xsdDir = rncDir
@@ -130,3 +129,33 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 build.dependsOn rncToXsd
+
+compileTestJava {
+	exclude "org/springframework/security/config/annotation/web/configurers/saml2/**", "org/springframework/security/config/http/Saml2*"
+}
+
+task compileSaml2TestJava(type: JavaCompile) {
+	javaCompiler = javaToolchains.compilerFor {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
+	source = sourceSets.test.java.srcDirs
+	include "org/springframework/security/config/annotation/web/configurers/saml2/**", "org/springframework/security/config/http/Saml2*"
+	classpath = sourceSets.test.compileClasspath
+	destinationDirectory = new File("${buildDir}/classes/java/test")
+	options.sourcepath = sourceSets.test.java.getSourceDirectories()
+}
+
+task saml2Tests(type: Test) {
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(11)
+	}
+	filter {
+		includeTestsMatching "org.springframework.security.config.annotation.web.configurers.saml2.*"
+	}
+	useJUnitPlatform()
+	dependsOn compileSaml2TestJava
+}
+
+tasks.named('test') {
+	finalizedBy 'saml2Tests'
+}
