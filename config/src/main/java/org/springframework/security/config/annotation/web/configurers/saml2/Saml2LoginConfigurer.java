@@ -32,8 +32,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
@@ -55,6 +53,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -111,6 +110,8 @@ import org.springframework.util.StringUtils;
  */
 public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		extends AbstractAuthenticationFilterConfigurer<B, Saml2LoginConfigurer<B>, Saml2WebSsoAuthenticationFilter> {
+
+	private static final String OPEN_SAML_4_VERSION = "4";
 
 	private String loginPage;
 
@@ -320,11 +321,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return resolver;
 		}
 		if (version().startsWith("4")) {
-			return new OpenSaml4AuthenticationRequestFactory();
+			return OpenSaml4LoginSupportFactory.getAuthenticationRequestFactory();
 		}
-		else {
-			return new OpenSamlAuthenticationRequestFactory();
-		}
+		return new OpenSamlAuthenticationRequestFactory();
 	}
 
 	private Saml2AuthenticationRequestContextResolver getAuthenticationRequestContextResolver(B http) {
@@ -354,18 +353,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return authenticationConverterBean;
 	}
 
-	private String version() {
-		String version = Version.getVersion();
-		if (version != null) {
-			return version;
-		}
-		return Version.class.getModule().getDescriptor().version().map(Object::toString)
-				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
-	}
-
 	private void registerDefaultAuthenticationProvider(B http) {
 		if (version().startsWith("4")) {
-			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+			http.authenticationProvider(postProcess(OpenSaml4LoginSupportFactory.getAuthenticationProvider()));
 		}
 		else {
 			http.authenticationProvider(postProcess(new OpenSamlAuthenticationProvider()));
@@ -415,6 +405,19 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		return repository;
 	}
 
+	private String version() {
+		String version = Version.getVersion();
+		if (StringUtils.hasText(version)) {
+			return version;
+		}
+		boolean openSaml4ClassPresent = ClassUtils
+				.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+		if (openSaml4ClassPresent) {
+			return OPEN_SAML_4_VERSION;
+		}
+		throw new IllegalStateException("cannot determine OpenSAML version");
+	}
+
 	private <C> C getSharedOrBean(B http, Class<C> clazz) {
 		C shared = http.getSharedObject(clazz);
 		if (shared != null) {
@@ -440,6 +443,35 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (http.getSharedObject(clazz) == null) {
 			http.setSharedObject(clazz, object);
 		}
+	}
+
+	private static class OpenSaml4LoginSupportFactory {
+
+		private static Saml2AuthenticationRequestFactory getAuthenticationRequestFactory() {
+			try {
+				Class<?> authenticationRequestFactory = ClassUtils.forName(
+						"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory",
+						OpenSaml4LoginSupportFactory.class.getClassLoader());
+				return (Saml2AuthenticationRequestFactory) authenticationRequestFactory.getDeclaredConstructor()
+						.newInstance();
+			}
+			catch (ReflectiveOperationException ex) {
+				throw new IllegalStateException("Could not instantiate OpenSaml4AuthenticationRequestFactory", ex);
+			}
+		}
+
+		private static AuthenticationProvider getAuthenticationProvider() {
+			try {
+				Class<?> authenticationProvider = ClassUtils.forName(
+						"org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider",
+						OpenSaml4LoginSupportFactory.class.getClassLoader());
+				return (AuthenticationProvider) authenticationProvider.getDeclaredConstructor().newInstance();
+			}
+			catch (ReflectiveOperationException ex) {
+				throw new IllegalStateException("Could not instantiate OpenSaml4AuthenticationProvider", ex);
+			}
+		}
+
 	}
 
 }
