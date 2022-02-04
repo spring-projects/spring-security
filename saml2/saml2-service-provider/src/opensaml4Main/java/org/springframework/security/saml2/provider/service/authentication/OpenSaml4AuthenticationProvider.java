@@ -648,7 +648,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (xmlObject instanceof XSDateTime) {
 			return ((XSDateTime) xmlObject).getValue();
 		}
-		return null;
+		return xmlObject;
 	}
 
 	private static Saml2AuthenticationException createAuthenticationException(String code, String message,
