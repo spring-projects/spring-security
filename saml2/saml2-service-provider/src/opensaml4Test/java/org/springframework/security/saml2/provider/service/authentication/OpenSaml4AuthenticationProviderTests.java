@@ -71,6 +71,7 @@ import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider.ResponseToken;
+import org.springframework.security.saml2.provider.service.authentication.TestCustomOpenSamlObjects.CustomOpenSamlObject;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.util.StringUtils;
@@ -252,28 +253,22 @@ public class OpenSaml4AuthenticationProviderTests {
 
 	@Test
 	public void authenticateWhenAssertionContainsCustomAttributesThenItSucceeds() {
-		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(
-				TestCustomOpenSamlObject.CustomSamlObject.TYPE_NAME,
-				new TestCustomOpenSamlObject.CustomSamlObjectMarshaller());
-		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(
-				TestCustomOpenSamlObject.CustomSamlObject.TYPE_NAME,
-				new TestCustomOpenSamlObject.CustomSamlObjectUnmarshaller());
 		Response response = response();
 		Assertion assertion = assertion();
-		List<AttributeStatement> attributes = TestOpenSamlObjects.customAttributeStatements();
-		assertion.getAttributeStatements().addAll(attributes);
+		AttributeStatement attribute = TestOpenSamlObjects.customAttributeStatement("Address",
+				TestCustomOpenSamlObjects.instance());
+		assertion.getAttributeStatements().add(attribute);
 		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
 				RELYING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion);
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		Authentication authentication = this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
-		TestCustomOpenSamlObject.CustomSamlObject customSamlObject;
-		customSamlObject = (TestCustomOpenSamlObject.CustomSamlObject) principal.getAttribute("Address").get(0);
-		assertThat(customSamlObject.getStreet()).isEqualTo("Test Street");
-		assertThat(customSamlObject.getStreetNumber()).isEqualTo("1");
-		assertThat(customSamlObject.getZIP()).isEqualTo("11111");
-		assertThat(customSamlObject.getCity()).isEqualTo("Test City");
+		CustomOpenSamlObject address = (CustomOpenSamlObject) principal.getAttribute("Address").get(0);
+		assertThat(address.getStreet()).isEqualTo("Test Street");
+		assertThat(address.getStreetNumber()).isEqualTo("1");
+		assertThat(address.getZIP()).isEqualTo("11111");
+		assertThat(address.getCity()).isEqualTo("Test City");
 	}
 
 	@Test

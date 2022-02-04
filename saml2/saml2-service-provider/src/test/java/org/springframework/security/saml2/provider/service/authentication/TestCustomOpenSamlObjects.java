@@ -29,18 +29,54 @@ import org.opensaml.core.xml.AbstractXMLObjectBuilder;
 import org.opensaml.core.xml.ElementExtensibleXMLObject;
 import org.opensaml.core.xml.Namespace;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.io.AbstractXMLObjectMarshaller;
 import org.opensaml.core.xml.io.AbstractXMLObjectUnmarshaller;
 import org.opensaml.core.xml.io.UnmarshallingException;
 import org.opensaml.core.xml.schema.XSAny;
+import org.opensaml.core.xml.schema.impl.XSAnyBuilder;
 import org.opensaml.core.xml.util.IndexedXMLObjectChildrenList;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AttributeValue;
 import org.w3c.dom.Element;
 
-public class TestCustomOpenSamlObject {
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
-	public interface CustomSamlObject extends ElementExtensibleXMLObject {
+public class TestCustomOpenSamlObjects {
+
+	static {
+		OpenSamlInitializationService.initialize();
+		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(
+				CustomOpenSamlObject.TYPE_NAME,
+				new TestCustomOpenSamlObjects.CustomSamlObjectMarshaller());
+		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(
+				CustomOpenSamlObject.TYPE_NAME,
+				new TestCustomOpenSamlObjects.CustomSamlObjectUnmarshaller());
+	}
+
+	public static CustomOpenSamlObject instance() {
+		CustomOpenSamlObject samlObject = new TestCustomOpenSamlObjects.CustomSamlObjectBuilder()
+				.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, CustomOpenSamlObject.TYPE_NAME);
+		XSAny street = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "Street",
+				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
+		street.setTextContent("Test Street");
+		samlObject.getUnknownXMLObjects().add(street);
+		XSAny streetNumber = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS,
+				"Number", CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
+		streetNumber.setTextContent("1");
+		samlObject.getUnknownXMLObjects().add(streetNumber);
+		XSAny zip = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "ZIP",
+				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
+		zip.setTextContent("11111");
+		samlObject.getUnknownXMLObjects().add(zip);
+		XSAny city = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "City",
+				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
+		city.setTextContent("Test City");
+		samlObject.getUnknownXMLObjects().add(city);
+		return samlObject;
+	}
+
+	public interface CustomOpenSamlObject extends ElementExtensibleXMLObject {
 
 		String TYPE_LOCAL_NAME = "CustomType";
 
@@ -61,8 +97,8 @@ public class TestCustomOpenSamlObject {
 
 	}
 
-	public static class CustomSamlObjectImpl extends AbstractXMLObject
-			implements TestCustomOpenSamlObject.CustomSamlObject {
+	public static class CustomOpenSamlObjectImpl extends AbstractXMLObject
+			implements CustomOpenSamlObject {
 
 		@Nonnull
 		private IndexedXMLObjectChildrenList<XMLObject> unknownXMLObjects;
@@ -74,7 +110,7 @@ public class TestCustomOpenSamlObject {
 		 * represents
 		 * @param namespacePrefix the prefix for the given namespace
 		 */
-		protected CustomSamlObjectImpl(@Nullable String namespaceURI, @Nonnull String elementLocalName,
+		protected CustomOpenSamlObjectImpl(@Nullable String namespaceURI, @Nonnull String elementLocalName,
 				@Nullable String namespacePrefix) {
 			super(namespaceURI, elementLocalName, namespacePrefix);
 			super.getNamespaceManager().registerNamespaceDeclaration(new Namespace(CUSTOM_NS, TYPE_CUSTOM_PREFIX));
@@ -122,13 +158,13 @@ public class TestCustomOpenSamlObject {
 	}
 
 	public static class CustomSamlObjectBuilder
-			extends AbstractXMLObjectBuilder<TestCustomOpenSamlObject.CustomSamlObject> {
+			extends AbstractXMLObjectBuilder<CustomOpenSamlObject> {
 
 		@Nonnull
 		@Override
-		public TestCustomOpenSamlObject.CustomSamlObject buildObject(@Nullable String namespaceURI,
-				@Nonnull String localName, @Nullable String namespacePrefix) {
-			return new TestCustomOpenSamlObject.CustomSamlObjectImpl(namespaceURI, localName, namespacePrefix);
+		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI,
+																	  @Nonnull String localName, @Nullable String namespacePrefix) {
+			return new CustomOpenSamlObjectImpl(namespaceURI, localName, namespacePrefix);
 		}
 
 	}
@@ -141,7 +177,7 @@ public class TestCustomOpenSamlObject {
 
 		@Override
 		protected void marshallElementContent(@Nonnull XMLObject xmlObject, @Nonnull Element domElement) {
-			final TestCustomOpenSamlObject.CustomSamlObject customSamlObject = (TestCustomOpenSamlObject.CustomSamlObject) xmlObject;
+			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) xmlObject;
 
 			for (XMLObject object : customSamlObject.getOrderedChildren()) {
 				ElementSupport.appendChildElement(domElement, object.getDOM());
@@ -159,7 +195,7 @@ public class TestCustomOpenSamlObject {
 		@Override
 		protected void processChildElement(@Nonnull XMLObject parentXMLObject, @Nonnull XMLObject childXMLObject)
 				throws UnmarshallingException {
-			final TestCustomOpenSamlObject.CustomSamlObject customSamlObject = (TestCustomOpenSamlObject.CustomSamlObject) parentXMLObject;
+			final CustomOpenSamlObject customSamlObject = (CustomOpenSamlObject) parentXMLObject;
 			super.processChildElement(customSamlObject, childXMLObject);
 			customSamlObject.getUnknownXMLObjects().add(childXMLObject);
 		}
@@ -167,9 +203,9 @@ public class TestCustomOpenSamlObject {
 		@Nonnull
 		@Override
 		protected XMLObject buildXMLObject(@Nonnull Element domElement) {
-			return new TestCustomOpenSamlObject.CustomSamlObjectImpl(SAMLConstants.SAML20_NS,
+			return new CustomOpenSamlObjectImpl(SAMLConstants.SAML20_NS,
 					AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME,
-					TestCustomOpenSamlObject.CustomSamlObject.TYPE_CUSTOM_PREFIX);
+					CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		}
 
 	}
