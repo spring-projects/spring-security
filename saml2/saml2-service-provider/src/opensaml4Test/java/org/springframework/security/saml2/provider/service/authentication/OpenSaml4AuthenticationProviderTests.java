@@ -251,6 +251,32 @@ public class OpenSaml4AuthenticationProviderTests {
 	}
 
 	@Test
+	public void authenticateWhenAssertionContainsCustomAttributesThenItSucceeds() {
+		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(
+				TestCustomOpenSamlObject.CustomSamlObject.TYPE_NAME,
+				new TestCustomOpenSamlObject.CustomSamlObjectMarshaller());
+		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(
+				TestCustomOpenSamlObject.CustomSamlObject.TYPE_NAME,
+				new TestCustomOpenSamlObject.CustomSamlObjectUnmarshaller());
+		Response response = response();
+		Assertion assertion = assertion();
+		List<AttributeStatement> attributes = TestOpenSamlObjects.customAttributeStatements();
+		assertion.getAttributeStatements().addAll(attributes);
+		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Authentication authentication = this.provider.authenticate(token);
+		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
+		TestCustomOpenSamlObject.CustomSamlObject customSamlObject;
+		customSamlObject = (TestCustomOpenSamlObject.CustomSamlObject) principal.getAttribute("Address").get(0);
+		assertThat(customSamlObject.getStreet()).isEqualTo("Test Street");
+		assertThat(customSamlObject.getStreetNumber()).isEqualTo("1");
+		assertThat(customSamlObject.getZIP()).isEqualTo("11111");
+		assertThat(customSamlObject.getCity()).isEqualTo("Test City");
+	}
+
+	@Test
 	public void authenticateWhenEncryptedAssertionWithoutSignatureThenItFails() {
 		Response response = response();
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),

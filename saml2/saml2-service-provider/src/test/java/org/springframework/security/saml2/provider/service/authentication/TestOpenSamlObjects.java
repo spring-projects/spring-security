@@ -296,6 +296,37 @@ public final class TestOpenSamlObjects {
 		return attribute;
 	}
 
+	static List<AttributeStatement> customAttributeStatements() {
+		List<AttributeStatement> attributeStatements = new ArrayList<>();
+		AttributeStatementBuilder attributeStatementBuilder = new AttributeStatementBuilder();
+		AttributeBuilder attributeBuilder = new AttributeBuilder();
+		Attribute attribute = attributeBuilder.buildObject();
+		attribute.setName("Address");
+		TestCustomOpenSamlObject.CustomSamlObject samlObject = new TestCustomOpenSamlObject.CustomSamlObjectBuilder()
+				.buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, TestCustomOpenSamlObject.CustomSamlObject.TYPE_NAME);
+		XSAny street = new XSAnyBuilder().buildObject(TestCustomOpenSamlObject.CustomSamlObject.CUSTOM_NS, "Street",
+				TestCustomOpenSamlObject.CustomSamlObject.TYPE_CUSTOM_PREFIX);
+		street.setTextContent("Test Street");
+		samlObject.getUnknownXMLObjects().add(street);
+		XSAny streetNumber = new XSAnyBuilder().buildObject(TestCustomOpenSamlObject.CustomSamlObject.CUSTOM_NS,
+				"Number", TestCustomOpenSamlObject.CustomSamlObject.TYPE_CUSTOM_PREFIX);
+		streetNumber.setTextContent("1");
+		samlObject.getUnknownXMLObjects().add(streetNumber);
+		XSAny zip = new XSAnyBuilder().buildObject(TestCustomOpenSamlObject.CustomSamlObject.CUSTOM_NS, "ZIP",
+				TestCustomOpenSamlObject.CustomSamlObject.TYPE_CUSTOM_PREFIX);
+		zip.setTextContent("11111");
+		samlObject.getUnknownXMLObjects().add(zip);
+		XSAny city = new XSAnyBuilder().buildObject(TestCustomOpenSamlObject.CustomSamlObject.CUSTOM_NS, "City",
+				TestCustomOpenSamlObject.CustomSamlObject.TYPE_CUSTOM_PREFIX);
+		city.setTextContent("Test City");
+		samlObject.getUnknownXMLObjects().add(city);
+		attribute.getAttributeValues().add(samlObject);
+		AttributeStatement attributeStatement = attributeStatementBuilder.buildObject();
+		attributeStatement.getAttributes().add(attribute);
+		attributeStatements.add(attributeStatement);
+		return attributeStatements;
+	}
+
 	static List<AttributeStatement> attributeStatements() {
 		List<AttributeStatement> attributeStatements = new ArrayList<>();
 		AttributeStatementBuilder attributeStatementBuilder = new AttributeStatementBuilder();
