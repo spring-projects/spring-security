@@ -20,7 +20,7 @@ CorsConfigurationSource corsConfigurationSource() {
 	configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
 	configuration.setAllowedMethods(Arrays.asList("GET","POST"));
 	UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-	source.registerCorsConfiguration("/**", configuration);
+	source.registerCorsConfiguration("/**", configuration.applyPermitDefaultValues());
 	return source;
 }
 ----
@@ -34,7 +34,7 @@ fun corsConfigurationSource(): CorsConfigurationSource {
     configuration.allowedOrigins = listOf("https://example.com")
     configuration.allowedMethods = listOf("GET", "POST")
     val source = UrlBasedCorsConfigurationSource()
-    source.registerCorsConfiguration("/**", configuration)
+    source.registerCorsConfiguration("/**", configuration.applyPermitDefaultValues())
     return source
 }
 ----
