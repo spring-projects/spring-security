@@ -42,15 +42,13 @@ import org.w3c.dom.Element;
 
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 
-public class TestCustomOpenSamlObjects {
+public final class TestCustomOpenSamlObjects {
 
 	static {
 		OpenSamlInitializationService.initialize();
-		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(
-				CustomOpenSamlObject.TYPE_NAME,
+		XMLObjectProviderRegistrySupport.getMarshallerFactory().registerMarshaller(CustomOpenSamlObject.TYPE_NAME,
 				new TestCustomOpenSamlObjects.CustomSamlObjectMarshaller());
-		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(
-				CustomOpenSamlObject.TYPE_NAME,
+		XMLObjectProviderRegistrySupport.getUnmarshallerFactory().registerUnmarshaller(CustomOpenSamlObject.TYPE_NAME,
 				new TestCustomOpenSamlObjects.CustomSamlObjectUnmarshaller());
 	}
 
@@ -61,8 +59,8 @@ public class TestCustomOpenSamlObjects {
 				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		street.setTextContent("Test Street");
 		samlObject.getUnknownXMLObjects().add(street);
-		XSAny streetNumber = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS,
-				"Number", CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
+		XSAny streetNumber = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "Number",
+				CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		streetNumber.setTextContent("1");
 		samlObject.getUnknownXMLObjects().add(streetNumber);
 		XSAny zip = new XSAnyBuilder().buildObject(CustomOpenSamlObject.CUSTOM_NS, "ZIP",
@@ -74,6 +72,10 @@ public class TestCustomOpenSamlObjects {
 		city.setTextContent("Test City");
 		samlObject.getUnknownXMLObjects().add(city);
 		return samlObject;
+	}
+
+	private TestCustomOpenSamlObjects() {
+
 	}
 
 	public interface CustomOpenSamlObject extends ElementExtensibleXMLObject {
@@ -97,8 +99,7 @@ public class TestCustomOpenSamlObjects {
 
 	}
 
-	public static class CustomOpenSamlObjectImpl extends AbstractXMLObject
-			implements CustomOpenSamlObject {
+	public static class CustomOpenSamlObjectImpl extends AbstractXMLObject implements CustomOpenSamlObject {
 
 		@Nonnull
 		private IndexedXMLObjectChildrenList<XMLObject> unknownXMLObjects;
@@ -157,13 +158,12 @@ public class TestCustomOpenSamlObjects {
 
 	}
 
-	public static class CustomSamlObjectBuilder
-			extends AbstractXMLObjectBuilder<CustomOpenSamlObject> {
+	public static class CustomSamlObjectBuilder extends AbstractXMLObjectBuilder<CustomOpenSamlObject> {
 
 		@Nonnull
 		@Override
-		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI,
-																	  @Nonnull String localName, @Nullable String namespacePrefix) {
+		public CustomOpenSamlObject buildObject(@Nullable String namespaceURI, @Nonnull String localName,
+				@Nullable String namespacePrefix) {
 			return new CustomOpenSamlObjectImpl(namespaceURI, localName, namespacePrefix);
 		}
 
@@ -203,8 +203,7 @@ public class TestCustomOpenSamlObjects {
 		@Nonnull
 		@Override
 		protected XMLObject buildXMLObject(@Nonnull Element domElement) {
-			return new CustomOpenSamlObjectImpl(SAMLConstants.SAML20_NS,
-					AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME,
+			return new CustomOpenSamlObjectImpl(SAMLConstants.SAML20_NS, AttributeValue.DEFAULT_ELEMENT_LOCAL_NAME,
 					CustomOpenSamlObject.TYPE_CUSTOM_PREFIX);
 		}
 
