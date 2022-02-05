@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
@@ -53,6 +55,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	public static final String DEFAULT_LOGIN_PAGE_URL = "/login";
 
 	public static final String ERROR_PARAMETER_NAME = "error";
+
+	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	private String loginPageUrl;
 
@@ -207,7 +211,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		sb.append("    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n");
 		sb.append("    <meta name=\"description\" content=\"\">\n");
 		sb.append("    <meta name=\"author\" content=\"\">\n");
-		sb.append("    <title>Please sign in</title>\n");
+		final String labelPleaseSignIn = this.messages.getMessage("DefaultLoginPageGeneratingFilter.pleaseSignIn", "Please sign in");
+		sb.append("    <title>" + labelPleaseSignIn + "</title>\n");
 		sb.append("    <link href=\"https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css\" "
 				+ "rel=\"stylesheet\" integrity=\"sha384-/Y6pD6FV/Vv2HJnA6t+vslU6fwYXjCFtcEpHbNJ0lyAFsXTsjBbfaDjzALeQsN6M\" crossorigin=\"anonymous\">\n");
 		sb.append("    <link href=\"https://getbootstrap.com/docs/4.0/examples/signin/signin.css\" "
@@ -218,23 +223,28 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		if (this.formLoginEnabled) {
 			sb.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath
 					+ this.authenticationUrl + "\">\n");
-			sb.append("        <h2 class=\"form-signin-heading\">Please sign in</h2>\n");
+			sb.append("        <h2 class=\"form-signin-heading\">" + labelPleaseSignIn + "</h2>\n");
 			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
-			sb.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
+			final String labelUsername = this.messages.getMessage("DefaultLoginPageGeneratingFilter.username", "Username");
+			sb.append("          <label for=\"username\" class=\"sr-only\">" + labelUsername + "</label>\n");
 			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.usernameParameter
-					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
+					+ "\" class=\"form-control\" placeholder=\"" + labelUsername + "\" required autofocus>\n");
 			sb.append("        </p>\n");
 			sb.append("        <p>\n");
-			sb.append("          <label for=\"password\" class=\"sr-only\">Password</label>\n");
+			final String labelPassword = this.messages.getMessage("DefaultLoginPageGeneratingFilter.password", "Password");
+			sb.append("          <label for=\"password\" class=\"sr-only\">" + labelPassword + "</label>\n");
 			sb.append("          <input type=\"password\" id=\"password\" name=\"" + this.passwordParameter
-					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n");
+					+ "\" class=\"form-control\" placeholder=\"" + labelPassword + "\" required>\n");
 			sb.append("        </p>\n");
 			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
-			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
+			final String labelSignIn = this.messages.getMessage("DefaultLoginPageGeneratingFilter.signIn", "Sign in");
+			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">" + labelSignIn + "</button>\n");
 			sb.append("      </form>\n");
 		}
 		if (this.oauth2LoginEnabled) {
-			sb.append("<h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
+			final String labelSignInOAuth = this.messages.getMessage("DefaultLoginPageGeneratingFilter.signInOAuth",
+					"Login with OAuth 2.0");
+			sb.append("<h2 class=\"form-signin-heading\">" + labelSignInOAuth + "</h2>");
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
@@ -251,7 +261,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 			sb.append("</table>\n");
 		}
 		if (this.saml2LoginEnabled) {
-			sb.append("<h2 class=\"form-signin-heading\">Login with SAML 2.0</h2>");
+			final String labelSignInSaml = this.messages.getMessage("DefaultLoginPageGeneratingFilter.signInSaml", "Login with SAML 2.0");
+			sb.append("<h2 class=\"form-signin-heading\">" + labelSignInSaml + "</h2>");
 			sb.append(createError(loginError, errorMsg));
 			sb.append(createLogoutSuccess(logoutSuccess));
 			sb.append("<table class=\"table table-striped\">\n");
@@ -288,7 +299,9 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		if (paramName == null) {
 			return "";
 		}
-		return "<p><input type='checkbox' name='" + paramName + "'/> Remember me on this computer.</p>\n";
+		final String labelRememberMe = this.messages.getMessage("DefaultLoginPageGeneratingFilter.rememberMe",
+				"Remember me on this computer.");
+		return "<p><input type='checkbox' name='" + paramName + "'/> " + labelRememberMe + "</p>\n";
 	}
 
 	private boolean isLogoutSuccess(HttpServletRequest request) {
@@ -310,11 +323,12 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		return "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>";
 	}
 
-	private static String createLogoutSuccess(boolean isLogoutSuccess) {
+	private String createLogoutSuccess(boolean isLogoutSuccess) {
 		if (!isLogoutSuccess) {
 			return "";
 		}
-		return "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>";
+		final String labelSignedOut = this.messages.getMessage("DefaultLoginPageGeneratingFilter.logout", "You have been signed out");
+		return "<div class=\"alert alert-success\" role=\"alert\">" + labelSignedOut + "</div>";
 	}
 
 	private boolean matches(HttpServletRequest request, String url) {

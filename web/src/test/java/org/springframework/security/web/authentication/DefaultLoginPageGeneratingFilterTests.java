@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,9 @@ import java.util.Locale;
 
 import jakarta.servlet.FilterChain;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -41,6 +42,19 @@ import static org.mockito.Mockito.mock;
 public class DefaultLoginPageGeneratingFilterTests {
 
 	private FilterChain chain = mock(FilterChain.class);
+
+	private Locale locale;
+
+	@BeforeEach
+	public void setUp() {
+		locale = Locale.getDefault();
+		Locale.setDefault(Locale.ENGLISH);
+	}
+
+	@AfterEach
+	public void cleanUp() {
+		Locale.setDefault(locale);
+	}
 
 	@Test
 	public void generatingPageWithAuthenticationProcessingFilterOnlyIsSuccessFul() throws Exception {
@@ -168,6 +182,17 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
+	}
+
+	@Test
+	public void generateFormWithLocalization() throws Exception {
+		Locale.setDefault(Locale.GERMAN);
+		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new UsernamePasswordAuthenticationFilter());
+		filter.setRememberMeParameter("rememberMe");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		filter.doFilter(new MockHttpServletRequest("GET", "/login"), response, this.chain);
+		assertThat(response.getContentAsString()).contains("Benutzername", "Passwort", "Anmelden", "Angemeldet bleiben",
+				"Bitte melden Sie sich an");
 	}
 
 }
