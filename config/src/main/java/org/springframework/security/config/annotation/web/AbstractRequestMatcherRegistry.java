@@ -54,7 +54,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 
 	private ApplicationContext context;
 
-	protected boolean anyRequestConfigured = false;
+	private boolean anyRequestConfigured = false;
 
 	protected final void setApplicationContext(ApplicationContext context) {
 		this.context = context;
@@ -166,8 +166,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (!this.context.containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
 					+ " of type " + HandlerMappingIntrospector.class.getName()
-					+ " is required to use MvcRequestMatcher."
-					+ " Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
 		}
 		HandlerMappingIntrospector introspector = this.context.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 				HandlerMappingIntrospector.class);
@@ -267,7 +266,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @author Rob Winch
 	 * @since 3.2
 	 */
-	public static final class RequestMatchers {
+	private static final class RequestMatchers {
 
 		private RequestMatchers() {
 		}
@@ -280,7 +279,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * from
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
+		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
 			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
 			for (String pattern : antPatterns) {
@@ -296,7 +295,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * from
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
-		public static List<RequestMatcher> antMatchers(String... antPatterns) {
+		static List<RequestMatcher> antMatchers(String... antPatterns) {
 			return antMatchers(null, antPatterns);
 		}
 
