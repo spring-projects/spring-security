@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.web.server.restriction.IgnoreRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -49,14 +48,8 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		if (requestMatcher instanceof IgnoreRequestMatcher) {
-			IgnoreRequestMatcher ignoreRequestMatcher = (IgnoreRequestMatcher) requestMatcher;
-			if (ignoreRequestMatcher.isIgnore()) {
-				logger.info(LogMessage.format("Will not secure %s with %s", requestMatcher, filters));
-			}
-			else {
-				logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
-			}
+		if (!filters.isEmpty()) {
+			logger.info(LogMessage.format("Will not secure %s", requestMatcher));
 		}
 		else {
 			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
