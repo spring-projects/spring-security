@@ -11,12 +11,13 @@ NOTE: Spring Security provides https://github.com/spring-projects/spring-securit
 
 How does Spring Security know that we want to require all users to be authenticated?
 How does Spring Security know we want to support form based authentication?
-There is a configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
-It has a method called `configure` with the following default implementation:
+Actually, there is a bean that is being invoked behind the scenes called `SecurityFilterChain`.
+It is configured with the following default implementation:
 
 [source,kotlin]
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
    http {
         authorizeRequests {
             authorize(anyRequest, authenticated)
@@ -24,6 +25,7 @@ fun configure(http: HttpSecurity) {
        formLogin { }
        httpBasic { }
     }
+    return http.build()
 }
 ----
 
@@ -47,7 +49,7 @@ You will notice that this configuration is quite similar the XML Namespace confi
 == Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
-The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
+The key is to register multiple `SecurityFilterChain` `@Bean`s.
 For example, the following is an example of having a different configuration for URL's that start with `/api/`.
 
 [source,kotlin]
@@ -63,37 +65,35 @@ class MultiHttpSecurityConfig {
         return manager
     }
 
-    @Configuration
     @Order(1)                                                        <2>
-    class ApiWebSecurityConfigurationAdapter: WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
-            http {
-                securityMatcher("/api/**")                           <3>
-                authorizeRequests {
-                    authorize(anyRequest, hasRole("ADMIN"))
-                }
-                httpBasic { }
+    @Bean
+    open fun apiFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            securityMatcher("/api/**")                               <3>
+            authorizeRequests {
+                authorize(anyRequest, hasRole("ADMIN"))
             }
+            httpBasic { }
         }
+        return http.build()
     }
 
-    @Configuration                                                   <4>
-    class FormLoginWebSecurityConfigurerAdapter: WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, authenticated)
-                }
-                formLogin { }
+    @Bean                                                            <4>
+    open fun formLoginFilterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
             }
+            formLogin { }
         }
+        return http.build()
     }
 }
 ----
 
 <1> Configure Authentication as normal
-<2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
+<2> Expose an instance of `SecurityFilterChain` that contains `@Order` to specify which `SecurityFilterChain` should be considered first.
 <3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
-<4> Create another instance of `WebSecurityConfigurerAdapter`.
+<4> Expose another instance of `SecurityFilterChain`.
 If the URL does not start with `/api/` this configuration will be used.
-This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+This configuration is considered after `apiFilterChain` since it has an `@Order` value after `1` (no `@Order` defaults to last).

@@ -11,12 +11,13 @@ This is achieved through the `session-management` element:
 .Java
 [source,java,role="primary"]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception{
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .sessionManagement(session -> session
             .invalidSessionUrl("/invalidSession.htm")
         );
+    return http.build();
 }
 ----
 
@@ -38,12 +39,13 @@ You may be able to explicitly delete the JSESSIONID cookie on logging out, for e
 .Java
 [source,java,role="primary"]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception{
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .logout(logout -> logout
             .deleteCookies("JSESSIONID")
         );
+    return http.build();
 }
 ----
 
@@ -105,12 +107,13 @@ Then add the following lines to your application context:
 .Java
 [source,java,role="primary"]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .sessionManagement(session -> session
             .maximumSessions(1)
         );
+    return http.build();
 }
 ----
 
@@ -134,13 +137,14 @@ Often you would prefer to prevent a second login, in which case you can use
 .Java
 [source,java,role="primary"]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .sessionManagement(session -> session
             .maximumSessions(1)
             .maxSessionsPreventsLogin(true)
         );
+    return http.build();
 }
 ----
 

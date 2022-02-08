@@ -136,23 +136,27 @@ If we wanted to restrict access to this controller method to admin users, a deve
 .Java
 [source,java,role="primary"]
 ----
-protected configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		.authorizeHttpRequests(authorize -> authorize
 			.antMatchers("/admin").hasRole("ADMIN")
 		);
+	return http.build();
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-override fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         authorizeRequests {
             authorize(AntPathRequestMatcher("/admin"), hasRole("ADMIN"))
         }
     }
+    return http.build()
 }
 ----
 ====
@@ -181,23 +185,27 @@ The following configuration will protect the same URLs that Spring MVC will matc
 .Java
 [source,java,role="primary"]
 ----
-protected configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		.authorizeHttpRequests(authorize -> authorize
 			.mvcMatchers("/admin").hasRole("ADMIN")
 		);
+	// ...
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-override fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         authorizeRequests {
             authorize("/admin", hasRole("ADMIN"))
         }
     }
+    // ...
 }
 ----
 ====

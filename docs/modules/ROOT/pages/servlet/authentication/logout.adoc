@@ -4,7 +4,7 @@
 [[logout-java-configuration]]
 == Logout Java/Kotlin Configuration
 
-When using the `{security-api-url}org/springframework/security/config/annotation/web/configuration/WebSecurityConfigurerAdapter.html[WebSecurityConfigurerAdapter]`, logout capabilities are automatically applied.
+When injecting the `{security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html[HttpSecurity]` bean, logout capabilities are automatically applied.
 The default is that accessing the URL `/logout` will log the user out by:
 
 - Invalidating the HTTP Session
@@ -19,7 +19,7 @@ Similar to configuring login capabilities, however, you also have various option
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         .logout(logout -> logout                                                // <1>
             .logoutUrl("/my/logout")                                            // <2>
@@ -36,7 +36,7 @@ protected void configure(HttpSecurity http) throws Exception {
 .Kotlin
 [source,kotlin,role="secondary"]
 -----
-override fun configure(http: HttpSecurity) {
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         logout {
             logoutUrl = "/my/logout"                              // <1>
@@ -47,12 +47,12 @@ override fun configure(http: HttpSecurity) {
             deleteCookies(cookieNamesToClear)                     // <6>
         }
     }
+    // ...
 }
 -----
 ====
 
 <1> Provides logout support.
-This is automatically applied when using `WebSecurityConfigurerAdapter`.
 <2> The URL that triggers log out to occur (default is `/logout`).
 If CSRF protection is enabled (default), then the request must also be a POST.
 For more information, please consult the {security-api-url}org/springframework/security/config/annotation/web/configurers/LogoutConfigurer.html#logoutUrl-java.lang.String-[Javadoc].

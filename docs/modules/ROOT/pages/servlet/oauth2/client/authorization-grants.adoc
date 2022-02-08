@@ -113,13 +113,13 @@ The following example shows how to configure the `DefaultOAuth2AuthorizationRequ
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().authenticated()
@@ -131,6 +131,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 					)
 				)
 			);
+		return http.build();
 	}
 
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
@@ -156,12 +157,13 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class SecurityConfig : WebSecurityConfigurerAdapter() {
+class SecurityConfig {
 
     @Autowired
     private lateinit var customClientRegistrationRepository: ClientRegistrationRepository
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -172,6 +174,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     private fun authorizationRequestResolver(
@@ -260,10 +263,10 @@ If you have a custom implementation of `AuthorizationRequestRepository`, you may
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authorizationCodeGrant(codeGrant -> codeGrant
@@ -271,6 +274,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 					...
 				)
 			);
+		return http.build();
 	}
 }
 ----
@@ -279,9 +283,10 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Client {
                 authorizationCodeGrant {
@@ -289,6 +294,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -371,10 +377,10 @@ Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide y
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authorizationCodeGrant(codeGrant -> codeGrant
@@ -382,6 +388,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 					...
 				)
 			);
+		return http.build();
 	}
 }
 ----
@@ -390,9 +397,10 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Client {
                 authorizationCodeGrant {
@@ -400,6 +408,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----

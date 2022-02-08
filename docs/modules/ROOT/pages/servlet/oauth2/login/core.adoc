@@ -229,12 +229,12 @@ The Spring Boot 2.x auto-configuration class for OAuth Client support is `OAuth2
 It performs the following tasks:
 
 * Registers a `ClientRegistrationRepository` `@Bean` composed of `ClientRegistration`(s) from the configured OAuth Client properties.
-* Provides a `WebSecurityConfigurerAdapter` `@Configuration` and enables OAuth 2.0 Login through `httpSecurity.oauth2Login()`.
+* Registers a `SecurityFilterChain` `@Bean` and enables OAuth 2.0 Login through `httpSecurity.oauth2Login()`.
 
 If you need to override the auto-configuration based on your specific requirements, you may do so in the following ways:
 
 * <<oauth2login-register-clientregistrationrepository-bean,Register a ClientRegistrationRepository @Bean>>
-* <<oauth2login-provide-websecurityconfigureradapter,Provide a WebSecurityConfigurerAdapter>>
+* <<oauth2login-provide-securityfilterchain-bean,Register a SecurityFilterChain @Bean>>
 * <<oauth2login-completely-override-autoconfiguration,Completely Override the Auto-configuration>>
 
 
@@ -305,10 +305,10 @@ class OAuth2LoginConfig {
 ====
 
 
-[[oauth2login-provide-websecurityconfigureradapter]]
-=== Provide a WebSecurityConfigurerAdapter
+[[oauth2login-provide-securityfilterchain-bean]]
+=== Register a SecurityFilterChain @Bean
 
-The following example shows how to provide a `WebSecurityConfigurerAdapter` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
+The following example shows how to register a `SecurityFilterChain` `@Bean` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
 
 .OAuth2 Login Configuration
 ====
@@ -316,15 +316,16 @@ The following example shows how to provide a `WebSecurityConfigurerAdapter` with
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().authenticated()
 			)
 			.oauth2Login(withDefaults());
+		return http.build();
 	}
 }
 ----
@@ -333,15 +334,16 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
             }
             oauth2Login { }
         }
+        return http.build()
     }
 }
 ----
@@ -351,7 +353,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
 [[oauth2login-completely-override-autoconfiguration]]
 === Completely Override the Auto-configuration
 
-The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and providing a `WebSecurityConfigurerAdapter`.
+The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and a `SecurityFilterChain` `@Bean`.
 
 .Overriding the auto-configuration
 ====
@@ -361,17 +363,14 @@ The following example shows how to completely override the auto-configuration by
 @Configuration
 public class OAuth2LoginConfig {
 
-	@EnableWebSecurity
-	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeHttpRequests(authorize -> authorize
-					.anyRequest().authenticated()
-				)
-				.oauth2Login(withDefaults());
-		}
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated()
+			)
+			.oauth2Login(withDefaults());
+		return http.build();
 	}
 
 	@Bean
@@ -404,17 +403,15 @@ public class OAuth2LoginConfig {
 @Configuration
 class OAuth2LoginConfig {
 
-    @EnableWebSecurity
-    class OAuth2LoginSecurityConfig: WebSecurityConfigurerAdapter() {
-
-        override fun configure(http: HttpSecurity) {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, authenticated)
-                }
-                oauth2Login { }
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
             }
+            oauth2Login { }
         }
+        return http.build()
     }
 
     @Bean
@@ -453,20 +450,17 @@ If you are not able to use Spring Boot 2.x and would like to configure one of th
 .Java
 [source,java,role="primary"]
 ----
-@Configuration
+@EnableWebSecurity
 public class OAuth2LoginConfig {
 
-	@EnableWebSecurity
-	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeHttpRequests(authorize -> authorize
-					.anyRequest().authenticated()
-				)
-				.oauth2Login(withDefaults());
-		}
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated()
+			)
+			.oauth2Login(withDefaults());
+		return http.build();
 	}
 
 	@Bean
@@ -498,18 +492,17 @@ public class OAuth2LoginConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@Configuration
+@EnableWebSecurity
 open class OAuth2LoginConfig {
-    @EnableWebSecurity
-    open class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
-            http {
-                authorizeRequests {
-                    authorize(anyRequest, authenticated)
-                }
-                oauth2Login { }
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            authorizeRequests {
+                authorize(anyRequest, authenticated)
             }
+            oauth2Login { }
         }
+        return http.build()
     }
 
     @Bean

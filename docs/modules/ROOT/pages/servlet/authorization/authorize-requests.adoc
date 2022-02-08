@@ -34,12 +34,14 @@ The explicit configuration looks like:
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.authorizeRequests(authorize -> authorize
 			.anyRequest().authenticated()
 		);
+	return http.build();
 }
 ----
 
@@ -55,13 +57,15 @@ protected void configure(HttpSecurity http) throws Exception {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         // ...
         authorizeRequests {
             authorize(anyRequest, authenticated)
         }
     }
+    return http.build()
 }
 ----
 ====
@@ -73,7 +77,8 @@ We can configure Spring Security to have different rules by adding more rules in
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.authorizeRequests(authorize -> authorize                                  // <1>
@@ -82,6 +87,7 @@ protected void configure(HttpSecurity http) throws Exception {
 			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
 			.anyRequest().denyAll()                                                // <5>
 		);
+	return http.build();
 }
 ----
 
@@ -104,7 +110,8 @@ protected void configure(HttpSecurity http) throws Exception {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
    http {
         authorizeRequests { // <1>
             authorize("/resources/**", permitAll) // <2>
@@ -116,6 +123,7 @@ fun configure(http: HttpSecurity) {
             authorize(anyRequest, denyAll) // <5>
         }
     }
+    return http.build()
 }
 ----
 ====

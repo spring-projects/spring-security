@@ -279,38 +279,42 @@ The `requireInitialize` method may only be called once per application instance.
 
 There are two ``@Bean``s that Spring Boot generates for a relying party.
 
-The first is a `WebSecurityConfigurerAdapter` that configures the app as a relying party.
-When including `spring-security-saml2-service-provider`, the `WebSecurityConfigurerAdapter` looks like:
+The first is a `SecurityFilterChain` that configures the app as a relying party.
+When including `spring-security-saml2-service-provider`, the `SecurityFilterChain` looks like:
 
 .Default JWT Configuration
 ====
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
         .saml2Login(withDefaults());
+    return http.build();
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         authorizeRequests {
             authorize(anyRequest, authenticated)
         }
         saml2Login { }
     }
+    return http.build()
 }
 ----
 ====
 
-If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
+If the application doesn't expose a `SecurityFilterChain` bean, then Spring Boot will expose the above default one.
 
 You can replace this by exposing the bean within the application:
 
@@ -320,14 +324,16 @@ You can replace this by exposing the bean within the application:
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class MyCustomSecurityConfiguration {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
             .saml2Login(withDefaults());
+        return http.build();
     }
 }
 ----
@@ -336,8 +342,9 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class MyCustomSecurityConfiguration {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
@@ -346,6 +353,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
             saml2Login {
             }
         }
+        return http.build()
     }
 }
 ----
@@ -460,7 +468,7 @@ Note that `X509Support` is an OpenSAML class, used here in the snippet for brevi
 
 [[servlet-saml2login-relyingpartyregistrationrepository-dsl]]
 
-Alternatively, you can directly wire up the repository using the DSL, which will also override the auto-configured `WebSecurityConfigurerAdapter`:
+Alternatively, you can directly wire up the repository using the DSL, which will also override the auto-configured `SecurityFilterChain`:
 
 .Custom Relying Party Registration DSL
 ====
@@ -468,8 +476,9 @@ Alternatively, you can directly wire up the repository using the DSL, which will
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class MyCustomSecurityConfiguration {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
@@ -478,6 +487,7 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
             .saml2Login(saml2 -> saml2
                 .relyingPartyRegistrationRepository(relyingPartyRegistrations())
             );
+        return http.build();
     }
 }
 ----
@@ -486,8 +496,9 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class MyCustomSecurityConfiguration {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize("/messages/**", hasAuthority("ROLE_USER"))
@@ -497,6 +508,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
                 relyingPartyRegistrationRepository = relyingPartyRegistrations()
             }
         }
+        return http.build()
     }
 }
 ----

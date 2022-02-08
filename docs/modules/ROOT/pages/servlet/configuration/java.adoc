@@ -135,18 +135,20 @@ public class MvcWebApplicationInitializer extends
 Thus far our <<jc-hello-wsca,WebSecurityConfig>> only contains information about how to authenticate our users.
 How does Spring Security know that we want to require all users to be authenticated?
 How does Spring Security know we want to support form based authentication?
-Actually, there is a configuration class that is being invoked behind the scenes called `WebSecurityConfigurerAdapter`.
-It has a method called `configure` with the following default implementation:
+Actually, there is a bean that is being invoked behind the scenes called `SecurityFilterChain`.
+It is configured with the following default implementation:
 
 [source,java]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		.authorizeRequests(authorize -> authorize
 			.anyRequest().authenticated()
 		)
 		.formLogin(withDefaults())
 		.httpBasic(withDefaults());
+	return http.build();
 }
 ----
 
@@ -170,7 +172,7 @@ You will notice that this configuration is quite similar the XML Namespace confi
 == Multiple HttpSecurity
 
 We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
-The key is to extend the `WebSecurityConfigurerAdapter` multiple times.
+The key is to register multiple `SecurityFilterChain` `@Bean`s.
 For example, the following is an example of having a different configuration for URL's that start with `/api/`.
 
 [source,java]
@@ -187,40 +189,36 @@ public class MultiHttpSecurityConfig {
 		return manager;
 	}
 
-	@Configuration
+	@Bean
 	@Order(1)                                                        <2>
-	public static class ApiWebSecurityConfigurationAdapter extends WebSecurityConfigurerAdapter {
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.antMatcher("/api/**")                               <3>
-				.authorizeHttpRequests(authorize -> authorize
-					.anyRequest().hasRole("ADMIN")
-			    )
-				.httpBasic(withDefaults());
-		}
+	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+		http
+			.antMatcher("/api/**")                                   <3>
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().hasRole("ADMIN")
+			)
+			.httpBasic(withDefaults());
+		return http.build();
 	}
 
-	@Configuration                                                   <4>
-	public static class FormLoginWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			http
-				.authorizeHttpRequests(authorize -> authorize
-					.anyRequest().authenticated()
-				)
-				.formLogin(withDefaults());
-		}
+	@Bean                                                            <4>
+	public SecurityFilterChain formLoginFilterChain(HttpSecurity http) throws Exception {
+		http
+			.authorizeHttpRequests(authorize -> authorize
+				.anyRequest().authenticated()
+			)
+			.formLogin(withDefaults());
+		return http.build();
 	}
 }
 ----
 
 <1> Configure Authentication as normal
-<2> Create an instance of `WebSecurityConfigurerAdapter` that contains `@Order` to specify which `WebSecurityConfigurerAdapter` should be considered first.
+<2> Register an instance of `SecurityFilterChain` that contains `@Order` to specify which `SecurityFilterChain` should be considered first.
 <3> The `http.antMatcher` states that this `HttpSecurity` will only be applicable to URLs that start with `/api/`
-<4> Create another instance of `WebSecurityConfigurerAdapter`.
+<4> Register another instance of `SecurityFilterChain`.
 If the URL does not start with `/api/` this configuration will be used.
-This configuration is considered after `ApiWebSecurityConfigurationAdapter` since it has an `@Order` value after `1` (no `@Order` defaults to last).
+This configuration is considered after `apiFilterChain` since it has an `@Order` value after `1` (no `@Order` defaults to last).
 
 [[jc-custom-dsls]]
 == Custom DSLs
@@ -268,14 +266,15 @@ The custom DSL can then be used like this:
 [source,java]
 ----
 @EnableWebSecurity
-public class Config extends WebSecurityConfigurerAdapter {
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+public class Config {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.apply(customDsl())
 				.flag(true)
 				.and()
 			...;
+		return http.build();
 	}
 }
 ----
@@ -286,7 +285,7 @@ The code is invoked in the following order:
 * Code in `MyCustomDsl`s init method is invoked
 * Code in `MyCustomDsl`s configure method is invoked
 
-If you want, you can have `WebSecurityConfigurerAdapter` add `MyCustomDsl` by default by using `SpringFactories`.
+If you want, you can add `MyCustomDsl` to `HttpSecurity` by default by using `SpringFactories`.
 For example, you would create a resource on the classpath named `META-INF/spring.factories` with the following contents:
 
 .META-INF/spring.factories
@@ -299,12 +298,13 @@ Users wishing to disable the default can do so explicitly.
 [source,java]
 ----
 @EnableWebSecurity
-public class Config extends WebSecurityConfigurerAdapter {
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+public class Config {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.apply(customDsl()).disable()
 			...;
+		return http.build();
 	}
 }
 ----
@@ -322,8 +322,8 @@ For example, if you wanted to configure the `filterSecurityPublishAuthorizationS
 
 [source,java]
 ----
-@Override
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		.authorizeRequests(authorize -> authorize
 			.anyRequest().authenticated()
@@ -335,5 +335,6 @@ protected void configure(HttpSecurity http) throws Exception {
 				}
 			})
 		);
+	return http.build();
 }
 ----
