@@ -379,11 +379,10 @@ Similarly, you can customize frame options to use the same origin within Java Co
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class WebSecurityConfig extends
-   WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             // ...
             .headers(headers -> headers
@@ -391,6 +390,7 @@ public class WebSecurityConfig extends
                      .sameOrigin()
                 )
         );
+        return http.build();
     }
 }
 ----
@@ -399,8 +399,9 @@ public class WebSecurityConfig extends
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+open class WebSecurityConfig {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             // ...
             headers {
@@ -409,6 +410,7 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -437,11 +439,10 @@ For example, if our stomp endpoint is `/chat`, we can disable CSRF protection on
 ----
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig
-    extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf
                 // ignore our stomp endpoints since they are protected using Stomp headers
@@ -466,8 +467,9 @@ public class WebSecurityConfig
 ----
 @Configuration
 @EnableWebSecurity
-open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+open class WebSecurityConfig {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             csrf {
                 ignoringAntMatchers("/chat/**")

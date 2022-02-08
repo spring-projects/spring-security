@@ -13,14 +13,15 @@ Users can integrate the `CorsFilter` with Spring Security by providing a `CorsCo
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			// by default uses a Bean by the name of corsConfigurationSource
 			.cors(withDefaults())
 			...
+		return http.build();
 	}
 
 	@Bean
@@ -39,13 +40,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+open class WebSecurityConfig {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             // by default uses a Bean by the name of corsConfigurationSource
             cors { }
             // ...
         }
+        return http.build()
     }
 
     @Bean
@@ -83,15 +86,16 @@ If you use Spring MVC's CORS support, you can omit specifying the `CorsConfigura
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+public class WebSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			// if Spring MVC is on classpath and no CorsConfigurationSource is provided,
 			// Spring Security will use CORS configuration provided to Spring MVC
 			.cors(withDefaults())
 			...
+		return http.build();
 	}
 }
 ----
@@ -100,14 +104,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+open class WebSecurityConfig {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             // if Spring MVC is on classpath and no CorsConfigurationSource is provided,
             // Spring Security will use CORS configuration provided to Spring MVC
             cors { }
             // ...
         }
+        return http.build()
     }
 }
 ----

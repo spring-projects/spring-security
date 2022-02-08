@@ -30,10 +30,10 @@ The following code shows the complete configuration options provided by the `Htt
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
-public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.clientRegistrationRepository(this.clientRegistrationRepository())
@@ -45,6 +45,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 					.accessTokenResponseClient(this.accessTokenResponseClient())
 				)
 			);
+		return http.build();
 	}
 }
 ----
@@ -53,9 +54,10 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Client {
                 clientRegistrationRepository = clientRegistrationRepository()
@@ -68,6 +70,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----

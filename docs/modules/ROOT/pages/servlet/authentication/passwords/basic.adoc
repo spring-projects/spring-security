@@ -64,10 +64,12 @@ The following example shows a minimal, explicit configuration:
 [source,java,role="primary"]
 .Java
 ----
-protected void configure(HttpSecurity http) {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
 	http
 		// ...
 		.httpBasic(withDefaults());
+	return http.build();
 }
 ----
 
@@ -83,11 +85,13 @@ protected void configure(HttpSecurity http) {
 [source,kotlin,role="secondary"]
 .Kotlin
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	http {
 		// ...
 		httpBasic { }
 	}
+	return http.build()
 }
 ----
 ====
