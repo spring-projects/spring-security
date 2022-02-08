@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,15 +24,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.google.common.net.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -67,13 +73,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Eleftheria Stein
  */
-@ExtendWith(SpringTestContextExtension.class)
+@ExtendWith({ MockitoExtension.class, SpringTestContextExtension.class })
 public class HttpSecurityConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 
 	@Autowired
 	private MockMvc mockMvc;
+
+	@Mock
+	private MockedStatic<SpringFactoriesLoader> springFactoriesLoader;
 
 	@Test
 	public void postWhenDefaultFilterChainBeanThenRespondsWithForbidden() throws Exception {
@@ -220,6 +229,17 @@ public class HttpSecurityConfigurationTests {
 						"authorizeHttpRequests cannot be used in conjunction with authorizeRequests. Please select just one.");
 	}
 
+	@Test
+	public void configureWhenDefaultConfigurerAsSpringFactoryThenDefaultConfigurerApplied() {
+		DefaultConfigurer configurer = new DefaultConfigurer();
+		this.springFactoriesLoader.when(
+				() -> SpringFactoriesLoader.loadFactories(AbstractHttpConfigurer.class, getClass().getClassLoader()))
+				.thenReturn(Arrays.asList(configurer));
+		this.spring.register(DefaultWithFilterChainConfig.class).autowire();
+		assertThat(configurer.init).isTrue();
+		assertThat(configurer.configure).isTrue();
+	}
+
 	@RestController
 	static class NameController {
 
@@ -345,6 +365,24 @@ public class HttpSecurityConfigurationTests {
 			if (!request.isUserInRole("USER")) {
 				throw new AccessDeniedException("This resource is only available to users");
 			}
+		}
+
+	}
+
+	static class DefaultConfigurer extends AbstractHttpConfigurer<DefaultConfigurer, HttpSecurity> {
+
+		boolean init;
+
+		boolean configure;
+
+		@Override
+		public void init(HttpSecurity builder) {
+			this.init = true;
+		}
+
+		@Override
+		public void configure(HttpSecurity builder) {
+			this.configure = true;
 		}
 
 	}
