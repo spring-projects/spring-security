@@ -65,6 +65,13 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 	}
 
 	@Test
+	public void webAuthenticationDetailsJackson2SerializeTest() throws JsonProcessingException, JSONException {
+		WebAuthenticationDetails details = new WebAuthenticationDetails("/localhost", "1");
+		String actualJson = this.mapper.writeValueAsString(details);
+		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
+	}
+
+	@Test
 	public void webAuthenticationDetailsDeserializeTest() throws IOException {
 		WebAuthenticationDetails details = this.mapper.readValue(AUTHENTICATION_DETAILS_JSON,
 				WebAuthenticationDetails.class);
