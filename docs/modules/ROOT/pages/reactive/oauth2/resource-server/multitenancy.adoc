@@ -1,4 +1,4 @@
-= OAuth 2.0 Resource Server Multitenancy
+= OAuth 2.0 Resource Server Multi-tenancy
 
 [[webflux-oauth2resourceserver-multitenancy]]
 == Multi-tenancy
