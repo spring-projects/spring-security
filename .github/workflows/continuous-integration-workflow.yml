@@ -79,27 +79,6 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew test --refresh-dependencies -PartifactoryUsername="$ARTIFACTORY_USERNAME" -PartifactoryPassword="$ARTIFACTORY_PASSWORD" -PforceMavenRepositories=snapshot -PspringVersion='5.+' -PreactorVersion='20+' -PspringDataVersion='Neumann-BUILD-SNAPSHOT' -PrsocketVersion=1.1.0-SNAPSHOT -PspringBootVersion=2.4.0-SNAPSHOT -PlocksDisabled --stacktrace
-  check_samples:
-    name: Check Samples project
-    needs: [prerequisites]
-    runs-on: ubuntu-latest
-    if: needs.prerequisites.outputs.runjobs
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Check samples project
-        run: |
-          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
-          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
-          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew checkSamples --stacktrace
   check_tangles:
     name: Check for Package Tangles
     needs: [ prerequisites ]
@@ -123,7 +102,7 @@ jobs:
           ./gradlew check s101 -Ps101.licenseId="$STRUCTURE101_LICENSEID" --stacktrace
   deploy_artifacts:
     name: Deploy Artifacts
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
+    needs: [build_jdk_17, snapshot_tests, check_tangles]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -150,7 +129,7 @@ jobs:
           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   deploy_docs:
     name: Deploy Docs
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
+    needs: [build_jdk_17, snapshot_tests, check_tangles]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -174,7 +153,7 @@ jobs:
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   deploy_schema:
     name: Deploy Schema
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
+    needs: [build_jdk_17, snapshot_tests, check_tangles]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -198,7 +177,7 @@ jobs:
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   notify_result:
     name: Check for failures
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_17, snapshot_tests, check_tangles, deploy_artifacts, deploy_docs, deploy_schema]
     if: failure()
     runs-on: ubuntu-latest
     steps:
