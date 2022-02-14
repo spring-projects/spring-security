@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
+import jakarta.servlet.Filter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -52,7 +53,6 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import jakarta.servlet.Filter
 
 /**
  * Tests for [HttpSecurityDsl]
@@ -72,9 +72,9 @@ class HttpSecurityDslTests {
         this.spring.register(DefaultSecurityConfig::class.java).autowire()
 
         this.mockMvc.post("/")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
@@ -88,10 +88,16 @@ class HttpSecurityDslTests {
                 string(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, "nosniff")
             }
             header {
-                string(XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS, XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY.name)
+                string(
+                    XFrameOptionsServerHttpHeadersWriter.X_FRAME_OPTIONS,
+                    XFrameOptionsHeaderWriter.XFrameOptionsMode.DENY.name
+                )
             }
             header {
-                string(StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY, "max-age=31536000 ; includeSubDomains")
+                string(
+                    StrictTransportSecurityServerHttpHeadersWriter.STRICT_TRANSPORT_SECURITY,
+                    "max-age=31536000 ; includeSubDomains"
+                )
             }
             header {
                 string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate")
@@ -118,11 +124,10 @@ class HttpSecurityDslTests {
         open class UserConfig {
             @Bean
             open fun userDetailsService(): UserDetailsService {
-                val userDetails = User.withDefaultPasswordEncoder()
-                        .username("user")
-                        .password("password")
-                        .roles("USER")
-                        .build()
+                val userDetails = User.withUsername("user")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+                    .roles("USER")
+                    .build()
                 return InMemoryUserDetailsManager(userDetails)
             }
         }
@@ -133,9 +138,9 @@ class HttpSecurityDslTests {
         this.spring.register(SecurityRequestMatcherConfig::class.java).autowire()
 
         this.mockMvc.get("/")
-                .andExpect {
-                    status { isNotFound() }
-                }
+            .andExpect {
+                status { isNotFound() }
+            }
     }
 
     @Test
@@ -143,9 +148,9 @@ class HttpSecurityDslTests {
         this.spring.register(SecurityRequestMatcherConfig::class.java).autowire()
 
         this.mockMvc.get("/path")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
     }
 
     @EnableWebSecurity
@@ -165,9 +170,9 @@ class HttpSecurityDslTests {
         this.spring.register(SecurityPatternMatcherConfig::class.java).autowire()
 
         this.mockMvc.get("/")
-                .andExpect {
-                    status { isNotFound() }
-                }
+            .andExpect {
+                status { isNotFound() }
+            }
     }
 
     @Test
@@ -175,9 +180,9 @@ class HttpSecurityDslTests {
         this.spring.register(SecurityPatternMatcherConfig::class.java).autowire()
 
         this.mockMvc.get("/path")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
     }
 
     @EnableWebSecurity
@@ -198,19 +203,19 @@ class HttpSecurityDslTests {
         this.spring.register(MultiMatcherConfig::class.java).autowire()
 
         this.mockMvc.get("/path1")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
 
         this.mockMvc.get("/path2")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
 
         this.mockMvc.get("/path3")
-                .andExpect {
-                    status { isNotFound() }
-                }
+            .andExpect {
+                status { isNotFound() }
+            }
     }
 
     @EnableWebSecurity
@@ -234,7 +239,7 @@ class HttpSecurityDslTests {
         every {
             AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any())
         } returns TestingAuthenticationToken("user", "test", "ROLE_USER")
-        val  request = MockMvcRequestBuilders.get("/")
+        val request = MockMvcRequestBuilders.get("/")
             .with(httpBasic("user", "password"))
         this.mockMvc.perform(request)
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }

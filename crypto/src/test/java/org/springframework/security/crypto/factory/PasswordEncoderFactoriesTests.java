@@ -42,6 +42,7 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void matchesWhenBCryptThenWorks() {
 		String encodedPassword = "{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG";
+
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 

@@ -162,9 +162,8 @@ class ServerX509DslTests {
         }
 
         fun userDetailsService(): MapReactiveUserDetailsService {
-            val user = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val user = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return MapReactiveUserDetailsService(user)
@@ -183,9 +182,8 @@ class ServerX509DslTests {
     open class UserDetailsConfig {
         @Bean
         open fun userDetailsService(): MapReactiveUserDetailsService {
-            val user = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val user = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return MapReactiveUserDetailsService(user)

@@ -247,18 +247,17 @@ public class RSocketMessageHandlerITests {
 		@Bean
 		MapReactiveUserDetailsService uds() {
 			// @formatter:off
-			UserDetails rob = User.withDefaultPasswordEncoder()
-					.username("rob")
-					.password("password")
+			UserDetails rob = User.withUsername("rob")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER", "ADMIN")
 					.build();
-			UserDetails rossen = User.withDefaultPasswordEncoder()
-					.username("rossen")
-					.password("password")
+			UserDetails rossen = User.withUsername("rossen")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER")
 					.build();
 			// @formatter:on
 			return new MapReactiveUserDetailsService(rob, rossen);
+
 		}
 
 		@Bean

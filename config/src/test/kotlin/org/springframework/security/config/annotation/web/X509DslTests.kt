@@ -74,9 +74,8 @@ class X509DslTests {
 
         @Bean
         override fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val userDetails = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return InMemoryUserDetailsManager(userDetails)
@@ -105,9 +104,8 @@ class X509DslTests {
 
         @Bean
         override fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val userDetails = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return InMemoryUserDetailsManager(userDetails)
@@ -127,9 +125,8 @@ class X509DslTests {
     @EnableWebSecurity
     open class UserDetailsServiceConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val userDetails = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             val customUserDetailsService = InMemoryUserDetailsManager(userDetails)
@@ -157,9 +154,8 @@ class X509DslTests {
     @EnableWebSecurity
     open class AuthenticationUserDetailsServiceConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val userDetails = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             val customUserDetailsService = InMemoryUserDetailsManager(userDetails)
@@ -200,9 +196,8 @@ class X509DslTests {
 
         @Bean
         override fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("rod")
-                    .password("password")
+            val userDetails = User.withUsername("rod")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return InMemoryUserDetailsManager(userDetails)

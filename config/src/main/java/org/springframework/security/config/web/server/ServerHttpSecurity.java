@@ -203,8 +203,7 @@ import org.springframework.web.server.WebFilterChain;
  *
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
- *         UserDetails user = User.withDefaultPasswordEncoder()
- *             .username("user")
+ *         UserDetails user = User.withUsername("user")
  *             .password("password")
  *             .roles("USER")
  *             .build();
@@ -233,8 +232,7 @@ import org.springframework.web.server.WebFilterChain;
  *
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
- *         UserDetails user = User.withDefaultPasswordEncoder()
- *             .username("user")
+ *         UserDetails user = User.withUsername("user")
  *             .password("password")
  *             .roles("USER")
  *             .build();

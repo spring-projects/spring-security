@@ -299,13 +299,13 @@ public class HttpSecurityConfigurationTests {
 		@Bean
 		UserDetailsService userDetailsService() {
 			// @formatter:off
-			UserDetails user = User.withDefaultPasswordEncoder()
-					.username("user")
-					.password("password")
+			UserDetails user = User.withUsername("user")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER")
 					.build();
 			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
+
 		}
 
 	}
@@ -315,7 +315,7 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			return http
 					.authorizeHttpRequests((requests) -> requests
 							.anyRequest().authenticated()
@@ -334,7 +334,7 @@ public class HttpSecurityConfigurationTests {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			return http
 					.authorizeRequests((requests) -> requests
 							.anyRequest().authenticated()

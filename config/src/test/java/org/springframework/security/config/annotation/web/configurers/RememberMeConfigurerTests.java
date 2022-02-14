@@ -359,13 +359,13 @@ public class RememberMeConfigurerTests {
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
-					User.withDefaultPasswordEncoder()
-							.username("user")
-							.password("password")
+					User.withUsername("user")
+							.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 							.roles("USER")
 							.build()
 					// @formatter:on
 			);
+
 		}
 
 	}
@@ -375,7 +375,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -388,7 +388,7 @@ public class RememberMeConfigurerTests {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
@@ -402,7 +402,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
@@ -415,7 +415,7 @@ public class RememberMeConfigurerTests {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
@@ -429,7 +429,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -443,7 +443,7 @@ public class RememberMeConfigurerTests {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
@@ -457,7 +457,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
@@ -473,7 +473,7 @@ public class RememberMeConfigurerTests {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
@@ -489,7 +489,7 @@ public class RememberMeConfigurerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -505,7 +505,7 @@ public class RememberMeConfigurerTests {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			auth
 				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
@@ -520,7 +520,7 @@ public class RememberMeConfigurerTests {
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			super.configure(http);
-			// @formatter:off
+		// @formatter:off
 			http.rememberMe()
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
 			// @formatter:on

@@ -63,9 +63,9 @@ class CsrfDslTests {
         this.spring.register(DefaultCsrfConfig::class.java).autowire()
 
         this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
     }
 
     @Test
@@ -94,9 +94,9 @@ class CsrfDslTests {
         this.spring.register(CsrfDisabledConfig::class.java, BasicController::class.java).autowire()
 
         this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isOk() }
-                }
+            .andExpect {
+                status { isOk() }
+            }
     }
 
     @EnableWebSecurity
@@ -144,14 +144,14 @@ class CsrfDslTests {
         this.spring.register(RequireCsrfProtectionMatcherConfig::class.java, BasicController::class.java).autowire()
 
         this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
 
         this.mockMvc.post("/test2")
-                .andExpect {
-                    status { isOk() }
-                }
+            .andExpect {
+                status { isOk() }
+            }
     }
 
     @EnableWebSecurity
@@ -195,11 +195,10 @@ class CsrfDslTests {
 
         @Bean
         override fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("user")
-                    .password("password")
-                    .roles("USER")
-                    .build()
+            val userDetails = User.withUsername("user")
+                .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
+                .roles("USER")
+                .build()
             return InMemoryUserDetailsManager(userDetails)
         }
     }
@@ -209,14 +208,14 @@ class CsrfDslTests {
         this.spring.register(IgnoringRequestMatchersConfig::class.java, BasicController::class.java).autowire()
 
         this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
 
         this.mockMvc.post("/test2")
-                .andExpect {
-                    status { isOk() }
-                }
+            .andExpect {
+                status { isOk() }
+            }
     }
 
     @EnableWebSecurity
@@ -236,14 +235,14 @@ class CsrfDslTests {
         this.spring.register(IgnoringAntMatchersConfig::class.java, BasicController::class.java).autowire()
 
         this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isForbidden() }
-                }
+            .andExpect {
+                status { isForbidden() }
+            }
 
         this.mockMvc.post("/test2")
-                .andExpect {
-                    status { isOk() }
-                }
+            .andExpect {
+                status { isOk() }
+            }
     }
 
     @EnableWebSecurity

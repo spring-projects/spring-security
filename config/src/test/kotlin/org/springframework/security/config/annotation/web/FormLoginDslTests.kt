@@ -329,7 +329,7 @@ class FormLoginDslTests {
         fun configureGlobal(auth: AuthenticationManagerBuilder) {
             auth
                     .inMemoryAuthentication()
-                    .withUser(User.withDefaultPasswordEncoder().username("user").password("password").roles("USER"))
+                    .withUser(User.withUsername("user").password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG").roles("USER"))
         }
     }
 }

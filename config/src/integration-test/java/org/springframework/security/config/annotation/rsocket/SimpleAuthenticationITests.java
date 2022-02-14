@@ -168,13 +168,13 @@ public class SimpleAuthenticationITests {
 		@Bean
 		MapReactiveUserDetailsService uds() {
 			// @formatter:off
-			UserDetails rob = User.withDefaultPasswordEncoder()
-					.username("rob")
-					.password("password")
+			UserDetails rob = User.withUsername("rob")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER", "ADMIN")
 					.build();
 			// @formatter:on
 			return new MapReactiveUserDetailsService(rob);
+
 		}
 
 	}

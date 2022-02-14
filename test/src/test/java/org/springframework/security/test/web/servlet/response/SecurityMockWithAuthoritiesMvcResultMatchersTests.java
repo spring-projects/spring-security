@@ -86,9 +86,10 @@ public class SecurityMockWithAuthoritiesMvcResultMatchersTests {
 		@Bean
 		public UserDetailsService userDetailsService() {
 			// @formatter:off
-			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("ADMIN", "SELLER").build();
+			UserDetails user = User.withUsername("user").password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG").roles("ADMIN", "SELLER").build();
 			return new InMemoryUserDetailsManager(user);
 			// @formatter:on
+
 		}
 
 		@RestController

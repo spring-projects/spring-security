@@ -1674,9 +1674,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
-					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
-							.username("basic-user")
-							.password("basic-password")
+					org.springframework.security.core.userdetails.User.withUsername("basic-user")
+							.password("{bcrypt}$2a$10$7BLy9Y9Q9gJKo8vgoFaGJez1EIUrtTEAdVEN.oR.5dk1NExtcD.fy")
 							.roles("USER")
 							.build());
 					// @formatter:on
@@ -1755,9 +1754,8 @@ public class OAuth2ResourceServerConfigurerTests {
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
-					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
-							.username("basic-user")
-							.password("basic-password")
+					org.springframework.security.core.userdetails.User.withUsername("basic-user")
+							.password("{bcrypt}$2a$10$7BLy9Y9Q9gJKo8vgoFaGJez1EIUrtTEAdVEN.oR.5dk1NExtcD.fy")
 							.roles("USER")
 							.build());
 					// @formatter:on

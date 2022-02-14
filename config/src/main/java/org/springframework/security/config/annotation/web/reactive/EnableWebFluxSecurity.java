@@ -39,8 +39,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
  *
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
- *          UserDetails user = User.withDefaultPasswordEncoder()
- *               .username("user")
+ *          UserDetails user = User.withUsername("user")
  *               .password("password")
  *               .roles("USER")
  *               .build();
@@ -68,8 +67,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
  *
  *     &#064;Bean
  *     public MapReactiveUserDetailsService userDetailsService() {
- *          UserDetails user = User.withDefaultPasswordEncoder()
- *               .username("user")
+ *          UserDetails user = User.withUsername("user")
  *               .password("password")
  *               .roles("USER")
  *               .build();

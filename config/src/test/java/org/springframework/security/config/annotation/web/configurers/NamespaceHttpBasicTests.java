@@ -165,13 +165,13 @@ public class NamespaceHttpBasicTests {
 		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
-				User.withDefaultPasswordEncoder()
-					.username("user")
-					.password("password")
+				User.withUsername("user")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER")
 					.build()
 				// @formatter:on
 			);
+
 		}
 
 	}
@@ -181,7 +181,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -197,7 +197,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
@@ -214,7 +214,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -230,7 +230,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
@@ -250,7 +250,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.httpBasic()
 					.authenticationDetailsSource(this.authenticationDetailsSource);
@@ -272,7 +272,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.httpBasic((httpBasicConfig) ->
 						httpBasicConfig.authenticationDetailsSource(this.authenticationDetailsSource));
@@ -293,7 +293,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER")
@@ -312,7 +312,7 @@ public class NamespaceHttpBasicTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
+		// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests

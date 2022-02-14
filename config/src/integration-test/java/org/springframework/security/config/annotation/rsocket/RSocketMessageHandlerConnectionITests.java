@@ -272,19 +272,16 @@ public class RSocketMessageHandlerConnectionITests {
 		@Bean
 		MapReactiveUserDetailsService uds() {
 			// @formatter:off
-			UserDetails admin = User.withDefaultPasswordEncoder()
-					.username("admin")
-					.password("password")
+			UserDetails admin = User.withUsername("admin")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER", "ADMIN", "SETUP")
 					.build();
-			UserDetails user = User.withDefaultPasswordEncoder()
-					.username("user")
-					.password("password")
+			UserDetails user = User.withUsername("user")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("USER", "SETUP")
 					.build();
-			UserDetails evil = User.withDefaultPasswordEncoder()
-					.username("evil")
-					.password("password")
+			UserDetails evil = User.withUsername("evil")
+					.password("{bcrypt}$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
 					.roles("EVIL")
 					.build();
 			// @formatter:on
@@ -293,7 +290,7 @@ public class RSocketMessageHandlerConnectionITests {
 
 		@Bean
 		PayloadSocketAcceptorInterceptor rsocketInterceptor(RSocketSecurity rsocket) {
-			// @formatter:off
+		// @formatter:off
 			rsocket.authorizePayload((authorize) -> authorize
 					.setup().hasRole("SETUP")
 					.route("secure.admin.*").hasRole("ADMIN")

@@ -113,7 +113,7 @@ tasks.withType(KotlinCompile).configureEach {
 		languageVersion = "1.6"
 		apiVersion = "1.6"
 		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
-		jvmTarget = "11"
+		jvmTarget = "17"
 	}
 }
 

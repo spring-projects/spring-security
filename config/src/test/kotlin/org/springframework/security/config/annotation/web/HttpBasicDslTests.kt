@@ -195,9 +195,8 @@ class HttpBasicDslTests {
     open class UserConfig {
         @Bean
         open fun userDetailsService(): UserDetailsService {
-            val userDetails = User.withDefaultPasswordEncoder()
-                    .username("user")
-                    .password("password")
+            val userDetails = User.withUsername("user")
+                    .password("{bcrypt}$2a$10\$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG3YB1tlRy.fqvM/BG")
                     .roles("USER")
                     .build()
             return InMemoryUserDetailsManager(userDetails)
