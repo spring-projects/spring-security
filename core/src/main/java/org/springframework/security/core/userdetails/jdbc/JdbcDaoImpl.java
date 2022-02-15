@@ -110,6 +110,8 @@ import org.springframework.util.Assert;
  */
 public class JdbcDaoImpl extends JdbcDaoSupport implements UserDetailsService, MessageSourceAware {
 
+	public static final String DEFAULT_USER_SCHEMA_DDL_LOCATION = "org/springframework/security/core/userdetails/jdbc/users.ddl";
+
 	// @formatter:off
 	public static final String DEF_USERS_BY_USERNAME_QUERY = "select username,password,enabled "
 			+ "from users "
