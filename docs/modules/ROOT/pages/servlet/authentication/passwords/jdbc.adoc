@@ -116,7 +116,7 @@ In our example, we will setup an https://docs.spring.io/spring-framework/docs/cu
 DataSource dataSource() {
 	return new EmbeddedDatabaseBuilder()
 		.setType(H2)
-		.addScript("classpath:org/springframework/security/core/userdetails/jdbc/users.ddl")
+		.addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
 		.build();
 }
 ----
@@ -136,7 +136,7 @@ DataSource dataSource() {
 fun dataSource(): DataSource {
     return EmbeddedDatabaseBuilder()
         .setType(H2)
-        .addScript("classpath:org/springframework/security/core/userdetails/jdbc/users.ddl")
+        .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
         .build()
 }
 ----
