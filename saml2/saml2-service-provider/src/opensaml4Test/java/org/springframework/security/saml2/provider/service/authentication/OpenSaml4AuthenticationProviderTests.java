@@ -277,12 +277,10 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, decrypting(registration()));
+		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
-				.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE));
+				.satisfies(errorOf(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
 	}
 
 	@Test
