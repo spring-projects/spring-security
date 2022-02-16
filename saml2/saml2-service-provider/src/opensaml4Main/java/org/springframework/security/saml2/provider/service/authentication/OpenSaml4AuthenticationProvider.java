@@ -380,8 +380,8 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, message));
 			}
 			if (response.getAssertions().isEmpty()) {
-				throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA,
-						"No assertions found in response.", null);
+				result = result.concat(
+						new Saml2Error(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, "No assertions found in response."));
 			}
 			return result;
 		};
@@ -505,10 +505,10 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (!responseSigned && !allAssertionsSigned) {
 			String description = "Either the response or one of the assertions is unsigned. "
 					+ "Please either sign the response or all of the assertions.";
-			throw createAuthenticationException(Saml2ErrorCodes.INVALID_SIGNATURE, description, null);
+			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE, description));
 		}
 		Assertion firstAssertion = CollectionUtils.firstElement(response.getAssertions());
-		if (!hasName(firstAssertion)) {
+		if (firstAssertion != null && !hasName(firstAssertion)) {
 			Saml2Error error = new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND,
 					"Assertion [" + firstAssertion.getID() + "] is missing a subject");
 			result = result.concat(error);
