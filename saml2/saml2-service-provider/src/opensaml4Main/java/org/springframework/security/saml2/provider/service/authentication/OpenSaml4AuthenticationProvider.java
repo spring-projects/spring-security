@@ -491,6 +491,10 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (responseSigned) {
 			this.responseElementsDecrypter.accept(responseToken);
 		}
+		else if (!response.getEncryptedAssertions().isEmpty()) {
+			result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_SIGNATURE,
+					"Did not decrypt response [" + response.getID() + "] since it is not signed"));
+		}
 		result = result.concat(this.responseValidator.convert(responseToken));
 		boolean allAssertionsSigned = true;
 		for (Assertion assertion : response.getAssertions()) {

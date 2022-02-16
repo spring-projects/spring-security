@@ -280,7 +280,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
-				.satisfies(errorOf(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA));
+				.satisfies(errorOf(Saml2ErrorCodes.INVALID_SIGNATURE, "Did not decrypt response"));
 	}
 
 	@Test
