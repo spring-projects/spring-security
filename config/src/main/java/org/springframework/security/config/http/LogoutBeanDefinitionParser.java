@@ -59,6 +59,8 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	private boolean csrfEnabled;
 
+	private BeanMetadataElement logoutSuccessHandler;
+
 	LogoutBeanDefinitionParser(String loginPageUrl, String rememberMeServices, BeanMetadataElement csrfLogoutHandler) {
 		this.defaultLogoutUrl = loginPageUrl + "?logout";
 		this.rememberMeServices = rememberMeServices;
@@ -98,6 +100,7 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 						pc.extractSource(element));
 			}
 			builder.addConstructorArgReference(successHandlerRef);
+			this.logoutSuccessHandler = new RuntimeBeanReference(successHandlerRef);
 		}
 		else {
 			// Use the logout URL if no handler set
@@ -135,6 +138,10 @@ class LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	ManagedList<BeanMetadataElement> getLogoutHandlers() {
 		return this.logoutHandlers;
+	}
+
+	BeanMetadataElement getLogoutSuccessHandler() {
+		return this.logoutSuccessHandler;
 	}
 
 }

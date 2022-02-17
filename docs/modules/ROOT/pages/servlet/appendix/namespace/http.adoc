@@ -165,6 +165,7 @@ The default value is true.
 * <<nsa-remember-me,remember-me>>
 * <<nsa-request-cache,request-cache>>
 * <<nsa-saml2-login,saml2-login>>
+* <<nsa-saml2-logout,saml2-logout>>
 * <<nsa-session-management,session-management>>
 * <<nsa-x509,x509>>
 
@@ -1342,10 +1343,77 @@ The AssertionConsumerService Location. Equivalent to the value found in `&lt;Ass
 the AssertionConsumerService Binding. Equivalent to the value found in `&lt;AssertionConsumerService Binding="..."/&gt;` in the relying party's `&lt;SPSSODescriptor&gt;`.
 The supported values are *POST* and *REDIRECT*.
 
+[[nsa-relying-party-registration-single-logout-service-location]]
+* **single-logout-service-location**
+The SingleLogoutService Location. Equivalent to the value found in &lt;SingleLogoutService Location="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+
+[[nsa-relying-party-registration-single-logout-service-response-location]]
+* **single-logout-service-response-location**
+The SingleLogoutService ResponseLocation. Equivalent to the value found in &lt;SingleLogoutService ResponseLocation="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+
+[[nsa-relying-party-registration-single-logout-service-binding]]
+* **single-logout-service-binding**
+The SingleLogoutService Binding. Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+The supported values are *POST* and *REDIRECT*.
 
 [[nsa-relying-party-registration-asserting-party-id]]
 * **asserting-party-id**
 A reference to the associated asserting party. Must reference an `<asserting-party>` element.
+
+[[nsa-relying-party-registration-children]]
+=== Child Elements of <relying-party-registration>
+
+* <<nsa-decryption-credential,decryption-credential>>
+* <<nsa-signing-credential,signing-credential>>
+
+
+[[nsa-decryption-credential]]
+== <decryption-credential>
+The decryption credentials associated with the relying party.
+
+
+[[nsa-decryption-credential-parents]]
+=== Parent Elements of <decryption-credential>
+
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-decryption-credential-attributes]]
+=== <decryption-credential> Attributes
+
+
+[[nsa-decryption-credential-certificate-location]]
+* **certificate-location**
+The location to get the certificate
+
+[[nsa-decryption-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+[[nsa-signing-credential]]
+== <signing-credential>
+The signing credentials associated with the relying party.
+
+
+[[nsa-signing-credential-parents]]
+=== Parent Elements of <verification-credential>
+
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-signing-credential-attributes]]
+=== <verification-credential> Attributes
+
+
+[[nsa-signing-credential-certificate-location]]
+* **certificate-location**
+The location to get this certificate
+
+[[nsa-signing-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
 
 
 [[nsa-asserting-party]]
@@ -1392,6 +1460,22 @@ The supported values are *POST* and *REDIRECT*.
 [[nsa-asserting-party-signing-algorithms]]
 * **signing-algorithms**
 The list of `org.opensaml.saml.ext.saml2alg.SigningMethod` Algorithms for this asserting party, in preference order.
+
+
+[[nsa-asserting-party-single-logout-service-location]]
+* **single-logout-service-location**
+The SingleLogoutService Location. Equivalent to the value found in &lt;SingleLogoutService Location="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+
+
+[[nsa-asserting-party-single-logout-service-response-location]]
+* **single-logout-service-response-location**
+The SingleLogoutService ResponseLocation. Equivalent to the value found in &lt;SingleLogoutService ResponseLocation="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+
+
+[[nsa-asserting-party-single-logout-service-binding]]
+* **single-logout-service-binding**
+The SingleLogoutService Binding. Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+The supported values are *POST* and *REDIRECT*.
 
 
 [[nsa-asserting-party-children]]
@@ -1793,6 +1877,67 @@ Reference to the `AuthenticationFailureHandler`.
 [[nsa-saml2-login-authentication-manager-ref]]
 * **authentication-manager-ref**
 Reference to the `AuthenticationManager`.
+
+
+
+[[nsa-saml2-logout]]
+== <saml2-logout>
+The xref:servlet/saml2/logout.adoc#servlet-saml2login-logout[SAML 2.0 Single Logout] feature configures support for RP- and AP-initiated SAML 2.0 Single Logout.
+
+
+[[nsa-saml2-logout-parents]]
+=== Parent Elements of <saml2-logout>
+
+* <<nsa-http,http>>
+
+[[nsa-saml2-logout-attributes]]
+=== <saml2-logout> Attributes
+
+
+[[nsa-saml2-logout-logout-url]]
+* **logout-url**
+The URL by which the relying or asserting party can trigger logout.
+
+
+[[nsa-saml2-logout-logout-request-url]]
+* **logout-request-url**
+The URL by which the asserting party can send a SAML 2.0 Logout Request.
+
+
+[[nsa-saml2-logout-logout-response-url]]
+* **logout-response-url**
+The URL by which the asserting party can send a SAML 2.0 Logout Response.
+
+
+[[nsa-saml2-logout-relying-party-registration-repository-ref]]
+* **relying-party-registration-repository-ref**
+Reference to the `RelyingPartyRegistrationRepository`.
+
+
+[[nsa-saml2-logout-logout-request-validator-ref]]
+* **logout-request-validator-ref**
+Reference to the `Saml2LogoutRequestValidator`.
+
+
+[[nsa-saml2-logout-logout-request-resolver-ref]]
+* **logout-request-resolver-ref**
+Reference to the `Saml2LogoutRequestResolver`.
+
+
+[[nsa-saml2-logout-logout-request-repository-ref]]
+* **logout-request-repository-ref**
+Reference to the `Saml2LogoutRequestRepository`.
+
+
+[[nsa-saml2-logout-logout-response-validator-ref]]
+* **logout-response-validator-ref**
+Reference to the `Saml2LogoutResponseValidator`.
+
+
+[[nsa-saml2-logout-logout-response-resolver-ref]]
+* **logout-response-resolver-ref**
+Reference to the `Saml2LogoutResponseResolver`.
+
 
 
 [[nsa-attribute-exchange]]

@@ -312,7 +312,7 @@ http-firewall =
 
 http =
 	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
-	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & saml2-login? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & saml2-login? & saml2-logout? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
 http.attlist &=
 	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
 	attribute pattern {xsd:token}?
@@ -690,6 +690,37 @@ saml2-login.attlist &=
 	## Reference to the AuthenticationManager
 	attribute authentication-manager-ref {xsd:token}?
 
+saml2-logout =
+	## Configures SAML 2.0 Single Logout support
+	element saml2-logout {saml2-logout.attlist}
+saml2-logout.attlist &=
+	## The URL by which the relying or asserting party can trigger logout
+	attribute logout-url {xsd:token}?
+saml2-logout.attlist &=
+	## The URL by which the asserting party can send a SAML 2.0 Logout Request
+	attribute logout-request-url {xsd:token}?
+saml2-logout.attlist &=
+	## The URL by which the asserting party can send a SAML 2.0 Logout Response
+	attribute logout-response-url {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the RelyingPartyRegistrationRepository
+	attribute relying-party-registration-repository-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestValidator
+	attribute logout-request-validator-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestResolver
+	attribute logout-request-resolver-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestRepository
+	attribute logout-request-repository-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutResponseValidator
+	attribute logout-response-validator-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutResponseResolver
+	attribute logout-response-resolver-ref {xsd:token}?
+
 relying-party-registrations =
 	## Container element for relying party(ies) registered with a SAML 2.0 identity provider
 	element relying-party-registrations {relying-party-registration+, asserting-party*}
@@ -715,6 +746,15 @@ relying-party-registration.attlist &=
 relying-party-registration.attlist &=
 	## A reference to the associated asserting party.
 	attribute asserting-party-id {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Location</a>
+	attribute single-logout-service-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Response Location</a>
+	attribute single-logout-service-response-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Binding</a>
+	attribute single-logout-service-binding {xsd:token}?
 
 signing-credential =
 	## The relying party's signing credential
@@ -757,6 +797,15 @@ asserting-party.attlist &=
 asserting-party.attlist &=
 	## A comma separated list of org.opensaml.saml.ext.saml2alg.SigningMethod Algorithms for this asserting party, in preference order.
 	attribute signing-algorithms {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Location</a>
+	attribute single-logout-service-location {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Response Location</a>
+	attribute single-logout-service-response-location {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Binding</a>
+	attribute single-logout-service-binding {xsd:token}?
 
 verification-credential =
 	## The relying party's verification credential
@@ -1266,4 +1315,4 @@ position =
 	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
 	attribute position {named-security-filter}
 
-named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "CSRF_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "SAML2_AUTHENTICATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "SAML2_AUTHENTICATION_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
+named-security-filter = "FIRST" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "SAML2_LOGOUT_REQUEST_FILTER" | "SAML2_LOGOUT_RESPONSE_FILTER" | "CSRF_FILTER" | "SAML2_LOGOUT_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "SAML2_AUTHENTICATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "SAML2_AUTHENTICATION_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
