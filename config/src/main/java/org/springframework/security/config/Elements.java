@@ -136,4 +136,6 @@ public abstract class Elements {
 
 	public static final String SAML2_LOGIN = "saml2-login";
 
+	public static final String SAML2_LOGOUT = "saml2-logout";
+
 }

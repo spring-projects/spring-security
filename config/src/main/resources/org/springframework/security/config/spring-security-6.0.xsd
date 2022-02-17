@@ -1024,6 +1024,15 @@
                   <xs:attributeGroup ref="security:saml2-login.attlist"/>
                </xs:complexType>
             </xs:element>
+            <xs:element name="saml2-logout">
+               <xs:annotation>
+                  <xs:documentation>Configures SAML 2.0 Single Logout support
+                </xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                  <xs:attributeGroup ref="security:saml2-logout.attlist"/>
+               </xs:complexType>
+            </xs:element>
             <xs:element name="x509">
                <xs:annotation>
                   <xs:documentation>Adds support for X.509 client authentication.
@@ -1986,6 +1995,63 @@
          </xs:annotation>
       </xs:attribute>
   </xs:attributeGroup>
+  
+  <xs:attributeGroup name="saml2-logout.attlist">
+      <xs:attribute name="logout-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URL by which the relying or asserting party can trigger logout
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-request-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URL by which the asserting party can send a SAML 2.0 Logout Request
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-response-url" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The URL by which the asserting party can send a SAML 2.0 Logout Response
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="relying-party-registration-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the RelyingPartyRegistrationRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-request-validator-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2LogoutRequestValidator
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-request-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2LogoutRequestResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-request-repository-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2LogoutRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-response-validator-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2LogoutResponseValidator
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="logout-response-resolver-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the Saml2LogoutResponseResolver
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+  </xs:attributeGroup>
   <xs:element name="relying-party-registrations">
       <xs:annotation>
          <xs:documentation>Container element for relying party(ies) registered with a SAML 2.0 identity provider
@@ -2045,6 +2111,30 @@
       <xs:attribute name="asserting-party-id" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to the associated asserting party.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The relying party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Location&lt;/a&gt;
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-response-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The relying party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Response Location&lt;/a&gt;
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-binding" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The relying party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Binding&lt;/a&gt;
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -2148,6 +2238,30 @@
          <xs:annotation>
             <xs:documentation>A comma separated list of org.opensaml.saml.ext.saml2alg.SigningMethod Algorithms for this
                 asserting party, in preference order.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The asserting party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Location&lt;/a&gt;
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-response-location" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The asserting party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Response Location&lt;/a&gt;
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="single-logout-service-binding" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The asserting party &lt;a
+                href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7"&gt;SingleLogoutService
+                Binding&lt;/a&gt;
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -3516,7 +3630,10 @@
          <xs:enumeration value="WEB_ASYNC_MANAGER_FILTER"/>
          <xs:enumeration value="HEADERS_FILTER"/>
          <xs:enumeration value="CORS_FILTER"/>
+         <xs:enumeration value="SAML2_LOGOUT_REQUEST_FILTER"/>
+         <xs:enumeration value="SAML2_LOGOUT_RESPONSE_FILTER"/>
          <xs:enumeration value="CSRF_FILTER"/>
+         <xs:enumeration value="SAML2_LOGOUT_FILTER"/>
          <xs:enumeration value="LOGOUT_FILTER"/>
          <xs:enumeration value="OAUTH2_AUTHORIZATION_REQUEST_FILTER"/>
          <xs:enumeration value="SAML2_AUTHENTICATION_REQUEST_FILTER"/>
