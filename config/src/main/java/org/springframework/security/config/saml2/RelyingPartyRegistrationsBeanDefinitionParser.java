@@ -88,6 +88,12 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 
 	private static final String ATT_SIGNING_ALGORITHMS = "signing-algorithms";
 
+	private static final String ATT_SINGLE_LOGOUT_SERVICE_LOCATION = "single-logout-service-location";
+
+	private static final String ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION = "single-logout-service-response-location";
+
+	private static final String ATT_SINGLE_LOGOUT_SERVICE_BINDING = "single-logout-service-binding";
+
 	private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
 	@Override
@@ -120,12 +126,19 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 			String singleSignOnServiceLocation = assertingPartyElt.getAttribute(ATT_SINGLE_SIGN_ON_SERVICE_LOCATION);
 			String singleSignOnServiceBinding = assertingPartyElt.getAttribute(ATT_SINGLE_SIGN_ON_SERVICE_BINDING);
 			String signingAlgorithms = assertingPartyElt.getAttribute(ATT_SIGNING_ALGORITHMS);
+			String singleLogoutServiceLocation = assertingPartyElt.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_LOCATION);
+			String singleLogoutServiceResponseLocation = assertingPartyElt
+					.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION);
+			String singleLogoutServiceBinding = assertingPartyElt.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_BINDING);
 			assertingParty.put(ATT_ASSERTING_PARTY_ID, assertingPartyId);
 			assertingParty.put(ATT_ENTITY_ID, entityId);
 			assertingParty.put(ATT_WANT_AUTHN_REQUESTS_SIGNED, wantAuthnRequestsSigned);
 			assertingParty.put(ATT_SINGLE_SIGN_ON_SERVICE_LOCATION, singleSignOnServiceLocation);
 			assertingParty.put(ATT_SINGLE_SIGN_ON_SERVICE_BINDING, singleSignOnServiceBinding);
 			assertingParty.put(ATT_SIGNING_ALGORITHMS, signingAlgorithms);
+			assertingParty.put(ATT_SINGLE_LOGOUT_SERVICE_LOCATION, singleLogoutServiceLocation);
+			assertingParty.put(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION, singleLogoutServiceResponseLocation);
+			assertingParty.put(ATT_SINGLE_LOGOUT_SERVICE_BINDING, singleLogoutServiceBinding);
 			addVerificationCredentials(assertingPartyElt, assertingParty);
 			addEncryptionCredentials(assertingPartyElt, assertingParty);
 			providers.put(assertingPartyId, assertingParty);
@@ -195,8 +208,16 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 			ParserContext parserContext) {
 		String registrationId = relyingPartyRegistrationElt.getAttribute(ATT_REGISTRATION_ID);
 		String metadataLocation = relyingPartyRegistrationElt.getAttribute(ATT_METADATA_LOCATION);
+		String singleLogoutServiceLocation = relyingPartyRegistrationElt
+				.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_LOCATION);
+		String singleLogoutServiceResponseLocation = relyingPartyRegistrationElt
+				.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION);
+		Saml2MessageBinding singleLogoutServiceBinding = getSingleLogoutServiceBinding(relyingPartyRegistrationElt);
 		if (StringUtils.hasText(metadataLocation)) {
-			return RelyingPartyRegistrations.fromMetadataLocation(metadataLocation).registrationId(registrationId);
+			return RelyingPartyRegistrations.fromMetadataLocation(metadataLocation).registrationId(registrationId)
+					.singleLogoutServiceLocation(singleLogoutServiceLocation)
+					.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
+					.singleLogoutServiceBinding(singleLogoutServiceBinding);
 		}
 		String entityId = relyingPartyRegistrationElt.getAttribute(ATT_ENTITY_ID);
 		String assertionConsumerServiceLocation = relyingPartyRegistrationElt
@@ -206,6 +227,9 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(entityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 				.assertionConsumerServiceBinding(assertionConsumerServiceBinding)
+				.singleLogoutServiceLocation(singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBinding(singleLogoutServiceBinding)
 				.assertingPartyDetails((builder) -> buildAssertingParty(relyingPartyRegistrationElt, assertingParties,
 						builder, parserContext));
 	}
@@ -225,9 +249,18 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 		String singleSignOnServiceBinding = getAsString(assertingParty, ATT_SINGLE_SIGN_ON_SERVICE_BINDING);
 		Saml2MessageBinding saml2MessageBinding = StringUtils.hasText(singleSignOnServiceBinding)
 				? Saml2MessageBinding.valueOf(singleSignOnServiceBinding) : Saml2MessageBinding.REDIRECT;
+		String singleLogoutServiceLocation = getAsString(assertingParty, ATT_SINGLE_LOGOUT_SERVICE_LOCATION);
+		String singleLogoutServiceResponseLocation = getAsString(assertingParty,
+				ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION);
+		String singleLogoutServiceBinding = getAsString(assertingParty, ATT_SINGLE_LOGOUT_SERVICE_BINDING);
+		Saml2MessageBinding saml2LogoutMessageBinding = StringUtils.hasText(singleLogoutServiceBinding)
+				? Saml2MessageBinding.valueOf(singleLogoutServiceBinding) : Saml2MessageBinding.REDIRECT;
 		builder.entityId(entityId).wantAuthnRequestsSigned(Boolean.parseBoolean(wantAuthnRequestsSigned))
 				.singleSignOnServiceLocation(singleSignOnServiceLocation)
-				.singleSignOnServiceBinding(saml2MessageBinding);
+				.singleSignOnServiceBinding(saml2MessageBinding)
+				.singleLogoutServiceLocation(singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBinding(saml2LogoutMessageBinding);
 		addSigningAlgorithms(assertingParty, builder);
 		addVerificationCredentials(assertingParty, builder);
 		addEncryptionCredentials(assertingParty, builder);
@@ -277,6 +310,14 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 			return Saml2MessageBinding.valueOf(assertionConsumerServiceBinding);
 		}
 		return Saml2MessageBinding.REDIRECT;
+	}
+
+	private static Saml2MessageBinding getSingleLogoutServiceBinding(Element relyingPartyRegistrationElt) {
+		String singleLogoutServiceBinding = relyingPartyRegistrationElt.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_BINDING);
+		if (StringUtils.hasText(singleLogoutServiceBinding)) {
+			return Saml2MessageBinding.valueOf(singleLogoutServiceBinding);
+		}
+		return Saml2MessageBinding.POST;
 	}
 
 	private static Saml2X509Credential getSaml2VerificationCredential(String certificateLocation) {
