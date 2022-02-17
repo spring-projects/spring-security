@@ -46,6 +46,10 @@ gradlePlugin {
 			id = "org.springframework.security.update-dependencies"
 			implementationClass = "org.springframework.security.convention.versions.UpdateDependenciesPlugin"
 		}
+		updateProjectVersion {
+			id = "org.springframework.security.update-version"
+			implementationClass = "org.springframework.security.convention.versions.UpdateProjectVersionPlugin"
+		}
 		sagan {
 			id = "org.springframework.security.sagan"
 			implementationClass = "org.springframework.gradle.sagan.SaganPlugin"
