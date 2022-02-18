@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
@@ -141,6 +142,11 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	public T loginProcessingUrl(String loginProcessingUrl) {
 		this.loginProcessingUrl = loginProcessingUrl;
 		this.authFilter.setRequiresAuthenticationRequestMatcher(createLoginProcessingUrlMatcher(loginProcessingUrl));
+		return getSelf();
+	}
+
+	public T securityContextRepository(SecurityContextRepository securityContextRepository) {
+		this.authFilter.setSecurityContextRepository(securityContextRepository);
 		return getSelf();
 	}
 
@@ -284,6 +290,12 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
 		if (rememberMeServices != null) {
 			this.authFilter.setRememberMeServices(rememberMeServices);
+		}
+		SecurityContextConfigurer securityContextConfigurer = http.getConfigurer(SecurityContextConfigurer.class);
+		if (securityContextConfigurer != null && securityContextConfigurer.isRequireExplicitSave()) {
+			SecurityContextRepository securityContextRepository = securityContextConfigurer
+					.getSecurityContextRepository();
+			this.authFilter.setSecurityContextRepository(securityContextRepository);
 		}
 		F filter = postProcess(this.authFilter);
 		http.addFilter(filter);

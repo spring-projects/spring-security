@@ -125,6 +125,12 @@ A request pattern can be mapped to an empty filter chain, by setting this attrib
 No security will be applied and none of Spring Security's features will be available.
 
 
+[[nsa-http-security-context-explicit-save]]
+* **security-context-explicit-save**
+If true, use `SecurityContextHolderFilter` instead of `SecurityContextPersistenceFilter`.
+Requires explicit save
+
+
 [[nsa-http-security-context-repository-ref]]
 * **security-context-repository-ref**
 Allows injection of a custom `SecurityContextRepository` into the `SecurityContextPersistenceFilter`.

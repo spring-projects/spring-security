@@ -1215,6 +1215,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="security-context-explicit-save" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Optional attribute that specifies that the SecurityContext should require explicit saving
+                rather than being synchronized from the SecurityContextHolder. Defaults to "false".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="request-matcher">
          <xs:annotation>
             <xs:documentation>Defines the strategy use for matching incoming requests. Currently the options are 'mvc'

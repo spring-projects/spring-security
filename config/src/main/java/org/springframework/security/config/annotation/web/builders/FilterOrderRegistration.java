@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -70,6 +71,7 @@ final class FilterOrderRegistration {
 		put(ChannelProcessingFilter.class, order.next());
 		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
+		put(SecurityContextHolderFilter.class, order.next());
 		put(SecurityContextPersistenceFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
 		put(CorsFilter.class, order.next());

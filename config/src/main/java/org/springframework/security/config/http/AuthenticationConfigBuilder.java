@@ -216,8 +216,8 @@ final class AuthenticationConfigBuilder {
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig, ParserContext pc,
 			SessionCreationPolicy sessionPolicy, BeanReference requestCache, BeanReference authenticationManager,
-			BeanReference sessionStrategy, BeanReference portMapper, BeanReference portResolver,
-			BeanMetadataElement csrfLogoutHandler) {
+			BeanReference authenticationFilterSecurityContextRepositoryRef, BeanReference sessionStrategy,
+			BeanReference portMapper, BeanReference portResolver, BeanMetadataElement csrfLogoutHandler) {
 		this.httpElt = element;
 		this.pc = pc;
 		this.requestCache = requestCache;
@@ -231,9 +231,10 @@ final class AuthenticationConfigBuilder {
 		createRememberMeFilter(authenticationManager);
 		createBasicFilter(authenticationManager);
 		createBearerTokenAuthenticationFilter(authenticationManager);
-		createFormLoginFilter(sessionStrategy, authenticationManager);
-		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager);
-		createSaml2LoginFilter(authenticationManager);
+		createFormLoginFilter(sessionStrategy, authenticationManager, authenticationFilterSecurityContextRepositoryRef);
+		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager,
+				authenticationFilterSecurityContextRepositoryRef);
+		createSaml2LoginFilter(authenticationManager, authenticationFilterSecurityContextRepositoryRef);
 		createX509Filter(authenticationManager);
 		createJeeFilter(authenticationManager);
 		createLogoutFilter();
@@ -269,7 +270,8 @@ final class AuthenticationConfigBuilder {
 		this.rememberMeProviderRef = new RuntimeBeanReference(id);
 	}
 
-	void createFormLoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
+	void createFormLoginFilter(BeanReference sessionStrategy, BeanReference authManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef) {
 		Element formLoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.FORM_LOGIN);
 		RootBeanDefinition formFilter = null;
 		if (formLoginElt != null || this.autoConfig) {
@@ -285,6 +287,10 @@ final class AuthenticationConfigBuilder {
 		if (formFilter != null) {
 			formFilter.getPropertyValues().addPropertyValue("allowSessionCreation", this.allowSessionCreation);
 			formFilter.getPropertyValues().addPropertyValue("authenticationManager", authManager);
+			if (authenticationFilterSecurityContextRepositoryRef != null) {
+				formFilter.getPropertyValues().addPropertyValue("securityContextRepository",
+						authenticationFilterSecurityContextRepositoryRef);
+			}
 			// Id is required by login page filter
 			this.formFilterId = this.pc.getReaderContext().generateBeanName(formFilter);
 			this.pc.registerBeanComponent(new BeanComponentDefinition(formFilter, this.formFilterId));
@@ -293,13 +299,15 @@ final class AuthenticationConfigBuilder {
 	}
 
 	void createOAuth2ClientFilters(BeanReference sessionStrategy, BeanReference requestCache,
-			BeanReference authenticationManager) {
-		createOAuth2LoginFilter(sessionStrategy, authenticationManager);
-		createOAuth2ClientFilter(requestCache, authenticationManager);
+			BeanReference authenticationManager, BeanReference authenticationFilterSecurityContextRepositoryRef) {
+		createOAuth2LoginFilter(sessionStrategy, authenticationManager,
+				authenticationFilterSecurityContextRepositoryRef);
+		createOAuth2ClientFilter(requestCache, authenticationManager, authenticationFilterSecurityContextRepositoryRef);
 		registerOAuth2ClientPostProcessors();
 	}
 
-	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager) {
+	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
 		if (oauth2LoginElt == null) {
 			return;
@@ -311,6 +319,10 @@ final class AuthenticationConfigBuilder {
 		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
 		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
 		oauth2LoginFilterBean.getPropertyValues().addPropertyValue("authenticationManager", authManager);
+		if (authenticationFilterSecurityContextRepositoryRef != null) {
+			oauth2LoginFilterBean.getPropertyValues().addPropertyValue("securityContextRepository",
+					authenticationFilterSecurityContextRepositoryRef);
+		}
 
 		// retrieve the other bean result
 		BeanDefinition oauth2LoginAuthProvider = parser.getOAuth2LoginAuthenticationProvider();
@@ -340,14 +352,15 @@ final class AuthenticationConfigBuilder {
 		this.oauth2LoginOidcAuthenticationProviderRef = new RuntimeBeanReference(oauth2LoginOidcAuthProviderId);
 	}
 
-	void createOAuth2ClientFilter(BeanReference requestCache, BeanReference authenticationManager) {
+	void createOAuth2ClientFilter(BeanReference requestCache, BeanReference authenticationManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef) {
 		Element oauth2ClientElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_CLIENT);
 		if (oauth2ClientElt == null) {
 			return;
 		}
 		this.oauth2ClientEnabled = true;
 		OAuth2ClientBeanDefinitionParser parser = new OAuth2ClientBeanDefinitionParser(requestCache,
-				authenticationManager);
+				authenticationManager, authenticationFilterSecurityContextRepositoryRef);
 		parser.parse(oauth2ClientElt, this.pc);
 		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
 		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
@@ -392,14 +405,16 @@ final class AuthenticationConfigBuilder {
 		}
 	}
 
-	private void createSaml2LoginFilter(BeanReference authenticationManager) {
+	private void createSaml2LoginFilter(BeanReference authenticationManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef) {
 		Element saml2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.SAML2_LOGIN);
 		if (saml2LoginElt == null) {
 			return;
 		}
 		Saml2LoginBeanDefinitionParser parser = new Saml2LoginBeanDefinitionParser(this.csrfIgnoreRequestMatchers,
 				this.portMapper, this.portResolver, this.requestCache, this.allowSessionCreation, authenticationManager,
-				this.authenticationProviders, this.defaultEntryPointMappings);
+				authenticationFilterSecurityContextRepositoryRef, this.authenticationProviders,
+				this.defaultEntryPointMappings);
 		BeanDefinition saml2WebSsoAuthenticationFilter = parser.parse(saml2LoginElt, this.pc);
 		this.saml2AuthorizationRequestFilter = parser.getSaml2WebSsoAuthenticationRequestFilter();
 

@@ -59,6 +59,7 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
@@ -103,6 +104,8 @@ class HttpConfigurationBuilder {
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
 	private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
+
+	private static final String ATT_SECURITY_CONTEXT_EXPLICIT_SAVE = "security-context-explicit-save";
 
 	private static final String ATT_INVALID_SESSION_STRATEGY_REF = "invalid-session-strategy-ref";
 
@@ -202,8 +205,7 @@ class HttpConfigurationBuilder {
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
 		createCsrfFilter();
-		createSecurityContextRepository();
-		createSecurityContextPersistenceFilter();
+		createSecurityPersistence();
 		createSessionManagementFilters();
 		createWebAsyncManagerFilter();
 		createRequestCacheFilter();
@@ -279,9 +281,27 @@ class HttpConfigurationBuilder {
 		return lowerCase ? path.toLowerCase() : path;
 	}
 
+	BeanReference getSecurityContextRepositoryForAuthenticationFilters() {
+		return (isExplicitSave()) ? this.contextRepoRef : null;
+	}
+
+	private void createSecurityPersistence() {
+		createSecurityContextRepository();
+		if (isExplicitSave()) {
+			createSecurityContextHolderFilter();
+		}
+		else {
+			createSecurityContextPersistenceFilter();
+		}
+	}
+
+	private boolean isExplicitSave() {
+		String explicitSaveAttr = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_EXPLICIT_SAVE);
+		return Boolean.parseBoolean(explicitSaveAttr);
+	}
+
 	private void createSecurityContextPersistenceFilter() {
 		BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
-		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
 		switch (this.sessionPolicy) {
 		case ALWAYS:
 			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
@@ -330,6 +350,12 @@ class HttpConfigurationBuilder {
 		}
 
 		this.contextRepoRef = new RuntimeBeanReference(repoRef);
+	}
+
+	private void createSecurityContextHolderFilter() {
+		BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextHolderFilter.class);
+		filter.addConstructorArgValue(this.contextRepoRef);
+		this.securityContextPersistenceFilter = filter.getBeanDefinition();
 	}
 
 	private void createSessionManagementFilters() {
