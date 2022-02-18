@@ -37,8 +37,7 @@ public class OpenSamlMetadataResolverTests {
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
-				.contains("WantAssertionsSigned=\"true\"").contains("<md:KeyDescriptor use=\"signing\">")
-				.contains("<md:KeyDescriptor use=\"encryption\">")
+				.contains("<md:KeyDescriptor use=\"signing\">").contains("<md:KeyDescriptor use=\"encryption\">")
 				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
 				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
@@ -54,7 +53,7 @@ public class OpenSamlMetadataResolverTests {
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
-				.contains("WantAssertionsSigned=\"true\"").doesNotContain("<md:KeyDescriptor use=\"signing\">")
+				.doesNotContain("<md:KeyDescriptor use=\"signing\">")
 				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
 				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
