@@ -3,3 +3,6 @@
 
 Spring Security 5.7 provides a number of new features.
 Below are the highlights of the release.
+
+* xref:servlet/authentication/persistence.adoc#requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`]
+* xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] - Ability to require explicit saving of the `SecurityContext`.

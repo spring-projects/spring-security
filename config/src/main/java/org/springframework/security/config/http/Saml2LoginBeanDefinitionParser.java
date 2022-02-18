@@ -85,6 +85,8 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final BeanReference authenticationManager;
 
+	private final BeanReference authenticationFilterSecurityContextRepositoryRef;
+
 	private final List<BeanReference> authenticationProviders;
 
 	private final Map<BeanDefinition, BeanMetadataElement> entryPoints;
@@ -97,14 +99,15 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	Saml2LoginBeanDefinitionParser(List<BeanDefinition> csrfIgnoreRequestMatchers, BeanReference portMapper,
 			BeanReference portResolver, BeanReference requestCache, boolean allowSessionCreation,
-			BeanReference authenticationManager, List<BeanReference> authenticationProviders,
-			Map<BeanDefinition, BeanMetadataElement> entryPoints) {
+			BeanReference authenticationManager, BeanReference authenticationFilterSecurityContextRepositoryRef,
+			List<BeanReference> authenticationProviders, Map<BeanDefinition, BeanMetadataElement> entryPoints) {
 		this.csrfIgnoreRequestMatchers = csrfIgnoreRequestMatchers;
 		this.portMapper = portMapper;
 		this.portResolver = portResolver;
 		this.requestCache = requestCache;
 		this.allowSessionCreation = allowSessionCreation;
 		this.authenticationManager = authenticationManager;
+		this.authenticationFilterSecurityContextRepositoryRef = authenticationFilterSecurityContextRepositoryRef;
 		this.authenticationProviders = authenticationProviders;
 		this.entryPoints = entryPoints;
 	}
@@ -148,6 +151,7 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		resolveAuthenticationSuccessHandler(element, saml2WebSsoAuthenticationFilterBuilder);
 		resolveAuthenticationFailureHandler(element, saml2WebSsoAuthenticationFilterBuilder);
 		resolveAuthenticationManager(element, saml2WebSsoAuthenticationFilterBuilder);
+		resolveSecurityContextRepository(element, saml2WebSsoAuthenticationFilterBuilder);
 		// Configure the Saml2WebSsoAuthenticationRequestFilter
 		this.saml2WebSsoAuthenticationRequestFilter = BeanDefinitionBuilder
 				.rootBeanDefinition(Saml2WebSsoAuthenticationRequestFilter.class)
@@ -173,6 +177,14 @@ final class Saml2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		else {
 			saml2WebSsoAuthenticationFilterBuilder.addPropertyValue("authenticationManager",
 					this.authenticationManager);
+		}
+	}
+
+	private void resolveSecurityContextRepository(Element element,
+			BeanDefinitionBuilder saml2WebSsoAuthenticationFilterBuilder) {
+		if (this.authenticationFilterSecurityContextRepositoryRef != null) {
+			saml2WebSsoAuthenticationFilterBuilder.addPropertyValue("securityContextRepository",
+					this.authenticationFilterSecurityContextRepositoryRef);
 		}
 	}
 

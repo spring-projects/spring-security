@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.Filter;
 import javax.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.Test;
@@ -33,8 +37,11 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
@@ -108,6 +115,27 @@ public class SecurityContextConfigurerTests {
 		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
 		HttpSession session = mvcResult.getRequest().getSession(false);
 		assertThat(session).isNull();
+	}
+
+	@Test
+	public void requireExplicitSave() throws Exception {
+		HttpSessionSecurityContextRepository repository = new HttpSessionSecurityContextRepository();
+		SpringTestContext testContext = this.spring.register(RequireExplicitSaveConfig.class);
+		testContext.autowire();
+		FilterChainProxy filterChainProxy = testContext.getContext().getBean(FilterChainProxy.class);
+		// @formatter:off
+		List<Class<? extends Filter>> filterTypes = filterChainProxy.getFilters("/")
+				.stream()
+				.map(Filter::getClass)
+				.collect(Collectors.toList());
+		assertThat(filterTypes)
+				.contains(SecurityContextHolderFilter.class)
+				.doesNotContain(SecurityContextPersistenceFilter.class);
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(formLogin()).andReturn();
+		SecurityContext securityContext = repository
+				.loadContext(new HttpRequestResponseHolder(mvcResult.getRequest(), mvcResult.getResponse()));
+		assertThat(securityContext.getAuthentication()).isNotNull();
 	}
 
 	@EnableWebSecurity
@@ -245,10 +273,35 @@ public class SecurityContextConfigurerTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
+					.formLogin(withDefaults())
+					.securityContext((securityContext) ->
+							securityContext
+									.securityContextRepository(new NullSecurityContextRepository())
+					);
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+					.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RequireExplicitSaveConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
 				.formLogin(withDefaults())
-				.securityContext((securityContext) ->
-					securityContext
-						.securityContextRepository(new NullSecurityContextRepository())
+				.securityContext((securityContext) -> securityContext
+					.requireExplicitSave(true)
 				);
 			// @formatter:on
 		}
@@ -258,7 +311,7 @@ public class SecurityContextConfigurerTests {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
+				.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
 

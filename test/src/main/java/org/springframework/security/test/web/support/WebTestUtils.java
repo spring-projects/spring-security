@@ -26,6 +26,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -61,10 +62,14 @@ public abstract class WebTestUtils {
 	 */
 	public static SecurityContextRepository getSecurityContextRepository(HttpServletRequest request) {
 		SecurityContextPersistenceFilter filter = findFilter(request, SecurityContextPersistenceFilter.class);
-		if (filter == null) {
-			return DEFAULT_CONTEXT_REPO;
+		if (filter != null) {
+			return (SecurityContextRepository) ReflectionTestUtils.getField(filter, "repo");
 		}
-		return (SecurityContextRepository) ReflectionTestUtils.getField(filter, "repo");
+		SecurityContextHolderFilter holderFilter = findFilter(request, SecurityContextHolderFilter.class);
+		if (holderFilter != null) {
+			return (SecurityContextRepository) ReflectionTestUtils.getField(holderFilter, "securityContextRepository");
+		}
+		return DEFAULT_CONTEXT_REPO;
 	}
 
 	/**

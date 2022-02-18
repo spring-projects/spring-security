@@ -50,6 +50,8 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final BeanReference authenticationManager;
 
+	private final BeanReference authenticationFilterSecurityContextRepositoryRef;
+
 	private BeanDefinition defaultAuthorizedClientRepository;
 
 	private BeanDefinition authorizationRequestRedirectFilter;
@@ -58,9 +60,11 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanDefinition authorizationCodeAuthenticationProvider;
 
-	OAuth2ClientBeanDefinitionParser(BeanReference requestCache, BeanReference authenticationManager) {
+	OAuth2ClientBeanDefinitionParser(BeanReference requestCache, BeanReference authenticationManager,
+			BeanReference authenticationFilterSecurityContextRepositoryRef) {
 		this.requestCache = requestCache;
 		this.authenticationManager = authenticationManager;
+		this.authenticationFilterSecurityContextRepositoryRef = authenticationFilterSecurityContextRepositoryRef;
 	}
 
 	@Override
@@ -92,11 +96,16 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 		this.authorizationRequestRedirectFilter = authorizationRequestRedirectFilterBuilder
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
 				.addPropertyValue("requestCache", this.requestCache).getBeanDefinition();
-		this.authorizationCodeGrantFilter = BeanDefinitionBuilder
+		BeanDefinitionBuilder authorizationCodeGrantFilterBldr = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationCodeGrantFilter.class)
 				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
 				.addConstructorArgValue(this.authenticationManager)
-				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository).getBeanDefinition();
+				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository);
+		if (this.authenticationFilterSecurityContextRepositoryRef != null) {
+			authorizationCodeGrantFilterBldr.addPropertyValue("securityContextRepository",
+					this.authenticationFilterSecurityContextRepositoryRef);
+		}
+		this.authorizationCodeGrantFilter = authorizationCodeGrantFilterBldr.getBeanDefinition();
 
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(authorizationCodeGrantElt);
 		this.authorizationCodeAuthenticationProvider = BeanDefinitionBuilder

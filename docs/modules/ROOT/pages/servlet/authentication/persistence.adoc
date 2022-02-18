@@ -88,6 +88,34 @@ Depending on the servlet container implementation, the error means that any `Sec
 When the error dispatch is made, there is no `SecurityContext` established.
 This means that the error page cannot use the `SecurityContext` for authorization or displaying the current user unless the `SecurityContext` is persisted somehow.
 
+.Use RequestAttributeSecurityContextRepository
+====
+.Java
+[source,java,role="primary"]
+----
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.securityContextRepository(new RequestAttributeSecurityContextRepository())
+		);
+	return http.build();
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-repository-ref="contextRepository">
+	<!-- ... -->
+</http>
+<b:bean name="contextRepository"
+	class="org.springframework.security.web.context.RequestAttributeSecurityContextRepository" />
+----
+====
+
+
+[[securitycontextpersistencefilter]]
 == SecurityContextPersistenceFilter
 
 The {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] is responsible for persisting the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
@@ -105,3 +133,40 @@ This means that establishing an `HttpSession` would not be possible in step 3 be
 Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes the wrong authentication could be present in the second request.
 
 To avoid these problems, the `SecurityContextPersistenceFilter` wraps both the `HttpServletRequest` and the `HttpServletResponse` to detect if the `SecurityContext` has changed and if so save the `SecurityContext` just before the response is committed.
+
+[[securitycontextholderfilter]]
+== SecurityContextHolderFilter
+
+The {security-api-url}org/springframework/security/web/context/SecurityContextHolderFilter.html[`SecurityContextHolderFilter`] is responsible for loading the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
+
+image::{figures}/securitycontextholderfilter.png[]
+
+<1> Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
+<2> Next, the application is ran.
+
+Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersisteneFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
+This means that when using `SecurityContextHolderFilter`, it is required that the `SecurityContext` is explicitly saved.
+
+.Explicit Saving of SecurityContext
+====
+.Java
+[source,java,role="primary"]
+----
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.requireExplicitSave(true)
+		);
+	return http.build();
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-explicit-save="true">
+	<!-- ... -->
+</http>
+----
+====

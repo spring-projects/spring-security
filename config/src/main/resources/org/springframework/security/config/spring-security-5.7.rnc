@@ -334,6 +334,9 @@ http.attlist &=
 	## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
 	attribute security-context-repository-ref {xsd:token}?
 http.attlist &=
+	## Optional attribute that specifies that the SecurityContext should require explicit saving rather than being synchronized from the SecurityContextHolder. Defaults to "false".
+	attribute security-context-explicit-save {xsd:boolean}?
+http.attlist &=
 	request-matcher?
 http.attlist &=
 	## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
