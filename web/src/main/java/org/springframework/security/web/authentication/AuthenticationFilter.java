@@ -32,6 +32,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -73,6 +75,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
 	private AuthenticationFailureHandler failureHandler = new AuthenticationEntryPointFailureHandler(
 			new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	private AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
@@ -135,6 +139,18 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.authenticationManagerResolver = authenticationManagerResolver;
 	}
 
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -173,6 +189,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
+		this.securityContextRepository.saveContext(context, request, response);
 		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
