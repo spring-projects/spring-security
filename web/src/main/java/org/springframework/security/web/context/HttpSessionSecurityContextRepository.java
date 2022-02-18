@@ -134,8 +134,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
 		SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = WebUtils.getNativeResponse(response,
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
-		Assert.state(responseWrapper != null, () -> "Cannot invoke saveContext on response " + response
-				+ ". You must use the HttpRequestResponseHolder.response after invoking loadContext");
+		if (responseWrapper == null) {
+			boolean httpSessionExists = request.getSession(false) != null;
+			SecurityContext initialContext = SecurityContextHolder.createEmptyContext();
+			responseWrapper = new SaveToSessionResponseWrapper(response, request, httpSessionExists, initialContext);
+		}
 		responseWrapper.saveContext(context);
 	}
 

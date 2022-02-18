@@ -58,7 +58,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -581,13 +580,16 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
-	public void failsWithStandardResponse() {
+	public void standardResponseWorks() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(this.testToken);
-		assertThatIllegalStateException().isThrownBy(() -> repo.saveContext(context, request, response));
+		repo.saveContext(context, request, response);
+		assertThat(request.getSession(false)).isNotNull();
+		assertThat(request.getSession().getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY))
+				.isEqualTo(context);
 	}
 
 	@Test
