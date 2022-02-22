@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
@@ -41,6 +42,7 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  * This {@code Configuration} is imported by {@link EnableWebFluxSecurity}
  *
  * @author Rob Winch
+ * @author Alavudin Kuttikkattil
  * @since 5.1
  */
 final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
@@ -64,14 +66,12 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
 		private ReactiveOAuth2AuthorizedClientService authorizedClientService;
 
+		private ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
+
 		@Override
 		public void configureArgumentResolvers(ArgumentResolverConfigurer configurer) {
-			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
-				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
-						.builder().authorizationCode().refreshToken().clientCredentials().password().build();
-				DefaultReactiveOAuth2AuthorizedClientManager authorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
-						this.clientRegistrationRepository, getAuthorizedClientRepository());
-				authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+			ReactiveOAuth2AuthorizedClientManager authorizedClientManager = getAuthorizedClientManager();
+			if (authorizedClientManager != null) {
 				configurer.addCustomResolver(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
 			}
 		}
@@ -93,6 +93,13 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 			}
 		}
 
+		@Autowired(required = false)
+		void setAuthorizedClientManager(List<ReactiveOAuth2AuthorizedClientManager> authorizedClientManager) {
+			if (authorizedClientManager.size() == 1) {
+				this.authorizedClientManager = authorizedClientManager.get(0);
+			}
+		}
+
 		private ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository() {
 			if (this.authorizedClientRepository != null) {
 				return this.authorizedClientRepository;
@@ -101,6 +108,23 @@ final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 				return new AuthenticatedPrincipalServerOAuth2AuthorizedClientRepository(this.authorizedClientService);
 			}
 			return null;
+		}
+
+		private ReactiveOAuth2AuthorizedClientManager getAuthorizedClientManager() {
+			if (this.authorizedClientManager != null) {
+				return this.authorizedClientManager;
+			}
+			ReactiveOAuth2AuthorizedClientManager authorizedClientManager = null;
+			if (this.authorizedClientRepository != null && this.clientRegistrationRepository != null) {
+				ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder
+						.builder().authorizationCode().refreshToken().clientCredentials().password().build();
+				DefaultReactiveOAuth2AuthorizedClientManager defaultReactiveOAuth2AuthorizedClientManager = new DefaultReactiveOAuth2AuthorizedClientManager(
+						this.clientRegistrationRepository, getAuthorizedClientRepository());
+				defaultReactiveOAuth2AuthorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+				authorizedClientManager = defaultReactiveOAuth2AuthorizedClientManager;
+			}
+
+			return authorizedClientManager;
 		}
 
 	}
