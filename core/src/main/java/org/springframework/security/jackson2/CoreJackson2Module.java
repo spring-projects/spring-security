@@ -64,6 +64,8 @@ public class CoreJackson2Module extends SimpleModule {
 				UnmodifiableSetMixin.class);
 		context.setMixInAnnotations(Collections.<Object>unmodifiableList(Collections.emptyList()).getClass(),
 				UnmodifiableListMixin.class);
+		context.setMixInAnnotations(Collections.<Object, Object>unmodifiableMap(Collections.emptyMap()).getClass(),
+				UnmodifiableMapMixin.class);
 		context.setMixInAnnotations(User.class, UserMixin.class);
 		context.setMixInAnnotations(UsernamePasswordAuthenticationToken.class,
 				UsernamePasswordAuthenticationTokenMixin.class);
