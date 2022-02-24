@@ -63,6 +63,7 @@ import org.springframework.util.ClassUtils;
  *     mapper.registerModule(new WebServletJackson2Module());
  *     mapper.registerModule(new WebServerJackson2Module());
  *     mapper.registerModule(new OAuth2ClientJackson2Module());
+ *     mapper.registerModule(new Saml2Jackson2Module());
  * </pre>
  *
  * @author Jitendra Singh.
@@ -85,6 +86,8 @@ public final class SecurityJackson2Modules {
 	private static final String javaTimeJackson2ModuleClass = "com.fasterxml.jackson.datatype.jsr310.JavaTimeModule";
 
 	private static final String ldapJackson2ModuleClass = "org.springframework.security.ldap.jackson2.LdapJackson2Module";
+
+	private static final String saml2Jackson2ModuleClass = "org.springframework.security.saml2.jackson2.Saml2Jackson2Module";
 
 	private SecurityJackson2Modules() {
 	}
@@ -133,6 +136,9 @@ public final class SecurityJackson2Modules {
 		}
 		if (ClassUtils.isPresent(ldapJackson2ModuleClass, loader)) {
 			addToModulesList(loader, modules, ldapJackson2ModuleClass);
+		}
+		if (ClassUtils.isPresent(saml2Jackson2ModuleClass, loader)) {
+			addToModulesList(loader, modules, saml2Jackson2ModuleClass);
 		}
 		return modules;
 	}
