@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -451,7 +451,7 @@ public final class RelyingPartyRegistration {
 			org.springframework.security.saml2.credentials.Saml2X509Credential credential) {
 		PrivateKey privateKey = credential.getPrivateKey();
 		X509Certificate certificate = credential.getCertificate();
-		Set<Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
+		Set<Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new LinkedHashSet<>();
 		if (credential.isSigningCredential()) {
 			credentialTypes.add(Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 		}
@@ -471,7 +471,7 @@ public final class RelyingPartyRegistration {
 			Saml2X509Credential credential) {
 		PrivateKey privateKey = credential.getPrivateKey();
 		X509Certificate certificate = credential.getCertificate();
-		Set<org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new HashSet<>();
+		Set<org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType> credentialTypes = new LinkedHashSet<>();
 		if (credential.isSigningCredential()) {
 			credentialTypes.add(
 					org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.SIGNING);
@@ -696,9 +696,9 @@ public final class RelyingPartyRegistration {
 
 			private List<String> signingAlgorithms = new ArrayList<>();
 
-			private Collection<Saml2X509Credential> verificationX509Credentials = new HashSet<>();
+			private Collection<Saml2X509Credential> verificationX509Credentials = new LinkedHashSet<>();
 
-			private Collection<Saml2X509Credential> encryptionX509Credentials = new HashSet<>();
+			private Collection<Saml2X509Credential> encryptionX509Credentials = new LinkedHashSet<>();
 
 			private String singleSignOnServiceLocation;
 
@@ -1006,9 +1006,9 @@ public final class RelyingPartyRegistration {
 
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 
-		private Collection<Saml2X509Credential> signingX509Credentials = new HashSet<>();
+		private Collection<Saml2X509Credential> signingX509Credentials = new LinkedHashSet<>();
 
-		private Collection<Saml2X509Credential> decryptionX509Credentials = new HashSet<>();
+		private Collection<Saml2X509Credential> decryptionX509Credentials = new LinkedHashSet<>();
 
 		private String assertionConsumerServiceLocation = "{baseUrl}/login/saml2/sso/{registrationId}";
 
@@ -1022,7 +1022,7 @@ public final class RelyingPartyRegistration {
 
 		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
 
-		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new HashSet<>();
+		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new LinkedHashSet<>();
 
 		private Builder(String registrationId) {
 			this.registrationId = registrationId;
