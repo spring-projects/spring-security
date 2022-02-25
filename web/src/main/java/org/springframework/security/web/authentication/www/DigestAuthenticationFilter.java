@@ -49,6 +49,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -105,6 +107,8 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	private boolean passwordAlreadyEncoded = false;
 
 	private boolean createAuthenticatedToken = false;
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	@Override
 	public void afterPropertiesSet() {
@@ -192,6 +196,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		SecurityContextHolder.setContext(context);
+		this.securityContextRepository.saveContext(context, request, response);
 		chain.doFilter(request, response);
 	}
 
@@ -269,6 +274,18 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	 */
 	public void setCreateAuthenticatedToken(boolean createAuthenticatedToken) {
 		this.createAuthenticatedToken = createAuthenticatedToken;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	private class DigestData {
