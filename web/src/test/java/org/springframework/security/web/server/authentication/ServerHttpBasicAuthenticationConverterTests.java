@@ -62,7 +62,7 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void applyWhenNoSemicolonThenEmpty() {
+	public void applyWhenNoColonThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcg=="));
 		assertThat(result.block()).isNull();
 	}
@@ -102,6 +102,16 @@ public class ServerHttpBasicAuthenticationConverterTests {
 		Mono<Authentication> result = apply(
 				this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
 		assertThat(result.block()).isNull();
+	}
+
+	@Test
+	public void applyWhenNonAsciiThenAuthentication() {
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic w7xzZXI6cGFzc3fDtnJk"));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("üser");
+		assertThat(authentication.getCredentials()).isEqualTo("passwörd");
 	}
 
 	private Mono<Authentication> apply(MockServerHttpRequest.BaseBuilder<?> request) {

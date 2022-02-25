@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
 
@@ -51,9 +52,8 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 		if (!StringUtils.startsWithIgnoreCase(authorization, "basic ")) {
 			return Mono.empty();
 		}
-		String credentials = (authorization.length() <= BASIC.length()) ? ""
-				: authorization.substring(BASIC.length(), authorization.length());
-		String decoded = new String(base64Decode(credentials));
+		String credentials = (authorization.length() <= BASIC.length()) ? "" : authorization.substring(BASIC.length());
+		String decoded = new String(base64Decode(credentials), StandardCharsets.UTF_8);
 		String[] parts = decoded.split(":", 2);
 		if (parts.length != 2) {
 			return Mono.empty();
