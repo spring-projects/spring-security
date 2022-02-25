@@ -38,6 +38,8 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -74,6 +76,8 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	/**
 	 * Construct a {@code BearerTokenAuthenticationFilter} using the provided parameter(s)
@@ -131,6 +135,7 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			SecurityContext context = SecurityContextHolder.createEmptyContext();
 			context.setAuthentication(authenticationResult);
 			SecurityContextHolder.setContext(context);
+			this.securityContextRepository.saveContext(context, request, response);
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authenticationResult));
 			}
@@ -141,6 +146,18 @@ public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter 
 			this.logger.trace("Failed to process authentication request", failed);
 			this.authenticationFailureHandler.onAuthenticationFailure(request, response, failed);
 		}
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	/**
