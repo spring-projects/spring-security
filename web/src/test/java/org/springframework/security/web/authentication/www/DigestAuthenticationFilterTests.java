@@ -29,6 +29,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -40,10 +41,12 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -387,6 +390,27 @@ public class DigestAuthenticationFilterTests {
 		this.filter.setCreateAuthenticatedToken(true);
 		executeFilterInContainerSimulator(this.filter, this.request, true);
 		assertThat(existingAuthentication).isSameAs(existingContext.getAuthentication());
+	}
+
+	@Test
+	public void testSecurityContextRepository() throws Exception {
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
+		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET", REQUEST_URI,
+				QOP, NONCE, NC, CNONCE);
+		this.request.addHeader("Authorization",
+				createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI, responseDigest, QOP, NC, CNONCE));
+		this.filter.setSecurityContextRepository(securityContextRepository);
+		this.filter.setCreateAuthenticatedToken(true);
+		MockHttpServletResponse response = executeFilterInContainerSimulator(this.filter, this.request, true);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
+				.isEqualTo(USERNAME);
+		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
+				.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		verify(securityContextRepository).saveContext(contextArg.capture(), eq(this.request), eq(response));
+		assertThat(contextArg.getValue().getAuthentication().getName()).isEqualTo(USERNAME);
 	}
 
 }
