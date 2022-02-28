@@ -48,7 +48,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		if (!filters.isEmpty()) {
+		if (filters.isEmpty()) {
 			logger.info(LogMessage.format("Will not secure %s", requestMatcher));
 		}
 		else {
