@@ -49,9 +49,29 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew gitHubCheckNextVersionDueToday
+  check_open_issues:
+    name: Ensure there are no open issues
+    needs: [check_release_due]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Check for open issues
+        run: |
+          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+          ./gradlew gitHubCheckMilestoneHasNoOpenIssues
   release:
     name: Release next version
-    needs: [check_release_due]
+    needs: [check_release_due, check_open_issues]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,18 +83,17 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Deploy artifacts
+      - name: Setup git config
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Update version and push
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          echo "Release task: use input from gitHubNextReleaseMilestone task"
-          ./gradlew gitHubNextReleaseMilestone
-        env:
-          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.GPG_PRIVATE_KEY }}
-          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.GPG_PASSPHRASE }}
-          OSSRH_TOKEN_USERNAME: ${{ secrets.OSSRH_S01_TOKEN_USERNAME }}
-          OSSRH_TOKEN_PASSWORD: ${{ secrets.OSSRH_S01_TOKEN_PASSWORD }}
+          ./gradlew updateProjectVersion -Pcommit=true
+          git push
   notify_result:
     name: Check for failures
     needs: [release]
