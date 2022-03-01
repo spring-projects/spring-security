@@ -24,17 +24,6 @@ import org.gradle.api.tasks.TaskProvider;
 public class GitHubMilestonePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
-		project.getTasks().register("gitHubCheckMilestoneHasNoOpenIssues", GitHubMilestoneHasNoOpenIssuesTask.class, new Action<GitHubMilestoneHasNoOpenIssuesTask>() {
-			@Override
-			public void execute(GitHubMilestoneHasNoOpenIssuesTask githubCheckMilestoneHasNoOpenIssues) {
-				githubCheckMilestoneHasNoOpenIssues.setGroup("Release");
-				githubCheckMilestoneHasNoOpenIssues.setDescription("Checks if there are any open issues for the specified repository and milestone");
-				githubCheckMilestoneHasNoOpenIssues.setMilestoneTitle((String) project.findProperty("nextVersion"));
-				if (project.hasProperty("gitHubAccessToken")) {
-					githubCheckMilestoneHasNoOpenIssues.setGitHubAccessToken((String) project.findProperty("gitHubAccessToken"));
-				}
-			}
-		});
 		TaskProvider<GitHubMilestoneNextReleaseTask> nextReleaseMilestoneTask = project.getTasks().register("gitHubNextReleaseMilestone", GitHubMilestoneNextReleaseTask.class, new Action<GitHubMilestoneNextReleaseTask>() {
 					@Override
 					public void execute(GitHubMilestoneNextReleaseTask gitHubMilestoneNextReleaseTask) {
@@ -49,6 +38,21 @@ public class GitHubMilestonePlugin implements Plugin<Project> {
 						}
 					}
 				});
+		project.getTasks().register("gitHubCheckMilestoneHasNoOpenIssues", GitHubMilestoneHasNoOpenIssuesTask.class, new Action<GitHubMilestoneHasNoOpenIssuesTask>() {
+			@Override
+			public void execute(GitHubMilestoneHasNoOpenIssuesTask githubCheckMilestoneHasNoOpenIssues) {
+				githubCheckMilestoneHasNoOpenIssues.setGroup("Release");
+				githubCheckMilestoneHasNoOpenIssues.setDescription("Checks if there are any open issues for the specified repository and milestone");
+				githubCheckMilestoneHasNoOpenIssues.setMilestoneTitle((String) project.findProperty("nextVersion"));
+				if (!project.hasProperty("nextVersion")) {
+					githubCheckMilestoneHasNoOpenIssues.getNextVersionFile().convention(
+							nextReleaseMilestoneTask.flatMap(GitHubMilestoneNextReleaseTask::getNextReleaseFile));
+				}
+				if (project.hasProperty("gitHubAccessToken")) {
+					githubCheckMilestoneHasNoOpenIssues.setGitHubAccessToken((String) project.findProperty("gitHubAccessToken"));
+				}
+			}
+		});
 		project.getTasks().register("gitHubCheckNextVersionDueToday", GitHubMilestoneNextVersionDueTodayTask.class, new Action<GitHubMilestoneNextVersionDueTodayTask>() {
 					@Override
 					public void execute(GitHubMilestoneNextVersionDueTodayTask gitHubMilestoneNextVersionDueTodayTask) {
