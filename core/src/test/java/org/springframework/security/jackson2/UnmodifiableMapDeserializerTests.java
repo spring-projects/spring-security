@@ -47,7 +47,7 @@ class UnmodifiableMapDeserializerTests extends AbstractMixinTests {
 				Collections.unmodifiableMap(Collections.emptyMap()).getClass());
 
 		assertThat(map).isNotNull().isInstanceOf(Collections.unmodifiableMap(Collections.emptyMap()).getClass())
-				.containsAllEntriesOf(Map.of("Key", "Value"));
+				.containsAllEntriesOf(Collections.singletonMap("Key", "Value"));
 	}
 
 }

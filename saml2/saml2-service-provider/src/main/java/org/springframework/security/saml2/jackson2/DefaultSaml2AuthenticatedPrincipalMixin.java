@@ -16,9 +16,13 @@
 
 package org.springframework.security.saml2.jackson2;
 
+import java.util.List;
+import java.util.Map;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
@@ -40,7 +44,16 @@ import org.springframework.security.saml2.provider.service.authentication.Defaul
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonDeserialize(using = DefaultSaml2AuthenticatedPrincipalDeserializer.class)
+@JsonIgnoreProperties(ignoreUnknown = true)
 class DefaultSaml2AuthenticatedPrincipalMixin {
+
+	@JsonProperty("registrationId")
+	String registrationId;
+
+	DefaultSaml2AuthenticatedPrincipalMixin(@JsonProperty("name") String name,
+			@JsonProperty("attributes") Map<String, List<Object>> attributes,
+			@JsonProperty("sessionIndexes") List<String> sessionIndexes) {
+
+	}
 
 }
