@@ -253,7 +253,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticateWithInvalidDeflatedSAMLResponseThenFailureHandlerUses() throws Exception {
 		this.spring.register(CustomAuthenticationFailureHandler.class).autowire();
 		byte[] invalidDeflated = "invalid".getBytes();
-		String encoded = Saml2Utils.samlEncode(invalidDeflated);
+		String encoded = Saml2Utils.samlEncodeNotRfc2045(invalidDeflated);
 		MockHttpServletRequestBuilder request = get("/login/saml2/sso/registration-id").queryParam("SAMLResponse",
 				encoded);
 		this.mvc.perform(request);
