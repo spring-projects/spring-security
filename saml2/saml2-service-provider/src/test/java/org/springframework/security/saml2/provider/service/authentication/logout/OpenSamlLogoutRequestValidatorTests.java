@@ -143,6 +143,23 @@ public class OpenSamlLogoutRequestValidatorTests {
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_DESTINATION);
 	}
 
+	// gh-10923
+	@Test
+	public void handleWhenLogoutResponseHasLineBreaksThenHandles() {
+		RelyingPartyRegistration registration = registration().build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		sign(logoutRequest, registration);
+		String encoded = new StringBuffer(
+				Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8))).insert(10, "\r\n")
+						.toString();
+		Saml2LogoutRequest request = Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest(encoded)
+				.build();
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isFalse();
+	}
+
 	private RelyingPartyRegistration.Builder registration() {
 		return signing(verifying(TestRelyingPartyRegistrations.noCredentials()))
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
