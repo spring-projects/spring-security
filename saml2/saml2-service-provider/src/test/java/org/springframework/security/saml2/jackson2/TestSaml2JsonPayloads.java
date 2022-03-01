@@ -204,7 +204,6 @@ final class TestSaml2JsonPayloads {
 			+ "		\"credentialsNonExpired\": true,"
 			+ "		\"enabled\": true"
 			+ "	},"
-			+ "	\"authenticated\": true,"
 			+ "	\"principal\": " + DEFAULT_AUTHENTICATED_PRINCIPAL_JSON + ","
 			+ "	\"saml2Response\": \"" + SAML_RESPONSE + "\""
 			+ "}";

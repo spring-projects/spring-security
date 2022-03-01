@@ -16,10 +16,16 @@
 
 package org.springframework.security.saml2.jackson2;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import java.util.Collection;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import org.springframework.security.core.AuthenticatedPrincipal;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 
@@ -40,7 +46,13 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
-@JsonDeserialize(using = Saml2AuthenticationDeserializer.class)
+@JsonIgnoreProperties(value = { "authenticated" }, ignoreUnknown = true)
 class Saml2AuthenticationMixin {
+
+	@JsonCreator
+	Saml2AuthenticationMixin(@JsonProperty("principal") AuthenticatedPrincipal principal,
+			@JsonProperty("saml2Response") String saml2Response,
+			@JsonProperty("authorities") Collection<? extends GrantedAuthority> authorities) {
+	}
 
 }
