@@ -98,6 +98,29 @@ public class OpenSamlLogoutResponseResolverTests {
 		assertThat(logoutResponse.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
 	}
 
+	// gh-10923
+	@Test
+	public void resolvePostWithLineBreaksWhenAuthenticatedThenSuccess() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
+				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST)).build();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		String encoded = new StringBuffer(
+				Saml2Utils.samlEncode(OpenSamlSigningUtils.serialize(logoutRequest).getBytes())).insert(10, "\r\n")
+						.toString();
+		request.setParameter(Saml2ParameterNames.SAML_REQUEST, encoded);
+		request.setParameter(Saml2ParameterNames.RELAY_STATE, "abcd");
+		Authentication authentication = authentication(registration);
+		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
+		Saml2LogoutResponse saml2LogoutResponse = this.logoutResponseResolver.resolve(request, authentication);
+		assertThat(saml2LogoutResponse.getParameter(Saml2ParameterNames.SIG_ALG)).isNull();
+		assertThat(saml2LogoutResponse.getParameter(Saml2ParameterNames.SIGNATURE)).isNull();
+		assertThat(saml2LogoutResponse.getParameter(Saml2ParameterNames.RELAY_STATE)).isSameAs("abcd");
+		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleLogoutServiceBinding();
+		LogoutResponse logoutResponse = getLogoutResponse(saml2LogoutResponse.getSamlResponse(), binding);
+		assertThat(logoutResponse.getStatus().getStatusCode().getValue()).isEqualTo(StatusCode.SUCCESS);
+	}
+
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {
 		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user", new HashMap<>());
 		principal.setRelyingPartyRegistrationId(registration.getRegistrationId());
