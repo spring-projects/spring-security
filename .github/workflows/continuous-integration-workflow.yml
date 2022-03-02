@@ -28,7 +28,12 @@ jobs:
       - id: continue
         name: Determine if should continue
         if: env.RUN_JOBS == 'true'
-        run: echo "::set-output name=runjobs::true"
+        run: |
+          # Run jobs if in upstream repository
+          echo "::set-output name=runjobs::true"
+          # Extract version from gradle.properties
+          version=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
+          echo "::set-output name=project_version::$version"
   build_jdk_17:
     name: Build JDK 17
     needs: [prerequisites]
@@ -196,9 +201,57 @@ jobs:
           DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
+  create_release:
+    name: Create GitHub Release
+    needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: ${{ !endsWith(needs.prerequisites.outputs.project_version, '-SNAPSHOT') }}
+    env:
+      REPO: ${{ github.repository }}
+      BRANCH: ${{ github.ref_name }}
+      TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.prerequisites.outputs.project_version }}
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
+      - name: Setup gradle user name
+        run: |
+          mkdir -p ~/.gradle
+          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Wait for Artifactory Artifacts
+        if: ${{ contains(needs.prerequisites.outputs.project_version, '-RC') || contains(needs.prerequisites.outputs.project_version, '-M') }}
+        run: |
+          echo "Wait for artifacts of $REPO@$VERSION to appear on Artifactory."
+          until curl -f -s https://repo.spring.io/artifactory/milestone/org/springframework/security/spring-security-core/$VERSION/ > /dev/null
+          do
+            sleep 30
+            echo "."
+          done
+          echo "Artifacts for $REPO@$VERSION have been released to Artifactory."
+      - name: Wait for Maven Central Artifacts
+        if: ${{ !contains(needs.prerequisites.outputs.project_version, '-RC') && !contains(needs.prerequisites.outputs.project_version, '-M') }}
+        run: |
+          echo "Wait for artifacts of $REPO@$VERSION to appear on Maven Central."
+          until curl -f -s https://repo1.maven.org/maven2/org/springframework/security/spring-security-core/$VERSION/ > /dev/null
+          do
+            sleep 30
+            echo "."
+          done
+          echo "Artifacts for $REPO@$VERSION have been released to Maven Central."
+      - name: Create GitHub Release
+        run: |
+          export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
+          export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
+          export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+          echo "Tagging and publishing $REPO@$VERSION release on GitHub."
+          ./gradlew createGitHubRelease -PnextVersion=$VERSION -Pbranch=$BRANCH -PcreateRelease=true -PgitHubAccessToken=$TOKEN
   notify_result:
     name: Check for failures
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema]
+    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, create_release]
     if: failure()
     runs-on: ubuntu-latest
     steps:
