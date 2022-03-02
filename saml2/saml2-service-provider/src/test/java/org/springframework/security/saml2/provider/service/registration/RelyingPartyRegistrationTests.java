@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.registration;
 
 import org.junit.jupiter.api.Test;
+
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
@@ -83,9 +84,9 @@ public class RelyingPartyRegistrationTests {
 		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("id")
 				.entityId("entity-id").assertionConsumerServiceLocation("location")
 				.assertingPartyDetails((assertingParty) -> assertingParty.entityId("entity-id")
-						.singleSignOnServiceLocation("location")
-						.verificationX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential()))
-				).build();
+						.singleSignOnServiceLocation("location").verificationX509Credentials(
+								(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+				.build();
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
 	}
 
@@ -100,16 +101,23 @@ public class RelyingPartyRegistrationTests {
 
 		// Test with the alt credentials first
 		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((assertingParty) -> assertingParty
-						.verificationX509Credentials((c) -> { c.add(altApCredential); c.add(verifyingCredential); })
-						.encryptionX509Credentials((c) -> { c.add(altApCredential); c.add(encryptingCredential); }))
-				.signingX509Credentials(c -> { c.add(altRpCredential); c.add(signingCredential); })
-				.decryptionX509Credentials(c -> { c.add(altRpCredential); c.add(decryptionCredential); })
-				.build();
-		assertThat(relyingPartyRegistration.getSigningX509Credentials())
-				.containsExactly(altRpCredential, signingCredential);
-		assertThat(relyingPartyRegistration.getDecryptionX509Credentials())
-				.containsExactly(altRpCredential, decryptionCredential);
+				.assertingPartyDetails((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
+					c.add(altApCredential);
+					c.add(verifyingCredential);
+				}).encryptionX509Credentials((c) -> {
+					c.add(altApCredential);
+					c.add(encryptingCredential);
+				})).signingX509Credentials((c) -> {
+					c.add(altRpCredential);
+					c.add(signingCredential);
+				}).decryptionX509Credentials((c) -> {
+					c.add(altRpCredential);
+					c.add(decryptionCredential);
+				}).build();
+		assertThat(relyingPartyRegistration.getSigningX509Credentials()).containsExactly(altRpCredential,
+				signingCredential);
+		assertThat(relyingPartyRegistration.getDecryptionX509Credentials()).containsExactly(altRpCredential,
+				decryptionCredential);
 		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getVerificationX509Credentials())
 				.containsExactly(altApCredential, verifyingCredential);
 		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getEncryptionX509Credentials())
@@ -117,19 +125,27 @@ public class RelyingPartyRegistrationTests {
 
 		// Test with the alt credentials last
 		relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((assertingParty) -> assertingParty
-						.verificationX509Credentials((c) -> { c.add(verifyingCredential); c.add(altApCredential); })
-						.encryptionX509Credentials((c) -> { c.add(encryptingCredential); c.add(altApCredential); }))
-				.signingX509Credentials(c -> { c.add(signingCredential); c.add(altRpCredential); })
-				.decryptionX509Credentials(c -> { c.add(decryptionCredential); c.add(altRpCredential); })
-				.build();
-		assertThat(relyingPartyRegistration.getSigningX509Credentials())
-				.containsExactly(signingCredential, altRpCredential);
-		assertThat(relyingPartyRegistration.getDecryptionX509Credentials())
-				.containsExactly(decryptionCredential, altRpCredential);
+				.assertingPartyDetails((assertingParty) -> assertingParty.verificationX509Credentials((c) -> {
+					c.add(verifyingCredential);
+					c.add(altApCredential);
+				}).encryptionX509Credentials((c) -> {
+					c.add(encryptingCredential);
+					c.add(altApCredential);
+				})).signingX509Credentials((c) -> {
+					c.add(signingCredential);
+					c.add(altRpCredential);
+				}).decryptionX509Credentials((c) -> {
+					c.add(decryptionCredential);
+					c.add(altRpCredential);
+				}).build();
+		assertThat(relyingPartyRegistration.getSigningX509Credentials()).containsExactly(signingCredential,
+				altRpCredential);
+		assertThat(relyingPartyRegistration.getDecryptionX509Credentials()).containsExactly(decryptionCredential,
+				altRpCredential);
 		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getVerificationX509Credentials())
 				.containsExactly(verifyingCredential, altApCredential);
 		assertThat(relyingPartyRegistration.getAssertingPartyDetails().getEncryptionX509Credentials())
 				.containsExactly(encryptingCredential, altApCredential);
 	}
+
 }
