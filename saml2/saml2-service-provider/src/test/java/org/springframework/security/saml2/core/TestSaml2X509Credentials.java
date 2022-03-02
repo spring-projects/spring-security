@@ -64,7 +64,8 @@ public final class TestSaml2X509Credentials {
 	}
 
 	public static Saml2X509Credential altPublicCredential() {
-		return new Saml2X509Credential(altCertificate(), Saml2X509CredentialType.VERIFICATION, Saml2X509CredentialType.ENCRYPTION);
+		return new Saml2X509Credential(altCertificate(), Saml2X509CredentialType.VERIFICATION,
+				Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	public static Saml2X509Credential altPrivateCredential() {
@@ -185,7 +186,7 @@ public final class TestSaml2X509Credentials {
 
 	private static X509Certificate altCertificate() {
 		return certificate(
-				"-----BEGIN CERTIFICATE-----\n"	+ "MIICkDCCAfkCFEstVfmWSFQp/j88GaMUwqVK72adMA0GCSqGSIb3DQEBCwUAMIGG\n"
+				"-----BEGIN CERTIFICATE-----\n" + "MIICkDCCAfkCFEstVfmWSFQp/j88GaMUwqVK72adMA0GCSqGSIb3DQEBCwUAMIGG\n"
 						+ "MQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2FzaGluZ3RvbjESMBAGA1UEBwwJVmFu\n"
 						+ "Y291dmVyMR0wGwYDVQQKDBRTcHJpbmcgU2VjdXJpdHkgU0FNTDEMMAoGA1UECwwD\n"
 						+ "YWx0MSEwHwYDVQQDDBhhbHQuc3ByaW5nLnNlY3VyaXR5LnNhbWwwHhcNMjIwMjEw\n"
@@ -203,7 +204,7 @@ public final class TestSaml2X509Credentials {
 
 	private static PrivateKey altPrivateKey() {
 		return privateKey(
-				"-----BEGIN PRIVATE KEY-----\n"	+ "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAL1kZaNM8OzKZAIk\n"
+				"-----BEGIN PRIVATE KEY-----\n" + "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAL1kZaNM8OzKZAIk\n"
 						+ "vTjinLjEuwEj9L1G/M15H2gP+0fKjEIT5hnON/Q/IG3CorOQpaoI9/hcZRgd8SmQ\n"
 						+ "zmQljAJbxOw7Hl+fAshDB6I+qNisGv87QiMcypgb0eVH+uizuIG3hpsQZS78H3Ji\n"
 						+ "DVhFg/EpDpM0/cAP720FPxOwUXKPAgMBAAECgYEApYKslAZ0cer5dSoYNzNLFOnQ\n"
@@ -215,8 +216,8 @@ public final class TestSaml2X509Credentials {
 						+ "DHV1LwJAW4xaV37Eo4z9B7Kr4Hzd1MA1ueW5QQDt+Q4vN/r7z4/1FHyFzh0Xcucd\n"
 						+ "7nZX7qj0CkmgzOVG+Rb0P5LOxJA7gQJBAK1KQ2qNct375qPM9bEGSVGchH6k5X7+\n"
 						+ "q4ztHdpFgTb/EzdbZiTG935GpjC1rwJuinTnrHOnkwv4j7iDRm24GF8CQQDqPvrQ\n"
-						+ "GcItR6UUy0q/B8UxLzlE6t+HiznfiJKfyGgCHU56Y4/ZhzSQz2MZHz9SK4DsUL9s\n"
-						+ "bOYrWq8VY2fyjV1t\n" + "-----END PRIVATE KEY-----");
+						+ "GcItR6UUy0q/B8UxLzlE6t+HiznfiJKfyGgCHU56Y4/ZhzSQz2MZHz9SK4DsUL9s\n" + "bOYrWq8VY2fyjV1t\n"
+						+ "-----END PRIVATE KEY-----");
 	}
 
 }
