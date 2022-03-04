@@ -180,6 +180,12 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		}
 	}
 
+	/**
+	 * A tuple containing an OpenSAML {@link EntityDescriptor} and its associated
+	 * {@link RelyingPartyRegistration}
+	 *
+	 * @since 5.7
+	 */
 	public static final class EntityDescriptorParameters {
 
 		private final EntityDescriptor entityDescriptor;
@@ -195,7 +201,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 			return this.entityDescriptor;
 		}
 
-		public RelyingPartyRegistration getRegistration() {
+		public RelyingPartyRegistration getRelyingPartyRegistration() {
 			return this.registration;
 		}
 
