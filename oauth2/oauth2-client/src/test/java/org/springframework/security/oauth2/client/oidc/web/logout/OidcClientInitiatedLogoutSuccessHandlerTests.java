@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,6 +136,22 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirectExpanded()
+			throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		this.handler.setPostLogoutRedirectUri("{baseUrl}/{registrationId}");
+		this.request.setScheme("https");
+		this.request.setServerPort(443);
+		this.request.setServerName("rp.example.org");
+		this.request.setUserPrincipal(token);
+		this.handler.onLogoutSuccess(this.request, this.response, token);
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(String.format(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org/%s",
+				this.registration.getRegistrationId()));
 	}
 
 	// gh-9511
