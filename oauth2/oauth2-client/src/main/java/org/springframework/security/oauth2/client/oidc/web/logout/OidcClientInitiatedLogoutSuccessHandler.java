@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -67,7 +68,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
 				String idToken = idToken(authentication);
-				String postLogoutRedirectUri = postLogoutRedirectUri(request);
+				String postLogoutRedirectUri = postLogoutRedirectUri(request, clientRegistration);
 				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
 			}
 		}
@@ -89,7 +90,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private String postLogoutRedirectUri(HttpServletRequest request) {
+	private String postLogoutRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -100,8 +101,13 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.buildAndExpand(uriVariables)
 				.toUriString();
 		// @formatter:on
 	}
