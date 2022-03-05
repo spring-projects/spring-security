@@ -61,13 +61,29 @@ For Spring Security to work we need to apply `SecuritySocketAcceptorInterceptor`
 This is what connects our `PayloadSocketAcceptorInterceptor` we created with the RSocket infrastructure.
 In a Spring Boot application this is done automatically using `RSocketSecurityAutoConfiguration` with the following code.
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 RSocketServerCustomizer springSecurityRSocketSecurity(SecuritySocketAcceptorInterceptor interceptor) {
     return (server) -> server.interceptors((registry) -> registry.forSocketAcceptor(interceptor));
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityRSocketSecurity(interceptor: SecuritySocketAcceptorInterceptor): RSocketServerCustomizer {
+    return RSocketServerCustomizer { server ->
+        server.interceptors { registry ->
+            registry.forSocketAcceptor(interceptor)
+        }
+    }
+}
+----
+====
 
 [[rsocket-authentication]]
 == RSocket Authentication
