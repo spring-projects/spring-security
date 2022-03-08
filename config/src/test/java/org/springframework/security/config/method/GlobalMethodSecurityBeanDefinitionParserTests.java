@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  */
 public class GlobalMethodSecurityBeanDefinitionParserTests {
 
-	private final UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken("bob",
+	private final UsernamePasswordAuthenticationToken bob = UsernamePasswordAuthenticationToken.unauthenticated("bob",
 			"bobspassword");
 
 	private AbstractXmlApplicationContext appContext;
@@ -106,7 +106,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
 		loadContext();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		SecurityContextHolder.getContext().setAuthentication(token);
 		this.target.someUserMethod1();
 		// SEC-1213. Check the order
@@ -153,8 +154,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "</authentication-manager>");
 		// @formatter:on
 		UserDetailsService service = (UserDetailsService) this.appContext.getBean("myUserService");
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> service.loadUserByUsername("notused"));
 	}
@@ -170,7 +171,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		// @formatter:on
 		SecurityContextHolder.getContext()
-				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
+				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		this.target = (BusinessService) this.appContext.getBean("target");
 		// someOther(int) should not be matched by someOther(String), but should require
 		// ROLE_USER
@@ -198,7 +199,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
 				.isThrownBy(() -> this.target.someOther(0));
 		SecurityContextHolder.getContext()
-				.setAuthentication(new UsernamePasswordAuthenticationToken("user", "password"));
+				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		this.target.someOther(0);
 	}
 
@@ -219,8 +220,8 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 				+ "</b:bean>"
 				+ ConfigTestUtils.AUTH_PROVIDER_XML);
 		// @formatter:on
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 		this.target = (BusinessService) this.appContext.getBean("businessService");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::someUserMethod1);
@@ -384,7 +385,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		Foo foo = (Foo) this.appContext.getBean("target");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
-				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
+				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 
@@ -405,7 +406,7 @@ public class GlobalMethodSecurityBeanDefinitionParserTests {
 		Foo foo = (Foo) this.appContext.getBean("target");
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> foo.foo(new SecurityConfig("A")));
 		SecurityContextHolder.getContext()
-				.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "password"));
+				.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("admin", "password"));
 		foo.foo(new SecurityConfig("A"));
 	}
 

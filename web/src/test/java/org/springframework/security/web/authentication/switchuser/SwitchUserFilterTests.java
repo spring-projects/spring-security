@@ -66,7 +66,8 @@ public class SwitchUserFilterTests {
 
 	@BeforeEach
 	public void authenticateCurrentUser() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 
@@ -278,14 +279,14 @@ public class SwitchUserFilterTests {
 	@Test
 	public void exitUserJackLordToDanoSucceeds() throws Exception {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("dano",
+				"hawaii50", ROLES_12);
 		// set current user (Admin)
 		List<GrantedAuthority> adminAuths = new ArrayList<>();
 		adminAuths.addAll(ROLES_12);
 		adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
-		UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord", "hawaii50",
-				adminAuths);
+		UsernamePasswordAuthenticationToken admin = UsernamePasswordAuthenticationToken.authenticated("jacklord",
+				"hawaii50", adminAuths);
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setRequestURI("/logout/impersonate");
@@ -343,7 +344,8 @@ public class SwitchUserFilterTests {
 	@Test
 	public void redirectOmitsContextPathIfUseRelativeContextSet() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setContextPath("/webapp");
@@ -368,7 +370,8 @@ public class SwitchUserFilterTests {
 	@Test
 	public void testSwitchRequestFromDanoToJackLord() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		// http request
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -395,7 +398,8 @@ public class SwitchUserFilterTests {
 
 	@Test
 	public void modificationOfAuthoritiesWorks() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
@@ -416,8 +420,8 @@ public class SwitchUserFilterTests {
 	@Test
 	public void nestedSwitchesAreNotAllowed() {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("orig",
+				"hawaii50", ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUser("dano");
@@ -444,8 +448,8 @@ public class SwitchUserFilterTests {
 	public void switchAuthorityRoleCanBeChanged() {
 		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("orig",
+				"hawaii50", ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUserWithAuthorityRole("dano", switchAuthorityRole);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,9 +49,8 @@ public class BasicAuthenticationPayloadExchangeConverter implements PayloadExcha
 		return Mono.fromCallable(() -> this.metadataExtractor.extract(exchange.getPayload(), this.metadataMimetype))
 				.flatMap((metadata) -> Mono
 						.justOrEmpty(metadata.get(UsernamePasswordMetadata.BASIC_AUTHENTICATION_MIME_TYPE.toString())))
-				.cast(UsernamePasswordMetadata.class)
-				.map((credentials) -> new UsernamePasswordAuthenticationToken(credentials.getUsername(),
-						credentials.getPassword()));
+				.cast(UsernamePasswordMetadata.class).map((credentials) -> UsernamePasswordAuthenticationToken
+						.unauthenticated(credentials.getUsername(), credentials.getPassword()));
 	}
 
 	private static MetadataExtractor createDefaultExtractor() {

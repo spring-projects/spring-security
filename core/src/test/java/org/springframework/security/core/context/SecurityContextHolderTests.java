@@ -41,7 +41,7 @@ public class SecurityContextHolderTests {
 	@Test
 	public void testContextHolderGetterSetterClearer() {
 		SecurityContext sc = new SecurityContextImpl();
-		sc.setAuthentication(new UsernamePasswordAuthenticationToken("Foobar", "pass"));
+		sc.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("Foobar", "pass"));
 		SecurityContextHolder.setContext(sc);
 		assertThat(SecurityContextHolder.getContext()).isEqualTo(sc);
 		SecurityContextHolder.clearContext();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public class SwitchUserWebFilterTests {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/login/impersonate?username={targetUser}", targetUsername));
 		final WebFilterChain chain = mock(WebFilterChain.class);
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("principal",
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("principal",
 				"credentials");
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 		given(this.userDetailsService.findByUsername(targetUsername)).willReturn(Mono.just(switchUserDetails));
@@ -143,12 +143,12 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void switchUserWhenUserAlreadySwitchedThenExitSwitchAndSwitchAgain() {
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
 				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
-		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
-				"switchCredentials", Collections.singleton(switchAuthority));
+		final Authentication switchUserAuthentication = UsernamePasswordAuthenticationToken
+				.authenticated("switchPrincipal", "switchCredentials", Collections.singleton(switchAuthority));
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 		final String targetUsername = "newSwitchPrincipal";
 		final MockServerWebExchange exchange = MockServerWebExchange
@@ -228,12 +228,12 @@ public class SwitchUserWebFilterTests {
 	public void exitSwitchThenReturnToOriginalAuthentication() {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
 				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
-		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
-				"switchCredentials", Collections.singleton(switchAuthority));
+		final Authentication switchUserAuthentication = UsernamePasswordAuthenticationToken
+				.authenticated("switchPrincipal", "switchCredentials", Collections.singleton(switchAuthority));
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 		given(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
@@ -259,8 +259,8 @@ public class SwitchUserWebFilterTests {
 	public void exitSwitchWhenUserNotSwitchedThenThrowError() {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(() -> {

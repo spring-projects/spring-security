@@ -118,7 +118,7 @@ public class ContextPropagatingRemoteInvocation extends RemoteInvocation {
 	 * Creates the server-side authentication request object.
 	 */
 	protected Authentication createAuthenticationRequest(String principal, String credentials) {
-		return new UsernamePasswordAuthenticationToken(principal, credentials);
+		return UsernamePasswordAuthenticationToken.unauthenticated(principal, credentials);
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setScheduler(this.scheduler);
 		this.manager.setPasswordEncoder(this.encoder);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		Authentication result = this.manager.authenticate(token).block();
 		verify(this.scheduler).schedule(any());
@@ -111,7 +111,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.userDetailsPasswordService.updatePassword(any(), any())).willReturn(Mono.just(this.user));
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		Authentication result = this.manager.authenticate(token).block();
 		verify(this.encoder).encode(this.user.getPassword());
@@ -124,7 +124,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.encoder.matches(any(), any())).willReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		assertThatExceptionOfType(BadCredentialsException.class)
 				.isThrownBy(() -> this.manager.authenticate(token).block());
@@ -138,7 +138,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.encoder.upgradeEncoding(any())).willReturn(false);
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		Authentication result = this.manager.authenticate(token).block();
 		verifyZeroInteractions(this.userDetailsPasswordService);
@@ -152,8 +152,8 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		this.manager.setPasswordEncoder(this.encoder);
 		this.manager.setPostAuthenticationChecks(this.postAuthenticationChecks);
 		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager
-				.authenticate(new UsernamePasswordAuthenticationToken(this.user, this.user.getPassword())).block())
-				.withMessage("account is locked");
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(this.user, this.user.getPassword()))
+				.block()).withMessage("account is locked");
 		verify(this.postAuthenticationChecks).check(eq(this.user));
 	}
 
@@ -162,7 +162,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(this.user));
 		given(this.encoder.matches(any(), any())).willReturn(true);
 		this.manager.setPasswordEncoder(this.encoder);
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.user,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		this.manager.authenticate(token).block();
 		verifyZeroInteractions(this.postAuthenticationChecks);
@@ -179,7 +179,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.build();
 		// @formatter:on
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(expiredUser));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(expiredUser,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(expiredUser,
 				expiredUser.getPassword());
 		assertThatExceptionOfType(AccountExpiredException.class)
 				.isThrownBy(() -> this.manager.authenticate(token).block());
@@ -196,7 +196,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.build();
 		// @formatter:on
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(lockedUser));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(lockedUser,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(lockedUser,
 				lockedUser.getPassword());
 		assertThatExceptionOfType(LockedException.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}
@@ -212,7 +212,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				.build();
 		// @formatter:on
 		given(this.userDetailsService.findByUsername(any())).willReturn(Mono.just(disabledUser));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(disabledUser,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(disabledUser,
 				disabledUser.getPassword());
 		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> this.manager.authenticate(token).block());
 	}

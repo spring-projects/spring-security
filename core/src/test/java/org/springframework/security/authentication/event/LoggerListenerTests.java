@@ -30,8 +30,8 @@ import org.springframework.security.core.Authentication;
 public class LoggerListenerTests {
 
 	private Authentication getAuthentication() {
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-				"Credentials");
+		UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("Principal", "Credentials");
 		authentication.setDetails("127.0.0.1");
 		return authentication;
 	}

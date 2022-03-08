@@ -44,7 +44,7 @@ public class SecurityContextLoginModuleTests {
 
 	private Subject subject = new Subject(false, new HashSet<>(), new HashSet<>(), new HashSet<>());
 
-	private UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("principal",
+	private UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("principal",
 			"credentials");
 
 	@BeforeEach

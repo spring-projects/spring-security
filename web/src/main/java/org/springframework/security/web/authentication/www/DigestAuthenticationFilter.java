@@ -208,9 +208,9 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	private UsernamePasswordAuthenticationToken getAuthRequest(UserDetails user) {
 		if (this.createAuthenticatedToken) {
-			return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+			return UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities());
 		}
-		return new UsernamePasswordAuthenticationToken(user, user.getPassword());
+		return UsernamePasswordAuthenticationToken.unauthenticated(user, user.getPassword());
 	}
 
 	private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)

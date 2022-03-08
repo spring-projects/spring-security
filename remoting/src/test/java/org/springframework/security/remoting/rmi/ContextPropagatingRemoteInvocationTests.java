@@ -56,7 +56,7 @@ public class ContextPropagatingRemoteInvocationTests {
 	@Test
 	public void testContextIsResetEvenIfExceptionOccurs() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
+		Authentication clientSideAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 		// Set up the wrong arguments.
@@ -70,7 +70,7 @@ public class ContextPropagatingRemoteInvocationTests {
 	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", "koala");
+		Authentication clientSideAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 		// Set to null, as ContextPropagatingRemoteInvocation already obtained
@@ -95,7 +95,7 @@ public class ContextPropagatingRemoteInvocationTests {
 	// SEC-1867
 	@Test
 	public void testNullCredentials() throws Exception {
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("rod", null);
+		Authentication clientSideAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("rod", null);
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 		ContextPropagatingRemoteInvocation remoteInvocation = getRemoteInvocation();
 		assertThat(ReflectionTestUtils.getField(remoteInvocation, "credentials")).isNull();

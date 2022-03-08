@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,8 @@ public class AuthenticationConfigurationTests {
 
 	@Test
 	public void getAuthenticationWhenGlobalAuthenticationConfigurerAdapterThenAuthenticates() throws Exception {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				UserGlobalAuthenticationConfigurerAdapter.class).autowire();
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
@@ -139,7 +140,8 @@ public class AuthenticationConfigurationTests {
 
 	@Test
 	public void getAuthenticationWhenAuthenticationManagerBeanThenAuthenticates() throws Exception {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				AuthenticationManagerBeanConfig.class).autowire();
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
@@ -165,9 +167,9 @@ public class AuthenticationConfigurationTests {
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new ConfiguresInMemoryConfigurerAdapter(),
 				new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")));
+		authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> authenticationManager
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("boot", "password")));
 	}
 
 	@Test
@@ -176,7 +178,7 @@ public class AuthenticationConfigurationTests {
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password"));
+		authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("boot", "password"));
 	}
 
 	// gh-2531
@@ -206,9 +208,9 @@ public class AuthenticationConfigurationTests {
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "invalid")));
 	}
 
 	@Test
@@ -221,9 +223,9 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "invalid")));
 	}
 
 	@Test
@@ -237,7 +239,7 @@ public class AuthenticationConfigurationTests {
 		given(manager.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
 		given(manager.updatePassword(any(), any())).willReturn(user);
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		verify(manager).updatePassword(eq(user), startsWith("{bcrypt}"));
 	}
 
@@ -250,7 +252,7 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 	}
 
 	// gh-3091
@@ -262,7 +264,7 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 	}
 
 	@Test

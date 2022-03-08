@@ -297,7 +297,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 		List<GrantedAuthority> newAuths = new ArrayList<>(orig);
 		newAuths.add(switchAuthority);
 		// create the new authentication token
-		targetUserRequest = new UsernamePasswordAuthenticationToken(targetUser, targetUser.getPassword(), newAuths);
+		targetUserRequest = UsernamePasswordAuthenticationToken.authenticated(targetUser, targetUser.getPassword(),
+				newAuths);
 		// set details
 		targetUserRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return targetUserRequest;

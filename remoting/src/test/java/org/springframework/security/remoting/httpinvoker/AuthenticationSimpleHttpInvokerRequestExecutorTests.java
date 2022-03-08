@@ -48,7 +48,8 @@ public class AuthenticationSimpleHttpInvokerRequestExecutorTests {
 	@Test
 	public void testNormalOperation() throws Exception {
 		// Setup client-side context
-		Authentication clientSideAuthentication = new UsernamePasswordAuthenticationToken("Aladdin", "open sesame");
+		Authentication clientSideAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("Aladdin",
+				"open sesame");
 		SecurityContextHolder.getContext().setAuthentication(clientSideAuthentication);
 		// Create a connection and ensure our executor sets its
 		// properties correctly

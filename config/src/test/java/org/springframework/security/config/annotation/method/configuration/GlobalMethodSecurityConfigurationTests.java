@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -106,8 +106,8 @@ public class GlobalMethodSecurityConfigurationTests {
 	@Test
 	public void methodSecurityAuthenticationManagerPublishesEvent() {
 		this.spring.register(InMemoryAuthWithGlobalMethodSecurityConfig.class).autowire();
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("foo", "bar")));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.authenticationManager
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("foo", "bar")));
 		assertThat(this.events.getEvents()).extracting(Object::getClass)
 				.containsOnly((Class) AuthenticationFailureBadCredentialsEvent.class);
 	}

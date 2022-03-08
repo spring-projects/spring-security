@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public class SecurityContextHolderMTTests extends TestCase{
 			} else if (expectAllThreadsToUseIdenticalAuthentication) {
 				// A global
 				SecurityContextHolder.getContext()
-									.setAuthentication(new UsernamePasswordAuthenticationToken("GLOBAL_USERNAME",
+									.setAuthentication(UsernamePasswordAuthenticationToken.unauthenticated("GLOBAL_USERNAME",
 						"pass"));
 
 				for (int i = 0; i < threads.length; i++) {
@@ -182,7 +182,7 @@ public class SecurityContextHolderMTTests extends TestCase{
 			public void run() {
 					if (injectAuthIntoCurrentThread) {
 						// Set authentication in this thread
-						SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+						SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken.authenticated(
 								expectedUsername, "pass"));
 
 						//System.out.println(threadIdentifier + " - set to " + SecurityContextHolder.getContext().getAuthentication());

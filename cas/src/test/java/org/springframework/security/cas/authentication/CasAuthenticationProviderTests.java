@@ -87,8 +87,8 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
 		// Confirm ST-123 was NOT added to the cache
@@ -120,8 +120,8 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
 		// Confirm ST-456 was added to the cache
@@ -157,8 +157,8 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
 		Authentication result = cap.authenticate(token);
 	}
 
@@ -178,8 +178,8 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
 		Authentication result = cap.authenticate(token);
 		verify(validator).validate(ticket, serviceProperties.getService());
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -211,8 +211,8 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.unauthenticated(CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> cap.authenticate(token));
 	}
 
@@ -314,8 +314,8 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("some_normal_user",
-				"password", AuthorityUtils.createAuthorityList("ROLE_A"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.authenticated("some_normal_user", "password", AuthorityUtils.createAuthorityList("ROLE_A"));
 		assertThat(cap.authenticate(token)).isNull();
 	}
 

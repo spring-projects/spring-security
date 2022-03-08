@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2018 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,8 +78,8 @@ class UsernamePasswordAuthenticationTokenDeserializer extends JsonDeserializer<U
 		List<GrantedAuthority> authorities = mapper.readValue(readJsonNode(jsonNode, "authorities").traverse(mapper),
 				GRANTED_AUTHORITY_LIST);
 		UsernamePasswordAuthenticationToken token = (!authenticated)
-				? new UsernamePasswordAuthenticationToken(principal, credentials)
-				: new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
+				? UsernamePasswordAuthenticationToken.unauthenticated(principal, credentials)
+				: UsernamePasswordAuthenticationToken.authenticated(principal, credentials, authorities);
 		JsonNode detailsNode = readJsonNode(jsonNode, "details");
 		if (detailsNode.isNull() || detailsNode.isMissingNode()) {
 			token.setDetails(null);
