@@ -76,8 +76,8 @@ public class RememberMeAuthenticationTokenTests {
 	@Test
 	public void testNotEqualsDueToDifferentAuthenticationClass() {
 		RememberMeAuthenticationToken token1 = new RememberMeAuthenticationToken("key", "Test", ROLES_12);
-		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken token2 = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", ROLES_12);
 		assertThat(token1.equals(token2)).isFalse();
 	}
 

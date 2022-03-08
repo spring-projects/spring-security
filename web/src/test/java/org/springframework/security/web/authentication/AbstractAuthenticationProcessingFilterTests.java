@@ -440,7 +440,7 @@ public class AbstractAuthenticationProcessingFilterTests {
 		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 				throws AuthenticationException {
 			if (this.grantAccess) {
-				return new UsernamePasswordAuthenticationToken("test", "test",
+				return UsernamePasswordAuthenticationToken.authenticated("test", "test",
 						AuthorityUtils.createAuthorityList("TEST"));
 			}
 			else {

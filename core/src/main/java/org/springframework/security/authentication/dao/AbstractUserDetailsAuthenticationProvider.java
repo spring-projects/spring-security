@@ -193,7 +193,7 @@ public abstract class AbstractUserDetailsAuthenticationProvider
 		// so subsequent attempts are successful even with encoded passwords.
 		// Also ensure we return the original getDetails(), so that future
 		// authentication events after cache expiry contain the details
-		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(principal,
+		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken.authenticated(principal,
 				authentication.getCredentials(), this.authoritiesMapper.mapAuthorities(user.getAuthorities()));
 		result.setDetails(authentication.getDetails());
 		this.logger.debug("Authenticated user");

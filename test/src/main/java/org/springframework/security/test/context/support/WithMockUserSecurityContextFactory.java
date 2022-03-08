@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,8 @@ final class WithMockUserSecurityContextFactory implements WithSecurityContextFac
 					+ " with authorities attribute " + Arrays.asList(withUser.authorities()));
 		}
 		User principal = new User(username, withUser.password(), true, true, true, true, grantedAuthorities);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(),
-				principal.getAuthorities());
+		Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(principal,
+				principal.getPassword(), principal.getAuthorities());
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;

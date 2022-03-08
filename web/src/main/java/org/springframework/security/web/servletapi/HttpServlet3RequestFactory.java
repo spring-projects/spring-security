@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -237,8 +237,8 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)
 				throws ServletException {
 			try {
-				UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username,
-						password);
+				UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
+						.unauthenticated(username, password);
 				Object details = HttpServlet3RequestFactory.this.authenticationDetailsSource.buildDetails(this);
 				authentication.setDetails(details);
 				return authManager.authenticate(authentication);

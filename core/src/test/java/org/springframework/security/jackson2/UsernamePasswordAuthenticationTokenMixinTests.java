@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	@Test
 	public void serializeUnauthenticatedUsernamePasswordAuthenticationTokenMixinTest()
 			throws JsonProcessingException, JSONException {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("admin", "1234");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("admin",
+				"1234");
 		String serializedJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(UNAUTHENTICATED_STRINGPRINCIPAL_JSON, serializedJson, true);
 	}
@@ -80,8 +81,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	public void serializeAuthenticatedUsernamePasswordAuthenticationTokenMixinTest()
 			throws JsonProcessingException, JSONException {
 		User user = createDefaultUser();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user.getUsername(),
-				user.getPassword(), user.getAuthorities());
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken
+				.authenticated(user.getUsername(), user.getPassword(), user.getAuthorities());
 		String serializedJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(AUTHENTICATED_STRINGPRINCIPAL_JSON, serializedJson, true);
 	}
@@ -140,7 +141,7 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 			throws JsonProcessingException, JSONException {
 		NonUserPrincipal principal = new NonUserPrincipal();
 		principal.setUsername("admin");
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(principal, null,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(principal, null,
 				new ArrayList<>());
 		String actualJson = this.mapper.writeValueAsString(token);
 		JSONAssert.assertEquals(AUTHENTICATED_NON_USER_PRINCIPAL_JSON, actualJson, true);
@@ -170,7 +171,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	@Test
 	public void serializingThenDeserializingWithNoCredentialsOrDetailsShouldWork() throws IOException {
-		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
+		UsernamePasswordAuthenticationToken original = UsernamePasswordAuthenticationToken.unauthenticated("Frodo",
+				null);
 		String serialized = this.mapper.writeValueAsString(original);
 		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized,
 				UsernamePasswordAuthenticationToken.class);
@@ -181,7 +183,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 	public void serializingThenDeserializingWithConfiguredObjectMapperShouldWork() throws IOException {
 		this.mapper.setDefaultPropertyInclusion(Value.construct(Include.ALWAYS, Include.NON_NULL))
 				.setSerializationInclusion(Include.NON_ABSENT);
-		UsernamePasswordAuthenticationToken original = new UsernamePasswordAuthenticationToken("Frodo", null);
+		UsernamePasswordAuthenticationToken original = UsernamePasswordAuthenticationToken.unauthenticated("Frodo",
+				null);
 		String serialized = this.mapper.writeValueAsString(original);
 		UsernamePasswordAuthenticationToken deserialized = this.mapper.readValue(serialized,
 				UsernamePasswordAuthenticationToken.class);
@@ -190,8 +193,8 @@ public class UsernamePasswordAuthenticationTokenMixinTests extends AbstractMixin
 
 	private UsernamePasswordAuthenticationToken createToken() {
 		User user = createDefaultUser();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(user, user.getPassword(),
-				user.getAuthorities());
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated(user,
+				user.getPassword(), user.getAuthorities());
 		return token;
 	}
 

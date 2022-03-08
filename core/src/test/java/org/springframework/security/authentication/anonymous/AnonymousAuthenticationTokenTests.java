@@ -81,8 +81,8 @@ public class AnonymousAuthenticationTokenTests {
 	@Test
 	public void testNotEqualsDueToDifferentAuthenticationClass() {
 		AnonymousAuthenticationToken token1 = new AnonymousAuthenticationToken("key", "Test", ROLES_12);
-		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken token2 = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", ROLES_12);
 		assertThat(token1.equals(token2)).isFalse();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,7 +129,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 				+ DATA_SOURCE);
 		// @formatter:on
 		AuthenticationManager mgr = (AuthenticationManager) this.appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
-		mgr.authenticate(new UsernamePasswordAuthenticationToken("rod", "koala"));
+		mgr.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala"));
 	}
 
 	@Test
@@ -146,7 +146,7 @@ public class JdbcUserServiceBeanDefinitionParserTests {
 		ProviderManager mgr = (ProviderManager) this.appContext.getBean(BeanIds.AUTHENTICATION_MANAGER);
 		DaoAuthenticationProvider provider = (DaoAuthenticationProvider) mgr.getProviders().get(0);
 		assertThat(this.appContext.getBean("userCache")).isSameAs(provider.getUserCache());
-		provider.authenticate(new UsernamePasswordAuthenticationToken("rod", "koala"));
+		provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rod", "koala"));
 		assertThat(provider.getUserCache().getUserFromCache("rod")).isNotNull()
 				.withFailMessage("Cache should contain user after authentication");
 	}

@@ -66,12 +66,13 @@ public class ProviderManagerTests {
 
 	@Test
 	public void credentialsAreClearedByDefault() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("Test",
+				"Password");
 		ProviderManager mgr = makeProviderManager();
 		Authentication result = mgr.authenticate(token);
 		assertThat(result.getCredentials()).isNull();
 		mgr.setEraseCredentialsAfterAuthentication(false);
-		token = new UsernamePasswordAuthenticationToken("Test", "Password");
+		token = UsernamePasswordAuthenticationToken.unauthenticated("Test", "Password");
 		result = mgr.authenticate(token);
 		assertThat(result.getCredentials()).isNotNull();
 	}

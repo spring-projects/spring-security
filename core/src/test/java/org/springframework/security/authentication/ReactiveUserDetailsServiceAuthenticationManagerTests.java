@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenUserNotFoundThenBadCredentials() {
 		given(this.repository.findByUsername(this.username)).willReturn(Mono.empty());
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.username,
 				this.password);
 		Mono<Authentication> authentication = this.manager.authenticate(token);
 		// @formatter:off
@@ -91,7 +91,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.build();
 		// @formatter:on
 		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.username,
 				this.password + "INVALID");
 		Mono<Authentication> authentication = this.manager.authenticate(token);
 		// @formatter:off
@@ -110,7 +110,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 			.build();
 		// @formatter:on
 		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.username,
 				this.password);
 		Authentication authentication = this.manager.authenticate(token).block();
 		assertThat(authentication).isEqualTo(authentication);
@@ -122,7 +122,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		given(this.passwordEncoder.matches(any(), any())).willReturn(true);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.username,
 				this.password);
 		Authentication authentication = this.manager.authenticate(token).block();
 		assertThat(authentication).isEqualTo(authentication);
@@ -134,7 +134,7 @@ public class ReactiveUserDetailsServiceAuthenticationManagerTests {
 		given(this.passwordEncoder.matches(any(), any())).willReturn(false);
 		User user = new User(this.username, this.password, AuthorityUtils.createAuthorityList("ROLE_USER"));
 		given(this.repository.findByUsername(user.getUsername())).willReturn(Mono.just(user));
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(this.username,
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.username,
 				this.password);
 		Mono<Authentication> authentication = this.manager.authenticate(token);
 		// @formatter:off

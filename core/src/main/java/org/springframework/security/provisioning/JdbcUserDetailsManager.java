@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -271,7 +271,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		// supplied password.
 		if (this.authenticationManager != null) {
 			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
-			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
+			this.authenticationManager
+					.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
 		}
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
@@ -287,8 +288,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
 		UserDetails user = loadUserByUsername(currentAuth.getName());
-		UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(user, null,
-				user.getAuthorities());
+		UsernamePasswordAuthenticationToken newAuthentication = UsernamePasswordAuthenticationToken.authenticated(user,
+				null, user.getAuthorities());
 		newAuthentication.setDetails(currentAuth.getDetails());
 		return newAuthentication;
 	}

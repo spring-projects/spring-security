@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	}
 
 	private static Authentication user() {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.NO_AUTHORITIES);
+		return UsernamePasswordAuthenticationToken.authenticated("user", null, AuthorityUtils.NO_AUTHORITIES);
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {

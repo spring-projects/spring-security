@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1013,7 +1013,7 @@ public class WebSecurityConfigurationTests {
 			return new ProviderManager(new AuthenticationProvider() {
 				@Override
 				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-					return new UsernamePasswordAuthenticationToken("user", "credentials");
+					return UsernamePasswordAuthenticationToken.unauthenticated("user", "credentials");
 				}
 
 				@Override
@@ -1028,7 +1028,7 @@ public class WebSecurityConfigurationTests {
 			return new ProviderManager(new AuthenticationProvider() {
 				@Override
 				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-					return new UsernamePasswordAuthenticationToken("subuser", "credentials");
+					return UsernamePasswordAuthenticationToken.unauthenticated("subuser", "credentials");
 				}
 
 				@Override

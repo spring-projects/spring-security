@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * <code>String</code>.
  *
  * @author Ben Alex
+ * @author Norbert Nowak
  */
 public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationToken {
 
@@ -69,6 +70,33 @@ public class UsernamePasswordAuthenticationToken extends AbstractAuthenticationT
 		this.principal = principal;
 		this.credentials = credentials;
 		super.setAuthenticated(true); // must use super, as we override
+	}
+
+	/**
+	 * This factory method can be safely used by any code that wishes to create a
+	 * unauthenticated <code>UsernamePasswordAuthenticationToken</code>.
+	 * @param principal
+	 * @param credentials
+	 * @return UsernamePasswordAuthenticationToken with false isAuthenticated() result
+	 *
+	 * @since 5.7
+	 */
+	public static UsernamePasswordAuthenticationToken unauthenticated(Object principal, Object credentials) {
+		return new UsernamePasswordAuthenticationToken(principal, credentials);
+	}
+
+	/**
+	 * This factory method can be safely used by any code that wishes to create a
+	 * authenticated <code>UsernamePasswordAuthenticationToken</code>.
+	 * @param principal
+	 * @param credentials
+	 * @return UsernamePasswordAuthenticationToken with true isAuthenticated() result
+	 *
+	 * @since 5.7
+	 */
+	public static UsernamePasswordAuthenticationToken authenticated(Object principal, Object credentials,
+			Collection<? extends GrantedAuthority> authorities) {
+		return new UsernamePasswordAuthenticationToken(principal, credentials, authorities);
 	}
 
 	@Override

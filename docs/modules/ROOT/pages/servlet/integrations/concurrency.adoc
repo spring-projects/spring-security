@@ -95,7 +95,7 @@ The following example shows how to use it:
 ----
 SecurityContext context = SecurityContextHolder.createEmptyContext();
 Authentication authentication =
-	new UsernamePasswordAuthenticationToken("user","doesnotmatter", AuthorityUtils.createAuthorityList("ROLE_USER"));
+	UsernamePasswordAuthenticationToken.authenticated("user","doesnotmatter", AuthorityUtils.createAuthorityList("ROLE_USER"));
 context.setAuthentication(authentication);
 
 SimpleAsyncTaskExecutor delegateExecutor =

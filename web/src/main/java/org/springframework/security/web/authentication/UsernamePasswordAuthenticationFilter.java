@@ -79,7 +79,8 @@ public class UsernamePasswordAuthenticationFilter extends AbstractAuthentication
 		username = username.trim();
 		String password = obtainPassword(request);
 		password = (password != null) ? password : "";
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+		UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username,
+				password);
 		// Allow subclasses to set the "details" property
 		setDetails(request, authRequest);
 		return this.getAuthenticationManager().authenticate(authRequest);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,7 +35,7 @@ public class TestAuthentication extends PasswordEncodedUser {
 	}
 
 	public static Authentication autheticated(UserDetails user) {
-		return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+		return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
 	}
 
 }

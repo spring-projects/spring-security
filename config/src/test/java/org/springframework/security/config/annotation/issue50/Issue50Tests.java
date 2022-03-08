@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -75,21 +75,21 @@ public class Issue50Tests {
 	@Test
 	public void authenticateWhenMissingUserThenUsernameNotFoundException() {
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("test", "password")));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
 	}
 
 	@Test
 	public void authenticateWhenInvalidPasswordThenBadCredentialsException() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("test", "invalid")));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "invalid")));
 	}
 
 	@Test
 	public void authenticateWhenValidUserThenAuthenticates() {
 		this.userRepo.save(User.withUsernameAndPassword("test", "password"));
 		Authentication result = this.authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("test", "password"));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password"));
 		assertThat(result.getName()).isEqualTo("test");
 	}
 
@@ -98,7 +98,7 @@ public class Issue50Tests {
 		SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("test", null, "ROLE_USER"));
 		this.userRepo.save(User.withUsernameAndPassword("denied", "password"));
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("test", "password")));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("test", "password")));
 	}
 
 }

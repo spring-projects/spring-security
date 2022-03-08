@@ -529,7 +529,7 @@ public class WithMockCustomUserSecurityContextFactory
 		CustomUserDetails principal =
 			new CustomUserDetails(customUser.name(), customUser.username());
 		Authentication auth =
-			new UsernamePasswordAuthenticationToken(principal, "password", principal.getAuthorities());
+			UsernamePasswordAuthenticationToken.authenticated(principal, "password", principal.getAuthorities());
 		context.setAuthentication(auth);
 		return context;
 	}
@@ -575,7 +575,7 @@ final class WithUserDetailsSecurityContextFactory
 		String username = withUser.value();
 		Assert.hasLength(username, "value() must be non-empty String");
 		UserDetails principal = userDetailsService.loadUserByUsername(username);
-		Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getPassword(), principal.getAuthorities());
+		Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(principal, principal.getPassword(), principal.getAuthorities());
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;
