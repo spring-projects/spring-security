@@ -31,5 +31,5 @@ integrationTest {
 	options {
 		jvmArgs = ['-ea', '-Xms128m', '-Xmx500m']
 	}
-	maxParallelForks = 1
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 }
