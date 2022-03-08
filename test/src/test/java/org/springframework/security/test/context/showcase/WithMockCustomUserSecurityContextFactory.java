@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
 	public SecurityContext createSecurityContext(WithMockCustomUser customUser) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		CustomUserDetails principal = new CustomUserDetails(customUser.name(), customUser.username());
-		Authentication auth = new UsernamePasswordAuthenticationToken(principal, "password",
+		Authentication auth = UsernamePasswordAuthenticationToken.authenticated(principal, "password",
 				principal.getAuthorities());
 		context.setAuthentication(auth);
 		return context;

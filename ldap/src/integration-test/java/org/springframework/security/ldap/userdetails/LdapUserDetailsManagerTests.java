@@ -192,8 +192,8 @@ public class LdapUserDetailsManagerTests {
 
 		this.mgr.createUser(p.createUserDetails());
 
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
+				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
 		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
@@ -211,8 +211,8 @@ public class LdapUserDetailsManagerTests {
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
 		this.mgr.createUser(p.createUserDetails());
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
+				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 		assertThatExceptionOfType(BadCredentialsException.class)
 				.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
 	}

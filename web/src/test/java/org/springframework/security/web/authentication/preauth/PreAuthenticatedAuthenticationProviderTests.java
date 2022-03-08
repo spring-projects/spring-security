@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ public class PreAuthenticatedAuthenticationProviderTests {
 	public final void authenticateInvalidToken() throws Exception {
 		UserDetails ud = new User("dummyUser", "dummyPwd", true, true, true, true, AuthorityUtils.NO_AUTHORITIES);
 		PreAuthenticatedAuthenticationProvider provider = getProvider(ud);
-		Authentication request = new UsernamePasswordAuthenticationToken("dummyUser", "dummyPwd");
+		Authentication request = UsernamePasswordAuthenticationToken.unauthenticated("dummyUser", "dummyPwd");
 		Authentication result = provider.authenticate(request);
 		assertThat(result).isNull();
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,7 @@ public class AuthenticationPayloadExchangeConverter implements PayloadExchangeAu
 		String username = rawUsername.toString(StandardCharsets.UTF_8);
 		ByteBuf rawPassword = AuthMetadataCodec.readPassword(rawAuthentication);
 		String password = rawPassword.toString(StandardCharsets.UTF_8);
-		return new UsernamePasswordAuthenticationToken(username, password);
+		return UsernamePasswordAuthenticationToken.unauthenticated(username, password);
 	}
 
 	private Authentication bearer(ByteBuf rawAuthentication) {

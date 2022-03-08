@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -89,8 +89,8 @@ public class AuthenticationPayloadInterceptorTests {
 		interceptor.intercept(exchange, authenticationPayloadChain).block();
 		Authentication authentication = authenticationPayloadChain.getAuthentication();
 		verify(this.authenticationManager).authenticate(this.authenticationArg.capture());
-		assertThat(this.authenticationArg.getValue())
-				.isEqualToComparingFieldByField(new UsernamePasswordAuthenticationToken("user", "password"));
+		assertThat(this.authenticationArg.getValue()).isEqualToComparingFieldByField(
+				UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(authentication).isEqualTo(expectedAuthentication);
 	}
 

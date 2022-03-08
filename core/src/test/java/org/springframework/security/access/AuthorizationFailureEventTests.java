@@ -34,7 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  */
 public class AuthorizationFailureEventTests {
 
-	private final UsernamePasswordAuthenticationToken foo = new UsernamePasswordAuthenticationToken("foo", "bar");
+	private final UsernamePasswordAuthenticationToken foo = UsernamePasswordAuthenticationToken.unauthenticated("foo",
+			"bar");
 
 	private List<ConfigAttribute> attributes = SecurityConfig.createList("TEST");
 

@@ -246,7 +246,8 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			this.logger.debug("Failed to obtain an artifact (cas ticket)");
 			password = "";
 		}
-		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
+		UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken.unauthenticated(username,
+				password);
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}

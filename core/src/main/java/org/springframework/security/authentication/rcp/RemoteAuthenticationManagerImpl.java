@@ -47,7 +47,8 @@ public class RemoteAuthenticationManagerImpl implements RemoteAuthenticationMana
 	@Override
 	public Collection<? extends GrantedAuthority> attemptAuthentication(String username, String password)
 			throws RemoteAuthenticationException {
-		UsernamePasswordAuthenticationToken request = new UsernamePasswordAuthenticationToken(username, password);
+		UsernamePasswordAuthenticationToken request = UsernamePasswordAuthenticationToken.unauthenticated(username,
+				password);
 		try {
 			return this.authenticationManager.authenticate(request).getAuthorities();
 		}

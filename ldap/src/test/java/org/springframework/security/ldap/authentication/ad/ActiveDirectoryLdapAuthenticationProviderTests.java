@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 
 	ActiveDirectoryLdapAuthenticationProvider provider;
 
-	UsernamePasswordAuthenticationToken joe = new UsernamePasswordAuthenticationToken("joe", "password");
+	UsernamePasswordAuthenticationToken joe = UsernamePasswordAuthenticationToken.unauthenticated("joe", "password");
 
 	@BeforeEach
 	public void setUp() {
@@ -162,7 +162,7 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 				any(SearchControls.class))).willReturn(new MockNamingEnumeration(sr));
 		this.provider.contextFactory = createContextFactoryReturning(ctx);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.provider.authenticate(this.joe));
-		this.provider.authenticate(new UsernamePasswordAuthenticationToken("joe@mydomain.eu", "password"));
+		this.provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("joe@mydomain.eu", "password"));
 	}
 
 	@Test
@@ -189,8 +189,8 @@ public class ActiveDirectoryLdapAuthenticationProviderTests {
 	// SEC-2500
 	@Test
 	public void sec2500PreventAnonymousBind() {
-		assertThatExceptionOfType(BadCredentialsException.class)
-				.isThrownBy(() -> this.provider.authenticate(new UsernamePasswordAuthenticationToken("rwinch", "")));
+		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(
+				() -> this.provider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("rwinch", "")));
 	}
 
 	@Test

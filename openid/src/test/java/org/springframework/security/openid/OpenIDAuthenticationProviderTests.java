@@ -162,7 +162,8 @@ public class OpenIDAuthenticationProviderTests {
 	public void testIgnoresUserPassAuthToken() {
 		OpenIDAuthenticationProvider provider = new OpenIDAuthenticationProvider();
 		provider.setUserDetailsService(new MockUserDetailsService());
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(USERNAME, "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(USERNAME,
+				"password");
 		assertThat(provider.authenticate(token)).isNull();
 	}
 

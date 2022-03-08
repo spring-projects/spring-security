@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -117,7 +117,7 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 	}
 
 	private UsernamePasswordAuthenticationToken createUsernamePasswordAuthenticationToken(UserDetails userDetails) {
-		return new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(),
+		return UsernamePasswordAuthenticationToken.authenticated(userDetails, userDetails.getPassword(),
 				userDetails.getAuthorities());
 	}
 

@@ -34,8 +34,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class AuthenticationEventTests {
 
 	private Authentication getAuthentication() {
-		UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken("Principal",
-				"Credentials");
+		UsernamePasswordAuthenticationToken authentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("Principal", "Credentials");
 		authentication.setDetails("127.0.0.1");
 		return authentication;
 	}
