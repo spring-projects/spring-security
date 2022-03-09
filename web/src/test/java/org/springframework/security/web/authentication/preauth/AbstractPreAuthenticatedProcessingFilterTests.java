@@ -23,6 +23,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockFilterChain;
@@ -34,17 +35,20 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -208,6 +212,31 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
+	}
+
+	@Test
+	public void securityContextRepository() throws Exception {
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		Object currentPrincipal = "currentUser";
+		TestingAuthenticationToken authRequest = new TestingAuthenticationToken(currentPrincipal, "something",
+				"ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(authRequest);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain chain = new MockFilterChain();
+		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+		filter.setSecurityContextRepository(securityContextRepository);
+		filter.setAuthenticationSuccessHandler(new ForwardAuthenticationSuccessHandler("/forwardUrl"));
+		filter.setCheckForPrincipalChanges(true);
+		filter.principal = "newUser";
+		AuthenticationManager am = mock(AuthenticationManager.class);
+		given(am.authenticate(any())).willReturn(authRequest);
+		filter.setAuthenticationManager(am);
+		filter.afterPropertiesSet();
+		filter.doFilter(request, response, chain);
+		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
+		verify(securityContextRepository).saveContext(contextArg.capture(), eq(request), eq(response));
+		assertThat(contextArg.getValue().getAuthentication().getPrincipal()).isEqualTo(authRequest.getName());
 	}
 
 	@Test

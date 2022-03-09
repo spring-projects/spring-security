@@ -42,6 +42,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -133,6 +135,8 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 
 	private AuthenticationFailureHandler failureHandler = new SimpleUrlAuthenticationFailureHandler();
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	/**
 	 * @param defaultFilterProcessesUrl the default value for <tt>filterProcessesUrl</tt>.
@@ -314,6 +318,7 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authResult);
 		SecurityContextHolder.setContext(context);
+		this.securityContextRepository.saveContext(context, request, response);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 		}
@@ -433,6 +438,18 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 	public void setAuthenticationFailureHandler(AuthenticationFailureHandler failureHandler) {
 		Assert.notNull(failureHandler, "failureHandler cannot be null");
 		this.failureHandler = failureHandler;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	protected AuthenticationSuccessHandler getSuccessHandler() {

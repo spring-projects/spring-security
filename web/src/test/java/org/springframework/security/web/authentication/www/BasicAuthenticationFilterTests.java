@@ -27,6 +27,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -36,8 +37,10 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -362,6 +365,27 @@ public class BasicAuthenticationFilterTests {
 		verify(chain, never()).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		assertThat(response.getStatus()).isEqualTo(401);
+	}
+
+	@Test
+	public void requestWhenSecurityContextRepository() throws Exception {
+		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		this.filter.setSecurityContextRepository(securityContextRepository);
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.setServletPath("/some_file.html");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		// Test
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+		FilterChain chain = mock(FilterChain.class);
+		this.filter.doFilter(request, response, chain);
+		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+		verify(securityContextRepository).saveContext(contextArg.capture(), eq(request), eq(response));
+		assertThat(contextArg.getValue().getAuthentication().getName()).isEqualTo("rod");
 	}
 
 }

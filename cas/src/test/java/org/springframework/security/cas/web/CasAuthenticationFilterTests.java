@@ -21,6 +21,7 @@ import javax.servlet.FilterChain;
 import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -32,12 +33,15 @@ import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -180,6 +184,38 @@ public class CasAuthenticationFilterTests {
 		filter.doFilter(request, response, chain);
 		verifyNoMoreInteractions(chain);
 		verify(successHandler).onAuthenticationSuccess(request, response, authentication);
+	}
+
+	@Test
+	public void testSecurityContextHolder() throws Exception {
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		AuthenticationManager manager = mock(AuthenticationManager.class);
+		Authentication authentication = new TestingAuthenticationToken("un", "pwd", "ROLE_USER");
+		given(manager.authenticate(any(Authentication.class))).willReturn(authentication);
+		ServiceProperties serviceProperties = new ServiceProperties();
+		serviceProperties.setAuthenticateAllArtifacts(true);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter("ticket", "ST-1-123");
+		request.setServletPath("/authenticate");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = mock(FilterChain.class);
+		CasAuthenticationFilter filter = new CasAuthenticationFilter();
+		filter.setServiceProperties(serviceProperties);
+		filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
+		filter.setAuthenticationManager(manager);
+		filter.setSecurityContextRepository(securityContextRepository);
+		filter.afterPropertiesSet();
+		filter.doFilter(request, response, chain);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
+				.withFailMessage("Authentication should not be null");
+		verify(chain).doFilter(request, response);
+		// validate for when the filterProcessUrl matches
+		filter.setFilterProcessesUrl(request.getServletPath());
+		SecurityContextHolder.clearContext();
+		filter.doFilter(request, response, chain);
+		ArgumentCaptor<SecurityContext> contextArg = ArgumentCaptor.forClass(SecurityContext.class);
+		verify(securityContextRepository).saveContext(contextArg.capture(), eq(request), eq(response));
+		assertThat(contextArg.getValue().getAuthentication().getPrincipal()).isEqualTo(authentication.getName());
 	}
 
 	// SEC-1592

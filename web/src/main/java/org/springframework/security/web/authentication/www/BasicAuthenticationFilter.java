@@ -36,6 +36,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -103,6 +105,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	private BasicAuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
 
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
+
 	/**
 	 * Creates an instance which will authenticate against the supplied
 	 * {@code AuthenticationManager} and which will ignore failed authentication attempts,
@@ -129,6 +133,18 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationManager = authenticationManager;
 		this.authenticationEntryPoint = authenticationEntryPoint;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	@Override
@@ -161,6 +177,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 				}
 				this.rememberMeServices.loginSuccess(request, response, authResult);
+				this.securityContextRepository.saveContext(context, request, response);
 				onSuccessfulAuthentication(request, response, authResult);
 			}
 		}
