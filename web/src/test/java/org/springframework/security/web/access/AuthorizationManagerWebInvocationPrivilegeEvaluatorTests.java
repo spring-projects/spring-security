@@ -65,4 +65,11 @@ public class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 		assertThat(allowed).isFalse();
 	}
 
+	@Test
+	public void isAllowedWhenAuthorizationManagerAbstainsThenAllowedTrue() {
+		given(this.authorizationManager.check(any(), any())).willReturn(null);
+		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
+		assertThat(allowed).isTrue();
+	}
+
 }
