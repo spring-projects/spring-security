@@ -51,7 +51,7 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator implement
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method);
 		AuthorizationDecision decision = this.authorizationManager.check(() -> authentication,
 				filterInvocation.getHttpRequest());
-		return decision != null && decision.isGranted();
+		return decision == null || decision.isGranted();
 	}
 
 }
