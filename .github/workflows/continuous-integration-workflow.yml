@@ -24,7 +24,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       runjobs: ${{ steps.continue.outputs.runjobs }}
+      project_version: ${{ steps.continue.outputs.project_version }}
     steps:
+      - uses: actions/checkout@v2
       - id: continue
         name: Determine if should continue
         if: env.RUN_JOBS == 'true'
