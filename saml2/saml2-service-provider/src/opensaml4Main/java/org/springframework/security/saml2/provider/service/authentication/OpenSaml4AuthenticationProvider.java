@@ -37,6 +37,7 @@ import org.apache.commons.logging.LogFactory;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
 import org.opensaml.core.xml.schema.XSBooleanValue;
@@ -57,13 +58,17 @@ import org.opensaml.saml.saml2.assertion.impl.DelegationRestrictionConditionVali
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Attribute;
 import org.opensaml.saml.saml2.core.AttributeStatement;
+import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Condition;
 import org.opensaml.saml.saml2.core.EncryptedAssertion;
 import org.opensaml.saml.saml2.core.OneTimeUse;
 import org.opensaml.saml.saml2.core.Response;
 import org.opensaml.saml.saml2.core.StatusCode;
+import org.opensaml.saml.saml2.core.Subject;
 import org.opensaml.saml.saml2.core.SubjectConfirmation;
+import org.opensaml.saml.saml2.core.SubjectConfirmationData;
+import org.opensaml.saml.saml2.core.impl.AuthnRequestUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
@@ -85,6 +90,7 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -349,6 +355,37 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		this.responseAuthenticationConverter = responseAuthenticationConverter;
 	}
 
+	private static Saml2ResponseValidatorResult validateInResponseTo(AbstractSaml2AuthenticationRequest storedRequest,
+			String inResponseTo) {
+		if (!StringUtils.hasText(inResponseTo)) {
+			return Saml2ResponseValidatorResult.success();
+		}
+		AuthnRequest request;
+		try {
+			request = parseRequest(storedRequest);
+		}
+		catch (Exception ex) {
+			String message = "The stored AuthNRequest could not be properly deserialized [" + ex.getMessage() + "]";
+			return Saml2ResponseValidatorResult
+					.failure(new Saml2Error(Saml2ErrorCodes.MALFORMED_REQUEST_DATA, message));
+		}
+		if (request == null) {
+			String message = "The response contained an InResponseTo attribute [" + inResponseTo + "]"
+					+ " but no saved AuthNRequest request was found";
+			return Saml2ResponseValidatorResult
+					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
+		}
+		else if (!request.getID().equals(inResponseTo)) {
+			String message = "The InResponseTo attribute [" + inResponseTo + "] does not match the ID of the "
+					+ "AuthNRequest [" + request.getID() + "]";
+			return Saml2ResponseValidatorResult
+					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
+		}
+		else {
+			return Saml2ResponseValidatorResult.success();
+		}
+	}
+
 	/**
 	 * Construct a default strategy for validating the SAML 2.0 Response
 	 * @return the default response validator strategy
@@ -365,6 +402,10 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 						response.getID());
 				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
 			}
+
+			String inResponseTo = response.getInResponseTo();
+			result = result.concat(validateInResponseTo(token.getAuthenticationRequest(), inResponseTo));
+
 			String issuer = response.getIssuer().getValue();
 			String destination = response.getDestination();
 			String location = token.getRelyingPartyRegistration().getAssertionConsumerServiceLocation();
@@ -447,7 +488,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		try {
 			Saml2AuthenticationToken token = (Saml2AuthenticationToken) authentication;
 			String serializedResponse = token.getSaml2Response();
-			Response response = parse(serializedResponse);
+			Response response = parseResponse(serializedResponse);
 			process(token, response);
 			AbstractAuthenticationToken authenticationResponse = this.responseAuthenticationConverter
 					.convert(new ResponseToken(response, token));
@@ -469,7 +510,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		return authentication != null && Saml2AuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private Response parse(String response) throws Saml2Exception, Saml2AuthenticationException {
+	private Response parseResponse(String response) throws Saml2Exception, Saml2AuthenticationException {
 		try {
 			Document document = this.parserPool
 					.parse(new ByteArrayInputStream(response.getBytes(StandardCharsets.UTF_8)));
@@ -479,6 +520,28 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		catch (Exception ex) {
 			throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_RESPONSE_DATA, ex.getMessage(), ex);
 		}
+	}
+
+	private static AuthnRequest parseRequest(AbstractSaml2AuthenticationRequest request) throws Exception {
+		if (request == null) {
+			return null;
+		}
+		String samlRequest = request.getSamlRequest();
+		if (!StringUtils.hasText(samlRequest)) {
+			return null;
+		}
+		if (request.getBinding() == Saml2MessageBinding.REDIRECT) {
+			samlRequest = Saml2Utils.samlInflate(Saml2Utils.samlDecode(samlRequest));
+		}
+		else {
+			samlRequest = new String(Saml2Utils.samlDecode(samlRequest), StandardCharsets.UTF_8);
+		}
+		Document document = XMLObjectProviderRegistrySupport.getParserPool()
+				.parse(new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)));
+		Element element = document.getDocumentElement();
+		AuthnRequestUnmarshaller unmarshaller = (AuthnRequestUnmarshaller) XMLObjectProviderRegistrySupport
+				.getUnmarshallerFactory().getUnmarshaller(AuthnRequest.DEFAULT_ELEMENT_NAME);
+		return (AuthnRequest) unmarshaller.unmarshall(element);
 	}
 
 	private void process(Saml2AuthenticationToken token, Response response) {
@@ -685,6 +748,30 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		};
 	}
 
+	private static boolean assertionContainsInResponseTo(Assertion assertion) {
+		Subject subject = (assertion != null) ? assertion.getSubject() : null;
+		List<SubjectConfirmation> confirmations = (subject != null) ? subject.getSubjectConfirmations()
+				: new ArrayList<>();
+		return confirmations.stream().filter((confirmation) -> {
+			SubjectConfirmationData confirmationData = confirmation.getSubjectConfirmationData();
+			return confirmationData != null && StringUtils.hasText(confirmationData.getInResponseTo());
+		}).findFirst().orElse(null) != null;
+	}
+
+	private static void addRequestIdToValidationContext(AbstractSaml2AuthenticationRequest storedRequest,
+			Map<String, Object> context) {
+		String requestId = null;
+		try {
+			AuthnRequest request = parseRequest(storedRequest);
+			requestId = (request != null) ? request.getID() : null;
+		}
+		catch (Exception ex) {
+		}
+		if (StringUtils.hasText(requestId)) {
+			context.put(SAML2AssertionValidationParameters.SC_VALID_IN_RESPONSE_TO, requestId);
+		}
+	}
+
 	private static ValidationContext createValidationContext(AssertionToken assertionToken,
 			Consumer<Map<String, Object>> paramsConsumer) {
 		RelyingPartyRegistration relyingPartyRegistration = assertionToken.token.getRelyingPartyRegistration();
@@ -692,6 +779,10 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		String recipient = relyingPartyRegistration.getAssertionConsumerServiceLocation();
 		String assertingPartyEntityId = relyingPartyRegistration.getAssertingPartyDetails().getEntityId();
 		Map<String, Object> params = new HashMap<>();
+		Assertion assertion = assertionToken.getAssertion();
+		if (assertionContainsInResponseTo(assertion)) {
+			addRequestIdToValidationContext(assertionToken.token.getAuthenticationRequest(), params);
+		}
 		params.put(SAML2AssertionValidationParameters.COND_VALID_AUDIENCES, Collections.singleton(audience));
 		params.put(SAML2AssertionValidationParameters.SC_VALID_RECIPIENTS, Collections.singleton(recipient));
 		params.put(SAML2AssertionValidationParameters.VALID_ISSUERS, Collections.singleton(assertingPartyEntityId));
@@ -731,13 +822,6 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 				protected ValidationResult validateAddress(SubjectConfirmation confirmation, Assertion assertion,
 						ValidationContext context, boolean required) {
 					// applications should validate their own addresses - gh-7514
-					return ValidationResult.VALID;
-				}
-
-				@Override
-				protected ValidationResult validateInResponseTo(SubjectConfirmation confirmation, Assertion assertion,
-						ValidationContext context, boolean required) {
-					// applications should validate their own in response to
 					return ValidationResult.VALID;
 				}
 			});

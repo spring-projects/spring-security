@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,13 @@ public interface Saml2ErrorCodes {
 	 * https://docs.oasis-open.org/security/saml/v2.0/saml-core-2.0-os.pdf#page=46
 	 */
 	String UNKNOWN_RESPONSE_CLASS = "unknown_response_class";
+
+	/**
+	 * The serialized AuthNRequest could not be deserialized correctly.
+	 *
+	 * @since 5.7
+	 */
+	String MALFORMED_REQUEST_DATA = "malformed_request_data";
 
 	/**
 	 * The response data is malformed or incomplete. An invalid XML object was received,
@@ -115,5 +122,12 @@ public interface Saml2ErrorCodes {
 	 * correspond to any relying party registration.
 	 */
 	String RELYING_PARTY_REGISTRATION_NOT_FOUND = "relying_party_registration_not_found";
+
+	/**
+	 * The InResponseTo content of the response does not match the ID of the AuthNRequest.
+	 *
+	 * @since 5.7
+	 */
+	String INVALID_IN_RESPONSE_TO = "invalid_in_response_to";
 
 }
