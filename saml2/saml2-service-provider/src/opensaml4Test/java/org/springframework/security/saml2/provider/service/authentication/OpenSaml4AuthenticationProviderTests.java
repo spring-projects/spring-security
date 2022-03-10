@@ -39,6 +39,7 @@ import org.opensaml.core.xml.io.Marshaller;
 import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.core.xml.schema.XSDateTime;
 import org.opensaml.core.xml.schema.impl.XSDateTimeBuilder;
+import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.common.assertion.ValidationContext;
 import org.opensaml.saml.saml2.assertion.SAML2AssertionValidationParameters;
 import org.opensaml.saml.saml2.core.Assertion;
@@ -144,9 +145,7 @@ public class OpenSaml4AuthenticationProviderTests {
 	public void authenticateWhenInvalidDestinationThenThrowAuthenticationException() {
 		Response response = response(DESTINATION + "invalid", ASSERTING_PARTY_ENTITY_ID);
 		response.getAssertions().add(assertion());
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
 				.satisfies(errorOf(Saml2ErrorCodes.INVALID_DESTINATION));
@@ -176,9 +175,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		assertion.getSubject().getSubjectConfirmations().get(0).getSubjectConfirmationData()
 				.setNotOnOrAfter(Instant.now().minus(Duration.ofDays(3)));
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
@@ -190,9 +187,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = response();
 		Assertion assertion = assertion();
 		assertion.setSubject(null);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
@@ -204,9 +199,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = response();
 		Assertion assertion = assertion();
 		assertion.getSubject().getNameID().setValue(null);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
@@ -219,9 +212,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		assertion.getSubject().getSubjectConfirmations()
 				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		this.provider.authenticate(token);
 	}
@@ -232,9 +223,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		List<AttributeStatement> attributes = attributeStatements();
 		assertion.getAttributeStatements().addAll(attributes);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		Authentication authentication = this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
@@ -258,9 +247,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		AttributeStatement attribute = TestOpenSamlObjects.customAttributeStatement("Address",
 				TestCustomOpenSamlObjects.instance());
 		assertion.getAttributeStatements().add(attribute);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		Authentication authentication = this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
@@ -291,9 +278,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
 		this.provider.authenticate(token);
 	}
 
@@ -303,9 +288,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
 		this.provider.authenticate(token);
 	}
 
@@ -318,9 +301,7 @@ public class OpenSaml4AuthenticationProviderTests {
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		assertion.getSubject().setNameID(null);
 		assertion.getSubject().setEncryptedID(encryptedID);
-		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
 		this.provider.authenticate(token);
 	}
@@ -335,9 +316,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		statement.getEncryptedAttributes().add(attribute);
 		assertion.getAttributeStatements().add(statement);
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
 		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(token);
 		Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 		assertThat(principal.getAttribute("name")).containsExactly("value");
@@ -349,9 +328,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
 				.satisfies(errorOf(Saml2ErrorCodes.DECRYPTION_ERROR, "Failed to decrypt EncryptedData"));
@@ -363,9 +340,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion(),
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, registration()
+		Saml2AuthenticationToken token = token(signed(response), registration()
 				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential())));
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> this.provider.authenticate(token))
@@ -378,9 +353,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		assertion.getSubject().getSubjectConfirmations()
 				.forEach((sc) -> sc.getSubjectConfirmationData().setAddress("10.10.10.10"));
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		token.setDetails("some-details");
 		Authentication authentication = this.provider.authenticate(token);
@@ -395,9 +368,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedAssertion encryptedAssertion = TestOpenSamlObjects.encrypted(assertion,
 				TestSaml2X509Credentials.assertingPartyEncryptingCredential());
 		response.getEncryptedAssertions().add(encryptedAssertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, decrypting(verifying(registration())));
+		Saml2AuthenticationToken token = token(signed(response), decrypting(verifying(registration())));
 		Saml2Authentication authentication = (Saml2Authentication) this.provider.authenticate(token);
 		// the following code will throw an exception if authentication isn't serializable
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream(1024);
@@ -432,9 +403,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
 		assertion.getConditions().getConditions().add(oneTimeUse);
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		// @formatter:off
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> provider.authenticate(token)).isInstanceOf(Saml2AuthenticationException.class)
@@ -456,9 +425,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		given(validator.convert(any(OpenSaml4AuthenticationProvider.AssertionToken.class)))
 				.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
@@ -475,9 +442,7 @@ public class OpenSaml4AuthenticationProviderTests {
 				RELYING_PARTY_ENTITY_ID); // broken
 		// signature
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		// @formatter:off
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
 				.isThrownBy(() -> provider.authenticate(token))
@@ -496,9 +461,7 @@ public class OpenSaml4AuthenticationProviderTests {
 				OpenSaml4AuthenticationProvider.createDefaultAssertionValidator((assertionToken) -> context));
 		Response response = response();
 		Assertion assertion = assertion();
-		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		// @formatter:off
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
@@ -570,13 +533,12 @@ public class OpenSaml4AuthenticationProviderTests {
 	public void authenticateWhenCustomResponseElementsDecrypterThenDecryptsResponse() {
 		Response response = response();
 		Assertion assertion = assertion();
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
 		response.getEncryptedAssertions().add(new EncryptedAssertionBuilder().buildObject());
 		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
 				RELYING_PARTY_ENTITY_ID);
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
-		this.provider.setResponseElementsDecrypter((tuple) -> tuple.getResponse().getAssertions().add(assertion));
+		this.provider
+				.setResponseElementsDecrypter((tuple) -> tuple.getResponse().getAssertions().add(signed(assertion)));
 		Authentication authentication = this.provider.authenticate(token);
 		assertThat(authentication.getName()).isEqualTo("test@saml.user");
 	}
@@ -588,9 +550,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		EncryptedID id = new EncryptedIDBuilder().buildObject();
 		id.setEncryptedData(new EncryptedDataBuilder().buildObject());
 		assertion.getSubject().setEncryptedID(id);
-		TestOpenSamlObjects.signed(assertion, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				RELYING_PARTY_ENTITY_ID);
-		response.getAssertions().add(assertion);
+		response.getAssertions().add(signed(assertion));
 		Saml2AuthenticationToken token = token(response, verifying(registration()));
 		this.provider.setAssertionElementsDecrypter((tuple) -> {
 			NameID name = new NameIDBuilder().buildObject();
@@ -639,9 +599,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Response response = response();
 		Assertion assertion = assertion();
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		given(validator.convert(any(OpenSaml4AuthenticationProvider.ResponseToken.class)))
 				.willReturn(Saml2ResponseValidatorResult.success());
 		provider.authenticate(token);
@@ -655,9 +613,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		Assertion assertion = assertion();
 		assertion.setIssuer(TestOpenSamlObjects.issuer("https://invalid.idp.test/saml2/idp"));
 		response.getAssertions().add(assertion);
-		TestOpenSamlObjects.signed(response, TestSaml2X509Credentials.assertingPartySigningCredential(),
-				ASSERTING_PARTY_ENTITY_ID);
-		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
 		assertThatExceptionOfType(Saml2AuthenticationException.class).isThrownBy(() -> provider.authenticate(token))
 				.withMessageContaining("did not match any valid issuers");
 	}
@@ -714,6 +670,12 @@ public class OpenSaml4AuthenticationProviderTests {
 		conditions.setNotBefore(Instant.now().minus(Duration.ofMillis(5 * 60 * 1000)));
 		conditions.setNotOnOrAfter(Instant.now().plus(Duration.ofMillis(5 * 60 * 1000)));
 		return assertion;
+	}
+
+	private <T extends SignableSAMLObject> T signed(T toSign) {
+		TestOpenSamlObjects.signed(toSign, TestSaml2X509Credentials.assertingPartySigningCredential(),
+				RELYING_PARTY_ENTITY_ID);
+		return toSign;
 	}
 
 	private List<AttributeStatement> attributeStatements() {
