@@ -139,7 +139,9 @@ class OpenSamlMetadataAssertingPartyDetailsConverter {
 				continue;
 			}
 			party.singleSignOnServiceLocation(singleSignOnService.getLocation()).singleSignOnServiceBinding(binding);
-			break;
+			if (binding.equals(Saml2MessageBinding.REDIRECT)) {
+				break;
+			}
 		}
 		for (SingleLogoutService singleLogoutService : idpssoDescriptor.getSingleLogoutServices()) {
 			Saml2MessageBinding binding;
@@ -156,7 +158,9 @@ class OpenSamlMetadataAssertingPartyDetailsConverter {
 					? singleLogoutService.getLocation() : singleLogoutService.getResponseLocation();
 			party.singleLogoutServiceLocation(singleLogoutService.getLocation())
 					.singleLogoutServiceResponseLocation(responseLocation).singleLogoutServiceBinding(binding);
-			break;
+			if (binding.equals(Saml2MessageBinding.REDIRECT)) {
+				break;
+			}
 		}
 		return party;
 	}

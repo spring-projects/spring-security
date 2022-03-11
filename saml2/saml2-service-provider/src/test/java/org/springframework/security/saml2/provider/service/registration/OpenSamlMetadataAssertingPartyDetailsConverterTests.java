@@ -54,8 +54,10 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 	private static final String EXTENSIONS_TEMPLATE = "<md:Extensions>" + "<alg:SigningMethod Algorithm=\""
 			+ SignatureConstants.ALGO_ID_DIGEST_SHA512 + "\"/>" + "</md:Extensions>";
 
-	private static final String SINGLE_SIGN_ON_SERVICE_TEMPLATE = "<md:SingleSignOnService Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\" "
-			+ "Location=\"sso-location\"/>";
+	private static final String SINGLE_SIGN_ON_SERVICE_TEMPLATE = "<md:SingleSignOnService Binding=\"%s\" Location=\"sso-location\"/>";
+
+	private static final String SINGLE_LOGOUT_SERVICE_TEMPLATE = "<md:SingleLogoutService Binding=\"%s\" "
+			+ "Location=\"logout-location\" ResponseLocation=\"logout-response-location\"/>";
 
 	private OpenSamlMetadataAssertingPartyDetailsConverter converter;
 
@@ -94,10 +96,10 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 	@Test
 	public void readWhenDescriptorFullySpecifiedThenConfigures() throws Exception {
 		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
-				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
-						String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
-								+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
-								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
+						+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"") + EXTENSIONS_TEMPLATE
+						+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())
+						+ String.format(SINGLE_LOGOUT_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
 				.build();
@@ -105,6 +107,9 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		assertThat(details.getSigningAlgorithms()).containsExactly(SignatureConstants.ALGO_ID_DIGEST_SHA512);
 		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
 		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+		assertThat(details.getSingleLogoutServiceLocation()).isEqualTo("logout-location");
+		assertThat(details.getSingleLogoutServiceResponseLocation()).isEqualTo("logout-response-location");
+		assertThat(details.getSingleLogoutServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(details.getEntityId()).isEqualTo("entity-id");
 		assertThat(details.getVerificationX509Credentials()).hasSize(1);
 		assertThat(details.getVerificationX509Credentials().iterator().next().getCertificate())
@@ -122,12 +127,10 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 	// gh-9051
 	@Test
 	public void readWhenEntitiesDescriptorThenConfigures() throws Exception {
-		String payload = String.format(ENTITIES_DESCRIPTOR_TEMPLATE,
-				String.format(ENTITY_DESCRIPTOR_TEMPLATE,
-						String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
-								String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
-										+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
-										+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE))));
+		String payload = String.format(ENTITIES_DESCRIPTOR_TEMPLATE, String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"signing\"")
+						+ String.format(KEY_DESCRIPTOR_TEMPLATE, "use=\"encryption\"")
+						+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn()))));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
 				.build();
@@ -145,8 +148,9 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 
 	@Test
 	public void readWhenKeyDescriptorHasNoUseThenConfiguresBothKeyTypes() throws Exception {
-		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE, String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
-				String.format(KEY_DESCRIPTOR_TEMPLATE, "") + String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE)));
+		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE, String.format(KEY_DESCRIPTOR_TEMPLATE, "")
+						+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())));
 		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
 		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
 				.build();
@@ -155,6 +159,38 @@ public class OpenSamlMetadataAssertingPartyDetailsConverterTests {
 		assertThat(details.getEncryptionX509Credentials()).hasSize(1);
 		assertThat(details.getEncryptionX509Credentials().iterator().next().getCertificate())
 				.isEqualTo(x509Certificate(CERTIFICATE));
+	}
+
+	@Test
+	public void readWhenSSOBindingSupportsPostAndRedirectThenConfiguresRedirect() throws Exception {
+		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "")
+								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.POST.getUrn())
+								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())
+								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.POST.getUrn())));
+		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
+				.build();
+		assertThat(details.getSingleSignOnServiceLocation()).isEqualTo("sso-location");
+		assertThat(details.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+	}
+
+	@Test
+	public void readWhenLogoutBindingSupportsPostAndRedirectThenConfiguresRedirect() throws Exception {
+		String payload = String.format(ENTITY_DESCRIPTOR_TEMPLATE,
+				String.format(IDP_SSO_DESCRIPTOR_TEMPLATE,
+						String.format(KEY_DESCRIPTOR_TEMPLATE, "")
+								+ String.format(SINGLE_SIGN_ON_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())
+								+ String.format(SINGLE_LOGOUT_SERVICE_TEMPLATE, Saml2MessageBinding.POST.getUrn())
+								+ String.format(SINGLE_LOGOUT_SERVICE_TEMPLATE, Saml2MessageBinding.REDIRECT.getUrn())
+								+ String.format(SINGLE_LOGOUT_SERVICE_TEMPLATE, Saml2MessageBinding.POST.getUrn())));
+		InputStream inputStream = new ByteArrayInputStream(payload.getBytes());
+		RelyingPartyRegistration.AssertingPartyDetails details = this.converter.convert(inputStream).iterator().next()
+				.build();
+		assertThat(details.getSingleLogoutServiceLocation()).isEqualTo("logout-location");
+		assertThat(details.getSingleLogoutServiceResponseLocation()).isEqualTo("logout-response-location");
+		assertThat(details.getSingleLogoutServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
 	}
 
 	X509Certificate x509Certificate(String data) {
