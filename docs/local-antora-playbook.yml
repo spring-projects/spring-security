@@ -6,10 +6,10 @@ asciidoc:
     page-pagination: true
 content:
   sources:
-    - url: ../../spring-io/spring-generated-docs
-      branches: [spring-projects/spring-security/*]
-    - url: ../../spring-projects/spring-security
-      branches: [main,5.6.x,5.7.x]
+    - url: https://github.com/spring-io/spring-generated-docs
+      branches: [spring-projects/spring-security/5.7.x]
+    - url: ../
+      branches: HEAD
       start_path: docs
 urls:
   latest_version_segment_strategy: redirect:to
@@ -20,7 +20,7 @@ ui:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
 
-pipeline:
+antora:
   extensions:
+    - require: ./antora/extensions/version-fix.js
     - require: ./antora/extensions/major-minor-segment.js
-    - require: ./antora/extensions/root-component-name.js

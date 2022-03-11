@@ -3,8 +3,8 @@
 
 const { posix: path } = require('path')
 
-module.exports.register = (pipeline, { config }) => {
-    pipeline.on('contentClassified', ({ contentCatalog }) => {
+module.exports.register = function({ config }) {
+    this.on('contentClassified', ({ contentCatalog }) => {
         contentCatalog.getComponents().forEach(component => {
             const componentName = component.name;
             const generationToVersion = new Map();
