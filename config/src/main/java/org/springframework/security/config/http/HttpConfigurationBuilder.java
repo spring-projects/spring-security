@@ -202,6 +202,7 @@ class HttpConfigurationBuilder {
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
 		createCsrfFilter();
+		createSecurityContextRepository();
 		createSecurityContextPersistenceFilter();
 		createSessionManagementFilters();
 		createWebAsyncManagerFilter();
@@ -280,17 +281,29 @@ class HttpConfigurationBuilder {
 
 	private void createSecurityContextPersistenceFilter() {
 		BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
+		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
+		switch (this.sessionPolicy) {
+		case ALWAYS:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+			break;
+		case NEVER:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+			break;
+		default:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+		}
+		scpf.addConstructorArgValue(this.contextRepoRef);
+
+		this.securityContextPersistenceFilter = scpf.getBeanDefinition();
+	}
+
+	private void createSecurityContextRepository() {
 		String repoRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
 		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
 		if (!StringUtils.hasText(disableUrlRewriting)) {
 			disableUrlRewriting = "true";
 		}
-		if (StringUtils.hasText(repoRef)) {
-			if (this.sessionPolicy == SessionCreationPolicy.ALWAYS) {
-				scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-			}
-		}
-		else {
+		if (!StringUtils.hasText(repoRef)) {
 			BeanDefinitionBuilder contextRepo;
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
 				contextRepo = BeanDefinitionBuilder.rootBeanDefinition(NullSecurityContextRepository.class);
@@ -300,15 +313,12 @@ class HttpConfigurationBuilder {
 				switch (this.sessionPolicy) {
 				case ALWAYS:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
 					break;
 				case NEVER:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
 					break;
 				default:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
 				}
 				if ("true".equals(disableUrlRewriting)) {
 					contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
@@ -320,9 +330,6 @@ class HttpConfigurationBuilder {
 		}
 
 		this.contextRepoRef = new RuntimeBeanReference(repoRef);
-		scpf.addConstructorArgValue(this.contextRepoRef);
-
-		this.securityContextPersistenceFilter = scpf.getBeanDefinition();
 	}
 
 	private void createSessionManagementFilters() {
