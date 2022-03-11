@@ -19,8 +19,6 @@ This also gives a good idea of the high level flow of authentication and how pie
 [[servlet-authentication-securitycontextholder]]
 == SecurityContextHolder
 
-Hi {figures} there
-
 At the heart of Spring Security's authentication model is the `SecurityContextHolder`.
 It contains the <<servlet-authentication-securitycontext>>.
 
