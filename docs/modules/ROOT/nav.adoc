@@ -36,6 +36,7 @@
 ***** xref:servlet/authentication/passwords/password-encoder.adoc[PasswordEncoder]
 ***** xref:servlet/authentication/passwords/dao-authentication-provider.adoc[DaoAuthenticationProvider]
 ***** xref:servlet/authentication/passwords/ldap.adoc[LDAP]
+*** xref:servlet/authentication/persistence.adoc[Persistence]
 *** xref:servlet/authentication/session-management.adoc[Session Management]
 *** xref:servlet/authentication/rememberme.adoc[Remember Me]
 *** xref:servlet/authentication/openid.adoc[OpenID]
