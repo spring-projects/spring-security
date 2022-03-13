@@ -101,7 +101,10 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun securityMatcher(vararg pattern: String) {
         val mvcPresent = ClassUtils.isPresent(
                 HANDLER_MAPPING_INTROSPECTOR,
-                AuthorizeRequestsDsl::class.java.classLoader)
+                AuthorizeRequestsDsl::class.java.classLoader) ||
+                ClassUtils.isPresent(
+                    HANDLER_MAPPING_INTROSPECTOR,
+                    AuthorizeHttpRequestsDsl::class.java.classLoader)
         this.http.requestMatchers {
             if (mvcPresent) {
                 it.mvcMatchers(*pattern)
@@ -196,6 +199,38 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     fun authorizeRequests(authorizeRequestsConfiguration: AuthorizeRequestsDsl.() -> Unit) {
         val authorizeRequestsCustomizer = AuthorizeRequestsDsl().apply(authorizeRequestsConfiguration).get()
         this.http.authorizeRequests(authorizeRequestsCustomizer)
+    }
+
+    /**
+     * Allows restricting access based upon the [HttpServletRequest]
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *      http {
+     *          authorizeHttpRequests {
+     *              authorize("/public", permitAll)
+     *              authorize(anyRequest, authenticated)
+     *          }
+     *      }
+     *      return http.build()
+     *  }
+     * }
+     * ```
+     *
+     * @param authorizeHttpRequestsConfiguration custom configuration that specifies
+     * access for requests
+     * @see [AuthorizeHttpRequestsDsl]
+     * @since 5.7
+     */
+    fun authorizeHttpRequests(authorizeHttpRequestsConfiguration: AuthorizeHttpRequestsDsl.() -> Unit) {
+        val authorizeHttpRequestsCustomizer = AuthorizeHttpRequestsDsl().apply(authorizeHttpRequestsConfiguration).get()
+        this.http.authorizeHttpRequests(authorizeHttpRequestsCustomizer)
     }
 
     /**
