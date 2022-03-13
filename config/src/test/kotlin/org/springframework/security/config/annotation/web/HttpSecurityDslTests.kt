@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,9 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import jakarta.servlet.Filter
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
+import org.springframework.security.web.SecurityFilterChain
 
 /**
  * Tests for [HttpSecurityDsl]
@@ -128,9 +131,13 @@ class HttpSecurityDslTests {
         }
     }
 
-    @Test
-    fun `request when it does not match the security request matcher then the security rules do not apply`() {
-        this.spring.register(SecurityRequestMatcherConfig::class.java).autowire()
+    @ParameterizedTest
+    @ValueSource(classes = [
+        SecurityRequestMatcherRequestsConfig::class,
+        SecurityRequestMatcherHttpRequestsConfig::class
+    ])
+    fun `request when it does not match the security request matcher then the security rules do not apply`(config: Class<*>) {
+        this.spring.register(config).autowire()
 
         this.mockMvc.get("/")
                 .andExpect {
@@ -138,9 +145,13 @@ class HttpSecurityDslTests {
                 }
     }
 
-    @Test
-    fun `request when it matches the security request matcher then the security rules apply`() {
-        this.spring.register(SecurityRequestMatcherConfig::class.java).autowire()
+    @ParameterizedTest
+    @ValueSource(classes = [
+        SecurityRequestMatcherRequestsConfig::class,
+        SecurityRequestMatcherHttpRequestsConfig::class
+    ])
+    fun `request when it matches the security request matcher then the security rules apply`(config: Class<*>) {
+        this.spring.register(config).autowire()
 
         this.mockMvc.get("/path")
                 .andExpect {
@@ -149,7 +160,7 @@ class HttpSecurityDslTests {
     }
 
     @EnableWebSecurity
-    open class SecurityRequestMatcherConfig : WebSecurityConfigurerAdapter() {
+    open class SecurityRequestMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
                 securityMatcher(RegexRequestMatcher("/path", null))
@@ -160,9 +171,27 @@ class HttpSecurityDslTests {
         }
     }
 
-    @Test
-    fun `request when it does not match the security pattern matcher then the security rules do not apply`() {
-        this.spring.register(SecurityPatternMatcherConfig::class.java).autowire()
+    @EnableWebSecurity
+    open class SecurityRequestMatcherHttpRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                securityMatcher(RegexRequestMatcher("/path", null))
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = [
+        SecurityPatternMatcherRequestsConfig::class,
+        SecurityPatternMatcherHttpRequestsConfig::class
+    ])
+    fun `request when it does not match the security pattern matcher then the security rules do not apply`(config: Class<*>) {
+        this.spring.register(config).autowire()
 
         this.mockMvc.get("/")
                 .andExpect {
@@ -170,9 +199,13 @@ class HttpSecurityDslTests {
                 }
     }
 
-    @Test
-    fun `request when it matches the security pattern matcher then the security rules apply`() {
-        this.spring.register(SecurityPatternMatcherConfig::class.java).autowire()
+    @ParameterizedTest
+    @ValueSource(classes = [
+        SecurityPatternMatcherRequestsConfig::class,
+        SecurityPatternMatcherHttpRequestsConfig::class
+    ])
+    fun `request when it matches the security pattern matcher then the security rules apply`(config: Class<*>) {
+        this.spring.register(config).autowire()
 
         this.mockMvc.get("/path")
                 .andExpect {
@@ -182,7 +215,7 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class SecurityPatternMatcherConfig : WebSecurityConfigurerAdapter() {
+    open class SecurityPatternMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
                 securityMatcher("/path")
@@ -193,9 +226,28 @@ class HttpSecurityDslTests {
         }
     }
 
-    @Test
-    fun `security pattern matcher when used with security request matcher then both apply`() {
-        this.spring.register(MultiMatcherConfig::class.java).autowire()
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class SecurityPatternMatcherHttpRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                securityMatcher("/path")
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = [
+        MultiMatcherRequestsConfig::class,
+        MultiMatcherHttpRequestsConfig::class
+    ])
+    fun `security pattern matcher when used with security request matcher then both apply`(config: Class<*>) {
+        this.spring.register(config).autowire()
 
         this.mockMvc.get("/path1")
                 .andExpect {
@@ -215,7 +267,7 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class MultiMatcherConfig : WebSecurityConfigurerAdapter() {
+    open class MultiMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
                 securityMatcher("/path1")
@@ -227,33 +279,68 @@ class HttpSecurityDslTests {
         }
     }
 
-    @Test
-    fun `authentication manager when configured in DSL then used`() {
-        this.spring.register(AuthenticationManagerConfig::class.java).autowire()
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class MultiMatcherHttpRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                securityMatcher("/path1")
+                securityMatcher(RegexRequestMatcher("/path2", null))
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(classes = [
+        AuthenticationManagerRequestsConfig::class,
+        AuthenticationManagerHttpRequestsConfig::class
+    ])
+    fun `authentication manager when configured in DSL then used`(config: Class<*>) {
+        this.spring.register(config).autowire()
         mockkObject(AuthenticationManagerConfig.AUTHENTICATION_MANAGER)
         every {
             AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any())
         } returns TestingAuthenticationToken("user", "test", "ROLE_USER")
-        val  request = MockMvcRequestBuilders.get("/")
+        val request = MockMvcRequestBuilders.get("/")
             .with(httpBasic("user", "password"))
         this.mockMvc.perform(request)
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
-    @EnableWebSecurity
-    open class AuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
-        companion object {
-            val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
-        }
+    object AuthenticationManagerConfig {
+        val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
+    }
 
+    @EnableWebSecurity
+    open class AuthenticationManagerRequestsConfig : WebSecurityConfigurerAdapter() {
         override fun configure(http: HttpSecurity) {
             http {
-                authenticationManager = AUTHENTICATION_MANAGER
+                authenticationManager = AuthenticationManagerConfig.AUTHENTICATION_MANAGER
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
                 httpBasic { }
             }
+        }
+    }
+
+    @EnableWebSecurity
+    open class AuthenticationManagerHttpRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authenticationManager = AuthenticationManagerConfig.AUTHENTICATION_MANAGER
+                authorizeHttpRequests {
+                    authorize(anyRequest, authenticated)
+                }
+                httpBasic { }
+            }
+            return http.build()
         }
     }
 
