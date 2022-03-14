@@ -113,11 +113,11 @@ public class CookieRequestCache implements RequestCache {
 		response.addCookie(removeSavedRequestCookie);
 	}
 
-	private static String encodeCookie(String cookieValue) {
+	protected String encodeCookie(String cookieValue) {
 		return Base64.getEncoder().encodeToString(cookieValue.getBytes());
 	}
 
-	private static String decodeCookie(String encodedCookieValue) {
+	protected String decodeCookie(String encodedCookieValue) {
 		return new String(Base64.getDecoder().decode(encodedCookieValue.getBytes()));
 	}
 
