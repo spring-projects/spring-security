@@ -39,5 +39,5 @@ dependencies {
 
 integrationTest {
 //	  exclude('**/OpenLDAPIntegrationTestSuite.class')
-	maxParallelForks = 1
+	maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 }
