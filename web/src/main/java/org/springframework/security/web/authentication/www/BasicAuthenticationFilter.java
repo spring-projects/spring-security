@@ -198,7 +198,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		chain.doFilter(request, response);
 	}
 
-	private boolean authenticationIsRequired(String username) {
+	protected boolean authenticationIsRequired(String username) {
 		// Only reauthenticate if username doesn't match SecurityContextHolder and user
 		// isn't authenticated (see SEC-53)
 		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
