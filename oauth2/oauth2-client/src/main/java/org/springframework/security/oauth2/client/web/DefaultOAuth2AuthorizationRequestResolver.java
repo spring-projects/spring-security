@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
-import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.web.util.UrlUtils;
@@ -70,14 +69,18 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	private static final char PATH_DELIMITER = '/';
 
+	private static final StringKeyGenerator DEFAULT_STATE_GENERATOR = new Base64StringKeyGenerator(
+			Base64.getUrlEncoder());
+
+	private static final StringKeyGenerator DEFAULT_SECURE_KEY_GENERATOR = new Base64StringKeyGenerator(
+			Base64.getUrlEncoder().withoutPadding(), 96);
+
+	private static final Consumer<OAuth2AuthorizationRequest.Builder> DEFAULT_PKCE_APPLIER = OAuth2AuthorizationRequestCustomizers
+			.withPkce();
+
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
 	private final AntPathRequestMatcher authorizationRequestMatcher;
-
-	private final StringKeyGenerator stateGenerator = new Base64StringKeyGenerator(Base64.getUrlEncoder());
-
-	private final StringKeyGenerator secureKeyGenerator = new Base64StringKeyGenerator(
-			Base64.getUrlEncoder().withoutPadding(), 96);
 
 	private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer = (customizer) -> {
 	};
@@ -100,7 +103,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	@Override
 	public OAuth2AuthorizationRequest resolve(HttpServletRequest request) {
-		String registrationId = this.resolveRegistrationId(request);
+		String registrationId = resolveRegistrationId(request);
 		if (registrationId == null) {
 			return null;
 		}
@@ -123,6 +126,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 	 * @param authorizationRequestCustomizer the {@code Consumer} to be provided the
 	 * {@link OAuth2AuthorizationRequest.Builder}
 	 * @since 5.3
+	 * @see OAuth2AuthorizationRequestCustomizers
 	 */
 	public void setAuthorizationRequestCustomizer(
 			Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer) {
@@ -147,9 +151,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		if (clientRegistration == null) {
 			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
 		}
-		Map<String, Object> attributes = new HashMap<>();
-		attributes.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId());
-		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration, attributes);
+		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 
 		String redirectUriStr = expandRedirectUri(request, clientRegistration, redirectUriAction);
 
@@ -158,8 +160,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 				.authorizationUri(clientRegistration.getProviderDetails().getAuthorizationUri())
 				.redirectUri(redirectUriStr)
 				.scopes(clientRegistration.getScopes())
-				.state(this.stateGenerator.generateKey())
-				.attributes(attributes);
+				.state(DEFAULT_STATE_GENERATOR.generateKey());
 		// @formatter:on
 
 		this.authorizationRequestCustomizer.accept(builder);
@@ -167,23 +168,24 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		return builder.build();
 	}
 
-	private OAuth2AuthorizationRequest.Builder getBuilder(ClientRegistration clientRegistration,
-			Map<String, Object> attributes) {
+	private OAuth2AuthorizationRequest.Builder getBuilder(ClientRegistration clientRegistration) {
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
-			OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode();
-			Map<String, Object> additionalParameters = new HashMap<>();
+			// @formatter:off
+			OAuth2AuthorizationRequest.Builder builder = OAuth2AuthorizationRequest.authorizationCode()
+					.attributes((attrs) ->
+							attrs.put(OAuth2ParameterNames.REGISTRATION_ID, clientRegistration.getRegistrationId()));
+			// @formatter:on
 			if (!CollectionUtils.isEmpty(clientRegistration.getScopes())
 					&& clientRegistration.getScopes().contains(OidcScopes.OPENID)) {
 				// Section 3.1.2.1 Authentication Request -
 				// https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest scope
 				// REQUIRED. OpenID Connect requests MUST contain the "openid" scope
 				// value.
-				addNonceParameters(attributes, additionalParameters);
+				applyNonce(builder);
 			}
 			if (ClientAuthenticationMethod.NONE.equals(clientRegistration.getClientAuthenticationMethod())) {
-				addPkceParameters(attributes, additionalParameters);
+				DEFAULT_PKCE_APPLIER.accept(builder);
 			}
-			builder.additionalParameters(additionalParameters);
 			return builder;
 		}
 		if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
@@ -252,54 +254,22 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 
 	/**
 	 * Creates nonce and its hash for use in OpenID Connect 1.0 Authentication Requests.
-	 * @param attributes where the {@link OidcParameterNames#NONCE} is stored for the
-	 * authentication request
-	 * @param additionalParameters where the {@link OidcParameterNames#NONCE} hash is
-	 * added for the authentication request
+	 * @param builder where the {@link OidcParameterNames#NONCE} and hash is stored for
+	 * the authentication request
 	 *
 	 * @since 5.2
 	 * @see <a target="_blank" href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#AuthRequest">3.1.2.1.
 	 * Authentication Request</a>
 	 */
-	private void addNonceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
+	private static void applyNonce(OAuth2AuthorizationRequest.Builder builder) {
 		try {
-			String nonce = this.secureKeyGenerator.generateKey();
+			String nonce = DEFAULT_SECURE_KEY_GENERATOR.generateKey();
 			String nonceHash = createHash(nonce);
-			attributes.put(OidcParameterNames.NONCE, nonce);
-			additionalParameters.put(OidcParameterNames.NONCE, nonceHash);
+			builder.attributes((attrs) -> attrs.put(OidcParameterNames.NONCE, nonce));
+			builder.additionalParameters((params) -> params.put(OidcParameterNames.NONCE, nonceHash));
 		}
 		catch (NoSuchAlgorithmException ex) {
-		}
-	}
-
-	/**
-	 * Creates and adds additional PKCE parameters for use in the OAuth 2.0 Authorization
-	 * and Access Token Requests
-	 * @param attributes where {@link PkceParameterNames#CODE_VERIFIER} is stored for the
-	 * token request
-	 * @param additionalParameters where {@link PkceParameterNames#CODE_CHALLENGE} and,
-	 * usually, {@link PkceParameterNames#CODE_CHALLENGE_METHOD} are added to be used in
-	 * the authorization request.
-	 *
-	 * @since 5.2
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-1.1">1.1.
-	 * Protocol Flow</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.1">4.1.
-	 * Client Creates a Code Verifier</a>
-	 * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-4.2">4.2.
-	 * Client Creates the Code Challenge</a>
-	 */
-	private void addPkceParameters(Map<String, Object> attributes, Map<String, Object> additionalParameters) {
-		String codeVerifier = this.secureKeyGenerator.generateKey();
-		attributes.put(PkceParameterNames.CODE_VERIFIER, codeVerifier);
-		try {
-			String codeChallenge = createHash(codeVerifier);
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeChallenge);
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE_METHOD, "S256");
-		}
-		catch (NoSuchAlgorithmException ex) {
-			additionalParameters.put(PkceParameterNames.CODE_CHALLENGE, codeVerifier);
 		}
 	}
 

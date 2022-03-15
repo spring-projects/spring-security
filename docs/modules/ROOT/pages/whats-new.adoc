@@ -4,5 +4,21 @@
 Spring Security 5.7 provides a number of new features.
 Below are the highlights of the release.
 
-* xref:servlet/authentication/persistence.adoc#requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`]
-* xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] - Ability to require explicit saving of the `SecurityContext`.
+[[whats-new-servlet]]
+== Servlet
+
+* Web
+
+** Introduced xref:servlet/authentication/persistence.adoc#requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`]
+** Introduced xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] - Ability to require explicit saving of the `SecurityContext`
+
+* OAuth 2.0 Client
+
+** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
+
+[[whats-new-webflux]]
+== WebFlux
+
+* OAuth 2.0 Client
+
+** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
