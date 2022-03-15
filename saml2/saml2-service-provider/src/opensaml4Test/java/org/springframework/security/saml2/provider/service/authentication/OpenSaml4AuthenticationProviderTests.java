@@ -252,7 +252,7 @@ public class OpenSaml4AuthenticationProviderTests {
 				Saml2MessageBinding.POST, true);
 		Saml2AuthenticationToken token = token(response, verifying(registration()), mockAuthenticationRequest);
 		assertThatExceptionOfType(Saml2AuthenticationException.class)
-				.isThrownBy(() -> this.provider.authenticate(token)).withStackTraceContaining("invalid_assertion");
+				.isThrownBy(() -> this.provider.authenticate(token)).withStackTraceContaining("malformed_request_data");
 	}
 
 	@Test
