@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.server;
 
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.function.Function;
@@ -26,6 +27,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -44,6 +46,8 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 
 	public static final String BASIC = "Basic ";
 
+	private Charset credentialsCharset = StandardCharsets.UTF_8;
+
 	@Override
 	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
@@ -53,7 +57,7 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 			return Mono.empty();
 		}
 		String credentials = (authorization.length() <= BASIC.length()) ? "" : authorization.substring(BASIC.length());
-		String decoded = new String(base64Decode(credentials), StandardCharsets.UTF_8);
+		String decoded = new String(base64Decode(credentials), this.credentialsCharset);
 		String[] parts = decoded.split(":", 2);
 		if (parts.length != 2) {
 			return Mono.empty();
@@ -68,6 +72,15 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 		catch (Exception ex) {
 			return new byte[0];
 		}
+	}
+
+	public Charset getCredentialsCharset() {
+		return this.credentialsCharset;
+	}
+
+	public void setCredentialsCharset(Charset credentialsCharset) {
+		Assert.notNull(credentialsCharset, "credentialsCharset cannot be null");
+		this.credentialsCharset = credentialsCharset;
 	}
 
 }

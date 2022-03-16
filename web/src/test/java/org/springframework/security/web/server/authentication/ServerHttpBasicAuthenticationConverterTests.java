@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
@@ -108,6 +110,28 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	public void applyWhenNonAsciiThenAuthentication() {
 		Mono<Authentication> result = apply(
 				this.request.header(HttpHeaders.AUTHORIZATION, "Basic w7xzZXI6cGFzc3fDtnJk"));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("üser");
+		assertThat(authentication.getCredentials()).isEqualTo("passwörd");
+	}
+
+	@Test
+	public void applyWhenIsoOnlyAsciiThenAuthentication() {
+		this.converter.setCredentialsCharset(StandardCharsets.ISO_8859_1);
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzd29yZA=="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("user");
+		assertThat(authentication.getCredentials()).isEqualTo("password");
+	}
+
+	@Test
+	public void applyWhenIsoNonAsciiThenAuthentication() {
+		this.converter.setCredentialsCharset(StandardCharsets.ISO_8859_1);
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic /HNlcjpwYXNzd/ZyZA=="));
 		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
 				.block();
 		assertThat(authentication.getPrincipal()).isEqualTo("üser");
