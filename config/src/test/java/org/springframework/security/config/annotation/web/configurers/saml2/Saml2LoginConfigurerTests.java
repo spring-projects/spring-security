@@ -45,6 +45,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -59,6 +60,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -68,6 +70,7 @@ import org.springframework.security.saml2.provider.service.authentication.Abstra
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
@@ -97,6 +100,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -111,6 +117,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -168,6 +175,19 @@ public class Saml2LoginConfigurerTests {
 		if (this.context != null) {
 			this.context.close();
 		}
+	}
+
+	@Test
+	public void saml2LoginWhenDefaultsThenSaml2AuthenticatedPrincipal() throws Exception {
+		this.spring.register(Saml2LoginConfig.class, ResourceController.class).autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc
+				.perform(post("/login/saml2/sso/registration-id")
+				.param("SAMLResponse", SIGNED_RESPONSE))
+				.andExpect(redirectedUrl("/")).andReturn().getRequest().getSession(false);
+		this.mvc.perform(get("/").session(session))
+				.andExpect(content().string("test@saml.user"));
+		// @formatter:on
 	}
 
 	@Test
@@ -253,10 +273,7 @@ public class Saml2LoginConfigurerTests {
 	@Test
 	public void authenticateWhenCustomAuthenticationConverterThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationConverter.class).autowire();
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = this.repository.findByRegistrationId("registration-id");
 		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(CustomAuthenticationConverter.authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
@@ -273,10 +290,7 @@ public class Saml2LoginConfigurerTests {
 		this.spring.register(CustomAuthenticationConverterBean.class).autowire();
 		Saml2AuthenticationTokenConverter authenticationConverter = this.spring.getContext()
 				.getBean(Saml2AuthenticationTokenConverter.class);
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = this.repository.findByRegistrationId("registration-id");
 		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
@@ -342,10 +356,7 @@ public class Saml2LoginConfigurerTests {
 	public void authenticateWhenCustomLoginProcessingUrlAndCustomAuthenticationConverterThenAuthenticate()
 			throws Exception {
 		this.spring.register(CustomLoginProcessingUrlCustomAuthenticationConverter.class).autowire();
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = this.repository.findByRegistrationId("registration-id");
 		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(AUTHENTICATION_CONVERTER.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
@@ -362,10 +373,7 @@ public class Saml2LoginConfigurerTests {
 		this.spring.register(CustomLoginProcessingUrlSaml2AuthenticationTokenConverterBean.class).autowire();
 		Saml2AuthenticationTokenConverter authenticationConverter = this.spring.getContext()
 				.getBean(Saml2AuthenticationTokenConverter.class);
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
+		RelyingPartyRegistration relyingPartyRegistration = this.repository.findByRegistrationId("registration-id");
 		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(authenticationConverter.convert(any(HttpServletRequest.class)))
 				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
@@ -422,6 +430,21 @@ public class Saml2LoginConfigurerTests {
 				return authentication.isAssignableFrom(Saml2AuthenticationToken.class);
 			}
 		};
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	@Import(Saml2LoginConfigBeans.class)
+	static class Saml2LoginConfig {
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.saml2Login(Customizer.withDefaults());
+
+			return http.build();
+		}
+
 	}
 
 	@EnableWebSecurity
@@ -766,10 +789,24 @@ public class Saml2LoginConfigurerTests {
 
 		@Bean
 		RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+			RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
+					.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartySigningCredential()))
+					.assertingPartyDetails((party) -> party.verificationX509Credentials(
+							(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+					.build();
 			RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
-			given(repository.findByRegistrationId(anyString()))
-					.willReturn(TestRelyingPartyRegistrations.relyingPartyRegistration().build());
+			given(repository.findByRegistrationId(anyString())).willReturn(registration);
 			return repository;
+		}
+
+	}
+
+	@RestController
+	static class ResourceController {
+
+		@GetMapping("/")
+		String user(@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal) {
+			return principal.getName();
 		}
 
 	}
