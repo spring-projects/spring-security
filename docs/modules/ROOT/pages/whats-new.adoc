@@ -21,6 +21,10 @@ Below are the highlights of the release.
 [[whats-new-webflux]]
 == WebFlux
 
+* Web
+
+** Allow customizing https://github.com/spring-projects/spring-security/issues/10903[charset] in `ServerHttpBasicAuthenticationConverter`
+
 * OAuth 2.0 Client
 
 ** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
