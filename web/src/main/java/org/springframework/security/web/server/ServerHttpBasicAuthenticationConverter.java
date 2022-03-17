@@ -74,11 +74,14 @@ public class ServerHttpBasicAuthenticationConverter implements Function<ServerWe
 		}
 	}
 
-	public Charset getCredentialsCharset() {
-		return this.credentialsCharset;
-	}
-
-	public void setCredentialsCharset(Charset credentialsCharset) {
+	/**
+	 * Sets the {@link Charset} used to decode the Base64-encoded bytes of the basic
+	 * authentication credentials. The default is <code>UTF_8</code>.
+	 * @param credentialsCharset the {@link Charset} used to decode the Base64-encoded
+	 * bytes of the basic authentication credentials
+	 * @since 5.7
+	 */
+	public final void setCredentialsCharset(Charset credentialsCharset) {
 		Assert.notNull(credentialsCharset, "credentialsCharset cannot be null");
 		this.credentialsCharset = credentialsCharset;
 	}
