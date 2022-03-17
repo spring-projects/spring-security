@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,83 +191,6 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.tokenResponseClient.addParametersConverter(jwtClientAuthenticationConverter);
 	}
 
-	// @Test
-	// public void
-	// getTokenResponseWhenRedirectUriMalformedThenThrowIllegalArgumentException() throws
-	// Exception {
-	// this.exception.expect(IllegalArgumentException.class);
-	//
-	// String redirectUri = "http:\\example.com";
-	// when(this.clientRegistration.getRedirectUri()).thenReturn(redirectUri);
-	//
-	// this.tokenResponseClient.getTokenResponse(
-	// new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration,
-	// this.authorizationExchange));
-	// }
-	//
-	// @Test
-	// public void
-	// getTokenResponseWhenTokenUriMalformedThenThrowIllegalArgumentException() throws
-	// Exception {
-	// this.exception.expect(IllegalArgumentException.class);
-	//
-	// String tokenUri = "http:\\provider.com\\oauth2\\token";
-	// when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
-	//
-	// this.tokenResponseClient.getTokenResponse(
-	// new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration,
-	// this.authorizationExchange));
-	// }
-	//
-	// @Test
-	// public void
-	// getTokenResponseWhenSuccessResponseInvalidThenThrowOAuth2AuthorizationException()
-	// throws Exception {
-	// this.exception.expect(OAuth2AuthorizationException.class);
-	// this.exception.expectMessage(containsString("invalid_token_response"));
-	//
-	// MockWebServer server = new MockWebServer();
-	//
-	// String accessTokenSuccessResponse = "{\n" +
-	// " \"access_token\": \"access-token-1234\",\n" +
-	// " \"token_type\": \"bearer\",\n" +
-	// " \"expires_in\": \"3600\",\n" +
-	// " \"scope\": \"openid profile\",\n" +
-	// " \"custom_parameter_1\": \"custom-value-1\",\n" +
-	// " \"custom_parameter_2\": \"custom-value-2\"\n";
-	// // "}\n"; // Make the JSON invalid/malformed
-	//
-	// server.enqueue(new MockResponse()
-	// .setHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-	// .setBody(accessTokenSuccessResponse));
-	// server.start();
-	//
-	// String tokenUri = server.url("/oauth2/token").toString();
-	// when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
-	//
-	// try {
-	// this.tokenResponseClient.getTokenResponse(
-	// new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration,
-	// this.authorizationExchange));
-	// } finally {
-	// server.shutdown();
-	// }
-	// }
-	//
-	// @Test
-	// public void
-	// getTokenResponseWhenTokenUriInvalidThenThrowAuthenticationServiceException() throws
-	// Exception {
-	// this.exception.expect(AuthenticationServiceException.class);
-	//
-	// String tokenUri = "https://invalid-provider.com/oauth2/token";
-	// when(this.providerDetails.getTokenUri()).thenReturn(tokenUri);
-	//
-	// this.tokenResponseClient.getTokenResponse(
-	// new OAuth2AuthorizationCodeGrantRequest(this.clientRegistration,
-	// this.authorizationExchange));
-	// }
-	//
 	@Test
 	public void getTokenResponseWhenErrorResponseThenThrowOAuth2AuthorizationException() {
 		String accessTokenErrorResponse = "{\n" + "   \"error\": \"unauthorized_client\"\n" + "}\n";
