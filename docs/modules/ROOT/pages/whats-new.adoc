@@ -15,6 +15,7 @@ Below are the highlights of the release.
 * OAuth 2.0 Client
 
 ** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
+** Allow configuring a https://github.com/spring-projects/spring-security/issues/9812[JWT assertion resolver] in `JwtBearerOAuth2AuthorizedClientProvider`
 
 [[whats-new-webflux]]
 == WebFlux
@@ -22,3 +23,4 @@ Below are the highlights of the release.
 * OAuth 2.0 Client
 
 ** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
+** Allow configuring a https://github.com/spring-projects/spring-security/issues/9812[JWT assertion resolver] in `JwtBearerReactiveOAuth2AuthorizedClientProvider`
