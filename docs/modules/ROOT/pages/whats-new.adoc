@@ -16,6 +16,7 @@ Below are the highlights of the release.
 
 ** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
 ** Allow configuring a https://github.com/spring-projects/spring-security/issues/9812[JWT assertion resolver] in `JwtBearerOAuth2AuthorizedClientProvider`
+** Allow customizing claims on https://github.com/spring-projects/spring-security/issues/9855[JWT client assertions]
 
 [[whats-new-webflux]]
 == WebFlux
