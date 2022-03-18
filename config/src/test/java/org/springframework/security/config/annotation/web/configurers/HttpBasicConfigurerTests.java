@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -33,13 +34,19 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -48,6 +55,7 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.cookie;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -116,6 +124,13 @@ public class HttpBasicConfigurerTests {
 		MockHttpServletRequestBuilder rememberMeRequest = get("/").with(httpBasic("user", "password"))
 				.param("remember-me", "true");
 		this.mvc.perform(rememberMeRequest).andExpect(cookie().exists("remember-me"));
+	}
+
+	@Test
+	public void httpBasicWhenDefaultsThenAcceptsBasicCredentials() throws Exception {
+		this.spring.register(HttpBasic.class, Users.class, Home.class).autowire();
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk())
+				.andExpect(content().string("user"));
 	}
 
 	@EnableWebSecurity
@@ -271,6 +286,37 @@ public class HttpBasicConfigurerTests {
 		public UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
+					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
+							.username("user")
+							.password("password")
+							.roles("USER")
+							.build()
+					// @formatter:on
+			);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class HttpBasic {
+
+		@Bean
+		SecurityFilterChain web(HttpSecurity http) throws Exception {
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.httpBasic(Customizer.withDefaults());
+
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	static class Users {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(
+			// @formatter:off
 					User.withDefaultPasswordEncoder()
 							.username("user")
 							.password("password")
@@ -278,6 +324,17 @@ public class HttpBasicConfigurerTests {
 							.build()
 					// @formatter:on
 			);
+		}
+
+	}
+
+	@EnableWebMvc
+	@RestController
+	static class Home {
+
+		@GetMapping("/")
+		String home(@AuthenticationPrincipal UserDetails user) {
+			return user.getUsername();
 		}
 
 	}
