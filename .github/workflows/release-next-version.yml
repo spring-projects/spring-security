@@ -2,7 +2,7 @@ name: Release Next Version
 
 on:
   schedule:
-    - cron: '0 13 * * MON' # Every Monday at 1pm UTC
+    - cron: '0 17 * * MON' # Every Monday at 5pm UTC
   workflow_dispatch: # Manual trigger
 
 env:
