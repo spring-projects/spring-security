@@ -22,8 +22,8 @@ dependencies {
 	testImplementation 'io.projectreactor.netty:reactor-netty'
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.skyscreamer:jsonassert'
-	testImplementation 'io.r2dbc:r2dbc-h2:0.9.0.RELEASE'
-	testImplementation 'io.r2dbc:r2dbc-spi-test:0.9.0.RELEASE'
+	testImplementation 'io.r2dbc:r2dbc-h2:0.9.1.RELEASE'
+	testImplementation 'io.r2dbc:r2dbc-spi-test:0.9.1.RELEASE'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
