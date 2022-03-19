@@ -18,8 +18,6 @@ package org.springframework.security.web.jackson2;
 
 import java.io.IOException;
 
-import jakarta.servlet.http.Cookie;
-
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -28,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.MissingNode;
 import com.fasterxml.jackson.databind.node.NullNode;
+import jakarta.servlet.http.Cookie;
 
 /**
  * Jackson deserializer for {@link Cookie}. This is needed because in most cases we don't

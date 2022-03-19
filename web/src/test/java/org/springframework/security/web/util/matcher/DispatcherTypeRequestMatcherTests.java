@@ -18,7 +18,6 @@ package org.springframework.security.web.util.matcher;
 
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;

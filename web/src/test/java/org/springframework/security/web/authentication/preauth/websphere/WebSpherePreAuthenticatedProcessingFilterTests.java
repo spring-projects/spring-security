@@ -17,7 +17,6 @@
 package org.springframework.security.web.authentication.preauth.websphere;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;

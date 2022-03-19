@@ -27,7 +27,6 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.FilterRegistration;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.SessionTrackingMode;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

@@ -19,7 +19,6 @@ package org.springframework.security.web.authentication.logout;
 import java.util.LinkedHashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -19,7 +19,6 @@ package org.springframework.security.oauth2.client.web;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

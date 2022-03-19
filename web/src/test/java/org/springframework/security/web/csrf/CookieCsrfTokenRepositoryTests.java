@@ -17,7 +17,6 @@
 package org.springframework.security.web.csrf;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -16,10 +16,9 @@
 
 package org.springframework.security.web.jackson2;
 
-import jakarta.servlet.http.Cookie;
-
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import jakarta.servlet.http.Cookie;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;

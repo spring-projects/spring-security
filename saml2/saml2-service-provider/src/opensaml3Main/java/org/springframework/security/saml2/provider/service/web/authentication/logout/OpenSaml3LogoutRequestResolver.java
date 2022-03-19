@@ -20,7 +20,6 @@ import java.time.Clock;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.joda.time.DateTime;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 

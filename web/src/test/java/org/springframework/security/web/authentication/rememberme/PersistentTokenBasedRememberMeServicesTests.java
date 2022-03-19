@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

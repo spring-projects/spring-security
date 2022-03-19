@@ -17,7 +17,6 @@
 package org.springframework.security.web;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpStatus;

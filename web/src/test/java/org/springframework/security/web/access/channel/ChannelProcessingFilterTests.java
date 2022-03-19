@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;

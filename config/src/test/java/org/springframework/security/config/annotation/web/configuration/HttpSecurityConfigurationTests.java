@@ -19,9 +19,8 @@ package org.springframework.security.config.annotation.web.configuration;
 import java.util.Arrays;
 import java.util.concurrent.Callable;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import com.google.common.net.HttpHeaders;
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
