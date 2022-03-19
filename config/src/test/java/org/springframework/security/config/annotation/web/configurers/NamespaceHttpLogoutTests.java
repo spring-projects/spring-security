@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpSession;
-
 import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

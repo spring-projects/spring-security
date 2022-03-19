@@ -21,7 +21,6 @@ import java.util.Collections;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.web.header.HeaderWriter;

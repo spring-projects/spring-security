@@ -17,7 +17,6 @@
 package org.springframework.security.web.header.writers.frameoptions;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

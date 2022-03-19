@@ -23,7 +23,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

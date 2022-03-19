@@ -22,7 +22,6 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

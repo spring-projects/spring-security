@@ -19,7 +19,6 @@ package org.springframework.security.web.access;
 import java.util.Collection;
 
 import jakarta.servlet.ServletContext;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 

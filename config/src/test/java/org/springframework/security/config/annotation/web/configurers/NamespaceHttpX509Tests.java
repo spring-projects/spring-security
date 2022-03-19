@@ -24,7 +24,6 @@ import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.jupiter.api.Test;

@@ -17,7 +17,6 @@
 package org.springframework.security.web.authentication.www;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

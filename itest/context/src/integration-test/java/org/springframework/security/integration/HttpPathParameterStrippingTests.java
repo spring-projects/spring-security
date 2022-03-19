@@ -17,7 +17,6 @@
 package org.springframework.security.integration;
 
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 

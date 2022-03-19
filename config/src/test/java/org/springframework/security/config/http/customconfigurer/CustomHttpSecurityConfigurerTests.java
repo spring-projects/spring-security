@@ -19,7 +19,6 @@ package org.springframework.security.config.http.customconfigurer;
 import java.util.Properties;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

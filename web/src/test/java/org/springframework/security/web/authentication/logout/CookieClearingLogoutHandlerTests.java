@@ -17,7 +17,6 @@
 package org.springframework.security.web.authentication.logout;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;

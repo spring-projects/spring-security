@@ -22,7 +22,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;

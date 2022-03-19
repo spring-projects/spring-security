@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;

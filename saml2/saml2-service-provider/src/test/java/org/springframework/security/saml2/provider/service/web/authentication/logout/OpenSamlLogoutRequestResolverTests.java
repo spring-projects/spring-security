@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.saml2.core.LogoutRequest;
