@@ -11,7 +11,7 @@ dependencies {
 	api platform("io.projectreactor:reactor-bom:2020.0.17")
 	api platform("io.rsocket:rsocket-bom:1.1.1")
 	api platform("org.junit:junit-bom:5.8.2")
-	api platform("org.springframework.data:spring-data-bom:2022.0.0-M1")
+	api platform("org.springframework.data:spring-data-bom:2022.0.0-M2")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0")
 	api platform("com.fasterxml.jackson:jackson-bom:2.13.2")
