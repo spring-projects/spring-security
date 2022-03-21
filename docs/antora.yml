@@ -1,5 +1,4 @@
 
 name: ROOT
-version: '6.0.0-M2'
-prerelease: 'true'
-display_version: '6.0.0-M2'
+version: '6.0.0'
+prerelease: '-SNAPSHOT'
