@@ -65,7 +65,7 @@ dependencies {
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-impl:$openSamlVersion"
 		api "org.python:jython:2.5.3"
-		api "org.seleniumhq.selenium:htmlunit-driver:2.58.0"
+		api "org.seleniumhq.selenium:htmlunit-driver:2.60.0"
 		api "org.seleniumhq.selenium:selenium-java:3.141.59"
 		api "org.seleniumhq.selenium:selenium-support:3.141.59"
 		api "org.skyscreamer:jsonassert:1.5.0"
