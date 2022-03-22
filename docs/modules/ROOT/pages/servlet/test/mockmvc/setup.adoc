@@ -17,7 +17,7 @@ To do so, use Spring Security's `SecurityMockMvcConfigurers.springSecurity()`:
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = SecurityConfig.class)
 @WebAppConfiguration
 public class CsrfShowcaseTests {
@@ -27,7 +27,7 @@ public class CsrfShowcaseTests {
 
 	private MockMvc mvc;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		mvc = MockMvcBuilders
 				.webAppContextSetup(context)
@@ -41,7 +41,7 @@ public class CsrfShowcaseTests {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@RunWith(SpringJUnit4ClassRunner::class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = [SecurityConfig::class])
 @WebAppConfiguration
 class CsrfShowcaseTests {
@@ -51,7 +51,7 @@ class CsrfShowcaseTests {
 
     private var mvc: MockMvc? = null
 
-    @Before
+    @BeforeEach
     fun setup() {
         mvc = MockMvcBuilders
             .webAppContextSetup(context)

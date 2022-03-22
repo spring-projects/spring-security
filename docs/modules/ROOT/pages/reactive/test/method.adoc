@@ -8,7 +8,7 @@ The following minimal sample shows what we can do:
 .Java
 [source,java,role="primary"]
 ----
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
 public class HelloWorldMessageServiceTests {
 	@Autowired
@@ -42,7 +42,7 @@ public class HelloWorldMessageServiceTests {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@RunWith(SpringRunner::class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = [HelloWebfluxMethodApplication::class])
 class HelloWorldMessageServiceTests {
     @Autowired
