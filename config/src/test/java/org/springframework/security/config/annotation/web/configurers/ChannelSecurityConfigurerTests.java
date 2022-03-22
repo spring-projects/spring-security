@@ -25,6 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,11 +35,13 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.PortMapperImpl;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.access.channel.InsecureChannelProcessor;
 import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
@@ -104,6 +108,24 @@ public class ChannelSecurityConfigurerTests {
 	public void requestWhenRequiresChannelConfiguredWithUrlRedirectThenRedirectsToUrlWithHttps() throws Exception {
 		this.spring.register(RequiresChannelWithTestUrlRedirectStrategy.class).autowire();
 		this.mvc.perform(get("/")).andExpect(redirectedUrl("https://localhost/test"));
+	}
+
+	// gh-10956
+	@Test
+	public void requestWhenRequiresChannelWithMultiMvcMatchersThenRedirectsToHttps() throws Exception {
+		this.spring.register(RequiresChannelMultiMvcMatchersConfig.class).autowire();
+		this.mvc.perform(get("/test-1")).andExpect(redirectedUrl("https://localhost/test-1"));
+		this.mvc.perform(get("/test-2")).andExpect(redirectedUrl("https://localhost/test-2"));
+		this.mvc.perform(get("/test-3")).andExpect(redirectedUrl("https://localhost/test-3"));
+	}
+
+	// gh-10956
+	@Test
+	public void requestWhenRequiresChannelWithMultiMvcMatchersInLambdaThenRedirectsToHttps() throws Exception {
+		this.spring.register(RequiresChannelMultiMvcMatchersInLambdaConfig.class).autowire();
+		this.mvc.perform(get("/test-1")).andExpect(redirectedUrl("https://localhost/test-1"));
+		this.mvc.perform(get("/test-2")).andExpect(redirectedUrl("https://localhost/test-2"));
+		this.mvc.perform(get("/test-3")).andExpect(redirectedUrl("https://localhost/test-3"));
 	}
 
 	@EnableWebSecurity
@@ -195,6 +217,61 @@ public class ChannelSecurityConfigurerTests {
 			String redirectUrl = url + "test";
 			redirectUrl = response.encodeRedirectURL(redirectUrl);
 			response.sendRedirect(redirectUrl);
+		}
+
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class RequiresChannelMultiMvcMatchersConfig {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.portMapper()
+					.portMapper(new PortMapperImpl())
+					.and()
+				.requiresChannel()
+					.mvcMatchers("/test-1")
+						.requiresSecure()
+					.mvcMatchers("/test-2")
+						.requiresSecure()
+					.mvcMatchers("/test-3")
+						.requiresSecure()
+					.anyRequest()
+						.requiresInsecure();
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@EnableWebMvc
+	static class RequiresChannelMultiMvcMatchersInLambdaConfig {
+
+		@Bean
+		@Order(Ordered.HIGHEST_PRECEDENCE)
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.portMapper((port) -> port
+					.portMapper(new PortMapperImpl())
+				)
+				.requiresChannel((channel) -> channel
+					.mvcMatchers("/test-1")
+						.requiresSecure()
+					.mvcMatchers("/test-2")
+						.requiresSecure()
+					.mvcMatchers("/test-3")
+						.requiresSecure()
+					.anyRequest()
+						.requiresInsecure()
+				);
+			// @formatter:on
+			return http.build();
 		}
 
 	}

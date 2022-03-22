@@ -3078,20 +3078,26 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public final class MvcMatchersRequestMatcherConfigurer extends RequestMatcherConfigurer {
 
+		private final List<MvcRequestMatcher> mvcMatchers;
+
 		/**
 		 * Creates a new instance
 		 * @param context the {@link ApplicationContext} to use
-		 * @param matchers the {@link MvcRequestMatcher} instances to set the servlet path
-		 * on if {@link #servletPath(String)} is set.
+		 * @param mvcMatchers the {@link MvcRequestMatcher} instances to set the servlet
+		 * path on if {@link #servletPath(String)} is set.
+		 * @param allMatchers the {@link RequestMatcher} instances to continue the
+		 * configuration
 		 */
-		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context, List<MvcRequestMatcher> matchers) {
+		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context, List<MvcRequestMatcher> mvcMatchers,
+				List<RequestMatcher> allMatchers) {
 			super(context);
-			this.matchers = new ArrayList<>(matchers);
+			this.mvcMatchers = new ArrayList<>(mvcMatchers);
+			this.matchers = allMatchers;
 		}
 
 		public RequestMatcherConfigurer servletPath(String servletPath) {
-			for (RequestMatcher matcher : this.matchers) {
-				((MvcRequestMatcher) matcher).setServletPath(servletPath);
+			for (MvcRequestMatcher matcher : this.mvcMatchers) {
+				matcher.setServletPath(servletPath);
 			}
 			return this;
 		}
@@ -3116,7 +3122,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			setMatchers(mvcMatchers);
-			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers);
+			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers, this.matchers);
 		}
 
 		@Override
