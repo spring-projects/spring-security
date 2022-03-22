@@ -49,7 +49,7 @@ Before we can use Spring Security Test support, we must perform some setup. An e
 .Java
 [source,java,role="primary"]
 ----
-@RunWith(SpringJUnit4ClassRunner.class) // <1>
+@ExtendWith(SpringExtension.class) // <1>
 @ContextConfiguration // <2>
 public class WithMockUserTests {
 ----
@@ -57,15 +57,14 @@ public class WithMockUserTests {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@RunWith(SpringJUnit4ClassRunner::class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 class WithMockUserTests {
 ----
-====
 
 This is a basic example of how to setup Spring Security Test. The highlights are:
 
-<1> `@RunWith` instructs the spring-test module that it should create an `ApplicationContext`. This is no different than using the existing Spring Test support. For additional information, refer to the https://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#integration-testing-annotations-standard[Spring Reference]
+<1> `@ExtendWith` instructs the spring-test module that it should create an `ApplicationContext`. For additional information refer to https://docs.spring.io/spring-framework/docs/current/reference/html/testing.html#testcontext-junit-jupiter-extension[Spring reference].
 <2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the https://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference]
 
 NOTE: Spring Security hooks into Spring Test support using the `WithSecurityContextTestExecutionListener` which will ensure our tests are ran with the correct user.
@@ -225,7 +224,7 @@ For example, the following would run every test with a user with the username "a
 .Java
 [source,java,role="primary"]
 ----
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WithMockUser(username="admin",roles={"USER","ADMIN"})
 public class WithMockUserTests {
@@ -234,7 +233,7 @@ public class WithMockUserTests {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@RunWith(SpringJUnit4ClassRunner::class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration
 @WithMockUser(username="admin",roles=["USER","ADMIN"])
 class WithMockUserTests {
@@ -304,7 +303,7 @@ For example, the following will run withMockUser1 and withMockUser2 using <<test
 .Java
 [source,java,role="primary"]
 ----
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @WithMockUser
 public class WithUserClassLevelAuthenticationTests {
 
@@ -327,7 +326,7 @@ public class WithUserClassLevelAuthenticationTests {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@RunWith(SpringJUnit4ClassRunner::class)
+@ExtendWith(SpringExtension.class)
 @WithMockUser
 class WithUserClassLevelAuthenticationTests {
     @Test
