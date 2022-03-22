@@ -91,6 +91,7 @@ function createSymbolicVersionAlias (component, version, symbolicVersionSegment,
 
 function computeOut (src, family, version, htmlUrlExtensionStyle) {
     let { component, module: module_, basename, extname, relative, stem } = src
+    if (component === 'ROOT') component = ''
     if (module_ === 'ROOT') module_ = ''
     let indexifyPathSegment = ''
     let familyPathSegment = ''
@@ -120,8 +121,11 @@ function computePub (src, out, family, version, htmlUrlExtensionStyle) {
     const pub = {}
     let url
     if (family === 'nav') {
-        const urlSegments = version ? [src.component, version] : [src.component]
-        if (src.module && src.module !== 'ROOT') urlSegments.push(src.module)
+        const component = src.component || 'ROOT'
+        const urlSegments = component === 'ROOT' ? [] : [component]
+        if (version) urlSegments.push(version)
+        const module_ = src.module || 'ROOT'
+        if (module_ !== 'ROOT') urlSegments.push(module_)
         // an artificial URL used for resolving page references in navigation model
         url = '/' + urlSegments.join('/') + '/'
         pub.moduleRootPath = '.'
