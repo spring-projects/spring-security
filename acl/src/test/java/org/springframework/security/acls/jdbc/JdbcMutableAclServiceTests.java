@@ -48,7 +48,10 @@ import org.springframework.security.acls.model.Sid;
 import org.springframework.security.acls.sid.CustomSid;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.transaction.AfterTransaction;
@@ -59,7 +62,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 /**
  * Integration tests the ACL system using an in-memory database.
@@ -348,6 +353,19 @@ public class JdbcMutableAclServiceTests {
 		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 101);
 		this.jdbcMutableAclService.createAcl(oid);
 		assertThat(this.jdbcMutableAclService.readAclById(new ObjectIdentityImpl(TARGET_CLASS, 101L))).isNotNull();
+	}
+
+	@Test
+	@Transactional
+	public void createAclWhenCustomSecurityContextHolderStrategyThenUses() {
+		SecurityContextHolderStrategy securityContextHolderStrategy = mock(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(this.auth);
+		given(securityContextHolderStrategy.getContext()).willReturn(context);
+		JdbcMutableAclService service = new JdbcMutableAclService(this.dataSource, this.lookupStrategy, this.aclCache);
+		service.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		ObjectIdentity oid = new ObjectIdentityImpl(TARGET_CLASS, 101);
+		service.createAcl(oid);
+		verify(securityContextHolderStrategy).getContext();
 	}
 
 	/**

@@ -184,7 +184,6 @@ public class SecurityContextHolder {
 	 * @since 5.6
 	 */
 	public static void setContextHolderStrategy(SecurityContextHolderStrategy strategy) {
-		Assert.notNull(strategy, "securityContextHolderStrategy cannot be null");
 		SecurityContextHolder.strategyName = MODE_PRE_INITIALIZED;
 		SecurityContextHolder.strategy = strategy;
 		initialize();

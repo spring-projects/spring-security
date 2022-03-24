@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,14 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -63,9 +65,9 @@ public class AuthorizationFilterTests {
 		AuthorizationFilter filter = new AuthorizationFilter(mockAuthorizationManager);
 		TestingAuthenticationToken authenticationToken = new TestingAuthenticationToken("user", "password");
 
-		SecurityContext securityContext = new SecurityContextImpl();
-		securityContext.setAuthentication(authenticationToken);
-		SecurityContextHolder.setContext(securityContext);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authenticationToken));
+		filter.setSecurityContextHolderStrategy(strategy);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -79,6 +81,7 @@ public class AuthorizationFilterTests {
 		assertThat(authentication.get()).isEqualTo(authenticationToken);
 
 		verify(mockFilterChain).doFilter(mockRequest, mockResponse);
+		verify(strategy).getContext();
 	}
 
 	@Test

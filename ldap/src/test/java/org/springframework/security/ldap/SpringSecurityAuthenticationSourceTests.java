@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,11 +26,16 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.ldap.authentication.SpringSecurityAuthenticationSource;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -81,6 +86,20 @@ public class SpringSecurityAuthenticationSourceTests {
 		SecurityContextHolder.getContext()
 				.setAuthentication(new TestingAuthenticationToken(user.createUserDetails(), null));
 		assertThat(source.getPrincipal()).isEqualTo("uid=joe,ou=users");
+	}
+
+	@Test
+	public void getPrincipalWhenCustomSecurityContextHolderStrategyThenExpectedPrincipalIsReturned() {
+		LdapUserDetailsImpl.Essence user = new LdapUserDetailsImpl.Essence();
+		user.setUsername("joe");
+		user.setDn(new DistinguishedName("uid=joe,ou=users"));
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext())
+				.willReturn(new SecurityContextImpl(new TestingAuthenticationToken(user.createUserDetails(), null)));
+		SpringSecurityAuthenticationSource source = new SpringSecurityAuthenticationSource();
+		source.setSecurityContextHolderStrategy(strategy);
+		assertThat(source.getPrincipal()).isEqualTo("uid=joe,ou=users");
+		verify(strategy).getContext();
 	}
 
 }

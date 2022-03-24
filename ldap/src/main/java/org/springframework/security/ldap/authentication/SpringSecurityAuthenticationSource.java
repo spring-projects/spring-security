@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,9 @@ import org.springframework.ldap.core.AuthenticationSource;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.ldap.userdetails.LdapUserDetails;
+import org.springframework.util.Assert;
 
 /**
  * An AuthenticationSource to retrieve authentication information stored in Spring
@@ -40,13 +42,16 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 
 	private static final Log log = LogFactory.getLog(SpringSecurityAuthenticationSource.class);
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	/**
 	 * Get the principals of the logged in user, in this case the distinguished name.
 	 * @return the distinguished name of the logged in user.
 	 */
 	@Override
 	public String getPrincipal() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication == null) {
 			log.debug("Returning empty String as Principal since authentication is null");
 			return "";
@@ -69,12 +74,23 @@ public class SpringSecurityAuthenticationSource implements AuthenticationSource 
 	 */
 	@Override
 	public String getCredentials() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication == null) {
 			log.debug("Returning empty String as Credentials since authentication is null");
 			return "";
 		}
 		return (String) authentication.getCredentials();
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

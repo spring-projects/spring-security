@@ -25,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -43,6 +44,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class SecurityContextHolderFilter extends OncePerRequestFilter {
 
 	private final SecurityContextRepository securityContextRepository;
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private boolean shouldNotFilterErrorDispatch;
 
@@ -72,6 +76,17 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilterErrorDispatch() {
 		return this.shouldNotFilterErrorDispatch;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**

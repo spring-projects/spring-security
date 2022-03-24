@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
  * An {@link ScheduledExecutorService} which wraps each {@link Runnable} in a
@@ -34,6 +35,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public final class DelegatingSecurityContextScheduledExecutorService extends DelegatingSecurityContextExecutorService
 		implements ScheduledExecutorService {
+
+	public DelegatingSecurityContextScheduledExecutorService(ScheduledExecutorService delegateScheduledExecutorService,
+			SecurityContext securityContext, SecurityContextHolderStrategy securityContextHolderStrategy) {
+		super(delegateScheduledExecutorService, securityContext, securityContextHolderStrategy);
+	}
 
 	/**
 	 * Creates a new {@link DelegatingSecurityContextScheduledExecutorService} that uses

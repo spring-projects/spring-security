@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.concurrent;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -37,6 +38,8 @@ import org.springframework.util.Assert;
 public final class DelegatingSecurityContextRunnable implements Runnable {
 
 	private final Runnable delegate;
+
+	private final SecurityContextHolderStrategy securityContextHolderStrategy;
 
 	/**
 	 * The {@link SecurityContext} that the delegate {@link Runnable} will be ran as.
@@ -58,10 +61,7 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 	 * {@link Runnable}. Cannot be null.
 	 */
 	public DelegatingSecurityContextRunnable(Runnable delegate, SecurityContext securityContext) {
-		Assert.notNull(delegate, "delegate cannot be null");
-		Assert.notNull(securityContext, "securityContext cannot be null");
-		this.delegate = delegate;
-		this.delegateSecurityContext = securityContext;
+		this(delegate, securityContext, SecurityContextHolder.getContextHolderStrategy());
 	}
 
 	/**
@@ -74,20 +74,30 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		this(delegate, SecurityContextHolder.getContext());
 	}
 
+	public DelegatingSecurityContextRunnable(Runnable delegate, SecurityContext securityContext,
+			SecurityContextHolderStrategy strategy) {
+		Assert.notNull(delegate, "delegate cannot be null");
+		Assert.notNull(securityContext, "securityContext cannot be null");
+		Assert.notNull(strategy, "securityContextHolderStrategy cannot be null");
+		this.delegate = delegate;
+		this.delegateSecurityContext = securityContext;
+		this.securityContextHolderStrategy = strategy;
+	}
+
 	@Override
 	public void run() {
-		this.originalSecurityContext = SecurityContextHolder.getContext();
+		this.originalSecurityContext = this.securityContextHolderStrategy.getContext();
 		try {
-			SecurityContextHolder.setContext(this.delegateSecurityContext);
+			this.securityContextHolderStrategy.setContext(this.delegateSecurityContext);
 			this.delegate.run();
 		}
 		finally {
-			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+			SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
 			if (emptyContext.equals(this.originalSecurityContext)) {
-				SecurityContextHolder.clearContext();
+				this.securityContextHolderStrategy.clearContext();
 			}
 			else {
-				SecurityContextHolder.setContext(this.originalSecurityContext);
+				this.securityContextHolderStrategy.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
 		}
@@ -112,6 +122,15 @@ public final class DelegatingSecurityContextRunnable implements Runnable {
 		Assert.notNull(delegate, "delegate cannot be  null");
 		return (securityContext != null) ? new DelegatingSecurityContextRunnable(delegate, securityContext)
 				: new DelegatingSecurityContextRunnable(delegate);
+	}
+
+	public static Runnable create(Runnable delegate, SecurityContext securityContext,
+			SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(delegate, "delegate cannot be null");
+		return (securityContext != null)
+				? new DelegatingSecurityContextRunnable(delegate, securityContext, securityContextHolderStrategy)
+				: new DelegatingSecurityContextRunnable(delegate, securityContextHolderStrategy.getContext(),
+						securityContextHolderStrategy);
 	}
 
 }

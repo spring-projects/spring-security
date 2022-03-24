@@ -34,6 +34,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -45,6 +46,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Luke Taylor
  */
 public class AnonymousAuthenticationFilter extends GenericFilterBean implements InitializingBean {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
@@ -87,14 +91,14 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+		if (this.securityContextHolderStrategy.getContext().getAuthentication() == null) {
 			Authentication authentication = createAuthentication((HttpServletRequest) req);
-			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 			context.setAuthentication(authentication);
-			SecurityContextHolder.setContext(context);
+			this.securityContextHolderStrategy.setContext(context);
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace(LogMessage.of(() -> "Set SecurityContextHolder to "
-						+ SecurityContextHolder.getContext().getAuthentication()));
+						+ this.securityContextHolderStrategy.getContext().getAuthentication()));
 			}
 			else {
 				this.logger.debug("Set SecurityContextHolder to anonymous SecurityContext");
@@ -103,7 +107,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 		else {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace(LogMessage.of(() -> "Did not set SecurityContextHolder since already authenticated "
-						+ SecurityContextHolder.getContext().getAuthentication()));
+						+ this.securityContextHolderStrategy.getContext().getAuthentication()));
 			}
 		}
 		chain.doFilter(req, res);
@@ -120,6 +124,17 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
 		Assert.notNull(authenticationDetailsSource, "AuthenticationDetailsSource required");
 		this.authenticationDetailsSource = authenticationDetailsSource;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public Object getPrincipal() {

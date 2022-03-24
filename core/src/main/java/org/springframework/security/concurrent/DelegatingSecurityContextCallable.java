@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.concurrent.Callable;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -39,6 +40,8 @@ import org.springframework.util.Assert;
 public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 
 	private final Callable<V> delegate;
+
+	private final SecurityContextHolderStrategy securityContextHolderStrategy;
 
 	/**
 	 * The {@link SecurityContext} that the delegate {@link Callable} will be ran as.
@@ -60,10 +63,7 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	 * {@link Callable}. Cannot be null.
 	 */
 	public DelegatingSecurityContextCallable(Callable<V> delegate, SecurityContext securityContext) {
-		Assert.notNull(delegate, "delegate cannot be null");
-		Assert.notNull(securityContext, "securityContext cannot be null");
-		this.delegate = delegate;
-		this.delegateSecurityContext = securityContext;
+		this(delegate, securityContext, SecurityContextHolder.getContextHolderStrategy());
 	}
 
 	/**
@@ -76,20 +76,30 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 		this(delegate, SecurityContextHolder.getContext());
 	}
 
+	public DelegatingSecurityContextCallable(Callable<V> delegate, SecurityContext securityContext,
+			SecurityContextHolderStrategy strategy) {
+		Assert.notNull(delegate, "delegate cannot be null");
+		Assert.notNull(securityContext, "securityContext cannot be null");
+		Assert.notNull(strategy, "securityContextHolderStrategy cannot be null");
+		this.delegate = delegate;
+		this.delegateSecurityContext = securityContext;
+		this.securityContextHolderStrategy = strategy;
+	}
+
 	@Override
 	public V call() throws Exception {
 		this.originalSecurityContext = SecurityContextHolder.getContext();
 		try {
-			SecurityContextHolder.setContext(this.delegateSecurityContext);
+			this.securityContextHolderStrategy.setContext(this.delegateSecurityContext);
 			return this.delegate.call();
 		}
 		finally {
-			SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+			SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
 			if (emptyContext.equals(this.originalSecurityContext)) {
-				SecurityContextHolder.clearContext();
+				this.securityContextHolderStrategy.clearContext();
 			}
 			else {
-				SecurityContextHolder.setContext(this.originalSecurityContext);
+				this.securityContextHolderStrategy.setContext(this.originalSecurityContext);
 			}
 			this.originalSecurityContext = null;
 		}
@@ -114,6 +124,14 @@ public final class DelegatingSecurityContextCallable<V> implements Callable<V> {
 	public static <V> Callable<V> create(Callable<V> delegate, SecurityContext securityContext) {
 		return (securityContext != null) ? new DelegatingSecurityContextCallable<>(delegate, securityContext)
 				: new DelegatingSecurityContextCallable<>(delegate);
+	}
+
+	public static <V> Callable<V> create(Callable<V> delegate, SecurityContext securityContext,
+			SecurityContextHolderStrategy securityContextHolderStrategy) {
+		return (securityContext != null)
+				? new DelegatingSecurityContextCallable<>(delegate, securityContext, securityContextHolderStrategy)
+				: new DelegatingSecurityContextCallable<>(delegate, securityContextHolderStrategy.getContext(),
+						securityContextHolderStrategy);
 	}
 
 }

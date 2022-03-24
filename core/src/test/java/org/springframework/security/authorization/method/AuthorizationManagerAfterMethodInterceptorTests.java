@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,22 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.function.Supplier;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.security.authentication.TestAuthentication;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -62,8 +68,22 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 				Pointcut.TRUE, mockAuthorizationManager);
 		Object returnedObject = advice.invoke(mockMethodInvocation);
 		assertThat(returnedObject).isEqualTo(result.getResult());
-		verify(mockAuthorizationManager).check(eq(AuthorizationManagerAfterMethodInterceptor.AUTHENTICATION_SUPPLIER),
-				any(MethodInvocationResult.class));
+		verify(mockAuthorizationManager).check(any(Supplier.class), any(MethodInvocationResult.class));
+	}
+
+	@Test
+	public void afterWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		Authentication authentication = TestAuthentication.authenticatedUser();
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		MethodInvocation invocation = mock(MethodInvocation.class);
+		AuthorizationManager<MethodInvocationResult> authorizationManager = AuthenticatedAuthorizationManager
+				.authenticated();
+		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
+				Pointcut.TRUE, authorizationManager);
+		advice.setSecurityContextHolderStrategy(strategy);
+		advice.invoke(invocation);
+		verify(strategy).getContext();
 	}
 
 }

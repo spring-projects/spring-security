@@ -1,5 +1,5 @@
 /*
- * Copyright 2004-2010 the original author or authors.
+ * Copyright 2004-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,9 @@ import org.springframework.expression.ParseException;
 import org.springframework.security.access.expression.ExpressionUtils;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
@@ -110,7 +112,7 @@ public abstract class AbstractAuthorizeTag {
 	 * @throws IOException
 	 */
 	public boolean authorizeUsingAccessExpression() throws IOException {
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+		if (getContext().getAuthentication() == null) {
 			return false;
 		}
 		SecurityExpressionHandler<FilterInvocation> handler = getExpressionHandler();
@@ -131,7 +133,7 @@ public abstract class AbstractAuthorizeTag {
 		FilterInvocation f = new FilterInvocation(getRequest(), getResponse(), (request, response) -> {
 			throw new UnsupportedOperationException();
 		});
-		return handler.createEvaluationContext(SecurityContextHolder.getContext().getAuthentication(), f);
+		return handler.createEvaluationContext(getContext().getAuthentication(), f);
 	}
 
 	/**
@@ -142,7 +144,7 @@ public abstract class AbstractAuthorizeTag {
 	 */
 	public boolean authorizeUsingUrlCheck() throws IOException {
 		String contextPath = ((HttpServletRequest) getRequest()).getContextPath();
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+		Authentication currentUser = getContext().getAuthentication();
 		return getPrivilegeEvaluator().isAllowed(contextPath, getUrl(), getMethod(), currentUser);
 	}
 
@@ -168,6 +170,17 @@ public abstract class AbstractAuthorizeTag {
 
 	public void setMethod(String method) {
 		this.method = (method != null) ? method.toUpperCase() : null;
+	}
+
+	private SecurityContext getContext() {
+		ApplicationContext appContext = SecurityWebApplicationContextUtils
+				.findRequiredWebApplicationContext(getServletContext());
+		String[] names = appContext.getBeanNamesForType(SecurityContextHolderStrategy.class);
+		if (names.length > 0) {
+			SecurityContextHolderStrategy strategy = appContext.getBean(SecurityContextHolderStrategy.class);
+			return strategy.getContext();
+		}
+		return SecurityContextHolder.getContext();
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

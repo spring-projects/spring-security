@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,13 @@ import org.springframework.security.acls.model.Acl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -40,8 +44,13 @@ import static org.mockito.BDDMockito.given;
 @ExtendWith(MockitoExtension.class)
 public class AclAuthorizationStrategyImplTests {
 
+	SecurityContext context;
+
 	@Mock
 	Acl acl;
+
+	@Mock
+	SecurityContextHolderStrategy securityContextHolderStrategy;
 
 	GrantedAuthority authority;
 
@@ -53,7 +62,8 @@ public class AclAuthorizationStrategyImplTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("foo", "bar",
 				Arrays.asList(this.authority));
 		authentication.setAuthenticated(true);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+		this.context = new SecurityContextImpl(authentication);
+		SecurityContextHolder.setContext(this.context);
 	}
 
 	@AfterEach
@@ -74,6 +84,16 @@ public class AclAuthorizationStrategyImplTests {
 		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_AUTH"));
 		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
 		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+	}
+
+	@Test
+	public void securityCheckWhenCustomSecurityContextHolderStrategyThenUses() {
+		given(this.securityContextHolderStrategy.getContext()).willReturn(this.context);
+		given(this.acl.getOwner()).willReturn(new GrantedAuthoritySid("ROLE_AUTH"));
+		this.strategy = new AclAuthorizationStrategyImpl(new SimpleGrantedAuthority("ROLE_SYSTEM_ADMIN"));
+		this.strategy.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		this.strategy.securityCheck(this.acl, AclAuthorizationStrategy.CHANGE_GENERAL);
+		verify(this.securityContextHolderStrategy).getContext();
 	}
 
 	@SuppressWarnings("serial")

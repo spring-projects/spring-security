@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,8 @@ import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 
 /**
  * <p>
@@ -81,6 +83,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
  */
 public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private Authentication authentication;
 
 	/**
@@ -110,11 +115,22 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 		};
 	}
 
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	private Authentication getAuthentication() {
 		if (this.authentication != null) {
 			return this.authentication;
 		}
-		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContext context = this.securityContextHolderStrategy.getContext();
 		return context.getAuthentication();
 	}
 

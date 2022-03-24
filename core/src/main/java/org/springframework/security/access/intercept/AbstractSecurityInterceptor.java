@@ -47,6 +47,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -110,6 +111,9 @@ public abstract class AbstractSecurityInterceptor
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private ApplicationEventPublisher eventPublisher;
 
@@ -196,7 +200,7 @@ public abstract class AbstractSecurityInterceptor
 			publishEvent(new PublicInvocationEvent(object));
 			return null; // no further work post-invocation
 		}
-		if (SecurityContextHolder.getContext().getAuthentication() == null) {
+		if (this.securityContextHolderStrategy.getContext().getAuthentication() == null) {
 			credentialsNotFound(this.messages.getMessage("AbstractSecurityInterceptor.authenticationNotFound",
 					"An Authentication object was not found in the SecurityContext"), object, attributes);
 		}
@@ -216,10 +220,10 @@ public abstract class AbstractSecurityInterceptor
 		// Attempt to run as a different user
 		Authentication runAs = this.runAsManager.buildRunAs(authenticated, object, attributes);
 		if (runAs != null) {
-			SecurityContext origCtx = SecurityContextHolder.getContext();
-			SecurityContext newCtx = SecurityContextHolder.createEmptyContext();
+			SecurityContext origCtx = this.securityContextHolderStrategy.getContext();
+			SecurityContext newCtx = this.securityContextHolderStrategy.createEmptyContext();
 			newCtx.setAuthentication(runAs);
-			SecurityContextHolder.setContext(newCtx);
+			this.securityContextHolderStrategy.setContext(newCtx);
 
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Switched to RunAs authentication %s", runAs));
@@ -229,7 +233,7 @@ public abstract class AbstractSecurityInterceptor
 		}
 		this.logger.trace("Did not switch RunAs authentication since RunAsManager returned null");
 		// no further work post-invocation
-		return new InterceptorStatusToken(SecurityContextHolder.getContext(), false, attributes, object);
+		return new InterceptorStatusToken(this.securityContextHolderStrategy.getContext(), false, attributes, object);
 
 	}
 
@@ -260,7 +264,7 @@ public abstract class AbstractSecurityInterceptor
 	 */
 	protected void finallyInvocation(InterceptorStatusToken token) {
 		if (token != null && token.isContextHolderRefreshRequired()) {
-			SecurityContextHolder.setContext(token.getSecurityContext());
+			this.securityContextHolderStrategy.setContext(token.getSecurityContext());
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.of(
 						() -> "Reverted to original authentication " + token.getSecurityContext().getAuthentication()));
@@ -305,7 +309,7 @@ public abstract class AbstractSecurityInterceptor
 	 * @return an authenticated <tt>Authentication</tt> object.
 	 */
 	private Authentication authenticateIfRequired() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication.isAuthenticated() && !this.alwaysReauthenticate) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace(LogMessage.format("Did not re-authenticate %s before authorizing", authentication));
@@ -317,9 +321,9 @@ public abstract class AbstractSecurityInterceptor
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Re-authenticated %s before authorizing", authentication));
 		}
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
 		return authentication;
 	}
 
@@ -377,6 +381,17 @@ public abstract class AbstractSecurityInterceptor
 	}
 
 	public abstract SecurityMetadataSource obtainSecurityMetadataSource();
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
 
 	public void setAccessDecisionManager(AccessDecisionManager accessDecisionManager) {
 		this.accessDecisionManager = accessDecisionManager;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,8 @@ import jakarta.servlet.http.HttpSession;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -64,6 +66,9 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 	private SecurityContextRepository repo;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private boolean forceEagerSessionCreation = false;
 
 	public SecurityContextPersistenceFilter() {
@@ -97,7 +102,7 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, response);
 		SecurityContext contextBeforeChainExecution = this.repo.loadContext(holder);
 		try {
-			SecurityContextHolder.setContext(contextBeforeChainExecution);
+			this.securityContextHolderStrategy.setContext(contextBeforeChainExecution);
 			if (contextBeforeChainExecution.getAuthentication() == null) {
 				logger.debug("Set SecurityContextHolder to empty SecurityContext");
 			}
@@ -110,9 +115,9 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 			chain.doFilter(holder.getRequest(), holder.getResponse());
 		}
 		finally {
-			SecurityContext contextAfterChainExecution = SecurityContextHolder.getContext();
+			SecurityContext contextAfterChainExecution = this.securityContextHolderStrategy.getContext();
 			// Crucial removal of SecurityContextHolder contents before anything else.
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			this.repo.saveContext(contextAfterChainExecution, holder.getRequest(), holder.getResponse());
 			request.removeAttribute(FILTER_APPLIED);
 			this.logger.debug("Cleared SecurityContextHolder to complete request");
@@ -121,6 +126,17 @@ public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 	public void setForceEagerSessionCreation(boolean forceEagerSessionCreation) {
 		this.forceEagerSessionCreation = forceEagerSessionCreation;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }
