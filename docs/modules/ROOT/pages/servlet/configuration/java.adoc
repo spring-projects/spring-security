@@ -171,8 +171,8 @@ You will notice that this configuration is quite similar the XML Namespace confi
 
 == Multiple HttpSecurity
 
-We can configure multiple HttpSecurity instances just as we can have multiple `<http>` blocks.
-The key is to register multiple `SecurityFilterChain` `@Bean`s.
+We can configure multiple `HttpSecurity` instances just as we can have multiple `<http>` blocks.
+The key is to register multiple `SecurityFilterChain` ``@Bean``s.
 For example, the following is an example of having a different configuration for URL's that start with `/api/`.
 
 [source,java]
