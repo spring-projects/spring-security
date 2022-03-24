@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,32 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	private final Collection<SecurityContextChangedListener> listeners;
 
 	private final SecurityContextHolderStrategy delegate;
+
+	/**
+	 * Construct a {@link ListeningSecurityContextHolderStrategy} based on
+	 * {@link ThreadLocalSecurityContextHolderStrategy}
+	 * @param listeners the listeners that should be notified when the
+	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
+	 * {@link #clearContext() cleared}
+	 *
+	 * @since 5.7
+	 */
+	public ListeningSecurityContextHolderStrategy(Collection<SecurityContextChangedListener> listeners) {
+		this(new ThreadLocalSecurityContextHolderStrategy(), listeners);
+	}
+
+	/**
+	 * Construct a {@link ListeningSecurityContextHolderStrategy} based on
+	 * {@link ThreadLocalSecurityContextHolderStrategy}
+	 * @param listeners the listeners that should be notified when the
+	 * {@link SecurityContext} is {@link #setContext(SecurityContext) set} or
+	 * {@link #clearContext() cleared}
+	 *
+	 * @since 5.7
+	 */
+	public ListeningSecurityContextHolderStrategy(SecurityContextChangedListener... listeners) {
+		this(new ThreadLocalSecurityContextHolderStrategy(), listeners);
+	}
 
 	/**
 	 * Construct a {@link ListeningSecurityContextHolderStrategy}

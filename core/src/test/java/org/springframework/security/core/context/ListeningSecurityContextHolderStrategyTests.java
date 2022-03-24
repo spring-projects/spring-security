@@ -55,8 +55,8 @@ public class ListeningSecurityContextHolderStrategyTests {
 
 	@Test
 	public void constructorWhenNullDelegateThenIllegalArgument() {
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> new ListeningSecurityContextHolderStrategy(null, (event) -> {
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> new ListeningSecurityContextHolderStrategy((SecurityContextHolderStrategy) null, (event) -> {
 				}));
 	}
 
