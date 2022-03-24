@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,8 @@ import org.springframework.security.config.annotation.authentication.configurers
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.UserDetailsAwareConfigurer;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.Assert;
 
@@ -55,6 +57,9 @@ public class AuthenticationManagerBuilder
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private AuthenticationManager parentAuthenticationManager;
 
 	private List<AuthenticationProvider> authenticationProviders = new ArrayList<>();
@@ -71,6 +76,11 @@ public class AuthenticationManagerBuilder
 	 */
 	public AuthenticationManagerBuilder(ObjectPostProcessor<Object> objectPostProcessor) {
 		super(objectPostProcessor, true);
+	}
+
+	public AuthenticationManagerBuilder securityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.securityContextHolderStrategy = strategy;
+		return this;
 	}
 
 	/**
@@ -129,7 +139,8 @@ public class AuthenticationManagerBuilder
 	 */
 	public InMemoryUserDetailsManagerConfigurer<AuthenticationManagerBuilder> inMemoryAuthentication()
 			throws Exception {
-		return apply(new InMemoryUserDetailsManagerConfigurer<>());
+		return apply(new InMemoryUserDetailsManagerConfigurer<>())
+				.securityContextHolderStrategy(this.securityContextHolderStrategy);
 	}
 
 	/**
@@ -157,7 +168,8 @@ public class AuthenticationManagerBuilder
 	 * @throws Exception if an error occurs when adding the JDBC authentication
 	 */
 	public JdbcUserDetailsManagerConfigurer<AuthenticationManagerBuilder> jdbcAuthentication() throws Exception {
-		return apply(new JdbcUserDetailsManagerConfigurer<>());
+		return apply(new JdbcUserDetailsManagerConfigurer<>())
+				.securityContextHolderStrategy(this.securityContextHolderStrategy);
 	}
 
 	/**

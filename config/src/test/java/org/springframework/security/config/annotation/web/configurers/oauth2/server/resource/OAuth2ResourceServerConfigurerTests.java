@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.hamcrest.core.StringEndsWith;
 import org.hamcrest.core.StringStartsWith;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.verification.VerificationMode;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
@@ -81,6 +82,7 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -92,6 +94,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
@@ -151,6 +154,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -214,6 +218,20 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("ok"));
 		// @formatter:on
+	}
+
+	@Test
+	public void getWhenSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(RestOperationsConfig.class, DefaultConfig.class,
+				SecurityContextChangedListenerConfig.class, BasicController.class).autowire();
+		mockRestOperations(jwks("Default"));
+		String token = this.token("ValidNoScopes");
+		// @formatter:off
+		this.mvc.perform(get("/").with(bearerToken(token)))
+				.andExpect(status().isOk())
+				.andExpect(content().string("ok"));
+		// @formatter:on
+		verifyBean(SecurityContextChangedListener.class, atLeastOnce()).securityContextChanged(any());
 	}
 
 	@Test
@@ -1415,6 +1433,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
+	}
+
+	private <T> T verifyBean(Class<T> beanClass, VerificationMode mode) {
+		return verify(this.spring.getContext().getBean(beanClass), mode);
 	}
 
 	private String json(String name) throws IOException {

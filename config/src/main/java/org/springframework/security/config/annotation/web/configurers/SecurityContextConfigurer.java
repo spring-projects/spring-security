@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,11 +107,13 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.requireExplicitSave) {
 			SecurityContextHolderFilter securityContextHolderFilter = postProcess(
 					new SecurityContextHolderFilter(securityContextRepository));
+			securityContextHolderFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			http.addFilter(securityContextHolderFilter);
 		}
 		else {
 			SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
 					securityContextRepository);
+			securityContextFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
 			SessionCreationPolicy sessionCreationPolicy = (sessionManagement != null)
 					? sessionManagement.getSessionCreationPolicy() : null;

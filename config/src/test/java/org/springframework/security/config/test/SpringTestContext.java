@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.mock.web.MockServletConfig;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.test.context.web.GenericXmlWebContextLoader;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -132,6 +133,10 @@ public class SpringTestContext implements Closeable {
 		this.context.setServletContext(new MockServletContext());
 		this.context.setServletConfig(new MockServletConfig());
 		this.context.refresh();
+		if (this.context.getBeanNamesForType(SecurityContextHolderStrategy.class).length > 0) {
+			SecurityContextHolderStrategy strategy = this.context.getBean(SecurityContextHolderStrategy.class);
+
+		}
 		if (this.context.containsBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)) {
 			// @formatter:off
 			MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.context).

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
 import org.springframework.security.messaging.access.intercept.ChannelSecurityInterceptor;
@@ -93,6 +94,8 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer
 
 	private SecurityExpressionHandler<Message<Object>> expressionHandler;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy;
+
 	private ApplicationContext context;
 
 	@Override
@@ -101,7 +104,11 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
+		if (this.securityContextHolderStrategy != null) {
+			resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		}
+		argumentResolvers.add(resolver);
 	}
 
 	@Override
@@ -170,7 +177,11 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer
 
 	@Bean
 	public SecurityContextChannelInterceptor securityContextChannelInterceptor() {
-		return new SecurityContextChannelInterceptor();
+		SecurityContextChannelInterceptor interceptor = new SecurityContextChannelInterceptor();
+		if (this.securityContextHolderStrategy != null) {
+			interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		}
+		return interceptor;
 	}
 
 	@Bean
@@ -206,6 +217,17 @@ public abstract class AbstractSecurityWebSocketMessageBrokerConfigurer
 	@Autowired(required = false)
 	public void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.defaultExpressionHandler = objectPostProcessor.postProcess(this.defaultExpressionHandler);
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 6.0
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	private SecurityExpressionHandler<Message<Object>> getMessageExpressionHandler() {

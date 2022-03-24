@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -368,6 +368,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (trustResolver != null) {
 			sessionManagementFilter.setTrustResolver(trustResolver);
 		}
+		sessionManagementFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		sessionManagementFilter = postProcess(sessionManagementFilter);
 		http.addFilter(sessionManagementFilter);
 		if (isConcurrentSessionControlEnabled()) {
@@ -391,6 +392,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				concurrentSessionFilter.setLogoutHandlers(logoutHandlers);
 			}
 		}
+		concurrentSessionFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return concurrentSessionFilter;
 	}
 
@@ -492,7 +494,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			concurrentSessionControlStrategy.setMaximumSessions(this.maximumSessions);
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
-
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
 					sessionRegistry);
 			registerSessionStrategy = postProcess(registerSessionStrategy);

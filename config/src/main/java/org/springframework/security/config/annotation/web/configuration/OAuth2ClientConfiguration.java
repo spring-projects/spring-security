@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.ImportSelector;
 import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProviderBuilder;
@@ -75,11 +76,18 @@ final class OAuth2ClientConfiguration {
 
 		private OAuth2AuthorizedClientManager authorizedClientManager;
 
+		private SecurityContextHolderStrategy securityContextHolderStrategy;
+
 		@Override
 		public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 			OAuth2AuthorizedClientManager authorizedClientManager = getAuthorizedClientManager();
 			if (authorizedClientManager != null) {
-				argumentResolvers.add(new OAuth2AuthorizedClientArgumentResolver(authorizedClientManager));
+				OAuth2AuthorizedClientArgumentResolver resolver = new OAuth2AuthorizedClientArgumentResolver(
+						authorizedClientManager);
+				if (this.securityContextHolderStrategy != null) {
+					resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+				}
+				argumentResolvers.add(resolver);
 			}
 		}
 
@@ -108,6 +116,11 @@ final class OAuth2ClientConfiguration {
 			if (authorizedClientManagers.size() == 1) {
 				this.authorizedClientManager = authorizedClientManagers.get(0);
 			}
+		}
+
+		@Autowired(required = false)
+		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+			this.securityContextHolderStrategy = strategy;
 		}
 
 		private OAuth2AuthorizedClientManager getAuthorizedClientManager() {

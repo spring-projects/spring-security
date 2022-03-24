@@ -52,6 +52,7 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -63,6 +64,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.context.SecurityContextChangedListener;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -111,10 +114,13 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -188,6 +194,26 @@ public class Saml2LoginConfigurerTests {
 		this.mvc.perform(get("/").session(session))
 				.andExpect(content().string("test@saml.user"));
 		// @formatter:on
+	}
+
+	@Test
+	public void saml2LoginWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring
+				.register(Saml2LoginConfig.class, SecurityContextChangedListenerConfig.class, ResourceController.class)
+				.autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc
+				.perform(post("/login/saml2/sso/registration-id")
+						.param("SAMLResponse", SIGNED_RESPONSE))
+				.andExpect(redirectedUrl("/")).andReturn().getRequest().getSession(false);
+		this.mvc.perform(get("/").session(session))
+				.andExpect(content().string("test@saml.user"));
+		// @formatter:on
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
+		SecurityContextChangedListener listener = this.spring.getContext()
+				.getBean(SecurityContextChangedListener.class);
+		verify(listener, times(2)).securityContextChanged(setAuthentication(Saml2Authentication.class));
 	}
 
 	@Test
@@ -436,14 +462,15 @@ public class Saml2LoginConfigurerTests {
 	@EnableWebMvc
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LoginConfig {
+
 		@Bean
 		SecurityFilterChain web(HttpSecurity http) throws Exception {
-			http
-				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.saml2Login(Customizer.withDefaults());
+			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+					.saml2Login(Customizer.withDefaults());
 
 			return http.build();
 		}
+
 	}
 
 	@EnableWebSecurity
@@ -802,9 +829,12 @@ public class Saml2LoginConfigurerTests {
 
 	@RestController
 	static class ResourceController {
+
 		@GetMapping("/")
 		String user(@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal) {
 			return principal.getName();
 		}
+
 	}
+
 }

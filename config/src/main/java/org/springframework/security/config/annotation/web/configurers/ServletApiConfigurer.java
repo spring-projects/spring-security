@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
@@ -97,6 +98,12 @@ public final class ServletApiConfigurer<H extends HttpSecurityBuilder<H>>
 				GrantedAuthorityDefaults grantedAuthorityDefaults = context
 						.getBean(grantedAuthorityDefaultsBeanNames[0], GrantedAuthorityDefaults.class);
 				this.securityContextRequestFilter.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
+			}
+			String[] securityContextHolderStrategyBeanNames = context
+					.getBeanNamesForType(SecurityContextHolderStrategy.class);
+			if (securityContextHolderStrategyBeanNames.length > 0) {
+				SecurityContextHolderStrategy strategy = context.getBean(SecurityContextHolderStrategy.class);
+				this.securityContextRequestFilter.setSecurityContextHolderStrategy(strategy);
 			}
 		}
 		this.securityContextRequestFilter = postProcess(this.securityContextRequestFilter);

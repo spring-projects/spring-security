@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,15 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import org.springframework.aop.Advisor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
  * {@link Configuration} for enabling {@link Secured} Spring Security Method Security.
@@ -36,10 +39,20 @@ import org.springframework.security.authorization.method.AuthorizationManagerBef
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class SecuredMethodSecurityConfiguration {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor securedAuthorizationMethodInterceptor() {
-		return AuthorizationManagerBeforeMethodInterceptor.secured();
+		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor.secured();
+		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		return interceptor;
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -325,11 +325,13 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutFilter} to use.
 	 */
 	private LogoutFilter createLogoutFilter(H http) {
+		this.contextLogoutHandler.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.logoutHandlers.add(this.contextLogoutHandler);
 		this.logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
 		LogoutHandler[] handlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
 		result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
+		result.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		result = postProcess(result);
 		return result;
 	}

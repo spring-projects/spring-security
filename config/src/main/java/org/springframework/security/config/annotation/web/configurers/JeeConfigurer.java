@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,7 +198,8 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 
 	@Override
 	public void configure(H http) {
-		J2eePreAuthenticatedProcessingFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class));
+		J2eePreAuthenticatedProcessingFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class),
+				http);
 		http.addFilter(filter);
 	}
 
@@ -208,12 +209,14 @@ public final class JeeConfigurer<H extends HttpSecurityBuilder<H>> extends Abstr
 	 * @param authenticationManager the {@link AuthenticationManager} to use.
 	 * @return the {@link J2eePreAuthenticatedProcessingFilter} to use.
 	 */
-	private J2eePreAuthenticatedProcessingFilter getFilter(AuthenticationManager authenticationManager) {
+	private J2eePreAuthenticatedProcessingFilter getFilter(AuthenticationManager authenticationManager, H http) {
 		if (this.j2eePreAuthenticatedProcessingFilter == null) {
 			this.j2eePreAuthenticatedProcessingFilter = new J2eePreAuthenticatedProcessingFilter();
 			this.j2eePreAuthenticatedProcessingFilter.setAuthenticationManager(authenticationManager);
 			this.j2eePreAuthenticatedProcessingFilter
 					.setAuthenticationDetailsSource(createWebAuthenticationDetailsSource());
+			this.j2eePreAuthenticatedProcessingFilter
+					.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			this.j2eePreAuthenticatedProcessingFilter = postProcess(this.j2eePreAuthenticatedProcessingFilter);
 		}
 

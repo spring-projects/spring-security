@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.authentication.configurer
 import java.util.ArrayList;
 
 import org.springframework.security.config.annotation.authentication.ProviderManagerBuilder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 /**
@@ -39,6 +40,13 @@ public class InMemoryUserDetailsManagerConfigurer<B extends ProviderManagerBuild
 	 */
 	public InMemoryUserDetailsManagerConfigurer() {
 		super(new InMemoryUserDetailsManager(new ArrayList<>()));
+	}
+
+	public InMemoryUserDetailsManagerConfigurer<B> securityContextHolderStrategy(
+			SecurityContextHolderStrategy strategy) {
+		InMemoryUserDetailsManager userDetailsService = (InMemoryUserDetailsManager) getUserDetailsService();
+		userDetailsService.setSecurityContextHolderStrategy(strategy);
+		return this;
 	}
 
 }

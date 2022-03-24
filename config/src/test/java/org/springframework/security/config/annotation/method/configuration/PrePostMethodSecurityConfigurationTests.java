@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,18 +46,22 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -66,6 +70,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Josh Cummings
  */
 @ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
+@ContextConfiguration(classes = SecurityContextChangedListenerConfig.class)
 @SecurityTestExecutionListeners
 public class PrePostMethodSecurityConfigurationTests {
 
@@ -127,9 +132,12 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void securedUserWhenRoleAdminThenAccessDeniedException() {
-		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
+		this.spring.register(MethodSecurityServiceEnabledConfig.class, SecurityContextChangedListenerConfig.class)
+				.autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::securedUser)
 				.withMessage("Access Denied");
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy).getContext();
 	}
 
 	@WithMockUser
@@ -153,6 +161,15 @@ public class PrePostMethodSecurityConfigurationTests {
 	public void preAuthorizeAdminWhenRoleAdminThenPasses() {
 		this.spring.register(MethodSecurityServiceConfig.class).autowire();
 		this.methodSecurityService.preAuthorizeAdmin();
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void preAuthorizeAdminWhenSecurityContextHolderStrategyThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class, SecurityContextChangedListenerConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeAdmin();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy).getContext();
 	}
 
 	@WithMockUser(authorities = "PREFIX_ADMIN")
@@ -275,9 +292,11 @@ public class PrePostMethodSecurityConfigurationTests {
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void rolesAllowedUserWhenRoleAdminThenAccessDeniedException() {
-		this.spring.register(BusinessServiceConfig.class).autowire();
+		this.spring.register(BusinessServiceConfig.class, SecurityContextChangedListenerConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.businessService::rolesAllowedUser)
 				.withMessage("Access Denied");
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy).getContext();
 	}
 
 	@WithMockUser
