@@ -69,6 +69,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	@AfterEach
 	public void cleanup() {
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 		SecurityContextHolder.clearContext();
 	}
 
