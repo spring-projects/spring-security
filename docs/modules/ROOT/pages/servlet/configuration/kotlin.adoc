@@ -55,8 +55,8 @@ Note that this configuration is parallels the XML namespace configuration:
 
 == Multiple HttpSecurity Instances
 
-We can configure multiple HttpSecurity instances, just as we can have multiple `<http>` blocks.
-The key is to register multiple `SecurityFilterChain` `@Bean`s.
+We can configure multiple `HttpSecurity` instances, just as we can have multiple `<http>` blocks.
+The key is to register multiple `SecurityFilterChain` ``@Bean``s.
 The following example has a different configuration for URL's that start with `/api/`:
 
 ====
