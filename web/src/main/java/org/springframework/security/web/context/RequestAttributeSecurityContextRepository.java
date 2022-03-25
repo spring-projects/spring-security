@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.context;
 
+import java.util.function.Supplier;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -64,17 +66,18 @@ public final class RequestAttributeSecurityContextRepository implements Security
 
 	@Override
 	public boolean containsContext(HttpServletRequest request) {
-		return loadContext(request) != null;
+		return loadContext(request).get() != null;
 	}
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		SecurityContext context = loadContext(requestResponseHolder.getRequest());
+		SecurityContext context = loadContext(requestResponseHolder.getRequest()).get();
 		return (context != null) ? context : SecurityContextHolder.createEmptyContext();
 	}
 
-	private SecurityContext loadContext(HttpServletRequest request) {
-		return (SecurityContext) request.getAttribute(this.requestAttributeName);
+	@Override
+	public Supplier<SecurityContext> loadContext(HttpServletRequest request) {
+		return () -> (SecurityContext) request.getAttribute(this.requestAttributeName);
 	}
 
 	@Override

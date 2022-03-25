@@ -58,8 +58,7 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		SecurityContext securityContext = this.securityContextRepository
-				.loadContext(new HttpRequestResponseHolder(request, response));
+		SecurityContext securityContext = this.securityContextRepository.loadContext(request).get();
 		try {
 			SecurityContextHolder.setContext(securityContext);
 			filterChain.doFilter(request, response);

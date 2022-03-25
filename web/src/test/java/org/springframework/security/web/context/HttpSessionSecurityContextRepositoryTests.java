@@ -64,6 +64,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Luke Taylor
@@ -140,6 +141,33 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, null);
 		assertThat(repo.loadContext(holder)).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
+	public void loadContextHttpServletRequestWhenNotSavedThenEmptyContextReturned() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		assertThat(repo.loadContext(request).get()).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
+	public void loadContextHttpServletRequestWhenSavedThenSavedContextReturned() {
+		SecurityContextImpl expectedContext = new SecurityContextImpl(this.testToken);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		repo.saveContext(expectedContext, request, response);
+		assertThat(repo.loadContext(request).get()).isEqualTo(expectedContext);
+	}
+
+	@Test
+	public void loadContextHttpServletRequestWhenNotAccessedThenHttpSessionNotAccessed() {
+		HttpSession session = mock(HttpSession.class);
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setSession(session);
+		repo.loadContext(request);
+		verifyNoInteractions(session);
 	}
 
 	@Test
