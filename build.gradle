@@ -36,7 +36,7 @@ repositories {
 }
 
 tasks.named("saganCreateRelease") {
-	referenceDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/"
+	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
 	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
 }
 
