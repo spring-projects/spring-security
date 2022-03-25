@@ -58,7 +58,7 @@ public class SaganApiTests {
 		Release release = new Release();
 		release.setVersion("5.6.0-SNAPSHOT");
 		release.setApiDocUrl("https://docs.spring.io/spring-security/site/docs/{version}/api/");
-		release.setReferenceDocUrl("https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/");
+		release.setReferenceDocUrl("https://docs.spring.io/spring-security/reference/{version}/index.html");
 		this.sagan.createReleaseForProject(release, "spring-security");
 		RecordedRequest request = this.server.takeRequest(1, TimeUnit.SECONDS);
 		assertThat(request.getRequestUrl().toString()).isEqualTo(this.baseUrl + "/projects/spring-security/releases");
@@ -67,7 +67,7 @@ public class SaganApiTests {
 		assertThat(request.getBody().readString(Charset.defaultCharset())).isEqualToIgnoringWhitespace("{\n" +
 				"   \"version\":\"5.6.0-SNAPSHOT\",\n" +
 				"   \"current\":false,\n" +
-				"   \"referenceDocUrl\":\"https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/\",\n" +
+				"   \"referenceDocUrl\":\"https://docs.spring.io/spring-security/reference/{version}/index.html\",\n" +
 				"   \"apiDocUrl\":\"https://docs.spring.io/spring-security/site/docs/{version}/api/\"\n" +
 				"}");
 	}
