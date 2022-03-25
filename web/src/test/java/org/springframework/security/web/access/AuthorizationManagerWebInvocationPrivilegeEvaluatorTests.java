@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,17 @@
 
 package org.springframework.security.web.access;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -70,6 +73,16 @@ class AuthorizationManagerWebInvocationPrivilegeEvaluatorTests {
 		given(this.authorizationManager.check(any(), any())).willReturn(null);
 		boolean allowed = this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
 		assertThat(allowed).isTrue();
+	}
+
+	@Test
+	void isAllowedWhenServletContextExistsThenFilterInvocationHasServletContext() {
+		ServletContext servletContext = new MockServletContext();
+		this.privilegeEvaluator.setServletContext(servletContext);
+		this.privilegeEvaluator.isAllowed("/test", TestAuthentication.authenticatedUser());
+		ArgumentCaptor<HttpServletRequest> captor = ArgumentCaptor.forClass(HttpServletRequest.class);
+		verify(this.authorizationManager).check(any(), captor.capture());
+		assertThat(captor.getValue().getServletContext()).isSameAs(servletContext);
 	}
 
 }
