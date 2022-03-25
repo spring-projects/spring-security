@@ -80,7 +80,8 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any())).willReturn(mock(SecurityContext.class));
+		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any(HttpRequestResponseHolder.class)))
+				.willReturn(mock(SecurityContext.class));
 		this.mvc.perform(get("/"));
 		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
 	}

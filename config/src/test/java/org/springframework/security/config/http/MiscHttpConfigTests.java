@@ -124,7 +124,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
-import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -468,11 +467,10 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("ExplicitSaveAndExplicitRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpRequestResponseHolder.class))).willReturn(context);
+		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
 		// @formatter:off
 		MvcResult result = this.mvc.perform(formLogin())
 				.andExpect(status().is3xxRedirection())
-				.andExpect(authenticated())
 				.andReturn();
 		// @formatter:on
 		verify(repository, atLeastOnce()).saveContext(any(SecurityContext.class), any(HttpServletRequest.class),

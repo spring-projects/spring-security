@@ -49,11 +49,8 @@ class SecurityContextHolderFilterTests {
 	@Mock
 	private HttpServletResponse response;
 
-	@Mock
-	private FilterChain chain;
-
 	@Captor
-	private ArgumentCaptor<HttpRequestResponseHolder> requestResponse;
+	private ArgumentCaptor<HttpServletRequest> requestArg;
 
 	private SecurityContextHolderFilter filter;
 
@@ -71,7 +68,7 @@ class SecurityContextHolderFilterTests {
 	void doFilterThenSetsAndClearsSecurityContextHolder() throws Exception {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
-		given(this.repository.loadContext(this.requestResponse.capture())).willReturn(expectedContext);
+		given(this.repository.loadContext(this.requestArg.capture())).willReturn(() -> expectedContext);
 		FilterChain filterChain = (request, response) -> assertThat(SecurityContextHolder.getContext())
 				.isEqualTo(expectedContext);
 
