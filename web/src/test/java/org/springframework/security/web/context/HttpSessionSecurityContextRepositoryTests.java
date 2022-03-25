@@ -135,6 +135,14 @@ public class HttpSessionSecurityContextRepositoryTests {
 	}
 
 	@Test
+	public void loadContextWhenNullResponse() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(request, null);
+		assertThat(repo.loadContext(holder)).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
 	public void existingContextIsSuccessFullyLoadedFromSessionAndSavedBack() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.setSpringSecurityContextKey("imTheContext");

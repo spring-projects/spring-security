@@ -123,10 +123,12 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				this.logger.trace(LogMessage.format("Created %s", context));
 			}
 		}
-		SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request,
-				httpSession != null, context);
-		requestResponseHolder.setResponse(wrappedResponse);
-		requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(request, wrappedResponse));
+		if (response != null) {
+			SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request,
+					httpSession != null, context);
+			requestResponseHolder.setResponse(wrappedResponse);
+			requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(request, wrappedResponse));
+		}
 		return context;
 	}
 
