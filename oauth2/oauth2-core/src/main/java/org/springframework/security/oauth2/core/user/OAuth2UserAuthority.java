@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package org.springframework.security.oauth2.core.user;
 
+import java.net.URL;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.SpringSecurityCoreVersion;
@@ -85,19 +87,51 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 		if (!this.getAuthority().equals(that.getAuthority())) {
 			return false;
 		}
-		return this.getAttributes().equals(that.getAttributes());
+		Map<String, Object> thatAttributes = that.getAttributes();
+		if (getAttributes().size() != thatAttributes.size()) {
+			return false;
+		}
+		for (Map.Entry<String, Object> e : getAttributes().entrySet()) {
+			String key = e.getKey();
+			Object value = convertURL(e.getValue());
+			if (value == null) {
+				if (!(thatAttributes.get(key) == null && thatAttributes.containsKey(key))) {
+					return false;
+				}
+			}
+			else {
+				Object thatValue = convertURL(thatAttributes.get(key));
+				if (!value.equals(thatValue)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
 		int result = this.getAuthority().hashCode();
-		result = 31 * result + this.getAttributes().hashCode();
+		result = 31 * result;
+		for (Map.Entry<String, Object> e : getAttributes().entrySet()) {
+			Object key = e.getKey();
+			Object value = convertURL(e.getValue());
+			result += Objects.hashCode(key) ^ Objects.hashCode(value);
+		}
 		return result;
 	}
 
 	@Override
 	public String toString() {
 		return this.getAuthority();
+	}
+
+	/**
+	 * @return {@code URL} converted to a string since {@code URL} shouldn't be used for
+	 * equality/hashCode. For other instances the value is returned as is.
+	 */
+	private static Object convertURL(Object value) {
+		return (value instanceof URL) ? ((URL) value).toExternalForm() : value;
 	}
 
 }
