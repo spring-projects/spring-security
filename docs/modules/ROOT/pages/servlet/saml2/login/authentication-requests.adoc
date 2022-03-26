@@ -8,7 +8,7 @@ This filter by default responds to endpoint `+/saml2/authenticate/{registrationI
 
 For example, if you were deployed to `https://rp.example.com` and you gave your registration an ID of `okta`, you could navigate to:
 
-`https://rp.example.org/saml2/authenticate/ping`
+`https://rp.example.org/saml2/authenticate/okta`
 
 and the result would be a redirect that included a `SAMLRequest` parameter containing the signed, deflated, and encoded `<saml2:AuthnRequest>`.
 
