@@ -37,10 +37,6 @@ public abstract class UpdateProjectVersionTask extends DefaultTask {
 	@InputFile
 	public abstract RegularFileProperty getNextVersionFile();
 
-	@Input
-	@Optional
-	private Boolean commit;
-
 	@TaskAction
 	public void checkReleaseDueToday() throws FileNotFoundException {
 		File nextVersionFile = getNextVersionFile().getAsFile().get();
@@ -62,20 +58,6 @@ public abstract class UpdateProjectVersionTask extends DefaultTask {
 			gradlePropertiesText = gradlePropertiesText.replace("version=" + currentVersion, "version=" + nextVersion);
 			return gradlePropertiesText;
 		});
-		if (this.commit) {
-			System.out.println("Committing the version update");
-			File rootDir = getProject().getRootDir();
-			String commitMessage = "Release " + nextVersion;
-			CommandLineUtils.runCommand(rootDir, "git", "commit", "-am", commitMessage);
-		}
-	}
-
-	public Boolean getCommit() {
-		return commit;
-	}
-
-	public void setCommit(Boolean commit) {
-		this.commit = commit;
 	}
 
 }

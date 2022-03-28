@@ -88,11 +88,15 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
       - name: Update version and push
+        # antoraUpdateVersion can only be run after updateProjectVersion completes, in order get the updated project version
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew updateProjectVersion -Pcommit=true
+          ./gradlew :updateProjectVersion
+          ./gradlew :spring-security-docs:antoraUpdateVersion
+          updatedVersion=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
+          git commit -m "Release $updatedVersion"
           git push
   notify_result:
     name: Check for failures
