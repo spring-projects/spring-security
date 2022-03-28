@@ -27,11 +27,9 @@ public class UpdateProjectVersionPlugin implements Plugin<Project> {
 			@Override
 			public void execute(UpdateProjectVersionTask updateProjectVersionTask) {
 				updateProjectVersionTask.setGroup("Release");
-				updateProjectVersionTask.setDescription(
-						"Updates the project version to the next release in gradle.properties and optionally commits the changes");
+				updateProjectVersionTask.setDescription("Updates the project version to the next release in gradle.properties");
 				updateProjectVersionTask.dependsOn("gitHubNextReleaseMilestone");
 				updateProjectVersionTask.getNextVersionFile().fileProvider(project.provider(() -> project.file("next-release.yml")));
-				updateProjectVersionTask.setCommit("true".equals(project.findProperty("commit")));
 			}
 		});
 		project.getTasks().register("updateToSnapshotVersion", UpdateToSnapshotVersionTask.class, new Action<UpdateToSnapshotVersionTask>() {

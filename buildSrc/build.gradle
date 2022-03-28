@@ -28,7 +28,7 @@ gradlePlugin {
 	plugins {
 		checkAntoraVersion {
 			id = "org.springframework.antora.check-version"
-			implementationClass = "org.springframework.gradle.antora.CheckAntoraVersionPlugin"
+			implementationClass = "org.springframework.gradle.antora.AntoraVersionPlugin"
 		}
 		trang {
 			id = "trang"
