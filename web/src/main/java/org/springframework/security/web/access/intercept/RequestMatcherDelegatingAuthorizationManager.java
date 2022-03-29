@@ -27,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -47,8 +46,6 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings;
-
-	private AuthorizationEventPublisher authorizationEventPublisher;
 
 	private RequestMatcherDelegatingAuthorizationManager(
 			Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings) {
@@ -80,34 +77,12 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, manager));
 				}
-				AuthorizationDecision authorizationDecision = manager.check(authentication,
+				return manager.check(authentication,
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
-				publishAuthorizationEvent(authorizationDecision);
-				return authorizationDecision;
 			}
 		}
 		this.logger.trace("Abstaining since did not find matching RequestMatcher");
 		return null;
-	}
-
-	private void publishAuthorizationEvent(AuthorizationDecision authorizationDecision) {
-		if (this.authorizationEventPublisher != null) {
-			if (authorizationDecision.isGranted()) {
-				this.authorizationEventPublisher.publishAuthorizationSuccess(authorizationDecision);
-			}
-			else {
-				this.authorizationEventPublisher.publishAuthorizationFailure(authorizationDecision);
-			}
-		}
-	}
-
-	/**
-	 * Set implementation of an {@link AuthorizationEventPublisher}
-	 * @param authorizationEventPublisher
-	 */
-	public void setAuthorizationEventPublisher(AuthorizationEventPublisher authorizationEventPublisher) {
-		Assert.notNull(authorizationEventPublisher, "AuthorizationEventPublisher cannot be null");
-		this.authorizationEventPublisher = authorizationEventPublisher;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,40 @@
 
 package org.springframework.security.authorization.event;
 
+import java.util.function.Supplier;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * An {@link ApplicationEvent} which indicates successful authorization.
  *
  * @author Parikshit Dutta
- * @since 5.5
+ * @author Josh Cummings
+ * @since 5.7
  */
-public class AuthorizationSuccessEvent extends ApplicationEvent {
+public class AuthorizationGrantedEvent<T> extends ApplicationEvent {
 
-	public AuthorizationSuccessEvent(AuthorizationDecision authorizationDecision) {
-		super(authorizationDecision);
+	private final Supplier<Authentication> authentication;
+
+	private final AuthorizationDecision decision;
+
+	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object,
+			AuthorizationDecision decision) {
+		super(object);
+		Assert.notNull(authentication, "authentication supplier cannot be null");
+		this.authentication = authentication;
+		this.decision = decision;
+	}
+
+	public Supplier<Authentication> getAuthentication() {
+		return this.authentication;
+	}
+
+	public AuthorizationDecision getAuthorizationDecision() {
+		return this.decision;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -69,6 +70,8 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	private final AuthorizationManager<MethodInvocation> authorizationManager;
 
 	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
+
+	private AuthorizationEventPublisher eventPublisher = AuthorizationManagerBeforeMethodInterceptor::noPublish;
 
 	/**
 	 * Creates an instance.
@@ -168,6 +171,17 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	}
 
 	/**
+	 * Use this {@link AuthorizationEventPublisher} to publish the
+	 * {@link AuthorizationManager} result.
+	 * @param eventPublisher
+	 * @since 5.7
+	 */
+	public void setAuthorizationEventPublisher(AuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -188,12 +202,18 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	private void attemptAuthorization(MethodInvocation mi) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		AuthorizationDecision decision = this.authorizationManager.check(AUTHENTICATION_SUPPLIER, mi);
+		this.eventPublisher.publishAuthorizationEvent(AUTHENTICATION_SUPPLIER, mi, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
 			throw new AccessDeniedException("Access Denied");
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
+	}
+
+	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
+			AuthorizationDecision decision) {
+
 	}
 
 }

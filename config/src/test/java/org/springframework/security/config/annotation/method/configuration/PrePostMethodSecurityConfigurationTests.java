@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -32,6 +33,7 @@ import org.springframework.aop.support.JdkRegexpMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,9 +45,11 @@ import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -58,6 +62,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -350,6 +357,27 @@ public class PrePostMethodSecurityConfigurationTests {
 				.isThrownBy(() -> this.businessService.repeatedAnnotations());
 	}
 
+	@WithMockUser
+	@Test
+	public void preAuthorizeWhenAuthorizationEventPublisherThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class, AuthorizationEventPublisherConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.preAuthorize());
+		AuthorizationEventPublisher publisher = this.spring.getContext().getBean(AuthorizationEventPublisher.class);
+		verify(publisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocation.class),
+				any(AuthorizationDecision.class));
+	}
+
+	@WithMockUser
+	@Test
+	public void postAuthorizeWhenAuthorizationEventPublisherThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class, AuthorizationEventPublisherConfig.class).autowire();
+		this.methodSecurityService.postAnnotation("grant");
+		AuthorizationEventPublisher publisher = this.spring.getContext().getBean(AuthorizationEventPublisher.class);
+		verify(publisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocationResult.class),
+				any(AuthorizationDecision.class));
+	}
+
 	// gh-10305
 	@WithMockUser
 	@Test
@@ -480,6 +508,18 @@ public class PrePostMethodSecurityConfigurationTests {
 			DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
 			advisor.setOrder(AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + 1);
 			return advisor;
+		}
+
+	}
+
+	@Configuration
+	static class AuthorizationEventPublisherConfig {
+
+		private final AuthorizationEventPublisher publisher = mock(AuthorizationEventPublisher.class);
+
+		@Bean
+		AuthorizationEventPublisher authorizationEventPublisher() {
+			return this.publisher;
 		}
 
 	}

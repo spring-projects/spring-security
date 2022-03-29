@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,21 @@
 package org.springframework.security.web.access.intercept;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
@@ -41,6 +48,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
 
+	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
+
 	/**
 	 * Creates an instance.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
@@ -54,7 +63,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		this.authorizationManager.verify(this::getAuthentication, request);
+		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
+		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
+		if (decision != null && !decision.isGranted()) {
+			throw new AccessDeniedException("Access Denied");
+		}
 		filterChain.doFilter(request, response);
 	}
 
@@ -68,11 +81,27 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	}
 
 	/**
+	 * Use this {@link AuthorizationEventPublisher} to publish
+	 * {@link AuthorizationDeniedEvent}s and {@link AuthorizationGrantedEvent}s.
+	 * @param eventPublisher the {@link ApplicationEventPublisher} to use
+	 * @since 5.7
+	 */
+	public void setAuthorizationEventPublisher(AuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
+	}
+
+	/**
 	 * Gets the {@link AuthorizationManager} used by this filter
 	 * @return the {@link AuthorizationManager}
 	 */
 	public AuthorizationManager<HttpServletRequest> getAuthorizationManager() {
 		return this.authorizationManager;
+	}
+
+	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
+			AuthorizationDecision decision) {
+
 	}
 
 }
