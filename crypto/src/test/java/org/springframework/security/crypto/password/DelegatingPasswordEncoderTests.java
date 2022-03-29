@@ -37,6 +37,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
  * @author Rob Winch
  * @author Michael Simons
  * @author heowc
+ * @author Jihoon Cha
  * @since 5.0
  */
 @ExtendWith(MockitoExtension.class)
@@ -119,9 +120,9 @@ public class DelegatingPasswordEncoderTests {
 
 	@Test
 	public void constructorWhenIdContainsPrefixThenIllegalArgumentException() {
-		this.delegates.put('$' + this.bcryptId, this.bcrypt);
+		this.delegates.put('{' + this.bcryptId, this.bcrypt);
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", "$"));
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates));
 	}
 
 	@Test
@@ -129,6 +130,12 @@ public class DelegatingPasswordEncoderTests {
 		this.delegates.put(this.bcryptId + '$', this.bcrypt);
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "", "$"));
+	}
+
+	@Test
+	public void constructorWhenPrefixContainsSuffixThenIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new DelegatingPasswordEncoder(this.bcryptId, this.delegates, "$", "$"));
 	}
 
 	@Test
