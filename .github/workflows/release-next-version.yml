@@ -96,7 +96,7 @@ jobs:
           ./gradlew :updateProjectVersion
           ./gradlew :spring-security-docs:antoraUpdateVersion
           updatedVersion=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
-          git commit -m "Release $updatedVersion"
+          git commit -am "Release $updatedVersion"
           git push
   notify_result:
     name: Check for failures
