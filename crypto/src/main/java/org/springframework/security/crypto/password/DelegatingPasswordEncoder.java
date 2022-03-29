@@ -119,6 +119,7 @@ import java.util.Map;
  * @author Rob Winch
  * @author Michael Simons
  * @author heowc
+ * @author Jihoon Cha
  * @since 5.0
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
@@ -172,6 +173,9 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		}
 		if (idSuffix == null || idSuffix.isEmpty()) {
 			throw new IllegalArgumentException("suffix cannot be empty");
+		}
+		if (idPrefix.contains(idSuffix)) {
+			throw new IllegalArgumentException("idPrefix " + idPrefix + " cannot contain idSuffix " + idSuffix);
 		}
 
 		if (!idToPasswordEncoder.containsKey(idForEncode)) {
