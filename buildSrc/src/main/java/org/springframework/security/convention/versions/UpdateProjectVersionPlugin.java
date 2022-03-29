@@ -37,8 +37,7 @@ public class UpdateProjectVersionPlugin implements Plugin<Project> {
 			public void execute(UpdateToSnapshotVersionTask updateToSnapshotVersionTask) {
 				updateToSnapshotVersionTask.setGroup("Release");
 				updateToSnapshotVersionTask.setDescription(
-						"Updates the project version to the next snapshot in gradle.properties and optionally commits the changes");
-				updateToSnapshotVersionTask.setCommit("true".equals(project.findProperty("commit")));
+						"Updates the project version to the next snapshot in gradle.properties");
 			}
 		});
 	}

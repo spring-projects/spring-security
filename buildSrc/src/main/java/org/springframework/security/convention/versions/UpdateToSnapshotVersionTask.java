@@ -18,22 +18,15 @@ package org.springframework.security.convention.versions;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class UpdateToSnapshotVersionTask extends DefaultTask {
 
 	private static final String RELEASE_VERSION_PATTERN = "^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-M\\d+|-RC\\d+)?$";
-
-	@Input
-	@Optional
-	private Boolean commit;
 
 	@TaskAction
 	public void updateToSnapshotVersion() {
@@ -49,12 +42,6 @@ public abstract class UpdateToSnapshotVersionTask extends DefaultTask {
 			gradlePropertiesText = gradlePropertiesText.replace("version=" + currentVersion, "version=" + nextVersion);
 			return gradlePropertiesText;
 		});
-		if (this.commit) {
-			System.out.println("Committing the version update");
-			File rootDir = getProject().getRootDir();
-			String commitMessage = "Next development version";
-			CommandLineUtils.runCommand(rootDir, "git", "commit", "-am", commitMessage);
-		}
 	}
 
 	private String calculateNextSnapshotVersion(String currentVersion) {
@@ -76,14 +63,6 @@ public abstract class UpdateToSnapshotVersionTask extends DefaultTask {
 			throw new IllegalStateException(
 					"Cannot calculate next snapshot version because the current project version does not conform to the expected format");
 		}
-	}
-
-	public Boolean getCommit() {
-		return commit;
-	}
-
-	public void setCommit(Boolean commit) {
-		this.commit = commit;
 	}
 
 }
