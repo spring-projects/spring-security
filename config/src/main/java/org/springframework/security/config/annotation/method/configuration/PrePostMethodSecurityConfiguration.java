@@ -49,7 +49,11 @@ final class PrePostMethodSecurityConfiguration implements ApplicationContextAwar
 
 	private final PreFilterAuthorizationMethodInterceptor preFilterAuthorizationMethodInterceptor = new PreFilterAuthorizationMethodInterceptor();
 
+	private final AuthorizationManagerBeforeMethodInterceptor preAuthorizeAuthorizationMethodInterceptor;
+
 	private final PreAuthorizeAuthorizationManager preAuthorizeAuthorizationManager = new PreAuthorizeAuthorizationManager();
+
+	private final AuthorizationManagerAfterMethodInterceptor postAuthorizeAuthorizaitonMethodInterceptor;
 
 	private final PostAuthorizeAuthorizationManager postAuthorizeAuthorizationManager = new PostAuthorizeAuthorizationManager();
 
@@ -57,47 +61,43 @@ final class PrePostMethodSecurityConfiguration implements ApplicationContextAwar
 
 	private final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 
-	private boolean customMethodSecurityExpressionHandler = false;
+	PrePostMethodSecurityConfiguration() {
+		this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.preAuthorizeAuthorizationMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor
+				.preAuthorize(this.preAuthorizeAuthorizationManager);
+		this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.postAuthorizeAuthorizaitonMethodInterceptor = AuthorizationManagerAfterMethodInterceptor
+				.postAuthorize(this.postAuthorizeAuthorizationManager);
+		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
+		this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
+	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor preFilterAuthorizationMethodInterceptor() {
-		if (!this.customMethodSecurityExpressionHandler) {
-			this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
-		}
 		return this.preFilterAuthorizationMethodInterceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor preAuthorizeAuthorizationMethodInterceptor() {
-		if (!this.customMethodSecurityExpressionHandler) {
-			this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
-		}
-		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize(this.preAuthorizeAuthorizationManager);
+		return this.preAuthorizeAuthorizationMethodInterceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postAuthorizeAuthorizationMethodInterceptor() {
-		if (!this.customMethodSecurityExpressionHandler) {
-			this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
-		}
-		return AuthorizationManagerAfterMethodInterceptor.postAuthorize(this.postAuthorizeAuthorizationManager);
+		return this.postAuthorizeAuthorizaitonMethodInterceptor;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	Advisor postFilterAuthorizationMethodInterceptor() {
-		if (!this.customMethodSecurityExpressionHandler) {
-			this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
-		}
 		return this.postFilterAuthorizationMethodInterceptor;
 	}
 
 	@Autowired(required = false)
 	void setMethodSecurityExpressionHandler(MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
-		this.customMethodSecurityExpressionHandler = true;
 		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(methodSecurityExpressionHandler);
 		this.preAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
 		this.postAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
