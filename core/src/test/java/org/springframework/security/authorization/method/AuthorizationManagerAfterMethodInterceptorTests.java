@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,20 @@
 
 package org.springframework.security.authorization.method;
 
+import java.util.function.Supplier;
+
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.aop.Pointcut;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -64,6 +73,34 @@ public class AuthorizationManagerAfterMethodInterceptorTests {
 		assertThat(returnedObject).isEqualTo(result.getResult());
 		verify(mockAuthorizationManager).check(eq(AuthorizationManagerAfterMethodInterceptor.AUTHENTICATION_SUPPLIER),
 				any(MethodInvocationResult.class));
+	}
+
+	@Test
+	public void configureWhenAuthorizationEventPublisherIsNullThenIllegalArgument() {
+		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
+				Pointcut.TRUE, AuthenticatedAuthorizationManager.authenticated());
+		assertThatIllegalArgumentException().isThrownBy(() -> advice.setAuthorizationEventPublisher(null))
+				.withMessage("eventPublisher cannot be null");
+	}
+
+	@Test
+	public void invokeWhenAuthorizationEventPublisherThenUses() throws Throwable {
+		AuthorizationManagerAfterMethodInterceptor advice = new AuthorizationManagerAfterMethodInterceptor(
+				Pointcut.TRUE, AuthenticatedAuthorizationManager.authenticated());
+		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
+		advice.setAuthorizationEventPublisher(eventPublisher);
+
+		SecurityContext securityContext = new SecurityContextImpl();
+		securityContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.setContext(securityContext);
+
+		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
+		MethodInvocationResult result = new MethodInvocationResult(mockMethodInvocation, new Object());
+		given(mockMethodInvocation.proceed()).willReturn(result.getResult());
+
+		advice.invoke(mockMethodInvocation);
+		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocationResult.class),
+				any(AuthorizationDecision.class));
 	}
 
 }

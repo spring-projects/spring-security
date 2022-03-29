@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,19 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.function.Supplier;
+
+import javax.servlet.http.HttpServletRequest;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
@@ -129,9 +136,9 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@Test
 	public void configureWhenObjectPostProcessorRegisteredThenInvokedOnAuthorizationManagerAndAuthorizationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor)
-				.postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(AuthorizationFilter.class));
+		ObjectPostProcessor objectPostProcessor = this.spring.getContext().getBean(ObjectPostProcessor.class);
+		verify(objectPostProcessor).postProcess(any(RequestMatcherDelegatingAuthorizationManager.class));
+		verify(objectPostProcessor).postProcess(any(AuthorizationFilter.class));
 	}
 
 	@Test
@@ -370,6 +377,15 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void getWhenCustomAuthorizationEventPublisherThenUses() throws Exception {
+		this.spring.register(AuthenticatedConfig.class, AuthorizationEventPublisherConfig.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
+		AuthorizationEventPublisher publisher = this.spring.getContext().getBean(AuthorizationEventPublisher.class);
+		verify(publisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
+				any(AuthorizationDecision.class));
+	}
+
+	@Test
 	public void getWhenAnyRequestAuthenticatedConfiguredAndUserLoggedInThenRespondsWithOk() throws Exception {
 		this.spring.register(AuthenticatedConfig.class, BasicController.class).autowire();
 		// @formatter:off
@@ -495,7 +511,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig {
 
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -509,8 +525,8 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		}
 
 		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
+		ObjectPostProcessor<Object> objectPostProcessor() {
+			return this.objectPostProcessor;
 		}
 
 	}
@@ -694,6 +710,18 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	static class AuthorizationEventPublisherConfig {
+
+		private final AuthorizationEventPublisher publisher = mock(AuthorizationEventPublisher.class);
+
+		@Bean
+		AuthorizationEventPublisher authorizationEventPublisher() {
+			return this.publisher;
 		}
 
 	}

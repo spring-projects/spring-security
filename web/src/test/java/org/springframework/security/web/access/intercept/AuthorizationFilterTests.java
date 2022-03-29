@@ -31,6 +31,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -39,8 +41,10 @@ import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -61,6 +65,8 @@ public class AuthorizationFilterTests {
 	@Test
 	public void filterWhenAuthorizationManagerVerifyPassesThenNextFilter() throws Exception {
 		AuthorizationManager<HttpServletRequest> mockAuthorizationManager = mock(AuthorizationManager.class);
+		given(mockAuthorizationManager.check(any(Supplier.class), any(HttpServletRequest.class)))
+				.willReturn(new AuthorizationDecision(true));
 		AuthorizationFilter filter = new AuthorizationFilter(mockAuthorizationManager);
 		TestingAuthenticationToken authenticationToken = new TestingAuthenticationToken("user", "password");
 
@@ -75,7 +81,7 @@ public class AuthorizationFilterTests {
 		filter.doFilter(mockRequest, mockResponse, mockFilterChain);
 
 		ArgumentCaptor<Supplier<Authentication>> authenticationCaptor = ArgumentCaptor.forClass(Supplier.class);
-		verify(mockAuthorizationManager).verify(authenticationCaptor.capture(), eq(mockRequest));
+		verify(mockAuthorizationManager).check(authenticationCaptor.capture(), eq(mockRequest));
 		Supplier<Authentication> authentication = authenticationCaptor.getValue();
 		assertThat(authentication.get()).isEqualTo(authenticationToken);
 
@@ -96,7 +102,7 @@ public class AuthorizationFilterTests {
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 		FilterChain mockFilterChain = mock(FilterChain.class);
 
-		willThrow(new AccessDeniedException("Access Denied")).given(mockAuthorizationManager).verify(any(),
+		willThrow(new AccessDeniedException("Access Denied")).given(mockAuthorizationManager).check(any(),
 				eq(mockRequest));
 
 		assertThatExceptionOfType(AccessDeniedException.class)
@@ -104,7 +110,7 @@ public class AuthorizationFilterTests {
 				.withMessage("Access Denied");
 
 		ArgumentCaptor<Supplier<Authentication>> authenticationCaptor = ArgumentCaptor.forClass(Supplier.class);
-		verify(mockAuthorizationManager).verify(authenticationCaptor.capture(), eq(mockRequest));
+		verify(mockAuthorizationManager).check(authenticationCaptor.capture(), eq(mockRequest));
 		Supplier<Authentication> authentication = authenticationCaptor.getValue();
 		assertThat(authentication.get()).isEqualTo(authenticationToken);
 
@@ -130,6 +136,33 @@ public class AuthorizationFilterTests {
 		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		assertThat(authorizationFilter.getAuthorizationManager()).isSameAs(authorizationManager);
+	}
+
+	@Test
+	public void configureWhenAuthorizationEventPublisherIsNullThenIllegalArgument() {
+		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		assertThatIllegalArgumentException().isThrownBy(() -> authorizationFilter.setAuthorizationEventPublisher(null))
+				.withMessage("eventPublisher cannot be null");
+	}
+
+	@Test
+	public void doFilterWhenAuthorizationEventPublisherThenUses() throws Exception {
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(
+				AuthenticatedAuthorizationManager.authenticated());
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		SecurityContext securityContext = new SecurityContextImpl();
+		securityContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.setContext(securityContext);
+
+		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
+		authorizationFilter.setAuthorizationEventPublisher(eventPublisher);
+		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
+		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
+				any(AuthorizationDecision.class));
 	}
 
 }

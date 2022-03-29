@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,19 +16,37 @@
 
 package org.springframework.security.authorization.event;
 
+import java.util.function.Supplier;
+
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.core.Authentication;
 
 /**
  * An {@link ApplicationEvent} which indicates failed authorization.
  *
  * @author Parikshit Dutta
- * @since 5.5
+ * @author Josh Cummings
+ * @since 5.7
  */
-public class AuthorizationFailureEvent extends ApplicationEvent {
+public class AuthorizationDeniedEvent<T> extends ApplicationEvent {
 
-	public AuthorizationFailureEvent(AuthorizationDecision authorizationDecision) {
-		super(authorizationDecision);
+	private final Supplier<Authentication> authentication;
+
+	private final AuthorizationDecision decision;
+
+	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationDecision decision) {
+		super(object);
+		this.authentication = authentication;
+		this.decision = decision;
+	}
+
+	public Supplier<Authentication> getAuthentication() {
+		return this.authentication;
+	}
+
+	public AuthorizationDecision getAuthorizationDecision() {
+		return this.decision;
 	}
 
 }
