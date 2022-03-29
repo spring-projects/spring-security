@@ -56,6 +56,7 @@
 *** xref:servlet/authorization/secure-objects.adoc[Secure Object Implementations]
 *** xref:servlet/authorization/method-security.adoc[Method Security]
 *** xref:servlet/authorization/acls.adoc[Domain Object Security ACLs]
+*** xref:servlet/authorization/events.adoc[Authorization Events]
 ** xref:servlet/oauth2/index.adoc[OAuth2]
 *** xref:servlet/oauth2/login/index.adoc[OAuth2 Log In]
 **** xref:servlet/oauth2/login/core.adoc[Core Configuration]

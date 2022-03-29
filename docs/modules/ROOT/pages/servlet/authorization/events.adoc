@@ -1,0 +1,160 @@
+[[servlet-events]]
+= Authorization Events
+
+For each authorization that is denied, an `AuthorizationDeniedEvent` is fired.
+Also, it's possible to fire and `AuthorizationGrantedEvent` for authorizations that are granted.
+
+To listen for these events, you must first publish an `AuthorizationEventPublisher`.
+
+Spring Security's `SpringAuthorizationEventPublisher` will probably do fine.
+It comes publishes authorization events using Spring's `ApplicationEventPublisher`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public AuthorizationEventPublisher authorizationEventPublisher
+        (ApplicationEventPublisher applicationEventPublisher) {
+    return new SpringAuthorizationEventPublisher(applicationEventPublisher);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authorizationEventPublisher
+        (applicationEventPublisher: ApplicationEventPublisher?): AuthorizationEventPublisher {
+    return SpringAuthorizationEventPublisher(applicationEventPublisher)
+}
+----
+====
+
+Then, you can use Spring's `@EventListener` support:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+public class AuthenticationEvents {
+
+    @EventListener
+    public void onFailure(AuthorizationDeniedEvent failure) {
+		// ...
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class AuthenticationEvents {
+
+    @EventListener
+    fun onFailure(failure: AuthorizationDeniedEvent?) {
+        // ...
+    }
+}
+----
+====
+
+[[authorization-granted-events]]
+== Authorization Granted Events
+
+Because ``AuthorizationGrantedEvent``s have the potential to be quite noisy, they are not published by default.
+
+In fact, publishing these events will likely require some business logic on your part to ensure that your application is not inundated with noisy authorization events.
+
+You can create your own event publisher that filters success events.
+For example, the following publisher only publishes authorization grants where `ROLE_ADMIN` was required:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+public class MyAuthorizationEventPublisher implements AuthorizationEventPublisher {
+    private final ApplicationEventPublisher publisher;
+    private final AuthorizationEventPublisher delegate;
+
+    public MyAuthorizationEventPublisher(ApplicationEventPublisher publisher) {
+        this.publisher = publisher;
+        this.delegate = new SpringAuthorizationEventPublisher(publisher);
+    }
+
+    @Override
+    public <T> void publishAuthorizationEvent(Supplier<Authentication> authentication,
+            T object, AuthorizationDecision decision) {
+        if (decision == null) {
+            return;
+        }
+        if (!decision.isGranted()) {
+            this.delegate.publishAuthorizationEvent(authentication, object, decision);
+            return;
+        }
+        if (shouldThisEventBePublished(decision)) {
+            AuthorizationGrantedEvent granted = new AuthorizationGrantedEvent(
+                    authentication, object, decision);
+            this.publisher.publishEvent(granted);
+        }
+    }
+
+    private boolean shouldThisEventBePublished(AuthorizationDecision decision) {
+        if (!(decision instanceof AuthorityAuthorizationDecision)) {
+            return false;
+        }
+        Collection<GrantedAuthority> authorities = ((AuthorityAuthorizationDecision) decision).getAuthorities();
+        for (GrantedAuthority authority : authorities) {
+            if ("ROLE_ADMIN".equals(authority.getAuthority())) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class MyAuthorizationEventPublisher(val publisher: ApplicationEventPublisher,
+    val delegate: SpringAuthorizationEventPublisher = SpringAuthorizationEventPublisher(publisher)):
+    AuthorizationEventPublisher {
+
+    override fun <T : Any?> publishAuthorizationEvent(
+        authentication: Supplier<Authentication>?,
+        `object`: T,
+        decision: AuthorizationDecision?
+    ) {
+        if (decision == null) {
+            return
+        }
+        if (!decision.isGranted) {
+            this.delegate.publishAuthorizationEvent(authentication, `object`, decision)
+            return
+        }
+        if (shouldThisEventBePublished(decision)) {
+            val granted = AuthorizationGrantedEvent(authentication, `object`, decision)
+            this.publisher.publishEvent(granted)
+        }
+    }
+
+    private fun shouldThisEventBePublished(decision: AuthorizationDecision): Boolean {
+        if (decision !is AuthorityAuthorizationDecision) {
+            return false
+        }
+        val authorities = decision.authorities
+        for (authority in authorities) {
+            if ("ROLE_ADMIN" == authority.authority) {
+                return true
+            }
+        }
+        return false
+    }
+}
+----
+====
