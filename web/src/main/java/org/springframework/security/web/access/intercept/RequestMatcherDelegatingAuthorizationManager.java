@@ -16,8 +16,8 @@
 
 package org.springframework.security.web.access.intercept;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -32,6 +32,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
+import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
 
 /**
@@ -46,10 +47,10 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings;
+	private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
 
 	private RequestMatcherDelegatingAuthorizationManager(
-			Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings) {
+			List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be empty");
 		this.mappings = mappings;
 	}
@@ -68,13 +69,12 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(LogMessage.format("Authorizing %s", request));
 		}
-		for (Map.Entry<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mapping : this.mappings
-				.entrySet()) {
+		for (RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>> mapping : this.mappings) {
 
-			RequestMatcher matcher = mapping.getKey();
+			RequestMatcher matcher = mapping.getRequestMatcher();
 			MatchResult matchResult = matcher.matcher(request);
 			if (matchResult.isMatch()) {
-				AuthorizationManager<RequestAuthorizationContext> manager = mapping.getValue();
+				AuthorizationManager<RequestAuthorizationContext> manager = mapping.getEntry();
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, manager));
 				}
@@ -99,7 +99,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	 */
 	public static final class Builder {
 
-		private final Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> mappings = new LinkedHashMap<>();
+		private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings = new ArrayList<>();
 
 		/**
 		 * Maps a {@link RequestMatcher} to an {@link AuthorizationManager}.
@@ -110,7 +110,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		public Builder add(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
 			Assert.notNull(matcher, "matcher cannot be null");
 			Assert.notNull(manager, "manager cannot be null");
-			this.mappings.put(matcher, manager);
+			this.mappings.add(new RequestMatcherEntry<>(matcher, manager));
 			return this;
 		}
 
@@ -123,7 +123,7 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 		 * @since 5.7
 		 */
 		public Builder mappings(
-				Consumer<Map<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>>> mappingsConsumer) {
+				Consumer<List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>>> mappingsConsumer) {
 			Assert.notNull(mappingsConsumer, "mappingsConsumer cannot be null");
 			mappingsConsumer.accept(this.mappings);
 			return this;

@@ -16,7 +16,6 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +36,7 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
 
 /**
@@ -129,14 +129,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		private void addFirst(RequestMatcher matcher, AuthorizationManager<RequestAuthorizationContext> manager) {
 			this.unmappedMatchers = null;
-			this.managerBuilder.mappings((m) -> {
-				LinkedHashMap<RequestMatcher, AuthorizationManager<RequestAuthorizationContext>> reorderedMap = new LinkedHashMap<>(
-						m.size() + 1);
-				reorderedMap.put(matcher, manager);
-				reorderedMap.putAll(m);
-				m.clear();
-				m.putAll(reorderedMap);
-			});
+			this.managerBuilder.mappings((m) -> m.add(0, new RequestMatcherEntry<>(matcher, manager)));
 			this.mappingCount++;
 		}
 
