@@ -96,7 +96,7 @@ http {
 
 == Bearer Token Propagation
 
-Now that you're resource server has validated the token, it might be handy to pass it to downstream services.
+Now that your resource server has validated the token, it might be handy to pass it to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
 
 ====
