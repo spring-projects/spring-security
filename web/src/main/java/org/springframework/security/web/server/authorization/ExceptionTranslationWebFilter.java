@@ -18,8 +18,6 @@ package org.springframework.security.web.server.authorization;
 
 import reactor.core.publisher.Mono;
 
-import org.springframework.context.MessageSource;
-import org.springframework.context.MessageSourceAware;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -40,7 +38,7 @@ import org.springframework.web.server.WebFilterChain;
  * @author César Revert
  * @since 5.0
  */
-public class ExceptionTranslationWebFilter implements WebFilter, MessageSourceAware {
+public class ExceptionTranslationWebFilter implements WebFilter {
 
 	private ServerAuthenticationEntryPoint authenticationEntryPoint = new HttpBasicServerAuthenticationEntryPoint();
 
@@ -90,14 +88,6 @@ public class ExceptionTranslationWebFilter implements WebFilter, MessageSourceAw
 	public void setAuthenticationTrustResolver(AuthenticationTrustResolver authenticationTrustResolver) {
 		Assert.notNull(authenticationTrustResolver, "authenticationTrustResolver must not be null");
 		this.authenticationTrustResolver = authenticationTrustResolver;
-	}
-
-	/**
-	 * @since 5.5
-	 * @deprecated This class no longer retrieves error messages from a MessageSource
-	 */
-	@Deprecated
-	public void setMessageSource(MessageSource messageSource) {
 	}
 
 	private <T> Mono<T> commenceAuthentication(ServerWebExchange exchange, AuthenticationException denied) {
