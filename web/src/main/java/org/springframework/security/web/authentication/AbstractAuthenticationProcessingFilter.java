@@ -452,11 +452,11 @@ public abstract class AbstractAuthenticationProcessingFilter extends GenericFilt
 		this.securityContextRepository = securityContextRepository;
 	}
 
-	protected AuthenticationSuccessHandler getSuccessHandler() {
+	public AuthenticationSuccessHandler getSuccessHandler() {
 		return this.successHandler;
 	}
 
-	protected AuthenticationFailureHandler getFailureHandler() {
+	public AuthenticationFailureHandler getFailureHandler() {
 		return this.failureHandler;
 	}
 
