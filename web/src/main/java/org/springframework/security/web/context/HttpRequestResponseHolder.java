@@ -27,7 +27,9 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated Use {@link SecurityContextRepository#loadContext(HttpServletRequest)}
  */
+@Deprecated
 public final class HttpRequestResponseHolder {
 
 	private HttpServletRequest request;
