@@ -60,7 +60,9 @@ public interface SecurityContextRepository {
 	 * the context should be loaded.
 	 * @return The security context which should be used for the current request, never
 	 * null.
+	 * @deprecated Use {@link #loadContext(HttpServletRequest)} instead.
 	 */
+	@Deprecated
 	SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
 
 	/**

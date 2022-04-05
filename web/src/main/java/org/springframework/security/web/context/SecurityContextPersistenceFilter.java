@@ -57,7 +57,9 @@ import org.springframework.web.filter.GenericFilterBean;
  *
  * @author Luke Taylor
  * @since 3.0
+ * @deprecated Use {@link SecurityContextHolderFilter}
  */
+@Deprecated
 public class SecurityContextPersistenceFilter extends GenericFilterBean {
 
 	static final String FILTER_APPLIED = "__spring_security_scpf_applied";

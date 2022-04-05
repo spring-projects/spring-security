@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.context;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
@@ -39,7 +40,10 @@ import org.springframework.security.web.util.OnCommittedResponseWrapper;
  * @author Marten Algesten
  * @author Rob Winch
  * @since 3.0
+ * @deprecated Use {@link SecurityContextRepository#loadContext(HttpServletRequest)}
+ * instead.
  */
+@Deprecated
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommittedResponseWrapper {
 
 	private boolean contextSaved = false;
