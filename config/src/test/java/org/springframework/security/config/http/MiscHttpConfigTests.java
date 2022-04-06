@@ -103,6 +103,7 @@ import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -121,6 +122,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -541,6 +544,28 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void configureWhenUsingDisableUrlRewritingAndCustomRepositoryThenRedirectIsNotEncodedByResponse()
+			throws IOException, ServletException {
+		this.spring.configLocations(xml("DisableUrlRewriting-NullSecurityContextRepository")).autowire();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
+		MockHttpServletResponse responseToSpy = spy(new MockHttpServletResponse());
+		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
+		proxy.doFilter(request, responseToSpy, (req, resp) -> {
+			HttpServletResponse httpResponse = (HttpServletResponse) resp;
+			httpResponse.encodeUrl("/");
+			httpResponse.encodeURL("/");
+			httpResponse.encodeRedirectUrl("/");
+			httpResponse.encodeRedirectURL("/");
+			httpResponse.getWriter().write("encodeRedirect");
+		});
+		verify(responseToSpy, never()).encodeRedirectURL(any());
+		verify(responseToSpy, never()).encodeRedirectUrl(any());
+		verify(responseToSpy, never()).encodeURL(any());
+		verify(responseToSpy, never()).encodeUrl(any());
+		assertThat(responseToSpy.getContentAsString()).isEqualTo("encodeRedirect");
+	}
+
+	@Test
 	public void configureWhenUserDetailsServiceInParentContextThenLocatesSuccessfully() {
 		assertThatExceptionOfType(BeansException.class).isThrownBy(
 				() -> this.spring.configLocations(MiscHttpConfigTests.xml("MissingUserDetailsService")).autowire());
@@ -755,6 +780,7 @@ public class MiscHttpConfigTests {
 
 	private void assertThatFiltersMatchExpectedAutoConfigList(String url) {
 		Iterator<Filter> filters = getFilters(url).iterator();
+		assertThat(filters.next()).isInstanceOf(DisableEncodeUrlFilter.class);
 		assertThat(filters.next()).isInstanceOf(SecurityContextPersistenceFilter.class);
 		assertThat(filters.next()).isInstanceOf(WebAsyncManagerIntegrationFilter.class);
 		assertThat(filters.next()).isInstanceOf(HeaderWriterFilter.class);

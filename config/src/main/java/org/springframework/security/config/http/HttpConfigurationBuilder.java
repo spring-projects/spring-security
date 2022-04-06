@@ -68,6 +68,7 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
@@ -179,6 +180,8 @@ class HttpConfigurationBuilder {
 
 	private BeanDefinition csrfFilter;
 
+	private BeanDefinition disableUrlRewriteFilter;
+
 	private BeanDefinition wellKnownChangePasswordRedirectFilter;
 
 	private BeanMetadataElement csrfLogoutHandler;
@@ -204,6 +207,7 @@ class HttpConfigurationBuilder {
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
+		createDisableEncodeUrlFilter();
 		createCsrfFilter();
 		createSecurityPersistence();
 		createSessionManagementFilters();
@@ -319,10 +323,6 @@ class HttpConfigurationBuilder {
 
 	private void createSecurityContextRepository() {
 		String repoRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
-		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
-		if (!StringUtils.hasText(disableUrlRewriting)) {
-			disableUrlRewriting = "true";
-		}
 		if (!StringUtils.hasText(repoRef)) {
 			BeanDefinitionBuilder contextRepo;
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
@@ -340,7 +340,7 @@ class HttpConfigurationBuilder {
 				default:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
 				}
-				if ("true".equals(disableUrlRewriting)) {
+				if (isDisableUrlRewriting()) {
 					contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
 				}
 			}
@@ -350,6 +350,11 @@ class HttpConfigurationBuilder {
 		}
 
 		this.contextRepoRef = new RuntimeBeanReference(repoRef);
+	}
+
+	private boolean isDisableUrlRewriting() {
+		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
+		return !"false".equals(disableUrlRewriting);
 	}
 
 	private void createSecurityContextHolderFilter() {
@@ -718,6 +723,12 @@ class HttpConfigurationBuilder {
 
 	}
 
+	private void createDisableEncodeUrlFilter() {
+		if (isDisableUrlRewriting()) {
+			this.disableUrlRewriteFilter = new RootBeanDefinition(DisableEncodeUrlFilter.class);
+		}
+	}
+
 	private void createCsrfFilter() {
 		Element elmt = DomUtils.getChildElementByTagName(this.httpElt, Elements.CSRF);
 		this.csrfParser = new CsrfBeanDefinitionParser();
@@ -757,6 +768,9 @@ class HttpConfigurationBuilder {
 
 	List<OrderDecorator> getFilters() {
 		List<OrderDecorator> filters = new ArrayList<>();
+		if (this.disableUrlRewriteFilter != null) {
+			filters.add(new OrderDecorator(this.disableUrlRewriteFilter, SecurityFilters.DISABLE_ENCODE_URL_FILTER));
+		}
 		if (this.cpf != null) {
 			filters.add(new OrderDecorator(this.cpf, SecurityFilters.CHANNEL_FILTER));
 		}

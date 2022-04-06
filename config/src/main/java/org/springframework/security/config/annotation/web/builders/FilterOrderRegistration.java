@@ -46,6 +46,7 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.web.filter.CorsFilter;
 
@@ -68,6 +69,7 @@ final class FilterOrderRegistration {
 
 	FilterOrderRegistration() {
 		Step order = new Step(INITIAL_ORDER, ORDER_STEP);
+		put(DisableEncodeUrlFilter.class, order.next());
 		put(ChannelProcessingFilter.class, order.next());
 		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
