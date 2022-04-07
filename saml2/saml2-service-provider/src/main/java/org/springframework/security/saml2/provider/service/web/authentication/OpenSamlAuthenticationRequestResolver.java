@@ -37,6 +37,7 @@ import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.w3c.dom.Element;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
@@ -72,6 +73,8 @@ class OpenSamlAuthenticationRequestResolver {
 
 	private final NameIDBuilder nameIdBuilder;
 
+	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
+
 	/**
 	 * Construct a {@link OpenSamlAuthenticationRequestResolver} using the provided
 	 * parameters
@@ -92,6 +95,10 @@ class OpenSamlAuthenticationRequestResolver {
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
 		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
+	}
+
+	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		this.relayStateResolver = relayStateResolver;
 	}
 
 	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
@@ -123,7 +130,7 @@ class OpenSamlAuthenticationRequestResolver {
 		if (authnRequest.getID() == null) {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		}
-		String relayState = UUID.randomUUID().toString();
+		String relayState = this.relayStateResolver.convert(request);
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleSignOnServiceBinding();
 		if (binding == Saml2MessageBinding.POST) {
 			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
