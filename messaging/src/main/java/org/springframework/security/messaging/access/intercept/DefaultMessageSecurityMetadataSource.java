@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,9 +40,7 @@ import org.springframework.security.messaging.util.matcher.MessageMatcher;
  * @since 4.0
  * @see ChannelSecurityInterceptor
  * @see ExpressionBasedMessageSecurityMetadataSourceFactory
- * @deprecated Use {@link MessageMatcherDelegatingAuthorizationManager} instead
  */
-@Deprecated
 public final class DefaultMessageSecurityMetadataSource implements MessageSecurityMetadataSource {
 
 	private final Map<MessageMatcher<?>, Collection<ConfigAttribute>> messageMap;
