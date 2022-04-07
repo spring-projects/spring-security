@@ -18,6 +18,7 @@ package org.springframework.security.config.websocket;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.assertj.core.api.ThrowableAssert;
 import org.junit.jupiter.api.Test;
@@ -33,6 +34,8 @@ import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProce
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.core.MethodParameter;
 import org.springframework.core.task.SyncTaskExecutor;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -44,6 +47,8 @@ import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -68,6 +73,9 @@ import org.springframework.web.socket.server.HandshakeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -169,6 +177,78 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
+	public void sendWhenNoIdSpecifiedThenIntegratesWithAuthorizationManager() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		this.clientInboundChannel.send(message("/permitAll"));
+		assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.clientInboundChannel.send(message("/denyAll")))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithConnectMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		this.clientInboundChannel.send(message("/permitAll", headers));
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithConnectAckMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.CONNECT_ACK);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithDisconnectMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithDisconnectAckMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.DISCONNECT_ACK);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithHeartbeatMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.HEARTBEAT);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithMessageMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithOtherMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.OTHER);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithSubscribeMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithUnsubscribeMessageTypeThenAuthorizationManagerPermits() {
+		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		send(message);
+	}
+
+	@Test
 	public void sendWhenConnectWithoutCsrfTokenThenDenied() {
 		this.spring.configLocations(xml("SyncConfig")).autowire();
 		Message<?> message = message("/message", SimpMessageType.CONNECT);
@@ -197,8 +277,34 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
+	public void sendWhenInterceptWiredForMessageTypeThenAuthorizationManagerDeniesOnTypeMismatch() {
+		this.spring.configLocations(xml("MessageInterceptTypeAuthorizationManager")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.MESSAGE);
+		send(message);
+		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/anyOther", SimpMessageType.MESSAGE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
 	public void sendWhenInterceptWiredForSubscribeTypeThenDeniesOnTypeMismatch() {
 		this.spring.configLocations(xml("SubscribeInterceptTypeConfig")).autowire();
+		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
+		send(message);
+		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/anyOther", SimpMessageType.SUBSCRIBE);
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenInterceptWiredForSubscribeTypeThenAuthorizationManagerDeniesOnTypeMismatch() {
+		this.spring.configLocations(xml("SubscribeInterceptTypeAuthorizationManager")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.SUBSCRIBE);
 		send(message);
 		message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
@@ -310,6 +416,16 @@ public class WebSocketMessageBrokerConfigTests {
 	}
 
 	@Test
+	public void sendWhenUsingCustomPathMatcherThenAuthorizationManagerAppliesIt() {
+		this.spring.configLocations(xml("CustomPathMatcherAuthorizationManager")).autowire();
+		Message<?> message = message("/denyAll.a");
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+		message = message("/denyAll.a.b");
+		send(message);
+	}
+
+	@Test
 	public void sendWhenIdSpecifiedThenSecurityDoesNotIntegrateWithClientInboundChannel() {
 		this.spring.configLocations(xml("IdConfig")).autowire();
 		Message<?> message = message("/denyAll");
@@ -340,6 +456,27 @@ public class WebSocketMessageBrokerConfigTests {
 		Message<?> message = message("/denyNile");
 		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
 				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	@WithMockUser(username = "nile")
+	public void sendWhenCustomExpressionHandlerThenAuthorizationManagerAuthorizesAccordingly() {
+		this.spring.configLocations(xml("CustomExpressionHandlerAuthorizationManager")).autowire();
+		Message<?> message = message("/denyNile");
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendWhenCustomAuthorizationManagerThenAuthorizesAccordingly() {
+		this.spring.configLocations(xml("CustomAuthorizationManagerConfig")).autowire();
+		AuthorizationManager<Message<?>> authorizationManager = this.spring.getContext()
+				.getBean(AuthorizationManager.class);
+		given(authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		Message<?> message = message("/any");
+		assertThatExceptionOfType(Exception.class).isThrownBy(send(message))
+				.withCauseInstanceOf(AccessDeniedException.class);
+		verify(authorizationManager).check(any(), any());
 	}
 
 	private String xml(String configName) {
@@ -464,6 +601,17 @@ public class WebSocketMessageBrokerConfigTests {
 					return auth != null && !"nile".equals(auth.getName());
 				}
 			};
+		}
+
+		@Override
+		public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+				Message<Object> message) {
+			return new StandardEvaluationContext(new MessageSecurityExpressionRoot(authentication, message) {
+				public boolean denyNile() {
+					Authentication auth = getAuthentication();
+					return auth != null && !"nile".equals(auth.getName());
+				}
+			});
 		}
 
 	}
