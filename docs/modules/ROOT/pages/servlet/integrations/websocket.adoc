@@ -11,63 +11,6 @@ This is because the format is unknown, so there is https://docs.spring.io/spring
 Additionally, JSR-356 does not provide a way to intercept messages, so security would be rather invasive.
 ****
 
-[[websocket-configuration]]
-== WebSocket Configuration
-
-Spring Security 4.0 has introduced authorization support for WebSockets through the Spring Messaging abstraction.
-To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
-For example:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Configuration
-public class WebSocketSecurityConfig
-      extends AbstractSecurityWebSocketMessageBrokerConfigurer { // <1> <2>
-
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-        messages
-                .simpDestMatchers("/user/**").authenticated() // <3>
-    }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Configuration
-open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() { // <1> <2>
-    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
-        messages.simpDestMatchers("/user/**").authenticated() // <3>
-    }
-}
-----
-====
-
-This will ensure that:
-
-<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
-<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
-
-Spring Security also provides xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
-A comparable XML based configuration looks like the following:
-
-[source,xml]
-----
-<websocket-message-broker> <!--1--> <!--2-->
-    <!--3-->
-    <intercept-message pattern="/user/**" access="hasRole('USER')" />
-</websocket-message-broker>
-----
-
-This will ensure that:
-
-<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
-<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
-
 [[websocket-authentication]]
 == WebSocket Authentication
 
@@ -77,30 +20,30 @@ If you are using Spring Security, the `Principal` on the `HttpServletRequest` is
 
 More concretely, to ensure a user has authenticated to your WebSocket application, all that is necessary is to ensure that you setup Spring Security to authenticate your HTTP based web application.
 
-[[websocket-authorization]]
+[[websocket-configuration]]
 == WebSocket Authorization
 
 Spring Security 4.0 has introduced authorization support for WebSockets through the Spring Messaging abstraction.
-To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
-For example:
+
+In Spring Security 5.8, this support has been refreshed to use the `AuthorizationManager` API.
+
+To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in XML use the `use-authorization-manager` attribute.
+One way to do this is by using the `AuthorizationManagerMessageMatcherRegistry` to specify endpoint patterns like so:
 
 ====
 .Java
 [source,java,role="primary"]
 ----
 @Configuration
-public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+@EnableWebSocketSecurity // <1> <2>
+public class WebSocketSecurityConfig {
 
-    @Override
-    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    @Bean
+    AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
-                .nullDestMatcher().authenticated() // <1>
-                .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
-                .simpDestMatchers("/app/**").hasRole("USER") // <3>
-                .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
-                .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
-                .anyMessage().denyAll(); // <6>
+                .simpDestMatchers("/user/**").authenticated() // <3>
 
+        return messages.build();
     }
 }
 ----
@@ -109,8 +52,103 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 [source,kotlin,role="secondary"]
 ----
 @Configuration
-open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() {
-    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+@EnableWebSocketSecurity // <1> <2>
+open class WebSocketSecurityConfig { // <1> <2>
+    @Bean
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+        messages.simpDestMatchers("/user/**").authenticated() // <3>
+        return messages.build()
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <intercept-message pattern="/user/**" access="authenticated"/>
+</websocket-message-broker>
+----
+====
+
+This will ensure that:
+
+<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
+<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
+<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
+
+=== Custom Authorization
+
+When using `AuthorizationManager`, customization is quite simple.
+For example, you can publish an `AuthorizationManager` that requires that all messages have a role of "USER" using `AuthorityAuthorizationManager`, as seen below:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSocketSecurity // <1> <2>
+public class WebSocketSecurityConfig {
+
+    @Bean
+    AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        return AuthorityAuthorizationManager.hasRole("USER");
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSocketSecurity // <1> <2>
+open class WebSocketSecurityConfig {
+    @Bean
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+        return AuthorityAuthorizationManager.hasRole("USER") // <3>
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authorizationManager" class="org.example.MyAuthorizationManager"/>
+
+<websocket-message-broker authorization-manager-ref="myAuthorizationManager"/>
+----
+====
+
+There are several ways to further match messages, as can be seen in a more advanced example below:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class WebSocketSecurityConfig {
+
+    @Bean
+    public AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+        messages
+                .nullDestMatcher().authenticated() // <1>
+                .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
+                .simpDestMatchers("/app/**").hasRole("USER") // <3>
+                .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
+                .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
+                .anyMessage().denyAll(); // <6>
+
+        return messages.build();
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?> {
         messages
             .nullDestMatcher().authenticated() // <1>
             .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
@@ -118,8 +156,34 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
             .simpSubscribeDestMatchers("/user/**", "/topic/friends/*").hasRole("USER") // <4>
             .simpTypeMatchers(MESSAGE, SUBSCRIBE).denyAll() // <5>
             .anyMessage().denyAll() // <6>
+
+        return messages.build();
     }
 }
+----
+
+.Xml
+[source,kotlin,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <!--1-->
+    <intercept-message type="CONNECT" access="permitAll" />
+    <intercept-message type="UNSUBSCRIBE" access="permitAll" />
+    <intercept-message type="DISCONNECT" access="permitAll" />
+
+    <intercept-message pattern="/user/queue/errors" type="SUBSCRIBE" access="permitAll" /> <!--2-->
+    <intercept-message pattern="/app/**" access="hasRole('USER')" />      <!--3-->
+
+    <!--4-->
+    <intercept-message pattern="/user/**" type="SUBSCRIBE" access="hasRole('USER')" />
+    <intercept-message pattern="/topic/friends/*" type="SUBSCRIBE" access="hasRole('USER')" />
+
+    <!--5-->
+    <intercept-message type="MESSAGE" access="denyAll" />
+    <intercept-message type="SUBSCRIBE" access="denyAll" />
+
+    <intercept-message pattern="/**" access="denyAll" /> <!--6-->
+</websocket-message-broker>
 ----
 ====
 
@@ -131,41 +195,6 @@ This will ensure that:
 <4> Any message that starts with "/user/" or "/topic/friends/" that is of type SUBSCRIBE will require ROLE_USER
 <5> Any other message of type MESSAGE or SUBSCRIBE is rejected. Due to 6 we do not need this step, but it illustrates how one can match on specific message types.
 <6> Any other Message is rejected. This is a good idea to ensure that you do not miss any messages.
-
-Spring Security also provides xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
-A comparable XML based configuration looks like the following:
-
-[source,xml]
-----
-<websocket-message-broker>
-    <!--1-->
-    <intercept-message type="CONNECT" access="permitAll" />
-    <intercept-message type="UNSUBSCRIBE" access="permitAll" />
-    <intercept-message type="DISCONNECT" access="permitAll" />
-
-    <intercept-message pattern="/user/queue/errors" type="SUBSCRIBE" access="permitAll" /> <!--2-->
-    <intercept-message pattern="/app/**" access="hasRole('USER')" />      <!--3-->
-
-    <!--4-->
-    <intercept-message pattern="/user/**" access="hasRole('USER')" />
-    <intercept-message pattern="/topic/friends/*" access="hasRole('USER')" />
-
-    <!--5-->
-    <intercept-message type="MESSAGE" access="denyAll" />
-    <intercept-message type="SUBSCRIBE" access="denyAll" />
-
-    <intercept-message pattern="/**" access="denyAll" /> <!--6-->
-</websocket-message-broker>
-----
-
-This will ensure that:
-
-<1> Any message of type CONNECT, UNSUBSCRIBE, or DISCONNECT will require the user to be authenticated
-<2> Anyone can subscribe to /user/queue/errors
-<3> Any message that has a destination starting with "/app/" will be require the user to have the role ROLE_USER
-<4> Any message that starts with "/user/" or "/topic/friends/" that is of type SUBSCRIBE will require ROLE_USER
-<5> Any other message of type MESSAGE or SUBSCRIBE is rejected. Due to 6 we do not need this step, but it illustrates how one can match on specific message types.
-<6> Any other message with a destination is rejected. This is a good idea to ensure that you do not miss any messages.
 
 [[websocket-authorization-notes]]
 === WebSocket Authorization Notes
@@ -311,8 +340,64 @@ stompClient.connect(headers, function(frame) {
 
 [[websocket-sameorigin-disable]]
 === Disable CSRF within WebSockets
+NOTE: At this point, CSRF is not configurable when using `@EnableWebSocketSecurity`, though this will likely be added in a future release.
 
-If you want to allow other domains to access your site, you can disable Spring Security's protection.
+To disable CSRF, instead of using `@EnableWebSocketSecurity`, you can use XML support or add the Spring Security components yourself, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        AuthorizationManager<Message<?>> myAuthorizationRules = AuthenticatedAuthorizationManager.authenticated();
+        AuthorizationChannelInterceptor authz = new AuthorizationChannelInterceptor(myAuthorizationRules);
+        AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(this.context);
+        authz.setAuthorizationEventPublisher(publisher);
+        registration.interceptors(new SecurityContextChannelInterceptor(), authz);
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
+    @Override
+    override fun addArgumentResolvers(argumentResolvers: List<HandlerMethodArgumentResolver>) {
+        argumentResolvers.add(AuthenticationPrincipalArgumentResolver())
+    }
+
+    @Override
+    override fun configureClientInboundChannel(registration: ChannelRegistration) {
+        var myAuthorizationRules: AuthorizationManager<Message<?>> = AuthenticatedAuthorizationManager.authenticated()
+        var authz: AuthorizationChannelInterceptor = AuthorizationChannelInterceptor(myAuthorizationRules)
+        var publisher: AuthorizationEventPublisher = SpringAuthorizationEventPublisher(this.context)
+        authz.setAuthorizationEventPublisher(publisher)
+        registration.interceptors(SecurityContextChannelInterceptor(), authz)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true" same-origin-disabled="true">
+    <intercept-message pattern="/**" access="authenticated"/>
+</websocket-message-broker>
+----
+====
+
+On the other hand, if you are using the <<legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`,legacy-websocket-configuration>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
 ====
@@ -346,6 +431,39 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
 ----
 ====
 
+[[websocket-expression-handler]]
+=== Custom Expression Handler
+
+At times, there may be value in customizing how the `access` expressions are handled defined in your `intercept-message` XML elements.
+To do this, you can create a class of type `SecurityExpressionHandler<MessageAuthorizationContext<?>>` and refer to it in your XML definition like so:
+
+[source,xml]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <expression-handler ref="myRef"/>
+    ...
+</websocket-message-broker>
+
+<b:bean ref="myRef" class="org.springframework.security.messaging.access.expression.MessageAuthorizationContextSecurityExpressionHandler"/>
+----
+
+If you are migrating from a legacy usage of `websocket-message-broker` that implements a `SecurityExpressionHandler<Message<?>>`, you can:
+ 1. Additionally implement the `createEvaluationContext(Supplier, Message)` method and then
+ 2. Wrap that value in a `MessageAuthorizationContextSecurityExpressionHandler` like so:
+
+[source,xml]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <expression-handler ref="myRef"/>
+    ...
+</websocket-message-broker>
+
+<b:bean ref="myRef" class="org.springframework.security.messaging.access.expression.MessageAuthorizationContextSecurityExpressionHandler">
+    <b:constructor-arg>
+        <b:bean class="org.example.MyLegacyExpressionHandler"/>
+    </b:constructor-arg>
+</b:bean>
+----
 
 [[websocket-sockjs]]
 == Working with SockJS
@@ -515,3 +633,47 @@ For example:
     </b:constructor-arg>
 </b:bean>
 ----
+
+[[legacy-websocket-configuration]]
+== Legacy WebSocket Configuration
+
+Before Spring Security 5.8, the way to configure messaging authorization using Java Configuration, was to extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
+For example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class WebSocketSecurityConfig
+      extends AbstractSecurityWebSocketMessageBrokerConfigurer { // <1> <2>
+
+    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+        messages
+                .simpDestMatchers("/user/**").authenticated() // <3>
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfigurer() { // <1> <2>
+    override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+        messages.simpDestMatchers("/user/**").authenticated() // <3>
+    }
+}
+----
+====
+
+This will ensure that:
+
+<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
+<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
+<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
+
+Using the legacy configuration is helpful in the event that you have a custom `SecurityExpressionHandler` that extends `AbstractSecurityExpressionHandler` and overrides `createEvaluationContextInternal` or `createSecurityExpressionRoot`.
+In order to defer `Authorization` lookup, the new `AuthorizationManager` API does not invoke these when evaluating expressions.
+
+If you are using XML, you can use the legacy APIs simply by not using the `use-authorization-manager` element or setting it to `false`.

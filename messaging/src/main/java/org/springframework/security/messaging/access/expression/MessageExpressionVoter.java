@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,11 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Daniel Bustamante Ospina
  * @since 4.0
+ * @deprecated Use
+ * {@link org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager}
+ * instead
  */
+@Deprecated
 public class MessageExpressionVoter<T> implements AccessDecisionVoter<Message<T>> {
 
 	private SecurityExpressionHandler<Message<T>> expressionHandler = new DefaultMessageSecurityExpressionHandler<>();

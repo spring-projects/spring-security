@@ -291,6 +291,12 @@ websocket-message-broker.attrlist &=
 websocket-message-broker.attrlist &=
 	## Disables the requirement for CSRF token to be present in the Stomp headers (default false). Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
 	attribute same-origin-disabled {xsd:boolean}?
+websocket-message-broker.attlist &=
+	## Use this AuthorizationManager instead of deriving one from <intercept-message> elements
+	attribute authorization-manager-ref {xsd:string}?
+websocket-message-broker.attrlist &=
+	## Use AuthorizationManager API instead of SecurityMetadatasource
+	attribute use-authorization-manager {xsd:boolean}?
 
 intercept-message =
 	## Creates an authorization rule for a websocket message.
