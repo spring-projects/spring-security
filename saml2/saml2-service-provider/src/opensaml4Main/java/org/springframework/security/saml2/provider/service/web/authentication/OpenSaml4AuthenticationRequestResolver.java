@@ -79,10 +79,12 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 	}
 
 	/**
-	 * Use this {@link Converter<HttpServletRequest, String>} to compute the RelayState
-	 * @param relayStateResolver the {@link Converter<HttpServletRequest, String>} to use
+	 * Use this {@link Converter} to compute the RelayState
+	 * @param relayStateResolver the {@link Converter} to use
+	 * @since 5.7
 	 */
 	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		Assert.notNull(relayStateResolver, "relayStateResolver cannot be null");
 		this.authnRequestResolver.setRelayStateResolver(relayStateResolver);
 	}
 

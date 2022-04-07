@@ -129,7 +129,7 @@ class OpenSamlAuthenticationRequestResolver {
 		if (authnRequest.getID() == null) {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));
 		}
-		String relayState = relayStateResolver.convert(request);
+		String relayState = this.relayStateResolver.convert(request);
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleSignOnServiceBinding();
 		if (binding == Saml2MessageBinding.POST) {
 			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
