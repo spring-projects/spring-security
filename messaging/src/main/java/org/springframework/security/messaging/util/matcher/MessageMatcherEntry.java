@@ -14,21 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.security.messaging.access.intercept;
-
-import org.springframework.messaging.Message;
-import org.springframework.security.access.SecurityMetadataSource;
+package org.springframework.security.messaging.util.matcher;
 
 /**
- * A {@link SecurityMetadataSource} that is used for securing {@link Message}
+ * A rich object for associating a {@link MessageMatcher} to another object.
  *
- * @author Rob Winch
- * @since 4.0
- * @see ChannelSecurityInterceptor
- * @see DefaultMessageSecurityMetadataSource
- * @deprecated Use {@link MessageMatcherDelegatingAuthorizationManager} instead
+ * @author Josh Cummings
+ * @since 5.7
  */
-@Deprecated
-public interface MessageSecurityMetadataSource extends SecurityMetadataSource {
+public class MessageMatcherEntry<T> {
+
+	private final MessageMatcher<?> messageMatcher;
+
+	private final T entry;
+
+	public MessageMatcherEntry(MessageMatcher requestMatcher, T entry) {
+		this.messageMatcher = requestMatcher;
+		this.entry = entry;
+	}
+
+	public MessageMatcher<?> getMessageMatcher() {
+		return this.messageMatcher;
+	}
+
+	public T getEntry() {
+		return this.entry;
+	}
 
 }
