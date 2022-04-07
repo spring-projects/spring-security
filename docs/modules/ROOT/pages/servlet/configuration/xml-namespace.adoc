@@ -270,6 +270,10 @@ The filters, aliases, and namespace elements and attributes that create the filt
 |===
 | Alias | Filter Class | Namespace Element or Attribute
 
+| DISABLE_ENCODE_URL_FILTER
+| `DisableEncodeUrlFilter`
+| `http@disable-url-rewriting`
+
 |  CHANNEL_FILTER
 | `ChannelProcessingFilter`
 | `http/intercept-url@requires-channel`

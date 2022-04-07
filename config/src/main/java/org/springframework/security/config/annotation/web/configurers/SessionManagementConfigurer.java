@@ -52,6 +52,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
@@ -375,6 +376,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 			concurrentSessionFilter = postProcess(concurrentSessionFilter);
 			http.addFilter(concurrentSessionFilter);
+		}
+		if (!this.enableSessionUrlRewriting) {
+			http.addFilter(new DisableEncodeUrlFilter());
 		}
 	}
 
