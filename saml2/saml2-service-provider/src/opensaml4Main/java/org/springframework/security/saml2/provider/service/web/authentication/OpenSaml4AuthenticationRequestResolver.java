@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
@@ -75,6 +76,14 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
 		this.clock = clock;
+	}
+
+	/**
+	 * Use this {@link Converter<HttpServletRequest, String>} to compute the RelayState
+	 * @param relayStateResolver the {@link Converter<HttpServletRequest, String>} to use
+	 */
+	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		this.authnRequestResolver.setRelayStateResolver(relayStateResolver);
 	}
 
 	public static final class AuthnRequestContext {
