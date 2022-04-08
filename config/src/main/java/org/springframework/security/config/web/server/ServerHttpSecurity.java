@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import reactor.util.context.Context;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.ResolvableType;
 import org.springframework.core.annotation.AnnotationAwareOrderComparator;
 import org.springframework.core.convert.converter.Converter;
@@ -254,6 +255,10 @@ import org.springframework.web.server.WebFilterChain;
  * @since 5.0
  */
 public class ServerHttpSecurity {
+
+	private static final ResolvableType REQUEST_AUTHORIZATION_MANAGER_TYPE = ResolvableType
+			.forType(new ParameterizedTypeReference<ReactiveAuthorizationManager<ServerWebExchange>>() {
+			});
 
 	private ServerWebExchangeMatcher securityMatcher = ServerWebExchangeMatchers.anyExchange();
 
@@ -1584,6 +1589,8 @@ public class ServerHttpSecurity {
 
 		private boolean anyExchangeRegistered;
 
+		private boolean mappingRegistered;
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -1616,8 +1623,21 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			Assert.state(this.matcher == null,
 					() -> "The matcher " + this.matcher + " does not have an access rule defined");
-			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
+			AuthorizationWebFilter result = new AuthorizationWebFilter(authorizationManager());
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
+		}
+
+		private ReactiveAuthorizationManager<ServerWebExchange> authorizationManager() {
+			if (this.mappingRegistered) {
+				return this.managerBldr.build();
+			}
+			ReactiveAuthorizationManager<ServerWebExchange> anyExchange = getBeanOrNull(
+					REQUEST_AUTHORIZATION_MANAGER_TYPE);
+			if (anyExchange != null) {
+				return anyExchange;
+			}
+			throw new IllegalStateException(
+					"At least one mapping is required (for example, authorizeExchange().anyExchange().authenticated())");
 		}
 
 		/**
@@ -1710,6 +1730,7 @@ public class ServerHttpSecurity {
 				AuthorizeExchangeSpec.this.managerBldr
 						.add(new ServerWebExchangeMatcherEntry<>(AuthorizeExchangeSpec.this.matcher, manager));
 				AuthorizeExchangeSpec.this.matcher = null;
+				AuthorizeExchangeSpec.this.mappingRegistered = true;
 				return AuthorizeExchangeSpec.this;
 			}
 

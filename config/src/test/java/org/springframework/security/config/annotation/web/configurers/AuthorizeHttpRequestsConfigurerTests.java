@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -48,10 +49,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -395,6 +398,20 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
+	@Test
+	public void getWhenOnlyAuthorizationManagerBeanThenRespondsWithOk() throws Exception {
+		this.spring.register(NoRequestsConfig.class, AuthorizationManagerConfig.class, BasicController.class)
+				.autowire();
+		AuthorizationManager<HttpServletRequest> request = (AuthorizationManager<HttpServletRequest>) this.spring
+				.getContext().getBean("request");
+		given(request.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+		verify(request).check(any(), any());
+		AuthorizationManager<MethodInvocation> method = (AuthorizationManager<MethodInvocation>) this.spring
+				.getContext().getBean("method");
+		verifyNoInteractions(method);
+	}
+
 	@EnableWebSecurity
 	static class NoRequestsConfig {
 
@@ -721,6 +738,25 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
 			return this.publisher;
+		}
+
+	}
+
+	@Configuration
+	static class AuthorizationManagerConfig {
+
+		private final AuthorizationManager<HttpServletRequest> request = mock(AuthorizationManager.class);
+
+		private final AuthorizationManager<MethodInvocation> method = mock(AuthorizationManager.class);
+
+		@Bean
+		AuthorizationManager<HttpServletRequest> request() {
+			return this.request;
+		}
+
+		@Bean
+		AuthorizationManager<MethodInvocation> method() {
+			return this.method;
 		}
 
 	}
