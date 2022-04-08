@@ -208,4 +208,8 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		this.useReferer = useReferer;
 	}
 
+	protected boolean isUseReferer() {
+		return this.useReferer;
+	}
+
 }

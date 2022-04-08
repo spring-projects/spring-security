@@ -88,6 +88,11 @@ public class SavedRequestAwareAuthenticationSuccessHandler extends SimpleUrlAuth
 		clearAuthenticationAttributes(request);
 		// Use the DefaultSavedRequest URL
 		String targetUrl = savedRequest.getRedirectUrl();
+
+		// If we should return to the referring URL instead
+		if (isUseReferer() && savedRequest.getHeaderValues("Referer") != null) {
+			targetUrl = savedRequest.getHeaderValues("Referer").get(0);
+		}
 		getRedirectStrategy().sendRedirect(request, response, targetUrl);
 	}
 

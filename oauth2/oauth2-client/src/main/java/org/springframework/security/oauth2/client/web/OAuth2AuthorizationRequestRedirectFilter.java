@@ -167,6 +167,12 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 			OAuth2AuthorizationRequest authorizationRequest = this.authorizationRequestResolver.resolve(request);
 			if (authorizationRequest != null) {
 				this.sendRedirectForAuthorization(request, response, authorizationRequest);
+				// If the OAuth2 login url is hit directly (say from a form login page)
+				// we need to make sure there is a saved session, so we can go back
+				// to the referring url
+				if (this.requestCache.getMatchingRequest(request, response) == null) {
+					this.requestCache.saveRequest(request, response);
+				}
 				return;
 			}
 		}
