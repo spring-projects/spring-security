@@ -29,7 +29,11 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  * Page 50, Line 2147
  *
  * @since 5.2
+ * @deprecated As of 5.7.0, use
+ * {@link org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver}
+ * instead
  */
+@Deprecated
 public interface Saml2AuthenticationRequestFactory {
 
 	/**
