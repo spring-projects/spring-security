@@ -105,7 +105,7 @@ public class Saml2MetadataFilterTests {
 				.build();
 		String generatedMetadata = "<xml>test</xml>";
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
-		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
+		this.filter = new Saml2MetadataFilter((request, registrationId) -> validRegistration, this.resolver);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		verifyNoInteractions(this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(200);
@@ -131,7 +131,7 @@ public class Saml2MetadataFilterTests {
 		String generatedMetadata = "<xml>test</xml>";
 		this.request.setPathInfo("/saml2/service-provider-metadata/registration-id");
 		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
-		this.filter = new Saml2MetadataFilter((request) -> validRegistration, this.resolver);
+		this.filter = new Saml2MetadataFilter((request, registrationId) -> validRegistration, this.resolver);
 		this.filter.setMetadataFilename(testMetadataFilename);
 		this.filter.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getHeaderValue(HttpHeaders.CONTENT_DISPOSITION)).asString()

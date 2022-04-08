@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web.configurers.saml2;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.time.Duration;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +33,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.AuthnRequest;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,23 +66,17 @@ import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
-import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationProvider;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
-import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
-import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.authentication.OpenSaml4AuthenticationRequestResolver;
@@ -113,7 +105,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -212,30 +203,6 @@ public class Saml2LoginConfigurerTests {
 	}
 
 	@Test
-	public void saml2LoginWhenCustomAuthenticationRequestContextResolverThenUses() throws Exception {
-		this.spring.register(CustomAuthenticationRequestContextResolver.class).autowire();
-		Saml2AuthenticationRequestContext context = TestSaml2AuthenticationRequestContexts
-				.authenticationRequestContext().build();
-		Saml2AuthenticationRequestContextResolver resolver = this.spring.getContext()
-				.getBean(Saml2AuthenticationRequestContextResolver.class);
-		given(resolver.resolve(any(HttpServletRequest.class))).willReturn(context);
-		this.mvc.perform(get("/saml2/authenticate/registration-id")).andExpect(status().isFound());
-		verify(resolver).resolve(any(HttpServletRequest.class));
-	}
-
-	@Test
-	public void authenticationRequestWhenAuthnRequestContextConverterThenUses() throws Exception {
-		this.spring.register(CustomAuthenticationRequestContextConverterResolver.class).autowire();
-
-		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
-		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
-		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
-		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
-		assertThat(inflated).contains("ForceAuthn=\"true\"");
-	}
-
-	@Test
 	public void authenticationRequestWhenAuthenticationRequestResolverBeanThenUses() throws Exception {
 		this.spring.register(CustomAuthenticationRequestResolverBean.class).autowire();
 		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
@@ -255,19 +222,6 @@ public class Saml2LoginConfigurerTests {
 		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
 		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
 		assertThat(inflated).contains("ForceAuthn=\"true\"");
-	}
-
-	@Test
-	public void authenticationRequestWhenAuthenticationRequestResolverAndFactoryThenResolverTakesPrecedence()
-			throws Exception {
-		this.spring.register(CustomAuthenticationRequestResolverPrecedence.class).autowire();
-		MvcResult result = this.mvc.perform(get("/saml2/authenticate/registration-id")).andReturn();
-		UriComponents components = UriComponentsBuilder.fromHttpUrl(result.getResponse().getRedirectedUrl()).build();
-		String samlRequest = components.getQueryParams().getFirst("SAMLRequest");
-		String decoded = URLDecoder.decode(samlRequest, "UTF-8");
-		String inflated = Saml2Utils.samlInflate(Saml2Utils.samlDecode(decoded));
-		assertThat(inflated).contains("ForceAuthn=\"true\"");
-		verifyNoInteractions(this.spring.getContext().getBean(Saml2AuthenticationRequestFactory.class));
 	}
 
 	@Test
@@ -515,61 +469,6 @@ public class Saml2LoginConfigurerTests {
 
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthenticationRequestContextResolver extends WebSecurityConfigurerAdapter {
-
-		private final Saml2AuthenticationRequestContextResolver resolver = mock(
-				Saml2AuthenticationRequestContextResolver.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests((authz) -> authz
-						.anyRequest().authenticated()
-				)
-				.saml2Login(withDefaults());
-			// @formatter:on
-		}
-
-		@Bean
-		Saml2AuthenticationRequestContextResolver resolver() {
-			return this.resolver;
-		}
-
-	}
-
-	@EnableWebSecurity
-	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthenticationRequestContextConverterResolver extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests((authz) -> authz
-					.anyRequest().authenticated()
-				)
-				.saml2Login((saml2) -> {
-				});
-			// @formatter:on
-		}
-
-		@Bean
-		Saml2AuthenticationRequestFactory authenticationRequestFactory() {
-			OpenSaml4AuthenticationRequestFactory authenticationRequestFactory = new OpenSaml4AuthenticationRequestFactory();
-			authenticationRequestFactory.setAuthenticationRequestContextConverter((context) -> {
-				AuthnRequest authnRequest = TestOpenSamlObjects.authnRequest();
-				authnRequest.setIssueInstant(Instant.now());
-				authnRequest.setForceAuthn(true);
-				return authnRequest;
-			});
-			return authenticationRequestFactory;
-		}
-
-	}
-
-	@EnableWebSecurity
-	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestResolverBean {
 
 		@Bean
@@ -618,41 +517,6 @@ public class Saml2LoginConfigurerTests {
 			return http.build();
 		}
 
-		Saml2AuthenticationRequestResolver authenticationRequestResolver(
-				RelyingPartyRegistrationRepository registrations) {
-			RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(
-					registrations);
-			OpenSaml4AuthenticationRequestResolver delegate = new OpenSaml4AuthenticationRequestResolver(
-					registrationResolver);
-			delegate.setAuthnRequestCustomizer((parameters) -> parameters.getAuthnRequest().setForceAuthn(true));
-			return delegate;
-		}
-
-	}
-
-	@EnableWebSecurity
-	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthenticationRequestResolverPrecedence {
-
-		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-					.authorizeRequests((authz) -> authz
-							.anyRequest().authenticated()
-					)
-					.saml2Login(Customizer.withDefaults());
-			// @formatter:on
-
-			return http.build();
-		}
-
-		@Bean
-		Saml2AuthenticationRequestFactory authenticationRequestFactory() {
-			return mock(Saml2AuthenticationRequestFactory.class);
-		}
-
-		@Bean
 		Saml2AuthenticationRequestResolver authenticationRequestResolver(
 				RelyingPartyRegistrationRepository registrations) {
 			RelyingPartyRegistrationResolver registrationResolver = new DefaultRelyingPartyRegistrationResolver(

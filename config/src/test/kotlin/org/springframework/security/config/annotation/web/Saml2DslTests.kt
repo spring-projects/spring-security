@@ -34,8 +34,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.saml2.credentials.Saml2X509Credential
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION
+import org.springframework.security.saml2.core.Saml2X509Credential
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
@@ -101,10 +100,14 @@ class Saml2DslTests {
                     relyingPartyRegistrationRepository =
                             InMemoryRelyingPartyRegistrationRepository(
                                     RelyingPartyRegistration.withRegistrationId("samlId")
-                                            .assertionConsumerServiceUrlTemplate("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
-                                            .credentials { c -> c.add(Saml2X509Credential(loadCert("rod.cer"), VERIFICATION)) }
-                                            .providerDetails { c -> c.webSsoUrl("ssoUrl") }
-                                            .providerDetails { c -> c.entityId("entityId") }
+                                            .assertionConsumerServiceLocation("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
+                                            .assertingPartyDetails { a -> a
+                                                .verificationX509Credentials { c -> c
+                                                    .add(Saml2X509Credential(loadCert("rod.cer"), Saml2X509Credential.Saml2X509CredentialType.VERIFICATION))
+                                                }
+                                            }
+                                            .assertingPartyDetails { c -> c.singleSignOnServiceLocation("ssoUrl") }
+                                            .assertingPartyDetails { c -> c.entityId("entityId") }
                                             .build()
                             )
                 }

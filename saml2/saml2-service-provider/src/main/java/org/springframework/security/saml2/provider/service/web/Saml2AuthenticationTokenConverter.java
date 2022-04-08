@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,25 +54,10 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
 
-	/**
-	 * Constructs a {@link Saml2AuthenticationTokenConverter} given a strategy for
-	 * resolving {@link RelyingPartyRegistration}s
-	 * @param relyingPartyRegistrationResolver the strategy for resolving
-	 * {@link RelyingPartyRegistration}s
-	 * @deprecated Use
-	 * {@link Saml2AuthenticationTokenConverter#Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver)}
-	 * instead
-	 */
-	@Deprecated
-	public Saml2AuthenticationTokenConverter(
-			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
-		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
-		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
-		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
-	}
-
 	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this(adaptToConverter(relyingPartyRegistrationResolver));
+		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
+		this.relyingPartyRegistrationResolver = adaptToConverter(relyingPartyRegistrationResolver);
+		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
 	}
 
 	private static Converter<HttpServletRequest, RelyingPartyRegistration> adaptToConverter(

@@ -40,7 +40,6 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -231,8 +230,7 @@ public class Saml2LoginBeanDefinitionParserTests {
 				.configLocations(this.xml("WithCustomRelyingPartyRepository-WithCustomAuthenticationRequestResolver"))
 				.autowire();
 		Saml2RedirectAuthenticationRequest request = Saml2RedirectAuthenticationRequest
-				.withAuthenticationRequestContext(
-						TestSaml2AuthenticationRequestContexts.authenticationRequestContext().build())
+				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.noCredentials().build())
 				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL).build();
 		given(this.authenticationRequestResolver.resolve(any(HttpServletRequest.class))).willReturn(request);
 		this.mvc.perform(get("/saml2/authenticate/registration-id")).andExpect(status().isFound());

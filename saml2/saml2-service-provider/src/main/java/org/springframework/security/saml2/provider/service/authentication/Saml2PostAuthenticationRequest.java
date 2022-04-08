@@ -26,7 +26,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  * (line 2031)
  *
  * @since 5.3
- * @see Saml2AuthenticationRequestFactory
+ * @see org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver
  */
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
@@ -40,19 +40,6 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	@Override
 	public Saml2MessageBinding getBinding() {
 		return Saml2MessageBinding.POST;
-	}
-
-	/**
-	 * Constructs a {@link Builder} from a {@link Saml2AuthenticationRequestContext}
-	 * object. By default the
-	 * {@link Saml2PostAuthenticationRequest#getAuthenticationRequestUri()} will be set to
-	 * the {@link Saml2AuthenticationRequestContext#getDestination()} value.
-	 * @param context input providing {@code Destination}, {@code RelayState}, and
-	 * {@code Issuer} objects.
-	 * @return a modifiable builder object
-	 */
-	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
 	}
 
 	/**
