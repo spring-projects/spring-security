@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.saml2.provider.service.metadata.Saml2MetadataResolver;
@@ -54,21 +53,6 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
 			"/saml2/service-provider-metadata/{registrationId}");
-
-	/**
-	 * Construct a {@link Saml2MetadataFilter}
-	 * @param relyingPartyRegistrationResolver
-	 * @param saml2MetadataResolver
-	 * @deprecated Use
-	 * {@link Saml2MetadataFilter#Saml2MetadataFilter(RelyingPartyRegistrationResolver, Saml2MetadataResolver)}
-	 * instead
-	 */
-	@Deprecated
-	public Saml2MetadataFilter(Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver,
-			Saml2MetadataResolver saml2MetadataResolver) {
-		this.relyingPartyRegistrationResolver = (request, id) -> relyingPartyRegistrationResolver.convert(request);
-		this.saml2MetadataResolver = saml2MetadataResolver;
-	}
 
 	public Saml2MetadataFilter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver,
 			Saml2MetadataResolver saml2MetadataResolver) {

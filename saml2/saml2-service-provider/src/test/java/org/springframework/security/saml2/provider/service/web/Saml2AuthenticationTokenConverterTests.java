@@ -25,7 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -50,7 +49,7 @@ import static org.mockito.Mockito.mock;
 public class Saml2AuthenticationTokenConverterTests {
 
 	@Mock
-	Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
+	RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.relyingPartyRegistration()
 			.build();
@@ -59,7 +58,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenSamlResponseThenToken() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
@@ -74,7 +73,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenSamlResponseInvalidBase64ThenSaml2AuthenticationException() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, "invalid");
@@ -90,7 +89,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenNoSamlResponseThenNull() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		assertThat(converter.convert(request)).isNull();
@@ -100,7 +99,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenNoRelyingPartyRegistrationThenNull() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class))).willReturn(null);
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any())).willReturn(null);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		assertThat(converter.convert(request)).isNull();
 	}
@@ -109,7 +108,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenGetRequestThenInflates() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
@@ -126,7 +125,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenGetRequestInvalidDeflatedThenSaml2AuthenticationException() {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
@@ -145,7 +144,7 @@ public class Saml2AuthenticationTokenConverterTests {
 	public void convertWhenUsingSamlUtilsBase64ThenXmlIsValid() throws Exception {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, getSsoCircleEncodedXml());
@@ -161,7 +160,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		Saml2AuthenticationTokenConverter converter = new Saml2AuthenticationTokenConverter(
 				this.relyingPartyRegistrationResolver);
 		converter.setAuthenticationRequestRepository(authenticationRequestRepository);
-		given(this.relyingPartyRegistrationResolver.convert(any(HttpServletRequest.class)))
+		given(this.relyingPartyRegistrationResolver.resolve(any(HttpServletRequest.class), any()))
 				.willReturn(this.relyingPartyRegistration);
 		given(authenticationRequestRepository.loadAuthenticationRequest(any(HttpServletRequest.class)))
 				.willReturn(authenticationRequest);
@@ -177,8 +176,7 @@ public class Saml2AuthenticationTokenConverterTests {
 
 	@Test
 	public void constructorWhenResolverIsNullThenIllegalArgument() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new Saml2AuthenticationTokenConverter((RelyingPartyRegistrationResolver) null));
+		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2AuthenticationTokenConverter(null));
 	}
 
 	@Test

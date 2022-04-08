@@ -33,8 +33,8 @@ import org.springframework.util.Assert;
  * (line 2031)
  *
  * @since 5.3
- * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
- * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
+ * @see Saml2PostAuthenticationRequest
+ * @see Saml2RedirectAuthenticationRequest
  */
 public abstract class AbstractSaml2AuthenticationRequest implements Serializable {
 

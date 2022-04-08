@@ -40,31 +40,24 @@ public class RelyingPartyRegistrationTests {
 
 	private void compareRegistrations(RelyingPartyRegistration registration, RelyingPartyRegistration copy) {
 		assertThat(copy.getRegistrationId()).isEqualTo(registration.getRegistrationId()).isEqualTo("simplesamlphp");
-		assertThat(copy.getProviderDetails().getEntityId()).isEqualTo(registration.getProviderDetails().getEntityId())
-				.isEqualTo(copy.getAssertingPartyDetails().getEntityId())
+		assertThat(copy.getAssertingPartyDetails().getEntityId())
 				.isEqualTo(registration.getAssertingPartyDetails().getEntityId())
 				.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
-		assertThat(copy.getAssertionConsumerServiceUrlTemplate())
-				.isEqualTo(registration.getAssertionConsumerServiceUrlTemplate())
-				.isEqualTo(copy.getAssertionConsumerServiceLocation())
+		assertThat(copy.getAssertionConsumerServiceLocation())
 				.isEqualTo(registration.getAssertionConsumerServiceLocation())
 				.isEqualTo("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI);
-		assertThat(copy.getCredentials()).containsAll(registration.getCredentials())
-				.containsExactly(registration.getCredentials().get(0), registration.getCredentials().get(1));
-		assertThat(copy.getLocalEntityIdTemplate()).isEqualTo(registration.getLocalEntityIdTemplate())
-				.isEqualTo(copy.getEntityId()).isEqualTo(registration.getEntityId())
+		assertThat(copy.getSigningX509Credentials()).containsAll(registration.getSigningX509Credentials());
+		assertThat(copy.getDecryptionX509Credentials()).containsAll(registration.getDecryptionX509Credentials());
+		assertThat(copy.getEntityId()).isEqualTo(registration.getEntityId()).isEqualTo(copy.getEntityId())
+				.isEqualTo(registration.getEntityId())
 				.isEqualTo("{baseUrl}/saml2/service-provider-metadata/{registrationId}");
-		assertThat(copy.getProviderDetails().getWebSsoUrl()).isEqualTo(registration.getProviderDetails().getWebSsoUrl())
-				.isEqualTo(copy.getAssertingPartyDetails().getSingleSignOnServiceLocation())
+		assertThat(copy.getAssertingPartyDetails().getSingleSignOnServiceLocation())
 				.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation())
 				.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php");
-		assertThat(copy.getProviderDetails().getBinding()).isEqualTo(registration.getProviderDetails().getBinding())
-				.isEqualTo(copy.getAssertingPartyDetails().getSingleSignOnServiceBinding())
+		assertThat(copy.getAssertingPartyDetails().getSingleSignOnServiceBinding())
 				.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceBinding())
 				.isEqualTo(Saml2MessageBinding.POST);
-		assertThat(copy.getProviderDetails().isSignAuthNRequest())
-				.isEqualTo(registration.getProviderDetails().isSignAuthNRequest())
-				.isEqualTo(copy.getAssertingPartyDetails().getWantAuthnRequestsSigned())
+		assertThat(copy.getAssertingPartyDetails().getWantAuthnRequestsSigned())
 				.isEqualTo(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()).isFalse();
 		assertThat(copy.getAssertionConsumerServiceBinding())
 				.isEqualTo(registration.getAssertionConsumerServiceBinding());

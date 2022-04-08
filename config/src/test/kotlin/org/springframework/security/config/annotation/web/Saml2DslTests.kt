@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.saml2.credentials.Saml2X509Credential
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION
+import org.springframework.security.saml2.core.Saml2X509Credential
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
@@ -98,10 +97,14 @@ class Saml2DslTests {
                     relyingPartyRegistrationRepository =
                             InMemoryRelyingPartyRegistrationRepository(
                                     RelyingPartyRegistration.withRegistrationId("samlId")
-                                            .assertionConsumerServiceUrlTemplate("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
-                                            .credentials { c -> c.add(Saml2X509Credential(loadCert("rod.cer"), VERIFICATION)) }
-                                            .providerDetails { c -> c.webSsoUrl("ssoUrl") }
-                                            .providerDetails { c -> c.entityId("entityId") }
+                                            .assertionConsumerServiceLocation("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
+                                            .assertingPartyDetails { a -> a
+                                                .verificationX509Credentials { c -> c
+                                                    .add(Saml2X509Credential(loadCert("rod.cer"), Saml2X509Credential.Saml2X509CredentialType.VERIFICATION))
+                                                }
+                                            }
+                                            .assertingPartyDetails { c -> c.singleSignOnServiceLocation("ssoUrl") }
+                                            .assertingPartyDetails { c -> c.entityId("entityId") }
                                             .build()
                             )
                 }

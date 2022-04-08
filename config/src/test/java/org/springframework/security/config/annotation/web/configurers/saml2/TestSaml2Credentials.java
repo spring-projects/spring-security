@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import org.springframework.security.converter.RsaKeyConverters;
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 
 /**
  * Preconfigured SAML credentials for SAML integration tests.
@@ -61,7 +60,8 @@ public final class TestSaml2Credentials {
 				+ "lx13Y1YlQ4/tlpgTgfIJxKV6nyPiLoK0nywbMd+vpAirDt2Oc+hk\n"
 				+ "-----END CERTIFICATE-----";
 		// @formatter:on
-		return new Saml2X509Credential(x509Certificate(certificate), Saml2X509CredentialType.VERIFICATION);
+		return new Saml2X509Credential(x509Certificate(certificate),
+				Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
 	}
 
 	static X509Certificate x509Certificate(String source) {
@@ -114,7 +114,8 @@ public final class TestSaml2Credentials {
 		// @formatter:on
 		PrivateKey pk = RsaKeyConverters.pkcs8().convert(new ByteArrayInputStream(key.getBytes()));
 		X509Certificate cert = x509Certificate(certificate);
-		return new Saml2X509Credential(pk, cert, Saml2X509CredentialType.SIGNING, Saml2X509CredentialType.DECRYPTION);
+		return new Saml2X509Credential(pk, cert, Saml2X509Credential.Saml2X509CredentialType.SIGNING,
+				Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
 	}
 
 }

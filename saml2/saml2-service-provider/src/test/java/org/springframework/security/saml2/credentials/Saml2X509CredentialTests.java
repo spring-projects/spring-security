@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.converter.RsaKeyConverters;
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
@@ -79,66 +79,66 @@ public class Saml2X509CredentialTests {
 
 	@Test
 	public void constructorWhenRelyingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.SIGNING);
-		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.SIGNING,
-				Saml2X509CredentialType.DECRYPTION);
-		new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.DECRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509Credential.Saml2X509CredentialType.SIGNING);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509Credential.Saml2X509CredentialType.SIGNING,
+				Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
+		new Saml2X509Credential(this.key, this.certificate, Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithCredentialsThenItSucceeds() {
-		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.VERIFICATION);
-		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.VERIFICATION,
-				Saml2X509CredentialType.ENCRYPTION);
-		new Saml2X509Credential(this.certificate, Saml2X509CredentialType.ENCRYPTION);
+		new Saml2X509Credential(this.certificate, Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
+		new Saml2X509Credential(this.certificate, Saml2X509Credential.Saml2X509CredentialType.VERIFICATION,
+				Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
+		new Saml2X509Credential(this.certificate, Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCredentialsThenItFails() {
-		assertThatIllegalArgumentException().isThrownBy(
-				() -> new Saml2X509Credential(null, (X509Certificate) null, Saml2X509CredentialType.SIGNING));
+		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2X509Credential(null, (X509Certificate) null,
+				Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutPrivateKeyThenItFails() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new Saml2X509Credential(null, this.certificate, Saml2X509CredentialType.SIGNING));
+		assertThatIllegalArgumentException().isThrownBy(() -> new Saml2X509Credential(null, this.certificate,
+				Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithoutCertificateThenItFails() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new Saml2X509Credential(this.key, null, Saml2X509CredentialType.SIGNING));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> new Saml2X509Credential(this.key, null, Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithoutCertificateThenItFails() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new Saml2X509Credential(null, Saml2X509CredentialType.SIGNING));
+				.isThrownBy(() -> new Saml2X509Credential(null, Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithEncryptionUsageThenItFails() {
-		assertThatIllegalStateException().isThrownBy(
-				() -> new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.ENCRYPTION));
+		assertThatIllegalStateException().isThrownBy(() -> new Saml2X509Credential(this.key, this.certificate,
+				Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION));
 	}
 
 	@Test
 	public void constructorWhenRelyingPartyWithVerificationUsageThenItFails() {
-		assertThatIllegalStateException().isThrownBy(
-				() -> new Saml2X509Credential(this.key, this.certificate, Saml2X509CredentialType.VERIFICATION));
+		assertThatIllegalStateException().isThrownBy(() -> new Saml2X509Credential(this.key, this.certificate,
+				Saml2X509Credential.Saml2X509CredentialType.VERIFICATION));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithSigningUsageThenItFails() {
-		assertThatIllegalStateException()
-				.isThrownBy(() -> new Saml2X509Credential(this.certificate, Saml2X509CredentialType.SIGNING));
+		assertThatIllegalStateException().isThrownBy(
+				() -> new Saml2X509Credential(this.certificate, Saml2X509Credential.Saml2X509CredentialType.SIGNING));
 	}
 
 	@Test
 	public void constructorWhenAssertingPartyWithDecryptionUsageThenItFails() {
-		assertThatIllegalStateException()
-				.isThrownBy(() -> new Saml2X509Credential(this.certificate, Saml2X509CredentialType.DECRYPTION));
+		assertThatIllegalStateException().isThrownBy(() -> new Saml2X509Credential(this.certificate,
+				Saml2X509Credential.Saml2X509CredentialType.DECRYPTION));
 	}
 
 }

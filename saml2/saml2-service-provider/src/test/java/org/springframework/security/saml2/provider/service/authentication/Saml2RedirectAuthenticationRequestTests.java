@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.util.SerializationUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,8 +49,7 @@ class Saml2RedirectAuthenticationRequestTests {
 
 	private Saml2RedirectAuthenticationRequest.Builder getAuthenticationRequestBuilder() {
 		return Saml2RedirectAuthenticationRequest
-				.withAuthenticationRequestContext(
-						TestSaml2AuthenticationRequestContexts.authenticationRequestContext().build())
+				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
 				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL);
 	}
 

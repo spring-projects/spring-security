@@ -31,23 +31,14 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.TestSaml2AuthenticationRequestContexts;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
-import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriUtils;
 
@@ -58,7 +49,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 
 public class Saml2WebSsoAuthenticationRequestFilterTests {
 
@@ -67,10 +57,6 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	private Saml2WebSsoAuthenticationRequestFilter filter;
 
 	private RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
-
-	private Saml2AuthenticationRequestFactory factory = mock(Saml2AuthenticationRequestFactory.class);
-
-	private Saml2AuthenticationRequestContextResolver resolver = mock(Saml2AuthenticationRequestContextResolver.class);
 
 	private Saml2AuthenticationRequestResolver authenticationRequestResolver = mock(
 			Saml2AuthenticationRequestResolver.class);
@@ -88,7 +74,7 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@BeforeEach
 	public void setup() {
-		this.filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver, this.factory);
+		this.filter = new Saml2WebSsoAuthenticationRequestFilter(this.authenticationRequestResolver);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.request.setPathInfo("/saml2/authenticate/registration-id");
@@ -99,30 +85,26 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 			}
 		};
 		this.rpBuilder = RelyingPartyRegistration.withRegistrationId("registration-id")
-				.providerDetails((c) -> c.entityId("idp-entity-id")).providerDetails((c) -> c.webSsoUrl(IDP_SSO_URL))
-				.assertionConsumerServiceUrlTemplate("template")
-				.credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
+				.assertingPartyDetails((c) -> c.entityId("idp-entity-id"))
+				.assertingPartyDetails((c) -> c.singleSignOnServiceLocation(IDP_SSO_URL))
+				.assertionConsumerServiceLocation("template")
+				.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()))
+				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartyPrivateCredential()));
 		this.filter.setAuthenticationRequestRepository(this.authenticationRequestRepository);
 	}
 
 	@Test
 	public void doFilterWhenNoRelayStateThenRedirectDoesNotContainParameter() throws ServletException, IOException {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().relayState(null).build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).doesNotContain("RelayState=").startsWith(IDP_SSO_URL);
 	}
 
-	private static Saml2AuthenticationRequestContext.Builder authenticationRequestContext() {
-		return TestSaml2AuthenticationRequestContexts.authenticationRequestContext();
-	}
-
-	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
-			Saml2AuthenticationRequestContext context) {
-		return Saml2RedirectAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest("request")
-				.authenticationRequestUri(IDP_SSO_URL);
+	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest() {
+		return Saml2RedirectAuthenticationRequest
+				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
+				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL);
 	}
 
 	private static Saml2RedirectAuthenticationRequest.Builder redirectAuthenticationRequest(
@@ -131,18 +113,16 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 				.authenticationRequestUri(IDP_SSO_URL);
 	}
 
-	private static Saml2PostAuthenticationRequest.Builder postAuthenticationRequest(
-			Saml2AuthenticationRequestContext context) {
-		return Saml2PostAuthenticationRequest.withAuthenticationRequestContext(context).samlRequest("request")
-				.authenticationRequestUri(IDP_SSO_URL);
+	private static Saml2PostAuthenticationRequest.Builder postAuthenticationRequest() {
+		return Saml2PostAuthenticationRequest
+				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.relyingPartyRegistration().build())
+				.samlRequest("request").authenticationRequestUri(IDP_SSO_URL);
 	}
 
 	@Test
 	public void doFilterWhenRelayStateThenRedirectDoesContainParameter() throws ServletException, IOException {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().relayState("relayState").build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).contains("RelayState=relayState").startsWith(IDP_SSO_URL);
 	}
@@ -151,10 +131,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	public void doFilterWhenRelayStateThatRequiresEncodingThenRedirectDoesContainsEncodedParameter() throws Exception {
 		String relayStateValue = "https://my-relay-state.example.com?with=param&other=param";
 		String relayStateEncoded = UriUtils.encode(relayStateValue, StandardCharsets.ISO_8859_1);
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().relayState(relayStateValue).build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().relayState(relayStateValue)
+				.build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).contains("RelayState=" + relayStateEncoded)
 				.startsWith(IDP_SSO_URL);
@@ -162,11 +141,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Test
 	public void doFilterWhenSimpleSignatureSpecifiedThenSignatureParametersAreInTheRedirectURL() throws Exception {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).sigAlg("sigalg")
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().sigAlg("sigalg")
 				.signature("signature").build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).contains("SigAlg=").contains("Signature=")
 				.startsWith(IDP_SSO_URL);
@@ -174,10 +151,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 
 	@Test
 	public void doFilterWhenSignatureIsDisabledThenSignatureParametersAreNotInTheRedirectURL() throws Exception {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).doesNotContain("SigAlg=").doesNotContain("Signature=")
 				.startsWith(IDP_SSO_URL);
@@ -190,11 +165,9 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		RelyingPartyRegistration registration = this.rpBuilder
 				.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 				.build();
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().relayState(relayStateValue)
-				.relyingPartyRegistration(registration).build();
-		Saml2PostAuthenticationRequest request = postAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createPostAuthenticationRequest(any())).willReturn(request);
+		Saml2PostAuthenticationRequest request = Saml2PostAuthenticationRequest
+				.withRelyingPartyRegistration(registration).samlRequest("request").relayState(relayStateValue).build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).isNull();
 		assertThat(this.response.getContentAsString())
@@ -204,61 +177,24 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenSetAuthenticationRequestFactoryThenUses() throws Exception {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
-		Saml2RedirectAuthenticationRequest authenticationRequest = redirectAuthenticationRequest(context).build();
-		Saml2AuthenticationRequestFactory factory = mock(Saml2AuthenticationRequestFactory.class);
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(factory.createRedirectAuthenticationRequest(any())).willReturn(authenticationRequest);
-		this.filter.setAuthenticationRequestFactory(factory);
-		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
-		verify(factory).createRedirectAuthenticationRequest(any());
-	}
-
-	@Test
-	public void setRequestMatcherWhenNullThenException() {
-		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
-				this.factory);
-		assertThatIllegalArgumentException().isThrownBy(() -> filter.setRedirectMatcher(null));
-	}
-
-	@Test
-	public void setAuthenticationRequestFactoryWhenNullThenException() {
-		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
-				this.factory);
-		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAuthenticationRequestFactory(null));
-	}
-
-	@Test
-	public void doFilterWhenRequestMatcherFailsThenSkipsFilter() throws Exception {
-		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
-				this.factory);
-		filter.setRedirectMatcher((request) -> false);
-		filter.doFilter(this.request, this.response, this.filterChain);
-		verifyNoInteractions(this.resolver, this.factory);
-	}
-
-	@Test
 	public void doFilterWhenRelyingPartyRegistrationNotFoundThenUnauthorized() throws Exception {
-		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
-				this.factory);
+		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(
+				this.authenticationRequestResolver);
 		filter.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(401);
 	}
 
 	@Test
 	public void setAuthenticationRequestRepositoryWhenNullThenException() {
-		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(this.resolver,
-				this.factory);
+		Saml2WebSsoAuthenticationRequestFilter filter = new Saml2WebSsoAuthenticationRequestFilter(
+				this.authenticationRequestResolver);
 		assertThatIllegalArgumentException().isThrownBy(() -> filter.setAuthenticationRequestRepository(null));
 	}
 
 	@Test
 	public void doFilterWhenRedirectThenSaveRedirectRequest() throws ServletException, IOException {
-		Saml2AuthenticationRequestContext context = authenticationRequestContext().build();
-		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createRedirectAuthenticationRequest(any())).willReturn(request);
+		Saml2RedirectAuthenticationRequest request = redirectAuthenticationRequest().build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		verify(this.authenticationRequestRepository).saveAuthenticationRequest(
 				any(Saml2RedirectAuthenticationRequest.class), eq(this.request), eq(this.response));
@@ -269,39 +205,12 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		RelyingPartyRegistration registration = this.rpBuilder
 				.assertingPartyDetails((asserting) -> asserting.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 				.build();
-		Saml2AuthenticationRequestContext context = authenticationRequestContext()
-				.relyingPartyRegistration(registration).build();
-		Saml2PostAuthenticationRequest request = postAuthenticationRequest(context).build();
-		given(this.resolver.resolve(any())).willReturn(context);
-		given(this.factory.createPostAuthenticationRequest(any())).willReturn(request);
+		Saml2PostAuthenticationRequest request = Saml2PostAuthenticationRequest
+				.withRelyingPartyRegistration(registration).samlRequest("request").build();
+		given(this.authenticationRequestResolver.resolve(any())).willReturn(request);
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		verify(this.authenticationRequestRepository).saveAuthenticationRequest(
 				any(Saml2PostAuthenticationRequest.class), eq(this.request), eq(this.response));
-	}
-
-	@Test
-	public void doFilterWhenPathStartsWithRegistrationIdThenPosts() throws Exception {
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
-		RequestMatcher matcher = new AntPathRequestMatcher("/{registrationId}/saml2/authenticate");
-		DefaultRelyingPartyRegistrationResolver delegate = new DefaultRelyingPartyRegistrationResolver(this.repository);
-		RelyingPartyRegistrationResolver resolver = (request, id) -> {
-			String registrationId = matcher.matcher(request).getVariables().get("registrationId");
-			return delegate.resolve(request, registrationId);
-		};
-		Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver = new DefaultSaml2AuthenticationRequestContextResolver(
-				resolver);
-		Saml2PostAuthenticationRequest authenticationRequest = mock(Saml2PostAuthenticationRequest.class);
-		given(authenticationRequest.getAuthenticationRequestUri()).willReturn("uri");
-		given(authenticationRequest.getRelayState()).willReturn("relay");
-		given(authenticationRequest.getSamlRequest()).willReturn("saml");
-		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.factory.createPostAuthenticationRequest(any())).willReturn(authenticationRequest);
-		this.filter = new Saml2WebSsoAuthenticationRequestFilter(authenticationRequestContextResolver, this.factory);
-		this.filter.setRedirectMatcher(matcher);
-		this.request.setPathInfo("/registration-id/saml2/authenticate");
-		this.filter.doFilter(this.request, this.response, new MockFilterChain());
-		verify(this.repository).findByRegistrationId("registration-id");
 	}
 
 	@Test

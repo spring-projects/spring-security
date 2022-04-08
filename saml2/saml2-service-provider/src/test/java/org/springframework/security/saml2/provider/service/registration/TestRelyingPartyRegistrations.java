@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
-import org.springframework.security.saml2.credentials.Saml2X509Credential;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
 
@@ -40,9 +40,10 @@ public final class TestRelyingPartyRegistrations {
 		String singleLogoutServiceLocation = "{baseUrl}/logout/saml2/slo";
 		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.singleLogoutServiceLocation(singleLogoutServiceLocation).credentials((c) -> c.add(signingCredential))
-				.providerDetails((c) -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
-				.credentials((c) -> c.add(verificationCertificate));
+				.singleLogoutServiceLocation(singleLogoutServiceLocation)
+				.signingX509Credentials((c) -> c.add(signingCredential)).assertingPartyDetails(
+						(a) -> a.entityId(apEntityId).singleSignOnServiceLocation(singleSignOnServiceLocation)
+								.verificationX509Credentials((c) -> c.add(verificationCertificate)));
 	}
 
 	public static RelyingPartyRegistration.Builder noCredentials() {

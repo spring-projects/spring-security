@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import java.security.cert.X509Certificate;
 import org.opensaml.security.crypto.KeySupport;
 
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType;
+import org.springframework.security.saml2.core.Saml2X509Credential;
 
 public final class TestSaml2X509Credentials {
 
@@ -35,28 +35,32 @@ public final class TestSaml2X509Credentials {
 	}
 
 	public static Saml2X509Credential assertingPartySigningCredential() {
-		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), Saml2X509CredentialType.SIGNING);
+		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(),
+				Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 	}
 
 	public static Saml2X509Credential assertingPartyEncryptingCredential() {
-		return new Saml2X509Credential(spCertificate(), Saml2X509CredentialType.ENCRYPTION);
+		return new Saml2X509Credential(spCertificate(), Saml2X509Credential.Saml2X509CredentialType.ENCRYPTION);
 	}
 
 	public static Saml2X509Credential assertingPartyPrivateCredential() {
-		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(), Saml2X509CredentialType.SIGNING,
-				Saml2X509CredentialType.DECRYPTION);
+		return new Saml2X509Credential(idpPrivateKey(), idpCertificate(),
+				Saml2X509Credential.Saml2X509CredentialType.SIGNING,
+				Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
 	}
 
 	public static Saml2X509Credential relyingPartyVerifyingCredential() {
-		return new Saml2X509Credential(idpCertificate(), Saml2X509CredentialType.VERIFICATION);
+		return new Saml2X509Credential(idpCertificate(), Saml2X509Credential.Saml2X509CredentialType.VERIFICATION);
 	}
 
 	public static Saml2X509Credential relyingPartySigningCredential() {
-		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.SIGNING);
+		return new Saml2X509Credential(spPrivateKey(), spCertificate(),
+				Saml2X509Credential.Saml2X509CredentialType.SIGNING);
 	}
 
 	public static Saml2X509Credential relyingPartyDecryptingCredential() {
-		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.DECRYPTION);
+		return new Saml2X509Credential(spPrivateKey(), spCertificate(),
+				Saml2X509Credential.Saml2X509CredentialType.DECRYPTION);
 	}
 
 	private static X509Certificate certificate(String cert) {
