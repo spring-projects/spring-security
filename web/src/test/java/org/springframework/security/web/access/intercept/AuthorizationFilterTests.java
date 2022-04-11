@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.access.intercept;
 
 import java.util.function.Supplier;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 
@@ -38,6 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -161,6 +163,69 @@ public class AuthorizationFilterTests {
 		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
 		authorizationFilter.setAuthorizationEventPublisher(eventPublisher);
 		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
+		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
+				any(AuthorizationDecision.class));
+	}
+
+	@Test
+	public void doFilterWhenErrorThenDoNotFilter() throws Exception {
+		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		mockRequest.setDispatcherType(DispatcherType.ERROR);
+		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
+		verifyNoInteractions(authorizationManager);
+	}
+
+	@Test
+	public void doFilterWhenErrorAndShouldFilterAllDispatcherTypesThenFilter() throws Exception {
+		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		authorizationFilter.setShouldFilterAllDispatcherTypes(true);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		mockRequest.setDispatcherType(DispatcherType.ERROR);
+		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
+		verify(authorizationManager).check(any(Supplier.class), any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void doFilterNestedErrorDispatchWhenAuthorizationManagerThenUses() throws Exception {
+		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		authorizationFilter.setShouldFilterAllDispatcherTypes(true);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		mockRequest.setDispatcherType(DispatcherType.ERROR);
+		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		authorizationFilter.doFilterNestedErrorDispatch(mockRequest, mockResponse, mockFilterChain);
+		verify(authorizationManager).check(any(Supplier.class), any(HttpServletRequest.class));
+	}
+
+	@Test
+	public void doFilterNestedErrorDispatchWhenAuthorizationEventPublisherThenUses() throws Exception {
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(
+				AuthenticatedAuthorizationManager.authenticated());
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		SecurityContext securityContext = new SecurityContextImpl();
+		securityContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
+		SecurityContextHolder.setContext(securityContext);
+
+		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
+		authorizationFilter.setAuthorizationEventPublisher(eventPublisher);
+		authorizationFilter.doFilterNestedErrorDispatch(mockRequest, mockResponse, mockFilterChain);
 		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
 				any(AuthorizationDecision.class));
 	}
