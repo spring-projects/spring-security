@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -168,7 +168,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 				.switchIfEmpty(Mono.defer(() -> insertAuthorizedClient(authorizedClient, principal))).then();
 	}
 
-	private Mono<Integer> updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+	private Mono<Long> updateAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		GenericExecuteSpec executeSpec = this.databaseClient.sql(UPDATE_AUTHORIZED_CLIENT_SQL);
 		for (Entry<String, Parameter> entry : this.authorizedClientParametersMapper
 				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal)).entrySet()) {
@@ -177,7 +177,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientService implements ReactiveOAuth
 		return executeSpec.fetch().rowsUpdated();
 	}
 
-	private Mono<Integer> insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+	private Mono<Long> insertAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
 		GenericExecuteSpec executeSpec = this.databaseClient.sql(SAVE_AUTHORIZED_CLIENT_SQL);
 		for (Entry<String, Parameter> entry : this.authorizedClientParametersMapper
 				.apply(new OAuth2AuthorizedClientHolder(authorizedClient, principal)).entrySet()) {
