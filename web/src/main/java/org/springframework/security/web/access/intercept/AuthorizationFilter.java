@@ -50,6 +50,8 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
 	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
 
+	private boolean shouldFilterAllDispatcherTypes = false;
+
 	/**
 	 * Creates an instance.
 	 * @param authorizationManager the {@link AuthorizationManager} to use
@@ -80,6 +82,22 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 		return authentication;
 	}
 
+	@Override
+	protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws ServletException, IOException {
+		doFilterInternal(request, response, filterChain);
+	}
+
+	@Override
+	protected boolean shouldNotFilterAsyncDispatch() {
+		return !this.shouldFilterAllDispatcherTypes;
+	}
+
+	@Override
+	protected boolean shouldNotFilterErrorDispatch() {
+		return !this.shouldFilterAllDispatcherTypes;
+	}
+
 	/**
 	 * Use this {@link AuthorizationEventPublisher} to publish
 	 * {@link AuthorizationDeniedEvent}s and {@link AuthorizationGrantedEvent}s.
@@ -97,6 +115,16 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	 */
 	public AuthorizationManager<HttpServletRequest> getAuthorizationManager() {
 		return this.authorizationManager;
+	}
+
+	/**
+	 * Sets whether to filter all dispatcher types.
+	 * @param shouldFilterAllDispatcherTypes should filter all dispatcher types. Default
+	 * is {@code false}
+	 * @since 5.7
+	 */
+	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {
+		this.shouldFilterAllDispatcherTypes = shouldFilterAllDispatcherTypes;
 	}
 
 	private static <T> void noPublish(Supplier<Authentication> authentication, T object,

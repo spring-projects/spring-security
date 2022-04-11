@@ -85,6 +85,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		AuthorizationManager<HttpServletRequest> authorizationManager = this.registry.createAuthorizationManager();
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
 		authorizationFilter.setAuthorizationEventPublisher(this.publisher);
+		authorizationFilter.setShouldFilterAllDispatcherTypes(this.registry.shouldFilterAllDispatcherTypes);
 		http.addFilter(postProcess(authorizationFilter));
 	}
 
@@ -116,6 +117,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		private List<RequestMatcher> unmappedMatchers;
 
 		private int mappingCount;
+
+		private boolean shouldFilterAllDispatcherTypes = false;
 
 		private AuthorizationManagerRequestMatcherRegistry(ApplicationContext context) {
 			setApplicationContext(context);
@@ -167,6 +170,19 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		public AuthorizationManagerRequestMatcherRegistry withObjectPostProcessor(
 				ObjectPostProcessor<?> objectPostProcessor) {
 			addObjectPostProcessor(objectPostProcessor);
+			return this;
+		}
+
+		/**
+		 * Sets whether all dispatcher types should be filtered.
+		 * @param shouldFilter should filter all dispatcher types. Default is
+		 * {@code false}
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customizations
+		 * @since 5.7
+		 */
+		public AuthorizationManagerRequestMatcherRegistry shouldFilterAllDispatcherTypes(boolean shouldFilter) {
+			this.shouldFilterAllDispatcherTypes = shouldFilter;
 			return this;
 		}
 
