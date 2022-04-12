@@ -49,7 +49,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -105,7 +105,7 @@ public class DefaultFiltersTests {
 		List<? extends Class<? extends Filter>> classes = secondFilter.getFilters().stream().map(Filter::getClass)
 				.collect(Collectors.toList());
 		assertThat(classes.contains(WebAsyncManagerIntegrationFilter.class)).isTrue();
-		assertThat(classes.contains(SecurityContextPersistenceFilter.class)).isTrue();
+		assertThat(classes.contains(SecurityContextHolderFilter.class)).isTrue();
 		assertThat(classes.contains(HeaderWriterFilter.class)).isTrue();
 		assertThat(classes.contains(LogoutFilter.class)).isTrue();
 		assertThat(classes.contains(CsrfFilter.class)).isTrue();

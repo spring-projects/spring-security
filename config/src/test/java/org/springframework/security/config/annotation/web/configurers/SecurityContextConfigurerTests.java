@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -74,16 +75,16 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnSecurityContextPersistenceFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecurityContextPersistenceFilter.class));
+		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(SecurityContextHolderFilter.class));
 	}
 
 	@Test
 	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any(HttpRequestResponseHolder.class)))
-				.willReturn(mock(SecurityContext.class));
+		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any(HttpServletRequest.class)))
+				.willReturn(() -> mock(SecurityContext.class));
 		this.mvc.perform(get("/"));
-		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpRequestResponseHolder.class));
+		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpServletRequest.class));
 	}
 
 	// SEC-2932

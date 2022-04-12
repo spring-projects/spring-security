@@ -64,7 +64,7 @@ import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<SecurityContextConfigurer<H>, H> {
 
-	private boolean requireExplicitSave;
+	private boolean requireExplicitSave = true;
 
 	/**
 	 * Creates a new instance

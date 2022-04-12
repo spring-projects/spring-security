@@ -39,7 +39,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 
@@ -95,7 +95,7 @@ public class HttpSecurityAddFilterTest {
 		this.spring.register(MyOtherFilterRelativeToMyFilterAtConfig.class).autowire();
 
 		assertThatFilters().containsSubsequence(WebAsyncManagerIntegrationFilter.class, MyFilter.class,
-				MyOtherFilter.class, SecurityContextPersistenceFilter.class);
+				MyOtherFilter.class, SecurityContextHolderFilter.class);
 	}
 
 	@Test

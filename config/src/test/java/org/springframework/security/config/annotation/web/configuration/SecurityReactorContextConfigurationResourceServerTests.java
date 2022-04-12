@@ -90,6 +90,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			http.securityContext().requireExplicitSave(false);
 		}
 
 		@Bean
