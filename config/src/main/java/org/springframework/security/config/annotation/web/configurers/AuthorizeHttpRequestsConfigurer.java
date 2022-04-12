@@ -21,8 +21,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.ResolvableType;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
@@ -53,10 +51,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	static final AuthorizationManager<RequestAuthorizationContext> permitAllAuthorizationManager = (a,
 			o) -> new AuthorizationDecision(true);
-
-	static final ResolvableType REQUEST_AUTHORIZATION_MANAGER_TYPE = ResolvableType
-			.forType(new ParameterizedTypeReference<AuthorizationManager<HttpServletRequest>>() {
-			});
 
 	private final AuthorizationManagerRequestMatcherRegistry registry;
 
@@ -143,15 +137,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			Assert.state(this.unmappedMatchers == null,
 					() -> "An incomplete mapping was found for " + this.unmappedMatchers
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
-			if (this.mappingCount > 0) {
-				return postProcess(this.managerBuilder.build());
-			}
-			if (this.getApplicationContext().getBeanNamesForType(REQUEST_AUTHORIZATION_MANAGER_TYPE).length > 0) {
-				return (AuthorizationManager<HttpServletRequest>) this.getApplicationContext()
-						.getBeanProvider(REQUEST_AUTHORIZATION_MANAGER_TYPE).getObject();
-			}
-			throw new IllegalStateException(
+			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
+			return postProcess(this.managerBuilder.build());
 		}
 
 		@Override
