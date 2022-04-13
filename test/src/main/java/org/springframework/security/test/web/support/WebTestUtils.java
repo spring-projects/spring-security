@@ -85,6 +85,10 @@ public abstract class WebTestUtils {
 		if (filter != null) {
 			ReflectionTestUtils.setField(filter, "repo", securityContextRepository);
 		}
+		SecurityContextHolderFilter holderFilter = findFilter(request, SecurityContextHolderFilter.class);
+		if (holderFilter != null) {
+			ReflectionTestUtils.setField(holderFilter, "securityContextRepository", securityContextRepository);
+		}
 	}
 
 	/**

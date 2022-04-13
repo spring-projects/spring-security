@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.BeanIds;
@@ -33,6 +34,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -43,6 +45,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(MockitoExtension.class)
 public class WebTestUtilsTests {
@@ -124,6 +127,19 @@ public class WebTestUtilsTests {
 		CustomSecurityConfig.CSRF_REPO = this.csrfRepo;
 		loadConfig(CustomSecurityConfig.class);
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request)).isSameAs(this.contextRepo);
+	}
+
+	@Test
+	public void setSecurityContextRepositoryWhenSecurityContextHolderFilter() {
+		SecurityContextRepository expectedRepository = mock(SecurityContextRepository.class);
+		loadConfig(SecurityContextHolderFilterConfig.class);
+		// verify our configuration sets up to have SecurityContextHolderFilter and not
+		// SecurityContextPersistenceFilter
+		assertThat(WebTestUtils.findFilter(this.request, SecurityContextPersistenceFilter.class)).isNull();
+		assertThat(WebTestUtils.findFilter(this.request, SecurityContextHolderFilter.class)).isNotNull();
+
+		WebTestUtils.setSecurityContextRepository(this.request, expectedRepository);
+		assertThat(WebTestUtils.getSecurityContextRepository(this.request)).isSameAs(expectedRepository);
 	}
 
 	// gh-3343
@@ -217,6 +233,20 @@ public class WebTestUtilsTests {
 
 	@EnableWebSecurity
 	static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
+
+	}
+
+	@EnableWebSecurity
+	static class SecurityContextHolderFilterConfig {
+
+		@Bean
+		DefaultSecurityFilterChain springSecurityFilter(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.securityContext((securityContext) -> securityContext.requireExplicitSave(true));
+			// @formatter:on
+			return http.build();
+		}
 
 	}
 
