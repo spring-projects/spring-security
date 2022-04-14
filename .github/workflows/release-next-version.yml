@@ -38,11 +38,10 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ~/.gradle
       - name: Check release
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -63,6 +62,10 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ~/.gradle
       - name: Check for open issues
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -83,6 +86,10 @@ jobs:
         run: |
           mkdir -p ~/.gradle
           echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ~/.gradle
       - name: Setup git config
         run: |
           git config user.name 'github-actions[bot]'
