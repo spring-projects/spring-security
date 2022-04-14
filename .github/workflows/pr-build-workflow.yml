@@ -17,12 +17,13 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: '17'
-      - name: Cache Gradle packages
+      - name: Setup Gradle
         if: env.RUN_JOBS == 'true'
-        uses: actions/cache@v2
+        uses: gradle/gradle-build-action@v2
         with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          cache-read-only: true
+        env:
+          GRADLE_USER_HOME: ~/.gradle
       - name: Build with Gradle
         if: env.RUN_JOBS == 'true'
         run: ./gradlew clean build --continue --scan
