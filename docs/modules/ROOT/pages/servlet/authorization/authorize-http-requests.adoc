@@ -170,10 +170,10 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 ----
 ====
 
-By default, the `AuthorizationFilter` does not apply to `DispatcherType.ERROR` and `DispatcherType.ASYNC`.
-We can configure Spring Security to apply the authorization rules to all dispatcher types by using the `shouldFilterAllDispatcherTypes` method:
+By default, the `AuthorizationFilter` applies to all dispatcher types.
+We can configure Spring Security to not apply the authorization rules to all dispatcher types by using the `shouldFilterAllDispatcherTypes` method:
 
-.Set shouldFilterAllDispatcherTypes to true
+.Set shouldFilterAllDispatcherTypes to false
 ====
 .Java
 [source,java,role="primary"]
@@ -182,7 +182,7 @@ We can configure Spring Security to apply the authorization rules to all dispatc
 SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .shouldFilterAllDispatcherTypes(true)
+            .shouldFilterAllDispatcherTypes(false)
             .anyRequest.authenticated()
         )
         // ...

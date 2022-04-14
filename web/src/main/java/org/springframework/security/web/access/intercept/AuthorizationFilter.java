@@ -50,7 +50,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
 	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
 
-	private boolean shouldFilterAllDispatcherTypes = false;
+	private boolean shouldFilterAllDispatcherTypes = true;
 
 	/**
 	 * Creates an instance.
@@ -120,7 +120,7 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	/**
 	 * Sets whether to filter all dispatcher types.
 	 * @param shouldFilterAllDispatcherTypes should filter all dispatcher types. Default
-	 * is {@code false}
+	 * is {@code true}
 	 * @since 5.7
 	 */
 	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {

@@ -118,7 +118,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		private int mappingCount;
 
-		private boolean shouldFilterAllDispatcherTypes = false;
+		private boolean shouldFilterAllDispatcherTypes = true;
 
 		private AuthorizationManagerRequestMatcherRegistry(ApplicationContext context) {
 			setApplicationContext(context);
@@ -175,8 +175,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		/**
 		 * Sets whether all dispatcher types should be filtered.
-		 * @param shouldFilter should filter all dispatcher types. Default is
-		 * {@code false}
+		 * @param shouldFilter should filter all dispatcher types. Default is {@code true}
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
 		 * customizations
 		 * @since 5.7

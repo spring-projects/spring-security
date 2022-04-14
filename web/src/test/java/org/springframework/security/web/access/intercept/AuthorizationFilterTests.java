@@ -167,9 +167,24 @@ public class AuthorizationFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenErrorThenDoNotFilter() throws Exception {
+	public void doFilterWhenErrorThenDoFilter() throws Exception {
 		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
 		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
+		mockRequest.setDispatcherType(DispatcherType.ERROR);
+		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
+		FilterChain mockFilterChain = mock(FilterChain.class);
+
+		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
+		verify(authorizationManager).check(any(Supplier.class), eq(mockRequest));
+	}
+
+	@Test
+	public void doFilterWhenErrorAndShouldFilterAllDispatcherTypesFalseThenDoNotFilter() throws Exception {
+		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
+		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
+		authorizationFilter.setShouldFilterAllDispatcherTypes(false);
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
 		mockRequest.setDispatcherType(DispatcherType.ERROR);
 		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
@@ -178,21 +193,6 @@ public class AuthorizationFilterTests {
 
 		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
 		verifyNoInteractions(authorizationManager);
-	}
-
-	@Test
-	public void doFilterWhenErrorAndShouldFilterAllDispatcherTypesThenFilter() throws Exception {
-		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
-		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
-		authorizationFilter.setShouldFilterAllDispatcherTypes(true);
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
-		mockRequest.setDispatcherType(DispatcherType.ERROR);
-		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
-		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-		FilterChain mockFilterChain = mock(FilterChain.class);
-
-		authorizationFilter.doFilter(mockRequest, mockResponse, mockFilterChain);
-		verify(authorizationManager).check(any(Supplier.class), any(HttpServletRequest.class));
 	}
 
 	@Test
