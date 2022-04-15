@@ -53,7 +53,7 @@ public class FilterOrderRegistrationTests {
 
 	@Test
 	public void putWhenPredefinedFilterThenDoesNotOverride() {
-		int position = 200;
+		int position = 300;
 		Integer predefinedFilterOrderBefore = this.filterOrderRegistration.getOrder(ChannelProcessingFilter.class);
 		this.filterOrderRegistration.put(MyFilter.class, position);
 		Integer myFilterOrder = this.filterOrderRegistration.getOrder(MyFilter.class);

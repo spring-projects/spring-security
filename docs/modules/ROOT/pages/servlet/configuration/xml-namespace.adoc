@@ -257,6 +257,10 @@ The filters are listed in the order in which they occur in the filter chain.
 | `DisableEncodeUrlFilter`
 | `http@disable-url-rewriting`
 
+| FORCE_EAGER_SESSION_FILTER
+| `ForceEagerSessionCreationFilter`
+| `http@create-session="ALWAYS"`
+
 |  CHANNEL_FILTER
 | `ChannelProcessingFilter`
 | `http/intercept-url@requires-channel`

@@ -43,6 +43,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 
 /**
@@ -125,6 +126,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 	 * The ordering of the Filters is:
 	 *
 	 * <ul>
+	 * <li>{@link ForceEagerSessionCreationFilter}</li>
 	 * <li>{@link DisableEncodeUrlFilter}</li>
 	 * <li>{@link ChannelProcessingFilter}</li>
 	 * <li>{@link SecurityContextPersistenceFilter}</li>
