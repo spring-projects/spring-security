@@ -3,6 +3,35 @@
 HTTP session-related functionality is handled by a combination of the {security-api-url}org/springframework/security/authentication/AuthenticationProvider.html[`SessionManagementFilter`] and the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface, to which the filter delegates.
 Typical usage includes session-fixation protection attack prevention, detection of session timeouts, and restrictions on how many sessions an authenticated user may have open concurrently.
 
+[[session-mgmt-force-session-creation]]
+== Force Eager Session Creation
+
+At times it can be valuable to eagerly create sessions.
+This can be done by using the {security-api-url}org/springframework/security/web/session/ForceEagerSessionCreationFilter.html[`ForceEagerSessionCreationFilter`] which can be configured using:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) {
+    http
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+        );
+    return http.build();
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http create-session="ALWAYS">
+
+</http>
+----
+====
+
 == Detecting Timeouts
 You can configure Spring Security to detect the submission of an invalid session ID and redirect the user to an appropriate URL.
 To do so, configure the `session-management` element:

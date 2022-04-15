@@ -68,6 +68,7 @@ import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
@@ -147,6 +148,8 @@ class HttpConfigurationBuilder {
 
 	private BeanDefinition securityContextPersistenceFilter;
 
+	private BeanDefinition forceEagerSessionCreationFilter;
+
 	private BeanReference contextRepoRef;
 
 	private BeanReference sessionRegistryRef;
@@ -206,6 +209,7 @@ class HttpConfigurationBuilder {
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
+		createForceEagerSessionCreationFilter();
 		createDisableEncodeUrlFilter();
 		createCsrfFilter();
 		createSecurityPersistence();
@@ -301,6 +305,12 @@ class HttpConfigurationBuilder {
 	private boolean isExplicitSave() {
 		String explicitSaveAttr = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_EXPLICIT_SAVE);
 		return Boolean.parseBoolean(explicitSaveAttr);
+	}
+
+	private void createForceEagerSessionCreationFilter() {
+		if (this.sessionPolicy == SessionCreationPolicy.ALWAYS) {
+			this.forceEagerSessionCreationFilter = new RootBeanDefinition(ForceEagerSessionCreationFilter.class);
+		}
 	}
 
 	private void createSecurityContextPersistenceFilter() {
@@ -767,6 +777,10 @@ class HttpConfigurationBuilder {
 
 	List<OrderDecorator> getFilters() {
 		List<OrderDecorator> filters = new ArrayList<>();
+		if (this.forceEagerSessionCreationFilter != null) {
+			filters.add(new OrderDecorator(this.forceEagerSessionCreationFilter,
+					SecurityFilters.FORCE_EAGER_SESSION_FILTER));
+		}
 		if (this.disableUrlRewriteFilter != null) {
 			filters.add(new OrderDecorator(this.disableUrlRewriteFilter, SecurityFilters.DISABLE_ENCODE_URL_FILTER));
 		}

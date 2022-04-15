@@ -3632,6 +3632,7 @@
       <xs:restriction base="xs:token">
          <xs:enumeration value="FIRST"/>
          <xs:enumeration value="DISABLE_ENCODE_URL_FILTER"/>
+         <xs:enumeration value="FORCE_EAGER_SESSION_FILTER"/>
          <xs:enumeration value="CHANNEL_FILTER"/>
          <xs:enumeration value="SECURITY_CONTEXT_FILTER"/>
          <xs:enumeration value="CONCURRENT_SESSION_FILTER"/>

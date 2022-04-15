@@ -274,6 +274,10 @@ The filters, aliases, and namespace elements and attributes that create the filt
 | `DisableEncodeUrlFilter`
 | `http@disable-url-rewriting`
 
+| FORCE_EAGER_SESSION_FILTER
+| `ForceEagerSessionCreationFilter`
+| `http@create-session="ALWAYS"`
+
 |  CHANNEL_FILTER
 | `ChannelProcessingFilter`
 | `http/intercept-url@requires-channel`
