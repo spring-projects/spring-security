@@ -14,12 +14,12 @@ dependencies {
 	api platform("org.springframework.data:spring-data-bom:2021.2.0-M4")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0")
-	api platform("com.fasterxml.jackson:jackson-bom:2.13.2")
+	api platform("com.fasterxml.jackson:jackson-bom:2.13.2.20220328")
 	constraints {
 		api "ch.qos.logback:logback-classic:1.2.11"
 		api "com.google.inject:guice:3.0"
 		api "com.nimbusds:nimbus-jose-jwt:9.21"
-		api "com.nimbusds:oauth2-oidc-sdk:9.31"
+		api "com.nimbusds:oauth2-oidc-sdk:9.34"
 		api "com.squareup.okhttp3:mockwebserver:3.14.9"
 		api "com.squareup.okhttp3:okhttp:3.14.9"
 		api "com.unboundid:unboundid-ldapsdk:4.0.14"
