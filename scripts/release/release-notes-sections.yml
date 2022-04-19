@@ -14,3 +14,6 @@ changelog:
       emoji: ":hammer:"
       labels: ["type: dependency-upgrade"]
       sort: "title"
+  issues:
+    exclude:
+      labels: ["status: duplicate"]
