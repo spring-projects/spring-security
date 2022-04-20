@@ -13,24 +13,18 @@ env:
   RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
 
 jobs:
-  prerequisites:
-    name: Pre-requisites for building
+  release-next-version:
+    name: Initiate Release If Scheduled
+    if: env.RUN_JOBS == 'true'
     runs-on: ubuntu-latest
-    outputs:
-      runjobs: ${{ steps.continue.outputs.runjobs }}
     steps:
-      - id: continue
-        name: Determine if should continue
-        if: env.RUN_JOBS == 'true'
-        run: echo "::set-output name=runjobs::true"
-  check_release_due:
-    name: Check if the release is due today
-    needs: [prerequisites]
-    runs-on: ubuntu-latest
-    if: needs.prerequisites.outputs.runjobs
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 17
+      - id: checkout-source
+        name: Checkout Source Code
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      - id: setup-jdk
+        name: Set up JDK 17
         uses: actions/setup-java@v1
         with:
           java-version: '17'
@@ -42,66 +36,38 @@ jobs:
         uses: gradle/gradle-build-action@v2
         env:
           GRADLE_USER_HOME: ~/.gradle
-      - name: Check release
+      - id: check-release-due
+        name: Check Release Due
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew gitHubCheckNextVersionDueToday
-  check_open_issues:
-    name: Ensure there are no open issues
-    needs: [check_release_due]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
-      - name: Check for open issues
+          echo "::set-output name=is_due_today::$(cat build/github/milestones/is-due-today)"
+      - id: check-open-issues
+        name: Check for open issues
+        if: steps.check-release-due.outputs.is_due_today == true
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew gitHubCheckMilestoneHasNoOpenIssues
-  release:
-    name: Release next version
-    needs: [check_release_due, check_open_issues]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: '17'
-      - name: Setup gradle user name
+          echo "::set-output name=is_open_issues::$(cat build/github/milestones/is-open-issues)"
+      - id: validate-release-state
+        name: Validate State of Release
+        if: steps.check-release-due.outputs.is_due_today == true && steps.check-release-due.outputs.is_open_issues == true
         run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
-      - name: Setup git config
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
-      - name: Update version and push
-        # antoraUpdateVersion can only be run after updateProjectVersion completes, in order get the updated project version
+          echo "The release is due today but there are open issues"
+          exit 1
+      - id: update-version-and-push
+        name: Update version and push
+        if: steps.check-release-due.outputs.is_due_today == true && steps.check-release-due.outputs.is_open_issues == false
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
           ./gradlew :updateProjectVersion
           ./gradlew :spring-security-docs:antoraUpdateVersion
           updatedVersion=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
@@ -109,13 +75,9 @@ jobs:
           git tag $updatedVersion
           git push
           git push origin $updatedVersion
-  notify_result:
-    name: Check for failures
-    needs: [release]
-    if: failure()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Send Slack message
+      - id: send-slack-notification
+        name: Send Slack message
+        if: failure()
         uses: Gamesight/slack-workflow-status@v1.0.1
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
