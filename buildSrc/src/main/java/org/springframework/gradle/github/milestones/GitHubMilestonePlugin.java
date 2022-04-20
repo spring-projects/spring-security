@@ -43,6 +43,7 @@ public class GitHubMilestonePlugin implements Plugin<Project> {
 			public void execute(GitHubMilestoneHasNoOpenIssuesTask githubCheckMilestoneHasNoOpenIssues) {
 				githubCheckMilestoneHasNoOpenIssues.setGroup("Release");
 				githubCheckMilestoneHasNoOpenIssues.setDescription("Checks if there are any open issues for the specified repository and milestone");
+				githubCheckMilestoneHasNoOpenIssues.getIsOpenIssuesFile().value(project.getLayout().getBuildDirectory().file("github/milestones/is-open-issues"));
 				githubCheckMilestoneHasNoOpenIssues.setMilestoneTitle((String) project.findProperty("nextVersion"));
 				if (!project.hasProperty("nextVersion")) {
 					githubCheckMilestoneHasNoOpenIssues.getNextVersionFile().convention(

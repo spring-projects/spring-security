@@ -21,16 +21,21 @@ import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction;
+import org.gradle.work.DisableCachingByDefault;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import org.springframework.gradle.github.RepositoryRef;
 
+@DisableCachingByDefault(because = "the due date needs to be checked every time in case it changes")
 public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 	@Input
 	private RepositoryRef repository = new RepositoryRef();
@@ -44,10 +49,13 @@ public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 	@Input @Optional
 	private String gitHubAccessToken;
 
+	@OutputFile
+	public abstract RegularFileProperty getIsOpenIssuesFile();
+
 	private GitHubMilestoneApi milestones = new GitHubMilestoneApi();
 
 	@TaskAction
-	public void checkHasNoOpenIssues() throws FileNotFoundException {
+	public void checkHasNoOpenIssues() throws IOException {
 		if (this.milestoneTitle == null) {
 			File nextVersionFile = getNextVersionFile().getAsFile().get();
 			Yaml yaml = new Yaml(new Constructor(NextVersionYml.class));
@@ -61,10 +69,14 @@ public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 		}
 		long milestoneNumber = this.milestones.findMilestoneNumberByTitle(this.repository, this.milestoneTitle);
 		boolean isOpenIssues = this.milestones.isOpenIssuesForMilestoneNumber(this.repository, milestoneNumber);
+		Path isOpenIssuesPath = getIsOpenIssuesFile().getAsFile().get().toPath();
+		Files.writeString(isOpenIssuesPath, String.valueOf(isOpenIssues));
 		if (isOpenIssues) {
-			throw new IllegalStateException("The repository " + this.repository + " has open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
+			System.out.println("The repository " + this.repository + " has open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
 		}
-		System.out.println("The repository " + this.repository + " has no open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
+		else {
+			System.out.println("The repository " + this.repository + " has no open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
+		}
 	}
 
 	public RepositoryRef getRepository() {
