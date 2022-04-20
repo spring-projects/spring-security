@@ -59,6 +59,7 @@ public class GitHubMilestonePlugin implements Plugin<Project> {
 					public void execute(GitHubMilestoneNextVersionDueTodayTask gitHubMilestoneNextVersionDueTodayTask) {
 						gitHubMilestoneNextVersionDueTodayTask.setGroup("Release");
 						gitHubMilestoneNextVersionDueTodayTask.setDescription("Checks if the next release version is due today or past due, will fail if the next version is not due yet");
+						gitHubMilestoneNextVersionDueTodayTask.getIsDueTodayFile().value(project.getLayout().getBuildDirectory().file("github/milestones/is-due-today"));
 						gitHubMilestoneNextVersionDueTodayTask.getNextVersionFile().convention(
 								nextReleaseMilestoneTask.flatMap(GitHubMilestoneNextReleaseTask::getNextReleaseFile));
 						if (project.hasProperty("gitHubAccessToken")) {
