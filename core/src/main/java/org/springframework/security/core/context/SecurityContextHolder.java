@@ -17,6 +17,7 @@
 package org.springframework.security.core.context;
 
 import java.lang.reflect.Constructor;
+import java.util.function.Supplier;
 
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -46,6 +47,7 @@ import org.springframework.util.StringUtils;
  * {@link #MODE_GLOBAL} is definitely inappropriate for server use).
  *
  * @author Ben Alex
+ * @author Rob Winch
  *
  */
 public class SecurityContextHolder {
@@ -124,6 +126,16 @@ public class SecurityContextHolder {
 	}
 
 	/**
+	 * Obtains a {@link Supplier} that returns the current context.
+	 * @return a {@link Supplier} that returns the current context (never
+	 * <code>null</code> - create a default implementation if necessary)
+	 * @since 5.8
+	 */
+	public static Supplier<SecurityContext> getDeferredContext() {
+		return strategy.getDeferredContext();
+	}
+
+	/**
 	 * Primarily for troubleshooting purposes, this method shows how many times the class
 	 * has re-initialized its <code>SecurityContextHolderStrategy</code>.
 	 * @return the count (should be one unless you've called
@@ -141,6 +153,16 @@ public class SecurityContextHolder {
 	 */
 	public static void setContext(SecurityContext context) {
 		strategy.setContext(context);
+	}
+
+	/**
+	 * Sets a {@link Supplier} that will return the current context. Implementations can
+	 * override the default to avoid invoking {@link Supplier#get()}.
+	 * @param deferredContext a {@link Supplier} that returns the {@link SecurityContext}
+	 * @since 5.8
+	 */
+	public static void setDeferredContext(Supplier<SecurityContext> deferredContext) {
+		strategy.setDeferredContext(deferredContext);
 	}
 
 	/**
