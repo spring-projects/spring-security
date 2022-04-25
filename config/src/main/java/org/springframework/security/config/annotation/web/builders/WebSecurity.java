@@ -344,7 +344,10 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			if (filter instanceof AuthorizationFilter) {
 				AuthorizationManager<HttpServletRequest> authorizationManager = ((AuthorizationFilter) filter)
 						.getAuthorizationManager();
-				privilegeEvaluators.add(new AuthorizationManagerWebInvocationPrivilegeEvaluator(authorizationManager));
+				AuthorizationManagerWebInvocationPrivilegeEvaluator evaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
+						authorizationManager);
+				evaluator.setServletContext(this.servletContext);
+				privilegeEvaluators.add(evaluator);
 			}
 		}
 		return new RequestMatcherEntry<>(securityFilterChain::matches, privilegeEvaluators);
