@@ -44,6 +44,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
         HANDLER_MAPPING_INTROSPECTOR,
         AuthorizeHttpRequestsDsl::class.java.classLoader)
     private val PATTERN_TYPE = if (MVC_PRESENT) PatternType.MVC else PatternType.ANT
+    private var shouldFilterAllDispatcherTypes = false
 
     /**
      * Adds a request authorization rule.
@@ -216,6 +217,16 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
     }
 
     /**
+     * Sets whether all dispatcher types should be filtered.
+     * @param shouldFilter should filter all dispatcher types. Default is
+     * {@code false}
+     * @since 5.7
+     */
+    fun shouldFilterAllDispatcherTypes(shouldFilter: Boolean) {
+        this.shouldFilterAllDispatcherTypes = shouldFilter
+    }
+
+    /**
      * Specify that URLs are allowed by anyone.
      */
     val permitAll: AuthorizationManager<RequestAuthorizationContext> =
@@ -248,6 +259,7 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
                     }
                 }
             }
+            requests.shouldFilterAllDispatcherTypes(this.shouldFilterAllDispatcherTypes)
         }
     }
 }
