@@ -24,6 +24,7 @@ import org.springframework.security.authorization.AuthorizationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer
 import org.springframework.security.core.Authentication
+import org.springframework.security.web.access.intercept.AuthorizationFilter
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
@@ -35,8 +36,11 @@ import java.util.function.Supplier
  *
  * @author Yuriy Savchenko
  * @since 5.7
+ * @property shouldFilterAllDispatcherTypes whether the [AuthorizationFilter] should filter all dispatcher types
  */
 class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
+    var shouldFilterAllDispatcherTypes: Boolean? = null
+
     private val authorizationRules = mutableListOf<AuthorizationManagerRule>()
 
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
@@ -247,6 +251,9 @@ class AuthorizeHttpRequestsDsl : AbstractRequestMatcherDsl() {
                         }
                     }
                 }
+            }
+            shouldFilterAllDispatcherTypes?.also { shouldFilter ->
+                requests.shouldFilterAllDispatcherTypes(shouldFilter)
             }
         }
     }

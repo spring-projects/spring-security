@@ -190,4 +190,18 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            shouldFilterAllDispatcherTypes = false
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
+}
+----
 ====
