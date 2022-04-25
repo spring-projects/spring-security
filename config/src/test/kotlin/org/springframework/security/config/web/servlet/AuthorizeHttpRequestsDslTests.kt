@@ -53,7 +53,9 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.util.WebUtils
 import java.util.function.Supplier
+import javax.servlet.DispatcherType
 
 /**
  * Tests for [AuthorizeHttpRequestsDsl]
@@ -640,5 +642,156 @@ class AuthorizeHttpRequestsDslTests {
             }
             return http.build()
         }
+    }
+
+    @Test
+    fun `request when shouldFilterAllDispatcherTypes and denyAll and ERROR then responds with forbidden`() {
+        this.spring.register(ShouldFilterAllDispatcherTypesTrueDenyAllConfig::class.java).autowire()
+
+        this.mockMvc.perform(get("/path")
+            .with { request ->
+                request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error")
+                request.apply {
+                    dispatcherType = DispatcherType.ERROR
+                }
+            })
+            .andExpect(status().isForbidden)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class ShouldFilterAllDispatcherTypesTrueDenyAllConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    shouldFilterAllDispatcherTypes = true
+                    authorize(anyRequest, denyAll)
+                }
+            }
+            return http.build()
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+
+    }
+
+    @Test
+    fun `request when shouldFilterAllDispatcherTypes and permitAll and ERROR then responds with ok`() {
+        this.spring.register(ShouldFilterAllDispatcherTypesTruePermitAllConfig::class.java).autowire()
+
+        this.mockMvc.perform(get("/path")
+            .with { request ->
+                request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error")
+                request.apply {
+                    dispatcherType = DispatcherType.ERROR
+                }
+            })
+            .andExpect(status().isOk)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class ShouldFilterAllDispatcherTypesTruePermitAllConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    shouldFilterAllDispatcherTypes = true
+                    authorize(anyRequest, permitAll)
+                }
+            }
+            return http.build()
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+
+    }
+
+    @Test
+    fun `request when shouldFilterAllDispatcherTypes false and ERROR dispatcher then responds with ok`() {
+        this.spring.register(ShouldFilterAllDispatcherTypesFalseAndDenyAllConfig::class.java).autowire()
+
+        this.mockMvc.perform(get("/path")
+            .with { request ->
+                request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error")
+                request.apply {
+                    dispatcherType = DispatcherType.ERROR
+                }
+            })
+            .andExpect(status().isOk)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class ShouldFilterAllDispatcherTypesFalseAndDenyAllConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    shouldFilterAllDispatcherTypes = false
+                    authorize(anyRequest, denyAll)
+                }
+            }
+            return http.build()
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+
+    }
+
+    @Test
+    fun `request when shouldFilterAllDispatcherTypes omitted and ERROR dispatcher then responds with ok`() {
+        this.spring.register(ShouldFilterAllDispatcherTypesOmittedAndDenyAllConfig::class.java).autowire()
+
+        this.mockMvc.perform(get("/path")
+            .with { request ->
+                request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error")
+                request.apply {
+                    dispatcherType = DispatcherType.ERROR
+                }
+            })
+            .andExpect(status().isOk)
+    }
+
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class ShouldFilterAllDispatcherTypesOmittedAndDenyAllConfig {
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                authorizeHttpRequests {
+                    authorize(anyRequest, denyAll)
+                }
+            }
+            return http.build()
+        }
+
+        @RestController
+        internal class PathController {
+            @RequestMapping("/path")
+            fun path() {
+            }
+        }
+
     }
 }
