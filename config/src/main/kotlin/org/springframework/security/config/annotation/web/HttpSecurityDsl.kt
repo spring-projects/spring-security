@@ -50,6 +50,7 @@ import jakarta.servlet.http.HttpServletRequest
  * ```
  *
  * @author Eleftheria Stein
+ * @author Norbert Nowak
  * @since 5.3
  * @param httpConfiguration the configurations to apply to [HttpSecurity]
  */
@@ -904,5 +905,33 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     internal fun build() {
         init()
         authenticationManager?.also { this.http.authenticationManager(authenticationManager) }
+    }
+
+    /**
+     * Enables security context configuration.
+     *
+     * Example:
+     *
+     * ```
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *  override fun configure(http: HttpSecurity) {
+     *        http {
+     *           securityContext {
+     *               securityContextRepository = SECURITY_CONTEXT_REPOSITORY
+     *           }
+     *        }
+     *  }
+     * }
+     * ```
+     * @author Norbert Nowak
+     * @since 5.7
+     * @param securityContextConfiguration configuration to be applied to Security Context
+     * @see [SecurityContextDsl]
+     */
+    fun securityContext(securityContextConfiguration: SecurityContextDsl.() -> Unit) {
+        val securityContextCustomizer = SecurityContextDsl().apply(securityContextConfiguration).get()
+        this.http.securityContext(securityContextCustomizer)
     }
 }
