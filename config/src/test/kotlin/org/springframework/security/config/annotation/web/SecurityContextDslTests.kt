@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web
 
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.mockkObject
 import io.mockk.spyk
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
@@ -52,41 +53,13 @@ class SecurityContextDslTests {
     lateinit var mvc: MockMvc
 
     @Test
-    fun `configure when registering object post processor then invoked on security context persistence filter`() {
-        spring.register(ObjectPostProcessorConfig::class.java).autowire()
-        verify { ObjectPostProcessorConfig.objectPostProcessor.postProcess(any<SecurityContextPersistenceFilter>()) }
-    }
-
-    @EnableWebSecurity
-    open class ObjectPostProcessorConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
-            // @formatter:off
-            http {
-                securityContext { }
-            }
-            // @formatter:on
-        }
-
-        @Bean
-        open fun objectPostProcessor(): ObjectPostProcessor<Any> = objectPostProcessor
-
-        companion object {
-            var objectPostProcessor: ObjectPostProcessor<Any> = spyk(ReflectingObjectPostProcessor())
-
-            class ReflectingObjectPostProcessor : ObjectPostProcessor<Any> {
-                override fun <O> postProcess(`object`: O): O = `object`
-            }
-        }
-    }
-
-    @Test
     fun `security context when invoked twice then uses original security context repository`() {
         spring.register(DuplicateDoesNotOverrideConfig::class.java).autowire()
+        mockkObject(DuplicateDoesNotOverrideConfig.SECURITY_CONTEXT_REPOSITORY)
         every { DuplicateDoesNotOverrideConfig.SECURITY_CONTEXT_REPOSITORY.loadContext(any<HttpRequestResponseHolder>()) } returns mockk<SecurityContext>(relaxed = true)
         mvc.perform(get("/"))
         verify(exactly = 1) { DuplicateDoesNotOverrideConfig.SECURITY_CONTEXT_REPOSITORY.loadContext(any<HttpRequestResponseHolder>()) }
     }
-
 
     @EnableWebSecurity
     open class DuplicateDoesNotOverrideConfig : WebSecurityConfigurerAdapter() {
@@ -102,7 +75,7 @@ class SecurityContextDslTests {
         }
 
         companion object {
-            var SECURITY_CONTEXT_REPOSITORY = mockk<SecurityContextRepository>(relaxed = true)
+            val SECURITY_CONTEXT_REPOSITORY = NullSecurityContextRepository()
         }
     }
 
