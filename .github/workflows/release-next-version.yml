@@ -108,6 +108,7 @@ jobs:
           git commit -am "Release $updatedVersion"
           git tag $updatedVersion
           git push
+          git push origin $updatedVersion
   notify_result:
     name: Check for failures
     needs: [release]
