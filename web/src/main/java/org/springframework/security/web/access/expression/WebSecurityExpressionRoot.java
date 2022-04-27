@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.web.util.matcher.IpAddressMatcher;
 
 /**
  * @author Luke Taylor
+ * @author Evgeniy Cheban
  * @since 3.0
  */
 public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
@@ -35,8 +36,19 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	public final HttpServletRequest request;
 
 	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
-		super(a);
-		this.request = fi.getRequest();
+		this(a, fi.getRequest());
+	}
+
+	/**
+	 * Creates an instance for the given {@link Authentication} and
+	 * {@link HttpServletRequest}.
+	 * @param authentication the {@link Authentication} to use
+	 * @param request the {@link HttpServletRequest} to use
+	 * @since 5.8
+	 */
+	public WebSecurityExpressionRoot(Authentication authentication, HttpServletRequest request) {
+		super(authentication);
+		this.request = request;
 	}
 
 	/**
