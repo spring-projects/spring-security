@@ -37,11 +37,13 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -395,6 +397,90 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isOk());
 	}
 
+	@Test
+	public void getWhenExpressionHasRoleUserConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(ExpressionRoleUserConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.roles("USER"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenExpressionHasRoleUserConfiguredAndRoleIsAdminThenRespondsWithForbidden() throws Exception {
+		this.spring.register(ExpressionRoleUserConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.roles("ADMIN"));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenExpressionRoleUserOrAdminConfiguredAndRoleIsUserThenRespondsWithOk() throws Exception {
+		this.spring.register(ExpressionRoleUserOrAdminConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+				.roles("USER"));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenExpressionRoleUserOrAdminConfiguredAndRoleIsAdminThenRespondsWithOk() throws Exception {
+		this.spring.register(ExpressionRoleUserOrAdminConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.roles("ADMIN"));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenExpressionRoleUserOrAdminConfiguredAndRoleIsOtherThenRespondsWithForbidden() throws Exception {
+		this.spring.register(ExpressionRoleUserOrAdminConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithRoleOther = get("/")
+				.with(user("user")
+				.roles("OTHER"));
+		// @formatter:on
+		this.mvc.perform(requestWithRoleOther).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsLocalhostThenRespondsWithOk()
+			throws Exception {
+		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestFromLocalhost = get("/")
+				.with(remoteAddress("127.0.0.1"));
+		// @formatter:on
+		this.mvc.perform(requestFromLocalhost).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsOtherThenRespondsWithForbidden()
+			throws Exception {
+		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestFromOtherHost = get("/")
+				.with(remoteAddress("192.168.0.1"));
+		// @formatter:on
+		this.mvc.perform(requestFromOtherHost).andExpect(status().isForbidden());
+	}
+
+	private static RequestPostProcessor remoteAddress(String remoteAddress) {
+		return (request) -> {
+			request.setRemoteAddr(remoteAddress);
+			return request;
+		};
+	}
+
 	@EnableWebSecurity
 	static class NoRequestsConfig {
 
@@ -706,6 +792,54 @@ public class AuthorizeHttpRequestsConfigurerTests {
 						.and()
 					.authorizeHttpRequests((requests) -> requests
 						.anyRequest().authenticated()
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ExpressionRoleUserConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((requests) -> requests
+						.anyRequest().access(new WebExpressionAuthorizationManager("hasRole('USER')"))
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ExpressionRoleUserOrAdminConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((requests) -> requests
+						.anyRequest().access(new WebExpressionAuthorizationManager("hasRole('USER') or hasRole('ADMIN')"))
+					)
+					.build();
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class ExpressionIpAddressLocalhostConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((requests) -> requests
+						.anyRequest().access(new WebExpressionAuthorizationManager("hasIpAddress('127.0.0.1')"))
 					)
 					.build();
 			// @formatter:on
