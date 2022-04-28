@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,14 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.FilterInvocation
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.channel.ChannelProcessor
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -63,13 +64,15 @@ class RequiresChannelDslTests {
     }
 
     @EnableWebSecurity
-    open class RequiresSecureConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class RequiresSecureConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 requiresChannel {
                     secure(anyRequest, requiresSecure)
                 }
             }
+            return http.build()
         }
     }
 
@@ -95,8 +98,9 @@ class RequiresChannelDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class MvcMatcherServletPathConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MvcMatcherServletPathConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 requiresChannel {
                     secure("/path",
@@ -104,6 +108,7 @@ class RequiresChannelDslTests {
                             requiresSecure)
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -125,7 +130,7 @@ class RequiresChannelDslTests {
     }
 
     @EnableWebSecurity
-    open class ChannelProcessorsConfig : WebSecurityConfigurerAdapter() {
+    open class ChannelProcessorsConfig {
 
         companion object {
             val CHANNEL_PROCESSOR: ChannelProcessor = object : ChannelProcessor {
@@ -134,13 +139,15 @@ class RequiresChannelDslTests {
             }
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 requiresChannel {
                     channelProcessors = listOf(CHANNEL_PROCESSOR)
                     secure(anyRequest, requiresSecure)
                 }
             }
+            return http.build()
         }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.annotation.web.invoke
@@ -44,6 +43,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
@@ -102,13 +102,14 @@ class OpaqueTokenDslTests {
     }
 
     @EnableWebSecurity
-    open class DefaultOpaqueConfig : WebSecurityConfigurerAdapter() {
+    open class DefaultOpaqueConfig {
 
         companion object {
             val REST: RestOperations = RestTemplate()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -117,6 +118,7 @@ class OpaqueTokenDslTests {
                     opaqueToken { }
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -145,13 +147,14 @@ class OpaqueTokenDslTests {
     }
 
     @EnableWebSecurity
-    open class CustomIntrospectorConfig : WebSecurityConfigurerAdapter() {
+    open class CustomIntrospectorConfig {
 
         companion object {
             val INTROSPECTOR: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector("uri", "clientId", "clientSecret")
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -162,6 +165,7 @@ class OpaqueTokenDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -181,13 +185,14 @@ class OpaqueTokenDslTests {
     }
 
     @EnableWebSecurity
-    open class IntrospectorAfterClientCredentialsConfig : WebSecurityConfigurerAdapter() {
+    open class IntrospectorAfterClientCredentialsConfig {
 
         companion object {
             val INTROSPECTOR: OpaqueTokenIntrospector = SpringOpaqueTokenIntrospector("uri", "clientId", "clientSecret")
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -200,6 +205,7 @@ class OpaqueTokenDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -222,13 +228,14 @@ class OpaqueTokenDslTests {
     }
 
     @EnableWebSecurity
-    open class AuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+    open class AuthenticationManagerConfig {
 
         companion object {
             val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -239,6 +246,7 @@ class OpaqueTokenDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 

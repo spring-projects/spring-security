@@ -32,7 +32,6 @@ import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -112,9 +111,10 @@ class HttpSecurityDslTests {
     }
 
     @EnableWebSecurity
-    open class DefaultSecurityConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
-            http {}
+    open class DefaultSecurityConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            return http.build()
         }
 
         @Configuration
@@ -160,14 +160,16 @@ class HttpSecurityDslTests {
     }
 
     @EnableWebSecurity
-    open class SecurityRequestMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SecurityRequestMatcherRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher(RegexRequestMatcher("/path", null))
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -215,14 +217,16 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class SecurityPatternMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SecurityPatternMatcherRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher("/path")
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -267,8 +271,9 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class MultiMatcherRequestsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MultiMatcherRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher("/path1")
                 securityMatcher(RegexRequestMatcher("/path2", null))
@@ -276,6 +281,7 @@ class HttpSecurityDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -317,8 +323,9 @@ class HttpSecurityDslTests {
     }
 
     @EnableWebSecurity
-    open class AuthenticationManagerRequestsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthenticationManagerRequestsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authenticationManager = AuthenticationManagerConfig.AUTHENTICATION_MANAGER
                 authorizeRequests {
@@ -326,6 +333,7 @@ class HttpSecurityDslTests {
                 }
                 httpBasic { }
             }
+            return http.build()
         }
     }
 
@@ -351,17 +359,18 @@ class HttpSecurityDslTests {
         val filterChain = spring.context.getBean(FilterChainProxy::class.java)
         val filters: List<Filter> = filterChain.getFilters("/")
 
-        assertThat(filters).hasSize(1)
-        assertThat(filters[0]).isExactlyInstanceOf(CustomFilter::class.java)
+        assertThat(filters).anyMatch { it is CustomFilter }
     }
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterConfig : WebSecurityConfigurerAdapter(true) {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterAt(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
             }
+            return http.build()
         }
     }
 
@@ -372,17 +381,18 @@ class HttpSecurityDslTests {
         val filterChain = spring.context.getBean(FilterChainProxy::class.java)
         val filters: List<Filter> = filterChain.getFilters("/")
 
-        assertThat(filters).hasSize(1)
-        assertThat(filters[0]).isExactlyInstanceOf(CustomFilter::class.java)
+        assertThat(filters).anyMatch { it is CustomFilter }
     }
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterConfigReified : WebSecurityConfigurerAdapter(true) {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterConfigReified {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterAt<UsernamePasswordAuthenticationFilter>(CustomFilter())
             }
+            return http.build()
         }
     }
 
@@ -401,12 +411,14 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterAfterConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterAfterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterAfter(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
                 formLogin {}
             }
+            return http.build()
         }
     }
 
@@ -425,12 +437,14 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterAfterConfigReified : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterAfterConfigReified{
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterAfter<UsernamePasswordAuthenticationFilter>(CustomFilter())
                 formLogin { }
             }
+            return http.build()
         }
     }
 
@@ -449,12 +463,14 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterBeforeConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterBeforeConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
                 formLogin {}
             }
+            return http.build()
         }
     }
 
@@ -473,12 +489,14 @@ class HttpSecurityDslTests {
 
     @EnableWebSecurity
     @EnableWebMvc
-    open class CustomFilterBeforeConfigReified : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomFilterBeforeConfigReified{
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 addFilterBefore<UsernamePasswordAuthenticationFilter>(CustomFilter())
                 formLogin { }
             }
+            return http.build()
         }
     }
 

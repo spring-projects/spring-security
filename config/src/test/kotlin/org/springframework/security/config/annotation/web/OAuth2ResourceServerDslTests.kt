@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,7 +32,6 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB
@@ -43,6 +42,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtIss
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver
 import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.AccessDeniedHandler
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
@@ -79,13 +79,14 @@ class OAuth2ResourceServerDslTests {
     }
 
     @EnableWebSecurity
-    open class EntryPointConfig : WebSecurityConfigurerAdapter() {
+    open class EntryPointConfig {
 
         companion object {
             val ENTRY_POINT: AuthenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -95,6 +96,7 @@ class OAuth2ResourceServerDslTests {
                     jwt { }
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -115,14 +117,15 @@ class OAuth2ResourceServerDslTests {
     }
 
     @EnableWebSecurity
-    open class BearerTokenResolverConfig : WebSecurityConfigurerAdapter() {
+    open class BearerTokenResolverConfig {
 
         companion object {
             val RESOLVER: BearerTokenResolver = DefaultBearerTokenResolver()
             val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -132,6 +135,7 @@ class OAuth2ResourceServerDslTests {
                     jwt { }
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -168,14 +172,15 @@ class OAuth2ResourceServerDslTests {
     }
 
     @EnableWebSecurity
-    open class AccessDeniedHandlerConfig : WebSecurityConfigurerAdapter() {
+    open class AccessDeniedHandlerConfig {
 
         companion object {
             val DECODER: JwtDecoder = MockJwtDecoder()
             val DENIED_HANDLER: AccessDeniedHandler = AccessDeniedHandlerImpl()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, denyAll)
@@ -185,6 +190,7 @@ class OAuth2ResourceServerDslTests {
                     jwt { }
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -209,14 +215,15 @@ class OAuth2ResourceServerDslTests {
     }
 
     @EnableWebSecurity
-    open class AuthenticationManagerResolverConfig : WebSecurityConfigurerAdapter() {
+    open class AuthenticationManagerResolverConfig {
 
         companion object {
             val RESOLVER: AuthenticationManagerResolver<HttpServletRequest> =
                 JwtIssuerAuthenticationManagerResolver("issuer")
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -225,6 +232,7 @@ class OAuth2ResourceServerDslTests {
                     authenticationManagerResolver = RESOLVER
                 }
             }
+            return http.build()
         }
     }
 
@@ -236,8 +244,9 @@ class OAuth2ResourceServerDslTests {
     }
 
     @EnableWebSecurity
-    open class AuthenticationManagerResolverAndOpaqueConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthenticationManagerResolverAndOpaqueConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -247,6 +256,7 @@ class OAuth2ResourceServerDslTests {
                     opaqueToken { }
                 }
             }
+            return http.build()
         }
     }
 }

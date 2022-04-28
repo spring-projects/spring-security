@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,13 @@ import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.annotation.web.invoke
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -57,14 +58,16 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpNoPinConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpNoPinConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
                     httpPublicKeyPinning { }
                 }
             }
+            return http.build()
         }
     }
 
@@ -80,8 +83,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpPinConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpPinConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -90,6 +94,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -105,8 +110,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpMaxAgeConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpMaxAgeConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -116,6 +122,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -131,8 +138,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpReportOnlyFalseConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpReportOnlyFalseConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -142,6 +150,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -160,8 +169,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpIncludeSubdomainsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpIncludeSubdomainsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -171,6 +181,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -189,8 +200,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpReportUriConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpReportUriConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -200,6 +212,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -217,8 +230,9 @@ class HttpPublicKeyPinningDslTests {
     }
 
     @EnableWebSecurity
-    open class HpkpDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HpkpDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     httpPublicKeyPinning {
@@ -226,6 +240,7 @@ class HttpPublicKeyPinningDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 }

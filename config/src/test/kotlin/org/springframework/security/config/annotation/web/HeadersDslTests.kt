@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import org.springframework.context.annotation.Bean
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.header.writers.StaticHeadersWriter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
@@ -66,11 +66,13 @@ class HeadersDslTests {
     }
 
     @EnableWebSecurity
-    open class DefaultHeadersConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DefaultHeadersConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers { }
             }
+            return http.build()
         }
     }
 
@@ -86,13 +88,15 @@ class HeadersDslTests {
 
     @EnableWebSecurity
     @Suppress("DEPRECATION")
-    open class FeaturePolicyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FeaturePolicyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     featurePolicy(policyDirectives = "geolocation 'self'")
                 }
             }
+            return http.build()
         }
     }
 
@@ -107,8 +111,9 @@ class HeadersDslTests {
     }
 
     @EnableWebSecurity
-    open class PermissionsPolicyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class PermissionsPolicyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     permissionsPolicy {
@@ -116,6 +121,7 @@ class HeadersDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -136,13 +142,15 @@ class HeadersDslTests {
     }
 
     @EnableWebSecurity
-    open class HeadersDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HeadersDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     disable()
                 }
             }
+            return http.build()
         }
     }
 
@@ -157,13 +165,15 @@ class HeadersDslTests {
     }
 
     @EnableWebSecurity
-    open class HeaderWriterConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HeaderWriterConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     addHeaderWriter(StaticHeadersWriter("custom-header", "custom-value"))
                 }
             }
+            return http.build()
         }
     }
 }

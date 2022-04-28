@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -43,6 +42,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -65,8 +65,9 @@ class OAuth2ClientDslTests {
     }
 
     @EnableWebSecurity
-    open class ClientRepoConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ClientRepoConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Client {
                     clientRegistrationRepository = InMemoryClientRegistrationRepository(
@@ -76,6 +77,7 @@ class OAuth2ClientDslTests {
                     )
                 }
             }
+            return http.build()
         }
     }
 
@@ -118,7 +120,7 @@ class OAuth2ClientDslTests {
     }
 
     @EnableWebSecurity
-    open class ClientRepositoryConfig : WebSecurityConfigurerAdapter() {
+    open class ClientRepositoryConfig {
 
         companion object {
             val REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
@@ -128,7 +130,8 @@ class OAuth2ClientDslTests {
             val CLIENT_REPOSITORY: OAuth2AuthorizedClientRepository = HttpSessionOAuth2AuthorizedClientRepository()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Client {
                     authorizedClientRepository = CLIENT_REPOSITORY
@@ -141,6 +144,7 @@ class OAuth2ClientDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 

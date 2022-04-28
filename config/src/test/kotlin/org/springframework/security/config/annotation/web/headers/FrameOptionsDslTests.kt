@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,13 @@ package org.springframework.security.config.annotation.web.headers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.XFrameOptionsServerHttpHeadersWriter
 import org.springframework.test.web.servlet.MockMvc
@@ -55,14 +56,16 @@ class FrameOptionsDslTests {
     }
 
     @EnableWebSecurity
-    open class FrameOptionsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FrameOptionsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
                     frameOptions { }
                 }
             }
+            return http.build()
         }
     }
 
@@ -78,8 +81,9 @@ class FrameOptionsDslTests {
     }
 
     @EnableWebSecurity
-    open class FrameOptionsDenyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FrameOptionsDenyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -88,6 +92,7 @@ class FrameOptionsDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -103,8 +108,9 @@ class FrameOptionsDslTests {
     }
 
     @EnableWebSecurity
-    open class FrameOptionsSameOriginConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FrameOptionsSameOriginConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -113,6 +119,7 @@ class FrameOptionsDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -128,8 +135,9 @@ class FrameOptionsDslTests {
     }
 
     @EnableWebSecurity
-    open class FrameOptionsSameOriginAndDenyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FrameOptionsSameOriginAndDenyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -139,6 +147,7 @@ class FrameOptionsDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -154,8 +163,9 @@ class FrameOptionsDslTests {
     }
 
     @EnableWebSecurity
-    open class FrameOptionsDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FrameOptionsDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     frameOptions {
@@ -163,6 +173,7 @@ class FrameOptionsDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 }

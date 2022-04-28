@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -43,7 +41,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RestController
-import jakarta.servlet.http.HttpServletRequest
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 
 /**
@@ -65,8 +63,9 @@ class OAuth2LoginDslTests {
     }
 
     @EnableWebSecurity
-    open class ClientRepoConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ClientRepoConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Login {
                     clientRegistrationRepository = InMemoryClientRegistrationRepository(
@@ -76,6 +75,7 @@ class OAuth2LoginDslTests {
                     )
                 }
             }
+            return http.build()
         }
     }
 
@@ -90,11 +90,13 @@ class OAuth2LoginDslTests {
     }
 
     @EnableWebSecurity
-    open class OAuth2LoginConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class OAuth2LoginConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Login { }
             }
+            return http.build()
         }
     }
 
@@ -109,13 +111,15 @@ class OAuth2LoginDslTests {
     }
 
     @EnableWebSecurity
-    open class LoginPageConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class LoginPageConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Login {
                     loginPage = "/custom-login"
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -157,14 +161,15 @@ class OAuth2LoginDslTests {
     }
 
     @EnableWebSecurity
-    open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
+    open class CustomAuthenticationDetailsSourceConfig {
 
         companion object {
             val AUTHENTICATION_DETAILS_SOURCE = WebAuthenticationDetailsSource()
             val AUTHORIZATION_REQUEST_REPOSITORY = HttpSessionOAuth2AuthorizationRequestRepository()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Login {
                     authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
@@ -173,6 +178,7 @@ class OAuth2LoginDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 

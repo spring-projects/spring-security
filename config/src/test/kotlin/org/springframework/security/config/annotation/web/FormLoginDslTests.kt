@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationDetailsSource
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -42,6 +40,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirec
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
 import jakarta.servlet.http.HttpServletRequest
+import org.springframework.context.annotation.Bean
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.WebAuthenticationDetails
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 
@@ -91,11 +91,13 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class FormLoginConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FormLoginConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
             }
+            return http.build()
         }
     }
 
@@ -111,14 +113,16 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class AllSecuredConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AllSecuredConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -134,8 +138,9 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class LoginPageConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class LoginPageConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     loginPage = "/log-in"
@@ -144,6 +149,7 @@ class FormLoginDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -159,13 +165,15 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class SuccessHandlerConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SuccessHandlerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     authenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler("/success")
                 }
             }
+            return http.build()
         }
     }
 
@@ -181,13 +189,15 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class FailureHandlerConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FailureHandlerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     authenticationFailureHandler = SimpleUrlAuthenticationFailureHandler("/failure")
                 }
             }
+            return http.build()
         }
     }
 
@@ -203,13 +213,15 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class FailureUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class FailureUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     failureUrl = "/failure"
                 }
             }
+            return http.build()
         }
     }
 
@@ -225,13 +237,15 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class LoginProcessingUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class LoginProcessingUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     loginProcessingUrl = "/custom"
                 }
             }
+            return http.build()
         }
     }
 
@@ -247,13 +261,15 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class DefaultSuccessUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DefaultSuccessUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     defaultSuccessUrl("/custom", true)
                 }
             }
+            return http.build()
         }
     }
 
@@ -268,8 +284,9 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class PermitAllConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class PermitAllConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -279,6 +296,7 @@ class FormLoginDslTests {
                     permitAll()
                 }
             }
+            return http.build()
         }
 
         @Controller
@@ -308,18 +326,20 @@ class FormLoginDslTests {
     }
 
     @EnableWebSecurity
-    open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
+    open class CustomAuthenticationDetailsSourceConfig {
 
         companion object {
             val AUTHENTICATION_DETAILS_SOURCE = WebAuthenticationDetailsSource()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {
                     authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
                 }
             }
+            return http.build()
         }
     }
 

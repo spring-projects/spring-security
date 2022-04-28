@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,12 +29,12 @@ import org.springframework.context.annotation.Bean
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.http.SessionCreationPolicy
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.Authentication
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationException
@@ -73,13 +73,15 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class InvalidSessionUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class InvalidSessionUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
                     invalidSessionUrl = "/invalid"
                 }
             }
+            return http.build()
         }
     }
 
@@ -98,13 +100,15 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class InvalidSessionStrategyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class InvalidSessionStrategyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
                     invalidSessionStrategy = SimpleRedirectInvalidSessionStrategy("/invalid")
                 }
             }
+            return http.build()
         }
     }
 
@@ -124,8 +128,9 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class SessionAuthenticationErrorUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SessionAuthenticationErrorUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -134,6 +139,7 @@ class SessionManagementDslTests {
                     sessionAuthenticationErrorUrl = "/session-auth-error"
                 }
             }
+            return http.build()
         }
     }
 
@@ -153,8 +159,9 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class SessionAuthenticationFailureHandlerConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SessionAuthenticationFailureHandlerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -163,6 +170,7 @@ class SessionManagementDslTests {
                     sessionAuthenticationFailureHandler = SimpleUrlAuthenticationFailureHandler("/session-auth-error")
                 }
             }
+            return http.build()
         }
     }
 
@@ -177,8 +185,9 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class StatelessSessionManagementConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class StatelessSessionManagementConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -187,6 +196,7 @@ class SessionManagementDslTests {
                     sessionCreationPolicy = SessionCreationPolicy.STATELESS
                 }
             }
+            return http.build()
         }
     }
 
@@ -208,13 +218,14 @@ class SessionManagementDslTests {
     }
 
     @EnableWebSecurity
-    open class SessionAuthenticationStrategyConfig : WebSecurityConfigurerAdapter() {
+    open class SessionAuthenticationStrategyConfig {
 
         companion object {
             val STRATEGY: SessionAuthenticationStrategy = NullAuthenticatedSessionStrategy()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -223,6 +234,7 @@ class SessionManagementDslTests {
                     sessionAuthenticationStrategy = STRATEGY
                 }
             }
+            return http.build()
         }
 
         @Bean

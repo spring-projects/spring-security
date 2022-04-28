@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -44,6 +43,7 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -81,14 +81,15 @@ class AuthorizationCodeGrantDslTests {
     }
 
     @EnableWebSecurity
-    open class RequestRepositoryConfig : WebSecurityConfigurerAdapter() {
+    open class RequestRepositoryConfig {
 
         companion object {
             val REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
                 HttpSessionOAuth2AuthorizationRequestRepository()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Client {
                     authorizationCodeGrant {
@@ -99,6 +100,7 @@ class AuthorizationCodeGrantDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -130,7 +132,7 @@ class AuthorizationCodeGrantDslTests {
     }
 
     @EnableWebSecurity
-    open class AuthorizedClientConfig : WebSecurityConfigurerAdapter() {
+    open class AuthorizedClientConfig {
         companion object {
             val REQUEST_REPOSITORY: AuthorizationRequestRepository<OAuth2AuthorizationRequest> =
                 HttpSessionOAuth2AuthorizationRequestRepository()
@@ -138,7 +140,8 @@ class AuthorizationCodeGrantDslTests {
                 DefaultAuthorizationCodeTokenResponseClient()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Client {
                     authorizationCodeGrant {
@@ -150,6 +153,7 @@ class AuthorizationCodeGrantDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -171,11 +175,12 @@ class AuthorizationCodeGrantDslTests {
     }
 
     @EnableWebSecurity
-    open class RequestResolverConfig : WebSecurityConfigurerAdapter() {
+    open class RequestResolverConfig {
 
         val requestResolver: OAuth2AuthorizationRequestResolver = mockk()
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2Client {
                     authorizationCodeGrant {
@@ -186,6 +191,7 @@ class AuthorizationCodeGrantDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
