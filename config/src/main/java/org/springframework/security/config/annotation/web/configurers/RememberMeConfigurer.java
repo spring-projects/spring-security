@@ -153,8 +153,10 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	 * when a remember me token is valid. The default is to use the
 	 * {@link UserDetailsService} found by invoking
 	 * {@link HttpSecurity#getSharedObject(Class)} which is set when using
-	 * {@link WebSecurityConfigurerAdapter#configure(AuthenticationManagerBuilder)}.
-	 * Alternatively, one can populate {@link #rememberMeServices(RememberMeServices)}.
+	 * {@link WebSecurityConfigurerAdapter#configure(AuthenticationManagerBuilder)}. When
+	 * using a {@link org.springframework.security.web.SecurityFilterChain} bean, the
+	 * default is to look for a {@link UserDetailsService} bean. Alternatively, one can
+	 * populate {@link #rememberMeServices(RememberMeServices)}.
 	 * @param userDetailsService the {@link UserDetailsService} to configure
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices
@@ -397,9 +399,10 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the {@link UserDetailsService} to use. Either the explicitly configure
-	 * {@link UserDetailsService} from {@link #userDetailsService(UserDetailsService)} or
-	 * a shared object from {@link HttpSecurity#getSharedObject(Class)}.
+	 * Gets the {@link UserDetailsService} to use. Either the explicitly configured
+	 * {@link UserDetailsService} from {@link #userDetailsService(UserDetailsService)}, a
+	 * shared object from {@link HttpSecurity#getSharedObject(Class)} or the
+	 * {@link UserDetailsService} bean.
 	 * @param http {@link HttpSecurity} to get the shared {@link UserDetailsService}
 	 * @return the {@link UserDetailsService} to use
 	 */
