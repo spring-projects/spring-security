@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
@@ -115,6 +116,20 @@ public class RememberMeConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request);
 		verify(DuplicateDoesNotOverrideConfig.userDetailsService).loadUserByUsername("user");
+	}
+
+	@Test
+	public void rememberMeWhenUserDetailsServiceNotConfiguredThenUsesBean() throws Exception {
+		this.spring.register(UserDetailsServiceBeanConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
+		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(remembermeAuthentication);
 	}
 
 	@Test
@@ -366,6 +381,26 @@ public class RememberMeConfigurerTests {
 							.build()
 					// @formatter:on
 			);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class UserDetailsServiceBeanConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService customUserDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
