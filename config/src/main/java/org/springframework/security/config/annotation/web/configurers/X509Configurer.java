@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,19 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.Http403ForbiddenEntryPoint;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationProvider;
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
@@ -141,7 +145,9 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Specifies the {@link AuthenticationUserDetailsService} to use. If not specified,
 	 * the shared {@link UserDetailsService} will be used to create a
-	 * {@link UserDetailsByNameServiceWrapper}.
+	 * {@link UserDetailsByNameServiceWrapper}. If a {@link SecurityFilterChain} bean is
+	 * used instead of the {@link WebSecurityConfigurerAdapter}, then the
+	 * {@link UserDetailsService} bean will be used by default.
 	 * @param authenticationUserDetailsService the
 	 * {@link AuthenticationUserDetailsService} to use
 	 * @return the {@link X509Configurer} for further customizations
@@ -200,9 +206,30 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 	private AuthenticationUserDetailsService<PreAuthenticatedAuthenticationToken> getAuthenticationUserDetailsService(
 			H http) {
 		if (this.authenticationUserDetailsService == null) {
-			userDetailsService(http.getSharedObject(UserDetailsService.class));
+			userDetailsService(getSharedOrBean(http, UserDetailsService.class));
 		}
 		return this.authenticationUserDetailsService;
+	}
+
+	private <C> C getSharedOrBean(H http, Class<C> type) {
+		C shared = http.getSharedObject(type);
+		if (shared != null) {
+			return shared;
+		}
+		return getBeanOrNull(type);
+	}
+
+	private <T> T getBeanOrNull(Class<T> type) {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		try {
+			return context.getBean(type);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			return null;
+		}
 	}
 
 }
