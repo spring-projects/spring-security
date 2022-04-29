@@ -26,8 +26,10 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -214,6 +216,22 @@ final class TestSaml2JsonPayloads {
 		Saml2Authentication authentication = new Saml2Authentication(principal, SAML_RESPONSE, AUTHORITIES);
 		authentication.setDetails(DETAILS);
 		return authentication;
+	}
+
+	// @formatter:off
+	static final String DEFAULT_SAML_AUTH_EXCEPTION_JSON = "{"
+			+ "  \"@class\": \"org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException\","
+			+ "  \"detailMessage\": \"exceptionMessage\","
+			+ "  \"error\": {"
+			+ "    \"@class\": \"org.springframework.security.saml2.core.Saml2Error\","
+			+ "    \"errorCode\": \"errorCode\","
+			+ "    \"description\": \"errorDescription\""
+			+ "  }"
+			+ "}";
+	// @formatter:on
+
+	static Saml2AuthenticationException createDefaultSaml2AuthenticationException() {
+		return new Saml2AuthenticationException(new Saml2Error("errorCode", "errorDescription"), "exceptionMessage");
 	}
 
 }
