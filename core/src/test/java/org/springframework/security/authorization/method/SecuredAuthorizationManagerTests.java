@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.aop.TargetClassAware;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
@@ -127,6 +128,19 @@ public class SecuredAuthorizationManagerTests {
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
+	@Test
+	public void checkTargetClassAwareWhenInterfaceLevelAnnotationsThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestTargetClassAware(),
+				TestTargetClassAware.class, "doSomething");
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isFalse();
+		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+	}
+
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {
@@ -189,6 +203,35 @@ public class SecuredAuthorizationManagerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Secured("ROLE_USER")
 	public @interface MySecured {
+
+	}
+
+	@Secured("ROLE_ADMIN")
+	public interface InterfaceLevelAnnotations {
+
+	}
+
+	public static class TestTargetClassAware extends TestClass implements TargetClassAware, InterfaceLevelAnnotations {
+
+		@Override
+		public Class<?> getTargetClass() {
+			return TestClass.class;
+		}
+
+		@Override
+		public void doSomething() {
+			super.doSomething();
+		}
+
+		@Override
+		public void securedUserOrAdmin() {
+			super.securedUserOrAdmin();
+		}
+
+		@Override
+		public void inheritedAnnotations() {
+			super.inheritedAnnotations();
+		}
 
 	}
 
