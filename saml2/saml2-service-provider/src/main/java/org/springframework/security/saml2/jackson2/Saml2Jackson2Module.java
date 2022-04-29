@@ -20,8 +20,10 @@ import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.provider.service.authentication.DefaultSaml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
@@ -29,8 +31,9 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 /**
  * Jackson module for saml2-service-provider. This module register
  * {@link Saml2AuthenticationMixin}, {@link DefaultSaml2AuthenticatedPrincipalMixin},
- * {@link Saml2LogoutRequestMixin}, {@link Saml2RedirectAuthenticationRequestMixin} and
- * {@link Saml2PostAuthenticationRequestMixin}.
+ * {@link Saml2LogoutRequestMixin}, {@link Saml2RedirectAuthenticationRequestMixin},
+ * {@link Saml2PostAuthenticationRequestMixin}, {@link Saml2ErrorMixin} and
+ * {@link Saml2AuthenticationExceptionMixin}.
  *
  * @author Ulrich Grave
  * @since 5.7
@@ -51,6 +54,8 @@ public class Saml2Jackson2Module extends SimpleModule {
 		context.setMixInAnnotations(Saml2RedirectAuthenticationRequest.class,
 				Saml2RedirectAuthenticationRequestMixin.class);
 		context.setMixInAnnotations(Saml2PostAuthenticationRequest.class, Saml2PostAuthenticationRequestMixin.class);
+		context.setMixInAnnotations(Saml2Error.class, Saml2ErrorMixin.class);
+		context.setMixInAnnotations(Saml2AuthenticationException.class, Saml2AuthenticationExceptionMixin.class);
 	}
 
 }
