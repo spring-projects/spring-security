@@ -9,7 +9,7 @@ content:
     - url: ../../spring-io/spring-generated-docs
       branches: [spring-projects/spring-security/*]
     - url: ../../spring-projects/spring-security
-      branches: [main,5.6.x,5.7.x]
+      branches: [main,5.6.x,5.7.x,5.8.x]
       start_path: docs
 urls:
   latest_version_segment_strategy: redirect:to
