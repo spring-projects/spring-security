@@ -7,7 +7,7 @@ asciidoc:
 content:
   sources:
     - url: https://github.com/spring-io/spring-generated-docs
-      branches: [spring-projects/spring-security/5.7.x]
+      branches: [spring-projects/spring-security/5.8.x]
     - url: ../
       branches: HEAD
       start_path: docs

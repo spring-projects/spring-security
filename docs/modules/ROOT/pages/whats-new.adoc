@@ -1,37 +1,7 @@
 [[new]]
-= What's New in Spring Security 5.7
+= What's New in Spring Security 5.8
 
-Spring Security 5.7 provides a number of new features.
+Spring Security 5.8 provides a number of new features.
 Below are the highlights of the release.
 
 [[whats-new-servlet]]
-== Servlet
-
-* Web
-
-** Introduced xref:servlet/authentication/persistence.adoc#requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`]
-** Introduced xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] - Ability to require explicit saving of the `SecurityContext`
-** Added DSL support for xref:servlet/exploits/headers.adoc#servlet-headers-cross-origin-policies[Cross Origin Policies headers]
-
-* OAuth 2.0 Client
-
-** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
-** Allow configuring a https://github.com/spring-projects/spring-security/issues/9812[JWT assertion resolver] in `JwtBearerOAuth2AuthorizedClientProvider`
-** Allow customizing claims on https://github.com/spring-projects/spring-security/issues/9855[JWT client assertions]
-
-* SAML 2.0
-
-** Added xref:servlet/appendix/namespace/http.adoc#nsa-saml2-login[SAML 2.0 Login & Single Logout XML support]
-
-[[whats-new-webflux]]
-== WebFlux
-
-* Web
-
-** Allow customizing https://github.com/spring-projects/spring-security/issues/10903[charset] in `ServerHttpBasicAuthenticationConverter`
-** Added DSL support for xref:reactive/exploits/headers.adoc#webflux-headers-cross-origin-policies[Cross Origin Policies headers]
-
-* OAuth 2.0 Client
-
-** Allow configuring https://github.com/spring-projects/spring-security/issues/6548[PKCE for confidential clients]
-** Allow configuring a https://github.com/spring-projects/spring-security/issues/9812[JWT assertion resolver] in `JwtBearerReactiveOAuth2AuthorizedClientProvider`

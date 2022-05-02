@@ -1,0 +1,1321 @@
+namespace a = "https://relaxng.org/ns/compatibility/annotations/1.0"
+datatypes xsd = "http://www.w3.org/2001/XMLSchema-datatypes"
+
+default namespace = "http://www.springframework.org/schema/security"
+
+start = http | ldap-server | authentication-provider | ldap-authentication-provider | any-user-service | ldap-server | ldap-authentication-provider
+
+hash =
+	## Defines the hashing algorithm used on user passwords. Bcrypt is recommended.
+	attribute hash {"bcrypt"}
+base64 =
+	## Whether a string should be base64 encoded
+	attribute base64 {xsd:boolean}
+request-matcher =
+	## Defines the strategy use for matching incoming requests. Currently the options are 'mvc' (for Spring MVC matcher), 'ant' (for ant path patterns), 'regex' for regular expressions and 'ciRegex' for case-insensitive regular expressions.
+	attribute request-matcher {"mvc" | "ant" | "regex" | "ciRegex"}
+port =
+	## Specifies an IP port number. Used to configure an embedded LDAP server, for example.
+	attribute port { xsd:nonNegativeInteger }
+url =
+	## Specifies a URL.
+	attribute url { xsd:token }
+id =
+	## A bean identifier, used for referring to the bean elsewhere in the context.
+	attribute id {xsd:token}
+name =
+	## A bean identifier, used for referring to the bean elsewhere in the context.
+	attribute name {xsd:token}
+ref =
+	## Defines a reference to a Spring bean Id.
+	attribute ref {xsd:token}
+
+cache-ref =
+	## Defines a reference to a cache for use with a UserDetailsService.
+	attribute cache-ref {xsd:token}
+
+user-service-ref =
+	## A reference to a user-service (or UserDetailsService bean) Id
+	attribute user-service-ref {xsd:token}
+
+authentication-manager-ref =
+	## A reference to an AuthenticationManager bean
+	attribute authentication-manager-ref {xsd:token}
+
+data-source-ref =
+	## A reference to a DataSource bean
+	attribute data-source-ref {xsd:token}
+
+
+
+debug =
+	## Enables Spring Security debugging infrastructure. This will provide human-readable (multi-line) debugging information to monitor requests coming into the security filters. This may include sensitive information, such as request parameters or headers, and should only be used in a development environment.
+	element debug {empty}
+
+password-encoder =
+	## element which defines a password encoding strategy. Used by an authentication provider to convert submitted passwords to hashed versions, for example.
+	element password-encoder {password-encoder.attlist}
+password-encoder.attlist &=
+	ref | (hash)
+
+role-prefix =
+	## A non-empty string prefix that will be added to role strings loaded from persistent storage (e.g. "ROLE_"). Use the value "none" for no prefix in cases where the default is non-empty.
+	attribute role-prefix {xsd:token}
+
+use-expressions =
+	## Enables the use of expressions in the 'access' attributes in <intercept-url> elements rather than the traditional list of configuration attributes. Defaults to 'true'. If enabled, each attribute should contain a single boolean expression. If the expression evaluates to 'true', access will be granted.
+	attribute use-expressions {xsd:boolean}
+
+ldap-server =
+	## Defines an LDAP server location or starts an embedded server. The url indicates the location of a remote server. If no url is given, an embedded server will be started, listening on the supplied port number. The port is optional and defaults to 33389. A Spring LDAP ContextSource bean will be registered for the server with the id supplied.
+	element ldap-server {ldap-server.attlist}
+ldap-server.attlist &= id?
+ldap-server.attlist &= (url | port)?
+ldap-server.attlist &=
+	## Username (DN) of the "manager" user identity which will be used to authenticate to a (non-embedded) LDAP server. If omitted, anonymous access will be used.
+	attribute manager-dn {xsd:string}?
+ldap-server.attlist &=
+	## The password for the manager DN. This is required if the manager-dn is specified.
+	attribute manager-password {xsd:string}?
+ldap-server.attlist &=
+	## Explicitly specifies an ldif file resource to load into an embedded LDAP server. The default is classpath*:*.ldiff
+	attribute ldif { xsd:string }?
+ldap-server.attlist &=
+	## Optional root suffix for the embedded LDAP server. Default is "dc=springframework,dc=org"
+	attribute root { xsd:string }?
+ldap-server.attlist &=
+	## Explicitly specifies which embedded ldap server should use. Values are 'apacheds' and 'unboundid'. By default, it will depends if the library is available in the classpath.
+	attribute mode { "apacheds" | "unboundid" }?
+
+ldap-server-ref-attribute =
+	## The optional server to use. If omitted, and a default LDAP server is registered (using <ldap-server> with no Id), that server will be used.
+	attribute server-ref {xsd:token}
+
+
+group-search-filter-attribute =
+	## Group search filter. Defaults to (uniqueMember={0}). The substituted parameter is the DN of the user.
+	attribute group-search-filter {xsd:token}
+group-search-base-attribute =
+	## Search base for group membership searches. Defaults to "" (searching from the root).
+	attribute group-search-base {xsd:token}
+user-search-filter-attribute =
+	## The LDAP filter used to search for users (optional). For example "(uid={0})". The substituted parameter is the user's login name.
+	attribute user-search-filter {xsd:token}
+user-search-base-attribute =
+	## Search base for user searches. Defaults to "". Only used with a 'user-search-filter'.
+	attribute user-search-base {xsd:token}
+group-role-attribute-attribute =
+	## The LDAP attribute name which contains the role name which will be used within Spring Security. Defaults to "cn".
+	attribute group-role-attribute {xsd:token}
+user-details-class-attribute =
+	## Allows the objectClass of the user entry to be specified. If set, the framework will attempt to load standard attributes for the defined class into the returned UserDetails object
+	attribute user-details-class {"person" | "inetOrgPerson"}
+user-context-mapper-attribute =
+	## Allows explicit customization of the loaded user object by specifying a UserDetailsContextMapper bean which will be called with the context information from the user's directory entry
+	attribute user-context-mapper-ref {xsd:token}
+
+
+ldap-user-service =
+	## This element configures a LdapUserDetailsService which is a combination of a FilterBasedLdapUserSearch and a DefaultLdapAuthoritiesPopulator.
+	element ldap-user-service {ldap-us.attlist}
+ldap-us.attlist &= id?
+ldap-us.attlist &=
+	ldap-server-ref-attribute?
+ldap-us.attlist &=
+	user-search-filter-attribute?
+ldap-us.attlist &=
+	user-search-base-attribute?
+ldap-us.attlist &=
+	group-search-filter-attribute?
+ldap-us.attlist &=
+	group-search-base-attribute?
+ldap-us.attlist &=
+	group-role-attribute-attribute?
+ldap-us.attlist &=
+	cache-ref?
+ldap-us.attlist &=
+	role-prefix?
+ldap-us.attlist &=
+	(user-details-class-attribute | user-context-mapper-attribute)?
+
+ldap-authentication-provider =
+	## Sets up an ldap authentication provider
+	element ldap-authentication-provider {ldap-ap.attlist, password-compare-element?}
+ldap-ap.attlist &=
+	ldap-server-ref-attribute?
+ldap-ap.attlist &=
+	user-search-base-attribute?
+ldap-ap.attlist &=
+	user-search-filter-attribute?
+ldap-ap.attlist &=
+	group-search-base-attribute?
+ldap-ap.attlist &=
+	group-search-filter-attribute?
+ldap-ap.attlist &=
+	group-role-attribute-attribute?
+ldap-ap.attlist &=
+	## A specific pattern used to build the user's DN, for example "uid={0},ou=people". The key "{0}" must be present and will be substituted with the username.
+	attribute user-dn-pattern {xsd:token}?
+ldap-ap.attlist &=
+	role-prefix?
+ldap-ap.attlist &=
+	(user-details-class-attribute | user-context-mapper-attribute)?
+
+password-compare-element =
+	## Specifies that an LDAP provider should use an LDAP compare operation of the user's password to authenticate the user
+	element password-compare {password-compare.attlist, password-encoder?}
+
+password-compare.attlist &=
+	## The attribute in the directory which contains the user password. Defaults to "userPassword".
+	attribute password-attribute {xsd:token}?
+password-compare.attlist &=
+	hash?
+
+intercept-methods =
+	## Can be used inside a bean definition to add a security interceptor to the bean and set up access configuration attributes for the bean's methods
+	element intercept-methods {intercept-methods.attlist, protect+}
+intercept-methods.attlist &=
+	## Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
+	attribute access-decision-manager-ref {xsd:token}?
+
+
+protect =
+	## Defines a protected method and the access control configuration attributes that apply to it. We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".
+	element protect {protect.attlist, empty}
+protect.attlist &=
+	## A method name
+	attribute method {xsd:token}
+protect.attlist &=
+	## Access configuration attributes list that applies to the method, e.g. "ROLE_A,ROLE_B".
+	attribute access {xsd:token}
+
+method-security-metadata-source =
+	## Creates a MethodSecurityMetadataSource instance
+	element method-security-metadata-source {msmds.attlist, protect+}
+msmds.attlist &= id?
+
+msmds.attlist &= use-expressions?
+
+method-security =
+	## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with Spring Security annotations. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. Interceptors are invoked in the order specified in AuthorizationInterceptorsOrder. Use can create your own interceptors using Spring AOP.
+	element method-security {method-security.attlist, expression-handler?}
+method-security.attlist &=
+	## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "true".
+	attribute pre-post-enabled {xsd:boolean}?
+method-security.attlist &=
+	## Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context. Defaults to "false".
+	attribute secured-enabled {xsd:boolean}?
+method-security.attlist &=
+	## Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to "false".
+	attribute jsr250-enabled {xsd:boolean}?
+method-security.attlist &=
+	## If true, class-based proxying will be used instead of interface-based proxying.
+	attribute proxy-target-class {xsd:boolean}?
+
+global-method-security =
+	## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with the ordered list of "protect-pointcut" sub-elements, Spring Security annotations and/or. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. If you use and enable all four sources of method security metadata (ie "protect-pointcut" declarations, expression annotations, @Secured and also JSR250 security annotations), the metadata sources will be queried in that order. In practical terms, this enables you to use XML to override method security metadata expressed in annotations. If using annotations, the order of precedence is EL-based (@PreAuthorize etc.), @Secured and finally JSR-250.
+	element global-method-security {global-method-security.attlist, (pre-post-annotation-handling | expression-handler)?, protect-pointcut*, after-invocation-provider*}
+global-method-security.attlist &=
+	## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "disabled".
+	attribute pre-post-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+	## Specifies whether the use of Spring Security's @Secured annotations should be enabled for this application context. Defaults to "disabled".
+	attribute secured-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+	## Specifies whether JSR-250 style attributes are to be used (for example "RolesAllowed"). This will require the javax.annotation.security classes on the classpath. Defaults to "disabled".
+	attribute jsr250-annotations {"disabled" | "enabled" }?
+global-method-security.attlist &=
+	## Optional AccessDecisionManager bean ID to override the default used for method security.
+	attribute access-decision-manager-ref {xsd:token}?
+global-method-security.attlist &=
+	## Optional RunAsmanager implementation which will be used by the configured MethodSecurityInterceptor
+	attribute run-as-manager-ref {xsd:token}?
+global-method-security.attlist &=
+	## Allows the advice "order" to be set for the method security interceptor.
+	attribute order {xsd:token}?
+global-method-security.attlist &=
+	## If true, class based proxying will be used instead of interface based proxying.
+	attribute proxy-target-class {xsd:boolean}?
+global-method-security.attlist &=
+	## Can be used to specify that AspectJ should be used instead of the default Spring AOP. If set, secured classes must be woven with the AnnotationSecurityAspect from the spring-security-aspects module.
+	attribute mode {"aspectj"}?
+global-method-security.attlist &=
+	## An external MethodSecurityMetadataSource instance can be supplied which will take priority over other sources (such as the default annotations).
+	attribute metadata-source-ref {xsd:token}?
+global-method-security.attlist &=
+	authentication-manager-ref?
+
+
+after-invocation-provider =
+	## Allows addition of extra AfterInvocationProvider beans which should be called by the MethodSecurityInterceptor created by global-method-security.
+	element after-invocation-provider {ref}
+
+pre-post-annotation-handling =
+	## Allows the default expression-based mechanism for handling Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) to be replace entirely. Only applies if these annotations are enabled.
+	element pre-post-annotation-handling {invocation-attribute-factory, pre-invocation-advice, post-invocation-advice}
+
+invocation-attribute-factory =
+	## Defines the PrePostInvocationAttributeFactory instance which is used to generate pre and post invocation metadata from the annotated methods.
+	element invocation-attribute-factory {ref}
+
+pre-invocation-advice =
+	## Customizes the PreInvocationAuthorizationAdviceVoter with the ref as the PreInvocationAuthorizationAdviceVoter for the <pre-post-annotation-handling> element.
+	element pre-invocation-advice {ref}
+
+post-invocation-advice =
+	## Customizes the PostInvocationAdviceProvider with the ref as the PostInvocationAuthorizationAdvice for the <pre-post-annotation-handling> element.
+	element post-invocation-advice {ref}
+
+
+expression-handler =
+	## Defines the SecurityExpressionHandler instance which will be used if expression-based access-control is enabled. A default implementation (with no ACL support) will be used if not supplied.
+	element expression-handler {ref}
+
+protect-pointcut =
+	## Defines a protected pointcut and the access control configuration attributes that apply to it. Every bean registered in the Spring application context that provides a method that matches the pointcut will receive security authorization.
+	element protect-pointcut {protect-pointcut.attlist, empty}
+protect-pointcut.attlist &=
+	## An AspectJ expression, including the 'execution' keyword. For example, 'execution(int com.foo.TargetObject.countLength(String))' (without the quotes).
+	attribute expression {xsd:string}
+protect-pointcut.attlist &=
+	## Access configuration attributes list that applies to all methods matching the pointcut, e.g. "ROLE_A,ROLE_B"
+	attribute access {xsd:token}
+
+websocket-message-broker =
+	## Allows securing a Message Broker. There are two modes. If no id is specified: ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel. If the id is specified, creates a ChannelSecurityInterceptor that can be manually registered with the clientInboundChannel.
+	element websocket-message-broker { websocket-message-broker.attrlist, (intercept-message* & expression-handler?) }
+
+websocket-message-broker.attrlist &=
+	## A bean identifier, used for referring to the bean elsewhere in the context. If specified, explicit configuration within clientInboundChannel is required. If not specified, ensures that any SimpAnnotationMethodMessageHandler has the AuthenticationPrincipalArgumentResolver registered as a custom argument resolver; ensures that the SecurityContextChannelInterceptor is automatically registered for the clientInboundChannel; and that a ChannelSecurityInterceptor is registered with the clientInboundChannel.
+	attribute id {xsd:token}?
+websocket-message-broker.attrlist &=
+	## Disables the requirement for CSRF token to be present in the Stomp headers (default false). Changing the default is useful if it is necessary to allow other origins to make SockJS connections.
+	attribute same-origin-disabled {xsd:boolean}?
+
+intercept-message =
+	## Creates an authorization rule for a websocket message.
+	element intercept-message {intercept-message.attrlist}
+
+intercept-message.attrlist &=
+	## The destination ant pattern which will be mapped to the access attribute. For example, /** matches any message with a destination, /admin/** matches any message that has a destination that starts with admin.
+	attribute pattern {xsd:token}?
+intercept-message.attrlist &=
+	## The access configuration attributes that apply for the configured message. For example, permitAll grants access to anyone, hasRole('ROLE_ADMIN') requires the user have the role 'ROLE_ADMIN'.
+	attribute access {xsd:token}?
+intercept-message.attrlist &=
+	## The type of message to match on. Valid values are defined in SimpMessageType (i.e. CONNECT, CONNECT_ACK, HEARTBEAT, MESSAGE, SUBSCRIBE, UNSUBSCRIBE, DISCONNECT, DISCONNECT_ACK, OTHER).
+	attribute type {"CONNECT" | "CONNECT_ACK" | "HEARTBEAT" | "MESSAGE" | "SUBSCRIBE"| "UNSUBSCRIBE" | "DISCONNECT" | "DISCONNECT_ACK" | "OTHER"}?
+
+http-firewall =
+	## Allows a custom instance of HttpFirewall to be injected into the FilterChainProxy created by the namespace.
+	element http-firewall {ref}
+
+http =
+	## Container element for HTTP security configuration. Multiple elements can now be defined, each with a specific pattern to which the enclosed security configuration applies. A pattern can also be configured to bypass Spring Security's filters completely by setting the "security" attribute to "none".
+	element http {http.attlist, (intercept-url* & access-denied-handler? & form-login? & oauth2-login? & oauth2-client? & oauth2-resource-server? & openid-login? & saml2-login? & saml2-logout? & x509? & jee? & http-basic? & logout? & password-management? & session-management & remember-me? & anonymous? & port-mappings & custom-filter* & request-cache? & expression-handler? & headers? & csrf? & cors?) }
+http.attlist &=
+	## The request URL pattern which will be mapped to the filter chain created by this <http> element. If omitted, the filter chain will match all requests.
+	attribute pattern {xsd:token}?
+http.attlist &=
+	## When set to 'none', requests matching the pattern attribute will be ignored by Spring Security. No security filters will be applied and no SecurityContext will be available. If set, the <http> element must be empty, with no children.
+	attribute security {"none"}?
+http.attlist &=
+	## Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
+	attribute request-matcher-ref { xsd:token }?
+http.attlist &=
+	## A legacy attribute which automatically registers a login form, BASIC authentication and a logout URL and logout services. If unspecified, defaults to "false". We'd recommend you avoid using this and instead explicitly configure the services you require.
+	attribute auto-config {xsd:boolean}?
+http.attlist &=
+	use-expressions?
+http.attlist &=
+	## Controls the eagerness with which an HTTP session is created by Spring Security classes. If not set, defaults to "ifRequired". If "stateless" is used, this implies that the application guarantees that it will not create a session. This differs from the use of "never" which means that Spring Security will not create a session, but will make use of one if the application does.
+	attribute create-session {"ifRequired" | "always" | "never" | "stateless"}?
+http.attlist &=
+	## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
+	attribute security-context-repository-ref {xsd:token}?
+http.attlist &=
+	## Optional attribute that specifies that the SecurityContext should require explicit saving rather than being synchronized from the SecurityContextHolder. Defaults to "false".
+	attribute security-context-explicit-save {xsd:boolean}?
+http.attlist &=
+	request-matcher?
+http.attlist &=
+	## Provides versions of HttpServletRequest security methods such as isUserInRole() and getPrincipal() which are implemented by accessing the Spring SecurityContext. Defaults to "true".
+	attribute servlet-api-provision {xsd:boolean}?
+http.attlist &=
+	## If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".
+	attribute jaas-api-provision {xsd:boolean}?
+http.attlist &=
+	## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
+	attribute access-decision-manager-ref {xsd:token}?
+http.attlist &=
+	## Optional attribute specifying the realm name that will be used for all authentication features that require a realm name (eg BASIC and Digest authentication). If unspecified, defaults to "Spring Security Application".
+	attribute realm {xsd:token}?
+http.attlist &=
+	## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter.
+	attribute entry-point-ref {xsd:token}?
+http.attlist &=
+	## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
+	attribute once-per-request {xsd:boolean}?
+http.attlist &=
+	## Prevents the jsessionid parameter from being added to rendered URLs. Defaults to "true" (rewriting is disabled).
+	attribute disable-url-rewriting {xsd:boolean}?
+http.attlist &=
+	## Exposes the list of filters defined by this configuration under this bean name in the application context.
+	name?
+http.attlist &=
+	authentication-manager-ref?
+
+access-denied-handler =
+	## Defines the access-denied strategy that should be used. An access denied page can be defined or a reference to an AccessDeniedHandler instance.
+	element access-denied-handler {access-denied-handler.attlist, empty}
+access-denied-handler.attlist &= (ref | access-denied-handler-page)
+
+access-denied-handler-page =
+	## The access denied page that an authenticated user will be redirected to if they request a page which they don't have the authority to access.
+	attribute error-page {xsd:token}
+
+intercept-url =
+	## Specifies the access attributes and/or filter list for a particular set of URLs.
+	element intercept-url {intercept-url.attlist, empty}
+intercept-url.attlist &=
+	(pattern | request-matcher-ref)
+intercept-url.attlist &=
+	## The access configuration attributes that apply for the configured path.
+	attribute access {xsd:token}?
+intercept-url.attlist &=
+	## The HTTP Method for which the access configuration attributes should apply. If not specified, the attributes will apply to any method.
+	attribute method {"GET" | "DELETE" | "HEAD" | "OPTIONS" | "POST" | "PUT" | "PATCH" | "TRACE"}?
+
+intercept-url.attlist &=
+	## Used to specify that a URL must be accessed over http or https, or that there is no preference. The value should be "http", "https" or "any", respectively.
+	attribute requires-channel {xsd:token}?
+intercept-url.attlist &=
+	## The path to the servlet. This attribute is only applicable when 'request-matcher' is 'mvc'. In addition, the value is only required in the following 2 use cases: 1) There are 2 or more HttpServlet's registered in the ServletContext that have mappings starting with '/' and are different; 2) The pattern starts with the same value of a registered HttpServlet path, excluding the default (root) HttpServlet '/'.
+	attribute servlet-path {xsd:token}?
+
+logout =
+	## Incorporates a logout processing filter. Most web applications require a logout filter, although you may not require one if you write a controller to provider similar logic.
+	element logout {logout.attlist, empty}
+logout.attlist &=
+	## Specifies the URL that will cause a logout. Spring Security will initialize a filter that responds to this particular URL. Defaults to /logout if unspecified.
+	attribute logout-url {xsd:token}?
+logout.attlist &=
+	## Specifies the URL to display once the user has logged out. If not specified, defaults to <form-login-login-page>/?logout (i.e. /login?logout).
+	attribute logout-success-url {xsd:token}?
+logout.attlist &=
+	## Specifies whether a logout also causes HttpSession invalidation, which is generally desirable. If unspecified, defaults to true.
+	attribute invalidate-session {xsd:boolean}?
+logout.attlist &=
+	## A reference to a LogoutSuccessHandler implementation which will be used to determine the destination to which the user is taken after logging out.
+	attribute success-handler-ref {xsd:token}?
+logout.attlist &=
+	## A comma-separated list of the names of cookies which should be deleted when the user logs out
+	attribute delete-cookies {xsd:token}?
+
+request-cache =
+	## Allow the RequestCache used for saving requests during the login process to be set
+	element request-cache {ref}
+
+form-login =
+	## Sets up a form login configuration for authentication with a username and password
+	element form-login {form-login.attlist, empty}
+form-login.attlist &=
+	## The URL that the login form is posted to. If unspecified, it defaults to /login.
+	attribute login-processing-url {xsd:token}?
+form-login.attlist &=
+	## The name of the request parameter which contains the username. Defaults to 'username'.
+	attribute username-parameter {xsd:token}?
+form-login.attlist &=
+	## The name of the request parameter which contains the password. Defaults to 'password'.
+	attribute password-parameter {xsd:token}?
+form-login.attlist &=
+	## The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed. This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication. If unspecified, defaults to the root of the application.
+	attribute default-target-url {xsd:token}?
+form-login.attlist &=
+	## Whether the user should always be redirected to the default-target-url after login.
+	attribute always-use-default-target {xsd:boolean}?
+form-login.attlist &=
+	## The URL for the login page. If no login URL is specified, Spring Security will automatically create a login URL at GET /login and a corresponding filter to render that login URL when requested.
+	attribute login-page {xsd:token}?
+form-login.attlist &=
+	## The URL for the login failure page. If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?error and a corresponding filter to render that login failure URL when requested.
+	attribute authentication-failure-url {xsd:token}?
+form-login.attlist &=
+	## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request. Should not be used in combination with default-target-url (or always-use-default-target-url) as the implementation should always deal with navigation to the subsequent destination
+	attribute authentication-success-handler-ref {xsd:token}?
+form-login.attlist &=
+	## Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request. Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
+	attribute authentication-failure-handler-ref {xsd:token}?
+form-login.attlist &=
+	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+	attribute authentication-details-source-ref {xsd:token}?
+form-login.attlist &=
+	## The URL for the ForwardAuthenticationFailureHandler
+	attribute authentication-failure-forward-url {xsd:token}?
+form-login.attlist &=
+	## The URL for the ForwardAuthenticationSuccessHandler
+	attribute authentication-success-forward-url {xsd:token}?
+
+oauth2-login =
+	## Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0 Provider.
+	element oauth2-login {oauth2-login.attlist}
+oauth2-login.attlist &=
+	## Reference to the ClientRegistrationRepository
+	attribute client-registration-repository-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OAuth2AuthorizedClientRepository
+	attribute authorized-client-repository-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OAuth2AuthorizedClientService
+	attribute authorized-client-service-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the AuthorizationRequestRepository
+	attribute authorization-request-repository-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OAuth2AuthorizationRequestResolver
+	attribute authorization-request-resolver-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OAuth2AccessTokenResponseClient
+	attribute access-token-response-client-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the GrantedAuthoritiesMapper
+	attribute user-authorities-mapper-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OAuth2UserService
+	attribute user-service-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the OpenID Connect OAuth2UserService
+	attribute oidc-user-service-ref {xsd:token}?
+oauth2-login.attlist &=
+	## The URI where the filter processes authentication requests
+	attribute login-processing-url {xsd:token}?
+oauth2-login.attlist &=
+	## The URI to send users to login
+	attribute login-page {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the AuthenticationSuccessHandler
+	attribute authentication-success-handler-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the AuthenticationFailureHandler
+	attribute authentication-failure-handler-ref {xsd:token}?
+oauth2-login.attlist &=
+	## Reference to the JwtDecoderFactory used by OidcAuthorizationCodeAuthenticationProvider
+	attribute jwt-decoder-factory-ref {xsd:token}?
+
+oauth2-client =
+	## Configures OAuth 2.0 Client support.
+	element oauth2-client {oauth2-client.attlist, (authorization-code-grant?) }
+oauth2-client.attlist &=
+	## Reference to the ClientRegistrationRepository
+	attribute client-registration-repository-ref {xsd:token}?
+oauth2-client.attlist &=
+	## Reference to the OAuth2AuthorizedClientRepository
+	attribute authorized-client-repository-ref {xsd:token}?
+oauth2-client.attlist &=
+	## Reference to the OAuth2AuthorizedClientService
+	attribute authorized-client-service-ref {xsd:token}?
+
+authorization-code-grant =
+	## Configures OAuth 2.0 Authorization Code Grant.
+	element authorization-code-grant {authorization-code-grant.attlist, empty}
+authorization-code-grant.attlist &=
+	## Reference to the AuthorizationRequestRepository
+	attribute authorization-request-repository-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the OAuth2AuthorizationRequestResolver
+	attribute authorization-request-resolver-ref {xsd:token}?
+authorization-code-grant.attlist &=
+	## Reference to the OAuth2AccessTokenResponseClient
+	attribute access-token-response-client-ref {xsd:token}?
+
+client-registrations =
+	## Container element for client(s) registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+	element client-registrations {client-registration+, provider*}
+
+client-registration =
+	## Represents a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
+	element client-registration {client-registration.attlist}
+client-registration.attlist &=
+	## The ID that uniquely identifies the client registration.
+	attribute registration-id {xsd:token}
+client-registration.attlist &=
+	## The client identifier.
+	attribute client-id {xsd:token}
+client-registration.attlist &=
+	## The client secret.
+	attribute client-secret {xsd:token}?
+client-registration.attlist &=
+	## The method used to authenticate the client with the provider. The supported values are client_secret_basic, client_secret_post and none (public clients).
+	attribute client-authentication-method {"client_secret_basic" | "basic" | "client_secret_post" | "post" | "none"}?
+client-registration.attlist &=
+	## The OAuth 2.0 Authorization Framework defines four Authorization Grant types. The supported values are authorization_code, client_credentials, password and implicit.
+	attribute authorization-grant-type {"authorization_code" | "client_credentials" | "password" | "implicit"}?
+client-registration.attlist &=
+	## The client’s registered redirect URI that the Authorization Server redirects the end-user’s user-agent to after the end-user has authenticated and authorized access to the client.
+	attribute redirect-uri {xsd:token}?
+client-registration.attlist &=
+	## A comma-separated list of scope(s) requested by the client during the Authorization Request flow, such as openid, email, or profile.
+	attribute scope {xsd:token}?
+client-registration.attlist &=
+	## A descriptive name used for the client. The name may be used in certain scenarios, such as when displaying the name of the client in the auto-generated login page.
+	attribute client-name {xsd:token}?
+client-registration.attlist &=
+	## A reference to the associated provider. May reference a 'provider' element or use one of the common providers (google, github, facebook, okta).
+	attribute provider-id {xsd:token}
+
+provider =
+	## The configuration information for an OAuth 2.0 or OpenID Connect 1.0 Provider.
+	element provider {provider.attlist}
+provider.attlist &=
+	## The ID that uniquely identifies the provider.
+	attribute provider-id {xsd:token}
+provider.attlist &=
+	## The Authorization Endpoint URI for the Authorization Server.
+	attribute authorization-uri {xsd:token}?
+provider.attlist &=
+	## The Token Endpoint URI for the Authorization Server.
+	attribute token-uri {xsd:token}?
+provider.attlist &=
+	## The UserInfo Endpoint URI used to access the claims/attributes of the authenticated end-user.
+	attribute user-info-uri {xsd:token}?
+provider.attlist &=
+	## The authentication method used when sending the access token to the UserInfo Endpoint. The supported values are header, form and query.
+	attribute user-info-authentication-method {"header" | "form" | "query"}?
+provider.attlist &=
+	## The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
+	attribute user-info-user-name-attribute {xsd:token}?
+provider.attlist &=
+	## The URI used to retrieve the JSON Web Key (JWK) Set from the Authorization Server, which contains the cryptographic key(s) used to verify the JSON Web Signature (JWS) of the ID Token and optionally the UserInfo Response.
+	attribute jwk-set-uri {xsd:token}?
+provider.attlist &=
+	## The URI used to discover the configuration information for an OAuth 2.0 or OpenID Connect 1.0 Provider.
+	attribute issuer-uri {xsd:token}?
+
+oauth2-resource-server =
+	## Configures authentication support as an OAuth 2.0 Resource Server.
+	element oauth2-resource-server {oauth2-resource-server.attlist, (jwt? & opaque-token?)}
+oauth2-resource-server.attlist &=
+	## Reference to an AuthenticationManagerResolver
+	attribute authentication-manager-resolver-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a BearerTokenResolver
+	attribute bearer-token-resolver-ref {xsd:token}?
+oauth2-resource-server.attlist &=
+	## Reference to a AuthenticationEntryPoint
+	attribute entry-point-ref {xsd:token}?
+
+jwt =
+    ## Configures JWT authentication
+    element jwt {jwt.attlist}
+jwt.attlist &=
+    ## The URI to use to collect the JWK Set for verifying JWTs
+    attribute jwk-set-uri {xsd:token}?
+jwt.attlist &=
+    ## Reference to a JwtDecoder
+    attribute decoder-ref {xsd:token}?
+jwt.attlist &=
+    ## Reference to a Converter<Jwt, AbstractAuthenticationToken>
+    attribute jwt-authentication-converter-ref {xsd:token}?
+
+opaque-token =
+    ## Configuration Opaque Token authentication
+    element opaque-token {opaque-token.attlist}
+opaque-token.attlist &=
+    ## The URI to use to introspect opaque token attributes
+    attribute introspection-uri {xsd:token}?
+opaque-token.attlist &=
+    ## The Client ID to use to authenticate the introspection request
+    attribute client-id {xsd:token}?
+opaque-token.attlist &=
+    ## The Client secret to use to authenticate the introspection request
+    attribute client-secret {xsd:token}?
+opaque-token.attlist &=
+    ## Reference to an OpaqueTokenIntrospector
+    attribute introspector-ref {xsd:token}?
+
+openid-login =
+	## Sets up form login for authentication with an Open ID identity. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+	element openid-login {form-login.attlist, user-service-ref?, attribute-exchange*}
+
+attribute-exchange =
+	## Sets up an attribute exchange configuration to request specified attributes from the OpenID identity provider. When multiple elements are used, each must have an identifier-attribute attribute. Each configuration will be matched in turn against the supplied login identifier until a match is found.
+	element attribute-exchange {attribute-exchange.attlist, openid-attribute+}
+
+attribute-exchange.attlist &=
+	## A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
+	attribute identifier-match {xsd:token}?
+
+openid-attribute =
+	## Attributes used when making an OpenID AX Fetch Request. NOTE: The OpenID 1.0 and 2.0 protocols have been deprecated and users are <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is supported by <code>spring-security-oauth2</code>.
+	element openid-attribute {openid-attribute.attlist}
+
+openid-attribute.attlist &=
+	## Specifies the name of the attribute that you wish to get back. For example, email.
+	attribute name {xsd:token}
+openid-attribute.attlist &=
+	## Specifies the attribute type. For example, https://axschema.org/contact/email. See your OP's documentation for valid attribute types.
+	attribute type {xsd:token}
+openid-attribute.attlist &=
+	## Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute. Default is false.
+	attribute required {xsd:boolean}?
+openid-attribute.attlist &=
+	## Specifies the number of attributes that you wish to get back. For example, return 3 emails. The default value is 1.
+	attribute count {xsd:int}?
+
+saml2-login =
+	## Configures authentication support for SAML 2.0 Login
+	element saml2-login {saml2-login.attlist}
+saml2-login.attlist &=
+	## Reference to the RelyingPartyRegistrationRepository
+	attribute relying-party-registration-repository-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the Saml2AuthenticationRequestRepository
+	attribute authentication-request-repository-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the Saml2AuthenticationRequestResolver
+	attribute authentication-request-resolver-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationConverter
+	attribute authentication-converter-ref {xsd:token}?
+saml2-login.attlist &=
+	## The URI where the filter processes authentication requests
+	attribute login-processing-url {xsd:token}?
+saml2-login.attlist &=
+	## The URI to send users to login
+	attribute login-page {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationSuccessHandler
+	attribute authentication-success-handler-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationFailureHandler
+	attribute authentication-failure-handler-ref {xsd:token}?
+saml2-login.attlist &=
+	## Reference to the AuthenticationManager
+	attribute authentication-manager-ref {xsd:token}?
+
+saml2-logout =
+	## Configures SAML 2.0 Single Logout support
+	element saml2-logout {saml2-logout.attlist}
+saml2-logout.attlist &=
+	## The URL by which the relying or asserting party can trigger logout
+	attribute logout-url {xsd:token}?
+saml2-logout.attlist &=
+	## The URL by which the asserting party can send a SAML 2.0 Logout Request
+	attribute logout-request-url {xsd:token}?
+saml2-logout.attlist &=
+	## The URL by which the asserting party can send a SAML 2.0 Logout Response
+	attribute logout-response-url {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the RelyingPartyRegistrationRepository
+	attribute relying-party-registration-repository-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestValidator
+	attribute logout-request-validator-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestResolver
+	attribute logout-request-resolver-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutRequestRepository
+	attribute logout-request-repository-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutResponseValidator
+	attribute logout-response-validator-ref {xsd:token}?
+saml2-logout.attlist &=
+	## Reference to the Saml2LogoutResponseResolver
+	attribute logout-response-resolver-ref {xsd:token}?
+
+relying-party-registrations =
+	## Container element for relying party(ies) registered with a SAML 2.0 identity provider
+	element relying-party-registrations {relying-party-registration+, asserting-party*}
+
+relying-party-registration =
+	## Represents a relying party registered with a SAML 2.0 identity provider
+	element relying-party-registration {relying-party-registration.attlist, signing-credential*, decryption-credential*}
+relying-party-registration.attlist &=
+	## The ID that uniquely identifies the relying party registration.
+	attribute registration-id {xsd:token}
+relying-party-registration.attlist &=
+	## The location of the Identity Provider's metadata.
+	attribute metadata-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party's EntityID
+	attribute entity-id {xsd:token}?
+relying-party-registration.attlist &=
+	## The Assertion Consumer Service Location
+	attribute assertion-consumer-service-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The Assertion Consumer Service Binding
+	attribute assertion-consumer-service-binding {xsd:token}?
+relying-party-registration.attlist &=
+	## A reference to the associated asserting party.
+	attribute asserting-party-id {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Location</a>
+	attribute single-logout-service-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Response Location</a>
+	attribute single-logout-service-response-location {xsd:token}?
+relying-party-registration.attlist &=
+	## The relying party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Binding</a>
+	attribute single-logout-service-binding {xsd:token}?
+
+signing-credential =
+	## The relying party's signing credential
+	element signing-credential {signing-credential.attlist}
+signing-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+signing-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+decryption-credential =
+	## The relying party's decryption credential
+	element decryption-credential {decryption-credential.attlist}
+decryption-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+decryption-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+asserting-party =
+	## The configuration metadata of the Asserting party
+	element asserting-party {asserting-party.attlist, verification-credential*, encryption-credential*}
+asserting-party.attlist &=
+	## A unique identifier of the asserting party.
+	attribute asserting-party-id {xsd:token}
+asserting-party.attlist &=
+	## The asserting party's EntityID.
+	attribute entity-id {xsd:token}
+asserting-party.attlist &=
+	## Indicates the asserting party's preference that relying parties should sign the AuthnRequest before sending
+	attribute want-authn-requests-signed {xsd:token}?
+asserting-party.attlist &=
+	## The <a href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a> Location.
+	attribute single-sign-on-service-location {xsd:token}
+asserting-party.attlist &=
+	## The <a href="https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint">SingleSignOnService</a> Binding.
+	attribute single-sign-on-service-binding {xsd:token}?
+asserting-party.attlist &=
+	## A comma separated list of org.opensaml.saml.ext.saml2alg.SigningMethod Algorithms for this asserting party, in preference order.
+	attribute signing-algorithms {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Location</a>
+	attribute single-logout-service-location {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Response Location</a>
+	attribute single-logout-service-response-location {xsd:token}?
+asserting-party.attlist &=
+	## The asserting party <a href="https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService Binding</a>
+	attribute single-logout-service-binding {xsd:token}?
+
+verification-credential =
+	## The relying party's verification credential
+	element verification-credential {verification-credential.attlist}
+verification-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+verification-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+encryption-credential =
+	## The asserting party's encryption credential
+	element encryption-credential {encryption-credential.attlist}
+encryption-credential.attlist &=
+	## The private key location
+	attribute private-key-location {xsd:token}
+encryption-credential.attlist &=
+	## The certificate location
+	attribute certificate-location {xsd:token}
+
+filter-chain-map =
+	## Used to explicitly configure a FilterChainProxy instance with a FilterChainMap
+	element filter-chain-map {filter-chain-map.attlist, filter-chain+}
+filter-chain-map.attlist &=
+	request-matcher?
+
+filter-chain =
+	## Used within to define a specific URL pattern and the list of filters which apply to the URLs matching that pattern. When multiple filter-chain elements are assembled in a list in order to configure a FilterChainProxy, the most specific patterns must be placed at the top of the list, with  most general ones at the bottom.
+	element filter-chain {filter-chain.attlist, empty}
+filter-chain.attlist &=
+	(pattern | request-matcher-ref)
+filter-chain.attlist &=
+	## A comma separated list of bean names that implement Filter that should be processed for this FilterChain. If the value is none, then no Filters will be used for this FilterChain.
+	attribute filters {xsd:token}
+
+pattern =
+	## The request URL pattern which will be mapped to the FilterChain.
+	attribute pattern {xsd:token}
+request-matcher-ref =
+	## Allows a RequestMatcher instance to be used, as an alternative to pattern-matching.
+	attribute request-matcher-ref {xsd:token}
+
+filter-security-metadata-source =
+	## Used to explicitly configure a FilterSecurityMetadataSource bean for use with a FilterSecurityInterceptor. Usually only needed if you are configuring a FilterChainProxy explicitly, rather than using the <http> element. The intercept-url elements used should only contain pattern, method and access attributes. Any others will result in a configuration error.
+	element filter-security-metadata-source {fsmds.attlist, intercept-url+}
+fsmds.attlist &=
+	use-expressions?
+fsmds.attlist &=
+	id?
+fsmds.attlist &=
+	request-matcher?
+
+http-basic =
+	## Adds support for basic authentication
+	element http-basic {http-basic.attlist, empty}
+
+http-basic.attlist &=
+	## Sets the AuthenticationEntryPoint which is used by the BasicAuthenticationFilter.
+	attribute entry-point-ref {xsd:token}?
+http-basic.attlist &=
+	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+	attribute authentication-details-source-ref {xsd:token}?
+
+password-management =
+    ## Adds support for the password management.
+    element password-management {password-management.attlist, empty}
+
+password-management.attlist &=
+    ## The change password page. Defaults to "/change-password".
+    attribute change-password-page {xsd:string}?
+
+session-management =
+	## Session-management related functionality is implemented by the addition of a SessionManagementFilter to the filter stack.
+	element session-management {session-management.attlist, concurrency-control?}
+
+session-management.attlist &=
+	## Indicates how session fixation protection will be applied when a user authenticates. If set to "none", no protection will be applied. "newSession" will create a new empty session, with only Spring Security-related attributes migrated. "migrateSession" will create a new session and copy all session attributes to the new session. In Servlet 3.1 (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing session and use the container-supplied session fixation protection (HttpServletRequest#changeSessionId()). Defaults to "changeSessionId" in Servlet 3.1 and newer containers, "migrateSession" in older containers. Throws an exception if "changeSessionId" is used in older containers.
+	attribute session-fixation-protection {"none" | "newSession" | "migrateSession" | "changeSessionId" }?
+session-management.attlist &=
+	## The URL to which a user will be redirected if they submit an invalid session indentifier. Typically used to detect session timeouts.
+	attribute invalid-session-url {xsd:token}?
+session-management.attlist &=
+	## Allows injection of the InvalidSessionStrategy instance used by the SessionManagementFilter
+	attribute invalid-session-strategy-ref {xsd:token}?
+session-management.attlist &=
+	## Allows injection of the SessionAuthenticationStrategy instance used by the SessionManagementFilter
+	attribute session-authentication-strategy-ref {xsd:token}?
+session-management.attlist &=
+	## Defines the URL of the error page which should be shown when the SessionAuthenticationStrategy raises an exception. If not set, an unauthorized (401) error code will be returned to the client. Note that this attribute doesn't apply if the error occurs during a form-based login, where the URL for authentication failure will take precedence.
+	attribute session-authentication-error-url {xsd:token}?
+
+
+concurrency-control =
+	## Enables concurrent session control, limiting the number of authenticated sessions a user may have at the same time.
+	element concurrency-control {concurrency-control.attlist, empty}
+
+concurrency-control.attlist &=
+	## The maximum number of sessions a single authenticated user can have open at the same time. Defaults to "1". A negative value denotes unlimited sessions.
+	attribute max-sessions {xsd:token}?
+concurrency-control.attlist &=
+	## The URL a user will be redirected to if they attempt to use a session which has been "expired" because they have logged in again.
+	attribute expired-url {xsd:token}?
+concurrency-control.attlist &=
+	## Allows injection of the SessionInformationExpiredStrategy instance used by the ConcurrentSessionFilter
+	attribute expired-session-strategy-ref {xsd:token}?
+concurrency-control.attlist &=
+	## Specifies that an unauthorized error should be reported when a user attempts to login when they already have the maximum configured sessions open. The default behaviour is to expire the original session. If the session-authentication-error-url attribute is set on the session-management URL, the user will be redirected to this URL.
+	attribute error-if-maximum-exceeded {xsd:boolean}?
+concurrency-control.attlist &=
+	## Allows you to define an alias for the SessionRegistry bean in order to access it in your own configuration.
+	attribute session-registry-alias {xsd:token}?
+concurrency-control.attlist &=
+	## Allows you to define an external SessionRegistry bean to be used by the concurrency control setup.
+	attribute session-registry-ref {xsd:token}?
+
+
+remember-me =
+	## Sets up remember-me authentication. If used with the "key" attribute (or no attributes) the cookie-only implementation will be used. Specifying "token-repository-ref" or "remember-me-data-source-ref" will use the more secure, persisten token approach.
+	element remember-me {remember-me.attlist}
+remember-me.attlist &=
+	## The "key" used to identify cookies from a specific token-based remember-me application. You should set this to a unique value for your application. If unset, it will default to a random value generated by SecureRandom.
+	attribute key {xsd:token}?
+
+remember-me.attlist &=
+	(token-repository-ref | remember-me-data-source-ref | remember-me-services-ref)
+
+remember-me.attlist &=
+	user-service-ref?
+
+remember-me.attlist &=
+	## Exports the internally defined RememberMeServices as a bean alias, allowing it to be used by other beans in the application context.
+	attribute services-alias {xsd:token}?
+
+remember-me.attlist &=
+	## Determines whether the "secure" flag will be set on the remember-me cookie. If set to true, the cookie will only be submitted over HTTPS (recommended). By default, secure cookies will be used if the request is made on a secure connection.
+	attribute use-secure-cookie {xsd:boolean}?
+
+remember-me.attlist &=
+	## The period (in seconds) for which the remember-me cookie should be valid.
+	attribute token-validity-seconds {xsd:string}?
+
+remember-me.attlist &=
+	## Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful remember-me authentication.
+	attribute authentication-success-handler-ref {xsd:token}?
+remember-me.attlist &=
+	## The name of the request parameter which toggles remember-me authentication. Defaults to 'remember-me'.
+	attribute remember-me-parameter {xsd:token}?
+remember-me.attlist &=
+	## The name of cookie which store the token for remember-me authentication. Defaults to 'remember-me'.
+	attribute remember-me-cookie {xsd:token}?
+
+token-repository-ref =
+	## Reference to a PersistentTokenRepository bean for use with the persistent token remember-me implementation.
+	attribute token-repository-ref {xsd:token}
+remember-me-services-ref =
+	## Allows a custom implementation of RememberMeServices to be used. Note that this implementation should return RememberMeAuthenticationToken instances with the same "key" value as specified in the remember-me element. Alternatively it should register its own AuthenticationProvider. It should also implement the LogoutHandler interface, which will be invoked when a user logs out. Typically the remember-me cookie would be removed on logout.
+	attribute services-ref {xsd:token}?
+remember-me-data-source-ref =
+	## DataSource bean for the database that contains the token repository schema.
+	data-source-ref
+
+anonymous =
+	## Adds support for automatically granting all anonymous web requests a particular principal identity and a corresponding granted authority.
+	element anonymous {anonymous.attlist}
+anonymous.attlist &=
+	## The key shared between the provider and filter. This generally does not need to be set. If unset, it will default to a random value generated by SecureRandom.
+	attribute key {xsd:token}?
+anonymous.attlist &=
+	## The username that should be assigned to the anonymous request. This allows the principal to be identified, which may be important for logging and auditing. if unset, defaults to "anonymousUser".
+	attribute username {xsd:token}?
+anonymous.attlist &=
+	## The granted authority that should be assigned to the anonymous request. Commonly this is used to assign the anonymous request particular roles, which can subsequently be used in authorization decisions. If unset, defaults to "ROLE_ANONYMOUS".
+	attribute granted-authority {xsd:token}?
+anonymous.attlist &=
+	## With the default namespace setup, the anonymous "authentication" facility is automatically enabled. You can disable it using this property.
+	attribute enabled {xsd:boolean}?
+
+
+port-mappings =
+	## Defines the list of mappings between http and https ports for use in redirects
+	element port-mappings {port-mappings.attlist, port-mapping+}
+
+port-mappings.attlist &= empty
+
+port-mapping =
+	## Provides a method to map http ports to https ports when forcing a redirect.
+	element port-mapping {http-port, https-port}
+
+http-port =
+	## The http port to use.
+	attribute http {xsd:token}
+
+https-port =
+	## The https port to use.
+	attribute https {xsd:token}
+
+
+x509 =
+	## Adds support for X.509 client authentication.
+	element x509 {x509.attlist}
+x509.attlist &=
+	## The regular expression used to obtain the username from the certificate's subject. Defaults to matching on the common name using the pattern "CN=(.*?),".
+	attribute subject-principal-regex {xsd:token}?
+x509.attlist &=
+	## Explicitly specifies which user-service should be used to load user data for X.509 authenticated clients. If ommitted, the default user-service will be used.
+	user-service-ref?
+x509.attlist &=
+	## Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+	attribute authentication-details-source-ref {xsd:token}?
+
+jee =
+	## Adds a J2eePreAuthenticatedProcessingFilter to the filter chain to provide integration with container authentication.
+	element jee {jee.attlist}
+jee.attlist &=
+	## A comma-separate list of roles to look for in the incoming HttpServletRequest.
+	attribute mappable-roles {xsd:token}
+jee.attlist &=
+	## Explicitly specifies which user-service should be used to load user data for container authenticated clients. If ommitted, the set of mappable-roles will be used to construct the authorities for the user.
+	user-service-ref?
+
+authentication-manager =
+	## Registers the AuthenticationManager instance and allows its list of AuthenticationProviders to be defined. Also allows you to define an alias to allow you to reference the AuthenticationManager in your own beans.
+	element authentication-manager {authman.attlist & authentication-provider* & ldap-authentication-provider*}
+authman.attlist &=
+	id?
+authman.attlist &=
+	## An alias you wish to use for the AuthenticationManager bean (not required it you are using a specific id)
+	attribute alias {xsd:token}?
+authman.attlist &=
+	## If set to true, the AuthenticationManger will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
+	attribute erase-credentials {xsd:boolean}?
+
+authentication-provider =
+	## Indicates that the contained user-service should be used as an authentication source.
+	element authentication-provider {ap.attlist & any-user-service & password-encoder?}
+ap.attlist &=
+	## Specifies a reference to a separately configured AuthenticationProvider instance which should be registered within the AuthenticationManager.
+	ref?
+ap.attlist &=
+	## Specifies a reference to a separately configured UserDetailsService from which to obtain authentication data.
+	user-service-ref?
+
+user-service =
+	## Creates an in-memory UserDetailsService from a properties file or a list of "user" child elements. Usernames are converted to lower-case internally to allow for case-insensitive lookups, so this should not be used if case-sensitivity is required.
+	element user-service {id? & (properties-file | (user*))}
+properties-file =
+	## The location of a Properties file where each line is in the format of username=password,grantedAuthority[,grantedAuthority][,enabled|disabled]
+	attribute properties {xsd:token}?
+
+user =
+	## Represents a user in the application.
+	element user {user.attlist, empty}
+user.attlist &=
+	## The username assigned to the user.
+	attribute name {xsd:token}
+user.attlist &=
+	## The password assigned to the user. This may be hashed if the corresponding authentication provider supports hashing (remember to set the "hash" attribute of the "user-service" element). This attribute be omitted in the case where the data will not be used for authentication, but only for accessing authorities. If omitted, the namespace will generate a random value, preventing its accidental use for authentication. Cannot be empty.
+	attribute password {xsd:string}?
+user.attlist &=
+	## One of more authorities granted to the user. Separate authorities with a comma (but no space). For example, "ROLE_USER,ROLE_ADMINISTRATOR"
+	attribute authorities {xsd:token}
+user.attlist &=
+	## Can be set to "true" to mark an account as locked and unusable.
+	attribute locked {xsd:boolean}?
+user.attlist &=
+	## Can be set to "true" to mark an account as disabled and unusable.
+	attribute disabled {xsd:boolean}?
+
+jdbc-user-service =
+	## Causes creation of a JDBC-based UserDetailsService.
+	element jdbc-user-service {id? & jdbc-user-service.attlist}
+jdbc-user-service.attlist &=
+	## The bean ID of the DataSource which provides the required tables.
+	attribute data-source-ref {xsd:token}
+jdbc-user-service.attlist &=
+	cache-ref?
+jdbc-user-service.attlist &=
+	## An SQL statement to query a username, password, and enabled status given a username. Default is "select username,password,enabled from users where username = ?"
+	attribute users-by-username-query {xsd:token}?
+jdbc-user-service.attlist &=
+	## An SQL statement to query for a user's granted authorities given a username. The default is "select username, authority from authorities where username = ?"
+	attribute authorities-by-username-query {xsd:token}?
+jdbc-user-service.attlist &=
+	## An SQL statement to query user's group authorities given a username. The default is "select g.id, g.group_name, ga.authority from groups g, group_members gm, group_authorities ga where gm.username = ? and g.id = ga.group_id and g.id = gm.group_id"
+	attribute group-authorities-by-username-query {xsd:token}?
+jdbc-user-service.attlist &=
+	role-prefix?
+
+csrf =
+## Element for configuration of the CsrfFilter for protection against CSRF. It also updates the default RequestCache to only replay "GET" requests.
+	element csrf {csrf-options.attlist}
+csrf-options.attlist &=
+	## Specifies if csrf protection should be disabled. Default false (i.e. CSRF protection is enabled).
+	attribute disabled {xsd:boolean}?
+csrf-options.attlist &=
+	## The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
+	attribute request-matcher-ref { xsd:token }?
+csrf-options.attlist &=
+	## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository wrapped by LazyCsrfTokenRepository.
+	attribute token-repository-ref { xsd:token }?
+
+headers =
+## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.
+element headers { headers-options.attlist, (cache-control? & xss-protection? & hsts? & frame-options? & content-type-options? & hpkp? & content-security-policy? & referrer-policy? & feature-policy? & permissions-policy? & cross-origin-opener-policy? & cross-origin-embedder-policy? & cross-origin-resource-policy? & header*)}
+headers-options.attlist &=
+	## Specifies if the default headers should be disabled. Default false.
+	attribute defaults-disabled {xsd:token}?
+headers-options.attlist &=
+	## Specifies if headers should be disabled. Default false.
+	attribute disabled {xsd:token}?
+hsts =
+	## Adds support for HTTP Strict Transport Security (HSTS)
+	element hsts {hsts-options.attlist}
+hsts-options.attlist &=
+	## Specifies if HTTP Strict Transport Security (HSTS) should be disabled. Default false.
+	attribute disabled {xsd:boolean}?
+hsts-options.attlist &=
+	## Specifies if subdomains should be included. Default true.
+	attribute include-subdomains {xsd:boolean}?
+hsts-options.attlist &=
+	## Specifies the maximum amount of time the host should be considered a Known HSTS Host. Default one year.
+	attribute max-age-seconds {xsd:integer}?
+hsts-options.attlist &=
+	## The RequestMatcher instance to be used to determine if the header should be set. Default is if HttpServletRequest.isSecure() is true.
+	attribute request-matcher-ref { xsd:token }?
+hsts-options.attlist &=
+	## Specifies if preload should be included. Default false.
+	attribute preload {xsd:boolean}?
+
+cors =
+## Element for configuration of CorsFilter. If no CorsFilter or CorsConfigurationSource is specified a HandlerMappingIntrospector is used as the CorsConfigurationSource
+element cors { cors-options.attlist }
+cors-options.attlist &=
+	ref?
+cors-options.attlist &=
+	## Specifies a bean id that is a CorsConfigurationSource used to construct the CorsFilter to use
+	attribute configuration-source-ref {xsd:token}?
+
+hpkp =
+	## Adds support for HTTP Public Key Pinning (HPKP).
+	element hpkp {hpkp.pins,hpkp.attlist}
+hpkp.pins =
+	## The list with pins
+	element pins {hpkp.pin+}
+hpkp.pin =
+	## A pin is specified using the base64-encoded SPKI fingerprint as value and the cryptographic hash algorithm as attribute
+	element pin {
+		## The cryptographic hash algorithm
+		attribute algorithm { xsd:string }?,
+		text
+	}
+hpkp.attlist &=
+	## Specifies if HTTP Public Key Pinning (HPKP) should be disabled. Default false.
+	attribute disabled {xsd:boolean}?
+hpkp.attlist &=
+	## Specifies if subdomains should be included. Default false.
+	attribute include-subdomains {xsd:boolean}?
+hpkp.attlist &=
+	## Sets the value for the max-age directive of the Public-Key-Pins header. Default 60 days.
+	attribute max-age-seconds {xsd:integer}?
+hpkp.attlist &=
+	## Specifies if the browser should only report pin validation failures. Default true.
+	attribute report-only {xsd:boolean}?
+hpkp.attlist &=
+	## Specifies the URI to which the browser should report pin validation failures.
+	attribute report-uri {xsd:string}?
+
+content-security-policy =
+	## Adds support for Content Security Policy (CSP)
+	element content-security-policy {csp-options.attlist}
+csp-options.attlist &=
+	## The security policy directive(s) for the Content-Security-Policy header or if report-only is set to true, then the Content-Security-Policy-Report-Only header is used.
+	attribute policy-directives {xsd:token}?
+csp-options.attlist &=
+	## Set to true, to enable the Content-Security-Policy-Report-Only header for reporting policy violations only. Defaults to false.
+	attribute report-only {xsd:boolean}?
+
+referrer-policy =
+	## Adds support for Referrer Policy
+	element referrer-policy {referrer-options.attlist}
+referrer-options.attlist &=
+	## The policies for the Referrer-Policy header.
+	attribute policy {"no-referrer","no-referrer-when-downgrade","same-origin","origin","strict-origin","origin-when-cross-origin","strict-origin-when-cross-origin","unsafe-url"}?
+
+feature-policy =
+	## Adds support for Feature Policy
+	element feature-policy {feature-options.attlist}
+feature-options.attlist &=
+	## The security policy directive(s) for the Feature-Policy header.
+	attribute policy-directives {xsd:token}?
+
+permissions-policy =
+	## Adds support for Permissions Policy
+	element permissions-policy {permissions-options.attlist}
+permissions-options.attlist &=
+	## The policies for the Permissions-Policy header.
+	attribute policy {xsd:token}?
+
+cache-control =
+	## Adds Cache-Control no-cache, no-store, must-revalidate, Pragma no-cache, and Expires 0 for every request
+	element cache-control {cache-control.attlist}
+cache-control.attlist &=
+	## Specifies if Cache Control should be disabled. Default false.
+	attribute disabled {xsd:boolean}?
+
+frame-options =
+	## Enable basic clickjacking support for newer browsers (IE8+), will set the X-Frame-Options header.
+	element frame-options {frame-options.attlist,empty}
+frame-options.attlist &=
+	## If disabled, the X-Frame-Options header will not be included. Default false.
+	attribute disabled {xsd:boolean}?
+frame-options.attlist &=
+	## Specify the policy to use for the X-Frame-Options-Header.
+	attribute policy {"DENY","SAMEORIGIN","ALLOW-FROM"}?
+frame-options.attlist &=
+	## Specify the strategy to use when ALLOW-FROM is chosen.
+	attribute strategy {"static","whitelist","regexp"}?
+frame-options.attlist &=
+	## Specify a reference to the custom AllowFromStrategy to use when ALLOW-FROM is chosen.
+	ref?
+frame-options.attlist &=
+	## Specify a value to use for the chosen strategy.
+	attribute value {xsd:string}?
+frame-options.attlist &=
+	## Specify the request parameter to use for the origin when using a 'whitelist' or 'regexp' based strategy. Default is 'from'.
+	## Deprecated ALLOW-FROM is an obsolete directive that no longer works in modern browsers. Instead use
+	## Content-Security-Policy with the
+	## <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/frame-ancestors">frame-ancestors</a>
+	## directive.
+	attribute from-parameter {xsd:string}?
+
+
+xss-protection =
+	## Enable basic XSS browser protection, supported by newer browsers (IE8+), will set the X-XSS-Protection header.
+	element xss-protection {xss-protection.attlist,empty}
+xss-protection.attlist &=
+	## disable the X-XSS-Protection header. Default is 'false' meaning it is enabled.
+	attribute disabled {xsd:boolean}?
+xss-protection.attlist &=
+	## specify that XSS Protection should be explicitly enabled or disabled. Default is 'true' meaning it is enabled.
+	attribute enabled {xsd:boolean}?
+xss-protection.attlist &=
+	## Add mode=block to the header or not, default is on.
+	attribute block {xsd:boolean}?
+
+content-type-options =
+	## Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
+	element content-type-options {content-type-options.attlist, empty}
+content-type-options.attlist &=
+	## If disabled, the X-Content-Type-Options header will not be included. Default false.
+	attribute disabled {xsd:boolean}?
+
+cross-origin-opener-policy =
+	## Adds support for Cross-Origin-Opener-Policy header
+	element cross-origin-opener-policy {cross-origin-opener-policy-options.attlist,empty}
+cross-origin-opener-policy-options.attlist &=
+	## The policies for the Cross-Origin-Opener-Policy header.
+	attribute policy {"unsafe-none","same-origin","same-origin-allow-popups"}?
+
+cross-origin-embedder-policy =
+	## Adds support for Cross-Origin-Embedder-Policy header
+	element cross-origin-embedder-policy {cross-origin-embedder-policy-options.attlist,empty}
+cross-origin-embedder-policy-options.attlist &=
+	## The policies for the Cross-Origin-Embedder-Policy header.
+	attribute policy {"unsafe-none","require-corp"}?
+
+cross-origin-resource-policy =
+	## Adds support for Cross-Origin-Resource-Policy header
+	element cross-origin-resource-policy {cross-origin-resource-policy-options.attlist,empty}
+cross-origin-resource-policy-options.attlist &=
+	## The policies for the Cross-Origin-Resource-Policy header.
+	attribute policy {"cross-origin","same-origin","same-site"}?
+
+header=
+	## Add additional headers to the response.
+	element header {header.attlist}
+header.attlist &=
+	## The name of the header to add.
+	attribute name {xsd:token}?
+header.attlist &=
+	## The value for the header.
+	attribute value {xsd:token}?
+header.attlist &=
+	## Reference to a custom HeaderWriter implementation.
+	ref?
+
+any-user-service = user-service | jdbc-user-service | ldap-user-service
+
+custom-filter =
+	## Used to indicate that a filter bean declaration should be incorporated into the security filter chain.
+	element custom-filter {custom-filter.attlist}
+
+custom-filter.attlist &=
+	ref
+
+custom-filter.attlist &=
+	(after | before | position)
+
+after =
+	## The filter immediately after which the custom-filter should be placed in the chain. This feature will only be needed by advanced users who wish to mix their own filters into the security filter chain and have some knowledge of the standard Spring Security filters. The filter names map to specific Spring Security implementation filters.
+	attribute after {named-security-filter}
+before =
+	## The filter immediately before which the custom-filter should be placed in the chain
+	attribute before {named-security-filter}
+position =
+	## The explicit position at which the custom-filter should be placed in the chain. Use if you are replacing a standard filter.
+	attribute position {named-security-filter}
+
+named-security-filter = "FIRST" | "DISABLE_ENCODE_URL_FILTER" | "FORCE_EAGER_SESSION_FILTER" | "CHANNEL_FILTER" | "SECURITY_CONTEXT_FILTER" | "CONCURRENT_SESSION_FILTER" | "WEB_ASYNC_MANAGER_FILTER" | "HEADERS_FILTER" | "CORS_FILTER" | "SAML2_LOGOUT_REQUEST_FILTER" | "SAML2_LOGOUT_RESPONSE_FILTER" | "CSRF_FILTER" | "SAML2_LOGOUT_FILTER" | "LOGOUT_FILTER" | "OAUTH2_AUTHORIZATION_REQUEST_FILTER" | "SAML2_AUTHENTICATION_REQUEST_FILTER" | "X509_FILTER" | "PRE_AUTH_FILTER" | "CAS_FILTER" | "OAUTH2_LOGIN_FILTER" | "SAML2_AUTHENTICATION_FILTER" | "FORM_LOGIN_FILTER" | "OPENID_FILTER" | "LOGIN_PAGE_FILTER" |"LOGOUT_PAGE_FILTER" | "DIGEST_AUTH_FILTER" | "BEARER_TOKEN_AUTH_FILTER" | "BASIC_AUTH_FILTER" | "REQUEST_CACHE_FILTER" | "SERVLET_API_SUPPORT_FILTER" | "JAAS_API_SUPPORT_FILTER" | "REMEMBER_ME_FILTER" | "ANONYMOUS_FILTER" | "OAUTH2_AUTHORIZATION_CODE_GRANT_FILTER" | "WELL_KNOWN_CHANGE_PASSWORD_REDIRECT_FILTER" | "SESSION_MANAGEMENT_FILTER" | "EXCEPTION_TRANSLATION_FILTER" | "FILTER_SECURITY_INTERCEPTOR" | "SWITCH_USER_FILTER" | "LAST"
