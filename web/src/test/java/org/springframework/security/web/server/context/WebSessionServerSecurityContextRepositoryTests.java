@@ -17,14 +17,19 @@
 package org.springframework.security.web.server.context;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
+import reactor.test.publisher.PublisherProbe;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Rob Winch
@@ -77,6 +82,27 @@ public class WebSessionServerSecurityContextRepositoryTests {
 	public void loadWhenNullThenNull() {
 		SecurityContext context = this.repository.load(this.exchange).block();
 		assertThat(context).isNull();
+	}
+
+	@Test
+	public void loadWhenCacheSecurityContextThenSubscribeOnce() {
+		PublisherProbe<WebSession> webSession = PublisherProbe.empty();
+		ServerWebExchange exchange = mock(ServerWebExchange.class);
+		given(exchange.getSession()).willReturn(webSession.mono());
+		this.repository.setCacheSecurityContext(true);
+		Mono<SecurityContext> context = this.repository.load(exchange);
+		assertThat(context.block()).isSameAs(context.block());
+		assertThat(webSession.subscribeCount()).isEqualTo(1);
+	}
+
+	@Test
+	public void loadWhenNotCacheSecurityContextThenSubscribeMultiple() {
+		PublisherProbe<WebSession> webSession = PublisherProbe.empty();
+		ServerWebExchange exchange = mock(ServerWebExchange.class);
+		given(exchange.getSession()).willReturn(webSession.mono());
+		Mono<SecurityContext> context = this.repository.load(exchange);
+		assertThat(context.block()).isSameAs(context.block());
+		assertThat(webSession.subscribeCount()).isEqualTo(2);
 	}
 
 }
