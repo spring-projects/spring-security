@@ -102,7 +102,9 @@ public class AuthenticationManagerBeanDefinitionParser implements BeanDefinition
 			pc.getRegistry().registerAlias(id, alias);
 			pc.getReaderContext().fireAliasRegistered(id, alias, pc.extractSource(element));
 		}
-		if (!BeanIds.AUTHENTICATION_MANAGER.equals(id)) {
+		if (!BeanIds.AUTHENTICATION_MANAGER.equals(id)
+				&& !pc.getRegistry().containsBeanDefinition(BeanIds.AUTHENTICATION_MANAGER)
+				&& !pc.getRegistry().isAlias(BeanIds.AUTHENTICATION_MANAGER)) {
 			pc.getRegistry().registerAlias(id, BeanIds.AUTHENTICATION_MANAGER);
 			pc.getReaderContext().fireAliasRegistered(id, BeanIds.AUTHENTICATION_MANAGER, pc.extractSource(element));
 		}

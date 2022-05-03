@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
@@ -33,6 +34,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -87,6 +89,16 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	public void onlyOneEventPublisherIsRegisteredForMultipleAuthenticationManagers() {
 		ConfigurableApplicationContext context = this.spring.context(CONTEXT + '\n' + CONTEXT_MULTI).getContext();
 		assertThat(context.getBeansOfType(AuthenticationEventPublisher.class)).hasSize(1);
+	}
+
+	@Test
+	// gh-8767
+	public void multipleAuthenticationManagersAndDisableBeanDefinitionOverridingThenNoException() {
+		InMemoryXmlWebApplicationContext xmlContext = new InMemoryXmlWebApplicationContext(
+				CONTEXT + '\n' + CONTEXT_MULTI);
+		xmlContext.setAllowBeanDefinitionOverriding(false);
+		ConfigurableApplicationContext context = this.spring.context(xmlContext).getContext();
+		assertThat(context.getBeansOfType(AuthenticationManager.class)).hasSize(2);
 	}
 
 	@Test
