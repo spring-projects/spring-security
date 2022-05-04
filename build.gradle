@@ -69,6 +69,13 @@ tasks.named("createGitHubRelease") {
 	}
 }
 
+tasks.named("dispatchGitHubWorkflow") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
 tasks.named("updateDependencies") {
 	// we aren't Gradle 7 compatible yet
 	checkForGradleUpdate = false
