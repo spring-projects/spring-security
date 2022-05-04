@@ -21,6 +21,8 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.tasks.TaskProvider;
 
+import org.springframework.gradle.github.RepositoryRef;
+
 public class GitHubMilestonePlugin implements Plugin<Project> {
 	@Override
 	public void apply(Project project) {
@@ -68,5 +70,13 @@ public class GitHubMilestonePlugin implements Plugin<Project> {
 						}
 					}
 				});
+		project.getTasks().register("scheduleNextRelease", ScheduleNextReleaseTask.class, (scheduleNextRelease) -> {
+			scheduleNextRelease.doNotTrackState("API call to GitHub needs to check for new milestones every time");
+			scheduleNextRelease.setGroup("Release");
+			scheduleNextRelease.setDescription("Schedule the next release (even months only) or release train (series of milestones starting in January or July) based on the current version");
+
+			scheduleNextRelease.setVersion((String) project.findProperty("nextVersion"));
+			scheduleNextRelease.setGitHubAccessToken((String) project.findProperty("gitHubAccessToken"));
+		});
 	}
 }
