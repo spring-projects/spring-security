@@ -1,9 +1,7 @@
-name: Release Next Version
+name: Update Scheduled Release Version
 
 on:
-  schedule:
-    - cron: '0 17 * * MON' # Every Monday at 5pm UTC
-  workflow_dispatch: # Manual trigger
+  workflow_dispatch: # Manual trigger only. Triggered by release-scheduler.yml on main.
 
 env:
   SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
@@ -12,7 +10,7 @@ env:
   GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
 
 jobs:
-  release-next-version:
+  update_scheduled_release_version:
     name: Initiate Release If Scheduled
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     runs-on: ubuntu-latest
