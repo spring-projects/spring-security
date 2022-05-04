@@ -91,7 +91,7 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 					: LogMessage.format("No SecurityContext found in WebSession: '%s'", session));
 			return Mono.justOrEmpty(context);
 		});
-		return (cacheSecurityContext) ? result.cache() : result;
+		return (this.cacheSecurityContext) ? result.cache() : result;
 	}
 
 }
