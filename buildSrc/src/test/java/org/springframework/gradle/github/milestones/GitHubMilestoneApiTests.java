@@ -1,6 +1,10 @@
 package org.springframework.gradle.github.milestones;
 
+import java.nio.charset.Charset;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -1193,6 +1197,29 @@ public class GitHubMilestoneApiTests {
 		assertThat(recordedRequest.getRequestUrl().toString()).isEqualTo(this.baseUrl + "/repos/spring-projects/spring-security/milestones?per_page=100");
 
 		assertThat(nextVersion).isEqualTo("5.5.0");
+	}
+
+	@Test
+	public void createMilestoneWhenValidParametersThenSuccess() throws Exception {
+		this.server.enqueue(new MockResponse().setResponseCode(204));
+		Milestone milestone = new Milestone();
+		milestone.setTitle("1.0.0");
+		milestone.setDueOn(LocalDate.of(2022, 5, 4).atTime(LocalTime.NOON));
+		this.github.createMilestone(this.repositoryRef, milestone);
+
+		RecordedRequest recordedRequest = this.server.takeRequest(1, TimeUnit.SECONDS);
+		assertThat(recordedRequest.getMethod()).isEqualToIgnoringCase("post");
+		assertThat(recordedRequest.getRequestUrl().toString())
+				.isEqualTo(this.baseUrl + "/repos/spring-projects/spring-security/milestones");
+		assertThat(recordedRequest.getBody().readString(Charset.defaultCharset()))
+				.isEqualTo("{\"title\":\"1.0.0\",\"due_on\":\"2022-05-04T12:00:00Z\"}");
+	}
+
+	@Test
+	public void createMilestoneWhenErrorResponseThenException() throws Exception {
+		this.server.enqueue(new MockResponse().setResponseCode(400));
+		assertThatExceptionOfType(RuntimeException.class)
+				.isThrownBy(() -> this.github.createMilestone(this.repositoryRef, new Milestone()));
 	}
 
 }

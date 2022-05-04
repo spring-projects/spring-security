@@ -62,6 +62,15 @@ tasks.named("gitHubCheckNextVersionDueToday") {
 	}
 }
 
+tasks.named("scheduleNextRelease") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+	weekOfMonth = 3
+	dayOfWeek = 1
+}
+
 tasks.named("createGitHubRelease") {
 	repository {
 		owner = "spring-projects"
