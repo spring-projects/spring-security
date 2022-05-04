@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,15 @@
 
 package org.springframework.gradle.github.release;
 
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import org.springframework.gradle.github.RepositoryRef;
 
@@ -34,21 +35,22 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Steve Riesenberg
  */
 public class GitHubReleaseApiTests {
-	private GitHubReleaseApi github;
-
-	private RepositoryRef repository = new RepositoryRef("spring-projects", "spring-security");
+	private GitHubReleaseApi gitHubReleaseApi;
 
 	private MockWebServer server;
 
 	private String baseUrl;
 
+	private RepositoryRef repository;
+
 	@BeforeEach
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.github = new GitHubReleaseApi("mock-oauth-token");
 		this.baseUrl = this.server.url("/api").toString();
-		this.github.setBaseUrl(this.baseUrl);
+		this.gitHubReleaseApi = new GitHubReleaseApi("mock-oauth-token");
+		this.gitHubReleaseApi.setBaseUrl(this.baseUrl);
+		this.repository = new RepositoryRef("spring-projects", "spring-security");
 	}
 
 	@AfterEach
@@ -134,18 +136,20 @@ public class GitHubReleaseApiTests {
 				"  ]\n" +
 				"}";
 		this.server.enqueue(new MockResponse().setBody(responseJson));
-		this.github.publishRelease(this.repository, Release.tag("1.0.0").build());
+		this.gitHubReleaseApi.publishRelease(this.repository, Release.tag("1.0.0").build());
 
 		RecordedRequest recordedRequest = this.server.takeRequest(1, TimeUnit.SECONDS);
 		assertThat(recordedRequest.getMethod()).isEqualToIgnoringCase("post");
-		assertThat(recordedRequest.getRequestUrl().toString()).isEqualTo(this.baseUrl + "/repos/spring-projects/spring-security/releases");
-		assertThat(recordedRequest.getBody().toString()).isEqualTo("{\"tag_name\":\"1.0.0\"}");
+		assertThat(recordedRequest.getRequestUrl().toString())
+				.isEqualTo(this.baseUrl + "/repos/spring-projects/spring-security/releases");
+		assertThat(recordedRequest.getBody().readString(Charset.defaultCharset()))
+				.isEqualTo("{\"tag_name\":\"1.0.0\",\"draft\":false,\"prerelease\":false,\"generate_release_notes\":false}");
 	}
 
 	@Test
 	public void publishReleaseWhenErrorResponseThenException() throws Exception {
 		this.server.enqueue(new MockResponse().setResponseCode(400));
 		assertThatExceptionOfType(RuntimeException.class)
-				.isThrownBy(() -> this.github.publishRelease(this.repository, Release.tag("1.0.0").build()));
+				.isThrownBy(() -> this.gitHubReleaseApi.publishRelease(this.repository, Release.tag("1.0.0").build()));
 	}
 }
