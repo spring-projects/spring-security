@@ -232,8 +232,8 @@ jobs:
           DOCS_USERNAME: ${{ secrets.DOCS_USERNAME }}
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
-  create_release:
-    name: Create GitHub Release
+  perform_release:
+    name: Perform release
     needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -245,6 +245,8 @@ jobs:
       VERSION: ${{ needs.prerequisites.outputs.project_version }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Set up JDK
         uses: actions/setup-java@v1
         with:
@@ -298,6 +300,20 @@ jobs:
           ./gradlew :spring-security-docs:antoraUpdateVersion
           git commit -am "Next development version"
           git push
+  perform_post_release:
+    name: Perform post-release
+    needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    if: ${{ endsWith(needs.prerequisites.outputs.project_version, '-SNAPSHOT') }}
+    env:
+      TOKEN: ${{ github.token }}
+      VERSION: ${{ needs.prerequisites.outputs.project_version }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: spring-io/spring-gradle-build-action@v1
+      - name: Schedule next release (if not already scheduled)
+        run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
   notify_result:
     name: Check for failures
     needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, create_release]
