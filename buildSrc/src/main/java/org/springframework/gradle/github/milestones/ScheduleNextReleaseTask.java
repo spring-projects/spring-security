@@ -19,6 +19,7 @@ package org.springframework.gradle.github.milestones;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -102,6 +103,10 @@ public class ScheduleNextReleaseTask extends DefaultTask {
 
 	public RepositoryRef getRepository() {
 		return this.repository;
+	}
+
+	public void repository(Action<RepositoryRef> repository) {
+		repository.execute(this.repository);
 	}
 
 	public void setRepository(RepositoryRef repository) {
