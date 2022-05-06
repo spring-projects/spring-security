@@ -17,7 +17,6 @@
 package org.springframework.security.web.server.header;
 
 import java.util.Collections;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,9 +48,6 @@ public class ServerWebExchangeDelegatingServerHttpHeadersWriterTests {
 	@Mock
 	private ServerHttpHeadersWriter delegate;
 
-	@Mock
-	private ServerWebExchangeMatcherEntry<ServerHttpHeadersWriter> matcherEntry;
-
 	private ServerWebExchange exchange;
 
 	private ServerWebExchangeDelegatingServerHttpHeadersWriter headerWriter;
@@ -63,49 +59,57 @@ public class ServerWebExchangeDelegatingServerHttpHeadersWriterTests {
 	}
 
 	@Test
-	public void constructorNullWebExchangeMatcher() {
+	public void constructorWhenNullWebExchangeMatcherThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null, this.delegate));
+				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null, this.delegate))
+				.withMessage("webExchangeMatcher cannot be null");
 	}
 
 	@Test
-	public void constructorNullWebExchangeMatcherEntry() {
+	public void constructorWhenNullWebExchangeMatcherEntryThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null));
+				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(null))
+				.withMessage("headersWriter cannot be null");
 	}
 
 	@Test
-	public void constructorNullDelegate() {
+	public void constructorWhenNullDelegateHeadersWriterThenException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.matcher, null));
+				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.matcher, null))
+				.withMessage("delegateHeadersWriter cannot be null");
 	}
 
 	@Test
-	public void writeHeadersOnMatch() {
-		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		given(this.matcher.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
+	public void constructorWhenEntryWithNullMatcherThenException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
+						new ServerWebExchangeMatcherEntry<>(null, this.delegate)))
+				.withMessage("webExchangeMatcher cannot be null");
+	}
+
+	@Test
+	public void constructorWhenEntryWithNullEntryThenException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new ServerWebExchangeDelegatingServerHttpHeadersWriter(
+						new ServerWebExchangeMatcherEntry<>(this.matcher, null)))
+				.withMessage("delegateHeadersWriter cannot be null");
+	}
+
+	@Test
+	public void writeHeadersWhenMatchThenDelegateWriteHttpHeaders() {
+		given(this.matcher.matches(this.exchange))
+				.willReturn(ServerWebExchangeMatcher.MatchResult.match(Collections.emptyMap()));
 		given(this.delegate.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
 		this.headerWriter.writeHttpHeaders(this.exchange).block();
 		verify(this.delegate).writeHttpHeaders(this.exchange);
 	}
 
 	@Test
-	public void writeHeadersOnNoMatch() {
+	public void writeHeadersWhenNoMatchThenDelegateNotCalled() {
 		given(this.matcher.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.notMatch());
 		this.headerWriter.writeHttpHeaders(this.exchange).block();
+		verify(this.matcher).matches(this.exchange);
 		verify(this.delegate, times(0)).writeHttpHeaders(this.exchange);
-	}
-
-	@Test
-	public void writeHeadersOnMatchWithServerWebExchangeMatcherEntry() {
-		this.headerWriter = new ServerWebExchangeDelegatingServerHttpHeadersWriter(this.matcherEntry);
-		given(this.matcherEntry.getMatcher()).willReturn(this.matcher);
-		given(this.matcherEntry.getEntry()).willReturn(this.delegate);
-		Map<String, Object> params = Collections.singletonMap("foo", "bar");
-		given(this.matcher.matches(this.exchange)).willReturn(ServerWebExchangeMatcher.MatchResult.match(params));
-		given(this.delegate.writeHttpHeaders(this.exchange)).willReturn(Mono.empty());
-		this.headerWriter.writeHttpHeaders(this.exchange).block();
-		verify(this.delegate).writeHttpHeaders(this.exchange);
 	}
 
 }

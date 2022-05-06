@@ -43,6 +43,8 @@ public final class ServerWebExchangeDelegatingServerHttpHeadersWriter implements
 	public ServerWebExchangeDelegatingServerHttpHeadersWriter(
 			ServerWebExchangeMatcherEntry<ServerHttpHeadersWriter> headersWriter) {
 		Assert.notNull(headersWriter, "headersWriter cannot be null");
+		Assert.notNull(headersWriter.getMatcher(), "webExchangeMatcher cannot be null");
+		Assert.notNull(headersWriter.getEntry(), "delegateHeadersWriter cannot be null");
 		this.headersWriter = headersWriter;
 	}
 
@@ -55,9 +57,7 @@ public final class ServerWebExchangeDelegatingServerHttpHeadersWriter implements
 	 */
 	public ServerWebExchangeDelegatingServerHttpHeadersWriter(ServerWebExchangeMatcher webExchangeMatcher,
 			ServerHttpHeadersWriter delegateHeadersWriter) {
-		Assert.notNull(webExchangeMatcher, "webExchangeMatcher cannot be null");
-		Assert.notNull(delegateHeadersWriter, "delegateHeadersWriter cannot be null");
-		this.headersWriter = new ServerWebExchangeMatcherEntry<>(webExchangeMatcher, delegateHeadersWriter);
+		this(new ServerWebExchangeMatcherEntry<>(webExchangeMatcher, delegateHeadersWriter));
 	}
 
 	@Override
