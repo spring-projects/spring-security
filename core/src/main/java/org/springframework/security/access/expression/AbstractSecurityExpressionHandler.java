@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.util.Assert;
  * objects.
  *
  * @author Luke Taylor
+ * @author Evgeniy Cheban
  * @since 3.1
  */
 public abstract class AbstractSecurityExpressionHandler<T>
@@ -114,6 +115,10 @@ public abstract class AbstractSecurityExpressionHandler<T>
 
 	public void setPermissionEvaluator(PermissionEvaluator permissionEvaluator) {
 		this.permissionEvaluator = permissionEvaluator;
+	}
+
+	protected BeanResolver getBeanResolver() {
+		return this.beanResolver;
 	}
 
 	@Override

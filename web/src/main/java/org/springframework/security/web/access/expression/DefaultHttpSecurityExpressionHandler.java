@@ -16,6 +16,10 @@
 
 package org.springframework.security.web.access.expression;
 
+import java.util.function.Supplier;
+
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
@@ -40,7 +44,22 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	private String defaultRolePrefix = "ROLE_";
 
 	@Override
+	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+			RequestAuthorizationContext context) {
+		WebSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, context);
+		StandardEvaluationContext ctx = new StandardEvaluationContext(root);
+		ctx.setBeanResolver(getBeanResolver());
+		context.getVariables().forEach(ctx::setVariable);
+		return ctx;
+	}
+
+	@Override
 	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			RequestAuthorizationContext context) {
+		return createSecurityExpressionRoot(() -> authentication, context);
+	}
+
+	private WebSecurityExpressionRoot createSecurityExpressionRoot(Supplier<Authentication> authentication,
 			RequestAuthorizationContext context) {
 		WebSecurityExpressionRoot root = new WebSecurityExpressionRoot(authentication, context.getRequest());
 		root.setRoleHierarchy(getRoleHierarchy());

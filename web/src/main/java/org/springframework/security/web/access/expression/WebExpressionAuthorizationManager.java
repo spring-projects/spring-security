@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.access.expression;
 
-import java.util.Map;
 import java.util.function.Supplier;
 
 import org.springframework.expression.EvaluationContext;
@@ -72,10 +71,7 @@ public final class WebExpressionAuthorizationManager implements AuthorizationMan
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication.get(), context);
-		for (Map.Entry<String, String> entry : context.getVariables().entrySet()) {
-			ctx.setVariable(entry.getKey(), entry.getValue());
-		}
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, context);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
 		return new ExpressionAuthorizationDecision(granted, this.expression);
 	}
