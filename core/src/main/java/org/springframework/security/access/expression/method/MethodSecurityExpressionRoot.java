@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.expression.method;
 
+import java.util.function.Supplier;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 
@@ -23,6 +25,7 @@ import org.springframework.security.core.Authentication;
  * Extended expression root object which contains extra method-specific functionality.
  *
  * @author Luke Taylor
+ * @author Evgeniy Cheban
  * @since 3.0
  */
 class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements MethodSecurityExpressionOperations {
@@ -35,6 +38,10 @@ class MethodSecurityExpressionRoot extends SecurityExpressionRoot implements Met
 
 	MethodSecurityExpressionRoot(Authentication a) {
 		super(a);
+	}
+
+	MethodSecurityExpressionRoot(Supplier<Authentication> authentication) {
+		super(authentication);
 	}
 
 	@Override

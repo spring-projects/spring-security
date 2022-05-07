@@ -16,8 +16,9 @@
 
 package org.springframework.security.web.access.expression;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.function.Supplier;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
@@ -36,17 +37,17 @@ public class WebSecurityExpressionRoot extends SecurityExpressionRoot {
 	public final HttpServletRequest request;
 
 	public WebSecurityExpressionRoot(Authentication a, FilterInvocation fi) {
-		this(a, fi.getRequest());
+		this(() -> a, fi.getRequest());
 	}
 
 	/**
-	 * Creates an instance for the given {@link Authentication} and
-	 * {@link HttpServletRequest}.
-	 * @param authentication the {@link Authentication} to use
+	 * Creates an instance for the given {@link Supplier} of the {@link Authentication}
+	 * and {@link HttpServletRequest}.
+	 * @param authentication the {@link Supplier} of the {@link Authentication} to use
 	 * @param request the {@link HttpServletRequest} to use
 	 * @since 5.8
 	 */
-	public WebSecurityExpressionRoot(Authentication authentication, HttpServletRequest request) {
+	public WebSecurityExpressionRoot(Supplier<Authentication> authentication, HttpServletRequest request) {
 		super(authentication);
 		this.request = request;
 	}

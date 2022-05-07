@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ package org.springframework.security.access.expression.method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.TypedValue;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,6 +47,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultMethodSecurityExpressionHandlerTests {
@@ -165,6 +170,20 @@ public class DefaultMethodSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.methodInvocation);
 		((Stream) this.handler.filter(upstream, expression, context)).close();
 		verify(upstream).close();
+	}
+
+	@Test
+	public void createEvaluationContextSupplierAuthentication() {
+		setupMocks();
+		Supplier<Authentication> mockAuthenticationSupplier = mock(Supplier.class);
+		given(mockAuthenticationSupplier.get()).willReturn(this.authentication);
+		EvaluationContext context = this.handler.createEvaluationContext(mockAuthenticationSupplier,
+				this.methodInvocation);
+		verifyNoInteractions(mockAuthenticationSupplier);
+		assertThat(context.getRootObject()).extracting(TypedValue::getValue)
+				.asInstanceOf(InstanceOfAssertFactories.type(MethodSecurityExpressionRoot.class))
+				.extracting(SecurityExpressionRoot::getAuthentication).isEqualTo(this.authentication);
+		verify(mockAuthenticationSupplier).get();
 	}
 
 	static class Foo {

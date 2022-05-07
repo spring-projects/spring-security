@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.messaging.access.expression;
 
+import java.util.function.Supplier;
+
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -24,10 +27,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
+import org.springframework.expression.TypedValue;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
@@ -38,6 +43,9 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultMessageSecurityExpressionHandlerTests {
@@ -102,6 +110,18 @@ public class DefaultMessageSecurityExpressionHandlerTests {
 		Expression expression = this.handler.getExpressionParser().parseExpression("hasPermission(message, 'read')");
 		given(this.permissionEvaluator.hasPermission(this.authentication, this.message, "read")).willReturn(true);
 		assertThat(ExpressionUtils.evaluateAsBoolean(expression, context)).isTrue();
+	}
+
+	@Test
+	public void createEvaluationContextSupplierAuthentication() {
+		Supplier<Authentication> mockAuthenticationSupplier = mock(Supplier.class);
+		given(mockAuthenticationSupplier.get()).willReturn(this.authentication);
+		EvaluationContext context = this.handler.createEvaluationContext(mockAuthenticationSupplier, this.message);
+		verifyNoInteractions(mockAuthenticationSupplier);
+		assertThat(context.getRootObject()).extracting(TypedValue::getValue)
+				.asInstanceOf(InstanceOfAssertFactories.type(MessageSecurityExpressionRoot.class))
+				.extracting(SecurityExpressionRoot::getAuthentication).isEqualTo(this.authentication);
+		verify(mockAuthenticationSupplier).get();
 	}
 
 }
