@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.web.access.expression;
 
+import java.util.function.Supplier;
+
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +31,9 @@ import org.springframework.context.support.StaticApplicationContext;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
+import org.springframework.expression.TypedValue;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,8 +41,10 @@ import org.springframework.security.web.access.intercept.RequestAuthorizationCon
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class DefaultHttpSecurityExpressionHandlerTests {
@@ -89,6 +96,18 @@ public class DefaultHttpSecurityExpressionHandlerTests {
 		EvaluationContext context = this.handler.createEvaluationContext(this.authentication, this.context);
 		assertThat(expression.getValue(context, Boolean.class)).isFalse();
 		verify(this.trustResolver).isAnonymous(this.authentication);
+	}
+
+	@Test
+	public void createEvaluationContextSupplierAuthentication() {
+		Supplier<Authentication> mockAuthenticationSupplier = mock(Supplier.class);
+		given(mockAuthenticationSupplier.get()).willReturn(this.authentication);
+		EvaluationContext context = this.handler.createEvaluationContext(mockAuthenticationSupplier, this.context);
+		verifyNoInteractions(mockAuthenticationSupplier);
+		assertThat(context.getRootObject()).extracting(TypedValue::getValue)
+				.asInstanceOf(InstanceOfAssertFactories.type(WebSecurityExpressionRoot.class))
+				.extracting(SecurityExpressionRoot::getAuthentication).isEqualTo(this.authentication);
+		verify(mockAuthenticationSupplier).get();
 	}
 
 }
