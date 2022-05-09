@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -37,10 +38,10 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
-	private final Set<GrantedAuthority> authorities;
+	private final List<GrantedAuthority> authorities;
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = new HashSet<>(AuthorityUtils.createAuthorityList(authorities));
+		this.authorities = AuthorityUtils.createAuthorityList(authorities);
 	}
 
 	/**
@@ -132,14 +133,21 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	}
 
 	private boolean isAuthorized(Authentication authentication) {
+		Set<String> authorities = getAuthoritySet();
 		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
-			for (GrantedAuthority authority : this.authorities) {
-				if (authority.getAuthority().equals(grantedAuthority.getAuthority())) {
-					return true;
-				}
+			if (authorities.contains(grantedAuthority.getAuthority())) {
+				return true;
 			}
 		}
 		return false;
+	}
+
+	private Set<String> getAuthoritySet() {
+		Set<String> result = new HashSet<>();
+		for (GrantedAuthority grantedAuthority : this.authorities) {
+			result.add(grantedAuthority.getAuthority());
+		}
+		return result;
 	}
 
 	@Override
