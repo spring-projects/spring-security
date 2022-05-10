@@ -28,6 +28,7 @@ import org.springframework.mock.http.MockHttpInputMessage;
 import org.springframework.mock.http.client.MockClientHttpResponse;
 import org.springframework.security.oauth2.core.OAuth2AuthorizationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.web.client.UnknownHttpStatusCodeException;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -101,9 +102,8 @@ public class OAuth2ErrorResponseErrorHandlerTests {
 	@Test
 	public void handleErrorWhenErrorResponseWithInvalidStatusCodeThenHandled() {
 		CustomMockClientHttpResponse response = new CustomMockClientHttpResponse(new byte[0], 596);
-		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> this.errorHandler.handleError(response))
-				.withMessage("No matching constant for [596]");
+		assertThatExceptionOfType(UnknownHttpStatusCodeException.class)
+				.isThrownBy(() -> this.errorHandler.handleError(response)).withMessage("596 : [no body]");
 	}
 
 	private static final class CustomMockClientHttpResponse extends MockHttpInputMessage implements ClientHttpResponse {
