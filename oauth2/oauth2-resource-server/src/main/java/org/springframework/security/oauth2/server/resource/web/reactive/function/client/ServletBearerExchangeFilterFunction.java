@@ -73,7 +73,8 @@ public final class ServletBearerExchangeFilterFunction implements ExchangeFilter
 
 	private Mono<AbstractOAuth2Token> oauth2Token() {
 		// @formatter:off
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
+				.cast(Context.class)
 				.flatMap(this::currentAuthentication)
 				.filter((authentication) -> authentication.getCredentials() instanceof AbstractOAuth2Token)
 				.map(Authentication::getCredentials)

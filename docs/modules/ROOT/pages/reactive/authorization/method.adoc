@@ -21,7 +21,7 @@ Mono<String> messageByUsername = ReactiveSecurityContextHolder.getContext()
 	.map(Authentication::getName)
 	.flatMap(this::findMessageByUsername)
 	// In a WebFlux application the `subscriberContext` is automatically setup using `ReactorContextWebFilter`
-	.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+	.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
 
 StepVerifier.create(messageByUsername)
 	.expectNext("Hi user")
@@ -37,7 +37,7 @@ val messageByUsername: Mono<String> = ReactiveSecurityContextHolder.getContext()
 	.map(SecurityContext::getAuthentication)
 	.map(Authentication::getName)
 	.flatMap(this::findMessageByUsername) // In a WebFlux application the `subscriberContext` is automatically setup using `ReactorContextWebFilter`
-	.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+	.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 
 StepVerifier.create(messageByUsername)
 	.expectNext("Hi user")

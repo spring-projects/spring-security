@@ -557,7 +557,7 @@ public class ServerHttpSecurityTests {
 
 		@GetMapping("/**")
 		Mono<String> pathWithinApplicationFromContext() {
-			return Mono.subscriberContext().filter((c) -> c.hasKey(ServerWebExchange.class))
+			return Mono.deferContextual(Mono::just).filter((c) -> c.hasKey(ServerWebExchange.class))
 					.map((c) -> c.get(ServerWebExchange.class))
 					.map((e) -> e.getRequest().getPath().pathWithinApplication().value());
 		}

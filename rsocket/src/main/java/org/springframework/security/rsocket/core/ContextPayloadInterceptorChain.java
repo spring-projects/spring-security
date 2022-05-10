@@ -76,7 +76,7 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 	@Override
 	public Mono<Void> next(PayloadExchange exchange) {
 		return Mono.defer(() -> shouldIntercept() ? this.currentInterceptor.intercept(exchange, this.next)
-				: Mono.subscriberContext().doOnNext((c) -> this.context = c).then());
+				: Mono.deferContextual(Mono::just).cast(Context.class).doOnNext((c) -> this.context = c).then());
 	}
 
 	Context getContext() {

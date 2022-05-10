@@ -657,8 +657,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		final ClientRequest request2 = ClientRequest.create(HttpMethod.GET, URI.create("https://example2.com")).build();
 		Context context = context(servletRequest, servletResponse, authentication);
 		this.function.filter(request1, this.exchange)
-				.flatMap((response) -> this.function.filter(request2, this.exchange)).subscriberContext(context)
-				.block();
+				.flatMap((response) -> this.function.filter(request2, this.exchange)).contextWrite(context).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(2);
 		ClientRequest request = requests.get(0);

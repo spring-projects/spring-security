@@ -83,7 +83,7 @@ public class AnonymousAuthenticationWebFilter implements WebFilter {
 			SecurityContext securityContext = new SecurityContextImpl(authentication);
 			logger.debug(LogMessage.format("Populated SecurityContext with anonymous token: '%s'", authentication));
 			return chain.filter(exchange)
-					.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
+					.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
 					.then(Mono.empty());
 		})).flatMap((securityContext) -> {
 			logger.debug(LogMessage.format("SecurityContext contains anonymous token: '%s'",

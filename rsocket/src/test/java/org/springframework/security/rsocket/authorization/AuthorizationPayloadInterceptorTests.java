@@ -83,7 +83,7 @@ public class AuthorizationPayloadInterceptorTests {
 				AuthorityReactiveAuthorizationManager.hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).contextWrite(userContext);
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AccessDeniedException.class);
 	}
@@ -95,7 +95,7 @@ public class AuthorizationPayloadInterceptorTests {
 				AuthenticatedReactiveAuthorizationManager.authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).contextWrite(userContext);
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
 

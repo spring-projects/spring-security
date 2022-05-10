@@ -139,7 +139,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	// @formatter:on
 
 	// @formatter:off
-	private final Mono<ServerWebExchange> currentServerWebExchangeMono = Mono.subscriberContext()
+	private final Mono<ServerWebExchange> currentServerWebExchangeMono = Mono.deferContextual(Mono::just)
 			.filter((c) -> c.hasKey(ServerWebExchange.class))
 			.map((c) -> c.get(ServerWebExchange.class));
 	// @formatter:on

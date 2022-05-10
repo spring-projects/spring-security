@@ -471,7 +471,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
 		ClientRequest.Builder builder = ClientRequest.from(request);
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just).cast(Context.class)
 				.map((ctx) -> builder.attributes((attrs) -> populateRequestAttributes(attrs, ctx)))
 				.map(ClientRequest.Builder::build);
 	}

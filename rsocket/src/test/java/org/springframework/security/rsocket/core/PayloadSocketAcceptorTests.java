@@ -155,7 +155,7 @@ public class PayloadSocketAcceptorTests {
 		PayloadInterceptor authenticateInterceptor = (exchange, chain) -> {
 			Context withSecurityContext = ReactiveSecurityContextHolder
 					.withSecurityContext(Mono.just(expectedSecurityContext));
-			return chain.next(exchange).subscriberContext(withSecurityContext);
+			return chain.next(exchange).contextWrite(withSecurityContext);
 		};
 		List<PayloadInterceptor> interceptors = Arrays.asList(authenticateInterceptor);
 		this.acceptor = new PayloadSocketAcceptor(captureSecurityContext, interceptors);

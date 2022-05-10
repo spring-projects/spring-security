@@ -78,7 +78,7 @@ public class AuthenticationPayloadInterceptor implements PayloadInterceptor, Ord
 	}
 
 	private Mono<Void> onAuthenticationSuccess(Mono<Void> payload, Authentication authentication) {
-		return payload.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+		return payload.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
 	}
 
 }

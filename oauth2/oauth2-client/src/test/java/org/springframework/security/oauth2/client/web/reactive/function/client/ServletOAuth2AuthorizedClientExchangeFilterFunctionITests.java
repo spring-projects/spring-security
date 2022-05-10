@@ -245,7 +245,7 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionITests {
 					.retrieve()
 					.bodyToMono(String.class)
 				)
-				.subscriberContext(context())
+				.contextWrite(context())
 				.block();
 		// @formatter:on
 		assertThat(this.server.getRequestCount()).isEqualTo(4);

@@ -432,7 +432,7 @@ public final class SecurityMockServerConfigurers {
 			if (context != null) {
 				exchange.getAttributes().remove(ATTRIBUTE_NAME);
 				return webFilterChain.filter(exchange)
-						.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(context.get()));
+						.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(context.get()));
 			}
 			return webFilterChain.filter(exchange);
 		}

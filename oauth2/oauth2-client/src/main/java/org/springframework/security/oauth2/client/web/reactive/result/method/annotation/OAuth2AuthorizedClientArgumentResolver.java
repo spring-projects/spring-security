@@ -141,7 +141,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 
 	private Mono<ServerWebExchange> currentServerWebExchange() {
 		// @formatter:off
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
 				.filter((c) -> c.hasKey(ServerWebExchange.class))
 				.map((c) -> c.get(ServerWebExchange.class));
 		// @formatter:on

@@ -44,7 +44,7 @@ public class ReactorContextWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		return chain.filter(exchange).subscriberContext(
+		return chain.filter(exchange).contextWrite(
 				(context) -> context.hasKey(SecurityContext.class) ? context : withSecurityContext(context, exchange));
 	}
 

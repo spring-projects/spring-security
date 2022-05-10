@@ -91,7 +91,7 @@ public class AnonymousPayloadInterceptorTests {
 		AuthenticationPayloadInterceptorChain chain = new AuthenticationPayloadInterceptorChain();
 		TestingAuthenticationToken expected = new TestingAuthenticationToken("test", "password");
 		this.interceptor.intercept(this.exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expected)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(expected)).block();
 		Authentication authentication = chain.getAuthentication();
 		assertThat(authentication).isEqualTo(expected);
 	}

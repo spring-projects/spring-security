@@ -238,7 +238,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		return this.securityContextRepository.save(exchange, securityContext)
 				.doOnSuccess((v) -> this.logger.debug(LogMessage.format("Switched user to %s", authentication)))
 				.then(this.successHandler.onAuthenticationSuccess(webFilterExchange, authentication))
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
 	private Mono<Void> onAuthenticationFailure(AuthenticationException exception, WebFilterExchange webFilterExchange) {

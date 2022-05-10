@@ -471,7 +471,7 @@ public class PayloadInterceptorRSocketTests {
 			PayloadInterceptorChain c = (PayloadInterceptorChain) invocation.getArguments()[1];
 			return c.next(new DefaultPayloadExchange(PayloadExchangeType.REQUEST_CHANNEL, this.payload,
 					this.metadataMimeType, this.dataMimeType))
-					.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication));
+					.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication));
 		};
 	}
 

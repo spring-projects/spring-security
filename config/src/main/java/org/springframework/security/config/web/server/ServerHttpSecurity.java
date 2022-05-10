@@ -3236,7 +3236,7 @@ public class ServerHttpSecurity {
 
 		@Override
 		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-			return chain.filter(exchange).subscriberContext(Context.of(ServerWebExchange.class, exchange));
+			return chain.filter(exchange).contextWrite(Context.of(ServerWebExchange.class, exchange));
 		}
 
 	}

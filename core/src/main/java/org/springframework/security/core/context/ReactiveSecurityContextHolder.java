@@ -42,7 +42,8 @@ public final class ReactiveSecurityContextHolder {
 	 */
 	public static Mono<SecurityContext> getContext() {
 		// @formatter:off
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
+				.cast(Context.class)
 				.filter(ReactiveSecurityContextHolder::hasSecurityContext)
 				.flatMap(ReactiveSecurityContextHolder::getSecurityContext);
 		// @formatter:on
