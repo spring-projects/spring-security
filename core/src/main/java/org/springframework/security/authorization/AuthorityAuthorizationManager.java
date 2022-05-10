@@ -16,7 +16,6 @@
 
 package org.springframework.security.authorization;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -133,21 +132,13 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	}
 
 	private boolean isAuthorized(Authentication authentication) {
-		Set<String> authorities = getAuthoritySet();
+		Set<String> authorities = AuthorityUtils.authorityListToSet(this.authorities);
 		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
 			if (authorities.contains(grantedAuthority.getAuthority())) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	private Set<String> getAuthoritySet() {
-		Set<String> result = new HashSet<>();
-		for (GrantedAuthority grantedAuthority : this.authorities) {
-			result.add(grantedAuthority.getAuthority());
-		}
-		return result;
 	}
 
 	@Override
