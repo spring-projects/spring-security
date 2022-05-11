@@ -93,10 +93,10 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**/{id}");
 		assertThat(matcher.matches(createRequest("/blah/1234"))).isTrue();
 		assertThat(matcher.matches(createRequest("/bleh/4567"))).isTrue();
-		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isFalse();
 		assertThat(matcher.matches(createRequest("/12345/blah/xxx"))).isTrue();
 		assertThat(matcher.matches(createRequest("/12345/blaha"))).isTrue();
-		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isFalse();
 	}
 
 	@Test

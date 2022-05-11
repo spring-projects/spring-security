@@ -81,7 +81,7 @@ public class DefaultServerOAuth2AuthorizationRequestResolverTests {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
 		assertThatExceptionOfType(ResponseStatusException.class)
 				.isThrownBy(() -> resolve("/oauth2/authorization/not-found-id"))
-				.satisfies((ex) -> assertThat(ex.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST));
+				.satisfies((ex) -> assertThat(ex.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST));
 	}
 
 	@Test
