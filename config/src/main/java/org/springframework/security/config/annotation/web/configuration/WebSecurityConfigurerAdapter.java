@@ -460,7 +460,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 		@Override
 		public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 			if (this.delegate != null) {
-				Assert.state(this != this.delegate, "Infinite recursion detected. Please refer to this comment for common resolutions");
+				Assert.state(this != this.delegate, "Infinite recursion detected. Please refer to this comment for common resolutions: https://github.com/spring-projects/spring-security/issues/8369#issuecomment-614862388");
 				return this.delegate.loadUserByUsername(username);
 			}
 			synchronized (this.delegateMonitor) {
