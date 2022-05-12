@@ -33,9 +33,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.firewall.DefaultRequestRejectedHandler;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
@@ -151,7 +151,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private HttpFirewall firewall = new StrictHttpFirewall();
 
-	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
+	private RequestRejectedHandler requestRejectedHandler = new HttpStatusRequestRejectedHandler();
 
 	public FilterChainProxy() {
 	}

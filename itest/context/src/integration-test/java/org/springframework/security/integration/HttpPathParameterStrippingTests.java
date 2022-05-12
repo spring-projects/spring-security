@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -29,11 +30,10 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ContextConfiguration(locations = { "/http-path-param-stripping-app-context.xml" })
 @ExtendWith(SpringExtension.class)
@@ -48,8 +48,8 @@ public class HttpPathParameterStrippingTests {
 		request.setPathInfo("/secured;x=y/admin.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+		this.fcp.doFilter(request, response, new MockFilterChain());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
@@ -58,8 +58,8 @@ public class HttpPathParameterStrippingTests {
 		request.setServletPath("/secured/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+		this.fcp.doFilter(request, response, new MockFilterChain());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 
 	@Test
@@ -69,8 +69,8 @@ public class HttpPathParameterStrippingTests {
 		request.setPathInfo("/admin.html;x=user.html");
 		request.setSession(createAuthenticatedSession("ROLE_USER"));
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.fcp.doFilter(request, response, new MockFilterChain()));
+		this.fcp.doFilter(request, response, new MockFilterChain());
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
 	}
 
 	public HttpSession createAuthenticatedSession(String... roles) {
