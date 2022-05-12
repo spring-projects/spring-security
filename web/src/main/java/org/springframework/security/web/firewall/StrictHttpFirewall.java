@@ -431,12 +431,18 @@ public class StrictHttpFirewall implements HttpFirewall {
 		if (!isNormalized(request)) {
 			throw new RequestRejectedException("The request was rejected because the URL was not normalized.");
 		}
-		String requestUri = request.getRequestURI();
-		if (!containsOnlyPrintableAsciiCharacters(requestUri)) {
-			throw new RequestRejectedException(
-					"The requestURI was rejected because it can only contain printable ASCII characters.");
-		}
+		rejectNonPrintableAsciiCharactersInFieldName(request.getRequestURI(), "requestURI");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getServletPath(), "servletPath");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getPathInfo(), "pathInfo");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getContextPath(), "contextPath");
 		return new StrictFirewalledRequest(request);
+	}
+
+	private void rejectNonPrintableAsciiCharactersInFieldName(String toCheck, String propertyName) {
+		if (!containsOnlyPrintableAsciiCharacters(toCheck)) {
+			throw new RequestRejectedException(String.format(
+					"The %s was rejected because it can only contain printable ASCII characters.", propertyName));
+		}
 	}
 
 	private void rejectForbiddenHttpMethod(HttpServletRequest request) {
@@ -526,6 +532,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {
+		if (uri == null) {
+			return true;
+		}
 		int length = uri.length();
 		for (int i = 0; i < length; i++) {
 			char ch = uri.charAt(i);
