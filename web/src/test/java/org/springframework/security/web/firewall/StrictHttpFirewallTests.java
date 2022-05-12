@@ -364,6 +364,34 @@ public class StrictHttpFirewallTests {
 				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
 	}
 
+	@Test
+	public void getFirewalledRequestWhenContainsLineFeedThenException() {
+		this.request.setRequestURI("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineFeedThenException() {
+		this.request.setServletPath("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsCarriageReturnThenException() {
+		this.request.setRequestURI("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsCarriageReturnThenException() {
+		this.request.setServletPath("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
 	/**
 	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on /a/b/c
 	 * because the pathInfo is /a/b;/1/c which ends up being /a/b/1/c while Spring MVC
