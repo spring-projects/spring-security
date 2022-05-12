@@ -30,8 +30,9 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  */
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
-	Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
-		super(samlRequest, relayState, authenticationRequestUri);
+	Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
+			String relyingPartyRegistrationId) {
+		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId);
 	}
 
 	/**
@@ -50,7 +51,8 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
-		return new Builder().authenticationRequestUri(location);
+		return new Builder().authenticationRequestUri(location)
+				.withRelyingPartyRegistration(registration.getRegistrationId());
 	}
 
 	/**
@@ -66,7 +68,8 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 		 * @return an immutable {@link Saml2PostAuthenticationRequest} object.
 		 */
 		public Saml2PostAuthenticationRequest build() {
-			return new Saml2PostAuthenticationRequest(this.samlRequest, this.relayState, this.authenticationRequestUri);
+			return new Saml2PostAuthenticationRequest(this.samlRequest, this.relayState, this.authenticationRequestUri,
+					this.relyingPartyRegistrationId);
 		}
 
 	}
