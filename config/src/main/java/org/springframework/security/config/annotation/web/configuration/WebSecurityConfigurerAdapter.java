@@ -512,9 +512,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 		@Override
 		public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 			if (this.delegate != null) {
-				if (this == this.delegate) {
-                    throw new IllegalStateException("Infinite recursion occured while authenticate.");
-                }
+				Assert.state(this != this.delegate, "Infinite recursion detected. Please refer to this comment for common resolutions: https://github.com/spring-projects/spring-security/issues/8369#issuecomment-614862388");
 				return this.delegate.authenticate(authentication);
 			}
 			synchronized (this.delegateMonitor) {
