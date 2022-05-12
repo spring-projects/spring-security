@@ -151,7 +151,7 @@ public class CsrfWebFilter implements WebFilter {
 		ServerHttpRequest request = exchange.getRequest();
 		HttpHeaders headers = request.getHeaders();
 		MediaType contentType = headers.getContentType();
-		if (!contentType.includes(MediaType.MULTIPART_FORM_DATA)) {
+		if (!MediaType.MULTIPART_FORM_DATA.isCompatibleWith(contentType)) {
 			return Mono.empty();
 		}
 		return exchange.getMultipartData().map((d) -> d.getFirst(expected.getParameterName())).cast(FormFieldPart.class)

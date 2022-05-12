@@ -190,6 +190,17 @@ public class CsrfWebFilterTests {
 	}
 
 	@Test
+	public void filterWhenPostAndMultipartFormDataEnabledAndNoBodyProvided() {
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
+		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
+		WebTestClient client = WebTestClient.bindToController(new OkController()).webFilter(this.csrfFilter).build();
+		client.post().uri("/").header(this.token.getHeaderName(), this.token.getToken()).exchange().expectStatus()
+				.is2xxSuccessful();
+	}
+
+	@Test
 	public void filterWhenFormDataAndEnabledThenGranted() {
 		this.csrfFilter.setCsrfTokenRepository(this.repository);
 		this.csrfFilter.setTokenFromMultipartDataEnabled(true);
