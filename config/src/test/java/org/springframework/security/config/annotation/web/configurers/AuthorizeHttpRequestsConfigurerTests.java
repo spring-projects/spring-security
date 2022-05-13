@@ -46,7 +46,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
@@ -475,6 +477,15 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestFromOtherHost).andExpect(status().isForbidden());
 	}
 
+	@Test
+	public void requestWhenMvcMatcherPathVariablesThenMatchesOnPathVariables() throws Exception {
+		this.spring.register(MvcMatcherPathVariablesInLambdaConfig.class).autowire();
+		MockHttpServletRequestBuilder request = get("/user/user");
+		this.mvc.perform(request).andExpect(status().isOk());
+		request = get("/user/deny");
+		this.mvc.perform(request).andExpect(status().isUnauthorized());
+	}
+
 	private static RequestPostProcessor remoteAddress(String remoteAddress) {
 		return (request) -> {
 			request.setRemoteAddr(remoteAddress);
@@ -844,6 +855,35 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class MvcMatcherPathVariablesInLambdaConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.mvcMatchers("/user/{username}").access(new WebExpressionAuthorizationManager("#username == 'user'"))
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@RestController
+		static class PathController {
+
+			@RequestMapping("/user/{username}")
+			String path(@PathVariable("username") String username) {
+				return username;
+			}
+
 		}
 
 	}
