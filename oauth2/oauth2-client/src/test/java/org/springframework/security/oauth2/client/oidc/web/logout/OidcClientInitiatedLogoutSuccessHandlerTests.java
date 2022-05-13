@@ -124,7 +124,7 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
+	public void logoutWhenUsingPostLogoutBaseUrlRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
@@ -136,6 +136,36 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
+			throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		this.handler.setPostLogoutRedirectUri("{baseScheme}://{baseHost}{basePort}{basePath}");
+		this.request.setScheme("https");
+		this.request.setServerPort(443);
+		this.request.setServerName("rp.example.org");
+		this.request.setUserPrincipal(token);
+		this.handler.onLogoutSuccess(this.request, this.response, token);
+		assertThat(this.response.getRedirectedUrl()).isEqualTo(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateWithOtherPortThenBuildsItForRedirect()
+			throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		this.handler.setPostLogoutRedirectUri("{baseScheme}://{baseHost}{basePort}{basePath}");
+		this.request.setScheme("https");
+		this.request.setServerPort(400);
+		this.request.setServerName("rp.example.org");
+		this.request.setUserPrincipal(token);
+		this.handler.onLogoutSuccess(this.request, this.response, token);
+		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://rp.example.org:400");
 	}
 
 	@Test
