@@ -94,6 +94,7 @@ final class TestSaml2JsonPayloads {
 	static final String SAML_REQUEST = "samlRequestValue";
 	static final String RELAY_STATE = "relayStateValue";
 	static final String AUTHENTICATION_REQUEST_URI = "authenticationRequestUriValue";
+	static final String RELYINGPARTY_REGISTRATION_ID = "registrationIdValue";
 	static final String SIG_ALG = "sigAlgValue";
 	static final String SIGNATURE = "signatureValue";
 
@@ -103,6 +104,7 @@ final class TestSaml2JsonPayloads {
 			+ " \"samlRequest\": \"" + SAML_REQUEST + "\","
 			+ " \"relayState\": \"" + RELAY_STATE + "\","
 			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\","
+			+ " \"relyingPartyRegistrationId\": \"" + RELYINGPARTY_REGISTRATION_ID + "\","
 			+ " \"sigAlg\": \"" + SIG_ALG + "\","
 			+ " \"signature\": \"" + SIGNATURE + "\""
 			+ "}";
@@ -113,14 +115,14 @@ final class TestSaml2JsonPayloads {
 			+ " \"@class\": \"org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest\","
 			+ " \"samlRequest\": \"" + SAML_REQUEST + "\","
 			+ " \"relayState\": \"" + RELAY_STATE + "\","
-			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\""
+			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\","
+			+ " \"relyingPartyRegistrationId\": \"" + RELYINGPARTY_REGISTRATION_ID + "\""
 			+ "}";
 	// @formatter:on
 
 	static final String ID = "idValue";
 	static final String LOCATION = "locationValue";
 	static final String BINDNG = "REDIRECT";
-	static final String RELYINGPARTY_REGISTRATION_ID = "registrationIdValue";
 	static final String ADDITIONAL_PARAM = "additionalParamValue";
 
 	// @formatter:off
@@ -140,14 +142,17 @@ final class TestSaml2JsonPayloads {
 	// @formatter:on
 
 	static Saml2PostAuthenticationRequest createDefaultSaml2PostAuthenticationRequest() {
-		return Saml2PostAuthenticationRequest.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
-				.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
-				.build()).samlRequest(SAML_REQUEST).relayState(RELAY_STATE).build();
+		return Saml2PostAuthenticationRequest.withRelyingPartyRegistration(
+				TestRelyingPartyRegistrations.full().registrationId(RELYINGPARTY_REGISTRATION_ID)
+						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
+						.build())
+				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).build();
 	}
 
 	static Saml2RedirectAuthenticationRequest createDefaultSaml2RedirectAuthenticationRequest() {
 		return Saml2RedirectAuthenticationRequest
 				.withRelyingPartyRegistration(TestRelyingPartyRegistrations.full()
+						.registrationId(RELYINGPARTY_REGISTRATION_ID)
 						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
 						.build())
 				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).sigAlg(SIG_ALG).signature(SIGNATURE).build();
