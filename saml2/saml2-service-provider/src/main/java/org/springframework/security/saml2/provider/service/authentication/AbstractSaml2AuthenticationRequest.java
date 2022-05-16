@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
 
@@ -46,6 +47,8 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 
 	private final String authenticationRequestUri;
 
+	private final String relyingPartyRegistrationId;
+
 	/**
 	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}
 	 * @param samlRequest - the SAMLRequest XML data, SAML encoded, cannot be empty or
@@ -53,13 +56,17 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	 * @param relayState - RelayState value that accompanies the request, may be null
 	 * @param authenticationRequestUri - The authenticationRequestUri, a URL, where to
 	 * send the XML message, cannot be empty or null
+	 * @param relyingPartyRegistrationId the registration id of the relying party, may be
+	 * null
 	 */
-	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
+	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
+			String relyingPartyRegistrationId) {
 		Assert.hasText(samlRequest, "samlRequest cannot be null or empty");
 		Assert.hasText(authenticationRequestUri, "authenticationRequestUri cannot be null or empty");
 		this.authenticationRequestUri = authenticationRequestUri;
 		this.samlRequest = samlRequest;
 		this.relayState = relayState;
+		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
 	}
 
 	/**
@@ -90,6 +97,16 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	}
 
 	/**
+	 * The identifier for the {@link RelyingPartyRegistration} associated with this
+	 * request
+	 * @return the {@link RelyingPartyRegistration} id
+	 * @since 5.8
+	 */
+	public String getRelyingPartyRegistrationId() {
+		return this.relyingPartyRegistrationId;
+	}
+
+	/**
 	 * Returns the binding this AuthNRequest will be sent and encoded with. If
 	 * {@link Saml2MessageBinding#REDIRECT} is used, the DEFLATE encoding will be
 	 * automatically applied.
@@ -108,7 +125,22 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 
 		String relayState;
 
+		String relyingPartyRegistrationId;
+
+		/**
+		 * @deprecated Use {@link #Builder(RelyingPartyRegistration)} instead
+		 */
+		@Deprecated
 		protected Builder() {
+		}
+
+		/**
+		 * Creates a new Builder with relying party registration
+		 * @param registration the registration of the relying party.
+		 * @sine 5.8
+		 */
+		protected Builder(RelyingPartyRegistration registration) {
+			this.relyingPartyRegistrationId = registration.getRegistrationId();
 		}
 
 		/**
