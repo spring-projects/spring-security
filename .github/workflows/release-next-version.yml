@@ -45,7 +45,7 @@ jobs:
           echo "::set-output name=is_due_today::$(cat build/github/milestones/is-due-today)"
       - id: check-open-issues
         name: Check for open issues
-        if: ${{ steps.check-release-due.outputs.is_due_today == 'true' }}
+        if: steps.check-release-due.outputs.is_due_today == 'true'
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
@@ -54,13 +54,13 @@ jobs:
           echo "::set-output name=is_open_issues::$(cat build/github/milestones/is-open-issues)"
       - id: validate-release-state
         name: Validate State of Release
-        if: ${{ steps.check-release-due.outputs.is_due_today == 'true' && steps.check-release-due.outputs.is_open_issues == 'true' }}
+        if: steps.check-release-due.outputs.is_due_today == 'true' && steps.check-release-due.outputs.is_open_issues == 'true'
         run: |
           echo "The release is due today but there are open issues"
           exit 1
       - id: update-version-and-push
         name: Update version and push
-        if: ${{ steps.check-release-due.outputs.is_due_today == 'true' && steps.check-release-due.outputs.is_open_issues == 'false' }}
+        if: steps.check-release-due.outputs.is_due_today == 'true' && steps.check-release-due.outputs.is_open_issues == 'false'
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
