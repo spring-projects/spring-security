@@ -35,8 +35,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	private final String signature;
 
 	private Saml2RedirectAuthenticationRequest(String samlRequest, String sigAlg, String signature, String relayState,
-			String authenticationRequestUri) {
-		super(samlRequest, relayState, authenticationRequestUri);
+			String authenticationRequestUri, String relyingPartyRegistrationId) {
+		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId);
 		this.sigAlg = sigAlg;
 		this.signature = signature;
 	}
@@ -75,7 +75,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 * @return a modifiable builder object
 	 */
 	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
+		return new Builder(context.getRelyingPartyRegistration()).authenticationRequestUri(context.getDestination())
+				.relayState(context.getRelayState());
 	}
 
 	/**
@@ -87,7 +88,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	 */
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
-		return new Builder().authenticationRequestUri(location);
+		return new Builder(registration).authenticationRequestUri(location);
 	}
 
 	/**
@@ -99,7 +100,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 
 		private String signature;
 
-		private Builder() {
+		private Builder(RelyingPartyRegistration registration) {
+			super(registration);
 		}
 
 		/**
@@ -128,7 +130,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 */
 		public Saml2RedirectAuthenticationRequest build() {
 			return new Saml2RedirectAuthenticationRequest(this.samlRequest, this.sigAlg, this.signature,
-					this.relayState, this.authenticationRequestUri);
+					this.relayState, this.authenticationRequestUri, this.relyingPartyRegistrationId);
 		}
 
 	}

@@ -51,7 +51,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' }, false, CodecPolicy.STRICT);
 
-	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
+	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
 
@@ -67,24 +67,28 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	@Deprecated
 	public Saml2AuthenticationTokenConverter(
 			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
+		this(adaptToResolver(relyingPartyRegistrationResolver));
+	}
+
+	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
 	}
 
-	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this(adaptToConverter(relyingPartyRegistrationResolver));
-	}
-
-	private static Converter<HttpServletRequest, RelyingPartyRegistration> adaptToConverter(
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+	private static RelyingPartyRegistrationResolver adaptToResolver(
+			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
-		return (request) -> relyingPartyRegistrationResolver.resolve(request, null);
+		return (request, relyingPartyRegistrationId) -> relyingPartyRegistrationResolver.convert(request);
 	}
 
 	@Override
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
-		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.convert(request);
+		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		String relyingPartyRegistrationId = (authenticationRequest != null)
+				? authenticationRequest.getRelyingPartyRegistrationId() : null;
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
+				relyingPartyRegistrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -94,7 +98,6 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		}
 		byte[] b = samlDecode(saml2Response);
 		saml2Response = inflateIfRequired(request, b);
-		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
 		return new Saml2AuthenticationToken(relyingPartyRegistration, saml2Response, authenticationRequest);
 	}
 
