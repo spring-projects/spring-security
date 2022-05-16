@@ -344,11 +344,23 @@ public class StrictHttpFirewall implements HttpFirewall {
 		if (!containsOnlyPrintableAsciiCharacters(requestUri)) {
 			throw new RequestRejectedException("The requestURI was rejected because it can only contain printable ASCII characters.");
 		}
+		rejectNonPrintableAsciiCharactersInFieldName(request.getRequestURI(), "requestURI");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getServletPath(), "servletPath");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getPathInfo(), "pathInfo");
+		rejectNonPrintableAsciiCharactersInFieldName(request.getContextPath(), "contextPath");
+
 		return new FirewalledRequest(request) {
 			@Override
 			public void reset() {
 			}
 		};
+	}
+
+	private void rejectNonPrintableAsciiCharactersInFieldName(String toCheck, String propertyName) {
+		if (!containsOnlyPrintableAsciiCharacters(toCheck)) {
+			throw new RequestRejectedException(
+					String.format("The %s was rejected because it can only contain printable ASCII characters.", propertyName));
+		}
 	}
 
 	private void rejectForbiddenHttpMethod(HttpServletRequest request) {
@@ -434,6 +446,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	private static boolean containsOnlyPrintableAsciiCharacters(String uri) {
+		if (uri == null) {
+			return true;
+		}
 		int length = uri.length();
 		for (int i = 0; i < length; i++) {
 			char c = uri.charAt(i);

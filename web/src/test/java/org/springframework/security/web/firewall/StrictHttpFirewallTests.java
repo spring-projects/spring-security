@@ -18,6 +18,7 @@ package org.springframework.security.web.firewall;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.util.Arrays;
@@ -378,6 +379,34 @@ public class StrictHttpFirewallTests {
 	}
 
 	// --- from DefaultHttpFirewallTests ---
+
+	@Test
+	public void getFirewalledRequestWhenContainsLineFeedThenException() {
+		this.request.setRequestURI("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineFeedThenException() {
+		this.request.setServletPath("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsCarriageReturnThenException() {
+		this.request.setRequestURI("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsCarriageReturnThenException() {
+		this.request.setServletPath("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
 
 	/**
 	 * On WebSphere 8.5 a URL like /context-root/a/b;%2f1/c can bypass a rule on
