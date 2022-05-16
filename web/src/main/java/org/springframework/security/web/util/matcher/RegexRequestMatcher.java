@@ -40,7 +40,12 @@ import org.springframework.util.StringUtils;
  * @since 3.1
  */
 public final class RegexRequestMatcher implements RequestMatcher {
+
 	private final static Log logger = LogFactory.getLog(RegexRequestMatcher.class);
+
+	private static final int DEFAULT = Pattern.DOTALL;
+
+	private static final int CASE_INSENSITIVE = DEFAULT | Pattern.CASE_INSENSITIVE;
 
 	private final Pattern pattern;
 	private final HttpMethod httpMethod;
@@ -64,14 +69,8 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * {@link Pattern#CASE_INSENSITIVE} flag set.
 	 */
 	public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
-		if (caseInsensitive) {
-			this.pattern = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-		}
-		else {
-			this.pattern = Pattern.compile(pattern);
-		}
-		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod
-				.valueOf(httpMethod) : null;
+		this.pattern = Pattern.compile(pattern, caseInsensitive ? CASE_INSENSITIVE : DEFAULT);
+		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 	}
 
 	/**
