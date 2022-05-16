@@ -109,6 +109,22 @@ public class RegexRequestMatcherTests {
 	}
 
 	@Test
+	public void matchesWithCarriageReturn() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", null);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/blah%0a");
+		request.setServletPath("/blah\n");
+		assertThat(matcher.matches(request)).isTrue();
+	}
+
+	@Test
+	public void matchesWithLineFeed() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", null);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/blah%0d");
+		request.setServletPath("/blah\r");
+		assertThat(matcher.matches(request)).isTrue();
+	}
+
+	@Test
 	public void toStringThenFormatted() {
 		RegexRequestMatcher matcher = new RegexRequestMatcher("/blah", "GET");
 		assertThat(matcher.toString()).isEqualTo("Regex [pattern='/blah', GET]");
