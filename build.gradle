@@ -87,8 +87,6 @@ updateDependenciesSettings {
 	dependencyExcludes {
 		majorVersionBump()
 		alphaBetaVersions()
-		releaseCandidatesVersions()
-		milestoneVersions()
 		snapshotVersions()
 		addRule { components ->
 			components.withModule("commons-codec:commons-codec") { selection ->
