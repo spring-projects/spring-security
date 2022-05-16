@@ -260,7 +260,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param sessionAuthenticationStrategy
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
-	SessionManagementConfigurer<H> addSessionAuthenticationStrategy(
+	public SessionManagementConfigurer<H> addSessionAuthenticationStrategy(
 			SessionAuthenticationStrategy sessionAuthenticationStrategy) {
 		this.sessionAuthenticationStrategies.add(sessionAuthenticationStrategy);
 		return this;
