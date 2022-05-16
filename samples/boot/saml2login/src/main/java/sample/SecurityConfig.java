@@ -28,7 +28,7 @@ public class SecurityConfig {
 	@Bean
 	RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
 		RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
-				.fromMetadataLocation("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php")
+				.fromMetadataLocation("https://dev-05937739.okta.com/app/exk46xofd8NZvFCpS5d7/sso/saml/metadata")
 				.registrationId("one")
 				.build();
 		return new InMemoryRelyingPartyRegistrationRepository(relyingPartyRegistration);
