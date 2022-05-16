@@ -48,7 +48,8 @@ class Saml2RedirectAuthenticationRequestMixin {
 	Saml2RedirectAuthenticationRequestMixin(@JsonProperty("samlRequest") String samlRequest,
 			@JsonProperty("sigAlg") String sigAlg, @JsonProperty("signature") String signature,
 			@JsonProperty("relayState") String relayState,
-			@JsonProperty("authenticationRequestUri") String authenticationRequestUri) {
+			@JsonProperty("authenticationRequestUri") String authenticationRequestUri,
+			@JsonProperty("relyingPartyRegistrationId") String relyingPartyRegistrationId) {
 	}
 
 }

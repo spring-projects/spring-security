@@ -56,6 +56,23 @@ class Saml2PostAuthenticationRequestMixinTests {
 		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
 		assertThat(authRequest.getAuthenticationRequestUri())
 				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+		assertThat(authRequest.getRelyingPartyRegistrationId())
+				.isEqualTo(TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID);
+	}
+
+	@Test
+	void shouldDeserializeWithNoRegistrationId() throws Exception {
+		String json = TestSaml2JsonPayloads.DEFAULT_POST_AUTH_REQUEST_JSON.replace(
+				"\"relyingPartyRegistrationId\": \"" + TestSaml2JsonPayloads.RELYINGPARTY_REGISTRATION_ID + "\",", "");
+
+		Saml2PostAuthenticationRequest authRequest = this.mapper.readValue(json, Saml2PostAuthenticationRequest.class);
+
+		assertThat(authRequest).isNotNull();
+		assertThat(authRequest.getSamlRequest()).isEqualTo(TestSaml2JsonPayloads.SAML_REQUEST);
+		assertThat(authRequest.getRelayState()).isEqualTo(TestSaml2JsonPayloads.RELAY_STATE);
+		assertThat(authRequest.getAuthenticationRequestUri())
+				.isEqualTo(TestSaml2JsonPayloads.AUTHENTICATION_REQUEST_URI);
+		assertThat(authRequest.getRelyingPartyRegistrationId()).isNull();
 	}
 
 }
