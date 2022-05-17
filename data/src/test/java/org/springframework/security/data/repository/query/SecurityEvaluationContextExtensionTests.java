@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -67,6 +70,17 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
+	}
+
+	@Test
+	public void getRootObjectWhenAdditionalFieldsNotSetThenVerifyDefaults() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		SecurityExpressionRoot root = getRoot();
+		assertThat(root).extracting("trustResolver").isInstanceOf(AuthenticationTrustResolverImpl.class);
+		assertThat(root).extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
+		assertThat(root).extracting("permissionEvaluator").isInstanceOf(DenyAllPermissionEvaluator.class);
+		assertThat(root).extracting("defaultRolePrefix").isEqualTo("ROLE_");
 	}
 
 	private SecurityExpressionRoot getRoot() {
