@@ -107,14 +107,11 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
 
-	private static final List<String> FORBIDDEN_LF = Collections
-			.unmodifiableList(Arrays.asList("\r", "%0a", "%0A"));
+	private static final List<String> FORBIDDEN_LF = Collections.unmodifiableList(Arrays.asList("\r", "%0a", "%0A"));
 
-	private static final List<String> FORBIDDEN_CR = Collections
-			.unmodifiableList(Arrays.asList("\n", "%0d", "%0D"));
+	private static final List<String> FORBIDDEN_CR = Collections.unmodifiableList(Arrays.asList("\n", "%0d", "%0D"));
 
-	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections
-			.unmodifiableList(Arrays.asList("\u2028"));
+	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections.unmodifiableList(Arrays.asList("\u2028"));
 
 	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = Collections
 			.unmodifiableList(Arrays.asList("\u2029"));
