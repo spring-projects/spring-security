@@ -107,6 +107,15 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
 
+	private static final List<String> FORBIDDEN_LF = Collections.unmodifiableList(Arrays.asList("\n", "%0a", "%0A"));
+
+	private static final List<String> FORBIDDEN_CR = Collections.unmodifiableList(Arrays.asList("\r", "%0d", "%0D"));
+
+	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections.unmodifiableList(Arrays.asList("\u2028"));
+
+	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = Collections
+			.unmodifiableList(Arrays.asList("\u2029"));
+
 	private Set<String> encodedUrlBlocklist = new HashSet<>();
 
 	private Set<String> decodedUrlBlocklist = new HashSet<>();
@@ -135,10 +144,14 @@ public class StrictHttpFirewall implements HttpFirewall {
 		urlBlocklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_NULL);
+		urlBlocklistsAddAll(FORBIDDEN_LF);
+		urlBlocklistsAddAll(FORBIDDEN_CR);
 
 		this.encodedUrlBlocklist.add(ENCODED_PERCENT);
 		this.encodedUrlBlocklist.addAll(FORBIDDEN_ENCODED_PERIOD);
 		this.decodedUrlBlocklist.add(PERCENT);
+		this.decodedUrlBlocklist.addAll(FORBIDDEN_LINE_SEPARATOR);
+		this.decodedUrlBlocklist.addAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
 	}
 
 	/**
@@ -346,6 +359,69 @@ public class StrictHttpFirewall implements HttpFirewall {
 	}
 
 	/**
+	 * Determines if a URL encoded Carriage Return is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedCarriageReturn if URL encoded Carriage Return is allowed in
+	 * the URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedCarriageReturn(boolean allowUrlEncodedCarriageReturn) {
+		if (allowUrlEncodedCarriageReturn) {
+			urlBlocklistsRemoveAll(FORBIDDEN_CR);
+		}
+		else {
+			urlBlocklistsAddAll(FORBIDDEN_CR);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded Line Feed is allowed in the path or not. The default is
+	 * not to allow this behavior because it is a frequent source of security exploits.
+	 * @param allowUrlEncodedLineFeed if URL encoded Line Feed is allowed in the URL or
+	 * not. Default is false.
+	 */
+	public void setAllowUrlEncodedLineFeed(boolean allowUrlEncodedLineFeed) {
+		if (allowUrlEncodedLineFeed) {
+			urlBlocklistsRemoveAll(FORBIDDEN_LF);
+		}
+		else {
+			urlBlocklistsAddAll(FORBIDDEN_LF);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded paragraph separator is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedParagraphSeparator if URL encoded paragraph separator is
+	 * allowed in the URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedParagraphSeparator(boolean allowUrlEncodedParagraphSeparator) {
+		if (allowUrlEncodedParagraphSeparator) {
+			this.decodedUrlBlocklist.removeAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
+		}
+		else {
+			this.decodedUrlBlocklist.addAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded line separator is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedLineSeparator if URL encoded line separator is allowed in the
+	 * URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedLineSeparator(boolean allowUrlEncodedLineSeparator) {
+		if (allowUrlEncodedLineSeparator) {
+			this.decodedUrlBlocklist.removeAll(FORBIDDEN_LINE_SEPARATOR);
+		}
+		else {
+			this.decodedUrlBlocklist.addAll(FORBIDDEN_LINE_SEPARATOR);
+		}
+	}
+
+	/**
 	 * <p>
 	 * Determines which header names should be allowed. The default is to reject header
 	 * names that contain ISO control characters and characters that are not defined.
@@ -432,9 +508,6 @@ public class StrictHttpFirewall implements HttpFirewall {
 			throw new RequestRejectedException("The request was rejected because the URL was not normalized.");
 		}
 		rejectNonPrintableAsciiCharactersInFieldName(request.getRequestURI(), "requestURI");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getServletPath(), "servletPath");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getPathInfo(), "pathInfo");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getContextPath(), "contextPath");
 		return new StrictFirewalledRequest(request);
 	}
 
