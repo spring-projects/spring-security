@@ -107,6 +107,18 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
 
+	private static final List<String> FORBIDDEN_LF = Collections
+			.unmodifiableList(Arrays.asList("\r", "%0a", "%0A"));
+
+	private static final List<String> FORBIDDEN_CR = Collections
+			.unmodifiableList(Arrays.asList("\n", "%0d", "%0D"));
+
+	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections
+			.unmodifiableList(Arrays.asList("\u2028"));
+
+	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = Collections
+			.unmodifiableList(Arrays.asList("\u2029"));
+
 	private Set<String> encodedUrlBlocklist = new HashSet<>();
 
 	private Set<String> decodedUrlBlocklist = new HashSet<>();
@@ -135,10 +147,14 @@ public class StrictHttpFirewall implements HttpFirewall {
 		urlBlocklistsAddAll(FORBIDDEN_DOUBLE_FORWARDSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_BACKSLASH);
 		urlBlocklistsAddAll(FORBIDDEN_NULL);
+		urlBlocklistsAddAll(FORBIDDEN_LF);
+		urlBlocklistsAddAll(FORBIDDEN_CR);
 
 		this.encodedUrlBlocklist.add(ENCODED_PERCENT);
 		this.encodedUrlBlocklist.addAll(FORBIDDEN_ENCODED_PERIOD);
 		this.decodedUrlBlocklist.add(PERCENT);
+		this.decodedUrlBlocklist.addAll(FORBIDDEN_LINE_SEPARATOR);
+		this.decodedUrlBlocklist.addAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
 	}
 
 	/**
@@ -432,9 +448,6 @@ public class StrictHttpFirewall implements HttpFirewall {
 			throw new RequestRejectedException("The request was rejected because the URL was not normalized.");
 		}
 		rejectNonPrintableAsciiCharactersInFieldName(request.getRequestURI(), "requestURI");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getServletPath(), "servletPath");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getPathInfo(), "pathInfo");
-		rejectNonPrintableAsciiCharactersInFieldName(request.getContextPath(), "contextPath");
 		return new StrictFirewalledRequest(request);
 	}
 
