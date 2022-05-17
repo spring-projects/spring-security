@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,13 @@
 package org.springframework.security.data.repository.query;
 
 import org.springframework.data.spel.spi.EvaluationContextExtension;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -77,11 +83,20 @@ import org.springframework.security.core.context.SecurityContextHolder;
  * it.
  *
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 4.0
  */
 public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
 
 	private Authentication authentication;
+
+	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
+
+	private PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
+
+	private String defaultRolePrefix = "ROLE_";
 
 	/**
 	 * Creates a new instance that uses the current {@link Authentication} found on the
@@ -106,8 +121,13 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 	@Override
 	public SecurityExpressionRoot getRootObject() {
 		Authentication authentication = getAuthentication();
-		return new SecurityExpressionRoot(authentication) {
+		SecurityExpressionRoot root = new SecurityExpressionRoot(authentication) {
 		};
+		root.setTrustResolver(this.trustResolver);
+		root.setRoleHierarchy(this.roleHierarchy);
+		root.setPermissionEvaluator(this.permissionEvaluator);
+		root.setDefaultRolePrefix(this.defaultRolePrefix);
+		return root;
 	}
 
 	private Authentication getAuthentication() {
