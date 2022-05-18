@@ -1,3 +1,2 @@
-name: ROOT
+name: 'ROOT'
 version: '5.6.5'
-prerelease: '-SNAPSHOT'
