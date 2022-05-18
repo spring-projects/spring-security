@@ -1,4 +1,3 @@
-'display_version': '6.0.0-M5'
 'name': 'ROOT'
-'prerelease': 'true'
-'version': '6.0.0-M5'
+'prerelease': '-SNAPSHOT'
+'version': '6.0.0'
