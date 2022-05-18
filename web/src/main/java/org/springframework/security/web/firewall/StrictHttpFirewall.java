@@ -107,9 +107,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
 
-	private static final List<String> FORBIDDEN_LF = Collections.unmodifiableList(Arrays.asList("\r", "%0a", "%0A"));
+	private static final List<String> FORBIDDEN_LF = Collections.unmodifiableList(Arrays.asList("\n", "%0a", "%0A"));
 
-	private static final List<String> FORBIDDEN_CR = Collections.unmodifiableList(Arrays.asList("\n", "%0d", "%0D"));
+	private static final List<String> FORBIDDEN_CR = Collections.unmodifiableList(Arrays.asList("\r", "%0d", "%0D"));
 
 	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections.unmodifiableList(Arrays.asList("\u2028"));
 
@@ -355,6 +355,69 @@ public class StrictHttpFirewall implements HttpFirewall {
 		else {
 			this.encodedUrlBlocklist.add(ENCODED_PERCENT);
 			this.decodedUrlBlocklist.add(PERCENT);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded Carriage Return is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedCarriageReturn if URL encoded Carriage Return is allowed in
+	 * the URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedCarriageReturn(boolean allowUrlEncodedCarriageReturn) {
+		if (allowUrlEncodedCarriageReturn) {
+			urlBlocklistsRemoveAll(FORBIDDEN_CR);
+		}
+		else {
+			urlBlocklistsAddAll(FORBIDDEN_CR);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded Line Feed is allowed in the path or not. The default is
+	 * not to allow this behavior because it is a frequent source of security exploits.
+	 * @param allowUrlEncodedLineFeed if URL encoded Line Feed is allowed in the URL or
+	 * not. Default is false.
+	 */
+	public void setAllowUrlEncodedLineFeed(boolean allowUrlEncodedLineFeed) {
+		if (allowUrlEncodedLineFeed) {
+			urlBlocklistsRemoveAll(FORBIDDEN_LF);
+		}
+		else {
+			urlBlocklistsAddAll(FORBIDDEN_LF);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded paragraph separator is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedParagraphSeparator if URL encoded paragraph separator is
+	 * allowed in the URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedParagraphSeparator(boolean allowUrlEncodedParagraphSeparator) {
+		if (allowUrlEncodedParagraphSeparator) {
+			this.decodedUrlBlocklist.removeAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
+		}
+		else {
+			this.decodedUrlBlocklist.addAll(FORBIDDEN_PARAGRAPH_SEPARATOR);
+		}
+	}
+
+	/**
+	 * Determines if a URL encoded line separator is allowed in the path or not. The
+	 * default is not to allow this behavior because it is a frequent source of security
+	 * exploits.
+	 * @param allowUrlEncodedLineSeparator if URL encoded line separator is allowed in the
+	 * URL or not. Default is false.
+	 */
+	public void setAllowUrlEncodedLineSeparator(boolean allowUrlEncodedLineSeparator) {
+		if (allowUrlEncodedLineSeparator) {
+			this.decodedUrlBlocklist.removeAll(FORBIDDEN_LINE_SEPARATOR);
+		}
+		else {
+			this.decodedUrlBlocklist.addAll(FORBIDDEN_LINE_SEPARATOR);
 		}
 	}
 
