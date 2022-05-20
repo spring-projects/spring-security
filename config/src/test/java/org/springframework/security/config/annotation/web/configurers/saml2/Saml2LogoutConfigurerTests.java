@@ -20,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import org.junit.jupiter.api.AfterEach;
@@ -72,6 +73,9 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -254,10 +258,9 @@ public class Saml2LogoutConfigurerTests {
 		principal.setRelyingPartyRegistrationId("get");
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		MvcResult result = this.mvc
-				.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-						.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-						.param("Signature", this.apLogoutRequestSignature).with(authentication(user)))
+		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
 				.andExpect(status().isFound()).andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
@@ -316,8 +319,8 @@ public class Saml2LogoutConfigurerTests {
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNotNull();
 		this.mvc.perform(get("/logout/saml2/slo").session(((MockHttpSession) this.request.getSession()))
 				.param("SAMLResponse", this.apLogoutResponse).param("RelayState", this.apLogoutResponseRelayState)
-				.param("SigAlg", this.apLogoutResponseSigAlg).param("Signature", this.apLogoutResponseSignature))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+				.param("SigAlg", this.apLogoutResponseSigAlg).param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString())).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
 		verifyNoInteractions(getBean(LogoutHandler.class));
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNull();
 	}
@@ -334,8 +337,9 @@ public class Saml2LogoutConfigurerTests {
 				Saml2Utils.samlInflate(Saml2Utils.samlDecode(this.apLogoutResponse)).getBytes(StandardCharsets.UTF_8));
 		this.mvc.perform(post("/logout/saml2/slo").session((MockHttpSession) this.request.getSession())
 				.param("SAMLResponse", deflatedApLogoutResponse).param("RelayState", this.rpLogoutRequestRelayState)
-				.param("SigAlg", this.apLogoutRequestSigAlg).param("Signature", this.apLogoutResponseSignature))
-				.andExpect(status().reason(containsString("invalid_signature"))).andExpect(status().isUnauthorized());
+				.param("SigAlg", this.apLogoutRequestSigAlg).param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString())).andExpect(status().reason(containsString("invalid_signature")))
+				.andExpect(status().isUnauthorized());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
@@ -396,6 +400,10 @@ public class Saml2LogoutConfigurerTests {
 
 	private <T> T getBean(Class<T> clazz) {
 		return this.spring.getContext().getBean(clazz);
+	}
+
+	private SamlQueryStringRequestPostProcessor samlQueryString() {
+		return new SamlQueryStringRequestPostProcessor();
 	}
 
 	@EnableWebSecurity
@@ -598,6 +606,21 @@ public class Saml2LogoutConfigurerTests {
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
+		}
+
+	}
+
+	static class SamlQueryStringRequestPostProcessor implements RequestPostProcessor {
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
+			for (Map.Entry<String, String[]> entries : request.getParameterMap().entrySet()) {
+				builder.queryParam(entries.getKey(),
+						UriUtils.encode(entries.getValue()[0], StandardCharsets.ISO_8859_1));
+			}
+			request.setQueryString(builder.build(true).toUriString().substring(1));
+			return request;
 		}
 
 	}
