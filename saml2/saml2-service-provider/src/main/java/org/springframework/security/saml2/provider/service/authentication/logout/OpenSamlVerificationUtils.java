@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.web.util.UriUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Utility methods for verifying SAML component signatures with OpenSAML
@@ -191,8 +191,9 @@ final class OpenSamlVerificationUtils {
 				else {
 					this.signature = null;
 				}
-				this.content = content(request.getSamlRequest(), Saml2ParameterNames.SAML_REQUEST,
-						request.getRelayState(), request.getParameter(Saml2ParameterNames.SIG_ALG));
+				this.content = UriComponentsBuilder.newInstance().query(request.getParametersQuery())
+						.replaceQueryParam(Saml2ParameterNames.SIGNATURE).build(true).toUriString().substring(1)
+						.getBytes(StandardCharsets.UTF_8);
 			}
 
 			RedirectSignature(Saml2LogoutResponse response) {
@@ -203,22 +204,9 @@ final class OpenSamlVerificationUtils {
 				else {
 					this.signature = null;
 				}
-				this.content = content(response.getSamlResponse(), Saml2ParameterNames.SAML_RESPONSE,
-						response.getRelayState(), response.getParameter(Saml2ParameterNames.SIG_ALG));
-			}
-
-			static byte[] content(String samlObject, String objectParameterName, String relayState, String algorithm) {
-				if (relayState != null) {
-					return String.format("%s=%s&%s=%s&%s=%s", objectParameterName,
-							UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1), Saml2ParameterNames.RELAY_STATE,
-							UriUtils.encode(relayState, StandardCharsets.ISO_8859_1), Saml2ParameterNames.SIG_ALG,
-							UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1)).getBytes(StandardCharsets.UTF_8);
-				}
-				else {
-					return String.format("%s=%s&%s=%s", objectParameterName,
-							UriUtils.encode(samlObject, StandardCharsets.ISO_8859_1), Saml2ParameterNames.SIG_ALG,
-							UriUtils.encode(algorithm, StandardCharsets.ISO_8859_1)).getBytes(StandardCharsets.UTF_8);
-				}
+				this.content = UriComponentsBuilder.newInstance().query(response.getParametersQuery())
+						.replaceQueryParam(Saml2ParameterNames.SIGNATURE).build(true).toUriString().substring(1)
+						.getBytes(StandardCharsets.UTF_8);
 			}
 
 			byte[] getContent() {

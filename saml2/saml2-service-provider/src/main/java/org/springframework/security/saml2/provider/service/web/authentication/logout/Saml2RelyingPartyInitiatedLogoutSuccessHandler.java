@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,7 +26,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.web.DefaultRedirectStrategy;
@@ -38,7 +35,6 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 /**
  * A success handler for issuing a SAML 2.0 Logout Request to the the SAML 2.0 Asserting
@@ -105,20 +101,9 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response, Saml2LogoutRequest logoutRequest)
 			throws IOException {
 		String location = logoutRequest.getLocation();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter(Saml2ParameterNames.SAML_REQUEST, logoutRequest::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.RELAY_STATE, logoutRequest::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.SIG_ALG, logoutRequest::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.SIGNATURE, logoutRequest::getParameter, uriBuilder);
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
+				.query(logoutRequest.getParametersQuery());
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
-	}
-
-	private void addParameter(String name, Function<String, String> parameters, UriComponentsBuilder builder) {
-		Assert.hasText(name, "name cannot be empty or null");
-		if (StringUtils.hasText(parameters.apply(name))) {
-			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
-					UriUtils.encode(parameters.apply(name), StandardCharsets.ISO_8859_1));
-		}
 	}
 
 	private void doPost(HttpServletResponse response, Saml2LogoutRequest logoutRequest) throws IOException {
