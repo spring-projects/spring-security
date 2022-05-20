@@ -17,9 +17,11 @@
 package org.springframework.security.saml2.jackson2;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -45,6 +47,9 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true)
 class Saml2LogoutRequestMixin {
+
+	@JsonIgnore
+	Function<Map<String, String>, String> encoder;
 
 	@JsonCreator
 	Saml2LogoutRequestMixin(@JsonProperty("location") String location,

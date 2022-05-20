@@ -22,6 +22,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -261,6 +264,33 @@ public class Saml2LogoutConfigurerTests {
 		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
 				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
 				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
+				.andExpect(status().isFound()).andReturn();
+		String location = result.getResponse().getHeader("Location");
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
+		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
+	}
+
+	// gh-11235
+	@Test
+	public void saml2LogoutRequestWhenLowercaseEncodingThenLogsOutAndSendsLogoutResponse() throws Exception {
+		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
+		String apLogoutRequest = "nZFNa4QwEIb/iuQeP6K7dYO6FKQg2B622x56G3WwgiY2E8v239fqCksPPfSWIXmfNw+THC9D73yi\r\n"
+				+ "oU6rlAWuzxxUtW461abs5fzAY3bMEoKhF6Msdasne8KPCck6c1KRXK9SNhklNVBHUsGAJG0tn+8f\r\n"
+				+ "SylcX45GW13rnjn5HOwU2KXt3dqRpOeZ0cULDGOPrjat1y8t3gL2zFrGnCJPWXkKcR8KCHY8xmrP\r\n"
+				+ "Iz868OpOVLwO4wohggagmd8STVgosqBsyoQvBPd3XITnIJaRL8PYjcThjTmvm/f8SXa1lEvY3Nr9\r\n"
+				+ "LQdEaH6EWAYjR2U7+8W7JvFucRv8aY4X+b/g03zaoCsmu46/FpN9Aw==";
+		String apLogoutRequestRelayState = "d118dbd5-3853-4268-b3e5-c40fc033fa2f";
+		String apLogoutRequestSignature = "VZ7rWa5u3hIX60fAQs/gBQZWDP2BAIlCMMrNrTHafoKKj0uXWnuITYLuL8NdsWmyQN0+fqWW4X05+BqiLpL80jHLmQR5RVqqL1EtVv1SpPUna938lgz2sOliuYmfQNj4Bmd+Z5G1K6QhbVrtfb7TQHURjUafzfRm8+jGz3dPjVBrn/rD/umfGoSn6RuWngugcMNL4U0A+JcEh1NSfSYNVz7y+MqlW1UhX2kF86rm97ERCrxay7Gh/bI2f3fJPJ1r+EyLjzrDUkqw5cva3rVlFgEQouMVu35lUJn7SFompW8oTxkI23oc/t+AGZqaBupNITNdjyGCBpfukZ69EZrj8g==";
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
+				Collections.emptyMap());
+		principal.setRelyingPartyRegistrationId("get");
+		Saml2Authentication user = new Saml2Authentication(principal, "response",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MvcResult result = this.mvc
+				.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
+						.param("RelayState", apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
+						.param("Signature", apLogoutRequestSignature)
+						.with(new SamlQueryStringRequestPostProcessor(true)).with(authentication(user)))
 				.andExpect(status().isFound()).andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
@@ -612,6 +642,26 @@ public class Saml2LogoutConfigurerTests {
 
 	static class SamlQueryStringRequestPostProcessor implements RequestPostProcessor {
 
+		private Function<String, String> urlEncodingPostProcessor = Function.identity();
+
+		SamlQueryStringRequestPostProcessor() {
+			this(false);
+		}
+
+		SamlQueryStringRequestPostProcessor(boolean lowercased) {
+			if (lowercased) {
+				Pattern encoding = Pattern.compile("%\\d[A-Fa-f]");
+				this.urlEncodingPostProcessor = (encoded) -> {
+					Matcher m = encoding.matcher(encoded);
+					while (m.find()) {
+						String found = m.group(0);
+						encoded = encoded.replace(found, found.toLowerCase());
+					}
+					return encoded;
+				};
+			}
+		}
+
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
@@ -619,7 +669,8 @@ public class Saml2LogoutConfigurerTests {
 				builder.queryParam(entries.getKey(),
 						UriUtils.encode(entries.getValue()[0], StandardCharsets.ISO_8859_1));
 			}
-			request.setQueryString(builder.build(true).toUriString().substring(1));
+			String queryString = this.urlEncodingPostProcessor.apply(builder.build(true).toUriString().substring(1));
+			request.setQueryString(queryString);
 			return request;
 		}
 
