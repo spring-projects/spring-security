@@ -67,7 +67,7 @@ public class Saml2AuthenticationTokenConverterTests {
 				.willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
-				Saml2Utils.samlEncodeNotRfc2045("response".getBytes(StandardCharsets.UTF_8)));
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
@@ -81,7 +81,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		given(resolver.resolve(any(HttpServletRequest.class), any())).willReturn(this.relyingPartyRegistration);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE,
-				Saml2Utils.samlEncodeNotRfc2045("response".getBytes(StandardCharsets.UTF_8)));
+				Saml2Utils.samlEncode("response".getBytes(StandardCharsets.UTF_8)));
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");
 		assertThat(token.getRelyingPartyRegistration().getRegistrationId())
@@ -133,7 +133,7 @@ public class Saml2AuthenticationTokenConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setMethod("GET");
 		byte[] deflated = Saml2Utils.samlDeflate("response");
-		String encoded = Saml2Utils.samlEncodeNotRfc2045(deflated);
+		String encoded = Saml2Utils.samlEncode(deflated);
 		request.setParameter(Saml2ParameterNames.SAML_RESPONSE, encoded);
 		Saml2AuthenticationToken token = converter.convert(request);
 		assertThat(token.getSaml2Response()).isEqualTo("response");

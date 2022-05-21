@@ -40,7 +40,7 @@ final class Saml2Utils {
 	}
 
 	static String samlEncode(byte[] b) {
-		return Base64.getMimeEncoder().encodeToString(b);
+		return Base64.getEncoder().encodeToString(b);
 	}
 
 	static byte[] samlDecode(String s) {
