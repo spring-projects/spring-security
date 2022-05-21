@@ -32,13 +32,8 @@ public final class Saml2Utils {
 	private Saml2Utils() {
 	}
 
-	@Deprecated
-	public static String samlEncodeNotRfc2045(byte[] b) {
-		return Base64.getEncoder().encodeToString(b);
-	}
-
 	public static String samlEncode(byte[] b) {
-		return Base64.getMimeEncoder().encodeToString(b);
+		return Base64.getEncoder().encodeToString(b);
 	}
 
 	public static byte[] samlDecode(String s) {
