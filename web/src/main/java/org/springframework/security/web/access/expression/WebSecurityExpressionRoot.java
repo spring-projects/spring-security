@@ -19,6 +19,7 @@ package org.springframework.security.web.access.expression;
 import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
