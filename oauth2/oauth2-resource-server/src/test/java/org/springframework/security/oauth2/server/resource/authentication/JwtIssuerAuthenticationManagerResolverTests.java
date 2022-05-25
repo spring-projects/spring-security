@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,18 +33,23 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.jose.TestKeys;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver.TrustedIssuerJwtAuthenticationManagerResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.mock;
 import static org.mockito.BDDMockito.verify;
 
@@ -164,6 +169,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
 				(issuer) -> authenticationManager);
 		Authentication token = withBearerToken(this.jwt);
+		given(authenticationManager.authenticate(token)).willReturn(mock(Authentication.class));
 		authenticationManagerResolver.resolve(null).authenticate(token);
 		verify(authenticationManager).authenticate(token);
 	}
@@ -180,6 +186,7 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 				.withMessageContaining("Invalid issuer");
 		// @formatter:on
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		given(authenticationManager.authenticate(token)).willReturn(mock(Authentication.class));
 		authenticationManagers.put("trusted", authenticationManager);
 		authenticationManagerResolver.resolve(null).authenticate(token);
 		verify(authenticationManager).authenticate(token);
@@ -241,6 +248,35 @@ public class JwtIssuerAuthenticationManagerResolverTests {
 	public void constructorWhenNullAuthenticationManagerResolverThenException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new JwtIssuerAuthenticationManagerResolver((AuthenticationManagerResolver) null));
+	}
+
+	// gh-10433
+	@Test
+	public void resolvedAuthenticationManagerPublishesAuthenticationSuccessForValidBearerToken() {
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		AuthenticationEventPublisher eventPublisher = mock(AuthenticationEventPublisher.class);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				(issuer) -> authenticationManager);
+		authenticationManagerResolver.setAuthenticationEventPublisher(eventPublisher);
+		Authentication token = withBearerToken(this.jwt);
+		given(authenticationManager.authenticate(token)).willReturn(mock(Authentication.class));
+		authenticationManagerResolver.resolve(null).authenticate(token);
+		verify(eventPublisher).publishAuthenticationSuccess(any(Authentication.class));
+	}
+
+	// gh-10433
+	@Test
+	public void resolvedAuthenticationManagerPublishesAuthenticationFailureWhenAuthenticationException() {
+		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
+		AuthenticationEventPublisher eventPublisher = mock(AuthenticationEventPublisher.class);
+		JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
+				(issuer) -> authenticationManager);
+		authenticationManagerResolver.setAuthenticationEventPublisher(eventPublisher);
+		Authentication token = withBearerToken(this.jwt);
+		given(authenticationManager.authenticate(token)).willThrow(InvalidBearerTokenException.class);
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(() -> authenticationManagerResolver.resolve(null).authenticate(token));
+		verify(eventPublisher).publishAuthenticationFailure(any(InvalidBearerTokenException.class), any(Authentication.class));
 	}
 
 	private Authentication withBearerToken(String token) {

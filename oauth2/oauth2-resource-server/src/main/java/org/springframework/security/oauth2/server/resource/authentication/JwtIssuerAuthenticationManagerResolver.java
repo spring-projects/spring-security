@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,11 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.log.LogMessage;
 import org.springframework.lang.NonNull;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -64,7 +67,7 @@ import org.springframework.util.Assert;
  */
 public final class JwtIssuerAuthenticationManagerResolver implements AuthenticationManagerResolver<HttpServletRequest> {
 
-	private final AuthenticationManager authenticationManager;
+	private final ProviderManager authenticationManager;
 
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
@@ -82,9 +85,9 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
-		this.authenticationManager = new ResolvingAuthenticationManager(
+		this.authenticationManager = new ProviderManager(new ResolvingAuthenticationProvider(
 				new TrustedIssuerJwtAuthenticationManagerResolver(
-						Collections.unmodifiableCollection(trustedIssuers)::contains));
+						Collections.unmodifiableCollection(trustedIssuers)::contains)));
 	}
 
 	/**
@@ -111,7 +114,18 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	public JwtIssuerAuthenticationManagerResolver(
 			AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 		Assert.notNull(issuerAuthenticationManagerResolver, "issuerAuthenticationManagerResolver cannot be null");
-		this.authenticationManager = new ResolvingAuthenticationManager(issuerAuthenticationManagerResolver);
+		this.authenticationManager = new ProviderManager(new ResolvingAuthenticationProvider(issuerAuthenticationManagerResolver));
+	}
+
+	/**
+	 * Sets the {@link AuthenticationEventPublisher} that the resolved {@link AuthenticationManager}
+	 * will use to publish authentication events.
+	 * @param eventPublisher the {@link AuthenticationEventPublisher} to use
+	 * @since 5.8
+	 */
+	public void setAuthenticationEventPublisher(AuthenticationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "AuthenticationEventPublisher cannot be null");
+		this.authenticationManager.setAuthenticationEventPublisher(eventPublisher);
 	}
 
 	/**
@@ -125,13 +139,13 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 		return this.authenticationManager;
 	}
 
-	private static class ResolvingAuthenticationManager implements AuthenticationManager {
+	private static class ResolvingAuthenticationProvider implements AuthenticationProvider {
 
 		private final Converter<BearerTokenAuthenticationToken, String> issuerConverter = new JwtClaimIssuerConverter();
 
 		private final AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver;
 
-		ResolvingAuthenticationManager(AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
+		ResolvingAuthenticationProvider(AuthenticationManagerResolver<String> issuerAuthenticationManagerResolver) {
 			this.issuerAuthenticationManagerResolver = issuerAuthenticationManagerResolver;
 		}
 
@@ -146,6 +160,11 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				throw new InvalidBearerTokenException("Invalid issuer");
 			}
 			return authenticationManager.authenticate(authentication);
+		}
+
+		@Override
+		public boolean supports(Class<?> authentication) {
+			return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);
 		}
 
 	}
