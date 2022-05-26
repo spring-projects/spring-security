@@ -32,8 +32,11 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.config.util.InMemoryXmlApplicationContext;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -92,6 +95,30 @@ public class NamespaceHttpBasicTests {
 				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
+
+	@Test
+	public void httpBasicCustomSecurityContextHolderStrategy() throws Exception {
+		// @formatter:off
+		loadContext("<http auto-config=\"true\" use-expressions=\"false\" security-context-holder-strategy-ref=\"ref\"/>\n"
+				+  "<authentication-manager id=\"authenticationManager\">\n"
+				+  "	<authentication-provider>\n"
+				+  "		<user-service>\n"
+				+  "			<user name=\"user\" password=\"{noop}test\" authorities=\"ROLE_USER\"/>\n"
+				+  "		</user-service>\n"
+				+  "	</authentication-provider>\n"
+				+  "</authentication-manager>\n"
+				+  "<b:bean id=\"ref\" class=\"org.mockito.Mockito\" factory-method=\"spy\">\n" +
+				"	<b:constructor-arg>\n" +
+				"		<b:bean class=\"org.springframework.security.config.MockSecurityContextHolderStrategy\"/>\n" +
+				"	</b:constructor-arg>\n" +
+				"</b:bean>");
+		// @formatter:on
+		this.request.addHeader("Authorization",
+				"Basic " + Base64.getEncoder().encodeToString("user:test".getBytes("UTF-8")));
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+		verify(this.context.getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	// gh-4220
