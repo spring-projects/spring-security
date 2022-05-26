@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -90,11 +90,14 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	/**
 	 * SecurityContext instance used to check for equality with default (unauthenticated)
 	 * content
 	 */
-	private final Object contextObject = SecurityContextHolder.createEmptyContext();
+	private Object contextObject = this.securityContextHolderStrategy.createEmptyContext();
 
 	private boolean allowSessionCreation = true;
 
@@ -126,6 +129,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		if (response != null) {
 			SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request,
 					httpSession != null, context);
+			wrappedResponse.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			requestResponseHolder.setResponse(wrappedResponse);
 			requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(request, wrappedResponse));
 		}
@@ -201,7 +205,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	 * @return a new SecurityContext instance. Never null.
 	 */
 	protected SecurityContext generateNewContext() {
-		return SecurityContextHolder.createEmptyContext();
+		return this.securityContextHolderStrategy.createEmptyContext();
 	}
 
 	/**
@@ -235,6 +239,17 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	public void setSpringSecurityContextKey(String springSecurityContextKey) {
 		Assert.hasText(springSecurityContextKey, "springSecurityContextKey cannot be empty");
 		this.springSecurityContextKey = springSecurityContextKey;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.securityContextHolderStrategy = strategy;
+		this.contextObject = this.securityContextHolderStrategy.createEmptyContext();
 	}
 
 	private boolean isTransient(Object object) {

@@ -34,6 +34,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.firewall.DefaultRequestRejectedHandler;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
@@ -146,6 +147,9 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private static final String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private List<SecurityFilterChain> filterChains;
 
 	private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
@@ -186,7 +190,7 @@ public class FilterChainProxy extends GenericFilterBean {
 			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
 		}
 		finally {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			request.removeAttribute(FILTER_APPLIED);
 		}
 	}
@@ -245,6 +249,17 @@ public class FilterChainProxy extends GenericFilterBean {
 	 */
 	public List<SecurityFilterChain> getFilterChains() {
 		return Collections.unmodifiableList(this.filterChains);
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**

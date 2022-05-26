@@ -38,6 +38,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.util.WebUtils;
 
@@ -72,9 +73,9 @@ public class AuthorizationFilterTests {
 		AuthorizationFilter filter = new AuthorizationFilter(mockAuthorizationManager);
 		TestingAuthenticationToken authenticationToken = new TestingAuthenticationToken("user", "password");
 
-		SecurityContext securityContext = new SecurityContextImpl();
-		securityContext.setAuthentication(authenticationToken);
-		SecurityContextHolder.setContext(securityContext);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authenticationToken));
+		filter.setSecurityContextHolderStrategy(strategy);
 
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
@@ -88,6 +89,7 @@ public class AuthorizationFilterTests {
 		assertThat(authentication.get()).isEqualTo(authenticationToken);
 
 		verify(mockFilterChain).doFilter(mockRequest, mockResponse);
+		verify(strategy).getContext();
 	}
 
 	@Test

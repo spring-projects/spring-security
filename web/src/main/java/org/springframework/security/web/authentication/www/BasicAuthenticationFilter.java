@@ -33,6 +33,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
@@ -92,6 +93,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Ben Alex
  */
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -170,9 +174,9 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
-				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(authResult);
-				SecurityContextHolder.setContext(context);
+				this.securityContextHolderStrategy.setContext(context);
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 				}
@@ -182,7 +186,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			}
 		}
 		catch (AuthenticationException ex) {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			this.logger.debug("Failed to process authentication request", ex);
 			this.rememberMeServices.loginFail(request, response);
 			onUnsuccessfulAuthentication(request, response, ex);
@@ -201,7 +205,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private boolean authenticationIsRequired(String username) {
 		// Only reauthenticate if username doesn't match SecurityContextHolder and user
 		// isn't authenticated (see SEC-53)
-		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+		Authentication existingAuth = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (existingAuth == null || !existingAuth.isAuthenticated()) {
 			return true;
 		}
@@ -240,6 +244,17 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	protected boolean isIgnoreFailure() {
 		return this.ignoreFailure;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public void setAuthenticationDetailsSource(

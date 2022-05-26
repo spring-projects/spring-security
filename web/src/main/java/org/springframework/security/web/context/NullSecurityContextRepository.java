@@ -21,12 +21,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
  * @author Luke Taylor
  * @since 3.1
  */
 public final class NullSecurityContextRepository implements SecurityContextRepository {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	@Override
 	public boolean containsContext(HttpServletRequest request) {
@@ -35,11 +39,21 @@ public final class NullSecurityContextRepository implements SecurityContextRepos
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		return SecurityContextHolder.createEmptyContext();
+		return this.securityContextHolderStrategy.createEmptyContext();
 	}
 
 	@Override
 	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.securityContextHolderStrategy = strategy;
 	}
 
 }
