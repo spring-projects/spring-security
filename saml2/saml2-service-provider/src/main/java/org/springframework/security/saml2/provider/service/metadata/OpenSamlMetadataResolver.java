@@ -46,6 +46,7 @@ import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
 
 /**
@@ -104,7 +105,9 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 				.addAll(buildKeys(registration.getDecryptionX509Credentials(), UsageType.ENCRYPTION));
 		spSsoDescriptor.getAssertionConsumerServices().add(buildAssertionConsumerService(registration));
 		if (registration.getSingleLogoutServiceLocation() != null) {
-			spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration));
+			for (Saml2MessageBinding binding : registration.getSingleLogoutServiceBindings()) {
+				spSsoDescriptor.getSingleLogoutServices().add(buildSingleLogoutService(registration, binding));
+			}
 		}
 		if (registration.getNameIdFormat() != null) {
 			spSsoDescriptor.getNameIDFormats().add(buildNameIDFormat(registration));
@@ -147,11 +150,12 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		return assertionConsumerService;
 	}
 
-	private SingleLogoutService buildSingleLogoutService(RelyingPartyRegistration registration) {
+	private SingleLogoutService buildSingleLogoutService(RelyingPartyRegistration registration,
+			Saml2MessageBinding binding) {
 		SingleLogoutService singleLogoutService = build(SingleLogoutService.DEFAULT_ELEMENT_NAME);
 		singleLogoutService.setLocation(registration.getSingleLogoutServiceLocation());
 		singleLogoutService.setResponseLocation(registration.getSingleLogoutServiceResponseLocation());
-		singleLogoutService.setBinding(registration.getSingleLogoutServiceBinding().getUrn());
+		singleLogoutService.setBinding(binding.getUrn());
 		return singleLogoutService;
 	}
 

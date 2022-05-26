@@ -122,7 +122,9 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		if (!isCorrectBinding(request, registration)) {
+
+		Saml2MessageBinding saml2MessageBinding = Saml2MessageBindingUtils.resolveBinding(request);
+		if (!registration.getSingleLogoutServiceBindings().contains(saml2MessageBinding)) {
 			this.logger.trace("Did not process logout request since used incorrect binding");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
@@ -131,8 +133,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 				.samlRequest(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-				.binding(registration.getSingleLogoutServiceBinding())
-				.location(registration.getSingleLogoutServiceLocation())
+				.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceLocation())
 				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 						request.getParameter(Saml2ParameterNames.SIG_ALG)))
 				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
@@ -175,14 +176,6 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			return ((Saml2AuthenticatedPrincipal) principal).getRelyingPartyRegistrationId();
 		}
 		return null;
-	}
-
-	private boolean isCorrectBinding(HttpServletRequest request, RelyingPartyRegistration registration) {
-		Saml2MessageBinding requiredBinding = registration.getSingleLogoutServiceBinding();
-		if (requiredBinding == Saml2MessageBinding.POST) {
-			return "POST".equals(request.getMethod());
-		}
-		return "GET".equals(request.getMethod());
 	}
 
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response,
