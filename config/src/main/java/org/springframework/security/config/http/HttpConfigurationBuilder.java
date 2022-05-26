@@ -23,6 +23,7 @@ import jakarta.servlet.ServletRequest;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -39,6 +40,8 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionRegistryImpl;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
@@ -105,6 +108,8 @@ class HttpConfigurationBuilder {
 
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
+	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY = "security-context-holder-strategy-ref";
+
 	private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
 
 	private static final String ATT_SECURITY_CONTEXT_EXPLICIT_SAVE = "security-context-explicit-save";
@@ -154,6 +159,8 @@ class HttpConfigurationBuilder {
 	private BeanDefinition securityContextPersistenceFilter;
 
 	private BeanDefinition forceEagerSessionCreationFilter;
+
+	private BeanReference holderStrategyRef;
 
 	private BeanReference contextRepoRef;
 
@@ -214,6 +221,7 @@ class HttpConfigurationBuilder {
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
+		createSecurityContextHolderStrategy();
 		createForceEagerSessionCreationFilter();
 		createDisableEncodeUrlFilter();
 		createCsrfFilter();
@@ -293,6 +301,10 @@ class HttpConfigurationBuilder {
 		return lowerCase ? path.toLowerCase() : path;
 	}
 
+	BeanReference getSecurityContextHolderStrategyForAuthenticationFilters() {
+		return this.holderStrategyRef;
+	}
+
 	BeanReference getSecurityContextRepositoryForAuthenticationFilters() {
 		return (isExplicitSave()) ? this.contextRepoRef : null;
 	}
@@ -330,9 +342,21 @@ class HttpConfigurationBuilder {
 		default:
 			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
 		}
+		scpf.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		scpf.addConstructorArgValue(this.contextRepoRef);
 
 		this.securityContextPersistenceFilter = scpf.getBeanDefinition();
+	}
+
+	private void createSecurityContextHolderStrategy() {
+		String holderStrategyRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_HOLDER_STRATEGY);
+		if (!StringUtils.hasText(holderStrategyRef)) {
+			BeanDefinition holderStrategyBean = BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityContextHolderStrategyFactory.class).getBeanDefinition();
+			holderStrategyRef = this.pc.getReaderContext().generateBeanName(holderStrategyBean);
+			this.pc.registerBeanComponent(new BeanComponentDefinition(holderStrategyBean, holderStrategyRef));
+		}
+		this.holderStrategyRef = new RuntimeBeanReference(holderStrategyRef);
 	}
 
 	private void createSecurityContextRepository() {
@@ -358,6 +382,7 @@ class HttpConfigurationBuilder {
 					contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
 				}
 			}
+			contextRepo.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 			BeanDefinition repoBean = contextRepo.getBeanDefinition();
 			repoRef = this.pc.getReaderContext().generateBeanName(repoBean);
 			this.pc.registerBeanComponent(new BeanComponentDefinition(repoBean, repoRef));
@@ -373,6 +398,7 @@ class HttpConfigurationBuilder {
 
 	private void createSecurityContextHolderFilter() {
 		BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextHolderFilter.class);
+		filter.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		filter.addConstructorArgValue(this.contextRepoRef);
 		this.securityContextPersistenceFilter = filter.getBeanDefinition();
 	}
@@ -484,6 +510,7 @@ class HttpConfigurationBuilder {
 		if (StringUtils.hasText(errorUrl)) {
 			failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", errorUrl);
 		}
+		sessionMgmtFilter.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
 		sessionMgmtFilter.addConstructorArgValue(this.contextRepoRef);
 		if (!StringUtils.hasText(sessionAuthStratRef) && sessionFixationStrategy != null && !useChangeSessionId) {
@@ -743,6 +770,7 @@ class HttpConfigurationBuilder {
 			builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
 		}
 		builder.addPropertyValue("securityMetadataSource", securityMds);
+		builder.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		BeanDefinition fsiBean = builder.getBeanDefinition();
 		String fsiId = this.pc.getReaderContext().generateBeanName(fsiBean);
 		this.pc.registerBeanComponent(new BeanComponentDefinition(fsiBean, fsiId));
@@ -878,6 +906,20 @@ class HttpConfigurationBuilder {
 		public SecurityContextHolderAwareRequestFilter getBean() {
 			this.filter.setRolePrefix(this.rolePrefix);
 			return this.filter;
+		}
+
+	}
+
+	static class SecurityContextHolderStrategyFactory implements FactoryBean<SecurityContextHolderStrategy> {
+
+		@Override
+		public SecurityContextHolderStrategy getObject() throws Exception {
+			return SecurityContextHolder.getContextHolderStrategy();
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return SecurityContextHolderStrategy.class;
 		}
 
 	}

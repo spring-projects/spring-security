@@ -131,6 +131,9 @@ This is a more powerful alternative to <<nsa-http-pattern,pattern>>.
 A request pattern can be mapped to an empty filter chain, by setting this attribute to `none`.
 No security will be applied and none of Spring Security's features will be available.
 
+[[nsa-http-security-context-holder-strategy-ref]]
+* **security-context-repository-ref**
+Allows injection of a custom `SecurityContextHolderStrategy` into `SecurityContextPersistenceFilter`, `SecurityContextHolderFilter`, `BasicAuthenticationFilter`, `UsernamePasswordAuthenticationFilter`, `ExceptionTranslationFilter`, `LogoutFilter`, and others.
 
 [[nsa-http-security-context-explicit-save]]
 * **security-context-explicit-save**

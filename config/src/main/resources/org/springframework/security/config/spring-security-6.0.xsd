@@ -1202,6 +1202,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="security-context-holder-strategy-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>A reference to a SecurityContextHolderStrategy bean. This can be used to customize how the
+                SecurityContextHolder is stored during a request
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="create-session">
          <xs:annotation>
             <xs:documentation>Controls the eagerness with which an HTTP session is created by Spring Security classes.
