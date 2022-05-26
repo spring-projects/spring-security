@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.util.OnCommittedResponseWrapper;
+import org.springframework.util.Assert;
 
 /**
  * Base class for response wrappers which encapsulate the logic for storing a security
@@ -46,6 +48,9 @@ import org.springframework.security.web.util.OnCommittedResponseWrapper;
 @Deprecated
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommittedResponseWrapper {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private boolean contextSaved = false;
 
 	// See SEC-1052
@@ -60,6 +65,17 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 	public SaveContextOnUpdateOrErrorResponseWrapper(HttpServletResponse response, boolean disableUrlRewriting) {
 		super(response);
 		this.disableUrlRewriting = disableUrlRewriting;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**
@@ -85,7 +101,7 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 	 */
 	@Override
 	protected void onResponseCommitted() {
-		saveContext(SecurityContextHolder.getContext());
+		saveContext(this.securityContextHolderStrategy.getContext());
 		this.contextSaved = true;
 	}
 

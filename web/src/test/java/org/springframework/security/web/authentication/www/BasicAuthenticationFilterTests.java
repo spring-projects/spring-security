@@ -27,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -37,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.SecurityContextRepository;
@@ -50,6 +52,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -143,6 +146,19 @@ public class BasicAuthenticationFilterTests {
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getName()).isEqualTo("rod");
+	}
+
+	@Test
+	public void testSecurityContextHolderStrategyUsed() throws Exception {
+		String token = "rod:koala";
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token.getBytes()));
+		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());
+		this.filter.setSecurityContextHolderStrategy(strategy);
+		this.filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
+		ArgumentCaptor<SecurityContext> captor = ArgumentCaptor.forClass(SecurityContext.class);
+		verify(strategy).setContext(captor.capture());
+		assertThat(captor.getValue().getAuthentication()).isInstanceOf(UsernamePasswordAuthenticationToken.class);
 	}
 
 	// gh-5586

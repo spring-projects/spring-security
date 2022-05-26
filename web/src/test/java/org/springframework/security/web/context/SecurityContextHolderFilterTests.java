@@ -32,16 +32,21 @@ import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 class SecurityContextHolderFilterTests {
 
 	@Mock
 	private SecurityContextRepository repository;
+
+	@Mock
+	private SecurityContextHolderStrategy strategy;
 
 	@Mock
 	private HttpServletRequest request;
@@ -75,6 +80,21 @@ class SecurityContextHolderFilterTests {
 		this.filter.doFilter(this.request, this.response, filterChain);
 
 		assertThat(SecurityContextHolder.getContext()).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
+	void doFilterThenSetsAndClearsSecurityContextHolderStrategy() throws Exception {
+		Authentication authentication = TestAuthentication.authenticatedUser();
+		SecurityContext expectedContext = new SecurityContextImpl(authentication);
+		given(this.repository.loadContext(this.requestArg.capture())).willReturn(() -> expectedContext);
+		FilterChain filterChain = (request, response) -> {
+		};
+
+		this.filter.setSecurityContextHolderStrategy(this.strategy);
+		this.filter.doFilter(this.request, this.response, filterChain);
+
+		verify(this.strategy).setContext(expectedContext);
+		verify(this.strategy).clearContext();
 	}
 
 	@Test

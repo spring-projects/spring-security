@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -52,6 +53,9 @@ import org.springframework.web.filter.GenericFilterBean;
 public class SessionManagementFilter extends GenericFilterBean {
 
 	static final String FILTER_APPLIED = "__spring_security_session_mgmt_filter_applied";
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private final SecurityContextRepository securityContextRepository;
 
@@ -89,7 +93,7 @@ public class SessionManagementFilter extends GenericFilterBean {
 		}
 		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 		if (!this.securityContextRepository.containsContext(request)) {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (authentication != null && !this.trustResolver.isAnonymous(authentication)) {
 				// The user has been authenticated during the current request, so call the
 				// session strategy
@@ -99,14 +103,15 @@ public class SessionManagementFilter extends GenericFilterBean {
 				catch (SessionAuthenticationException ex) {
 					// The session strategy can reject the authentication
 					this.logger.debug("SessionAuthenticationStrategy rejected the authentication object", ex);
-					SecurityContextHolder.clearContext();
+					this.securityContextHolderStrategy.clearContext();
 					this.failureHandler.onAuthenticationFailure(request, response, ex);
 					return;
 				}
 				// Eagerly save the security context to make it available for any possible
 				// re-entrant requests which may occur before the current request
 				// completes. SEC-1396.
-				this.securityContextRepository.saveContext(SecurityContextHolder.getContext(), request, response);
+				this.securityContextRepository.saveContext(this.securityContextHolderStrategy.getContext(), request,
+						response);
 			}
 			else {
 				// No security context or authentication present. Check for a session
@@ -158,6 +163,17 @@ public class SessionManagementFilter extends GenericFilterBean {
 	public void setTrustResolver(AuthenticationTrustResolver trustResolver) {
 		Assert.notNull(trustResolver, "trustResolver cannot be null");
 		this.trustResolver = trustResolver;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

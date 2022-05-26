@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -51,6 +52,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @author Eddú Meléndez
  */
 public class LogoutFilter extends GenericFilterBean {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private RequestMatcher logoutRequestMatcher;
 
@@ -92,7 +96,7 @@ public class LogoutFilter extends GenericFilterBean {
 	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
 		if (requiresLogout(request, response)) {
-			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			Authentication auth = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Logging out [%s]", auth));
 			}
@@ -117,6 +121,17 @@ public class LogoutFilter extends GenericFilterBean {
 			this.logger.trace(LogMessage.format("Did not match request to %s", this.logoutRequestMatcher));
 		}
 		return false;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public void setLogoutRequestMatcher(RequestMatcher logoutRequestMatcher) {
