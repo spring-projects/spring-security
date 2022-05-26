@@ -150,7 +150,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <p>
 	 * The Relying Party triggers logout by POSTing to the endpoint. The Asserting Party
 	 * triggers logout based on what is specified by
-	 * {@link RelyingPartyRegistration#getSingleLogoutServiceBinding()}.
+	 * {@link RelyingPartyRegistration#getSingleLogoutServiceBindings()}.
 	 * @param logoutUrl the URL that will invoke logout
 	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @see LogoutConfigurer#logoutUrl(String)
@@ -350,7 +350,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		 *
 		 * <p>
 		 * The Asserting Party should use whatever HTTP method specified in
-		 * {@link RelyingPartyRegistration#getSingleLogoutServiceBinding()}.
+		 * {@link RelyingPartyRegistration#getSingleLogoutServiceBindings()}.
 		 * @param logoutUrl the URL that will receive the SAML 2.0 Logout Request
 		 * @return the {@link LogoutRequestConfigurer} for further customizations
 		 * @see Saml2LogoutConfigurer#logoutUrl(String)
@@ -432,7 +432,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		 *
 		 * <p>
 		 * The Asserting Party should use whatever HTTP method specified in
-		 * {@link RelyingPartyRegistration#getSingleLogoutServiceBinding()}.
+		 * {@link RelyingPartyRegistration#getSingleLogoutServiceBindings()}.
 		 * @param logoutUrl the URL that will receive the SAML 2.0 Logout Response
 		 * @return the {@link LogoutResponseConfigurer} for further customizations
 		 * @see Saml2LogoutConfigurer#logoutUrl(String)

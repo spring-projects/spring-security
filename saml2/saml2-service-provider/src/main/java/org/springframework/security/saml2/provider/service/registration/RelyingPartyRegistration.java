@@ -32,6 +32,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * Represents a configured relying party (aka Service Provider) and asserting party (aka
@@ -85,7 +86,7 @@ public final class RelyingPartyRegistration {
 
 	private final String singleLogoutServiceResponseLocation;
 
-	private final Saml2MessageBinding singleLogoutServiceBinding;
+	private final Collection<Saml2MessageBinding> singleLogoutServiceBindings;
 
 	private final String nameIdFormat;
 
@@ -99,7 +100,7 @@ public final class RelyingPartyRegistration {
 
 	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
-			String singleLogoutServiceResponseLocation, Saml2MessageBinding singleLogoutServiceBinding,
+			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
 			ProviderDetails providerDetails, String nameIdFormat,
 			Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
@@ -108,8 +109,8 @@ public final class RelyingPartyRegistration {
 		Assert.hasText(entityId, "entityId cannot be empty");
 		Assert.hasText(assertionConsumerServiceLocation, "assertionConsumerServiceLocation cannot be empty");
 		Assert.notNull(assertionConsumerServiceBinding, "assertionConsumerServiceBinding cannot be null");
-		Assert.isTrue(singleLogoutServiceLocation == null || singleLogoutServiceBinding != null,
-				"singleLogoutServiceBinding cannot be null when singleLogoutServiceLocation is set");
+		Assert.isTrue(singleLogoutServiceLocation == null || !CollectionUtils.isEmpty(singleLogoutServiceBindings),
+				"singleLogoutServiceBindings cannot be null or empty when singleLogoutServiceLocation is set");
 		Assert.notNull(providerDetails, "providerDetails cannot be null");
 		Assert.isTrue(
 				!credentials.isEmpty() || (decryptionX509Credentials.isEmpty() && signingX509Credentials.isEmpty()),
@@ -134,7 +135,7 @@ public final class RelyingPartyRegistration {
 		this.assertionConsumerServiceBinding = assertionConsumerServiceBinding;
 		this.singleLogoutServiceLocation = singleLogoutServiceLocation;
 		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
-		this.singleLogoutServiceBinding = singleLogoutServiceBinding;
+		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
 		this.nameIdFormat = nameIdFormat;
 		this.providerDetails = providerDetails;
 		this.credentials = Collections.unmodifiableList(new LinkedList<>(credentials));
@@ -208,7 +209,22 @@ public final class RelyingPartyRegistration {
 	 * @since 5.6
 	 */
 	public Saml2MessageBinding getSingleLogoutServiceBinding() {
-		return this.singleLogoutServiceBinding;
+		Assert.state(this.singleLogoutServiceBindings.size() == 1, "Method does not support multiple bindings.");
+		return this.singleLogoutServiceBindings.iterator().next();
+	}
+
+	/**
+	 * Get the <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService
+	 * Binding</a>
+	 * <p>
+	 * Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in the
+	 * relying party's &lt;SPSSODescriptor&gt;.
+	 * @return the SingleLogoutService Binding
+	 * @since 5.8
+	 */
+	public Collection<Saml2MessageBinding> getSingleLogoutServiceBindings() {
+		return this.singleLogoutServiceBindings;
 	}
 
 	/**
@@ -454,7 +470,7 @@ public final class RelyingPartyRegistration {
 				.assertionConsumerServiceBinding(registration.getAssertionConsumerServiceBinding())
 				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
-				.singleLogoutServiceBinding(registration.getSingleLogoutServiceBinding())
+				.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
 				.nameIdFormat(registration.getNameIdFormat())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
@@ -1048,7 +1064,7 @@ public final class RelyingPartyRegistration {
 
 		private String singleLogoutServiceResponseLocation;
 
-		private Saml2MessageBinding singleLogoutServiceBinding = Saml2MessageBinding.POST;
+		private Collection<Saml2MessageBinding> singleLogoutServiceBindings = new LinkedHashSet<>();
 
 		private String nameIdFormat = null;
 
@@ -1168,7 +1184,28 @@ public final class RelyingPartyRegistration {
 		 * @since 5.6
 		 */
 		public Builder singleLogoutServiceBinding(Saml2MessageBinding singleLogoutServiceBinding) {
-			this.singleLogoutServiceBinding = singleLogoutServiceBinding;
+			return this.singleLogoutServiceBindings((saml2MessageBindings) -> {
+				saml2MessageBindings.clear();
+				saml2MessageBindings.add(singleLogoutServiceBinding);
+			});
+		}
+
+		/**
+		 * Apply this {@link Consumer} to the {@link Collection} of
+		 * {@link Saml2MessageBinding}s for the purposes of modifying the <a href=
+		 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=7">SingleLogoutService
+		 * Binding</a> {@link Collection}.
+		 *
+		 * <p>
+		 * Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in
+		 * the relying party's &lt;SPSSODescriptor&gt;.
+		 * @param bindingsConsumer - the {@link Consumer} for modifying the
+		 * {@link Collection}
+		 * @return the {@link Builder} for further configuration
+		 * @since 5.8
+		 */
+		public Builder singleLogoutServiceBindings(Consumer<Collection<Saml2MessageBinding>> bindingsConsumer) {
+			bindingsConsumer.accept(this.singleLogoutServiceBindings);
 			return this;
 		}
 
@@ -1363,10 +1400,15 @@ public final class RelyingPartyRegistration {
 			if (this.singleLogoutServiceResponseLocation == null) {
 				this.singleLogoutServiceResponseLocation = this.singleLogoutServiceLocation;
 			}
+
+			if (this.singleLogoutServiceBindings.isEmpty()) {
+				this.singleLogoutServiceBindings.add(Saml2MessageBinding.POST);
+			}
+
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBinding, this.providerDetails.build(), this.nameIdFormat, this.credentials,
+					this.singleLogoutServiceBindings, this.providerDetails.build(), this.nameIdFormat, this.credentials,
 					this.decryptionX509Credentials, this.signingX509Credentials);
 		}
 
