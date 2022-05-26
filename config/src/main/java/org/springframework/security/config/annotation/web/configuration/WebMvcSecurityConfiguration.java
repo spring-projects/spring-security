@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.expression.BeanResolver;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.method.annotation.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.web.method.annotation.CsrfTokenArgumentResolver;
 import org.springframework.security.web.method.annotation.CurrentSecurityContextArgumentResolver;
@@ -50,11 +52,15 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 
 	private BeanResolver beanResolver;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	@Override
 	@SuppressWarnings("deprecation")
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
 		AuthenticationPrincipalArgumentResolver authenticationPrincipalResolver = new AuthenticationPrincipalArgumentResolver();
 		authenticationPrincipalResolver.setBeanResolver(this.beanResolver);
+		authenticationPrincipalResolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		argumentResolvers.add(authenticationPrincipalResolver);
 		argumentResolvers
 				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
@@ -72,6 +78,9 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.beanResolver = new BeanFactoryResolver(applicationContext.getAutowireCapableBeanFactory());
+		if (applicationContext.getBeanNamesForType(SecurityContextHolderStrategy.class).length == 1) {
+			this.securityContextHolderStrategy = applicationContext.getBean(SecurityContextHolderStrategy.class);
+		}
 	}
 
 }
