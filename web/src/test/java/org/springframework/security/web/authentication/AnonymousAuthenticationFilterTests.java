@@ -35,11 +35,17 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link AnonymousAuthenticationFilter}.
@@ -74,16 +80,19 @@ public class AnonymousAuthenticationFilterTests {
 	public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
 		// Put an Authentication object into the SecurityContextHolder
 		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
-		SecurityContextHolder.getContext().setAuthentication(originalAuth);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(originalAuth));
 		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		filter.setSecurityContextHolderStrategy(strategy);
 		// Test
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
 		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
 				new MockFilterChain(true));
 		// Ensure filter didn't change our original object
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(originalAuth);
+		verify(strategy).getContext();
+		verify(strategy, never()).setContext(any());
 	}
 
 	@Test
