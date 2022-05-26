@@ -146,6 +146,7 @@ public final class AnonymousConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		if (this.authenticationFilter == null) {
 			this.authenticationFilter = new AnonymousAuthenticationFilter(getKey(), this.principal, this.authorities);
+			this.authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		}
 		this.authenticationProvider = postProcess(this.authenticationProvider);
 		http.authenticationProvider(this.authenticationProvider);
