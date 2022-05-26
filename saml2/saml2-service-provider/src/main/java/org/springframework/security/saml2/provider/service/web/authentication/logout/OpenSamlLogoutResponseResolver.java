@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -134,9 +134,7 @@ final class OpenSamlLogoutResponseResolver {
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation() == null) {
 			return null;
 		}
-		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
-		byte[] b = Saml2Utils.samlDecode(serialized);
-		LogoutRequest logoutRequest = parse(inflateIfRequired(registration, b));
+		LogoutRequest logoutRequest = parse(extractSamlRequest(request));
 		LogoutResponse logoutResponse = this.logoutResponseBuilder.buildObject();
 		logoutResponse.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
@@ -189,8 +187,10 @@ final class OpenSamlLogoutResponseResolver {
 		return null;
 	}
 
-	private String inflateIfRequired(RelyingPartyRegistration registration, byte[] b) {
-		if (registration.getSingleLogoutServiceBinding() == Saml2MessageBinding.REDIRECT) {
+	private String extractSamlRequest(HttpServletRequest request) {
+		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
+		byte[] b = Saml2Utils.samlDecode(serialized);
+		if (Saml2MessageBindingUtils.isHttpRedirectBinding(request)) {
 			return Saml2Utils.samlInflate(b);
 		}
 		return new String(b, StandardCharsets.UTF_8);
