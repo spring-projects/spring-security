@@ -69,7 +69,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 		.authorizeHttpRequests(authorize -> authorize                                  // <1>
 			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
 			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
-			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			.mvcMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))   // <4>
 			.anyRequest().denyAll()                                                // <5>
 		);
 
