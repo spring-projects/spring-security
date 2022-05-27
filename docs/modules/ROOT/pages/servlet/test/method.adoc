@@ -68,7 +68,7 @@ class WithMockUserTests {
 }
 ----
 <1> `@ExtendWith` instructs the spring-test module that it should create an `ApplicationContext`. For additional information, refer to the {spring-framework-reference-url}testing.html#testcontext-junit-jupiter-extension[Spring reference].
-<2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the https://docs.spring.io/spring-framework/docs/4.0.x/spring-framework-reference/htmlsingle/#testcontext-ctx-management[Spring Reference]
+<2> `@ContextConfiguration` instructs the spring-test the configuration to use to create the `ApplicationContext`. Since no configuration is specified, the default configuration locations will be tried. This is no different than using the existing Spring Test support. For additional information, refer to the {spring-framework-reference-url}testing.html#spring-testing-annotation-contextconfiguration
 ====
 
 [NOTE]
