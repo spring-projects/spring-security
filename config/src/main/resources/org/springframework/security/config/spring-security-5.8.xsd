@@ -915,17 +915,15 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="use-authorization-manager" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadatasource
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-  </xs:attributeGroup>
-  <xs:attributeGroup name="websocket-message-broker.attlist">
       <xs:attribute name="authorization-manager-ref" type="xs:string">
          <xs:annotation>
             <xs:documentation>Use this AuthorizationManager instead of deriving one from &lt;intercept-message&gt; elements
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="use-authorization-manager" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadatasource
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
