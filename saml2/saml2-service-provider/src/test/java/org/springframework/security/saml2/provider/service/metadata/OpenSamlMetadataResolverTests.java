@@ -36,7 +36,7 @@ public class OpenSamlMetadataResolverTests {
 				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
+		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"rp-entity-id\"")
 				.contains("<md:KeyDescriptor use=\"signing\">").contains("<md:KeyDescriptor use=\"encryption\">")
 				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
@@ -52,7 +52,7 @@ public class OpenSamlMetadataResolverTests {
 				.build();
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"rp-entity-id\"")
+		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"rp-entity-id\"")
 				.doesNotContain("<md:KeyDescriptor use=\"signing\">")
 				.doesNotContain("<md:KeyDescriptor use=\"encryption\">")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST\"")
@@ -86,7 +86,7 @@ public class OpenSamlMetadataResolverTests {
 		openSamlMetadataResolver.setEntityDescriptorCustomizer(
 				(parameters) -> parameters.getEntityDescriptor().setEntityID("overriddenEntityId"));
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
-		assertThat(metadata).contains("<EntityDescriptor").contains("entityID=\"overriddenEntityId\"");
+		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"overriddenEntityId\"");
 	}
 
 }
