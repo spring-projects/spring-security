@@ -75,7 +75,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	@Override
 	public String resolve(RelyingPartyRegistration relyingPartyRegistration) {
-		EntityDescriptor entityDescriptor = build(EntityDescriptor.ELEMENT_QNAME);
+		EntityDescriptor entityDescriptor = build(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		entityDescriptor.setEntityID(relyingPartyRegistration.getEntityId());
 		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(relyingPartyRegistration);
 		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
