@@ -26,13 +26,14 @@ You can specify where the introspection endpoint is:
 ====
 [source,yaml]
 ----
-security:
-  oauth2:
-    resourceserver:
-      opaque-token:
-        introspection-uri: https://idp.example.com/introspect
-        client-id: client
-        client-secret: secret
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        opaque-token:
+          introspection-uri: https://idp.example.com/introspect
+          client-id: client
+          client-secret: secret
 ----
 ====
 
