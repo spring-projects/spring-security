@@ -1287,6 +1287,18 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="use-authorization-manager" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadataSource
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-manager-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Use this AuthorizationManager instead of deriving one from &lt;intercept-url&gt; elements
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="access-decision-manager-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Optional attribute specifying the ID of the AccessDecisionManager implementation which

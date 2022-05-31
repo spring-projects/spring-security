@@ -40,6 +40,7 @@ import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -111,6 +112,10 @@ class HttpConfigurationBuilder {
 	private static final String ATT_INVALID_SESSION_STRATEGY_REF = "invalid-session-strategy-ref";
 
 	private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
+
+	private static final String ATT_USE_AUTHORIZATION_MGR = "use-authorization-manager";
+
+	private static final String ATT_AUTHORIZATION_MGR = "authorization-manager-ref";
 
 	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
@@ -219,7 +224,7 @@ class HttpConfigurationBuilder {
 		createServletApiFilter(authenticationManager);
 		createJaasApiFilter();
 		createChannelProcessingFilter();
-		createFilterSecurityInterceptor(authenticationManager);
+		createFilterSecurity(authenticationManager);
 		createAddHeadersFilter();
 		createCorsFilter();
 		createWellKnownChangePasswordRedirectFilter();
@@ -672,6 +677,35 @@ class HttpConfigurationBuilder {
 		}
 		this.requestCacheAwareFilter = new RootBeanDefinition(RequestCacheAwareFilter.class);
 		this.requestCacheAwareFilter.getConstructorArgumentValues().addGenericArgumentValue(this.requestCache);
+	}
+
+	private void createFilterSecurity(BeanReference authManager) {
+		boolean useAuthorizationManager = Boolean.parseBoolean(this.httpElt.getAttribute(ATT_USE_AUTHORIZATION_MGR));
+		if (useAuthorizationManager) {
+			createAuthorizationFilter();
+			return;
+		}
+		if (StringUtils.hasText(this.httpElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
+			createAuthorizationFilter();
+			return;
+		}
+		createFilterSecurityInterceptor(authManager);
+	}
+
+	private void createAuthorizationFilter() {
+		AuthorizationFilterParser authorizationFilterParser = new AuthorizationFilterParser();
+		BeanDefinition fsiBean = authorizationFilterParser.parse(this.httpElt, this.pc);
+		String fsiId = this.pc.getReaderContext().generateBeanName(fsiBean);
+		this.pc.registerBeanComponent(new BeanComponentDefinition(fsiBean, fsiId));
+		// Create and register a AuthorizationManagerWebInvocationPrivilegeEvaluator for
+		// use with
+		// taglibs etc.
+		BeanDefinition wipe = BeanDefinitionBuilder
+				.rootBeanDefinition(AuthorizationManagerWebInvocationPrivilegeEvaluator.class)
+				.addConstructorArgReference(authorizationFilterParser.getAuthorizationManagerRef()).getBeanDefinition();
+		this.pc.registerBeanComponent(
+				new BeanComponentDefinition(wipe, this.pc.getReaderContext().generateBeanName(wipe)));
+		this.fsi = new RuntimeBeanReference(fsiId);
 	}
 
 	private void createFilterSecurityInterceptor(BeanReference authManager) {

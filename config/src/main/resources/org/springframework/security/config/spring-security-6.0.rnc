@@ -351,6 +351,12 @@ http.attlist &=
 	## If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".
 	attribute jaas-api-provision {xsd:boolean}?
 http.attlist &=
+	## Use AuthorizationManager API instead of SecurityMetadataSource
+	attribute use-authorization-manager {xsd:boolean}?
+http.attlist &=
+	## Use this AuthorizationManager instead of deriving one from <intercept-url> elements
+	attribute authorization-manager-ref {xsd:token}?
+http.attlist &=
 	## Optional attribute specifying the ID of the AccessDecisionManager implementation which should be used for authorizing HTTP requests.
 	attribute access-decision-manager-ref {xsd:token}?
 http.attlist &=
