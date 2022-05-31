@@ -104,7 +104,17 @@ import org.springframework.util.CollectionUtils;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @deprecated Use
+ * {@link org.springframework.security.web.access.intercept.AuthorizationFilter} instead
+ * for filter security,
+ * {@link org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor}
+ * for messaging security, or
+ * {@link org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor}
+ * and
+ * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
+ * for method security.
  */
+@Deprecated
 public abstract class AbstractSecurityInterceptor
 		implements InitializingBean, ApplicationEventPublisherAware, MessageSourceAware {
 

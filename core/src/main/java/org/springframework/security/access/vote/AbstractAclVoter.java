@@ -27,7 +27,10 @@ import org.springframework.util.Assert;
  * particular ACL system.
  *
  * @author Ben Alex
+ * @deprecated Now used by only-deprecated classes. Generally speaking, in-memory ACL is
+ * no longer advised, so no replacement is planned at this point.
  */
+@Deprecated
 public abstract class AbstractAclVoter implements AccessDecisionVoter<MethodInvocation> {
 
 	private Class<?> processDomainObjectClass;

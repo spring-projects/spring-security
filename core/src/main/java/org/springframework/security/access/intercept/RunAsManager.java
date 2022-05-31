@@ -57,7 +57,11 @@ import org.springframework.security.core.Authentication;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated Authentication is now separated from authorization in Spring Security. This
+ * class is only used by now-deprecated components. There is not yet an equivalent
+ * replacement in Spring Security.
  */
+@Deprecated
 public interface RunAsManager {
 
 	/**

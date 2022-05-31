@@ -52,7 +52,11 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @deprecated Authentication is now separated from authorization in Spring Security. This
+ * class is only used by now-deprecated components. There is not yet an equivalent
+ * replacement in Spring Security.
  */
+@Deprecated
 public class RunAsManagerImpl implements RunAsManager, InitializingBean {
 
 	private String key;

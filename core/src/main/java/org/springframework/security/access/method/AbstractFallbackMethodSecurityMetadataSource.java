@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Collections;
 
 import org.springframework.aop.support.AopUtils;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 
 /**
  * Abstract implementation of {@link MethodSecurityMetadataSource} that supports both
@@ -43,7 +44,11 @@ import org.springframework.security.access.ConfigAttribute;
  * @author Ben Alex
  * @author Luke taylor
  * @since 2.0
+ * @deprecated Use the {@code use-authorization-manager} attribute for
+ * {@code <method-security>} and {@code <intercept-methods>} instead or use
+ * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@Deprecated
 public abstract class AbstractFallbackMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
 	@Override

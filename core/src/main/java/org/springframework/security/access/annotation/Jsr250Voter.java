@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,11 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Ryan Heaton
  * @since 2.0
+ * @deprecated Use
+ * {@link org.springframework.security.authorization.method.Jsr250AuthorizationManager}
+ * instead
  */
+@Deprecated
 public class Jsr250Voter implements AccessDecisionVoter<Object> {
 
 	/**

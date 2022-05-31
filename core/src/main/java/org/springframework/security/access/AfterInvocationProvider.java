@@ -19,6 +19,7 @@ package org.springframework.security.access;
 import java.util.Collection;
 
 import org.springframework.security.access.intercept.AfterInvocationProviderManager;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -26,7 +27,11 @@ import org.springframework.security.core.Authentication;
  * {@link AfterInvocationProviderManager} decision.
  *
  * @author Ben Alex
+ * @see org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor
+ * @see org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor
+ * @deprecated Use delegation with {@link AuthorizationManager}
  */
+@Deprecated
 public interface AfterInvocationProvider {
 
 	Object decide(Authentication authentication, Object object, Collection<ConfigAttribute> attributes,

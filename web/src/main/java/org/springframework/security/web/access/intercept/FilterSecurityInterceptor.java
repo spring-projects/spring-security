@@ -41,7 +41,9 @@ import org.springframework.security.web.FilterInvocation;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @deprecated Use {@link AuthorizationFilter} instead
  */
+@Deprecated
 public class FilterSecurityInterceptor extends AbstractSecurityInterceptor implements Filter {
 
 	private static final String FILTER_APPLIED = "__spring_security_filterSecurityInterceptor_filterApplied";

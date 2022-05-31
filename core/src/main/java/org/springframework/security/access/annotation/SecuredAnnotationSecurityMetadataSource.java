@@ -38,7 +38,10 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @deprecated Use
+ * {@link org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor#secured}
  */
+@Deprecated
 @SuppressWarnings({ "unchecked" })
 public class SecuredAnnotationSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
