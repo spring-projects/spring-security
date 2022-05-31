@@ -39,7 +39,6 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.web.access.expression.DefaultHttpSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -47,13 +46,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
 
-/**
- * Allows for convenient creation of a {@link FilterInvocationSecurityMetadataSource} bean
- * for use with a FilterSecurityInterceptor.
- *
- * @author Luke Taylor
- */
-public class AuthorizationFilterParser implements BeanDefinitionParser {
+class AuthorizationFilterParser implements BeanDefinitionParser {
 
 	private static final String ATT_USE_EXPRESSIONS = "use-expressions";
 
@@ -87,7 +80,7 @@ public class AuthorizationFilterParser implements BeanDefinitionParser {
 		return filter;
 	}
 
-	public String getAuthorizationManagerRef() {
+	String getAuthorizationManagerRef() {
 		return this.authorizationManagerRef;
 	}
 
