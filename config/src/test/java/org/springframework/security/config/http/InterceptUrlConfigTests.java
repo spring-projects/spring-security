@@ -30,7 +30,6 @@ import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -89,8 +88,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/path").with(userCredentials()))
 				.andExpect(status().isOk());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -124,8 +121,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(patch("/path").with(adminCredentials()))
 				.andExpect(status().isOk());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -149,8 +144,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/path").with(adminCredentials()))
 				.andExpect(status().isForbidden());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -185,8 +178,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -221,8 +212,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/PATH/user/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -253,8 +242,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/path/2/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -272,8 +259,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/path")).andExpect(status().isUnauthorized());
 		this.mvc.perform(get("/path.html")).andExpect(status().isUnauthorized());
 		this.mvc.perform(get("/path/")).andExpect(status().isUnauthorized());
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -302,8 +287,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/PATH/user/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
@@ -338,8 +321,6 @@ public class InterceptUrlConfigTests {
 		this.mvc.perform(get("/spring/path/").servletPath("/spring"))
 				.andExpect(status().isUnauthorized());
 		// @formatter:on
-		assertThat(this.spring.getContext().getBeanNamesForType(FilterInvocationSecurityMetadataSource.class))
-				.isEmpty();
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
