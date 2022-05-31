@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,9 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -209,6 +212,39 @@ public class AuthorityAuthorizationManagerTests {
 		Object object = new Object();
 
 		assertThat(manager.check(authentication, object).isGranted()).isFalse();
+	}
+
+	@Test
+	public void setRoleHierarchyWhenNullThenIllegalArgumentException() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setRoleHierarchy(null))
+				.withMessage("roleHierarchy cannot be null");
+	}
+
+	@Test
+	public void setRoleHierarchyWhenNotNullThenVerifyRoleHierarchy() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
+		RoleHierarchy roleHierarchy = new RoleHierarchyImpl();
+		manager.setRoleHierarchy(roleHierarchy);
+		assertThat(manager).extracting("roleHierarchy").isEqualTo(roleHierarchy);
+	}
+
+	@Test
+	public void getRoleHierarchyWhenNotSetThenDefaultsToNullRoleHierarchy() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
+		assertThat(manager).extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
+	}
+
+	@Test
+	public void hasRoleWhenRoleHierarchySetThenGreaterRoleTakesPrecedence() {
+		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
+		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+		manager.setRoleHierarchy(roleHierarchy);
+		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
+				"ROLE_ADMIN");
+		Object object = new Object();
+		assertThat(manager.check(authentication, object).isGranted()).isTrue();
 	}
 
 }
