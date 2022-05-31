@@ -29,6 +29,13 @@ These are fixed and cannot be replaced with alternatives.
 === <http> Attributes
 The attributes on the `<http>` element control some of the properties on the core filters.
 
+[[nsa-http-use-authorization-manager]]
+* **use-authorization-manager**
+Use AuthorizationManager API instead of SecurityMetadataSource
+
+[[nsa-http-authorization-manager-ref]]
+* **access-decision-manager-ref**
+Use this AuthorizationManager instead of deriving one from <intercept-url> elements
 
 [[nsa-http-access-decision-manager-ref]]
 * **access-decision-manager-ref**
