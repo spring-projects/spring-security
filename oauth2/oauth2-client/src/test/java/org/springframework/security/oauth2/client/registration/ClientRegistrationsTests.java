@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -452,6 +452,34 @@ public class ClientRegistrationsTests {
 				.withMessageContaining("The Issuer \"https://example.com\" provided in the configuration metadata "
 						+ "did not match the requested issuer \"" + this.issuer + "\"");
 		// @formatter:on
+	}
+
+	@Test
+	public void fromOidcIssuerMetadataWhenAllInformationThenSuccess() {
+		this.issuer = "https://example.com";
+		// @formatter:off
+		ClientRegistration registration =
+				ClientRegistrations.fromOidcIssuerMetadata(this.issuer, (uri) -> this.response)
+					.clientId("client-id")
+					.clientSecret("client-secret")
+					.build();
+		// @formatter:on
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
+	}
+
+	@Test
+	public void fromIssuerMetadataWhenAllInformationThenSuccess() {
+		this.issuer = "https://example.com";
+		// @formatter:off
+		ClientRegistration registration =
+				ClientRegistrations.fromIssuerMetadata(this.issuer, (uri) -> this.response)
+					.clientId("client-id")
+					.clientSecret("client-secret")
+					.build();
+		// @formatter:on
+		ClientRegistration.ProviderDetails provider = registration.getProviderDetails();
+		assertIssuerMetadata(registration, provider);
 	}
 
 	private ClientRegistration.Builder registration(String path) throws Exception {

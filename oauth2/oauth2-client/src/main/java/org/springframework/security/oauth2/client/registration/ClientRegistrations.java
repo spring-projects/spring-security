@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import com.nimbusds.oauth2.sdk.ParseException;
@@ -48,6 +49,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Rob Winch
  * @author Josh Cummings
  * @author Rafiullah Hamedy
+ * @author Steve Riesenberg
  * @since 5.1
  */
 public final class ClientRegistrations {
@@ -59,6 +61,11 @@ public final class ClientRegistrations {
 	private static final RestTemplate rest = new RestTemplate();
 
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
+	};
+
+	private static final Function<URI, Map<String, Object>> DEFAULT_METADATA_RESOLVER = (metadataEndpointUri) -> {
+		RequestEntity<Void> request = RequestEntity.get(metadataEndpointUri).build();
+		return rest.exchange(request, typeReference).getBody();
 	};
 
 	private ClientRegistrations() {
@@ -98,6 +105,44 @@ public final class ClientRegistrations {
 	public static ClientRegistration.Builder fromOidcIssuerLocation(String issuer) {
 		Assert.hasText(issuer, "issuer cannot be empty");
 		return getBuilder(issuer, oidc(URI.create(issuer)));
+	}
+
+	/**
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * and {@link Function metadata resolver} to obtain the values used to initialize the
+	 * {@link ClientRegistration.Builder}.
+	 *
+	 * <p>
+	 * This method differs from {@link ClientRegistrations#fromOidcIssuerLocation(String)}
+	 * in that the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> is provided by the metadata resolver, which
+	 * allows flexibility in determining how the metadata is obtained.
+	 * </p>
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 * <pre>
+	 * ClientRegistration registration =
+	 *     ClientRegistrations.fromOidcIssuerMetadata("https://example.com", (uri) -> ...)
+	 *         .clientId("client-id")
+	 *         .clientSecret("client-secret")
+	 *         .build();
+	 * </pre>
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param metadataResolver the {@code Function} used to resolve metadata from the
+	 * metadata endpoint
+	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID
+	 * Provider Configuration.
+	 * @since 5.8
+	 */
+	public static ClientRegistration.Builder fromOidcIssuerMetadata(String issuer,
+			Function<URI, Map<String, Object>> metadataResolver) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		return getBuilder(issuer, oidc(URI.create(issuer), metadataResolver));
 	}
 
 	/**
@@ -144,15 +189,80 @@ public final class ClientRegistrations {
 		return getBuilder(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
+	/**
+	 * Creates a {@link ClientRegistration.Builder} using the provided <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * and {@link Function metadata resolver} by querying three different discovery
+	 * endpoints serially, using the values in the first successful response to
+	 * initialize. If an endpoint returns anything other than a 200 or a 4xx, the method
+	 * will exit without attempting subsequent endpoints.
+	 *
+	 * The three endpoints are computed as follows, given that the {@code issuer} is
+	 * composed of a {@code host} and a {@code path}:
+	 *
+	 * <ol>
+	 * <li>{@code host/.well-known/openid-configuration/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-5">RFC 8414's Compatibility
+	 * Notes</a>.</li>
+	 * <li>{@code issuer/.well-known/openid-configuration}, as defined in <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">
+	 * OpenID Provider Configuration</a>.</li>
+	 * <li>{@code host/.well-known/oauth-authorization-server/path}, as defined in
+	 * <a href="https://tools.ietf.org/html/rfc8414#section-3.1">Authorization Server
+	 * Metadata Request</a>.</li>
+	 * </ol>
+	 *
+	 * Note that the second endpoint is the equivalent of calling
+	 * {@link ClientRegistrations#fromOidcIssuerLocation(String)}.
+	 *
+	 * <p>
+	 * This method differs from {@link ClientRegistrations#fromIssuerLocation(String)} in
+	 * that the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> is provided by the metadata resolver, which
+	 * allows flexibility in determining how the metadata is obtained.
+	 * </p>
+	 *
+	 * <p>
+	 * Example usage:
+	 * </p>
+	 * <pre>
+	 * ClientRegistration registration =
+	 *     ClientRegistrations.fromIssuerMetadata("https://example.com", (uri) -> ...)
+	 *         .clientId("client-id")
+	 *         .clientSecret("client-secret")
+	 *         .build();
+	 * </pre>
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @param metadataResolver the {@code Function} used to resolve metadata from one of
+	 * the metadata endpoints
+	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the
+	 * described endpoints
+	 * @since 5.8
+	 */
+	public static ClientRegistration.Builder fromIssuerMetadata(String issuer,
+			Function<URI, Map<String, Object>> metadataResolver) {
+		Assert.hasText(issuer, "issuer cannot be empty");
+		URI uri = URI.create(issuer);
+		return getBuilder(issuer, oidc(uri, metadataResolver), oidcRfc8414(uri, metadataResolver),
+				oauth(uri, metadataResolver));
+	}
+
 	private static Supplier<ClientRegistration.Builder> oidc(URI issuer) {
+		return oidc(issuer, DEFAULT_METADATA_RESOLVER);
+	}
+
+	private static Supplier<ClientRegistration.Builder> oidc(URI issuer,
+			Function<URI, Map<String, Object>> metadataResolver) {
 		// @formatter:off
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(issuer.getPath() + OIDC_METADATA_PATH)
 				.build(Collections.emptyMap());
 		// @formatter:on
 		return () -> {
-			RequestEntity<Void> request = RequestEntity.get(uri).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = metadataResolver.apply(uri);
+
 			OIDCProviderMetadata metadata = parse(configuration, OIDCProviderMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString())
 					.jwkSetUri(metadata.getJWKSetURI().toASCIIString());
@@ -164,27 +274,38 @@ public final class ClientRegistrations {
 	}
 
 	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer) {
+		return oidcRfc8414(issuer, DEFAULT_METADATA_RESOLVER);
+	}
+
+	private static Supplier<ClientRegistration.Builder> oidcRfc8414(URI issuer,
+			Function<URI, Map<String, Object>> metadataResolver) {
 		// @formatter:off
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OIDC_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, metadataResolver);
 	}
 
 	private static Supplier<ClientRegistration.Builder> oauth(URI issuer) {
+		return oauth(issuer, DEFAULT_METADATA_RESOLVER);
+	}
+
+	private static Supplier<ClientRegistration.Builder> oauth(URI issuer,
+			Function<URI, Map<String, Object>> metadataResolver) {
 		// @formatter:off
 		URI uri = UriComponentsBuilder.fromUri(issuer)
 				.replacePath(OAUTH_METADATA_PATH + issuer.getPath())
 				.build(Collections.emptyMap());
 		// @formatter:on
-		return getRfc8414Builder(issuer, uri);
+		return getRfc8414Builder(issuer, uri, metadataResolver);
 	}
 
-	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri) {
+	private static Supplier<ClientRegistration.Builder> getRfc8414Builder(URI issuer, URI uri,
+			Function<URI, Map<String, Object>> metadataResolver) {
 		return () -> {
-			RequestEntity<Void> request = RequestEntity.get(uri).build();
-			Map<String, Object> configuration = rest.exchange(request, typeReference).getBody();
+			Map<String, Object> configuration = metadataResolver.apply(uri);
+
 			AuthorizationServerMetadata metadata = parse(configuration, AuthorizationServerMetadata::parse);
 			ClientRegistration.Builder builder = withProviderConfiguration(metadata, issuer.toASCIIString());
 			URI jwkSetUri = metadata.getJWKSetURI();
