@@ -23,8 +23,6 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +38,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
+import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
 
@@ -105,9 +104,9 @@ public class DigestAuthenticationFilterTests {
 
 	private static String generateNonce(int validitySeconds, String key) {
 		long expiryTime = System.currentTimeMillis() + (validitySeconds * 1000);
-		String signatureValue = DigestUtils.md5Hex(expiryTime + ":" + key);
+		String signatureValue = CodecTestUtils.md5Hex(expiryTime + ":" + key);
 		String nonceValue = expiryTime + ":" + signatureValue;
-		return new String(Base64.encodeBase64(nonceValue.getBytes()));
+		return CodecTestUtils.encodeBase64(nonceValue);
 	}
 
 	@AfterEach
@@ -182,7 +181,7 @@ public class DigestAuthenticationFilterTests {
 	@Test
 	public void testInvalidDigestAuthorizationTokenGeneratesError() throws Exception {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
-		this.request.addHeader("Authorization", "Digest " + new String(Base64.encodeBase64(token.getBytes())));
+		this.request.addHeader("Authorization", "Digest " + CodecTestUtils.encodeBase64(token));
 		MockHttpServletResponse response = executeFilterInContainerSimulator(this.filter, this.request, false);
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -210,7 +209,7 @@ public class DigestAuthenticationFilterTests {
 
 	@Test
 	public void testNonceWithIncorrectSignatureForNumericFieldReturnsForbidden() throws Exception {
-		String nonce = new String(Base64.encodeBase64("123456:incorrectStringPassword".getBytes()));
+		String nonce = CodecTestUtils.encodeBase64("123456:incorrectStringPassword");
 		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET", REQUEST_URI,
 				QOP, nonce, NC, CNONCE);
 		this.request.addHeader("Authorization",
@@ -222,7 +221,7 @@ public class DigestAuthenticationFilterTests {
 
 	@Test
 	public void testNonceWithNonNumericFirstElementReturnsForbidden() throws Exception {
-		String nonce = new String(Base64.encodeBase64("hello:ignoredSecondElement".getBytes()));
+		String nonce = CodecTestUtils.encodeBase64("hello:ignoredSecondElement");
 		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET", REQUEST_URI,
 				QOP, nonce, NC, CNONCE);
 		this.request.addHeader("Authorization",
@@ -234,7 +233,7 @@ public class DigestAuthenticationFilterTests {
 
 	@Test
 	public void testNonceWithoutTwoColonSeparatedElementsReturnsForbidden() throws Exception {
-		String nonce = new String(Base64.encodeBase64("a base 64 string without a colon".getBytes()));
+		String nonce = CodecTestUtils.encodeBase64("a base 64 string without a colon");
 		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET", REQUEST_URI,
 				QOP, nonce, NC, CNONCE);
 		this.request.addHeader("Authorization",
