@@ -15,7 +15,6 @@ dependencies {
 	optional 'jakarta.servlet:jakarta.servlet-api'
 
 	testImplementation project(path: ':spring-security-core', configuration: 'tests')
-	testImplementation 'commons-codec:commons-codec'
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"

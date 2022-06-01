@@ -18,7 +18,6 @@ package org.springframework.security.web.authentication.www;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +28,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.test.web.CodecTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -57,7 +57,7 @@ public class BasicAuthenticationConverterTests {
 	public void testNormalOperation() {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
@@ -68,7 +68,7 @@ public class BasicAuthenticationConverterTests {
 	public void requestWhenAuthorizationSchemeInMixedCaseThenAuthenticates() {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "BaSiC " + CodecTestUtils.encodeBase64(token));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
@@ -88,7 +88,7 @@ public class BasicAuthenticationConverterTests {
 	public void testWhenInvalidBasicAuthorizationTokenThenError() {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> this.converter.convert(request));
 	}
 
@@ -103,7 +103,7 @@ public class BasicAuthenticationConverterTests {
 	public void convertWhenEmptyPassword() {
 		String token = "rod:";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
 		verify(this.authenticationDetailsSource).buildDetails(any());
 		assertThat(authentication).isNotNull();
