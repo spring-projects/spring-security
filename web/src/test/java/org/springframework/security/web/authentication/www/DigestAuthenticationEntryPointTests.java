@@ -18,13 +18,12 @@ package org.springframework.security.web.authentication.www;
 
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,11 +40,11 @@ public class DigestAuthenticationEntryPointTests {
 		// Check the nonce seems to be generated correctly
 		// format of nonce is:
 		// base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
-		assertThat(Base64.isArrayByteBase64(nonce.getBytes())).isTrue();
-		String decodedNonce = new String(Base64.decodeBase64(nonce.getBytes()));
+		assertThat(CodecTestUtils.isBase64(nonce.getBytes())).isTrue();
+		String decodedNonce = CodecTestUtils.decodeBase64(nonce);
 		String[] nonceTokens = StringUtils.delimitedListToStringArray(decodedNonce, ":");
 		assertThat(nonceTokens).hasSize(2);
-		String expectedNonceSignature = DigestUtils.md5Hex(nonceTokens[0] + ":" + "key");
+		String expectedNonceSignature = CodecTestUtils.md5Hex(nonceTokens[0] + ":" + "key");
 		assertThat(nonceTokens[1]).isEqualTo(expectedNonceSignature);
 	}
 

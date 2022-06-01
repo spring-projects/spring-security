@@ -20,8 +20,6 @@ import java.util.Date;
 
 import javax.servlet.http.Cookie;
 
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +32,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -77,7 +76,7 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	private long determineExpiryTimeFromBased64EncodedToken(String validToken) {
-		String cookieAsPlainText = new String(Base64.decodeBase64(validToken.getBytes()));
+		String cookieAsPlainText = CodecTestUtils.decodeBase64(validToken);
 		String[] cookieTokens = StringUtils.delimitedListToStringArray(cookieAsPlainText, ":");
 		if (cookieTokens.length == 3) {
 			try {
@@ -93,9 +92,9 @@ public class TokenBasedRememberMeServicesTests {
 		// format is:
 		// username + ":" + expiryTime + ":" + Md5Hex(username + ":" + expiryTime + ":" +
 		// password + ":" + key)
-		String signatureValue = DigestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key);
+		String signatureValue = CodecTestUtils.md5Hex(username + ":" + expiryTime + ":" + password + ":" + key);
 		String tokenValue = username + ":" + expiryTime + ":" + signatureValue;
-		return new String(Base64.encodeBase64(tokenValue.getBytes()));
+		return CodecTestUtils.encodeBase64(tokenValue);
 	}
 
 	@Test
@@ -135,7 +134,7 @@ public class TokenBasedRememberMeServicesTests {
 	@Test
 	public void autoLoginReturnsNullAndClearsCookieIfMissingThreeTokensInCookieValue() {
 		Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
-				new String(Base64.encodeBase64("x".getBytes())));
+				CodecTestUtils.encodeBase64("x"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -176,7 +175,7 @@ public class TokenBasedRememberMeServicesTests {
 	@Test
 	public void autoLoginClearsCookieIfTokenDoesNotContainANumberInCookieValue() {
 		Cookie cookie = new Cookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY,
-				new String(Base64.encodeBase64("username:NOT_A_NUMBER:signature".getBytes())));
+				CodecTestUtils.encodeBase64("username:NOT_A_NUMBER:signature"));
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setCookies(cookie);
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -276,7 +275,7 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(Long.parseLong(expiryTime) > expectedExpiryTime - 10000).isTrue();
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getMaxAge()).isEqualTo(this.services.getTokenValiditySeconds());
-		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
 		assertThat(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
 	}
 
@@ -290,7 +289,7 @@ public class TokenBasedRememberMeServicesTests {
 		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getMaxAge()).isEqualTo(this.services.getTokenValiditySeconds());
-		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
 		assertThat(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
 	}
 
@@ -316,7 +315,7 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())
 				- System.currentTimeMillis() > AbstractRememberMeServices.TWO_WEEKS_S - 50).isTrue();
 		assertThat(cookie.getMaxAge()).isEqualTo(-1);
-		assertThat(Base64.isArrayByteBase64(cookie.getValue().getBytes())).isTrue();
+		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
 	}
 
 }

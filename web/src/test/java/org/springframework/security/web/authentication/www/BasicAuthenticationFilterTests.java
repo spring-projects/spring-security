@@ -23,7 +23,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.util.WebUtils;
@@ -105,7 +105,7 @@ public class BasicAuthenticationFilterTests {
 	public void testInvalidBasicAuthorizationTokenIsIgnored() throws Exception {
 		String token = "NOT_A_VALID_TOKEN_AS_MISSING_COLON";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		final MockHttpServletResponse response = new MockHttpServletResponse();
@@ -135,7 +135,7 @@ public class BasicAuthenticationFilterTests {
 	public void testNormalOperation() throws Exception {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -151,7 +151,7 @@ public class BasicAuthenticationFilterTests {
 	public void doFilterWhenSchemeLowercaseThenCaseInsensitveMatchWorks() throws Exception {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		// Test
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
@@ -166,7 +166,7 @@ public class BasicAuthenticationFilterTests {
 	public void doFilterWhenSchemeMixedCaseThenCaseInsensitiveMatchWorks() throws Exception {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "BaSiC " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "BaSiC " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 		FilterChain chain = mock(FilterChain.class);
@@ -201,7 +201,7 @@ public class BasicAuthenticationFilterTests {
 	public void testSuccessLoginThenFailureLoginResultsInSessionLosingToken() throws Exception {
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		final MockHttpServletResponse response1 = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
@@ -213,7 +213,7 @@ public class BasicAuthenticationFilterTests {
 		// NOW PERFORM FAILED AUTHENTICATION
 		token = "otherUser:WRONG_PASSWORD";
 		request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		final MockHttpServletResponse response2 = new MockHttpServletResponse();
 		chain = mock(FilterChain.class);
 		this.filter.doFilter(request, response2, chain);
@@ -229,7 +229,7 @@ public class BasicAuthenticationFilterTests {
 	public void testWrongPasswordContinuesFilterChainIfIgnoreFailureIsTrue() throws Exception {
 		String token = "rod:WRONG_PASSWORD";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		this.filter = new BasicAuthenticationFilter(this.manager);
@@ -245,7 +245,7 @@ public class BasicAuthenticationFilterTests {
 	public void testWrongPasswordReturnsForbiddenIfIgnoreFailureIsFalse() throws Exception {
 		String token = "rod:WRONG_PASSWORD";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		request.setSession(new MockHttpSession());
 		assertThat(this.filter.isIgnoreFailure()).isFalse();
@@ -263,7 +263,7 @@ public class BasicAuthenticationFilterTests {
 	public void skippedOnErrorDispatch() throws Exception {
 		String token = "bad:credentials";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -287,7 +287,7 @@ public class BasicAuthenticationFilterTests {
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
-				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
+				"Basic " + CodecTestUtils.encodeBase64(token.getBytes(StandardCharsets.UTF_8)));
 		request.setServletPath("/some_file.html");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Test
@@ -316,7 +316,7 @@ public class BasicAuthenticationFilterTests {
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
-				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.ISO_8859_1))));
+				"Basic " + CodecTestUtils.encodeBase64(token.getBytes(StandardCharsets.ISO_8859_1)));
 		request.setServletPath("/some_file.html");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Test
@@ -345,7 +345,7 @@ public class BasicAuthenticationFilterTests {
 		String token = "rod:äöü";
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization",
-				"Basic " + new String(Base64.encodeBase64(token.getBytes(StandardCharsets.UTF_8))));
+				"Basic " + CodecTestUtils.encodeBase64(token.getBytes(StandardCharsets.UTF_8)));
 		request.setServletPath("/some_file.html");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Test
@@ -378,7 +378,7 @@ public class BasicAuthenticationFilterTests {
 		this.filter.setSecurityContextRepository(securityContextRepository);
 		String token = "rod:koala";
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		request.addHeader("Authorization", "Basic " + new String(Base64.encodeBase64(token.getBytes())));
+		request.addHeader("Authorization", "Basic " + CodecTestUtils.encodeBase64(token));
 		request.setServletPath("/some_file.html");
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		// Test
