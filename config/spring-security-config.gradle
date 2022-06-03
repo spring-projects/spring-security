@@ -156,6 +156,10 @@ task saml2Tests(type: Test) {
 	dependsOn compileSaml2TestJava
 }
 
-tasks.named('test') {
-	finalizedBy 'saml2Tests'
+test {
+	shouldRunAfter saml2Tests
+}
+
+tasks.named('check') {
+	dependsOn saml2Tests
 }
