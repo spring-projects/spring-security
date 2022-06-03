@@ -63,8 +63,8 @@ public final class ClientRegistrations {
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
 
-	private static final Function<URI, Map<String, Object>> DEFAULT_METADATA_RESOLVER = (metadataEndpointUri) -> {
-		RequestEntity<Void> request = RequestEntity.get(metadataEndpointUri).build();
+	private static final Function<URI, Map<String, Object>> DEFAULT_METADATA_RESOLVER = (metadataUri) -> {
+		RequestEntity<Void> request = RequestEntity.get(metadataUri).build();
 		return rest.exchange(request, typeReference).getBody();
 	};
 
@@ -114,27 +114,49 @@ public final class ClientRegistrations {
 	 * {@link ClientRegistration.Builder}.
 	 *
 	 * <p>
-	 * This method differs from {@link ClientRegistrations#fromOidcIssuerLocation(String)}
-	 * in that the <a href=
+	 * This method differs from {@link #fromOidcIssuerLocation(String)} in that the
+	 * <a href=
 	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
 	 * Provider Configuration Response</a> is provided by the metadata resolver, which
-	 * allows flexibility in determining how the metadata is obtained.
+	 * allows flexibility in determining how the metadata is obtained. For example, you
+	 * can use any HTTP client configured with user-defined proxy settings, obtain
+	 * metadata from a file on the filesystem, etc.
 	 * </p>
+	 *
+	 * <p>
+	 * The default metadata resolver used by {@link #fromOidcIssuerLocation(String)} uses
+	 * a {@code RestTemplate} to make an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> to the metadata endpoint. For example, if the
+	 * issuer provided is "https://example.com", then an "OpenID Provider Configuration
+	 * Request" will be made to "https://example.com/.well-known/openid-configuration".
+	 * The result is expected to be an "OpenID Provider Configuration Response". The
+	 * default metadata resolver is as follows:
+	 * </p>
+	 * <pre>
+	 * RestTemplate rest = new RestTemplate();
+	 * ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt; typeReference = new ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt;() {
+	 * };
+	 * Function&lt;URI, Map&lt;String, Object&gt;&gt; metadataResolver = (metadataUri) -> {
+	 *     RequestEntity&lt;Void&gt; request = RequestEntity.get(metadataUri).build();
+	 *     return rest.exchange(request, typeReference).getBody();
+	 * };
+	 * </pre>
 	 *
 	 * <p>
 	 * Example usage:
 	 * </p>
 	 * <pre>
 	 * ClientRegistration registration =
-	 *     ClientRegistrations.fromOidcIssuerMetadata("https://example.com", (uri) -> ...)
+	 *     ClientRegistrations.fromOidcIssuerMetadata("https://example.com", metadataResolver)
 	 *         .clientId("client-id")
 	 *         .clientSecret("client-secret")
 	 *         .build();
 	 * </pre>
 	 * @param issuer the <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
-	 * @param metadataResolver the {@code Function} used to resolve metadata from the
-	 * metadata endpoint
+	 * @param metadataResolver the {@code Function} used to resolve metadata in an
+	 * application-specific way
 	 * @return a {@link ClientRegistration.Builder} that was initialized by the OpenID
 	 * Provider Configuration.
 	 * @since 5.8
@@ -219,24 +241,44 @@ public final class ClientRegistrations {
 	 * This method differs from {@link ClientRegistrations#fromIssuerLocation(String)} in
 	 * that the <a href=
 	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
-	 * Provider Configuration Response</a> is provided by the metadata resolver, which
-	 * allows flexibility in determining how the metadata is obtained.
+	 * Provider Configuration Response</a> or
+	 * <a href="https://datatracker.ietf.org/doc/html/rfc8414#section-3.2">Authorization
+	 * Server Metadata Response</a> is provided by the metadata resolver, which allows
+	 * flexibility in determining how the metadata is obtained. For example, you can use
+	 * any HTTP client configured with user-defined proxy settings, obtain metadata from a
+	 * file on the filesystem, etc.
 	 * </p>
+	 *
+	 * <p>
+	 * The default metadata resolver used by {@link #fromIssuerLocation(String)} uses a
+	 * {@code RestTemplate} to make an "OpenID Provider Configuration Request" or
+	 * "Authorization Server Metadata Request" to the metadata endpoint. The default
+	 * metadata resolver is as follows:
+	 * </p>
+	 * <pre>
+	 * RestTemplate rest = new RestTemplate();
+	 * ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt; typeReference = new ParameterizedTypeReference&lt;Map&lt;String, Object&gt;&gt;() {
+	 * };
+	 * Function&lt;URI, Map&lt;String, Object&gt;&gt; metadataResolver = (metadataUri) -> {
+	 *     RequestEntity&lt;Void&gt; request = RequestEntity.get(metadataUri).build();
+	 *     return rest.exchange(request, typeReference).getBody();
+	 * };
+	 * </pre>
 	 *
 	 * <p>
 	 * Example usage:
 	 * </p>
 	 * <pre>
 	 * ClientRegistration registration =
-	 *     ClientRegistrations.fromIssuerMetadata("https://example.com", (uri) -> ...)
+	 *     ClientRegistrations.fromIssuerMetadata("https://example.com", metadataResolver)
 	 *         .clientId("client-id")
 	 *         .clientSecret("client-secret")
 	 *         .build();
 	 * </pre>
 	 * @param issuer the <a href=
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
-	 * @param metadataResolver the {@code Function} used to resolve metadata from one of
-	 * the metadata endpoints
+	 * @param metadataResolver the {@code Function} used to resolve metadata in an
+	 * application-specific way
 	 * @return a {@link ClientRegistration.Builder} that was initialized by one of the
 	 * described endpoints
 	 * @since 5.8
