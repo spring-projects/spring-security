@@ -16,6 +16,7 @@
 
 package org.springframework.gradle.github.release;
 
+import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -47,6 +48,10 @@ public class DispatchGitHubWorkflowTask extends DefaultTask {
 
 	public RepositoryRef getRepository() {
 		return repository;
+	}
+
+	public void repository(Action<RepositoryRef> repository) {
+		repository.execute(this.repository);
 	}
 
 	public void setRepository(RepositoryRef repository) {

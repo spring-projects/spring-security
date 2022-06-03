@@ -47,7 +47,7 @@ public class GitHubReleasePlugin implements Plugin<Project> {
 			dispatchGitHubWorkflow.setDescription("Create a workflow_dispatch event on a given branch");
 
 			dispatchGitHubWorkflow.setBranch((String) project.findProperty("branch"));
-			dispatchGitHubWorkflow.setBranch((String) project.findProperty("workflowId"));
+			dispatchGitHubWorkflow.setWorkflowId((String) project.findProperty("workflowId"));
 			dispatchGitHubWorkflow.setGitHubAccessToken((String) project.findProperty("gitHubAccessToken"));
 		});
 	}
