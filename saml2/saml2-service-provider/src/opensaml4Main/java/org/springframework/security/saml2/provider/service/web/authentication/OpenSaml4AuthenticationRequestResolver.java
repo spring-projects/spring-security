@@ -28,6 +28,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -68,6 +69,19 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 	public void setAuthnRequestCustomizer(Consumer<AuthnRequestContext> contextConsumer) {
 		Assert.notNull(contextConsumer, "contextConsumer cannot be null");
 		this.contextConsumer = contextConsumer;
+	}
+
+	/**
+	 * Set the {@link RequestMatcher} to use for setting the
+	 * {@link OpenSamlAuthenticationRequestResolver#setRequestMatcher(RequestMatcher)}
+	 * (RequestMatcher)}
+	 * @param requestMatcher the {@link RequestMatcher} to identify authentication
+	 * requests.
+	 * @since 5.8
+	 */
+	public void setRequestMatcher(RequestMatcher requestMatcher) {
+		Assert.notNull(requestMatcher, "requestMatcher cannot be null");
+		this.authnRequestResolver.setRequestMatcher(requestMatcher);
 	}
 
 	/**

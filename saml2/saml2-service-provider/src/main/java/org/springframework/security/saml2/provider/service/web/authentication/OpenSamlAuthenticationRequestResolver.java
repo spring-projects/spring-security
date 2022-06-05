@@ -61,8 +61,6 @@ class OpenSamlAuthenticationRequestResolver {
 		OpenSamlInitializationService.initialize();
 	}
 
-	private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
-
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private final AuthnRequestBuilder authnRequestBuilder;
@@ -72,6 +70,8 @@ class OpenSamlAuthenticationRequestResolver {
 	private final IssuerBuilder issuerBuilder;
 
 	private final NameIDBuilder nameIdBuilder;
+
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
 
 	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
 
@@ -99,6 +99,10 @@ class OpenSamlAuthenticationRequestResolver {
 
 	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
 		this.relayStateResolver = relayStateResolver;
+	}
+
+	void setRequestMatcher(RequestMatcher requestMatcher) {
+		this.requestMatcher = requestMatcher;
 	}
 
 	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
