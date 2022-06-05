@@ -59,9 +59,6 @@ class OpenSamlAuthenticationRequestResolver {
 	static {
 		OpenSamlInitializationService.initialize();
 	}
-
-	private final RequestMatcher requestMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
-
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private final AuthnRequestBuilder authnRequestBuilder;
@@ -71,6 +68,9 @@ class OpenSamlAuthenticationRequestResolver {
 	private final IssuerBuilder issuerBuilder;
 
 	private final NameIDBuilder nameIdBuilder;
+
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
+			Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI);
 
 	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
 

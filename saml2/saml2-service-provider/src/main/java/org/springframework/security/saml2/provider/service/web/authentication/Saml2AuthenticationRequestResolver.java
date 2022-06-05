@@ -29,6 +29,8 @@ import org.springframework.security.saml2.provider.service.authentication.Abstra
  */
 public interface Saml2AuthenticationRequestResolver {
 
+	String DEFAULT_AUTHENTICATION_REQUEST_URI = "/saml2/authenticate/{registrationId}";
+
 	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request);
 
 }

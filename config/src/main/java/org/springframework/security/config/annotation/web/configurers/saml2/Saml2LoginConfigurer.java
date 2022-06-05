@@ -109,7 +109,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private String loginPage;
 
-	private String authenticationRequestUri = "/saml2/authenticate/{registrationId}";
+	private String authenticationRequestUri = Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI;
 
 	private Saml2AuthenticationRequestResolver authenticationRequestResolver;
 
@@ -183,6 +183,24 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			Saml2AuthenticationRequestResolver authenticationRequestResolver) {
 		Assert.notNull(authenticationRequestResolver, "authenticationRequestResolver cannot be null");
 		this.authenticationRequestResolver = authenticationRequestResolver;
+		return this;
+	}
+
+	/**
+	 * Customize the URL that the SAML Authentication Request will be sent to.
+	 * @param authenticationRequestUri the URI to use for the SAML 2.0 Authentication
+	 * Request
+	 * @return the {@link Saml2LoginConfigurer} for further configuration
+	 * @since 6.0
+	 */
+	public Saml2LoginConfigurer<B> authenticationRequestUri(String authenticationRequestUri) {
+		// OpenSAML 3 is no longer supported by spring security
+		if (version().startsWith("3")) {
+			return this;
+		}
+		Assert.state(authenticationRequestUri.contains("{registrationId}"),
+				"authenticationRequestUri must contain {registrationId} path variable");
+		this.authenticationRequestUri = authenticationRequestUri;
 		return this;
 	}
 
@@ -307,7 +325,11 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return bean;
 		}
 		if (version().startsWith("4")) {
-			return new OpenSaml4AuthenticationRequestResolver(relyingPartyRegistrationResolver(http));
+			OpenSaml4AuthenticationRequestResolver openSaml4AuthenticationRequestResolver = new OpenSaml4AuthenticationRequestResolver(
+					relyingPartyRegistrationResolver(http));
+			openSaml4AuthenticationRequestResolver
+					.setRequestMatcher(new AntPathRequestMatcher(this.authenticationRequestUri));
+			return openSaml4AuthenticationRequestResolver;
 		}
 		return new OpenSaml3AuthenticationRequestResolver(relyingPartyRegistrationResolver(http));
 	}
