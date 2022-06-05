@@ -100,6 +100,10 @@ class OpenSamlAuthenticationRequestResolver {
 		this.relayStateResolver = relayStateResolver;
 	}
 
+	void setRequestMatcher(RequestMatcher requestMatcher) {
+		this.requestMatcher = requestMatcher;
+	}
+
 	<T extends AbstractSaml2AuthenticationRequest> T resolve(HttpServletRequest request) {
 		return resolve(request, (registration, logoutRequest) -> {
 		});
