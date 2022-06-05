@@ -298,6 +298,17 @@ public class Saml2LoginConfigurerTests {
 	}
 
 	@Test
+	public void authenticationRequestWhenCustomAuthenticationRequestUriRepositoryThenUses() throws Exception {
+		this.spring.register(CustomAuthenticationRequestUriCustomAuthenticationConverter.class).autowire();
+		MockHttpServletRequestBuilder request = get("/custom/auth/registration-id");
+		this.mvc.perform(request).andExpect(status().isFound());
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = this.spring.getContext()
+				.getBean(Saml2AuthenticationRequestRepository.class);
+		verify(repository).saveAuthenticationRequest(any(AbstractSaml2AuthenticationRequest.class),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
 	public void saml2LoginWhenLoginProcessingUrlWithoutRegistrationIdAndDefaultAuthenticationConverterThenValidates() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(CustomLoginProcessingUrlDefaultAuthenticationConverter.class)
@@ -595,6 +606,30 @@ public class Saml2LoginConfigurerTests {
 			http
 				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 				.saml2Login((saml2) -> saml2.loginProcessingUrl("/my/custom/url"));
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Import(Saml2LoginConfigBeans.class)
+	static class CustomAuthenticationRequestUriCustomAuthenticationConverter {
+
+		private final Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> repository = mock(
+				Saml2AuthenticationRequestRepository.class);
+
+		@Bean
+		Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository() {
+			return this.repository;
+		}
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeRequests((authz) -> authz.anyRequest().authenticated())
+				.saml2Login((saml2) -> saml2.authenticationRequestUri("/custom/auth/{registrationId}"));
 			// @formatter:on
 			return http.build();
 		}
