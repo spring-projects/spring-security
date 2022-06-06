@@ -31,7 +31,7 @@ import org.springframework.util.CollectionUtils;
  * @author Clement Stoquart
  * @since 5.2.2
  */
-public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
+public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal, Saml2AuthenticationInfo {
 
 	/**
 	 * Get the first value of Saml2 token attribute by name
@@ -72,10 +72,12 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal {
 	 * @return the {@link RelyingPartyRegistration} identifier
 	 * @since 5.6
 	 */
+	@Override
 	default String getRelyingPartyRegistrationId() {
 		return null;
 	}
 
+	@Override
 	default List<String> getSessionIndexes() {
 		return Collections.emptyList();
 	}

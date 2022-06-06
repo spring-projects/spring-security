@@ -44,7 +44,7 @@ import org.opensaml.saml.saml2.core.impl.StatusCodeBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationInfo;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
@@ -204,12 +204,9 @@ final class BaseOpenSamlLogoutResponseResolver implements Saml2LogoutResponseRes
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Attempting to resolve registrationId from " + authentication);
 		}
-		if (authentication == null) {
-			return null;
-		}
-		Object principal = authentication.getPrincipal();
-		if (principal instanceof Saml2AuthenticatedPrincipal) {
-			return ((Saml2AuthenticatedPrincipal) principal).getRelyingPartyRegistrationId();
+		Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
+		if (info != null) {
+			return info.getRelyingPartyRegistrationId();
 		}
 		return null;
 	}
