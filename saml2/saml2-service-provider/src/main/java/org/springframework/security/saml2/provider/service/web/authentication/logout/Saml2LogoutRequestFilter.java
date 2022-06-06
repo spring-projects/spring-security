@@ -33,8 +33,8 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationInfo;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidatorParameters;
@@ -329,11 +329,9 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			if (registrationId != null) {
 				return registrationId;
 			}
-			if (authentication == null) {
-				return null;
-			}
-			if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal principal) {
-				return principal.getRelyingPartyRegistrationId();
+			Saml2AuthenticationInfo info = Saml2AuthenticationInfo.fromAuthentication(authentication);
+			if (info != null) {
+				return info.getRelyingPartyRegistrationId();
 			}
 			return null;
 		}
