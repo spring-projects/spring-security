@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.authentication;
 
 import java.util.List;
 
+import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.SessionIndex;
 
 import org.springframework.security.core.Authentication;
@@ -40,6 +41,12 @@ public interface Saml2AuthenticationInfo {
 	 * @return the {@link RelyingPartyRegistration} identifier
 	 */
 	String getRelyingPartyRegistrationId();
+
+	/**
+	 * Get the {@link NameID} value of the authenticated principal
+	 * @return the {@link NameID} value of the authenticated principal
+	 */
+	String getNameId();
 
 	/**
 	 * Get the {@link SessionIndex} values of the authenticated principal

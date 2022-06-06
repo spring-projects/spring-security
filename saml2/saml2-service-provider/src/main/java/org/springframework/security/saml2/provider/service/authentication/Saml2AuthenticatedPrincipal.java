@@ -78,6 +78,11 @@ public interface Saml2AuthenticatedPrincipal extends AuthenticatedPrincipal, Sam
 	}
 
 	@Override
+	default String getNameId() {
+		return getName();
+	}
+
+	@Override
 	default List<String> getSessionIndexes() {
 		return Collections.emptyList();
 	}
