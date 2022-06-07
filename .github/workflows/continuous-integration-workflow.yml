@@ -321,7 +321,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Send Slack message
-        uses: Gamesight/slack-workflow-status@v1.0.1
+        # Workaround while waiting for Gamesight/slack-workflow-status#38 to be fixed
+        # See https://github.com/Gamesight/slack-workflow-status/issues/38
+        uses: sjohnr/slack-workflow-status@9eb3eb361c03f8bb9271782f987f472adfc31056
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
