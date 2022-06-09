@@ -90,7 +90,7 @@ public class SpringReleaseTrainTests {
 		assertThat(trainDates).hasSize(5);
 		assertThat(trainDates.get("1.0.0-M1")).isEqualTo(LocalDate.of(2020, 7, 14));
 		assertThat(trainDates.get("1.0.0-M2")).isEqualTo(LocalDate.of(2020, 8, 11));
-		assertThat(trainDates.get("1.0.0-M3")).isEqualTo(LocalDate.of(2020, 9, 8));
+		assertThat(trainDates.get("1.0.0-M3")).isEqualTo(LocalDate.of(2020, 9, 15));
 		assertThat(trainDates.get("1.0.0-RC1")).isEqualTo(LocalDate.of(2020, 10, 13));
 		assertThat(trainDates.get("1.0.0")).isEqualTo(LocalDate.of(2020, 11, 10));
 	}
@@ -110,8 +110,8 @@ public class SpringReleaseTrainTests {
 		Map<String, LocalDate> trainDates = releaseTrain.getTrainDates();
 		assertThat(trainDates).hasSize(5);
 		assertThat(trainDates.get("1.0.0-M1")).isEqualTo(LocalDate.of(2022, 1, 11));
-		assertThat(trainDates.get("1.0.0-M2")).isEqualTo(LocalDate.of(2022, 2, 8));
-		assertThat(trainDates.get("1.0.0-M3")).isEqualTo(LocalDate.of(2022, 3, 8));
+		assertThat(trainDates.get("1.0.0-M2")).isEqualTo(LocalDate.of(2022, 2, 15));
+		assertThat(trainDates.get("1.0.0-M3")).isEqualTo(LocalDate.of(2022, 3, 15));
 		assertThat(trainDates.get("1.0.0-RC1")).isEqualTo(LocalDate.of(2022, 4, 12));
 		assertThat(trainDates.get("1.0.0")).isEqualTo(LocalDate.of(2022, 5, 10));
 	}
@@ -134,7 +134,7 @@ public class SpringReleaseTrainTests {
 		assertThat(trainDates.get("1.0.0-M2")).isEqualTo(LocalDate.of(2022, 8, 9));
 		assertThat(trainDates.get("1.0.0-M3")).isEqualTo(LocalDate.of(2022, 9, 13));
 		assertThat(trainDates.get("1.0.0-RC1")).isEqualTo(LocalDate.of(2022, 10, 11));
-		assertThat(trainDates.get("1.0.0")).isEqualTo(LocalDate.of(2022, 11, 8));
+		assertThat(trainDates.get("1.0.0")).isEqualTo(LocalDate.of(2022, 11, 15));
 	}
 
 	@Test

@@ -20,6 +20,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.Year;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -123,12 +125,12 @@ public final class SpringReleaseTrain {
 	}
 
 	private static LocalDate calculateReleaseDate(Year year, Month month, DayOfWeek dayOfWeek, int dayOffset) {
-		LocalDate firstDayOfMonth = year.atMonth(month).atDay(1);
-		int dayOfWeekOffset = dayOfWeek.getValue() - firstDayOfMonth.getDayOfWeek().getValue();
-		if (dayOfWeekOffset < 0) {
-			dayOfWeekOffset += 7;
-		}
+		TemporalAdjuster nextMonday = TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY);
+		TemporalAdjuster nextDayOfWeek = TemporalAdjusters.nextOrSame(dayOfWeek);
 
-		return firstDayOfMonth.plusDays(dayOfWeekOffset).plusDays(dayOffset);
+		LocalDate firstDayOfMonth = year.atMonth(month).atDay(1);
+		LocalDate firstMondayOfMonth = firstDayOfMonth.with(nextMonday);
+
+		return firstMondayOfMonth.with(nextDayOfWeek).plusDays(dayOffset);
 	}
 }
