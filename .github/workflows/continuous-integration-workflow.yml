@@ -286,6 +286,26 @@ jobs:
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           echo "Tagging and publishing $REPO@$VERSION release on GitHub."
           ./gradlew createGitHubRelease -PnextVersion=$VERSION -Pbranch=$BRANCH -PcreateRelease=true -PgitHubAccessToken=$TOKEN
+      - name: Announce Release on Slack
+        id: spring-security-announcing
+        uses: slackapi/slack-github-action@v1.19.0
+        with:
+          payload: |
+            {
+              "text": "spring-security-announcing `${{ env.VERSION }}` is available now",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "spring-security-announcing `${{ env.VERSION }}` is available now"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SPRING_RELEASE_SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
       - name: Setup git config
         run: |
           git config user.name 'github-actions[bot]'
