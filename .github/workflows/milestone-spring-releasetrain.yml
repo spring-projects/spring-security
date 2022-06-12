@@ -7,6 +7,8 @@ env:
   TITLE: ${{ github.event.milestone.title }}
 jobs:
   spring-releasetrain-checks:    
+    permissions:
+      contents: none
     name: Check DueOn is on a Release Date
     runs-on: ubuntu-latest
     steps:
