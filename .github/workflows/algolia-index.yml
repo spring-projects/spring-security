@@ -5,6 +5,9 @@ on:
     - cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch: # Manual trigger
 
+permissions:
+  contents: read
+
 jobs:
   update:
     name: Update Algolia Index
