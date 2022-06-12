@@ -5,6 +5,9 @@ on: pull_request
 env:
   RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Build
