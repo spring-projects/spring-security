@@ -233,6 +233,8 @@ jobs:
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   perform_release:
+    permissions:
+      contents: write  # for Git to git push
     name: Perform release
     needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
     runs-on: ubuntu-latest
