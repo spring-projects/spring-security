@@ -258,7 +258,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 						.getTokenResponse(authorizationCodeGrantRequest(this.clientRegistration.build())))
 				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.withMessageContaining("tokenType cannot be null");
+				.havingRootCause().withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 						.getTokenResponse(authorizationCodeGrantRequest(this.clientRegistration.build())))
 				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.withMessageContaining("tokenType cannot be null");
+				.havingRootCause().withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test

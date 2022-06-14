@@ -56,8 +56,14 @@ public class AccessDeniedConfigTests {
 	@Test
 	public void configureWhenAccessDeniedHandlerIsMissingLeadingSlashThenException() {
 		SpringTestContext context = this.spring.configLocations(this.xml("NoLeadingSlash"));
-		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> context.autowire())
-				.withMessageContaining("errorPage must begin with '/'");
+		/*
+		 * NOTE: Original error message "errorPage must begin with '/'" no longer shows up
+		 * in stack trace as of Spring Framework 6.x.
+		 *
+		 * See https://github.com/spring-projects/spring-framework/issues/25162.
+		 */
+		assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() -> context.autowire()).havingRootCause()
+				.withMessageContaining("Property 'errorPage' threw exception");
 	}
 
 	@Test

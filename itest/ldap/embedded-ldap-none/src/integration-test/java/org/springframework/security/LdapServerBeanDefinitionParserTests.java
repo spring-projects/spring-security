@@ -43,7 +43,7 @@ public class LdapServerBeanDefinitionParserTests {
 	public void apacheDirectoryServerIsStartedByDefault() {
 		assertThatExceptionOfType(BeanDefinitionStoreException.class)
 				.isThrownBy(() -> this.context = new ClassPathXmlApplicationContext("applicationContext-security.xml"))
-				.withMessageContaining("Embedded LDAP server is not provided");
+				.havingRootCause().withMessageContaining("Embedded LDAP server is not provided");
 	}
 
 }

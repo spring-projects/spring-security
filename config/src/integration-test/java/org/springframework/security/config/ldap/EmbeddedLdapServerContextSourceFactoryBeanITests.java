@@ -77,7 +77,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 	public void contextSourceFactoryBeanWhenManagerDnAndNoPasswordThenException() {
 		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
 				.isThrownBy(() -> this.spring.register(CustomManagerDnNoPasswordConfig.class).autowire())
-				.withRootCauseInstanceOf(IllegalStateException.class)
+				.havingRootCause().isInstanceOf(IllegalStateException.class)
 				.withMessageContaining("managerPassword is required if managerDn is supplied");
 	}
 

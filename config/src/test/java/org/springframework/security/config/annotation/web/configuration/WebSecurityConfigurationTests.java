@@ -152,7 +152,7 @@ public class WebSecurityConfigurationTests {
 	@Test
 	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(DuplicateOrderConfig.class).autowire())
+				.isThrownBy(() -> this.spring.register(DuplicateOrderConfig.class).autowire()).havingRootCause()
 				.withMessageContaining("@Order on WebSecurityConfigurers must be unique")
 				.withMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
 				.withMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());

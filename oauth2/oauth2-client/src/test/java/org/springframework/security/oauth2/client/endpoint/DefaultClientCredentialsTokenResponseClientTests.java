@@ -269,7 +269,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.withMessageContaining("tokenType cannot be null");
+				.havingRootCause().withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test
@@ -282,7 +282,7 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response")
-				.withMessageContaining("tokenType cannot be null");
+				.havingRootCause().withMessageContaining("tokenType cannot be null");
 	}
 
 	@Test

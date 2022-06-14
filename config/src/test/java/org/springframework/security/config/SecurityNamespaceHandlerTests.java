@@ -98,7 +98,7 @@ public class SecurityNamespaceHandlerTests {
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK))
-				.withMessageContaining("NoClassDefFoundError: " + className);
+				.havingRootCause().isInstanceOf(NoClassDefFoundError.class).withMessage(className);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class SecurityNamespaceHandlerTests {
 		expectClassUtilsForNameThrowsClassNotFoundException(className);
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK))
-				.withMessageContaining("ClassNotFoundException: " + className);
+				.havingRootCause().isInstanceOf(ClassNotFoundException.class).withMessage(className);
 	}
 
 	@Test
