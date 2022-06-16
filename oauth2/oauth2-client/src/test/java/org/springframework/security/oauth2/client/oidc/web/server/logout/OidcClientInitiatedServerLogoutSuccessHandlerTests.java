@@ -150,6 +150,19 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
 	}
 
+	// gh-11379
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriWithQueryParametersThenBuildsItForRedirect() {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
+		this.handler.setPostLogoutRedirectUri("https://rp.example.org/context?forwardUrl=secured%3Fparam%3Dtrue");
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
+		this.handler.onLogoutSuccess(f, token).block();
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
+	}
+
 	@Test
 	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
