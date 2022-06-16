@@ -132,7 +132,19 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.build();
 
 		Map<String, String> uriVariables = new HashMap<>();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
 		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", (host != null) ? host : "");
+
+		String path = uriComponents.getPath();
+		uriVariables.put("basePath", (path != null) ? path : "");
+
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
 		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
 
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
@@ -154,8 +166,15 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 	}
 
 	/**
-	 * Set the post logout redirect uri template to use. Supports the {@code "{baseUrl}"}
-	 * placeholder, for example:
+	 * Set the post logout redirect uri template.
+	 *
+	 * <br />
+	 * The supported uri template variables are: {@code {baseScheme}}, {@code {baseHost}},
+	 * {@code {basePort}} and {@code {basePath}}.
+	 *
+	 * <br />
+	 * <b>NOTE:</b> {@code {baseUrl}} is also supported, which is the same as
+	 * {@code "{baseScheme}://{baseHost}{basePort}{basePath}"}
 	 *
 	 * <pre>
 	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");

@@ -135,7 +135,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect()
+	public void logoutWhenUsingPostLogoutBaseUrlRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
 				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
@@ -160,6 +160,34 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		this.handler.onLogoutSuccess(f, token).block();
 		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?id_token_hint=id-token&"
 				+ "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
+	}
+
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirect() {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
+		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
+		given(this.exchange.getRequest()).willReturn(request);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
+		this.handler.setPostLogoutRedirectUri("{baseScheme}://{baseHost}{basePort}{basePath}");
+		this.handler.onLogoutSuccess(f, token).block();
+		assertThat(redirectedUrl(this.exchange)).isEqualTo(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org");
+	}
+
+	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateWithOtherPortThenBuildsItForRedirect() {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
+		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org:400").build();
+		given(this.exchange.getRequest()).willReturn(request);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
+		this.handler.setPostLogoutRedirectUri("{baseScheme}://{baseHost}{basePort}{basePath}");
+		this.handler.onLogoutSuccess(f, token).block();
+		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
+				+ "post_logout_redirect_uri=https://rp.example.org:400");
 	}
 
 	@Test
