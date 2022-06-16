@@ -161,7 +161,7 @@ Or you can provide it for all requests as seen below:
 SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .anyRequest.access(new CustomAuthorizationManager());
+            .anyRequest().access(new CustomAuthorizationManager());
         )
         // ...
 
@@ -183,7 +183,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
             .shouldFilterAllDispatcherTypes(false)
-            .anyRequest.authenticated()
+            .anyRequest().authenticated()
         )
         // ...
 
