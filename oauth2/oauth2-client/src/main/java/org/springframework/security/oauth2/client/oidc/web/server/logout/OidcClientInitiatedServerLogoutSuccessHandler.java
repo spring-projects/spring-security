@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client.oidc.web.server.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
@@ -85,7 +86,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 						return Mono.empty();
 					}
 					String idToken = idToken(authentication);
-					String postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest());
+					String postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest(), clientRegistration);
 					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
 				})
 				.switchIfEmpty(
@@ -119,7 +120,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private String postLogoutRedirectUri(ServerHttpRequest request) {
+	private String postLogoutRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -129,8 +130,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.buildAndExpand(uriVariables)
 				.toUriString();
 		// @formatter:on
 	}
