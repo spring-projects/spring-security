@@ -85,13 +85,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 						return Mono.empty();
 					}
 					String idToken = idToken(authentication);
-					URI postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest());
+					String postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest());
 					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
 				})
 				.switchIfEmpty(
 						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty())
 				)
-				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), endpointUri));
+				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), URI.create(endpointUri)));
 		// @formatter:on
 	}
 
@@ -106,20 +106,20 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		return null;
 	}
 
-	private URI endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
+	private String endpointUri(URI endSessionEndpoint, String idToken, String postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
 		builder.queryParam("id_token_hint", idToken);
 		if (postLogoutRedirectUri != null) {
 			builder.queryParam("post_logout_redirect_uri", postLogoutRedirectUri);
 		}
-		return builder.encode(StandardCharsets.UTF_8).build().toUri();
+		return builder.encode(StandardCharsets.UTF_8).build().toUriString();
 	}
 
 	private String idToken(Authentication authentication) {
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private URI postLogoutRedirectUri(ServerHttpRequest request) {
+	private String postLogoutRedirectUri(ServerHttpRequest request) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -131,7 +131,7 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.build();
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
 				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUri();
+				.toUriString();
 		// @formatter:on
 	}
 
