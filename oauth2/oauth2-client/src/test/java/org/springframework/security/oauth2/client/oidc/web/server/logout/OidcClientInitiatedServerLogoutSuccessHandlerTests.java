@@ -163,6 +163,22 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	}
 
 	@Test
+	public void logoutWhenUsingPostLogoutRedirectUriTemplateThenBuildsItForRedirectExpanded()
+			throws IOException, ServletException {
+		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
+				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
+		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
+		MockServerHttpRequest request = MockServerHttpRequest.get("https://rp.example.org/").build();
+		given(this.exchange.getRequest()).willReturn(request);
+		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
+		this.handler.setPostLogoutRedirectUri("{baseUrl}/{registrationId}");
+		this.handler.onLogoutSuccess(f, token).block();
+		assertThat(redirectedUrl(this.exchange)).isEqualTo(String.format(
+				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org/%s",
+				this.registration.getRegistrationId()));
+	}
+
+	@Test
 	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
 	}
