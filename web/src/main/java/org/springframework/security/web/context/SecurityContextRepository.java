@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Strategy used for persisting a {@link SecurityContext} between requests.
@@ -76,7 +77,7 @@ public interface SecurityContextRepository {
 	 * @since 5.7
 	 */
 	default Supplier<SecurityContext> loadContext(HttpServletRequest request) {
-		return () -> loadContext(new HttpRequestResponseHolder(request, null));
+		return SingletonSupplier.of(() -> loadContext(new HttpRequestResponseHolder(request, null)));
 	}
 
 	/**
