@@ -496,6 +496,9 @@ oauth2-login.attlist &=
 	## Reference to the OAuth2AuthorizationRequestResolver
 	attribute authorization-request-resolver-ref {xsd:token}?
 oauth2-login.attlist &=
+	## Reference to the authorization RedirectStrategy
+	attribute authorization-redirect-strategy-ref {xsd:token}?
+oauth2-login.attlist &=
 	## Reference to the OAuth2AccessTokenResponseClient
 	attribute access-token-response-client-ref {xsd:token}?
 oauth2-login.attlist &=
@@ -542,6 +545,9 @@ authorization-code-grant =
 authorization-code-grant.attlist &=
 	## Reference to the AuthorizationRequestRepository
 	attribute authorization-request-repository-ref {xsd:token}?
+authorization-code-grant.attlist &=
+    ## Reference to the authorization RedirectStrategy
+	attribute authorization-redirect-strategy-ref {xsd:token}?
 authorization-code-grant.attlist &=
 	## Reference to the OAuth2AuthorizationRequestResolver
 	attribute authorization-request-resolver-ref {xsd:token}?

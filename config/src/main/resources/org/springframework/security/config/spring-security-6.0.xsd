@@ -1603,6 +1603,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authorization-redirect-strategy-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the authorization RedirectStrategy
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="access-token-response-client-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the OAuth2AccessTokenResponseClient
@@ -1703,6 +1709,12 @@
       <xs:attribute name="authorization-request-repository-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>Reference to the AuthorizationRequestRepository
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-redirect-strategy-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to the authorization RedirectStrategy
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

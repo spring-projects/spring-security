@@ -68,6 +68,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -367,6 +368,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			authorizationRequestFilter
 					.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
+		if (this.authorizationEndpointConfig.authorizationRedirectStrategy != null) {
+			authorizationRequestFilter
+					.setAuthorizationRedirectStrategy(this.authorizationEndpointConfig.authorizationRedirectStrategy);
+		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
@@ -539,6 +544,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
+		private RedirectStrategy authorizationRedirectStrategy;
+
 		private AuthorizationEndpointConfig() {
 		}
 
@@ -578,6 +585,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+		 * @param authorizationRedirectStrategy the redirect strategy
+		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 */
+		public AuthorizationEndpointConfig authorizationRedirectStrategy(
+				RedirectStrategy authorizationRedirectStrategy) {
+			this.authorizationRedirectStrategy = authorizationRedirectStrategy;
 			return this;
 		}
 

@@ -102,12 +102,14 @@ import org.springframework.security.oauth2.server.resource.web.server.ServerBear
 import org.springframework.security.web.PortMapper;
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.DelegatingServerAuthenticationEntryPoint.DelegateEntry;
 import org.springframework.security.web.server.ExchangeMatcherRedirectWebFilter;
 import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
@@ -3375,6 +3377,8 @@ public class ServerHttpSecurity {
 
 		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
+		private ServerRedirectStrategy authorizationRedirectStrategy;
+
 		private ServerWebExchangeMatcher authenticationMatcher;
 
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
@@ -3548,6 +3552,16 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+		 * @param authorizationRedirectStrategy the redirect strategy
+		 * @return the {@link OAuth2LoginSpec} for further configuration
+		 */
+		public OAuth2LoginSpec authorizationRedirectStrategy(ServerRedirectStrategy authorizationRedirectStrategy) {
+			this.authorizationRedirectStrategy = authorizationRedirectStrategy;
+			return this;
+		}
+
+		/**
 		 * Sets the {@link ServerWebExchangeMatcher matcher} used for determining if the
 		 * request is an authentication request.
 		 * @param authenticationMatcher the {@link ServerWebExchangeMatcher matcher} used
@@ -3581,7 +3595,9 @@ public class ServerHttpSecurity {
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
 			ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = getAuthorizationRequestRepository();
 			oauthRedirectFilter.setAuthorizationRequestRepository(authorizationRequestRepository);
+			oauthRedirectFilter.setAuthorizationRedirectStrategy(getAuthorizationRedirectStrategy());
 			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
+
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
 			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager,
 					authorizedClientRepository);
@@ -3591,6 +3607,7 @@ public class ServerHttpSecurity {
 			authenticationFilter.setAuthenticationSuccessHandler(getAuthenticationSuccessHandler(http));
 			authenticationFilter.setAuthenticationFailureHandler(getAuthenticationFailureHandler());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
+
 			setDefaultEntryPoints(http);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
@@ -3737,6 +3754,13 @@ public class ServerHttpSecurity {
 			return this.authorizationRequestRepository;
 		}
 
+		private ServerRedirectStrategy getAuthorizationRedirectStrategy() {
+			if (this.authorizationRedirectStrategy == null) {
+				this.authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
+			}
+			return this.authorizationRedirectStrategy;
+		}
+
 		private ReactiveOAuth2AuthorizedClientService getAuthorizedClientService() {
 			ReactiveOAuth2AuthorizedClientService bean = getBeanOrNull(ReactiveOAuth2AuthorizedClientService.class);
 			if (bean != null) {
@@ -3758,6 +3782,8 @@ public class ServerHttpSecurity {
 		private ReactiveAuthenticationManager authenticationManager;
 
 		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
+		private ServerRedirectStrategy authorizationRedirectStrategy;
 
 		private OAuth2ClientSpec() {
 		}
@@ -3852,6 +3878,23 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+		 * @param authorizationRedirectStrategy the redirect strategy
+		 * @return the {@link OAuth2ClientSpec} for further configuration
+		 */
+		public OAuth2ClientSpec authorizationRedirectStrategy(ServerRedirectStrategy authorizationRedirectStrategy) {
+			this.authorizationRedirectStrategy = authorizationRedirectStrategy;
+			return this;
+		}
+
+		private ServerRedirectStrategy getAuthorizationRedirectStrategy() {
+			if (this.authorizationRedirectStrategy == null) {
+				this.authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
+			}
+			return this.authorizationRedirectStrategy;
+		}
+
+		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
 		 */
@@ -3870,12 +3913,15 @@ public class ServerHttpSecurity {
 			if (http.requestCache != null) {
 				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
 			}
+
 			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
 					clientRegistrationRepository);
 			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
+			oauthRedirectFilter.setAuthorizationRedirectStrategy(getAuthorizationRedirectStrategy());
 			if (http.requestCache != null) {
 				oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
 			}
+
 			http.addFilterAt(codeGrantWebFilter, SecurityWebFiltersOrder.OAUTH2_AUTHORIZATION_CODE);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 		}
