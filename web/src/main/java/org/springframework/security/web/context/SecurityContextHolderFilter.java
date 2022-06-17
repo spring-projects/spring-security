@@ -17,6 +17,7 @@
 package org.springframework.security.web.context;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -62,9 +63,9 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		SecurityContext securityContext = this.securityContextRepository.loadContext(request).get();
+		Supplier<SecurityContext> deferredContext = this.securityContextRepository.loadContext(request);
 		try {
-			this.securityContextHolderStrategy.setContext(securityContext);
+			this.securityContextHolderStrategy.setDeferredContext(deferredContext);
 			filterChain.doFilter(request, response);
 		}
 		finally {

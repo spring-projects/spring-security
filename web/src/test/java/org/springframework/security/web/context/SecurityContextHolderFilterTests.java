@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.context;
 
+import java.util.function.Supplier;
+
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -94,7 +96,9 @@ class SecurityContextHolderFilterTests {
 		this.filter.setSecurityContextHolderStrategy(this.strategy);
 		this.filter.doFilter(this.request, this.response, filterChain);
 
-		verify(this.strategy).setContext(expectedContext);
+		ArgumentCaptor<Supplier<SecurityContext>> deferredContextArg = ArgumentCaptor.forClass(Supplier.class);
+		verify(this.strategy).setDeferredContext(deferredContextArg.capture());
+		assertThat(deferredContextArg.getValue().get()).isEqualTo(expectedContext);
 		verify(this.strategy).clearContext();
 	}
 
