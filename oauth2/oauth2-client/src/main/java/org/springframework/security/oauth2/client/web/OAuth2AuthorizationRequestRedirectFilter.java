@@ -89,7 +89,7 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 
 	private final ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
-	private final RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
+	private RedirectStrategy authorizationRedirectStrategy = new DefaultRedirectStrategy();
 
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -131,6 +131,15 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 	public OAuth2AuthorizationRequestRedirectFilter(OAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
+	}
+
+	/**
+	 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+	 * @param authorizationRedirectStrategy the redirect strategy
+	 */
+	public void setAuthorizationRedirectStrategy(RedirectStrategy authorizationRedirectStrategy) {
+		Assert.notNull(authorizationRedirectStrategy, "authorizationRedirectStrategy cannot be null");
+		this.authorizationRedirectStrategy = authorizationRedirectStrategy;
 	}
 
 	/**

@@ -24,6 +24,7 @@ import org.springframework.security.oauth2.client.web.server.ServerAuthorization
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.web.server.ServerRedirectStrategy
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler
@@ -49,6 +50,7 @@ import org.springframework.web.server.ServerWebExchange
  * @property authorizedClientRepository the repository for authorized client(s).
  * @property authorizationRequestRepository the repository to use for storing [OAuth2AuthorizationRequest]s.
  * @property authorizationRequestResolver the resolver used for resolving [OAuth2AuthorizationRequest]s.
+ * @property authorizationRedirectStrategy the redirect strategy for Authorization Endpoint redirect URI.
  * @property authenticationMatcher the [ServerWebExchangeMatcher] used for determining if the request is an
  * authentication request.
  */
@@ -64,6 +66,7 @@ class ServerOAuth2LoginDsl {
     var authorizedClientRepository: ServerOAuth2AuthorizedClientRepository? = null
     var authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
     var authorizationRequestResolver: ServerOAuth2AuthorizationRequestResolver? = null
+    var authorizationRedirectStrategy: ServerRedirectStrategy? = null
     var authenticationMatcher: ServerWebExchangeMatcher? = null
 
     internal fun get(): (ServerHttpSecurity.OAuth2LoginSpec) -> Unit {
@@ -78,6 +81,7 @@ class ServerOAuth2LoginDsl {
             authorizedClientRepository?.also { oauth2Login.authorizedClientRepository(authorizedClientRepository) }
             authorizationRequestRepository?.also { oauth2Login.authorizationRequestRepository(authorizationRequestRepository) }
             authorizationRequestResolver?.also { oauth2Login.authorizationRequestResolver(authorizationRequestResolver) }
+            authorizationRedirectStrategy?.also { oauth2Login.authorizationRedirectStrategy(authorizationRedirectStrategy) }
             authenticationMatcher?.also { oauth2Login.authenticationMatcher(authenticationMatcher) }
         }
     }

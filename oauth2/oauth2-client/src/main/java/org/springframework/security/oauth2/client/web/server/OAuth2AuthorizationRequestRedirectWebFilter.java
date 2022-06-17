@@ -69,7 +69,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  */
 public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 
-	private final ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	private final ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -97,6 +97,15 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
+	}
+
+	/**
+	 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+	 * @param authorizationRedirectStrategy the redirect strategy
+	 */
+	public void setAuthorizationRedirectStrategy(ServerRedirectStrategy authorizationRedirectStrategy) {
+		Assert.notNull(authorizationRedirectStrategy, "authorizationRedirectStrategy cannot be null");
+		this.authorizationRedirectStrategy = authorizationRedirectStrategy;
 	}
 
 	/**
