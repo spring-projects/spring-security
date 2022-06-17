@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -55,6 +56,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -89,6 +91,9 @@ public class OAuth2ClientBeanDefinitionParserTests {
 
 	@Autowired(required = false)
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
+	@Autowired(required = false)
+	private RedirectStrategy authorizationRedirectStrategy;
 
 	@Autowired(required = false)
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
@@ -146,6 +151,16 @@ public class OAuth2ClientBeanDefinitionParserTests {
 						+ "scope=scope1%20scope2&state=state&redirect_uri=http://localhost/callback/google"));
 		// @formatter:on
 		verify(this.authorizationRequestResolver).resolve(any());
+	}
+
+	@Test
+	public void requestWhenCustomAuthorizationRedirectStrategyThenCalled() throws Exception {
+		this.spring.configLocations(xml("CustomAuthorizationRedirectStrategy")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/oauth2/authorization/google"))
+				.andExpect(status().isOk());
+		// @formatter:on
+		verify(this.authorizationRedirectStrategy).sendRedirect(any(), any(), anyString());
 	}
 
 	@Test

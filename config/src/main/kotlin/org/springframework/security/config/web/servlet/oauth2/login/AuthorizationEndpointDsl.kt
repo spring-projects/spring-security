@@ -21,6 +21,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.web.RedirectStrategy
 
 /**
  * A Kotlin DSL to configure the Authorization Server's Authorization Endpoint using
@@ -31,18 +32,21 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @property baseUri the base URI used for authorization requests.
  * @property authorizationRequestResolver the resolver used for resolving [OAuth2AuthorizationRequest]'s.
  * @property authorizationRequestRepository the repository used for storing [OAuth2AuthorizationRequest]'s.
+ * @property authorizationRedirectStrategy the redirect strategy for Authorization Endpoint redirect URI.
  */
 @OAuth2LoginSecurityMarker
 class AuthorizationEndpointDsl {
     var baseUri: String? = null
     var authorizationRequestResolver: OAuth2AuthorizationRequestResolver? = null
     var authorizationRequestRepository: AuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
+    var authorizationRedirectStrategy: RedirectStrategy? = null
 
     internal fun get(): (OAuth2LoginConfigurer<HttpSecurity>.AuthorizationEndpointConfig) -> Unit {
         return { authorizationEndpoint ->
             baseUri?.also { authorizationEndpoint.baseUri(baseUri) }
             authorizationRequestResolver?.also { authorizationEndpoint.authorizationRequestResolver(authorizationRequestResolver) }
             authorizationRequestRepository?.also { authorizationEndpoint.authorizationRequestRepository(authorizationRequestRepository) }
+            authorizationRedirectStrategy?.also { authorizationEndpoint.authorizationRedirectStrategy(authorizationRedirectStrategy) }
         }
     }
 }

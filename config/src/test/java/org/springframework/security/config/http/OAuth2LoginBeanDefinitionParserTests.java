@@ -64,6 +64,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -78,6 +79,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -117,6 +119,9 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 	@Autowired(required = false)
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
+	@Autowired(required = false)
+	private RedirectStrategy authorizationRedirectStrategy;
 
 	@Autowired(required = false)
 	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
@@ -376,6 +381,17 @@ public class OAuth2LoginBeanDefinitionParserTests {
 				.andExpect(status().is3xxRedirection());
 		// @formatter:on
 		verify(this.authorizationRequestResolver).resolve(any());
+	}
+
+	@Test
+	public void requestWhenCustomAuthorizationRedirectStrategyThenCalled() throws Exception {
+		this.spring.configLocations(this.xml("SingleClientRegistration-WithCustomAuthorizationRedirectStrategy"))
+				.autowire();
+		// @formatter:off
+		this.mvc.perform(get("/oauth2/authorization/google-login"))
+				.andExpect(status().isOk());
+		// @formatter:on
+		verify(this.authorizationRedirectStrategy).sendRedirect(any(), any(), anyString());
 	}
 
 	// gh-5347

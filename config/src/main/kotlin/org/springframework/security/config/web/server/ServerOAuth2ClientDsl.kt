@@ -22,6 +22,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.web.server.ServerRedirectStrategy
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
 import org.springframework.web.server.ServerWebExchange
 
@@ -37,6 +38,7 @@ import org.springframework.web.server.ServerWebExchange
  * @property clientRegistrationRepository the repository of client registrations.
  * @property authorizedClientRepository the repository for authorized client(s).
  * @property authorizationRequestRepository the repository to use for storing [OAuth2AuthorizationRequest]s.
+ * @property authorizationRedirectStrategy the redirect strategy for Authorization Endpoint redirect URI.
  */
 @ServerSecurityMarker
 class ServerOAuth2ClientDsl {
@@ -45,6 +47,7 @@ class ServerOAuth2ClientDsl {
     var clientRegistrationRepository: ReactiveClientRegistrationRepository? = null
     var authorizedClientRepository: ServerOAuth2AuthorizedClientRepository? = null
     var authorizationRequestRepository: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
+    var authorizationRedirectStrategy: ServerRedirectStrategy? = null
 
     internal fun get(): (ServerHttpSecurity.OAuth2ClientSpec) -> Unit {
         return { oauth2Client ->
@@ -53,6 +56,7 @@ class ServerOAuth2ClientDsl {
             clientRegistrationRepository?.also { oauth2Client.clientRegistrationRepository(clientRegistrationRepository) }
             authorizedClientRepository?.also { oauth2Client.authorizedClientRepository(authorizedClientRepository) }
             authorizationRequestRepository?.also { oauth2Client.authorizationRequestRepository(authorizationRequestRepository) }
+            authorizationRedirectStrategy?.also { oauth2Client.authorizationRedirectStrategy(authorizationRedirectStrategy) }
         }
     }
 }

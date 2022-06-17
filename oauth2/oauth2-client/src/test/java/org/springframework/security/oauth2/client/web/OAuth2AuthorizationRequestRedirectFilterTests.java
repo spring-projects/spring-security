@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.client.web;
 
 import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
@@ -40,6 +43,7 @@ import org.springframework.security.oauth2.client.registration.InMemoryClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -114,6 +118,11 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 	@Test
 	public void setAuthorizationRequestRepositoryWhenAuthorizationRequestRepositoryIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthorizationRequestRepository(null));
+	}
+
+	@Test
+	public void setAuthorizationRedirectStrategyWhenAuthorizationRedirectStrategyIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAuthorizationRedirectStrategy(null));
 	}
 
 	@Test
@@ -331,6 +340,33 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&"
 				+ "login_hint=user@provider\\.com");
+	}
+
+	@Test
+	public void doFilterWhenCustomAuthorizationRedirectStrategySetThenCustomAuthorizationRedirectStrategyUsed()
+			throws Exception {
+		String requestUri = OAuth2AuthorizationRequestRedirectFilter.DEFAULT_AUTHORIZATION_REQUEST_BASE_URI + "/"
+				+ this.registration1.getRegistrationId();
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", requestUri);
+		request.setServletPath(requestUri);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		RedirectStrategy customRedirectStrategy = (httpRequest, httpResponse, url) -> {
+			String redirectUrl = httpResponse.encodeRedirectURL(url);
+			httpResponse.setStatus(HttpStatus.OK.value());
+			httpResponse.setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
+			httpResponse.getWriter().write(redirectUrl);
+			httpResponse.getWriter().flush();
+		};
+		this.filter.setAuthorizationRedirectStrategy(customRedirectStrategy);
+		this.filter.doFilter(request, response, filterChain);
+		verifyZeroInteractions(filterChain);
+		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+		assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
+		assertThat(response.getContentAsString(StandardCharsets.UTF_8))
+				.matches("https://example.com/login/oauth/authorize\\?" + "response_type=code&client_id=client-id&"
+						+ "scope=read:user&state=.{15,}&"
+						+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
 	}
 
 }

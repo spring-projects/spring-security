@@ -984,6 +984,11 @@ Reference to the `AuthorizationRequestRepository`.
 Reference to the `OAuth2AuthorizationRequestResolver`.
 
 
+[[nsa-oauth2-login-authorization-redirect-strategy-ref]]
+* **authorization-redirect-strategy-ref**
+Reference to the authorization `RedirectStrategy`.
+
+
 [[nsa-oauth2-login-access-token-response-client-ref]]
 * **access-token-response-client-ref**
 Reference to the `OAuth2AccessTokenResponseClient`.
@@ -1082,6 +1087,11 @@ Configures xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-aut
 [[nsa-authorization-code-grant-authorization-request-repository-ref]]
 * **authorization-request-repository-ref**
 Reference to the `AuthorizationRequestRepository`.
+
+
+[[nsa-authorization-code-grant-authorization-redirect-strategy-ref]]
+* **authorization-redirect-strategy-ref**
+Reference to the authorization `RedirectStrategy`.
 
 
 [[nsa-authorization-code-grant-authorization-request-resolver-ref]]

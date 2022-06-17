@@ -43,6 +43,9 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
+import org.springframework.security.web.DefaultRedirectStrategy
+import org.springframework.security.web.RedirectStrategy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 
@@ -98,6 +101,40 @@ class AuthorizationCodeGrantDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+        }
+    }
+
+    @Test
+    fun `oauth2Client when custom authorization redirect strategy then redirect strategy used`() {
+        this.spring.register(RedirectStrategyConfig::class.java, ClientConfig::class.java).autowire()
+        mockkObject(RedirectStrategyConfig.REDIRECT_STRATEGY)
+        every { RedirectStrategyConfig.REDIRECT_STRATEGY.sendRedirect(any(), any(), any()) }
+
+        this.mockMvc.get("/oauth2/authorization/registrationId")
+
+        verify(exactly = 1) { RedirectStrategyConfig.REDIRECT_STRATEGY.sendRedirect(any(), any(), any()) }
+    }
+
+    @EnableWebSecurity
+    open class RedirectStrategyConfig {
+
+        companion object {
+            val REDIRECT_STRATEGY: RedirectStrategy = DefaultRedirectStrategy()
+        }
+
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                oauth2Client {
+                    authorizationCodeGrant {
+                        authorizationRedirectStrategy = REDIRECT_STRATEGY
+                    }
+                }
+                authorizeRequests {
+                    authorize(anyRequest, authenticated)
+                }
+            }
+            return http.build()
         }
     }
 

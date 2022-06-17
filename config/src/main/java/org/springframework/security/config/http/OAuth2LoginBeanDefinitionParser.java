@@ -87,6 +87,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_AUTHORIZATION_REQUEST_RESOLVER_REF = "authorization-request-resolver-ref";
 
+	private static final String ATT_AUTHORIZATION_REDIRECT_STRATEGY_REF = "authorization-redirect-strategy-ref";
+
 	private static final String ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF = "access-token-response-client-ref";
 
 	private static final String ATT_USER_AUTHORITIES_MAPPER_REF = "user-authorities-mapper-ref";
@@ -203,6 +205,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		oauth2AuthorizationRequestRedirectFilterBuilder
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository)
+				.addPropertyValue("authorizationRedirectStrategy", getAuthorizationRedirectStrategy(element))
 				.addPropertyValue("requestCache", this.requestCache);
 		this.oauth2AuthorizationRequestRedirectFilter = oauth2AuthorizationRequestRedirectFilterBuilder
 				.getBeanDefinition();
@@ -264,6 +267,15 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository")
+				.getBeanDefinition();
+	}
+
+	private BeanMetadataElement getAuthorizationRedirectStrategy(Element element) {
+		String authorizationRedirectStrategyRef = element.getAttribute(ATT_AUTHORIZATION_REDIRECT_STRATEGY_REF);
+		if (StringUtils.hasText(authorizationRedirectStrategyRef)) {
+			return new RuntimeBeanReference(authorizationRedirectStrategyRef);
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition("org.springframework.security.web.DefaultRedirectStrategy")
 				.getBeanDefinition();
 	}
 
