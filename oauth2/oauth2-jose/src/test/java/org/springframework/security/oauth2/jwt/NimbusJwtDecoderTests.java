@@ -509,7 +509,7 @@ public class NimbusJwtDecoderTests {
 
 	// gh-7056
 	@Test
-	public void decodeWhenUsingSecertKeyWithKidThenStillUsesKey() throws Exception {
+	public void decodeWhenUsingSecretKeyWithKidThenStillUsesKey() throws Exception {
 		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
 		// @formatter:off
 		JWSHeader header = new JWSHeader.Builder(JWSAlgorithm.HS256)
