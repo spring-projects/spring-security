@@ -56,6 +56,16 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final AuthorizationEventPublisher publisher;
 
+	static final String permitAll = "permitAll";
+
+	private static final String rememberMe = "rememberMe";
+
+	private static final String fullyAuthenticated = "fullyAuthenticated";
+
+	private static final String anonymous = "anonymous";
+
+	private static final String denyAll = "denyAll";
+
 	/**
 	 * Creates an instance.
 	 * @param context the {@link ApplicationContext} to use
@@ -326,6 +336,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 				AuthorizationManager<RequestAuthorizationContext> manager) {
 			Assert.notNull(manager, "manager cannot be null");
 			return AuthorizeHttpRequestsConfigurer.this.addMapping(this.matchers, manager);
+
 		}
 
 	}
