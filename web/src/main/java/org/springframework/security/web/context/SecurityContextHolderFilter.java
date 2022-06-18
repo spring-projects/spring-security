@@ -17,6 +17,7 @@
 package org.springframework.security.web.context;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -44,6 +46,9 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 
 	private final SecurityContextRepository securityContextRepository;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private boolean shouldNotFilterErrorDispatch;
 
 	/**
@@ -58,19 +63,30 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		SecurityContext securityContext = this.securityContextRepository.loadContext(request).get();
+		Supplier<SecurityContext> deferredContext = this.securityContextRepository.loadContext(request);
 		try {
-			SecurityContextHolder.setContext(securityContext);
+			this.securityContextHolderStrategy.setDeferredContext(deferredContext);
 			filterChain.doFilter(request, response);
 		}
 		finally {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 		}
 	}
 
 	@Override
 	protected boolean shouldNotFilterErrorDispatch() {
 		return this.shouldNotFilterErrorDispatch;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**

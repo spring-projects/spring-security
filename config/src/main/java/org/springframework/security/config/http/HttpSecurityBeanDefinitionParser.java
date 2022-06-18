@@ -147,6 +147,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		httpBldr.getSecurityContextRepositoryForAuthenticationFilters();
 		AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, forceAutoConfig, pc,
 				httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
+				httpBldr.getSecurityContextHolderStrategyForAuthenticationFilters(),
 				httpBldr.getSecurityContextRepositoryForAuthenticationFilters(), httpBldr.getSessionStrategy(),
 				portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
 		httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());

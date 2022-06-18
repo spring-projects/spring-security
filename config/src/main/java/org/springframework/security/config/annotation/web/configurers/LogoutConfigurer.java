@@ -329,6 +329,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		this.logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
 		LogoutHandler[] handlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		LogoutFilter result = new LogoutFilter(getLogoutSuccessHandler(), handlers);
+		result.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
 		result = postProcess(result);
 		return result;
