@@ -73,6 +73,7 @@ class SessionFixationDsl {
                     SessionFixationStrategy.MIGRATE -> sessionFixation.migrateSession()
                     SessionFixationStrategy.CHANGE_ID -> sessionFixation.changeSessionId()
                     SessionFixationStrategy.NONE -> sessionFixation.none()
+                    null -> null
                 }
             }
         }
