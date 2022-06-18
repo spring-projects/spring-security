@@ -56,7 +56,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final AuthorizationEventPublisher publisher;
 
-	static final String permitAll = "permitAll";
+	private static final String permitAll = "permitAll";
 
 	private static final String rememberMe = "rememberMe";
 
