@@ -95,6 +95,18 @@ updateDependenciesSettings {
 					selection.reject("org.opensaml maintains two different versions, so it must be updated manually");
 				}
 			}
+			components.withModule("io.spring.javaformat:spring-javaformat-gradle-plugin") { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
+					selection.reject("spring-javaformat-gradle-plugin updates break checkstyle");
+				}
+			}
+			components.withModule("io.spring.javaformat:spring-javaformat-checkstyle") { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
+					selection.reject("spring-javaformat-checkstyle updates break checkstyle");
+				}
+			}
 		}
 	}
 }
