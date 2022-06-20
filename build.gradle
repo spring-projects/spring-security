@@ -70,6 +70,9 @@ updateDependenciesSettings {
 	})
 	dependencyExcludes {
 		majorVersionBump()
+		minorVersionBump()
+		releaseCandidatesVersions()
+		milestoneVersions()
 		alphaBetaVersions()
 		snapshotVersions()
 		addRule { components ->
