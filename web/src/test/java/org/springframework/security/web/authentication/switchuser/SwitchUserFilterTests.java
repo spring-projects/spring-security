@@ -35,7 +35,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -48,8 +51,10 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -415,6 +420,21 @@ public class SwitchUserFilterTests {
 		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("ROLE_NEW");
 	}
 
+	@Test
+	public void doFilterWhenCustomSecurityContextRepositoryThenUses() {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new MockSecurityContextHolderStrategy(
+				UsernamePasswordAuthenticationToken.unauthenticated("dano", "hawaii50")));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		filter.setUserDetailsService(new MockUserDetailsService());
+		Authentication result = filter.attemptSwitchUser(request);
+		assertThat(result).isNotNull();
+		assertThat(result.getName()).isEqualTo("jacklord");
+		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
+	}
+
 	// SEC-1763
 	@Test
 	public void nestedSwitchesAreNotAllowed() {
@@ -507,6 +527,36 @@ public class SwitchUserFilterTests {
 			else {
 				throw new UsernameNotFoundException("Could not find: " + username);
 			}
+		}
+
+	}
+
+	static final class MockSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+
+		private SecurityContext mock;
+
+		private MockSecurityContextHolderStrategy(Authentication authentication) {
+			this.mock = new SecurityContextImpl(authentication);
+		}
+
+		@Override
+		public void clearContext() {
+			this.mock = null;
+		}
+
+		@Override
+		public SecurityContext getContext() {
+			return this.mock;
+		}
+
+		@Override
+		public void setContext(SecurityContext context) {
+			this.mock = context;
+		}
+
+		@Override
+		public SecurityContext createEmptyContext() {
+			return new SecurityContextImpl();
 		}
 
 	}
