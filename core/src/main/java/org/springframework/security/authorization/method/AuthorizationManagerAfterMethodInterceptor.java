@@ -37,6 +37,7 @@ import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -50,14 +51,8 @@ import org.springframework.util.Assert;
 public final class AuthorizationManagerAfterMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			throw new AuthenticationCredentialsNotFoundException(
-					"An Authentication object was not found in the SecurityContext");
-		}
-		return authentication;
-	};
+	private Supplier<Authentication> authentication = getAuthentication(
+			SecurityContextHolder.getContextHolderStrategy());
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -154,17 +149,38 @@ public final class AuthorizationManagerAfterMethodInterceptor
 		return true;
 	}
 
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.authentication = getAuthentication(strategy);
+	}
+
 	private void attemptAuthorization(MethodInvocation mi, Object result) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing method invocation " + mi));
 		MethodInvocationResult object = new MethodInvocationResult(mi, result);
-		AuthorizationDecision decision = this.authorizationManager.check(AUTHENTICATION_SUPPLIER, object);
-		this.eventPublisher.publishAuthorizationEvent(AUTHENTICATION_SUPPLIER, object, decision);
+		AuthorizationDecision decision = this.authorizationManager.check(this.authentication, object);
+		this.eventPublisher.publishAuthorizationEvent(this.authentication, object, decision);
 		if (decision != null && !decision.isGranted()) {
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize " + mi + " with authorization manager "
 					+ this.authorizationManager + " and decision " + decision));
 			throw new AccessDeniedException("Access Denied");
 		}
 		this.logger.debug(LogMessage.of(() -> "Authorized method invocation " + mi));
+	}
+
+	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
+		return () -> {
+			Authentication authentication = strategy.getContext().getAuthentication();
+			if (authentication == null) {
+				throw new AuthenticationCredentialsNotFoundException(
+						"An Authentication object was not found in the SecurityContext");
+			}
+			return authentication;
+		};
 	}
 
 	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
