@@ -183,11 +183,11 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void configure(H http) {
-		X509AuthenticationFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class));
+		X509AuthenticationFilter filter = getFilter(http.getSharedObject(AuthenticationManager.class), http);
 		http.addFilter(filter);
 	}
 
-	private X509AuthenticationFilter getFilter(AuthenticationManager authenticationManager) {
+	private X509AuthenticationFilter getFilter(AuthenticationManager authenticationManager, H http) {
 		if (this.x509AuthenticationFilter == null) {
 			this.x509AuthenticationFilter = new X509AuthenticationFilter();
 			this.x509AuthenticationFilter.setAuthenticationManager(authenticationManager);
@@ -197,6 +197,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			if (this.authenticationDetailsSource != null) {
 				this.x509AuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 			}
+			this.x509AuthenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			this.x509AuthenticationFilter = postProcess(this.x509AuthenticationFilter);
 		}
 

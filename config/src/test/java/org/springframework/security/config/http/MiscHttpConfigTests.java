@@ -76,6 +76,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.openid.OpenIDAuthenticationFilter;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -383,6 +384,19 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void getWhenUsingX509CustomSecurityContextHolderStrategyThenUses() throws Exception {
+		System.setProperty("subject_principal_regex", "OU=(.*?)(?:,|$)");
+		this.spring.configLocations(xml("X509WithSecurityContextHolderStrategy")).autowire();
+		RequestPostProcessor x509 = x509(
+				"classpath:org/springframework/security/config/http/MiscHttpConfigTests-certificate.pem");
+		// @formatter:off
+		this.mvc.perform(get("/protected").with(x509))
+				.andExpect(status().isOk());
+		// @formatter:on
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
+	}
+
+	@Test
 	public void configureWhenUsingInvalidLogoutSuccessUrlThenThrowsException() {
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.configLocations(xml("InvalidLogoutSuccessUrl")).autowire());
@@ -652,6 +666,26 @@ public class MiscHttpConfigTests {
 		this.mvc.perform(rolesRequest)
 				.andExpect(content().string("ROLE_admin,ROLE_user"));
 		// @formatter:on
+	}
+
+	@Test
+	public void loginWhenJeeFilterCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.configLocations(xml("JeeFilterWithSecurityContextHolderStrategy")).autowire();
+		Principal user = mock(Principal.class);
+		given(user.getName()).willReturn("joe");
+		// @formatter:off
+		MockHttpServletRequestBuilder rolesRequest = get("/roles")
+				.principal(user)
+				.with((request) -> {
+					request.addUserRole("admin");
+					request.addUserRole("user");
+					request.addUserRole("unmapped");
+					return request;
+				});
+		this.mvc.perform(rolesRequest)
+				.andExpect(content().string("ROLE_admin,ROLE_user"));
+		// @formatter:on
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	@Test

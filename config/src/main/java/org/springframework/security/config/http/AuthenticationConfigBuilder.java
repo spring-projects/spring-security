@@ -260,8 +260,8 @@ final class AuthenticationConfigBuilder {
 		createOpenIDLoginFilter(sessionStrategy, authenticationManager,
 				authenticationFilterSecurityContextRepositoryRef);
 		createSaml2LoginFilter(authenticationManager, authenticationFilterSecurityContextRepositoryRef);
-		createX509Filter(authenticationManager);
-		createJeeFilter(authenticationManager);
+		createX509Filter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
+		createJeeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createLogoutFilter(authenticationFilterSecurityContextHolderStrategyRef);
 		createSaml2LogoutFilter(authenticationFilterSecurityContextHolderStrategyRef);
 		createLoginPageFilterIfNeeded();
@@ -625,7 +625,8 @@ final class AuthenticationConfigBuilder {
 		this.bearerTokenAuthenticationFilter = resourceServerBuilder.parse(resourceServerElt, this.pc);
 	}
 
-	void createX509Filter(BeanReference authManager) {
+	void createX509Filter(BeanReference authManager,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		Element x509Elt = DomUtils.getChildElementByTagName(this.httpElt, Elements.X509);
 		RootBeanDefinition filter = null;
 		if (x509Elt != null) {
@@ -633,6 +634,8 @@ final class AuthenticationConfigBuilder {
 					.rootBeanDefinition(X509AuthenticationFilter.class);
 			filterBuilder.getRawBeanDefinition().setSource(this.pc.extractSource(x509Elt));
 			filterBuilder.addPropertyValue("authenticationManager", authManager);
+			filterBuilder.addPropertyValue("securityContextHolderStrategy",
+					authenticationFilterSecurityContextHolderStrategyRef);
 			String regex = x509Elt.getAttribute("subject-principal-regex");
 			if (StringUtils.hasText(regex)) {
 				BeanDefinitionBuilder extractor = BeanDefinitionBuilder
@@ -673,7 +676,8 @@ final class AuthenticationConfigBuilder {
 		}
 	}
 
-	void createJeeFilter(BeanReference authManager) {
+	void createJeeFilter(BeanReference authManager,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		Element jeeElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.JEE);
 		RootBeanDefinition filter = null;
 		if (jeeElt != null) {
@@ -681,6 +685,8 @@ final class AuthenticationConfigBuilder {
 					.rootBeanDefinition(J2eePreAuthenticatedProcessingFilter.class);
 			filterBuilder.getRawBeanDefinition().setSource(this.pc.extractSource(jeeElt));
 			filterBuilder.addPropertyValue("authenticationManager", authManager);
+			filterBuilder.addPropertyValue("securityContextHolderStrategy",
+					authenticationFilterSecurityContextHolderStrategyRef);
 			BeanDefinitionBuilder adsBldr = BeanDefinitionBuilder
 					.rootBeanDefinition(J2eeBasedPreAuthenticatedWebAuthenticationDetailsSource.class);
 			adsBldr.addPropertyValue("userRoles2GrantedAuthoritiesMapper",
