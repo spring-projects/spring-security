@@ -16,6 +16,7 @@
 
 package org.springframework.security;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
@@ -23,6 +24,14 @@ import org.springframework.security.core.context.SecurityContextImpl;
 public class MockSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
 	private SecurityContext mock;
+
+	public MockSecurityContextHolderStrategy() {
+
+	}
+
+	public MockSecurityContextHolderStrategy(Authentication authentication) {
+		this.mock = new SecurityContextImpl(authentication);
+	}
 
 	@Override
 	public void clearContext() {

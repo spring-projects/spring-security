@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,10 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.MockSecurityContextHolderStrategy;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
@@ -47,6 +50,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -265,6 +269,25 @@ public class ConcurrentSessionFilterTests {
 		filter.setLogoutHandlers(new LogoutHandler[] { handler });
 		filter.doFilter(request, response, new MockFilterChain());
 		verify(handler).logout(eq(request), eq(response), any());
+	}
+
+	@Test
+	public void doFilterWhenCustomSecurityContextHolderStrategyThenHandlersUsed() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpSession session = new MockHttpSession();
+		request.setSession(session);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SessionRegistry registry = mock(SessionRegistry.class);
+		SessionInformation information = new SessionInformation("user", "sessionId",
+				new Date(System.currentTimeMillis() - 1000));
+		information.expireNow();
+		given(registry.getSessionInformation(anyString())).willReturn(information);
+		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(
+				new MockSecurityContextHolderStrategy(new TestingAuthenticationToken("user", "password")));
+		filter.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		filter.doFilter(request, response, new MockFilterChain());
+		verify(securityContextHolderStrategy).getContext();
 	}
 
 	@Test

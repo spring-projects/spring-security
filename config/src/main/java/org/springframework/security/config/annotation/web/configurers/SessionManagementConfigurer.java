@@ -400,6 +400,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				concurrentSessionFilter.setLogoutHandlers(logoutHandlers);
 			}
 		}
+		concurrentSessionFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return concurrentSessionFilter;
 	}
 
