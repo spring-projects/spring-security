@@ -55,6 +55,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -85,6 +86,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolderStrategyAdapter;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -114,6 +116,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @since 4.0
  */
 public final class SecurityMockMvcRequestPostProcessors {
+
+	private static final SecurityContextHolderStrategy DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY = new TestSecurityContextHolderStrategyAdapter();
 
 	private SecurityMockMvcRequestPostProcessors() {
 	}
@@ -455,6 +459,18 @@ public final class SecurityMockMvcRequestPostProcessors {
 		return new OAuth2ClientRequestPostProcessor(registrationId);
 	}
 
+	private static SecurityContextHolderStrategy getSecurityContextHolderStrategy(HttpServletRequest request) {
+		WebApplicationContext context = WebApplicationContextUtils
+				.findWebApplicationContext(request.getServletContext());
+		if (context == null) {
+			return DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY;
+		}
+		if (context.getBeanNamesForType(SecurityContextHolderStrategy.class).length == 0) {
+			return DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY;
+		}
+		return context.getBean(SecurityContextHolderStrategy.class);
+	}
+
 	/**
 	 * Populates the X509Certificate instances onto the request
 	 */
@@ -710,7 +726,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param request the {@link HttpServletRequest} to use
 		 */
 		final void save(Authentication authentication, HttpServletRequest request) {
-			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+			SecurityContext securityContext = getSecurityContextHolderStrategy(request).createEmptyContext();
 			securityContext.setAuthentication(authentication);
 			save(securityContext, request);
 		}
@@ -790,8 +806,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	private static final class TestSecurityContextHolderPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
-		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
-
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			// TestSecurityContextHolder is only a default value
@@ -799,8 +813,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 			if (existingContext != null) {
 				return request;
 			}
-			SecurityContext context = TestSecurityContextHolder.getContext();
-			if (!this.EMPTY.equals(context)) {
+			SecurityContextHolderStrategy strategy = getSecurityContextHolderStrategy(request);
+			SecurityContext empty = strategy.createEmptyContext();
+			SecurityContext context = strategy.getContext();
+			if (!empty.equals(context)) {
 				save(context, request);
 			}
 			return request;
@@ -851,7 +867,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			SecurityContext context = getSecurityContextHolderStrategy(request).createEmptyContext();
 			context.setAuthentication(this.authentication);
 			save(this.authentication, request);
 			return request;
@@ -869,7 +885,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	private static final class UserDetailsRequestPostProcessor implements RequestPostProcessor {
 
-		private final RequestPostProcessor delegate;
+		private final AuthenticationRequestPostProcessor delegate;
 
 		UserDetailsRequestPostProcessor(UserDetails user) {
 			Authentication token = UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(),

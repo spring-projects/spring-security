@@ -24,6 +24,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -45,6 +46,9 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 	private static final boolean reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono",
 			WithUserDetailsSecurityContextFactory.class.getClassLoader());
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private BeanFactory beans;
 
 	@Autowired
@@ -61,9 +65,14 @@ final class WithUserDetailsSecurityContextFactory implements WithSecurityContext
 		UserDetails principal = userDetailsService.loadUserByUsername(username);
 		Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(principal,
 				principal.getPassword(), principal.getAuthorities());
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	private UserDetailsService findUserDetailsService(String beanName) {

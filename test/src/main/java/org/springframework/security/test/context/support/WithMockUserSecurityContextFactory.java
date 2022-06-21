@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -38,6 +40,9 @@ import org.springframework.util.StringUtils;
  * @see WithMockUser
  */
 final class WithMockUserSecurityContextFactory implements WithSecurityContextFactory<WithMockUser> {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	@Override
 	public SecurityContext createSecurityContext(WithMockUser withUser) {
@@ -60,9 +65,14 @@ final class WithMockUserSecurityContextFactory implements WithSecurityContextFac
 		User principal = new User(username, withUser.password(), true, true, true, true, grantedAuthorities);
 		Authentication authentication = UsernamePasswordAuthenticationToken.authenticated(principal,
 				principal.getPassword(), principal.getAuthorities());
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
 		return context;
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }
