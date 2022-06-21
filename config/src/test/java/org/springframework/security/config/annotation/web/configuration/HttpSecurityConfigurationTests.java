@@ -36,11 +36,13 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -55,6 +57,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -133,6 +137,22 @@ public class HttpSecurityConfigurationTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("Bob"));
 		// @formatter:on
+	}
+
+	@Test
+	public void asyncDispatchWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(DefaultWithFilterChainConfig.class, SecurityContextChangedListenerConfig.class,
+				NameController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithBob = get("/name").with(user("Bob"));
+		MvcResult mvcResult = this.mockMvc.perform(requestWithBob)
+				.andExpect(request().asyncStarted())
+				.andReturn();
+		this.mockMvc.perform(asyncDispatch(mvcResult))
+				.andExpect(status().isOk())
+				.andExpect(content().string("Bob"));
+		// @formatter:on
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	@Test
@@ -244,8 +264,8 @@ public class HttpSecurityConfigurationTests {
 	static class NameController {
 
 		@GetMapping("/name")
-		Callable<String> name() {
-			return () -> SecurityContextHolder.getContext().getAuthentication().getName();
+		Callable<String> name(Authentication authentication) {
+			return () -> authentication.getName();
 		}
 
 	}

@@ -27,6 +27,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.stream.Collectors;
 
 import javax.security.auth.Subject;
@@ -129,12 +130,15 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -766,6 +770,21 @@ public class MiscHttpConfigTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void asyncDispatchWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.configLocations(xml("WithSecurityContextHolderStrategy")).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithBob = get("/name").with(user("Bob"));
+		MvcResult mvcResult = this.mvc.perform(requestWithBob)
+				.andExpect(request().asyncStarted())
+				.andReturn();
+		this.mvc.perform(asyncDispatch(mvcResult))
+				.andExpect(status().isOk())
+				.andExpect(content().string("Bob"));
+		// @formatter:on
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
+	}
+
 	/**
 	 * SEC-1893
 	 */
@@ -907,6 +926,11 @@ public class MiscHttpConfigTests {
 		@GetMapping("/details")
 		String details(Authentication authentication) {
 			return authentication.getDetails().getClass().getName();
+		}
+
+		@GetMapping("/name")
+		Callable<String> name(Authentication authentication) {
+			return () -> authentication.getName();
 		}
 
 	}
