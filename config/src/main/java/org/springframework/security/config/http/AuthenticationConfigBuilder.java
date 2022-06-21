@@ -228,7 +228,7 @@ final class AuthenticationConfigBuilder {
 		this.portResolver = portResolver;
 		this.csrfLogoutHandler = csrfLogoutHandler;
 		createAnonymousFilter(authenticationFilterSecurityContextHolderStrategyRef);
-		createRememberMeFilter(authenticationManager);
+		createRememberMeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createBasicFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createBearerTokenAuthenticationFilter(authenticationManager);
 		createFormLoginFilter(sessionStrategy, authenticationManager,
@@ -245,7 +245,8 @@ final class AuthenticationConfigBuilder {
 		createExceptionTranslationFilter(authenticationFilterSecurityContextHolderStrategyRef);
 	}
 
-	void createRememberMeFilter(BeanReference authenticationManager) {
+	void createRememberMeFilter(BeanReference authenticationManager,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		// Parse remember me before logout as RememberMeServices is also a LogoutHandler
 		// implementation.
 		Element rememberMeElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.REMEMBER_ME);
@@ -255,7 +256,7 @@ final class AuthenticationConfigBuilder {
 				key = createKey();
 			}
 			RememberMeBeanDefinitionParser rememberMeParser = new RememberMeBeanDefinitionParser(key,
-					authenticationManager);
+					authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 			this.rememberMeFilter = rememberMeParser.parse(rememberMeElt, this.pc);
 			this.rememberMeServicesId = rememberMeParser.getRememberMeServicesId();
 			createRememberMeProvider(key);

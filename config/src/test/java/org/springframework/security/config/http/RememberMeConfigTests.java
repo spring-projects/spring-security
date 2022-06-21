@@ -29,6 +29,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.TestDataSource;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
@@ -217,6 +218,18 @@ public class RememberMeConfigTests {
 	public void configureWhenUsingPersistentTokenRepositoryAndANegativeTokenValidityThenThrowsWiringException() {
 		assertThatExceptionOfType(BeanDefinitionParsingException.class).isThrownBy(
 				() -> this.spring.configLocations(xml("NegativeTokenValidityWithPersistentRepository")).autowire());
+	}
+
+	@Test
+	public void rememberMeWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.configLocations(xml("WithSecurityContextHolderStrategy")).autowire();
+		MvcResult result = rememberAuthentication("user", "password").andReturn();
+		Cookie cookie = rememberMeCookie(result);
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").cookie(cookie))
+				.andExpect(status().isOk());
+		// @formatter:on
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	@Test
