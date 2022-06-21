@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -43,9 +44,12 @@ import org.springframework.util.Assert;
 public final class SecurityContextChannelInterceptor extends ChannelInterceptorAdapter
 		implements ExecutorChannelInterceptor {
 
-	private static final SecurityContext EMPTY_CONTEXT = SecurityContextHolder.createEmptyContext();
-
 	private static final ThreadLocal<Stack<SecurityContext>> originalContext = new ThreadLocal<>();
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
+	private SecurityContext empty = this.securityContextHolderStrategy.createEmptyContext();
 
 	private final String authenticationHeaderName;
 
@@ -108,8 +112,13 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		cleanup();
 	}
 
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.securityContextHolderStrategy = strategy;
+		this.empty = this.securityContextHolderStrategy.createEmptyContext();
+	}
+
 	private void setup(Message<?> message) {
-		SecurityContext currentContext = SecurityContextHolder.getContext();
+		SecurityContext currentContext = this.securityContextHolderStrategy.getContext();
 		Stack<SecurityContext> contextStack = originalContext.get();
 		if (contextStack == null) {
 			contextStack = new Stack<>();
@@ -118,9 +127,9 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 		contextStack.push(currentContext);
 		Object user = message.getHeaders().get(this.authenticationHeaderName);
 		Authentication authentication = getAuthentication(user);
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
 	}
 
 	private Authentication getAuthentication(Object user) {
@@ -133,22 +142,22 @@ public final class SecurityContextChannelInterceptor extends ChannelInterceptorA
 	private void cleanup() {
 		Stack<SecurityContext> contextStack = originalContext.get();
 		if (contextStack == null || contextStack.isEmpty()) {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			originalContext.remove();
 			return;
 		}
 		SecurityContext context = contextStack.pop();
 		try {
-			if (SecurityContextChannelInterceptor.EMPTY_CONTEXT.equals(context)) {
-				SecurityContextHolder.clearContext();
+			if (SecurityContextChannelInterceptor.this.empty.equals(context)) {
+				this.securityContextHolderStrategy.clearContext();
 				originalContext.remove();
 			}
 			else {
-				SecurityContextHolder.setContext(context);
+				this.securityContextHolderStrategy.setContext(context);
 			}
 		}
 		catch (Throwable ex) {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 		}
 	}
 

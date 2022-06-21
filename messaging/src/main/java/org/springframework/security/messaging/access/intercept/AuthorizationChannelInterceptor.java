@@ -32,6 +32,7 @@ import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -42,14 +43,8 @@ import org.springframework.util.Assert;
  */
 public final class AuthorizationChannelInterceptor implements ChannelInterceptor {
 
-	static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			throw new AuthenticationCredentialsNotFoundException(
-					"An Authentication object was not found in the SecurityContext");
-		}
-		return authentication;
-	};
+	private Supplier<Authentication> authentication = getAuthentication(
+			SecurityContextHolder.getContextHolderStrategy());
 
 	private final Log logger = LogFactory.getLog(this.getClass());
 
@@ -71,8 +66,8 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	@Override
 	public Message<?> preSend(Message<?> message, MessageChannel channel) {
 		this.logger.debug(LogMessage.of(() -> "Authorizing message send"));
-		AuthorizationDecision decision = this.preSendAuthorizationManager.check(AUTHENTICATION_SUPPLIER, message);
-		this.eventPublisher.publishAuthorizationEvent(AUTHENTICATION_SUPPLIER, message, decision);
+		AuthorizationDecision decision = this.preSendAuthorizationManager.check(this.authentication, message);
+		this.eventPublisher.publishAuthorizationEvent(this.authentication, message, decision);
 		if (decision == null || !decision.isGranted()) { // default deny
 			this.logger.debug(LogMessage.of(() -> "Failed to authorize message with authorization manager "
 					+ this.preSendAuthorizationManager + " and decision " + decision));
@@ -83,6 +78,14 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	}
 
 	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.authentication = getAuthentication(securityContextHolderStrategy);
+	}
+
+	/**
 	 * Use this {@link AuthorizationEventPublisher} to publish the
 	 * {@link AuthorizationManager} result.
 	 * @param eventPublisher
@@ -90,6 +93,17 @@ public final class AuthorizationChannelInterceptor implements ChannelInterceptor
 	public void setAuthorizationEventPublisher(AuthorizationEventPublisher eventPublisher) {
 		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
 		this.eventPublisher = eventPublisher;
+	}
+
+	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
+		return () -> {
+			Authentication authentication = strategy.getContext().getAuthentication();
+			if (authentication == null) {
+				throw new AuthenticationCredentialsNotFoundException(
+						"An Authentication object was not found in the SecurityContext");
+			}
+			return authentication;
+		};
 	}
 
 	private static class NoopAuthorizationEventPublisher implements AuthorizationEventPublisher {
