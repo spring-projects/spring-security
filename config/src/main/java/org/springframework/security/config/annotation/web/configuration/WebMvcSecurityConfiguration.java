@@ -66,6 +66,7 @@ class WebMvcSecurityConfiguration implements WebMvcConfigurer, ApplicationContex
 				.add(new org.springframework.security.web.bind.support.AuthenticationPrincipalArgumentResolver());
 		CurrentSecurityContextArgumentResolver currentSecurityContextArgumentResolver = new CurrentSecurityContextArgumentResolver();
 		currentSecurityContextArgumentResolver.setBeanResolver(this.beanResolver);
+		currentSecurityContextArgumentResolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		argumentResolvers.add(currentSecurityContextArgumentResolver);
 		argumentResolvers.add(new CsrfTokenArgumentResolver());
 	}
