@@ -34,6 +34,7 @@ import org.springframework.security.authorization.method.PostFilterAuthorization
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
  * Base {@link Configuration} for enabling Spring Security Method Security.
@@ -107,6 +108,14 @@ final class PrePostMethodSecurityConfiguration {
 		this.preAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
 		this.postAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
 		this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(methodSecurityExpressionHandler);
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.preFilterAuthorizationMethodInterceptor.setSecurityContextHolderStrategy(strategy);
+		this.preAuthorizeAuthorizationMethodInterceptor.setSecurityContextHolderStrategy(strategy);
+		this.postAuthorizeAuthorizaitonMethodInterceptor.setSecurityContextHolderStrategy(strategy);
+		this.postFilterAuthorizationMethodInterceptor.setSecurityContextHolderStrategy(strategy);
 	}
 
 	@Autowired(required = false)
