@@ -31,6 +31,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsPasswordService;
@@ -54,6 +55,9 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private final Map<String, MutableUserDetails> users = new HashMap<>();
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private AuthenticationManager authenticationManager;
 
@@ -113,7 +117,7 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 
 	@Override
 	public void changePassword(String oldPassword, String newPassword) {
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+		Authentication currentUser = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
 			throw new AccessDeniedException(
@@ -152,6 +156,17 @@ public class InMemoryUserDetailsManager implements UserDetailsManager, UserDetai
 		}
 		return new User(user.getUsername(), user.getPassword(), user.isEnabled(), user.isAccountNonExpired(),
 				user.isCredentialsNonExpired(), user.isAccountNonLocked(), user.getAuthorities());
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {

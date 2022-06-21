@@ -39,6 +39,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -203,6 +206,18 @@ public class JdbcUserDetailsManagerTests {
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("newPassword");
 		assertThat(this.cache.getUserMap().containsKey("joe")).isFalse();
+	}
+
+	@Test
+	public void changePasswordWhenCustomSecurityContextHolderStrategyThenUses() {
+		insertJoe();
+		Authentication authentication = authenticateJoe();
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		this.manager.setSecurityContextHolderStrategy(strategy);
+		this.manager.changePassword("wrongpassword", "newPassword");
+		verify(strategy).getContext();
 	}
 
 	@Test
