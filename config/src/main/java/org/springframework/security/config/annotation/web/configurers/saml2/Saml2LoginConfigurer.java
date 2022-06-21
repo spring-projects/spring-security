@@ -233,6 +233,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		relyingPartyRegistrationRepository(http);
 		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
 				this.loginProcessingUrl);
+		this.saml2WebSsoAuthenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		setAuthenticationRequestRepository(http, this.saml2WebSsoAuthenticationFilter);
 		setAuthenticationFilter(this.saml2WebSsoAuthenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
