@@ -27,6 +27,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -89,6 +90,9 @@ import org.springframework.util.Assert;
  */
 public class SecurityEvaluationContextExtension implements EvaluationContextExtension {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private Authentication authentication;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
@@ -131,11 +135,22 @@ public class SecurityEvaluationContextExtension implements EvaluationContextExte
 		return root;
 	}
 
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	private Authentication getAuthentication() {
 		if (this.authentication != null) {
 			return this.authentication;
 		}
-		SecurityContext context = SecurityContextHolder.getContext();
+		SecurityContext context = this.securityContextHolderStrategy.getContext();
 		return context.getAuthentication();
 	}
 
