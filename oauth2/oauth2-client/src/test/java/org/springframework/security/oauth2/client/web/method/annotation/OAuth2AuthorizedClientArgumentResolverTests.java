@@ -33,6 +33,8 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.ClientAuthorizationRequiredException;
 import org.springframework.security.oauth2.client.ClientCredentialsOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
@@ -67,6 +69,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -231,6 +234,18 @@ public class OAuth2AuthorizedClientArgumentResolverTests {
 				OAuth2AuthorizedClient.class);
 		assertThat(this.argumentResolver.resolveArgument(methodParameter, null,
 				new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
+	}
+
+	@Test
+	public void resolveArgumentWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(this.authentication));
+		this.argumentResolver.setSecurityContextHolderStrategy(strategy);
+		MethodParameter methodParameter = this.getMethodParameter("paramTypeAuthorizedClient",
+				OAuth2AuthorizedClient.class);
+		assertThat(this.argumentResolver.resolveArgument(methodParameter, null,
+				new ServletWebRequest(this.request, this.response), null)).isSameAs(this.authorizedClient1);
+		verify(strategy, atLeastOnce()).getContext();
 	}
 
 	@Test

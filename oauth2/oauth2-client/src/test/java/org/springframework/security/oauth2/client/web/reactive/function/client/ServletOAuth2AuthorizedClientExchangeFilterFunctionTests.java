@@ -64,6 +64,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
 import org.springframework.security.oauth2.client.JwtBearerOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
@@ -247,6 +249,18 @@ public class ServletOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		Map<String, Object> attrs = getDefaultRequestAttributes();
 		assertThat(ServletOAuth2AuthorizedClientExchangeFilterFunction.getAuthentication(attrs))
 				.isEqualTo(this.authentication);
+		verifyNoInteractions(this.authorizedClientRepository);
+	}
+
+	@Test
+	public void defaultRequestAuthenticationWhenCustomSecurityContextHolderStrategyThenAuthenticationSet() {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(this.authentication));
+		this.function.setSecurityContextHolderStrategy(strategy);
+		Map<String, Object> attrs = getDefaultRequestAttributes();
+		assertThat(ServletOAuth2AuthorizedClientExchangeFilterFunction.getAuthentication(attrs))
+				.isEqualTo(this.authentication);
+		verify(strategy).getContext();
 		verifyNoInteractions(this.authorizedClientRepository);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -303,6 +305,23 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
+		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1");
+	}
+
+	@Test
+	public void doFilterWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		MockHttpServletRequest authorizationRequest = createAuthorizationRequest("/callback/client-1");
+		MockHttpServletRequest authorizationResponse = createAuthorizationResponse(authorizationRequest);
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain filterChain = mock(FilterChain.class);
+		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
+		this.setUpAuthenticationResult(this.registration1);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext())
+				.willReturn(new SecurityContextImpl(new TestingAuthenticationToken("user", "password")));
+		this.filter.setSecurityContextHolderStrategy(strategy);
+		this.filter.doFilter(authorizationResponse, response, filterChain);
+		verify(strategy).getContext();
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/callback/client-1");
 	}
 

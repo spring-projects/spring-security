@@ -37,6 +37,8 @@ import org.springframework.security.authentication.AuthenticationManagerResolver
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
@@ -208,6 +210,18 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		filter.doFilter(this.request, this.response, this.filterChain);
 		verify(this.authenticationDetailsSource).buildDetails(this.request);
+	}
+
+	@Test
+	public void doFilterWhenCustomSecurityContextHolderStrategyThenUses() throws ServletException, IOException {
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		filter.setSecurityContextHolderStrategy(strategy);
+		filter.doFilter(this.request, this.response, this.filterChain);
+		verify(strategy).setContext(any());
 	}
 
 	@Test
