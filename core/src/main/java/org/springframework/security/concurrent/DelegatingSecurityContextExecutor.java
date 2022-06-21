@@ -20,6 +20,7 @@ import java.util.concurrent.Executor;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -64,6 +65,16 @@ public class DelegatingSecurityContextExecutor extends AbstractDelegatingSecurit
 
 	protected final Executor getDelegateExecutor() {
 		return this.delegate;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		super.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 	}
 
 }

@@ -30,12 +30,16 @@ import org.mockito.internal.stubbing.answers.Returns;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.core.context.MockSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -68,10 +72,15 @@ public class DelegatingSecurityContextCallableTests {
 	}
 
 	private void givenDelegateCallWillAnswerWithCurrentSecurityContext() throws Exception {
+		givenDelegateCallWillAnswerWithCurrentSecurityContext(SecurityContextHolder.getContextHolderStrategy());
+	}
+
+	private void givenDelegateCallWillAnswerWithCurrentSecurityContext(SecurityContextHolderStrategy strategy)
+			throws Exception {
 		given(this.delegate.call()).willAnswer(new Returns(this.callableResult) {
 			@Override
 			public Object answer(InvocationOnMock invocation) throws Throwable {
-				assertThat(SecurityContextHolder.getContext())
+				assertThat(strategy.getContext())
 						.isEqualTo(DelegatingSecurityContextCallableTests.this.securityContext);
 				return super.answer(invocation);
 			}
@@ -120,6 +129,20 @@ public class DelegatingSecurityContextCallableTests {
 		// ensure callable is what sets up the SecurityContextHolder
 		SecurityContextHolder.clearContext();
 		assertWrapped(this.callable);
+	}
+
+	@Test
+	public void callDefaultSecurityContextWithCustomSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new MockSecurityContextHolderStrategy());
+		givenDelegateCallWillAnswerWithCurrentSecurityContext(securityContextHolderStrategy);
+		securityContextHolderStrategy.setContext(this.securityContext);
+		DelegatingSecurityContextCallable<Object> callable = new DelegatingSecurityContextCallable<>(this.delegate);
+		callable.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		this.callable = callable;
+		// ensure callable is what sets up the SecurityContextHolder
+		securityContextHolderStrategy.clearContext();
+		assertWrapped(this.callable);
+		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
 	}
 
 	// SEC-3031
