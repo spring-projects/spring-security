@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -70,11 +71,15 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final BeanReference authenticationManager;
 
+	private final BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef;
+
 	private String rememberMeServicesId;
 
-	RememberMeBeanDefinitionParser(String key, BeanReference authenticationManager) {
+	RememberMeBeanDefinitionParser(String key, BeanReference authenticationManager,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		this.key = key;
 		this.authenticationManager = authenticationManager;
+		this.authenticationFilterSecurityContextHolderStrategyRef = authenticationFilterSecurityContextHolderStrategyRef;
 	}
 
 	@Override
@@ -175,6 +180,8 @@ class RememberMeBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		filter.addConstructorArgValue(this.authenticationManager);
 		filter.addConstructorArgReference(servicesName);
+		filter.addPropertyValue("securityContextHolderStrategy",
+				this.authenticationFilterSecurityContextHolderStrategyRef);
 		pc.popAndRegisterContainingComponent();
 		return filter.getBeanDefinition();
 	}

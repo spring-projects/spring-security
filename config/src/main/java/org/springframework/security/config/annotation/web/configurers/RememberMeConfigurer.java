@@ -293,6 +293,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.authenticationSuccessHandler != null) {
 			rememberMeFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 		}
+		rememberMeFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
 	}
