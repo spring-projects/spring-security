@@ -37,6 +37,7 @@ import org.springframework.security.access.prepost.PreFilter;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -51,14 +52,8 @@ import org.springframework.util.StringUtils;
 public final class PreFilterAuthorizationMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			throw new AuthenticationCredentialsNotFoundException(
-					"An Authentication object was not found in the SecurityContext");
-		}
-		return authentication;
-	};
+	private Supplier<Authentication> authentication = getAuthentication(
+			SecurityContextHolder.getContextHolderStrategy());
 
 	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
@@ -116,6 +111,16 @@ public final class PreFilterAuthorizationMethodInterceptor
 	}
 
 	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.authentication = getAuthentication(strategy);
+	}
+
+	/**
 	 * Filter the method argument specified in the {@link PreFilter} annotation that
 	 * {@link MethodInvocation} specifies.
 	 * @param mi the {@link MethodInvocation} to check
@@ -126,7 +131,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 		if (attribute == PreFilterExpressionAttribute.NULL_ATTRIBUTE) {
 			return mi.proceed();
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(AUTHENTICATION_SUPPLIER, mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(this.authentication, mi);
 		Object filterTarget = findFilterTarget(attribute.filterTarget, ctx, mi);
 		this.expressionHandler.filter(filterTarget, attribute.getExpression(), ctx);
 		return mi.proceed();
@@ -150,6 +155,17 @@ public final class PreFilterAuthorizationMethodInterceptor
 		Assert.state(!filterTarget.getClass().isArray(),
 				"Pre-filtering on array types is not supported. Using a Collection will solve this problem.");
 		return filterTarget;
+	}
+
+	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
+		return () -> {
+			Authentication authentication = strategy.getContext().getAuthentication();
+			if (authentication == null) {
+				throw new AuthenticationCredentialsNotFoundException(
+						"An Authentication object was not found in the SecurityContext");
+			}
+			return authentication;
+		};
 	}
 
 	private final class PreFilterExpressionAttributeRegistry

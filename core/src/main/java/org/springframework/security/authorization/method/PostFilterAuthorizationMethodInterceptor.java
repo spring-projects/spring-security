@@ -37,6 +37,7 @@ import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -51,14 +52,8 @@ import org.springframework.util.Assert;
 public final class PostFilterAuthorizationMethodInterceptor
 		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private static final Supplier<Authentication> AUTHENTICATION_SUPPLIER = () -> {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			throw new AuthenticationCredentialsNotFoundException(
-					"An Authentication object was not found in the SecurityContext");
-		}
-		return authentication;
-	};
+	private Supplier<Authentication> authentication = getAuthentication(
+			SecurityContextHolder.getContextHolderStrategy());
 
 	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
 
@@ -116,6 +111,16 @@ public final class PostFilterAuthorizationMethodInterceptor
 	}
 
 	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.authentication = getAuthentication(strategy);
+	}
+
+	/**
 	 * Filter a {@code returnedObject} using the {@link PostFilter} annotation that the
 	 * {@link MethodInvocation} specifies.
 	 * @param mi the {@link MethodInvocation} to check check
@@ -128,8 +133,19 @@ public final class PostFilterAuthorizationMethodInterceptor
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
 			return returnedObject;
 		}
-		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(AUTHENTICATION_SUPPLIER, mi);
+		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(this.authentication, mi);
 		return this.expressionHandler.filter(returnedObject, attribute.getExpression(), ctx);
+	}
+
+	private Supplier<Authentication> getAuthentication(SecurityContextHolderStrategy strategy) {
+		return () -> {
+			Authentication authentication = strategy.getContext().getAuthentication();
+			if (authentication == null) {
+				throw new AuthenticationCredentialsNotFoundException(
+						"An Authentication object was not found in the SecurityContext");
+			}
+			return authentication;
+		};
 	}
 
 	private final class PostFilterExpressionAttributeRegistry

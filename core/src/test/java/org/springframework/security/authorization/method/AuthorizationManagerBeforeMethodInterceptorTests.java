@@ -27,12 +27,16 @@ import org.springframework.security.authorization.AuthenticatedAuthorizationMana
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -66,8 +70,22 @@ public class AuthorizationManagerBeforeMethodInterceptorTests {
 		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
 				Pointcut.TRUE, mockAuthorizationManager);
 		advice.invoke(mockMethodInvocation);
-		verify(mockAuthorizationManager).check(AuthorizationManagerBeforeMethodInterceptor.AUTHENTICATION_SUPPLIER,
-				mockMethodInvocation);
+		verify(mockAuthorizationManager).check(any(Supplier.class), eq(mockMethodInvocation));
+	}
+
+	@Test
+	public void beforeWhenMockSecurityContextHolderStrategyThenUses() throws Throwable {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		Authentication authentication = new TestingAuthenticationToken("user", "password",
+				AuthorityUtils.createAuthorityList("authority"));
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		MethodInvocation invocation = mock(MethodInvocation.class);
+		AuthorizationManager<MethodInvocation> authorizationManager = AuthenticatedAuthorizationManager.authenticated();
+		AuthorizationManagerBeforeMethodInterceptor advice = new AuthorizationManagerBeforeMethodInterceptor(
+				Pointcut.TRUE, authorizationManager);
+		advice.setSecurityContextHolderStrategy(strategy);
+		advice.invoke(invocation);
+		verify(strategy).getContext();
 	}
 
 	@Test
