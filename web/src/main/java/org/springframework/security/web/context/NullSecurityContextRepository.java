@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 
 /**
  * @author Luke Taylor
@@ -53,6 +54,7 @@ public final class NullSecurityContextRepository implements SecurityContextRepos
 	 * @since 5.8
 	 */
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		Assert.notNull(this.securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = strategy;
 	}
 
