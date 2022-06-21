@@ -33,6 +33,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -58,6 +60,9 @@ class HttpSecurityConfiguration {
 
 	private ApplicationContext context;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	@Autowired
 	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
@@ -77,6 +82,11 @@ class HttpSecurityConfiguration {
 		this.context = context;
 	}
 
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	HttpSecurity httpSecurity() throws Exception {
@@ -86,10 +96,12 @@ class HttpSecurityConfiguration {
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
 		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
+		WebAsyncManagerIntegrationFilter webAsyncManagerIntegrationFilter = new WebAsyncManagerIntegrationFilter();
+		webAsyncManagerIntegrationFilter.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		// @formatter:off
 		http
 			.csrf(withDefaults())
-			.addFilter(new WebAsyncManagerIntegrationFilter())
+			.addFilter(webAsyncManagerIntegrationFilter)
 			.exceptionHandling(withDefaults())
 			.headers(withDefaults())
 			.sessionManagement(withDefaults())

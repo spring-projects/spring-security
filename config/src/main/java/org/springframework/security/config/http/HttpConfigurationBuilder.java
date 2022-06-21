@@ -587,6 +587,7 @@ class HttpConfigurationBuilder {
 		boolean asyncSupported = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 		if (asyncSupported) {
 			this.webAsyncManagerFilter = new RootBeanDefinition(WebAsyncManagerIntegrationFilter.class);
+			this.webAsyncManagerFilter.getPropertyValues().add("securityContextHolderStrategy", this.holderStrategyRef);
 		}
 	}
 
