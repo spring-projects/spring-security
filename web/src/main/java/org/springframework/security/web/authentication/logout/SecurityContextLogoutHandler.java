@@ -27,6 +27,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -45,6 +46,9 @@ import org.springframework.util.Assert;
 public class SecurityContextLogoutHandler implements LogoutHandler {
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private boolean invalidateHttpSession = true;
 
@@ -68,8 +72,8 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 				}
 			}
 		}
-		SecurityContext context = SecurityContextHolder.getContext();
-		SecurityContextHolder.clearContext();
+		SecurityContext context = this.securityContextHolderStrategy.getContext();
+		this.securityContextHolderStrategy.clearContext();
 		if (this.clearAuthentication) {
 			context.setAuthentication(null);
 		}
@@ -77,6 +81,17 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 
 	public boolean isInvalidateHttpSession() {
 		return this.invalidateHttpSession;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**

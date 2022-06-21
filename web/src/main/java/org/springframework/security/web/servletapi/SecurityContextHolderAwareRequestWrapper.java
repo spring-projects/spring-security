@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolverIm
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.util.Assert;
 
@@ -49,6 +50,9 @@ import org.springframework.util.Assert;
  * @see SecurityContextHolderAwareRequestFilter
  */
 public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequestWrapper {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private final AuthenticationTrustResolver trustResolver;
 
@@ -88,7 +92,7 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	 * @return the authentication object or <code>null</code>
 	 */
 	private Authentication getAuthentication() {
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+		Authentication auth = this.securityContextHolderStrategy.getContext().getAuthentication();
 		return (!this.trustResolver.isAnonymous(auth)) ? auth : null;
 	}
 
@@ -167,6 +171,17 @@ public class SecurityContextHolderAwareRequestWrapper extends HttpServletRequest
 	@Override
 	public String toString() {
 		return "SecurityContextHolderAwareRequestWrapper[ " + getRequest() + "]";
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }
