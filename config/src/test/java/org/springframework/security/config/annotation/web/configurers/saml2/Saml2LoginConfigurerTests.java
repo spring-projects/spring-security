@@ -45,6 +45,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
@@ -53,6 +54,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextChangedListener;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -91,10 +94,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -160,6 +166,26 @@ public class Saml2LoginConfigurerTests {
 		this.mvc.perform(get("/").session(session))
 				.andExpect(content().string("test@saml.user"));
 		// @formatter:on
+	}
+
+	@Test
+	public void saml2LoginWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring
+				.register(Saml2LoginConfig.class, SecurityContextChangedListenerConfig.class, ResourceController.class)
+				.autowire();
+		// @formatter:off
+		MockHttpSession session = (MockHttpSession) this.mvc
+				.perform(post("/login/saml2/sso/registration-id")
+						.param("SAMLResponse", SIGNED_RESPONSE))
+				.andExpect(redirectedUrl("/")).andReturn().getRequest().getSession(false);
+		this.mvc.perform(get("/").session(session))
+				.andExpect(content().string("test@saml.user"));
+		// @formatter:on
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
+		SecurityContextChangedListener listener = this.spring.getContext()
+				.getBean(SecurityContextChangedListener.class);
+		verify(listener, times(2)).securityContextChanged(setAuthentication(Saml2Authentication.class));
 	}
 
 	@Test

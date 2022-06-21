@@ -43,11 +43,13 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -269,6 +271,24 @@ public class Saml2LogoutConfigurerTests {
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
+	}
+
+	@Test
+	public void saml2LogoutRequestWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(Saml2LogoutDefaultsConfig.class, SecurityContextChangedListenerConfig.class).autowire();
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
+				Collections.emptyMap());
+		principal.setRelyingPartyRegistrationId("get");
+		Saml2Authentication user = new Saml2Authentication(principal, "response",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
+				.andExpect(status().isFound()).andReturn();
+		String location = result.getResponse().getHeader("Location");
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
+		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
+		verify(getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	// gh-11235

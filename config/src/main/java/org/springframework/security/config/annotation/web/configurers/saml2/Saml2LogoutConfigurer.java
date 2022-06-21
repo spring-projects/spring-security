@@ -31,7 +31,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.LogoutConfigurer;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutRequestValidator;
 import org.springframework.security.saml2.provider.service.authentication.logout.OpenSamlLogoutResponseValidator;
@@ -248,6 +248,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(registrations,
 				this.logoutRequestConfigurer.logoutRequestValidator(), logoutResponseResolver, logoutHandlers);
 		filter.setLogoutRequestMatcher(createLogoutRequestMatcher());
+		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return postProcess(filter);
 	}
 
@@ -271,7 +272,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private RequestMatcher createLogoutMatcher() {
 		RequestMatcher logout = new AntPathRequestMatcher(this.logoutUrl, "POST");
-		RequestMatcher saml2 = new Saml2RequestMatcher();
+		RequestMatcher saml2 = new Saml2RequestMatcher(getSecurityContextHolderStrategy());
 		return new AndRequestMatcher(logout, saml2);
 	}
 
@@ -464,9 +465,15 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private static class Saml2RequestMatcher implements RequestMatcher {
 
+		private final SecurityContextHolderStrategy securityContextHolderStrategy;
+
+		Saml2RequestMatcher(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+		}
+
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (authentication == null) {
 				return false;
 			}
