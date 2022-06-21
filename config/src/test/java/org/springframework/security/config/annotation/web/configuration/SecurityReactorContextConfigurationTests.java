@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,12 +38,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.SecurityReactorContextConfiguration.SecurityReactorContextSubscriber;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.client.web.reactive.function.client.MockExchangeFunction;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -54,6 +56,8 @@ import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link SecurityReactorContextConfiguration}.
@@ -230,6 +234,38 @@ public class SecurityReactorContextConfigurationTests {
 				.expectNext(clientResponseOk)
 				.verifyComplete();
 		// @formatter:on
+	}
+
+	@Test
+	public void createPublisherWhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.register(SecurityConfig.class, SecurityContextChangedListenerConfig.class).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		strategy.getContext().setAuthentication(this.authentication);
+		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
+		// @formatter:off
+		ExchangeFilterFunction filter = (req, next) -> Mono.deferContextual(Mono::just)
+				.filter((ctx) -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
+				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
+				.cast(Map.class)
+				.map((attributes) -> clientResponseOk);
+		// @formatter:on
+		ClientRequest clientRequest = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
+		MockExchangeFunction exchange = new MockExchangeFunction();
+		Map<Object, Object> expectedContextAttributes = new HashMap<>();
+		expectedContextAttributes.put(HttpServletRequest.class, null);
+		expectedContextAttributes.put(HttpServletResponse.class, null);
+		expectedContextAttributes.put(Authentication.class, this.authentication);
+		Mono<ClientResponse> clientResponseMono = filter.filter(clientRequest, exchange)
+				.flatMap((response) -> filter.filter(clientRequest, exchange));
+		// @formatter:off
+		StepVerifier.create(clientResponseMono)
+				.expectAccessibleContext()
+				.contains(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES, expectedContextAttributes)
+				.then()
+				.expectNext(clientResponseOk)
+				.verifyComplete();
+		// @formatter:on
+		verify(strategy, times(2)).getContext();
 	}
 
 	@EnableWebSecurity
