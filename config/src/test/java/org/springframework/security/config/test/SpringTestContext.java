@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.test;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -55,6 +56,8 @@ public class SpringTestContext implements Closeable {
 	private ConfigurableWebApplicationContext context;
 
 	private List<Filter> filters = new ArrayList<>();
+
+	private List<Consumer<ConfigurableWebApplicationContext>> postProcessors = new ArrayList<>();
 
 	public SpringTestContext(Object test) {
 		setTest(test);
@@ -104,6 +107,11 @@ public class SpringTestContext implements Closeable {
 		return this;
 	}
 
+	public SpringTestContext postProcessor(Consumer<ConfigurableWebApplicationContext> contextConsumer) {
+		this.postProcessors.add(contextConsumer);
+		return this;
+	}
+
 	public SpringTestContext mockMvcAfterSpringSecurityOk() {
 		return addFilter(new OncePerRequestFilter() {
 			@Override
@@ -131,6 +139,9 @@ public class SpringTestContext implements Closeable {
 	public void autowire() {
 		this.context.setServletContext(new MockServletContext());
 		this.context.setServletConfig(new MockServletConfig());
+		for (Consumer<ConfigurableWebApplicationContext> postProcessor : this.postProcessors) {
+			postProcessor.accept(this.context);
+		}
 		this.context.refresh();
 		if (this.context.containsBean(BeanIds.SPRING_SECURITY_FILTER_CHAIN)) {
 			// @formatter:off
