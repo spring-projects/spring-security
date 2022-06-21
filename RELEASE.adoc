@@ -135,7 +135,7 @@ git push origin 5.4.0-RC1
 
 The following command will update https://spring.io/projects/spring-security#learn with the new release version using the following parameters
 
-<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `public_repo`
+<github-personal-access-token> - Replace with a https://github.com/settings/tokens[GitHub personal access token] that has a scope of `read:org` as https://spring.io/restdocs/index.html#authentication[documented for spring.io api]
 <next-version> - Replace with the milestone you are releasing now (i.e. 5.5.0-RC1)
 <previous-version> - Replace with the previous release which will be removed from the listed versions (i.e. 5.5.0-M3)
 
