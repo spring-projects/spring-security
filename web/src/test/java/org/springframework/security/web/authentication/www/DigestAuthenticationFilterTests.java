@@ -30,10 +30,12 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockSecurityContextHolderStrategy;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -44,8 +46,10 @@ import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -304,6 +308,18 @@ public class DigestAuthenticationFilterTests {
 		DigestAuthenticationFilter filter = new DigestAuthenticationFilter();
 		filter.setAuthenticationEntryPoint(new DigestAuthenticationEntryPoint());
 		assertThatIllegalArgumentException().isThrownBy(filter::afterPropertiesSet);
+	}
+
+	@Test
+	public void authenticateUsesCustomSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new MockSecurityContextHolderStrategy());
+		String responseDigest = DigestAuthUtils.generateDigest(false, USERNAME, REALM, PASSWORD, "GET", REQUEST_URI,
+				QOP, NONCE, NC, CNONCE);
+		this.request.addHeader("Authorization",
+				createAuthorizationHeader(USERNAME, REALM, NONCE, REQUEST_URI, responseDigest, QOP, NC, CNONCE));
+		this.filter.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		executeFilterInContainerSimulator(this.filter, this.request, true);
+		verify(securityContextHolderStrategy).setContext(any());
 	}
 
 	@Test
