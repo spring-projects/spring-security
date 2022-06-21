@@ -32,6 +32,8 @@ import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
@@ -59,7 +61,10 @@ final class WebSocketMessageBrokerSecurityConfiguration
 	private static final AuthorizationManager<Message<?>> ANY_MESSAGE_AUTHENTICATED = MessageMatcherDelegatingAuthorizationManager
 			.builder().anyMessage().authenticated().build();
 
-	private final ChannelInterceptor securityContextChannelInterceptor = new SecurityContextChannelInterceptor();
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
+	private final SecurityContextChannelInterceptor securityContextChannelInterceptor = new SecurityContextChannelInterceptor();
 
 	private final ChannelInterceptor csrfChannelInterceptor = new CsrfChannelInterceptor();
 
@@ -74,15 +79,25 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	@Override
 	public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
-		argumentResolvers.add(new AuthenticationPrincipalArgumentResolver());
+		AuthenticationPrincipalArgumentResolver resolver = new AuthenticationPrincipalArgumentResolver();
+		resolver.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		argumentResolvers.add(resolver);
 	}
 
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration) {
 		this.authorizationChannelInterceptor
 				.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
+		this.authorizationChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		this.securityContextChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		registration.interceptors(this.securityContextChannelInterceptor, this.csrfChannelInterceptor,
 				this.authorizationChannelInterceptor);
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	@Autowired(required = false)
