@@ -54,9 +54,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.MessageAuthorizationContext;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
@@ -84,6 +86,8 @@ import org.springframework.web.socket.sockjs.transport.session.WebSocketServerSo
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 
 public class WebSocketMessageBrokerSecurityConfigurationTests {
 
@@ -223,6 +227,18 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		HttpRequestHandler handler = handler(request);
 		handler.handleRequest(request, new MockHttpServletResponse());
 		assertHandshake(request);
+	}
+
+	@Test
+	public void messagesContextWebSocketUseSecurityContextHolderStrategy() {
+		loadConfig(WebSocketSecurityConfig.class, SecurityContextChangedListenerConfig.class);
+		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
+		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		Message<?> message = message(headers, "/authenticated");
+		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
+		MessageChannel messageChannel = clientInboundChannel();
+		messageChannel.send(message);
+		verify(this.context.getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	@Test
@@ -691,6 +707,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 			// @formatter:off
 			messages
 				.simpDestMatchers("/permitAll/**").permitAll()
+				.simpDestMatchers("/authenticated/**").authenticated()
 				.anyMessage().denyAll();
 			// @formatter:on
 			return messages.build();
