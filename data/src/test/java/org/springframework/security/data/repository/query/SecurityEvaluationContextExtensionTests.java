@@ -29,9 +29,14 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SecurityEvaluationContextExtensionTests {
 
@@ -57,6 +62,16 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
+	}
+
+	@Test
+	public void getRootObjectUseSecurityContextHolderStrategy() {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		this.securityExtension.setSecurityContextHolderStrategy(strategy);
+		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
+		verify(strategy).getContext();
 	}
 
 	@Test
