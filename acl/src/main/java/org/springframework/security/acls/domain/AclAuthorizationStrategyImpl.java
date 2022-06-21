@@ -27,7 +27,9 @@ import org.springframework.security.acls.model.SidRetrievalStrategy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -45,6 +47,9 @@ import org.springframework.util.Assert;
  * @author Ben Alex
  */
 public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private final GrantedAuthority gaGeneralChanges;
 
@@ -81,12 +86,12 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 
 	@Override
 	public void securityCheck(Acl acl, int changeType) {
-		if ((SecurityContextHolder.getContext() == null)
-				|| (SecurityContextHolder.getContext().getAuthentication() == null)
-				|| !SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
+		SecurityContext context = this.securityContextHolderStrategy.getContext();
+		if ((context == null) || (context.getAuthentication() == null)
+				|| !context.getAuthentication().isAuthenticated()) {
 			throw new AccessDeniedException("Authenticated principal required to operate with ACLs");
 		}
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = context.getAuthentication();
 		// Check if authorized by virtue of ACL ownership
 		Sid currentUser = createCurrentUser(authentication);
 		if (currentUser.equals(acl.getOwner())
@@ -144,6 +149,17 @@ public class AclAuthorizationStrategyImpl implements AclAuthorizationStrategy {
 	public void setSidRetrievalStrategy(SidRetrievalStrategy sidRetrievalStrategy) {
 		Assert.notNull(sidRetrievalStrategy, "SidRetrievalStrategy required");
 		this.sidRetrievalStrategy = sidRetrievalStrategy;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }
