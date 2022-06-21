@@ -32,6 +32,7 @@ import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
@@ -68,6 +69,9 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private String rolePrefix = "ROLE_";
 
 	private HttpServletRequestFactory requestFactory;
@@ -79,6 +83,17 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
 
 	public void setRolePrefix(String rolePrefix) {
 		Assert.notNull(rolePrefix, "Role prefix must not be null");
@@ -178,6 +193,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 		factory.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		factory.setAuthenticationManager(this.authenticationManager);
 		factory.setLogoutHandlers(this.logoutHandlers);
+		factory.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		return factory;
 	}
 
