@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,15 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,12 +77,33 @@ public class AbstractAuthorizeTagTests {
 
 	@Test
 	public void privilegeEvaluatorFromRequest() throws IOException {
+		WebApplicationContext wac = mock(WebApplicationContext.class);
+		this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+		given(wac.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		String uri = "/something";
 		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
 		this.tag.setUrl(uri);
 		this.request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
 		this.tag.authorizeUsingUrlCheck();
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
+	}
+
+	@Test
+	public void privilegeEvaluatorFromRequestUsesSecurityContextHolderStrategy() throws IOException {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(
+				new TestingAuthenticationToken("user", "password", AuthorityUtils.NO_AUTHORITIES)));
+		GenericWebApplicationContext wac = new GenericWebApplicationContext();
+		wac.registerBean(SecurityContextHolderStrategy.class, () -> strategy);
+		wac.refresh();
+		this.servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, wac);
+		String uri = "/something";
+		WebInvocationPrivilegeEvaluator expected = mock(WebInvocationPrivilegeEvaluator.class);
+		this.tag.setUrl(uri);
+		this.request.setAttribute(WebAttributes.WEB_INVOCATION_PRIVILEGE_EVALUATOR_ATTRIBUTE, expected);
+		this.tag.authorizeUsingUrlCheck();
+		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
+		verify(strategy).getContext();
 	}
 
 	@Test
@@ -89,6 +114,7 @@ public class AbstractAuthorizeTagTests {
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		given(wac.getBeansOfType(WebInvocationPrivilegeEvaluator.class))
 				.willReturn(Collections.singletonMap("wipe", expected));
+		given(wac.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 		this.tag.authorizeUsingUrlCheck();
 		verify(expected).isAllowed(eq(""), eq(uri), eq("GET"), any());
@@ -103,6 +129,7 @@ public class AbstractAuthorizeTagTests {
 		WebApplicationContext wac = mock(WebApplicationContext.class);
 		given(wac.getBeansOfType(SecurityExpressionHandler.class))
 				.willReturn(Collections.<String, SecurityExpressionHandler>singletonMap("wipe", expected));
+		given(wac.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		this.servletContext.setAttribute("org.springframework.web.servlet.FrameworkServlet.CONTEXT.dispatcher", wac);
 		assertThat(this.tag.authorize()).isTrue();
 	}
