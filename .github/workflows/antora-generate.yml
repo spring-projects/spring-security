@@ -16,6 +16,10 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '17'
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
         env:
