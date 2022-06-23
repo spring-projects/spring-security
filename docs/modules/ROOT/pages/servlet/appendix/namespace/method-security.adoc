@@ -28,6 +28,11 @@ Defaults to "false".
 If true, class based proxying will be used instead of interface based proxying.
 Defaults to "false".
 
+[[nsa-method-security-security-context-holder-strategy-ref]]
+* **security-context-holder-strategy-ref**
+Specifies a SecurityContextHolderStrategy to use when retrieving the SecurityContext.
+Defaults to the value returned by SecurityContextHolder.getContextHolderStrategy().
+
 [[nsa-method-security-children]]
 === Child Elements of <method-security>
 
