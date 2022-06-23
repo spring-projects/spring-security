@@ -651,6 +651,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="security-context-holder-strategy-ref" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Specifies the security context holder strategy to use, by default uses a ThreadLocal-based
+                strategy
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="global-method-security">
       <xs:annotation>
