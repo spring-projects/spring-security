@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -115,6 +115,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final boolean allowSessionCreation;
 
+	private final BeanMetadataElement authenticationFilterSecurityContextHolderStrategy;
+
 	private BeanDefinition defaultAuthorizedClientRepository;
 
 	private BeanDefinition oauth2AuthorizationRequestRedirectFilter;
@@ -128,12 +130,14 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanDefinition oauth2LoginLinks;
 
 	OAuth2LoginBeanDefinitionParser(BeanReference requestCache, BeanReference portMapper, BeanReference portResolver,
-			BeanReference sessionStrategy, boolean allowSessionCreation) {
+			BeanReference sessionStrategy, boolean allowSessionCreation,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		this.requestCache = requestCache;
 		this.portMapper = portMapper;
 		this.portResolver = portResolver;
 		this.sessionStrategy = sessionStrategy;
 		this.allowSessionCreation = allowSessionCreation;
+		this.authenticationFilterSecurityContextHolderStrategy = authenticationFilterSecurityContextHolderStrategy;
 	}
 
 	@Override
@@ -245,6 +249,8 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 			oauth2LoginAuthenticationFilterBuilder.addPropertyValue("authenticationFailureHandler",
 					failureHandlerBuilder.getBeanDefinition());
 		}
+		oauth2LoginAuthenticationFilterBuilder.addPropertyValue("securityContextHolderStrategy",
+				this.authenticationFilterSecurityContextHolderStrategy);
 		// prepare loginlinks
 		this.oauth2LoginLinks = BeanDefinitionBuilder.rootBeanDefinition(Map.class)
 				.setFactoryMethodOnBean("getLoginLinks", oauth2LoginBeanConfigId).getBeanDefinition();

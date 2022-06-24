@@ -224,7 +224,8 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Test
 	public void getWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
-		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class, SecurityContextChangedListenerConfig.class).autowire();
+		this.spring.register(RestOperationsConfig.class, DefaultConfig.class, BasicController.class,
+				SecurityContextChangedListenerConfig.class).autowire();
 		mockRestOperations(jwks("Default"));
 		String token = this.token("ValidNoScopes");
 		// @formatter:off
