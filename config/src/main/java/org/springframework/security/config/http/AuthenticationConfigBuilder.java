@@ -239,7 +239,7 @@ final class AuthenticationConfigBuilder {
 		createX509Filter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createJeeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createLogoutFilter(authenticationFilterSecurityContextHolderStrategyRef);
-		createSaml2LogoutFilter();
+		createSaml2LogoutFilter(authenticationFilterSecurityContextHolderStrategyRef);
 		createLoginPageFilterIfNeeded();
 		createUserDetailsServiceFactory();
 		createExceptionTranslationFilter(authenticationFilterSecurityContextHolderStrategyRef);
@@ -635,13 +635,13 @@ final class AuthenticationConfigBuilder {
 		}
 	}
 
-	private void createSaml2LogoutFilter() {
+	private void createSaml2LogoutFilter(BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		Element saml2LogoutElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.SAML2_LOGOUT);
 		if (saml2LogoutElt == null) {
 			return;
 		}
 		Saml2LogoutBeanDefinitionParser parser = new Saml2LogoutBeanDefinitionParser(this.logoutHandlers,
-				this.logoutSuccessHandler);
+				this.logoutSuccessHandler, authenticationFilterSecurityContextHolderStrategyRef);
 		parser.parse(saml2LogoutElt, this.pc);
 		BeanDefinition saml2LogoutFilter = parser.getLogoutFilter();
 		BeanDefinition saml2LogoutRequestFilter = parser.getLogoutRequestFilter();

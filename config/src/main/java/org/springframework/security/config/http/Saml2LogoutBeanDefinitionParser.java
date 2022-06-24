@@ -77,10 +77,14 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanDefinition logoutFilter;
 
+	private BeanMetadataElement authenticationFilterSecurityContextHolderStrategy;
+
 	Saml2LogoutBeanDefinitionParser(ManagedList<BeanMetadataElement> logoutHandlers,
-			BeanMetadataElement logoutSuccessHandler) {
+			BeanMetadataElement logoutSuccessHandler,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		this.logoutHandlers = logoutHandlers;
 		this.logoutSuccessHandler = logoutSuccessHandler;
+		this.authenticationFilterSecurityContextHolderStrategy = authenticationFilterSecurityContextHolderStrategy;
 	}
 
 	@Override
@@ -119,7 +123,10 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		this.logoutRequestFilter = BeanDefinitionBuilder.rootBeanDefinition(Saml2LogoutRequestFilter.class)
 				.addConstructorArgValue(registrations).addConstructorArgValue(logoutRequestValidator)
 				.addConstructorArgValue(logoutResponseResolver).addConstructorArgValue(this.logoutHandlers)
-				.addPropertyValue("logoutRequestMatcher", logoutRequestMatcher).getBeanDefinition();
+				.addPropertyValue("logoutRequestMatcher", logoutRequestMatcher)
+				.addPropertyValue("securityContextHolderStrategy",
+						this.authenticationFilterSecurityContextHolderStrategy)
+				.getBeanDefinition();
 		BeanMetadataElement logoutResponseValidator = Saml2LogoutBeanDefinitionParserUtils
 				.getLogoutResponseValidator(element);
 		BeanMetadataElement logoutRequestRepository = Saml2LogoutBeanDefinitionParserUtils
