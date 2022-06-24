@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * @author Eric Deandrea
  * @author Thomas Vitale
+ * @author Alonso Araya
  * @since 5.1
  */
 public class CookieServerCsrfTokenRepositoryTests {
@@ -114,12 +115,19 @@ public class CookieServerCsrfTokenRepositoryTests {
 	}
 
 	@Test
+	public void saveTokenWhenCookieMaxAgeThenCookieMaxAge() {
+		setExpectedCookieMaxAge(3600);
+		saveAndAssertExpectedValues(createToken());
+	}
+
+	@Test
 	public void saveTokenWhenCustomPropertiesThenCustomProperties() {
 		setExpectedDomain("spring.io");
 		setExpectedCookieName("csrfCookie");
 		setExpectedPath("/some/path");
 		setExpectedHeaderName("headerName");
 		setExpectedParameterName("paramName");
+		setExpectedCookieMaxAge(3600);
 		saveAndAssertExpectedValues(createToken());
 	}
 
@@ -233,6 +241,11 @@ public class CookieServerCsrfTokenRepositoryTests {
 	private void setExpectedCookieName(String expectedCookieName) {
 		this.expectedCookieName = expectedCookieName;
 		this.csrfTokenRepository.setCookieName(expectedCookieName);
+	}
+
+	private void setExpectedCookieMaxAge(int expectedCookieMaxAge) {
+		this.csrfTokenRepository.setCookieMaxAge(expectedCookieMaxAge);
+		this.expectedMaxAge = Duration.ofSeconds(expectedCookieMaxAge);
 	}
 
 	private void setExpectedCookieValue(String expectedCookieValue) {
