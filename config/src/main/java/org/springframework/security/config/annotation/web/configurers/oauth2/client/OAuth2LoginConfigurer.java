@@ -290,6 +290,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		OAuth2LoginAuthenticationFilter authenticationFilter = new OAuth2LoginAuthenticationFilter(
 				OAuth2ClientConfigurerUtils.getClientRegistrationRepository(this.getBuilder()),
 				OAuth2ClientConfigurerUtils.getAuthorizedClientRepository(this.getBuilder()), this.loginProcessingUrl);
+		authenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		this.setAuthenticationFilter(authenticationFilter);
 		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (this.loginPage != null) {

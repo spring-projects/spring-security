@@ -230,11 +230,12 @@ final class AuthenticationConfigBuilder {
 		createAnonymousFilter(authenticationFilterSecurityContextHolderStrategyRef);
 		createRememberMeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createBasicFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
-		createBearerTokenAuthenticationFilter(authenticationManager);
+		createBearerTokenAuthenticationFilter(authenticationManager,
+				authenticationFilterSecurityContextHolderStrategyRef);
 		createFormLoginFilter(sessionStrategy, authenticationManager,
 				authenticationFilterSecurityContextHolderStrategyRef, authenticationFilterSecurityContextRepositoryRef);
 		createOAuth2ClientFilters(sessionStrategy, requestCache, authenticationManager,
-				authenticationFilterSecurityContextRepositoryRef);
+				authenticationFilterSecurityContextRepositoryRef, authenticationFilterSecurityContextHolderStrategyRef);
 		createSaml2LoginFilter(authenticationManager, authenticationFilterSecurityContextRepositoryRef);
 		createX509Filter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
 		createJeeFilter(authenticationManager, authenticationFilterSecurityContextHolderStrategyRef);
@@ -304,22 +305,26 @@ final class AuthenticationConfigBuilder {
 	}
 
 	void createOAuth2ClientFilters(BeanReference sessionStrategy, BeanReference requestCache,
-			BeanReference authenticationManager, BeanReference authenticationFilterSecurityContextRepositoryRef) {
+			BeanReference authenticationManager, BeanReference authenticationFilterSecurityContextRepositoryRef,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		createOAuth2LoginFilter(sessionStrategy, authenticationManager,
-				authenticationFilterSecurityContextRepositoryRef);
-		createOAuth2ClientFilter(requestCache, authenticationManager, authenticationFilterSecurityContextRepositoryRef);
+				authenticationFilterSecurityContextRepositoryRef, authenticationFilterSecurityContextHolderStrategy);
+		createOAuth2ClientFilter(requestCache, authenticationManager, authenticationFilterSecurityContextRepositoryRef,
+				authenticationFilterSecurityContextHolderStrategy);
 		registerOAuth2ClientPostProcessors();
 	}
 
 	void createOAuth2LoginFilter(BeanReference sessionStrategy, BeanReference authManager,
-			BeanReference authenticationFilterSecurityContextRepositoryRef) {
+			BeanReference authenticationFilterSecurityContextRepositoryRef,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		Element oauth2LoginElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_LOGIN);
 		if (oauth2LoginElt == null) {
 			return;
 		}
 		this.oauth2LoginEnabled = true;
 		OAuth2LoginBeanDefinitionParser parser = new OAuth2LoginBeanDefinitionParser(this.requestCache, this.portMapper,
-				this.portResolver, sessionStrategy, this.allowSessionCreation);
+				this.portResolver, sessionStrategy, this.allowSessionCreation,
+				authenticationFilterSecurityContextHolderStrategy);
 		BeanDefinition oauth2LoginFilterBean = parser.parse(oauth2LoginElt, this.pc);
 		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
 		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
@@ -358,14 +363,16 @@ final class AuthenticationConfigBuilder {
 	}
 
 	void createOAuth2ClientFilter(BeanReference requestCache, BeanReference authenticationManager,
-			BeanReference authenticationFilterSecurityContextRepositoryRef) {
+			BeanReference authenticationFilterSecurityContextRepositoryRef,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		Element oauth2ClientElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_CLIENT);
 		if (oauth2ClientElt == null) {
 			return;
 		}
 		this.oauth2ClientEnabled = true;
 		OAuth2ClientBeanDefinitionParser parser = new OAuth2ClientBeanDefinitionParser(requestCache,
-				authenticationManager, authenticationFilterSecurityContextRepositoryRef);
+				authenticationManager, authenticationFilterSecurityContextRepositoryRef,
+				authenticationFilterSecurityContextHolderStrategy);
 		parser.parse(oauth2ClientElt, this.pc);
 		BeanDefinition defaultAuthorizedClientRepository = parser.getDefaultAuthorizedClientRepository();
 		registerDefaultAuthorizedClientRepositoryIfNecessary(defaultAuthorizedClientRepository);
@@ -476,7 +483,8 @@ final class AuthenticationConfigBuilder {
 		this.basicFilter = filterBuilder.getBeanDefinition();
 	}
 
-	void createBearerTokenAuthenticationFilter(BeanReference authManager) {
+	void createBearerTokenAuthenticationFilter(BeanReference authManager,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategyRef) {
 		Element resourceServerElt = DomUtils.getChildElementByTagName(this.httpElt, Elements.OAUTH2_RESOURCE_SERVER);
 		if (resourceServerElt == null) {
 			// No resource server, do nothing
@@ -484,7 +492,8 @@ final class AuthenticationConfigBuilder {
 		}
 		OAuth2ResourceServerBeanDefinitionParser resourceServerBuilder = new OAuth2ResourceServerBeanDefinitionParser(
 				authManager, this.authenticationProviders, this.defaultEntryPointMappings,
-				this.defaultDeniedHandlerMappings, this.csrfIgnoreRequestMatchers);
+				this.defaultDeniedHandlerMappings, this.csrfIgnoreRequestMatchers,
+				authenticationFilterSecurityContextHolderStrategyRef);
 		this.bearerTokenAuthenticationFilter = resourceServerBuilder.parse(resourceServerElt, this.pc);
 	}
 

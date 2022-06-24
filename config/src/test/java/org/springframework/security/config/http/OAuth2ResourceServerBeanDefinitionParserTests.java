@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.w3c.dom.Element;
 
+import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -107,6 +108,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -144,6 +146,20 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
 				.andExpect(status().isNotFound());
 		// @formatter:on
+	}
+
+	@Test
+	public void getWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.configLocations(xml("JwtRestOperations"), xml("JwtCustomSecurityContextHolderStrategy")).autowire();
+		mockRestOperations(jwks("Default"));
+		String token = this.token("ValidNoScopes");
+		// @formatter:off
+		this.mvc.perform(get("/").header("Authorization", "Bearer " + token))
+				.andExpect(status().isNotFound());
+		// @formatter:on
+		SecurityContextHolderStrategy securityContextHolderStrategy = this.spring.getContext()
+				.getBean(SecurityContextHolderStrategy.class);
+		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
 	}
 
 	@Test
@@ -507,7 +523,8 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void getBearerTokenResolverWhenNoResolverSpecifiedThenTheDefaultIsUsed() {
 		OAuth2ResourceServerBeanDefinitionParser oauth2 = new OAuth2ResourceServerBeanDefinitionParser(
-				mock(BeanReference.class), mock(List.class), mock(Map.class), mock(Map.class), mock(List.class));
+				mock(BeanReference.class), mock(List.class), mock(Map.class), mock(Map.class), mock(List.class),
+				mock(BeanMetadataElement.class));
 		assertThat(oauth2.getBearerTokenResolver(mock(Element.class))).isInstanceOf(RootBeanDefinition.class);
 	}
 
@@ -816,7 +833,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void validateConfigurationWhenMoreThanOneResourceServerModeThenError() {
 		OAuth2ResourceServerBeanDefinitionParser parser = new OAuth2ResourceServerBeanDefinitionParser(null, null, null,
-				null, null);
+				null, null, null);
 		Element element = mock(Element.class);
 		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
 				.willReturn(true);
@@ -832,7 +849,7 @@ public class OAuth2ResourceServerBeanDefinitionParserTests {
 	@Test
 	public void validateConfigurationWhenNoResourceServerModeThenError() {
 		OAuth2ResourceServerBeanDefinitionParser parser = new OAuth2ResourceServerBeanDefinitionParser(null, null, null,
-				null, null);
+				null, null, null);
 		Element element = mock(Element.class);
 		given(element.hasAttribute(OAuth2ResourceServerBeanDefinitionParser.AUTHENTICATION_MANAGER_RESOLVER_REF))
 				.willReturn(false);

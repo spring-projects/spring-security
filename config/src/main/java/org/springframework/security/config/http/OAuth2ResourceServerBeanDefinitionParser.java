@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -85,14 +85,18 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 
 	private final BeanDefinition accessDeniedHandler = new RootBeanDefinition(BearerTokenAccessDeniedHandler.class);
 
+	private final BeanMetadataElement authenticationFilterSecurityContextHolderStrategy;
+
 	OAuth2ResourceServerBeanDefinitionParser(BeanReference authenticationManager,
 			List<BeanReference> authenticationProviders, Map<BeanDefinition, BeanMetadataElement> entryPoints,
-			Map<BeanDefinition, BeanMetadataElement> deniedHandlers, List<BeanDefinition> ignoreCsrfRequestMatchers) {
+			Map<BeanDefinition, BeanMetadataElement> deniedHandlers, List<BeanDefinition> ignoreCsrfRequestMatchers,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		this.authenticationManager = authenticationManager;
 		this.authenticationProviders = authenticationProviders;
 		this.entryPoints = entryPoints;
 		this.deniedHandlers = deniedHandlers;
 		this.ignoreCsrfRequestMatchers = ignoreCsrfRequestMatchers;
+		this.authenticationFilterSecurityContextHolderStrategy = authenticationFilterSecurityContextHolderStrategy;
 	}
 
 	/**
@@ -134,6 +138,8 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 		filterBuilder.addConstructorArgValue(authenticationManagerResolver);
 		filterBuilder.addPropertyValue(BEARER_TOKEN_RESOLVER, bearerTokenResolver);
 		filterBuilder.addPropertyValue(AUTHENTICATION_ENTRY_POINT, authenticationEntryPoint);
+		filterBuilder.addPropertyValue("securityContextHolderStrategy",
+				this.authenticationFilterSecurityContextHolderStrategy);
 		return filterBuilder.getBeanDefinition();
 	}
 

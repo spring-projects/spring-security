@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,8 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 
 	private final BeanReference authenticationFilterSecurityContextRepositoryRef;
 
+	private final BeanMetadataElement authenticationFilterSecurityContextHolderStrategy;
+
 	private BeanDefinition defaultAuthorizedClientRepository;
 
 	private BeanDefinition authorizationRequestRedirectFilter;
@@ -63,10 +65,12 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanDefinition authorizationCodeAuthenticationProvider;
 
 	OAuth2ClientBeanDefinitionParser(BeanReference requestCache, BeanReference authenticationManager,
-			BeanReference authenticationFilterSecurityContextRepositoryRef) {
+			BeanReference authenticationFilterSecurityContextRepositoryRef,
+			BeanMetadataElement authenticationFilterSecurityContextHolderStrategy) {
 		this.requestCache = requestCache;
 		this.authenticationManager = authenticationManager;
 		this.authenticationFilterSecurityContextRepositoryRef = authenticationFilterSecurityContextRepositoryRef;
+		this.authenticationFilterSecurityContextHolderStrategy = authenticationFilterSecurityContextHolderStrategy;
 	}
 
 	@Override
