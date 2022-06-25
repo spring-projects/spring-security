@@ -44,6 +44,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	
 	public static <T> AuthenticatedAuthorizationManager<T> fullyAuthenticated() {
 		
+		
 	}
 	
 	public static <T> AuthenticatedAuthorizationManager<T> anonymous() {

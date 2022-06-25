@@ -128,6 +128,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	public static <T> AuthorityAuthorizationManager<T> fullyAuthenticated(String... ) {
 
+
 	}
 
 	public static <T> AuthorityAuthorizationManager<T> anonymous(String... ) {

@@ -278,6 +278,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 		public AuthorizationManagerRequestMatcherRegistry anonymous() {
 			AuthorizationManager<RequestAuthorizationContext> manager = AuthenticatedAuthorizationManager.anonymous();
+
 			return access(manager);
 
 		}
