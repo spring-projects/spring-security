@@ -122,6 +122,18 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 		return new AuthorityAuthorizationManager<>(authorities);
 	}
 
+	public static <T> AuthorityAuthorizationManager<T> RememberMe() {
+
+	}
+
+	public static <T> AuthorityAuthorizationManager<T> fullyAuthenticated(String... ) {
+
+	}
+
+	public static <T> AuthorityAuthorizationManager<T> anonymous(String... ) {
+
+	}
+
 	private static String[] toNamedRolesArray(String rolePrefix, String[] roles) {
 		String[] result = new String[roles.length];
 		for (int i = 0; i < roles.length; i++) {

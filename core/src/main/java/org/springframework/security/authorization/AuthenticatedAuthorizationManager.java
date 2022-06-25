@@ -41,6 +41,19 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 	public static <T> AuthenticatedAuthorizationManager<T> authenticated() {
 		return new AuthenticatedAuthorizationManager<>();
 	}
+	
+	public static <T> AuthenticatedAuthorizationManager<T> fullyAuthenticated() {
+		
+	}
+	
+	public static <T> AuthenticatedAuthorizationManager<T> anonymous() {
+		
+	}
+	
+	public static <T> AuthenticatedAuthorizationManager<T> rememberMe() {
+		
+	}
+
 
 	/**
 	 * Determines if the current user is authorized by evaluating if the

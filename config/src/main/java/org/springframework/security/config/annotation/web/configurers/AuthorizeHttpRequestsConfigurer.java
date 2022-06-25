@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
@@ -262,6 +262,24 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public AuthorizationManagerRequestMatcherRegistry denyAll() {
 			return access((a, o) -> new AuthorizationDecision(false));
+		}
+
+		public AuthorizationManagerRequestMatcherRegistry rememberMe() {
+			AuthorizationManager<RequestAuthorizationContext> manager = AuthenticatedAuthorizationManager.rememberMe();
+			return access(manager);
+
+		}
+
+		public AuthorizationManagerRequestMatcherRegistry fullyAuthenticated() {
+			AuthorizationManager<RequestAuthorizationContext> manager = AuthenticatedAuthorizationManager
+					.fullyAuthenticated();
+			return access(manager);
+		}
+
+		public AuthorizationManagerRequestMatcherRegistry anonymous() {
+			AuthorizationManager<RequestAuthorizationContext> manager = AuthenticatedAuthorizationManager.anonymous();
+			return access(manager);
+
 		}
 
 		/**
