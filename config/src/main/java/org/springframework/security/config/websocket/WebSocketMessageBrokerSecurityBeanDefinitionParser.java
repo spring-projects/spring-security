@@ -25,6 +25,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -50,6 +51,8 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.Elements;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
 import org.springframework.security.messaging.access.expression.MessageAuthorizationContextSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
@@ -118,6 +121,8 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 	private static final String AUTHORIZATION_MANAGER_REF_ATTR = "authorization-manager-ref";
 
+	private static final String SECURITY_CONTEXT_HOLDER_STRATEGY_REF_ATTR = "security-context-holder-strategy-ref";
+
 	private static final String PATTERN_ATTR = "pattern";
 
 	private static final String ACCESS_ATTR = "access";
@@ -170,6 +175,16 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 		BeanDefinitionBuilder inboundChannelSecurityInterceptor = BeanDefinitionBuilder
 				.rootBeanDefinition(AuthorizationChannelInterceptor.class);
 		inboundChannelSecurityInterceptor.addConstructorArgReference(mdsId);
+		String holderStrategyRef = element.getAttribute(SECURITY_CONTEXT_HOLDER_STRATEGY_REF_ATTR);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			inboundChannelSecurityInterceptor.addPropertyValue("securityContextHolderStrategy",
+					new RuntimeBeanReference(holderStrategyRef));
+		}
+		else {
+			inboundChannelSecurityInterceptor.addPropertyValue("securityContextHolderStrategy", BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityContextHolderStrategyFactory.class).getBeanDefinition());
+		}
+
 		return context.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
 	}
 
@@ -455,6 +470,20 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				builder.matchers(entry.getKey()).access(entry.getValue());
 			}
 			return builder.anyMessage().permitAll().build();
+		}
+
+	}
+
+	static class SecurityContextHolderStrategyFactory implements FactoryBean<SecurityContextHolderStrategy> {
+
+		@Override
+		public SecurityContextHolderStrategy getObject() throws Exception {
+			return SecurityContextHolder.getContextHolderStrategy();
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return SecurityContextHolderStrategy.class;
 		}
 
 	}
