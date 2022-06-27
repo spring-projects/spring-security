@@ -300,6 +300,9 @@ websocket-message-broker.attrlist &=
 websocket-message-broker.attrlist &=
 	## Use AuthorizationManager API instead of SecurityMetadatasource
 	attribute use-authorization-manager {xsd:boolean}?
+websocket-message-broker.attrlist &=
+	## Use this SecurityContextHolderStrategy (note only supported in conjunction with the AuthorizationManager API)
+	attribute security-context-holder-strategy-ref {xsd:string}?
 
 intercept-message =
 	## Creates an authorization rule for a websocket message.

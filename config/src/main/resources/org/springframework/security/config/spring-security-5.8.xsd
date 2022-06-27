@@ -934,6 +934,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="security-context-holder-strategy-ref" type="xs:string">
+         <xs:annotation>
+            <xs:documentation>Use this SecurityContextHolderStrategy (note only supported in conjunction with the
+                AuthorizationManager API)
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="intercept-message">
       <xs:annotation>

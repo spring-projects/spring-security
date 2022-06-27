@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.expression.DefaultMessageSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.MessageSecurityExpressionRoot;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
@@ -246,6 +247,15 @@ public class WebSocketMessageBrokerConfigTests {
 		this.spring.configLocations(xml("NoIdAuthorizationManager")).autowire();
 		Message<?> message = message("/permitAll", SimpMessageType.UNSUBSCRIBE);
 		send(message);
+	}
+
+	@Test
+	public void sendWhenAnonymousMessageWithCustomSecurityContextHolderStrategyAndAuthorizationManagerThenUses() {
+		this.spring.configLocations(xml("WithSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		Message<?> message = message("/authenticated", SimpMessageType.CONNECT);
+		send(message);
+		verify(strategy).getContext();
 	}
 
 	@Test
@@ -500,11 +510,20 @@ public class WebSocketMessageBrokerConfigTests {
 		headers.setSessionId("123");
 		headers.setSessionAttributes(new HashMap<>());
 		headers.setDestination(destination);
-		if (SecurityContextHolder.getContext().getAuthentication() != null) {
-			headers.setUser(SecurityContextHolder.getContext().getAuthentication());
+		SecurityContextHolderStrategy strategy = getSecurityContextHolderStrategy();
+		if (strategy.getContext().getAuthentication() != null) {
+			headers.setUser(strategy.getContext().getAuthentication());
 		}
 		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
 		return new GenericMessage<>("hi", headers.getMessageHeaders());
+	}
+
+	private SecurityContextHolderStrategy getSecurityContextHolderStrategy() {
+		String[] names = this.spring.getContext().getBeanNamesForType(SecurityContextHolderStrategy.class);
+		if (names.length == 1) {
+			return this.spring.getContext().getBean(names[0], SecurityContextHolderStrategy.class);
+		}
+		return SecurityContextHolder.getContextHolderStrategy();
 	}
 
 	@Controller
