@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of {@link LoginModule} that uses a Spring Security
@@ -54,6 +56,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 public class SecurityContextLoginModule implements LoginModule {
 
 	private static final Log log = LogFactory.getLog(SecurityContextLoginModule.class);
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private Authentication authen;
 
@@ -93,6 +98,17 @@ public class SecurityContextLoginModule implements LoginModule {
 		return true;
 	}
 
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	Authentication getAuthentication() {
 		return this.authen;
 	}
@@ -129,7 +145,7 @@ public class SecurityContextLoginModule implements LoginModule {
 	 */
 	@Override
 	public boolean login() throws LoginException {
-		this.authen = SecurityContextHolder.getContext().getAuthentication();
+		this.authen = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (this.authen != null) {
 			return true;
 		}

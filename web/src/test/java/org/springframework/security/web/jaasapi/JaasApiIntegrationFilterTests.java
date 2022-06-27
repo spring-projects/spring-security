@@ -48,8 +48,12 @@ import org.springframework.security.authentication.jaas.TestLoginModule;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests the JaasApiIntegrationFilter.
@@ -187,6 +191,14 @@ public class JaasApiIntegrationFilterTests {
 		assertJaasSubjectEquals(null);
 		this.filter.setCreateEmptySubject(true);
 		assertJaasSubjectEquals(new Subject());
+	}
+
+	@Test
+	public void doFilterUsesCustomSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(this.token));
+		this.filter.setSecurityContextHolderStrategy(strategy);
+		assertJaasSubjectEquals(this.authenticatedSubject);
 	}
 
 	private void assertJaasSubjectEquals(final Subject expectedValue) throws Exception {

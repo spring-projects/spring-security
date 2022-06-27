@@ -611,7 +611,8 @@ class HttpConfigurationBuilder {
 			provideJaasApi = DEF_JAAS_API_PROVISION;
 		}
 		if ("true".equals(provideJaasApi)) {
-			this.jaasApiFilter = new RootBeanDefinition(JaasApiIntegrationFilter.class);
+			this.jaasApiFilter = BeanDefinitionBuilder.rootBeanDefinition(JaasApiIntegrationFilter.class)
+					.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef).getBeanDefinition();
 		}
 	}
 
