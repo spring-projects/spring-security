@@ -601,6 +601,7 @@ class HttpConfigurationBuilder {
 			this.servApiFilter = GrantedAuthorityDefaultsParserUtils.registerWithDefaultRolePrefix(this.pc,
 					SecurityContextHolderAwareRequestFilterBeanFactory.class);
 			this.servApiFilter.getPropertyValues().add("authenticationManager", authenticationManager);
+			this.servApiFilter.getPropertyValues().add("securityContextHolderStrategy", this.holderStrategyRef);
 		}
 	}
 
@@ -903,10 +904,18 @@ class HttpConfigurationBuilder {
 
 		private SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
 
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+				.getContextHolderStrategy();
+
 		@Override
 		public SecurityContextHolderAwareRequestFilter getBean() {
+			this.filter.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			this.filter.setRolePrefix(this.rolePrefix);
 			return this.filter;
+		}
+
+		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
 		}
 
 	}
