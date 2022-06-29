@@ -53,6 +53,8 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	private String sessionAttrName = SAVED_REQUEST;
 
+	private String matchingRequestParameterName;
+
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
 	 */
@@ -65,7 +67,8 @@ public class HttpSessionRequestCache implements RequestCache {
 			}
 			return;
 		}
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver,
+				this.matchingRequestParameterName);
 		if (this.createSessionAllowed || request.getSession(false) != null) {
 			// Store the HTTP request itself. Used by
 			// AbstractAuthenticationProcessingFilter
@@ -97,6 +100,12 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
+		if (this.matchingRequestParameterName != null
+				&& request.getParameter(this.matchingRequestParameterName) == null) {
+			this.logger.trace(
+					"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
+			return null;
+		}
 		SavedRequest saved = getRequest(request, response);
 		if (saved == null) {
 			this.logger.trace("No saved request");
@@ -160,6 +169,18 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	public void setSessionAttrName(String sessionAttrName) {
 		this.sessionAttrName = sessionAttrName;
+	}
+
+	/**
+	 * Specify the name of a query parameter that is added to the URL that specifies the
+	 * request cache should be checked in
+	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}
+	 * @param matchingRequestParameterName the parameter name that must be in the request
+	 * for {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} to check
+	 * the session.
+	 */
+	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
+		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
 }

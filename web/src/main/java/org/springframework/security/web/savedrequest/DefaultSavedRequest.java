@@ -98,8 +98,15 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	private final int serverPort;
 
-	@SuppressWarnings("unchecked")
+	private final String matchingRequestParameterName;
+
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
+		this(request, portResolver, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver,
+			String matchingRequestParameterName) {
 		Assert.notNull(request, "Request required");
 		Assert.notNull(portResolver, "PortResolver required");
 		// Cookies
@@ -132,6 +139,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.serverName = request.getServerName();
 		this.contextPath = request.getContextPath();
 		this.servletPath = request.getServletPath();
+		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
 	/**
@@ -148,6 +156,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.serverName = builder.serverName;
 		this.servletPath = builder.servletPath;
 		this.serverPort = builder.serverPort;
+		this.matchingRequestParameterName = builder.matchingRequestParameterName;
 	}
 
 	/**
@@ -265,8 +274,9 @@ public class DefaultSavedRequest implements SavedRequest {
 	 */
 	@Override
 	public String getRedirectUrl() {
+		String queryString = createQueryString(this.queryString, this.matchingRequestParameterName);
 		return UrlUtils.buildFullRequestUrl(this.scheme, this.serverName, this.serverPort, this.requestURI,
-				this.queryString);
+				queryString);
 	}
 
 	@Override
@@ -354,6 +364,19 @@ public class DefaultSavedRequest implements SavedRequest {
 		return "DefaultSavedRequest [" + getRedirectUrl() + "]";
 	}
 
+	private static String createQueryString(String queryString, String matchingRequestParameterName) {
+		if (matchingRequestParameterName == null) {
+			return queryString;
+		}
+		if (queryString == null || queryString.length() == 0) {
+			return matchingRequestParameterName;
+		}
+		if (queryString.endsWith("&")) {
+			return queryString + matchingRequestParameterName;
+		}
+		return queryString + "&" + matchingRequestParameterName;
+	}
+
 	/**
 	 * @since 4.2
 	 */
@@ -388,6 +411,8 @@ public class DefaultSavedRequest implements SavedRequest {
 		private String servletPath;
 
 		private int serverPort = 80;
+
+		private String matchingRequestParameterName;
 
 		public Builder setCookies(List<SavedCookie> cookies) {
 			this.cookies = cookies;
@@ -456,6 +481,11 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		public Builder setServerPort(int serverPort) {
 			this.serverPort = serverPort;
+			return this;
+		}
+
+		public Builder setMatchingRequestParameterName(String matchingRequestParameterName) {
+			this.matchingRequestParameterName = matchingRequestParameterName;
 			return this;
 		}
 

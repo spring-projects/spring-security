@@ -25,8 +25,13 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
+import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
@@ -94,6 +99,29 @@ public class WebSessionServerRequestCacheTests {
 		this.cache.saveRequest(exchange).block();
 		this.cache.removeMatchingRequest(exchange).block();
 		assertThat(this.cache.getRedirectUri(exchange).block()).isNull();
+	}
+
+	@Test
+	public void removeMatchingRequestWhenNoParameter() {
+		this.cache.setMatchingRequestParameterName("success");
+		MockServerHttpRequest request = MockServerHttpRequest.get("/secured/").build();
+		ServerWebExchange exchange = mock(ServerWebExchange.class);
+		given(exchange.getRequest()).willReturn(request);
+		assertThat(this.cache.removeMatchingRequest(exchange).block()).isNull();
+		verify(exchange, never()).getSession();
+	}
+
+	@Test
+	public void removeMatchingRequestWhenParameter() {
+		this.cache.setMatchingRequestParameterName("success");
+		MockServerHttpRequest request = MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML).build();
+		ServerWebExchange exchange = MockServerWebExchange.from(request);
+		this.cache.saveRequest(exchange).block();
+		String redirectUri = "/secured/?success";
+		assertThat(this.cache.getRedirectUri(exchange).block()).isEqualTo(URI.create(redirectUri));
+		MockServerHttpRequest redirectRequest = MockServerHttpRequest.get(redirectUri).build();
+		ServerWebExchange redirectExchange = exchange.mutate().request(redirectRequest).build();
+		assertThat(this.cache.removeMatchingRequest(redirectExchange).block()).isNotNull();
 	}
 
 }
