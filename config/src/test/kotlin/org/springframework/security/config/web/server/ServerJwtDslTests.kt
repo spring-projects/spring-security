@@ -278,7 +278,7 @@ class ServerJwtDslTests {
 
     @RestController
     internal class BaseController {
-        @GetMapping
+        @GetMapping("/")
         fun index() {
         }
     }

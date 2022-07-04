@@ -188,6 +188,7 @@ class AuthorizeHttpRequestsDslTests {
     open class LegacyMvcMatchingConfig : WebMvcConfigurer {
         override fun configurePathMatch(configurer: PathMatchConfigurer) {
             configurer.setUseSuffixPatternMatch(true)
+            configurer.setUseTrailingSlashMatch(true)
         }
     }
 

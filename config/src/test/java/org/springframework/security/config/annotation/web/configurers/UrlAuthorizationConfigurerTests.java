@@ -262,6 +262,7 @@ public class UrlAuthorizationConfigurerTests {
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
+			configurer.setUseTrailingSlashMatch(true);
 		}
 
 	}

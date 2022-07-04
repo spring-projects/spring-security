@@ -89,7 +89,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTes
 		@RestController
 		static class Controller {
 
-			@RequestMapping
+			@RequestMapping("/")
 			String hello() {
 				return "Hello";
 			}
