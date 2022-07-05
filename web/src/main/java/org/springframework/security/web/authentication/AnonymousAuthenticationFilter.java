@@ -18,6 +18,7 @@ package org.springframework.security.web.authentication;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Supplier;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -91,18 +92,33 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 	@Override
 	public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain)
 			throws IOException, ServletException {
-		if (this.securityContextHolderStrategy.getContext().getAuthentication() == null) {
-			Authentication authentication = createAuthentication((HttpServletRequest) req);
-			SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
-			context.setAuthentication(authentication);
-			this.securityContextHolderStrategy.setContext(context);
+		Supplier<SecurityContext> deferredContext = this.securityContextHolderStrategy.getDeferredContext();
+		this.securityContextHolderStrategy
+				.setDeferredContext(defaultWithAnonymous((HttpServletRequest) req, deferredContext));
+		chain.doFilter(req, res);
+	}
+
+	private Supplier<SecurityContext> defaultWithAnonymous(HttpServletRequest request,
+			Supplier<SecurityContext> currentDeferredContext) {
+		return () -> {
+			SecurityContext currentContext = currentDeferredContext.get();
+			return defaultWithAnonymous(request, currentContext);
+		};
+	}
+
+	private SecurityContext defaultWithAnonymous(HttpServletRequest request, SecurityContext currentContext) {
+		Authentication currentAuthentication = currentContext.getAuthentication();
+		if (currentAuthentication == null) {
+			Authentication anonymous = createAuthentication(request);
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.of(() -> "Set SecurityContextHolder to "
-						+ this.securityContextHolderStrategy.getContext().getAuthentication()));
+				this.logger.trace(LogMessage.of(() -> "Set SecurityContextHolder to " + anonymous));
 			}
 			else {
 				this.logger.debug("Set SecurityContextHolder to anonymous SecurityContext");
 			}
+			SecurityContext anonymousContext = this.securityContextHolderStrategy.createEmptyContext();
+			anonymousContext.setAuthentication(anonymous);
+			return anonymousContext;
 		}
 		else {
 			if (this.logger.isTraceEnabled()) {
@@ -110,7 +126,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 						+ this.securityContextHolderStrategy.getContext().getAuthentication()));
 			}
 		}
-		chain.doFilter(req, res);
+		return currentContext;
 	}
 
 	protected Authentication createAuthentication(HttpServletRequest request) {
