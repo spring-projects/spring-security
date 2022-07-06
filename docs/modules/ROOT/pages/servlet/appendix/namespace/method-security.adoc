@@ -271,6 +271,13 @@ Can be used inside a bean definition to add a security interceptor to the bean a
 [[nsa-intercept-methods-attributes]]
 === <intercept-methods> Attributes
 
+[[nsa-intercept-methods-use-authorization-manager]]
+* **use-authorization-manager**
+Use AuthorizationManager API instead of AccessDecisionManager
+
+[[nsa-intercept-methods-authorization-manager-ref]]
+* **authorization-manager-ref**
+Optional AuthorizationManager bean ID to be used instead of the default (supercedes use-authorization-manager)
 
 [[nsa-intercept-methods-access-decision-manager-ref]]
 * **access-decision-manager-ref**
