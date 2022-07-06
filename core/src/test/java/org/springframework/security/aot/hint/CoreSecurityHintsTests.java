@@ -16,8 +16,12 @@
 
 package org.springframework.security.aot.hint;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
@@ -33,6 +37,7 @@ import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.ProviderNotFoundException;
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureCredentialsExpiredEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureDisabledEvent;
@@ -41,6 +46,7 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.ClassUtils;
 
@@ -81,89 +87,32 @@ class CoreSecurityHintsTests {
 						.accepts(this.hints);
 	}
 
-	@Test
-	void authenticationFailureBadCredentialsEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureBadCredentialsEvent.class);
-	}
-
-	@Test
-	void authenticationFailureCredentialsExpiredEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureCredentialsExpiredEvent.class);
-	}
-
-	@Test
-	void authenticationFailureDisabledEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureDisabledEvent.class);
-	}
-
-	@Test
-	void authenticationFailureExpiredEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureExpiredEvent.class);
-	}
-
-	@Test
-	void authenticationFailureLockedEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureLockedEvent.class);
-	}
-
-	@Test
-	void authenticationFailureProviderNotFoundEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureProviderNotFoundEvent.class);
-	}
-
-	@Test
-	void authenticationFailureProxyUntrustedEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureProxyUntrustedEvent.class);
-	}
-
-	@Test
-	void authenticationFailureServiceExceptionEventHasHints() {
-		assertExceptionEvent(AuthenticationFailureServiceExceptionEvent.class);
-	}
-
-	@Test
-	void authenticationServiceExceptionHasHints() {
-		assertExceptionEvent(AuthenticationServiceException.class);
-	}
-
-	@Test
-	void accountExpiredExceptionHasHints() {
-		assertExceptionEvent(AccountExpiredException.class);
-	}
-
-	@Test
-	void badCredentialsExceptionHasHints() {
-		assertExceptionEvent(BadCredentialsException.class);
-	}
-
-	@Test
-	void credentialsExpiredExceptionHasHints() {
-		assertExceptionEvent(CredentialsExpiredException.class);
-	}
-
-	@Test
-	void disabledExceptionHasHints() {
-		assertExceptionEvent(DisabledException.class);
-	}
-
-	@Test
-	void lockedExceptionHasHints() {
-		assertExceptionEvent(LockedException.class);
-	}
-
-	@Test
-	void usernameNotFoundExceptionHasHints() {
-		assertExceptionEvent(UsernameNotFoundException.class);
-	}
-
-	@Test
-	void providerNotFoundExceptionHasHints() {
-		assertExceptionEvent(ProviderNotFoundException.class);
-	}
-
-	private void assertExceptionEvent(Class<?> clazz) {
-		assertThat(RuntimeHintsPredicates.reflection().onType(clazz)
+	@ParameterizedTest
+	@MethodSource("getAuthenticationEvents")
+	void exceptionEventsHasHints(Class<? extends AbstractAuthenticationEvent> event) {
+		assertThat(RuntimeHintsPredicates.reflection().onType(event)
 				.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<Class<? extends AbstractAuthenticationEvent>> getAuthenticationEvents() {
+		return Stream.of(AuthenticationFailureBadCredentialsEvent.class,
+				AuthenticationFailureCredentialsExpiredEvent.class, AuthenticationFailureDisabledEvent.class,
+				AuthenticationFailureExpiredEvent.class, AuthenticationFailureLockedEvent.class,
+				AuthenticationFailureProviderNotFoundEvent.class, AuthenticationFailureProxyUntrustedEvent.class,
+				AuthenticationFailureServiceExceptionEvent.class);
+	}
+
+	@ParameterizedTest
+	@MethodSource("getAuthenticationExceptions")
+	void exceptionHasHints(Class<? extends AuthenticationException> exception) {
+		assertThat(RuntimeHintsPredicates.reflection().onType(exception)
+				.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	private static Stream<Class<? extends AuthenticationException>> getAuthenticationExceptions() {
+		return Stream.of(AuthenticationServiceException.class, AccountExpiredException.class,
+				BadCredentialsException.class, CredentialsExpiredException.class, DisabledException.class,
+				LockedException.class, UsernameNotFoundException.class, ProviderNotFoundException.class);
 	}
 
 }
