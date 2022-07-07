@@ -540,6 +540,19 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="use-authorization-manager" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Use the AuthorizationManager API instead of AccessDecisionManager (defaults to false)
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="authorization-manager-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Use this AuthorizationManager instead of the default (supercedes
+                use-authorization-manager)
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:attributeGroup name="protect.attlist">
