@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,21 +18,29 @@ package org.springframework.security.config.http;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Supplier;
 
 import jakarta.servlet.Filter;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
@@ -48,6 +56,8 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 public class DefaultFilterChainValidator implements FilterChainProxy.FilterChainValidator {
+
+	private static final Authentication TEST = new TestingAuthenticationToken("", "", Collections.emptyList());
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -109,6 +119,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		checkForDuplicates(JaasApiIntegrationFilter.class, filters);
 		checkForDuplicates(ExceptionTranslationFilter.class, filters);
 		checkForDuplicates(FilterSecurityInterceptor.class, filters);
+		checkForDuplicates(AuthorizationFilter.class, filters);
 	}
 
 	private void checkForDuplicates(Class<? extends Filter> clazz, List<Filter> filters) {
@@ -160,15 +171,7 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			this.logger.debug("Default generated login page is in use");
 			return;
 		}
-		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
-		FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
-		Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
-		if (attributes == null) {
-			this.logger.debug("No access attributes defined for login page URL");
-			if (authorizationInterceptor.isRejectPublicInvocations()) {
-				this.logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
-						+ " Your login page may not be accessible.");
-			}
+		if (checkLoginPageIsPublic(filters, loginRequest)) {
 			return;
 		}
 		AnonymousAuthenticationFilter anonymous = getFilter(AnonymousAuthenticationFilter.class, filters);
@@ -180,13 +183,14 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 		// Simulate an anonymous access with the supplied attributes.
 		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonymous.getPrincipal(),
 				anonymous.getAuthorities());
+		Supplier<Boolean> check = deriveAnonymousCheck(filters, loginRequest, token);
 		try {
-			authorizationInterceptor.getAccessDecisionManager().decide(token, loginRequest, attributes);
-		}
-		catch (AccessDeniedException ex) {
-			this.logger.warn("Anonymous access to the login page doesn't appear to be enabled. "
-					+ "This is almost certainly an error. Please check your configuration allows unauthenticated "
-					+ "access to the configured login page. (Simulated access was rejected: " + ex + ")");
+			boolean allowed = check.get();
+			if (!allowed) {
+				this.logger.warn("Anonymous access to the login page doesn't appear to be enabled. "
+						+ "This is almost certainly an error. Please check your configuration allows unauthenticated "
+						+ "access to the configured login page. (Simulated access was rejected)");
+			}
 		}
 		catch (Exception ex) {
 			// May happen legitimately if a filter-chain request matcher requires more
@@ -195,6 +199,64 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			this.logger.info("Unable to check access to the login page to determine if anonymous access is allowed. "
 					+ "This might be an error, but can happen under normal circumstances.", ex);
 		}
+	}
+
+	private boolean checkLoginPageIsPublic(List<Filter> filters, FilterInvocation loginRequest) {
+		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
+		if (authorizationInterceptor != null) {
+			FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
+			Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
+			if (attributes == null) {
+				this.logger.debug("No access attributes defined for login page URL");
+				if (authorizationInterceptor.isRejectPublicInvocations()) {
+					this.logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
+							+ " Your login page may not be accessible.");
+				}
+				return true;
+			}
+			return false;
+		}
+		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
+		if (authorizationFilter != null) {
+			AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
+					.getAuthorizationManager();
+			try {
+				AuthorizationDecision decision = authorizationManager.check(() -> TEST, loginRequest.getHttpRequest());
+				return decision != null && decision.isGranted();
+			}
+			catch (Exception ex) {
+				return false;
+			}
+		}
+		return false;
+	}
+
+	private Supplier<Boolean> deriveAnonymousCheck(List<Filter> filters, FilterInvocation loginRequest,
+			AnonymousAuthenticationToken token) {
+		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
+		if (authorizationInterceptor != null) {
+			return () -> {
+				FilterInvocationSecurityMetadataSource source = authorizationInterceptor.getSecurityMetadataSource();
+				Collection<ConfigAttribute> attributes = source.getAttributes(loginRequest);
+				try {
+					authorizationInterceptor.getAccessDecisionManager().decide(token, loginRequest, attributes);
+					return true;
+				}
+				catch (AccessDeniedException ex) {
+					return false;
+				}
+			};
+		}
+		AuthorizationFilter authorizationFilter = getFilter(AuthorizationFilter.class, filters);
+		if (authorizationFilter != null) {
+			return () -> {
+				AuthorizationManager<HttpServletRequest> authorizationManager = authorizationFilter
+						.getAuthorizationManager();
+				AuthorizationDecision decision = authorizationManager.check(() -> token, loginRequest.getHttpRequest());
+				return decision != null && decision.isGranted();
+			};
+		}
+		return () -> true;
 	}
 
 }
