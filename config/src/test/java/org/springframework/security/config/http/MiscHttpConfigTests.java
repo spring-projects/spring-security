@@ -34,14 +34,15 @@ import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.spi.LoginModule;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import org.apache.http.HttpStatus;
 import org.assertj.core.api.iterable.Extractor;
 import org.jetbrains.annotations.NotNull;
@@ -543,6 +544,14 @@ public class MiscHttpConfigTests {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		redirectLogsTo(baos, DefaultFilterChainValidator.class);
 		this.spring.configLocations(xml("ProtectedLoginPage")).autowire();
+		assertThat(baos.toString()).contains("[WARN]");
+	}
+
+	@Test
+	public void configureWhenProtectingLoginPageAuthorizationManagerThenWarningLogged() {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		redirectLogsTo(baos, DefaultFilterChainValidator.class);
+		this.spring.configLocations(xml("ProtectedLoginPageAuthorizationManager")).autowire();
 		assertThat(baos.toString()).contains("[WARN]");
 	}
 
