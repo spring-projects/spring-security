@@ -549,6 +549,14 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void configureWhenProtectingLoginPageAuthorizationManagerThenWarningLogged() {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		redirectLogsTo(baos, DefaultFilterChainValidator.class);
+		this.spring.configLocations(xml("ProtectedLoginPageAuthorizationManager")).autowire();
+		assertThat(baos.toString()).contains("[WARN]");
+	}
+
+	@Test
 	public void configureWhenUsingDisableUrlRewritingThenRedirectIsNotEncodedByResponse()
 			throws IOException, ServletException {
 		this.spring.configLocations(xml("DisableUrlRewriting")).autowire();
