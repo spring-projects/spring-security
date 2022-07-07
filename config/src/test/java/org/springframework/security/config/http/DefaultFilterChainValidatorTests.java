@@ -53,7 +53,7 @@ public class DefaultFilterChainValidatorTests {
 
 	private DefaultFilterChainValidator validator;
 
-	private FilterChainProxy fcp;
+	private FilterChainProxy chain;
 
 	@Mock
 	private Log logger;
@@ -64,19 +64,19 @@ public class DefaultFilterChainValidatorTests {
 	@Mock
 	private AccessDecisionManager accessDecisionManager;
 
-	private FilterSecurityInterceptor fsi;
+	private FilterSecurityInterceptor authorizationInterceptor;
 
 	@BeforeEach
 	public void setUp() {
 		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
-		this.fsi = new FilterSecurityInterceptor();
-		this.fsi.setAccessDecisionManager(this.accessDecisionManager);
-		this.fsi.setSecurityMetadataSource(this.metadataSource);
+		this.authorizationInterceptor = new FilterSecurityInterceptor();
+		this.authorizationInterceptor.setAccessDecisionManager(this.accessDecisionManager);
+		this.authorizationInterceptor.setSecurityMetadataSource(this.metadataSource);
 		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
 		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
 		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf,
-				this.fsi);
-		this.fcp = new FilterChainProxy(securityChain);
+				this.authorizationInterceptor);
+		this.chain = new FilterChainProxy(securityChain);
 		this.validator = new DefaultFilterChainValidator();
 		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
 	}
@@ -88,7 +88,7 @@ public class DefaultFilterChainValidatorTests {
 		IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
 		willThrow(toBeThrown).given(this.accessDecisionManager).decide(any(Authentication.class), anyObject(),
 				any(Collection.class));
-		this.validator.validate(this.fcp);
+		this.validator.validate(this.chain);
 		verify(this.logger).info(
 				"Unable to check access to the login page to determine if anonymous access is allowed. This might be an error, but can happen under normal circumstances.",
 				toBeThrown);
@@ -99,8 +99,8 @@ public class DefaultFilterChainValidatorTests {
 	public void validateCustomMetadataSource() {
 		FilterInvocationSecurityMetadataSource customMetaDataSource = mock(
 				FilterInvocationSecurityMetadataSource.class);
-		this.fsi.setSecurityMetadataSource(customMetaDataSource);
-		this.validator.validate(this.fcp);
+		this.authorizationInterceptor.setSecurityMetadataSource(customMetaDataSource);
+		this.validator.validate(this.chain);
 		verify(customMetaDataSource).getAttributes(any());
 	}
 
