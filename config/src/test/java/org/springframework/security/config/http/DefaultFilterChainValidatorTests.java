@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.config.http;
 
 import java.util.Collection;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +28,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
@@ -41,7 +46,9 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyObject;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -55,6 +62,8 @@ public class DefaultFilterChainValidatorTests {
 
 	private FilterChainProxy chain;
 
+	private FilterChainProxy chainAuthorizationFilter;
+
 	@Mock
 	private Log logger;
 
@@ -66,17 +75,26 @@ public class DefaultFilterChainValidatorTests {
 
 	private FilterSecurityInterceptor authorizationInterceptor;
 
+	@Mock
+	private AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	private AuthorizationFilter authorizationFilter;
+
 	@BeforeEach
 	public void setUp() {
 		AnonymousAuthenticationFilter aaf = new AnonymousAuthenticationFilter("anonymous");
 		this.authorizationInterceptor = new FilterSecurityInterceptor();
 		this.authorizationInterceptor.setAccessDecisionManager(this.accessDecisionManager);
 		this.authorizationInterceptor.setSecurityMetadataSource(this.metadataSource);
+		this.authorizationFilter = new AuthorizationFilter(this.authorizationManager);
 		AuthenticationEntryPoint authenticationEntryPoint = new LoginUrlAuthenticationEntryPoint("/login");
 		ExceptionTranslationFilter etf = new ExceptionTranslationFilter(authenticationEntryPoint);
 		DefaultSecurityFilterChain securityChain = new DefaultSecurityFilterChain(AnyRequestMatcher.INSTANCE, aaf, etf,
 				this.authorizationInterceptor);
 		this.chain = new FilterChainProxy(securityChain);
+		DefaultSecurityFilterChain securityChainAuthorizationFilter = new DefaultSecurityFilterChain(
+				AnyRequestMatcher.INSTANCE, aaf, etf, this.authorizationFilter);
+		this.chainAuthorizationFilter = new FilterChainProxy(securityChainAuthorizationFilter);
 		this.validator = new DefaultFilterChainValidator();
 		ReflectionTestUtils.setField(this.validator, "logger", this.logger);
 	}
@@ -94,6 +112,15 @@ public class DefaultFilterChainValidatorTests {
 				toBeThrown);
 	}
 
+	@Test
+	public void validateCheckLoginPageAllowsAnonymous() {
+		given(this.authorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(false));
+		this.validator.validate(this.chainAuthorizationFilter);
+		verify(this.logger).warn("Anonymous access to the login page doesn't appear to be enabled. "
+				+ "This is almost certainly an error. Please check your configuration allows unauthenticated "
+				+ "access to the configured login page. (Simulated access was rejected)");
+	}
+
 	// SEC-1957
 	@Test
 	public void validateCustomMetadataSource() {
@@ -101,7 +128,7 @@ public class DefaultFilterChainValidatorTests {
 				FilterInvocationSecurityMetadataSource.class);
 		this.authorizationInterceptor.setSecurityMetadataSource(customMetaDataSource);
 		this.validator.validate(this.chain);
-		verify(customMetaDataSource).getAttributes(any());
+		verify(customMetaDataSource, atLeastOnce()).getAttributes(any());
 	}
 
 }
