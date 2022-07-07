@@ -38,6 +38,8 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 	private final CsrfTokenRepository delegate;
 
+	private boolean deferLoadToken;
+
 	/**
 	 * Creates a new instance
 	 * @param delegate the {@link CsrfTokenRepository} to use. Cannot be null
@@ -46,6 +48,15 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	public LazyCsrfTokenRepository(CsrfTokenRepository delegate) {
 		Assert.notNull(delegate, "delegate cannot be null");
 		this.delegate = delegate;
+	}
+
+	/**
+	 * Determines if {@link #loadToken(HttpServletRequest)} should be lazily loaded.
+	 * @param deferLoadToken true if should lazily load
+	 * {@link #loadToken(HttpServletRequest)}. Default false.
+	 */
+	public void setDeferLoadToken(boolean deferLoadToken) {
+		this.deferLoadToken = deferLoadToken;
 	}
 
 	/**
@@ -77,6 +88,9 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	@Override
 	public CsrfToken loadToken(HttpServletRequest request) {
+		if (this.deferLoadToken) {
+			return new LazyLoadCsrfToken(request, this.delegate);
+		}
 		return this.delegate.loadToken(request);
 	}
 
@@ -90,6 +104,55 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 		Assert.notNull(response, () -> "The HttpServletRequest attribute must contain an HttpServletResponse "
 				+ "for the attribute " + HTTP_RESPONSE_ATTR);
 		return response;
+	}
+
+	private final class LazyLoadCsrfToken implements CsrfToken {
+
+		private final HttpServletRequest request;
+
+		private final CsrfTokenRepository tokenRepository;
+
+		private CsrfToken token;
+
+		private LazyLoadCsrfToken(HttpServletRequest request, CsrfTokenRepository tokenRepository) {
+			this.request = request;
+			this.tokenRepository = tokenRepository;
+		}
+
+		private CsrfToken getDelegate() {
+			if (this.token != null) {
+				return this.token;
+			}
+			// load from the delegate repository
+			this.token = LazyCsrfTokenRepository.this.delegate.loadToken(this.request);
+			if (this.token == null) {
+				// return a generated token that is lazily saved since
+				// LazyCsrfTokenRepository#loadToken always returns a value
+				this.token = generateToken(this.request);
+			}
+			return this.token;
+		}
+
+		@Override
+		public String getHeaderName() {
+			return getDelegate().getHeaderName();
+		}
+
+		@Override
+		public String getParameterName() {
+			return getDelegate().getParameterName();
+		}
+
+		@Override
+		public String getToken() {
+			return getDelegate().getToken();
+		}
+
+		@Override
+		public String toString() {
+			return "LazyLoadCsrfToken{" + "token=" + this.token + '}';
+		}
+
 	}
 
 	private static final class SaveOnAccessCsrfToken implements CsrfToken {
