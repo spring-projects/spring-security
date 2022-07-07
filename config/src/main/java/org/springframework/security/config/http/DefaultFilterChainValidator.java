@@ -133,11 +133,13 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 	 * interceptor
 	 */
 	private void checkLoginPageIsntProtected(FilterChainProxy fcp, List<Filter> filterStack) {
-		ExceptionTranslationFilter etf = getFilter(ExceptionTranslationFilter.class, filterStack);
-		if (etf == null || !(etf.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint)) {
+		ExceptionTranslationFilter exceptions = getFilter(ExceptionTranslationFilter.class, filterStack);
+		if (exceptions == null
+				|| !(exceptions.getAuthenticationEntryPoint() instanceof LoginUrlAuthenticationEntryPoint)) {
 			return;
 		}
-		String loginPage = ((LoginUrlAuthenticationEntryPoint) etf.getAuthenticationEntryPoint()).getLoginFormUrl();
+		String loginPage = ((LoginUrlAuthenticationEntryPoint) exceptions.getAuthenticationEntryPoint())
+				.getLoginFormUrl();
 		this.logger.info("Checking whether login URL '" + loginPage + "' is accessible with your configuration");
 		FilterInvocation loginRequest = new FilterInvocation(loginPage, "POST");
 		List<Filter> filters = null;
@@ -158,28 +160,28 @@ public class DefaultFilterChainValidator implements FilterChainProxy.FilterChain
 			this.logger.debug("Default generated login page is in use");
 			return;
 		}
-		FilterSecurityInterceptor fsi = getFilter(FilterSecurityInterceptor.class, filters);
-		FilterInvocationSecurityMetadataSource fids = fsi.getSecurityMetadataSource();
+		FilterSecurityInterceptor authorizationInterceptor = getFilter(FilterSecurityInterceptor.class, filters);
+		FilterInvocationSecurityMetadataSource fids = authorizationInterceptor.getSecurityMetadataSource();
 		Collection<ConfigAttribute> attributes = fids.getAttributes(loginRequest);
 		if (attributes == null) {
 			this.logger.debug("No access attributes defined for login page URL");
-			if (fsi.isRejectPublicInvocations()) {
+			if (authorizationInterceptor.isRejectPublicInvocations()) {
 				this.logger.warn("FilterSecurityInterceptor is configured to reject public invocations."
 						+ " Your login page may not be accessible.");
 			}
 			return;
 		}
-		AnonymousAuthenticationFilter anonPF = getFilter(AnonymousAuthenticationFilter.class, filters);
-		if (anonPF == null) {
+		AnonymousAuthenticationFilter anonymous = getFilter(AnonymousAuthenticationFilter.class, filters);
+		if (anonymous == null) {
 			this.logger.warn("The login page is being protected by the filter chain, but you don't appear to have"
 					+ " anonymous authentication enabled. This is almost certainly an error.");
 			return;
 		}
 		// Simulate an anonymous access with the supplied attributes.
-		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonPF.getPrincipal(),
-				anonPF.getAuthorities());
+		AnonymousAuthenticationToken token = new AnonymousAuthenticationToken("key", anonymous.getPrincipal(),
+				anonymous.getAuthorities());
 		try {
-			fsi.getAccessDecisionManager().decide(token, loginRequest, attributes);
+			authorizationInterceptor.getAccessDecisionManager().decide(token, loginRequest, attributes);
 		}
 		catch (AccessDeniedException ex) {
 			this.logger.warn("Anonymous access to the login page doesn't appear to be enabled. "
