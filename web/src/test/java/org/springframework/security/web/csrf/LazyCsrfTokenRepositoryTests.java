@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -95,6 +96,17 @@ public class LazyCsrfTokenRepositoryTests {
 		CsrfToken loadToken = this.repository.loadToken(this.request);
 		assertThat(loadToken).isSameAs(this.token);
 		verify(this.delegate).loadToken(this.request);
+	}
+
+	@Test
+	public void loadTokenWhenDeferLoadToken() {
+		given(this.delegate.loadToken(this.request)).willReturn(this.token);
+		this.repository.setDeferLoadToken(true);
+		CsrfToken loadToken = this.repository.loadToken(this.request);
+		verifyNoInteractions(this.delegate);
+		assertThat(loadToken.getToken()).isEqualTo(this.token.getToken());
+		assertThat(loadToken.getHeaderName()).isEqualTo(this.token.getHeaderName());
+		assertThat(loadToken.getParameterName()).isEqualTo(this.token.getParameterName());
 	}
 
 }
