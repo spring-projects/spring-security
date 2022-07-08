@@ -124,7 +124,7 @@ public class DelegatingSecurityContextTaskSchedulerTests {
 	public void scheduleWhenRunnableDateThenDelegates() {
 		Instant date = Instant.now();
 		this.delegatingSecurityContextTaskScheduler.schedule(this.runnable, date);
-		verify(this.scheduler).schedule(any(Runnable.class), any(Date.class));
+		verify(this.scheduler).schedule(any(Runnable.class), any(Instant.class));
 	}
 
 	@Test

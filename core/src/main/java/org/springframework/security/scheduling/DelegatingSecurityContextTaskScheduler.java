@@ -101,28 +101,29 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 
 	@Override
 	public ScheduledFuture<?> schedule(Runnable task, Instant startTime) {
-		return delegate.schedule(wrap(task), startTime);
+		return this.delegate.schedule(wrap(task), startTime);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Instant startTime, Duration period) {
-		return delegate.scheduleAtFixedRate(wrap(task), startTime, period);
+		return this.delegate.scheduleAtFixedRate(wrap(task), startTime, period);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
-		return delegate.scheduleAtFixedRate(wrap(task), period);
+		return this.delegate.scheduleAtFixedRate(wrap(task), period);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Instant startTime, Duration delay) {
-		return delegate.scheduleWithFixedDelay(wrap(task), startTime, delay);
+		return this.delegate.scheduleWithFixedDelay(wrap(task), startTime, delay);
 	}
 
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Duration delay) {
-		return delegate.scheduleWithFixedDelay(wrap(task), delay);
+		return this.delegate.scheduleWithFixedDelay(wrap(task), delay);
 	}
+
 	@Override
 	public Clock getClock() {
 		return this.delegate.getClock();
