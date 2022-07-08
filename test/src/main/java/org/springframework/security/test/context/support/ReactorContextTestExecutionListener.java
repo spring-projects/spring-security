@@ -22,6 +22,7 @@ import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -107,7 +108,7 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 					return context;
 				}
 				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(this.securityContext));
-				return toMerge.putAll(context);
+				return toMerge.putAll(context.readOnly());
 			}
 
 			@Override
