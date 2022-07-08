@@ -33,7 +33,11 @@ import org.springframework.security.access.intercept.aopalliance.MethodSecurityI
  * @author Luke Taylor
  * @author Rob Winch
  * @since 3.0.3
+ * @deprecated This class will be removed from the public API. Please either use
+ * `spring-security-aspects`, Spring Security's method security support or create your own
+ * class that uses Spring AOP annotations.
  */
+@Deprecated
 public final class AspectJMethodSecurityInterceptor extends MethodSecurityInterceptor {
 
 	/**

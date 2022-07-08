@@ -217,6 +217,9 @@ method-security.attlist &=
 	## If true, class-based proxying will be used instead of interface-based proxying.
 	attribute proxy-target-class {xsd:boolean}?
 method-security.attlist &=
+	## If set to aspectj, then use AspectJ to intercept method invocation
+	attribute mode {"aspectj"}?
+method-security.attlist &=
 	## Specifies the security context holder strategy to use, by default uses a ThreadLocal-based strategy
 	attribute security-context-holder-strategy-ref {xsd:string}?
 

@@ -85,6 +85,17 @@ public class MethodSecurityBeanDefinitionParserTests {
 				.withMessage("Access Denied");
 	}
 
+	@Test
+	public void configureWhenAspectJThenRegistersAspects() {
+		this.spring.configLocations(xml("AspectJMethodSecurityServiceEnabled")).autowire();
+		assertThat(this.spring.getContext().containsBean("preFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("preAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
+	}
+
 	@WithAnonymousUser
 	@Test
 	public void preAuthorizePermitAllWhenRoleAnonymousThenPasses() {

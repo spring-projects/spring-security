@@ -34,6 +34,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
 import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
@@ -78,6 +79,8 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 
 	private static final String ATT_EXPRESSION = "expression";
 
+	private static final String ATT_MODE = "mode";
+
 	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY_REF = "security-context-holder-strategy-ref";
 
 	@Override
@@ -88,6 +91,7 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		BeanMetadataElement securityContextHolderStrategy = getSecurityContextHolderStrategy(element);
 		boolean prePostAnnotationsEnabled = !element.hasAttribute(ATT_USE_PREPOST)
 				|| "true".equals(element.getAttribute(ATT_USE_PREPOST));
+		boolean useAspectJ = "aspectj".equals(element.getAttribute(ATT_MODE));
 		if (prePostAnnotationsEnabled) {
 			BeanDefinitionBuilder preFilterInterceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(PreFilterAuthorizationMethodInterceptor.class)
@@ -151,20 +155,29 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		}
 		Map<Pointcut, BeanMetadataElement> managers = new ManagedMap<>();
 		List<Element> methods = DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT);
-		if (!methods.isEmpty()) {
-			for (Element protectElt : methods) {
-				managers.put(pointcut(protectElt), authorizationManager(element, protectElt));
+		if (useAspectJ) {
+			if (!methods.isEmpty()) {
+				pc.getReaderContext().error("Cannot use <protect-pointcut> and mode='aspectj' together",
+						pc.extractSource(element));
 			}
-			BeanDefinitionBuilder protectPointcutInterceptor = BeanDefinitionBuilder
-					.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class)
-					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
-					.addConstructorArgValue(pointcut(managers.keySet()))
-					.addConstructorArgValue(authorizationManager(managers));
-			pc.getRegistry().registerBeanDefinition("protectPointcutInterceptor",
-					protectPointcutInterceptor.getBeanDefinition());
+			registerInterceptors(pc.getRegistry());
 		}
-		AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
+		else {
+			if (!methods.isEmpty()) {
+				for (Element protectElt : methods) {
+					managers.put(pointcut(protectElt), authorizationManager(element, protectElt));
+				}
+				BeanDefinitionBuilder protectPointcutInterceptor = BeanDefinitionBuilder
+						.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class)
+						.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+						.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
+						.addConstructorArgValue(pointcut(managers.keySet()))
+						.addConstructorArgValue(authorizationManager(managers));
+				pc.getRegistry().registerBeanDefinition("protectPointcutInterceptor",
+						protectPointcutInterceptor.getBeanDefinition());
+			}
+			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
+		}
 		pc.popAndRegisterContainingComponent();
 		return null;
 	}
@@ -216,6 +229,36 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 	private BeanMetadataElement authorizationManager(Map<Pointcut, BeanMetadataElement> managers) {
 		return BeanDefinitionBuilder.rootBeanDefinition(PointcutDelegatingAuthorizationManager.class)
 				.addConstructorArgValue(managers).getBeanDefinition();
+	}
+
+	private void registerInterceptors(BeanDefinitionRegistry registry) {
+		registerBeanDefinition("preFilterAuthorizationMethodInterceptor",
+				"org.springframework.security.authorization.method.aspectj.PreFilterAspect", "preFilterAspect$0",
+				registry);
+		registerBeanDefinition("postFilterAuthorizationMethodInterceptor",
+				"org.springframework.security.authorization.method.aspectj.PostFilterAspect", "postFilterAspect$0",
+				registry);
+		registerBeanDefinition("preAuthorizeAuthorizationMethodInterceptor",
+				"org.springframework.security.authorization.method.aspectj.PreAuthorizeAspect", "preAuthorizeAspect$0",
+				registry);
+		registerBeanDefinition("postAuthorizeAuthorizationMethodInterceptor",
+				"org.springframework.security.authorization.method.aspectj.PostAuthorizeAspect",
+				"postAuthorizeAspect$0", registry);
+		registerBeanDefinition("securedAuthorizationMethodInterceptor",
+				"org.springframework.security.authorization.method.aspectj.SecuredAspect", "securedAspect$0", registry);
+	}
+
+	private void registerBeanDefinition(String beanName, String aspectClassName, String aspectBeanName,
+			BeanDefinitionRegistry registry) {
+		if (!registry.containsBeanDefinition(beanName)) {
+			return;
+		}
+		BeanDefinition interceptor = registry.getBeanDefinition(beanName);
+		BeanDefinitionBuilder aspect = BeanDefinitionBuilder.rootBeanDefinition(aspectClassName);
+		aspect.setFactoryMethod("aspectOf");
+		aspect.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+		aspect.addPropertyValue("securityInterceptor", interceptor);
+		registry.registerBeanDefinition(aspectBeanName, aspect.getBeanDefinition());
 	}
 
 	public static final class MethodSecurityExpressionHandlerBean
