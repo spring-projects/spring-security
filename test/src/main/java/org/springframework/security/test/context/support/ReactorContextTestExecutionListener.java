@@ -107,7 +107,7 @@ public class ReactorContextTestExecutionListener extends DelegatingTestExecution
 					return context;
 				}
 				Context toMerge = ReactiveSecurityContextHolder.withSecurityContext(Mono.just(this.securityContext));
-				return toMerge.putAll(context);
+				return toMerge.putAll(context.readOnly());
 			}
 
 			@Override
