@@ -123,7 +123,7 @@ public class AnonymousAuthenticationFilter extends GenericFilterBean implements 
 		else {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace(LogMessage.of(() -> "Did not set SecurityContextHolder since already authenticated "
-						+ this.securityContextHolderStrategy.getContext().getAuthentication()));
+						+ currentAuthentication));
 			}
 		}
 		return currentContext;
