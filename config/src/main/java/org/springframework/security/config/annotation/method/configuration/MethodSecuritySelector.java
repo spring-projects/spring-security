@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,10 +62,16 @@ final class MethodSecuritySelector implements ImportSelector {
 
 		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
 
+		private static final String[] ASPECTJ_IMPORTS = new String[] {
+				MethodSecurityAspectJAutoProxyRegistrar.class.getName() };
+
 		@Override
 		protected String[] selectImports(@NonNull AdviceMode adviceMode) {
 			if (adviceMode == AdviceMode.PROXY) {
 				return IMPORTS;
+			}
+			if (adviceMode == AdviceMode.ASPECTJ) {
+				return ASPECTJ_IMPORTS;
 			}
 			throw new IllegalStateException("AdviceMode '" + adviceMode + "' is not supported");
 		}
