@@ -252,7 +252,7 @@ Method authorization is a combination of before- and after-method authorization.
 [NOTE]
 ====
 Before-method authorization is performed before the method is invoked.
-If that authorization denies access, the method is not invoked, and an `AccessDeniedException` is thrown
+If that authorization denies access, the method is not invoked, and an `AccessDeniedException` is thrown.
 After-method authorization is performed after the method is invoked, but before the method returns to the caller.
 If that authorization denies access, the value is not returned, and an `AccessDeniedException` is thrown
 ====
