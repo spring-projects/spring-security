@@ -25,6 +25,7 @@ import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -120,6 +121,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled("Temporarily disabled until r2dbc-h2 is upgraded to 1.0.0.RELEASE")
 	public void loadAuthorizedClientWhenExistsThenReturnAuthorizedClient() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
@@ -150,6 +152,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled("Temporarily disabled until r2dbc-h2 is upgraded to 1.0.0.RELEASE")
 	public void loadAuthorizedClientWhenExistsButNotFoundInClientRegistrationRepositoryThenThrowDataRetrievalFailureException() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
 		Authentication principal = createPrincipal();
@@ -186,6 +189,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled("Temporarily disabled until r2dbc-h2 is upgraded to 1.0.0.RELEASE")
 	public void saveAuthorizedClientWhenSaveThenLoadReturnsSaved() {
 		Authentication principal = createPrincipal();
 		final OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
@@ -244,6 +248,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled("Temporarily disabled until r2dbc-h2 is upgraded to 1.0.0.RELEASE")
 	public void saveAuthorizedClientWhenSaveClientWithExistingPrimaryKeyThenUpdate() {
 		// Given a saved authorized client
 		Authentication principal = createPrincipal();
@@ -297,6 +302,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled("Temporarily disabled until r2dbc-h2 is upgraded to 1.0.0.RELEASE")
 	public void removeAuthorizedClientWhenExistsThenRemoved() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
