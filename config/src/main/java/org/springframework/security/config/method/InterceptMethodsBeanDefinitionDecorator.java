@@ -69,26 +69,25 @@ import org.springframework.util.xml.DomUtils;
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
+	private final InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator authorizationManagerDelegate =
+			new InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator();
 	private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
 	@Override
 	public BeanDefinitionHolder decorate(Node node, BeanDefinitionHolder definition, ParserContext parserContext) {
+		if (this.authorizationManagerDelegate.supports(node)) {
+			return this.authorizationManagerDelegate.decorate(node, definition, parserContext);
+		}
 		MethodConfigUtils.registerDefaultMethodAccessManagerIfNecessary(parserContext);
 		return this.delegate.decorate(node, definition, parserContext);
 	}
 
-	/**
-	 * This is the real class which does the work. We need access to the ParserContext in
-	 * order to do bean registration.
-	 */
-	static class InternalInterceptMethodsBeanDefinitionDecorator
+	static class InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator
 			extends AbstractInterceptorDrivenBeanDefinitionDecorator {
 
 		static final String ATT_METHOD = "method";
 
 		static final String ATT_ACCESS = "access";
-
-		private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
 		private static final String ATT_USE_AUTHORIZATION_MGR = "use-authorization-manager";
 
@@ -99,16 +98,6 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 		@Override
 		protected BeanDefinition createInterceptorDefinition(Node node) {
 			Element interceptMethodsElt = (Element) node;
-			if (Boolean.parseBoolean(interceptMethodsElt.getAttribute(ATT_USE_AUTHORIZATION_MGR))) {
-				return createAuthorizationManagerInterceptorDefinition(interceptMethodsElt);
-			}
-			if (StringUtils.hasText(interceptMethodsElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
-				return createAuthorizationManagerInterceptorDefinition(interceptMethodsElt);
-			}
-			return createMethodSecurityInterceptorDefinition(interceptMethodsElt);
-		}
-
-		private BeanDefinition createAuthorizationManagerInterceptorDefinition(Element interceptMethodsElt) {
 			BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class);
 			interceptor.setAutowireMode(AbstractBeanDefinition.AUTOWIRE_BY_TYPE);
@@ -120,6 +109,14 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			}
 			return interceptor.addConstructorArgValue(Pointcut.TRUE)
 					.addConstructorArgValue(authorizationManager(managers)).getBeanDefinition();
+		}
+
+		boolean supports(Node node) {
+			Element interceptMethodsElt = (Element) node;
+			if (Boolean.parseBoolean(interceptMethodsElt.getAttribute(ATT_USE_AUTHORIZATION_MGR))) {
+				return true;
+			}
+			return StringUtils.hasText(interceptMethodsElt.getAttribute(ATT_AUTHORIZATION_MGR));
 		}
 
 		private Pointcut pointcut(Element interceptorElt, Element protectElt) {
@@ -159,7 +156,118 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			return ClassUtils.resolveClassName(typeName, this.beanClassLoader);
 		}
 
-		private BeanDefinition createMethodSecurityInterceptorDefinition(Element interceptMethodsElt) {
+		private static class PrefixBasedMethodMatcher implements MethodMatcher, Pointcut {
+
+			private final ClassFilter classFilter;
+
+			private final String methodPrefix;
+
+			PrefixBasedMethodMatcher(Class<?> javaType, String methodPrefix) {
+				this.classFilter = new RootClassFilter(javaType);
+				this.methodPrefix = methodPrefix;
+			}
+
+			@Override
+			public ClassFilter getClassFilter() {
+				return this.classFilter;
+			}
+
+			@Override
+			public MethodMatcher getMethodMatcher() {
+				return this;
+			}
+
+			@Override
+			public boolean matches(Method method, Class<?> targetClass) {
+				return matches(this.methodPrefix, method.getName());
+			}
+
+			@Override
+			public boolean isRuntime() {
+				return false;
+			}
+
+			@Override
+			public boolean matches(Method method, Class<?> targetClass, Object... args) {
+				return matches(this.methodPrefix, method.getName());
+			}
+
+			private boolean matches(String mappedName, String methodName) {
+				boolean equals = methodName.equals(mappedName);
+				return equals || prefixMatches(mappedName, methodName) || suffixMatches(mappedName, methodName);
+			}
+
+			private boolean prefixMatches(String mappedName, String methodName) {
+				return mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length() - 1));
+			}
+
+			private boolean suffixMatches(String mappedName, String methodName) {
+				return mappedName.startsWith("*") && methodName.endsWith(mappedName.substring(1));
+			}
+
+		}
+
+		private static class PointcutMatchingAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+
+			private final Map<Pointcut, AuthorizationManager<MethodInvocation>> managers;
+
+			PointcutMatchingAuthorizationManager(Map<Pointcut, AuthorizationManager<MethodInvocation>> managers) {
+				this.managers = managers;
+			}
+
+			@Override
+			public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
+				for (Map.Entry<Pointcut, AuthorizationManager<MethodInvocation>> entry : this.managers.entrySet()) {
+					Class<?> targetClass = (object.getThis() != null) ? AopUtils.getTargetClass(object.getThis()) : null;
+					if (entry.getKey().getClassFilter().matches(targetClass)
+							&& entry.getKey().getMethodMatcher().matches(object.getMethod(), targetClass)) {
+						return entry.getValue().check(authentication, object);
+					}
+				}
+				return new AuthorizationDecision(false);
+			}
+
+		}
+
+		private static class MethodExpressionAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+
+			private final Expression expression;
+
+			private SecurityExpressionHandler<MethodInvocation> expressionHandler = new DefaultMethodSecurityExpressionHandler();
+
+			MethodExpressionAuthorizationManager(Expression expression) {
+				this.expression = expression;
+			}
+
+			@Override
+			public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+				EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, invocation);
+				boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
+				return new ExpressionAuthorizationDecision(granted, this.expression);
+			}
+
+			void setExpressionHandler(SecurityExpressionHandler<MethodInvocation> expressionHandler) {
+				this.expressionHandler = expressionHandler;
+			}
+
+		}
+	}
+	/**
+	 * This is the real class which does the work. We need access to the ParserContext in
+	 * order to do bean registration.
+	 */
+	static class InternalInterceptMethodsBeanDefinitionDecorator
+			extends AbstractInterceptorDrivenBeanDefinitionDecorator {
+
+		static final String ATT_METHOD = "method";
+
+		static final String ATT_ACCESS = "access";
+
+		private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
+
+		@Override
+		protected BeanDefinition createInterceptorDefinition(Node node) {
+			Element interceptMethodsElt = (Element) node;
 			BeanDefinitionBuilder interceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(MethodSecurityInterceptor.class);
 			// Default to autowiring to pick up after invocation mgr
@@ -193,105 +301,6 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			metadataSource.getConstructorArgumentValues().addGenericArgumentValue(mappings);
 			interceptor.addPropertyValue("securityMetadataSource", metadataSource);
 			return interceptor.getBeanDefinition();
-		}
-
-	}
-
-	private static class PrefixBasedMethodMatcher implements MethodMatcher, Pointcut {
-
-		private final ClassFilter classFilter;
-
-		private final Class<?> javaType;
-
-		private final String methodPrefix;
-
-		PrefixBasedMethodMatcher(Class<?> javaType, String methodPrefix) {
-			this.classFilter = new RootClassFilter(javaType);
-			this.javaType = javaType;
-			this.methodPrefix = methodPrefix;
-		}
-
-		@Override
-		public ClassFilter getClassFilter() {
-			return this.classFilter;
-		}
-
-		@Override
-		public MethodMatcher getMethodMatcher() {
-			return this;
-		}
-
-		@Override
-		public boolean matches(Method method, Class<?> targetClass) {
-			return matches(this.methodPrefix, method.getName());
-		}
-
-		@Override
-		public boolean isRuntime() {
-			return false;
-		}
-
-		@Override
-		public boolean matches(Method method, Class<?> targetClass, Object... args) {
-			return matches(this.methodPrefix, method.getName());
-		}
-
-		private boolean matches(String mappedName, String methodName) {
-			boolean equals = methodName.equals(mappedName);
-			return equals || prefixMatches(mappedName, methodName) || suffixMatches(mappedName, methodName);
-		}
-
-		private boolean prefixMatches(String mappedName, String methodName) {
-			return mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length() - 1));
-		}
-
-		private boolean suffixMatches(String mappedName, String methodName) {
-			return mappedName.startsWith("*") && methodName.endsWith(mappedName.substring(1));
-		}
-
-	}
-
-	private static class PointcutMatchingAuthorizationManager implements AuthorizationManager<MethodInvocation> {
-
-		private final Map<Pointcut, AuthorizationManager<MethodInvocation>> managers;
-
-		PointcutMatchingAuthorizationManager(Map<Pointcut, AuthorizationManager<MethodInvocation>> managers) {
-			this.managers = managers;
-		}
-
-		@Override
-		public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
-			for (Map.Entry<Pointcut, AuthorizationManager<MethodInvocation>> entry : this.managers.entrySet()) {
-				Class<?> targetClass = (object.getThis() != null) ? AopUtils.getTargetClass(object.getThis()) : null;
-				if (entry.getKey().getClassFilter().matches(targetClass)
-						&& entry.getKey().getMethodMatcher().matches(object.getMethod(), targetClass)) {
-					return entry.getValue().check(authentication, object);
-				}
-			}
-			return new AuthorizationDecision(false);
-		}
-
-	}
-
-	private static class MethodExpressionAuthorizationManager implements AuthorizationManager<MethodInvocation> {
-
-		private final Expression expression;
-
-		private SecurityExpressionHandler<MethodInvocation> expressionHandler = new DefaultMethodSecurityExpressionHandler();
-
-		MethodExpressionAuthorizationManager(Expression expression) {
-			this.expression = expression;
-		}
-
-		@Override
-		public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
-			EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, invocation);
-			boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, ctx);
-			return new ExpressionAuthorizationDecision(granted, this.expression);
-		}
-
-		void setExpressionHandler(SecurityExpressionHandler<MethodInvocation> expressionHandler) {
-			this.expressionHandler = expressionHandler;
 		}
 
 	}
