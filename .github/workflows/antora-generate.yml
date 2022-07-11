@@ -16,6 +16,14 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
+      - name: Set up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: '11'
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        env:
+          GRADLE_USER_HOME: ~/.gradle
       - name: Generate antora.yml
         run: ./gradlew :spring-security-docs:generateAntora
       - name: Extract Branch Name

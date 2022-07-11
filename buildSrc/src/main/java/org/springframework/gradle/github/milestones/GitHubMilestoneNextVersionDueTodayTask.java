@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.springframework.gradle.github.milestones;
 
 import org.gradle.api.Action;
@@ -36,47 +37,45 @@ import java.nio.file.Path;
 import org.springframework.gradle.github.RepositoryRef;
 
 @DisableCachingByDefault(because = "the due date needs to be checked every time in case it changes")
-public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
+public abstract class GitHubMilestoneNextVersionDueTodayTask extends DefaultTask {
+
 	@Input
 	private RepositoryRef repository = new RepositoryRef();
 
-	@Input @Optional
-	private String milestoneTitle;
-
-	@InputFile @Optional
-	public abstract RegularFileProperty getNextVersionFile();
-
-	@Input @Optional
+	@Input
+	@Optional
 	private String gitHubAccessToken;
 
+	@InputFile
+	public abstract RegularFileProperty getNextVersionFile();
+
 	@OutputFile
-	public abstract RegularFileProperty getIsOpenIssuesFile();
+	public abstract RegularFileProperty getIsDueTodayFile();
 
 	private GitHubMilestoneApi milestones = new GitHubMilestoneApi();
 
 	@TaskAction
-	public void checkHasNoOpenIssues() throws IOException {
-		if (this.milestoneTitle == null) {
-			File nextVersionFile = getNextVersionFile().getAsFile().get();
-			Yaml yaml = new Yaml(new Constructor(NextVersionYml.class));
-			NextVersionYml nextVersionYml = yaml.load(new FileInputStream(nextVersionFile));
-			String nextVersion = nextVersionYml.getVersion();
-			if (nextVersion == null) {
-				throw new IllegalArgumentException(
-						"Could not find version property in provided file " + nextVersionFile.getName());
-			}
-			this.milestoneTitle = nextVersion;
+	public void checkReleaseDueToday() throws IOException {
+		File nextVersionFile = getNextVersionFile().getAsFile().get();
+		Yaml yaml = new Yaml(new Constructor(NextVersionYml.class));
+		NextVersionYml nextVersionYml = yaml.load(new FileInputStream(nextVersionFile));
+		String nextVersion = nextVersionYml.getVersion();
+		if (nextVersion == null) {
+			throw new IllegalArgumentException(
+					"Could not find version property in provided file " + nextVersionFile.getName());
 		}
-		long milestoneNumber = this.milestones.findMilestoneNumberByTitle(this.repository, this.milestoneTitle);
-		boolean isOpenIssues = this.milestones.isOpenIssuesForMilestoneNumber(this.repository, milestoneNumber);
-		Path isOpenIssuesPath = getIsOpenIssuesFile().getAsFile().get().toPath();
-		Files.write(isOpenIssuesPath, String.valueOf(isOpenIssues).getBytes());
-		if (isOpenIssues) {
-			System.out.println("The repository " + this.repository + " has open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
+		boolean milestoneDueToday = this.milestones.isMilestoneDueToday(this.repository, nextVersion);
+		Path isDueTodayPath = getIsDueTodayFile().getAsFile().get().toPath();
+		Files.writeString(isDueTodayPath, String.valueOf(milestoneDueToday));
+		if (milestoneDueToday) {
+			System.out.println("The milestone with the title " + nextVersion + " in the repository " + this.repository
+					+ " is due today");
 		}
 		else {
-			System.out.println("The repository " + this.repository + " has no open issues for milestone with the title " + this.milestoneTitle + " and number " + milestoneNumber);
+			System.out.println("The milestone with the title " + nextVersion + " in the repository "
+					+ this.repository + " is not due yet");
 		}
+
 	}
 
 	public RepositoryRef getRepository() {
@@ -91,14 +90,6 @@ public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 		this.repository = repository;
 	}
 
-	public String getMilestoneTitle() {
-		return milestoneTitle;
-	}
-
-	public void setMilestoneTitle(String milestoneTitle) {
-		this.milestoneTitle = milestoneTitle;
-	}
-
 	public String getGitHubAccessToken() {
 		return gitHubAccessToken;
 	}
@@ -107,4 +98,5 @@ public abstract class GitHubMilestoneHasNoOpenIssuesTask extends DefaultTask {
 		this.gitHubAccessToken = gitHubAccessToken;
 		this.milestones = new GitHubMilestoneApi(gitHubAccessToken);
 	}
+
 }

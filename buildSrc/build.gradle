@@ -5,7 +5,6 @@ plugins {
 	id 'com.apollographql.apollo' version '2.4.5'
 }
 
-
 sourceCompatibility = 1.8
 
 repositories {
@@ -29,7 +28,7 @@ gradlePlugin {
 	plugins {
 		checkAntoraVersion {
 			id = "org.springframework.antora.check-version"
-			implementationClass = "org.springframework.gradle.antora.CheckAntoraVersionPlugin"
+			implementationClass = "org.springframework.gradle.antora.AntoraVersionPlugin"
 		}
 		trang {
 			id = "trang"
@@ -46,6 +45,10 @@ gradlePlugin {
 		updateDependencies {
 			id = "org.springframework.security.update-dependencies"
 			implementationClass = "org.springframework.security.convention.versions.UpdateDependenciesPlugin"
+		}
+		updateProjectVersion {
+			id = "org.springframework.security.update-version"
+			implementationClass = "org.springframework.security.convention.versions.UpdateProjectVersionPlugin"
 		}
 		sagan {
 			id = "org.springframework.security.sagan"

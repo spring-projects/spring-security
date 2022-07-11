@@ -19,6 +19,7 @@ apply plugin: 'io.spring.convention.root'
 apply plugin: 'io.spring.convention.include-check-remote'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
+apply plugin: 'org.springframework.security.update-version'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
@@ -47,7 +48,37 @@ tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
 	}
 }
 
+tasks.named("gitHubNextReleaseMilestone") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("gitHubCheckNextVersionDueToday") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("scheduleNextRelease") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+	weekOfMonth = 3
+	dayOfWeek = 1
+}
+
 tasks.named("createGitHubRelease") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("dispatchGitHubWorkflow") {
 	repository {
 		owner = "spring-projects"
 		name = "spring-security"
