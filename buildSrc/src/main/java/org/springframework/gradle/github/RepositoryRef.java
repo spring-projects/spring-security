@@ -1,6 +1,11 @@
 package org.springframework.gradle.github;
 
-public class RepositoryRef {
+import java.io.Serializable;
+
+public class RepositoryRef implements Serializable {
+
+	private static final long serialVersionUID = 7151218536746822797L;
+
 	private String owner;
 
 	private String name;

@@ -8,7 +8,7 @@ import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
-public class CheckAntoraVersionPlugin implements Plugin<Project> {
+public class AntoraVersionPlugin implements Plugin<Project> {
 	public static final String ANTORA_CHECK_VERSION_TASK_NAME = "antoraCheckVersion";
 
 	@Override
@@ -35,32 +35,29 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 				});
 			}
 		});
+		 project.getTasks().register("antoraUpdateVersion", UpdateAntoraVersionTask.class, new Action<UpdateAntoraVersionTask>() {
+			@Override
+			public void execute(UpdateAntoraVersionTask antoraUpdateVersion) {
+				antoraUpdateVersion.setGroup("Release");
+				antoraUpdateVersion.setDescription("Updates the antora.yml version properties to match the Gradle version");
+				antoraUpdateVersion.getAntoraYmlFile().fileProvider(project.provider(() -> project.file("antora.yml")));
+			}
+		});
 	}
 
 	private static String getDefaultAntoraVersion(Project project) {
 		String projectVersion = getProjectVersion(project);
-		int preReleaseIndex = getSnapshotIndex(projectVersion);
-		return isSnapshot(projectVersion) ? projectVersion.substring(0, preReleaseIndex) : projectVersion;
+		return AntoraVersionUtils.getDefaultAntoraVersion(projectVersion);
 	}
 
 	private static String getDefaultAntoraPrerelease(Project project) {
 		String projectVersion = getProjectVersion(project);
-		if (isSnapshot(projectVersion)) {
-			int preReleaseIndex = getSnapshotIndex(projectVersion);
-			return projectVersion.substring(preReleaseIndex);
-		}
-		if (isPreRelease(projectVersion)) {
-			return Boolean.TRUE.toString();
-		}
-		return null;
+		return AntoraVersionUtils.getDefaultAntoraPrerelease(projectVersion);
 	}
 
 	private static String getDefaultAntoraDisplayVersion(Project project) {
 		String projectVersion = getProjectVersion(project);
-		if (!isSnapshot(projectVersion) && isPreRelease(projectVersion)) {
-			return getDefaultAntoraVersion(project);
-		}
-		return null;
+		return AntoraVersionUtils.getDefaultAntoraDisplayVersion(projectVersion);
 	}
 
 	private static String getProjectVersion(Project project) {
@@ -71,15 +68,4 @@ public class CheckAntoraVersionPlugin implements Plugin<Project> {
 		return String.valueOf(projectVersion);
 	}
 
-	private static boolean isSnapshot(String projectVersion) {
-		return getSnapshotIndex(projectVersion) >= 0;
-	}
-
-	private static int getSnapshotIndex(String projectVersion) {
-		return projectVersion.lastIndexOf("-SNAPSHOT");
-	}
-
-	private static boolean isPreRelease(String projectVersion) {
-		return projectVersion.lastIndexOf("-") >= 0;
-	}
 }
