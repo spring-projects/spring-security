@@ -543,7 +543,7 @@ public class BCrypt {
 		}
 		else {
 			rounds = roundsForLogRounds(log_rounds);
-			if (rounds < 16 || rounds > Integer.MAX_VALUE) {
+			if (rounds < 16 || rounds > 2147483648L) {
 				throw new IllegalArgumentException("Bad number of rounds");
 			}
 		}
