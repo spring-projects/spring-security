@@ -15,16 +15,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIOException;
 
-class CheckAntoraVersionPluginTests {
+class AntoraVersionPluginTests {
 
 	@Test
 	void defaultsPropertiesWhenSnapshot() {
 		String expectedVersion = "1.0.0-SNAPSHOT";
 		Project project = ProjectBuilder.builder().build();
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -40,9 +40,9 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-M1";
 		Project project = ProjectBuilder.builder().build();
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -58,9 +58,9 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-RC1";
 		Project project = ProjectBuilder.builder().build();
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -76,9 +76,9 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0";
 		Project project = ProjectBuilder.builder().build();
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -92,9 +92,9 @@ class CheckAntoraVersionPluginTests {
 	@Test
 	void explicitProperties() {
 		Project project = ProjectBuilder.builder().build();
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
 		checkAntoraVersionTask.getAntoraVersion().set("1.0.0");
@@ -110,9 +110,9 @@ class CheckAntoraVersionPluginTests {
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -125,9 +125,9 @@ class CheckAntoraVersionPluginTests {
 		String expectedVersion = "1.0.0-SNAPSHOT";
 		Project project = ProjectBuilder.builder().build();
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -142,9 +142,9 @@ class CheckAntoraVersionPluginTests {
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -160,9 +160,9 @@ class CheckAntoraVersionPluginTests {
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'\nprerelease: '-SNAPSHOT'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -177,9 +177,9 @@ class CheckAntoraVersionPluginTests {
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0-M1'\nprerelease: 'true'\ndisplay_version: '1.0.0-M1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -194,9 +194,9 @@ class CheckAntoraVersionPluginTests {
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0-RC1'\nprerelease: 'true'\ndisplay_version: '1.0.0-RC1'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -211,9 +211,9 @@ class CheckAntoraVersionPluginTests {
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
 		project.setVersion(expectedVersion);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 
@@ -226,9 +226,9 @@ class CheckAntoraVersionPluginTests {
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
@@ -241,9 +241,9 @@ class CheckAntoraVersionPluginTests {
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
 		IOUtils.write("version: '1.0.0'\nprerelease: '-SNAPSHOT'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
@@ -257,9 +257,9 @@ class CheckAntoraVersionPluginTests {
 		Project project = ProjectBuilder.builder().build();
 		File rootDir = project.getRootDir();
 		IOUtils.write("name: 'ROOT'\nversion: '1.0.0'", new FileOutputStream(new File(rootDir, "antora.yml")), StandardCharsets.UTF_8);
-		project.getPluginManager().apply(CheckAntoraVersionPlugin.class);
+		project.getPluginManager().apply(AntoraVersionPlugin.class);
 
-		Task task = project.getTasks().findByName(CheckAntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
+		Task task = project.getTasks().findByName(AntoraVersionPlugin.ANTORA_CHECK_VERSION_TASK_NAME);
 
 		assertThat(task).isInstanceOf(CheckAntoraVersionTask.class);
 		CheckAntoraVersionTask checkAntoraVersionTask = (CheckAntoraVersionTask) task;
