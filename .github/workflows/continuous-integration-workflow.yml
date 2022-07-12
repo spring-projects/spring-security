@@ -118,7 +118,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
-          ./gradlew publishMavenJavaPublicationToLocalRepository
+          ./gradlew publishMavenJavaPublicationToBuildDirectoryRepository
           ./gradlew checkSamples -PsamplesInitScript="$SAMPLES_INIT_SCRIPT" -PlocalRepositoryPath="$LOCAL_REPOSITORY_PATH" --stacktrace
   check_tangles:
     name: Check for Package Tangles
