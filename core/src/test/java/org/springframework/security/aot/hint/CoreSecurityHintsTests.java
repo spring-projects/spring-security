@@ -25,8 +25,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
-import org.springframework.aot.hint.RuntimeHintsPredicates;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
