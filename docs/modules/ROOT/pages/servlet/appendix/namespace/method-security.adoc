@@ -37,6 +37,7 @@ Defaults to the value returned by SecurityContextHolder.getContextHolderStrategy
 === Child Elements of <method-security>
 
 * xref:servlet/appendix/namespace/http.adoc#nsa-expression-handler[expression-handler]
+* <<nsa-protect-pointcut,protect-pointcut>>
 
 [[nsa-global-method-security]]
 == <global-method-security>
@@ -244,6 +245,7 @@ You can find an example in the xref:servlet/authorization/method-security.adoc#n
 
 
 * <<nsa-global-method-security,global-method-security>>
+* <<nsa-method-security,method-security>>
 
 
 

@@ -34,6 +34,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -42,6 +43,7 @@ import org.springframework.security.config.annotation.method.configuration.Metho
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -399,6 +401,28 @@ public class MethodSecurityBeanDefinitionParserTests {
 		this.spring.configLocations(xml("Secured")).autowire();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> this.businessService.repeatedAnnotations());
+	}
+
+	@WithMockUser
+	@Test
+	public void supportsMethodArgumentsInPointcut() {
+		this.spring.configLocations(xml("ProtectPointcut")).autowire();
+		this.businessService.someOther(0);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.businessService.someOther("somestring"));
+	}
+
+	@Test
+	public void supportsBooleanPointcutExpressions() {
+		this.spring.configLocations(xml("ProtectPointcutBoolean")).autowire();
+		this.businessService.someOther("somestring");
+		// All others should require ROLE_USER
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.businessService.someOther(0));
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.businessService.someOther(0);
+		SecurityContextHolder.clearContext();
 	}
 
 	private static String xml(String configName) {
