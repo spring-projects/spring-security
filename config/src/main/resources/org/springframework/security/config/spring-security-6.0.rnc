@@ -177,7 +177,12 @@ intercept-methods =
 intercept-methods.attlist &=
 	## Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
 	attribute access-decision-manager-ref {xsd:token}?
-
+intercept-methods.attlist &=
+	## Use the AuthorizationManager API instead of AccessDecisionManager (defaults to false)
+	attribute use-authorization-manager {xsd:boolean}?
+intercept-methods.attlist &=
+	## Use this AuthorizationManager instead of the default (supercedes use-authorization-manager)
+	attribute authorization-manager-ref {xsd:token}?
 
 protect =
 	## Defines a protected method and the access control configuration attributes that apply to it. We strongly advise you NOT to mix "protect" declarations with any services provided "global-method-security".
