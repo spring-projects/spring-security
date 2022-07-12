@@ -375,7 +375,7 @@ http.attlist &=
 	## Allows a customized AuthenticationEntryPoint to be set on the ExceptionTranslationFilter.
 	attribute entry-point-ref {xsd:token}?
 http.attlist &=
-	## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "true"
+	## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "false"
 	attribute once-per-request {xsd:boolean}?
 http.attlist &=
 	## Prevents the jsessionid parameter from being added to rendered URLs. Defaults to "true" (rewriting is disabled).

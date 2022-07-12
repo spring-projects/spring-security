@@ -50,6 +50,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
@@ -172,6 +173,17 @@ public class FilterSecurityInterceptorTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		this.interceptor.doFilter(request, response, new MockFilterChain());
 		assertThat(request.getAttributeNames().hasMoreElements()).isFalse();
+	}
+
+	@Test
+	public void doFilterWhenObserveOncePerRequestFalseAndInvokedTwiceThenObserveTwice() throws Throwable {
+		Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
+		SecurityContextHolder.getContext().setAuthentication(token);
+		FilterInvocation fi = createinvocation();
+		given(this.ods.getAttributes(fi)).willReturn(SecurityConfig.createList("MOCK_OK"));
+		this.interceptor.invoke(fi);
+		this.interceptor.invoke(fi);
+		verify(this.adm, times(2)).decide(any(), any(), any());
 	}
 
 	private FilterInvocation createinvocation() {

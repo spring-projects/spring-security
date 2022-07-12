@@ -94,7 +94,7 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 [[nsa-http-once-per-request]]
 * **once-per-request**
 Corresponds to the `observeOncePerRequest` property of `FilterSecurityInterceptor`.
-Defaults to `true`.
+Defaults to `false`.
 
 
 [[nsa-http-pattern]]

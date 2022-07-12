@@ -1335,7 +1335,7 @@
       <xs:attribute name="once-per-request" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults
-                to "true"
+                to "false"
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
