@@ -31,6 +31,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -74,7 +75,7 @@ public final class PreAuthorizeAuthorizationManager implements AuthorizationMana
 		}
 		EvaluationContext ctx = this.expressionHandler.createEvaluationContext(authentication, mi);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new ExpressionAttributeAuthorizationDecision(granted, attribute);
+		return new ExpressionAuthorizationDecision(granted, attribute.getExpression());
 	}
 
 	private final class PreAuthorizeExpressionAttributeRegistry

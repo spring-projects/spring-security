@@ -31,6 +31,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ExpressionAuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 
@@ -76,7 +77,7 @@ public final class PostAuthorizeAuthorizationManager implements AuthorizationMan
 				mi.getMethodInvocation());
 		this.expressionHandler.setReturnObject(mi.getResult(), ctx);
 		boolean granted = ExpressionUtils.evaluateAsBoolean(attribute.getExpression(), ctx);
-		return new ExpressionAttributeAuthorizationDecision(granted, attribute);
+		return new ExpressionAuthorizationDecision(granted, attribute.getExpression());
 	}
 
 	private final class PostAuthorizeExpressionAttributeRegistry
