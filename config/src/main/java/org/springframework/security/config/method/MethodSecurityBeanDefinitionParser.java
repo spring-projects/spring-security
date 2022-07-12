@@ -16,11 +16,17 @@
 
 package org.springframework.security.config.method;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.config.AopNamespaceUtils;
+import org.springframework.aop.support.Pointcuts;
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
@@ -28,6 +34,7 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.parsing.CompositeComponentDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
+import org.springframework.beans.factory.support.ManagedMap;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.context.ApplicationContext;
@@ -37,6 +44,7 @@ import org.springframework.security.access.expression.method.MethodSecurityExpre
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
+import org.springframework.security.authorization.method.MethodExpressionAuthorizationManager;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
@@ -64,7 +72,11 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 
 	private static final String ATT_USE_PREPOST = "pre-post-enabled";
 
-	private static final String ATT_REF = "ref";
+	private static final String ATT_AUTHORIZATION_MGR = "authorization-manager-ref";
+
+	private static final String ATT_ACCESS = "access";
+
+	private static final String ATT_EXPRESSION = "expression";
 
 	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY_REF = "security-context-holder-strategy-ref";
 
@@ -95,7 +107,7 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy);
 			Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
 			if (expressionHandlerElt != null) {
-				String expressionHandlerRef = expressionHandlerElt.getAttribute(ATT_REF);
+				String expressionHandlerRef = expressionHandlerElt.getAttribute("ref");
 				preFilterInterceptor.addPropertyReference("expressionHandler", expressionHandlerRef);
 				preAuthorizeInterceptor.addPropertyReference("expressionHandler", expressionHandlerRef);
 				postAuthorizeInterceptor.addPropertyReference("expressionHandler", expressionHandlerRef);
@@ -137,6 +149,21 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			pc.getRegistry().registerBeanDefinition("jsr250AuthorizationMethodInterceptor",
 					jsr250Interceptor.getBeanDefinition());
 		}
+		Map<Pointcut, BeanMetadataElement> managers = new ManagedMap<>();
+		List<Element> methods = DomUtils.getChildElementsByTagName(element, Elements.PROTECT_POINTCUT);
+		if (!methods.isEmpty()) {
+			for (Element protectElt : methods) {
+				managers.put(pointcut(protectElt), authorizationManager(element, protectElt));
+			}
+			BeanDefinitionBuilder protectPointcutInterceptor = BeanDefinitionBuilder
+					.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class)
+					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
+					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
+					.addConstructorArgValue(pointcut(managers.keySet()))
+					.addConstructorArgValue(authorizationManager(managers));
+			pc.getRegistry().registerBeanDefinition("protectPointcutInterceptor",
+					protectPointcutInterceptor.getBeanDefinition());
+		}
 		AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(pc, element);
 		pc.popAndRegisterContainingComponent();
 		return null;
@@ -148,6 +175,47 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			return new RuntimeBeanReference(holderStrategyRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(SecurityContextHolderStrategyFactory.class).getBeanDefinition();
+	}
+
+	private Pointcut pointcut(Element protectElt) {
+		String expression = protectElt.getAttribute(ATT_EXPRESSION);
+		expression = replaceBooleanOperators(expression);
+		return new AspectJMethodMatcher(expression);
+	}
+
+	private Pointcut pointcut(Collection<Pointcut> pointcuts) {
+		Pointcut result = null;
+		for (Pointcut pointcut : pointcuts) {
+			if (result == null) {
+				result = pointcut;
+			}
+			else {
+				result = Pointcuts.union(result, pointcut);
+			}
+		}
+		return result;
+	}
+
+	private String replaceBooleanOperators(String expression) {
+		expression = StringUtils.replace(expression, " and ", " && ");
+		expression = StringUtils.replace(expression, " or ", " || ");
+		expression = StringUtils.replace(expression, " not ", " ! ");
+		return expression;
+	}
+
+	private BeanMetadataElement authorizationManager(Element element, Element protectElt) {
+		String authorizationManager = element.getAttribute(ATT_AUTHORIZATION_MGR);
+		if (StringUtils.hasText(authorizationManager)) {
+			return new RuntimeBeanReference(authorizationManager);
+		}
+		String access = protectElt.getAttribute(ATT_ACCESS);
+		return BeanDefinitionBuilder.rootBeanDefinition(MethodExpressionAuthorizationManager.class)
+				.addConstructorArgValue(access).getBeanDefinition();
+	}
+
+	private BeanMetadataElement authorizationManager(Map<Pointcut, BeanMetadataElement> managers) {
+		return BeanDefinitionBuilder.rootBeanDefinition(PointcutDelegatingAuthorizationManager.class)
+				.addConstructorArgValue(managers).getBeanDefinition();
 	}
 
 	public static final class MethodSecurityExpressionHandlerBean

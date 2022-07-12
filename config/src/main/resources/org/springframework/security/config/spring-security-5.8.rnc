@@ -202,8 +202,8 @@ msmds.attlist &= id?
 msmds.attlist &= use-expressions?
 
 method-security =
-	## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with Spring Security annotations. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. Interceptors are invoked in the order specified in AuthorizationInterceptorsOrder. Use can create your own interceptors using Spring AOP.
-	element method-security {method-security.attlist, expression-handler?}
+	## Provides method security for all beans registered in the Spring application context. Specifically, beans will be scanned for matches with Spring Security annotations. Where there is a match, the beans will automatically be proxied and security authorization applied to the methods accordingly. Interceptors are invoked in the order specified in AuthorizationInterceptorsOrder. Use can create your own interceptors using Spring AOP. Also, annotation-based interception can be overridden by expressions listed in <protect-pointcut> elements.
+	element method-security {method-security.attlist, expression-handler?, protect-pointcut*}
 method-security.attlist &=
 	## Specifies whether the use of Spring Security's pre and post invocation annotations (@PreFilter, @PreAuthorize, @PostFilter, @PostAuthorize) should be enabled for this application context. Defaults to "true".
 	attribute pre-post-enabled {xsd:boolean}?
