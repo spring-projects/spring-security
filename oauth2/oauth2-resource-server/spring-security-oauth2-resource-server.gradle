@@ -11,6 +11,7 @@ dependencies {
 	optional 'com.nimbusds:oauth2-oidc-sdk'
 	optional 'io.projectreactor:reactor-core'
 	optional 'org.springframework:spring-webflux'
+	optional 'org.springframework.security:spring-security-oauth2-authorization-server'
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 

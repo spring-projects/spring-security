@@ -72,6 +72,7 @@ dependencies {
 		api "org.slf4j:slf4j-api:1.7.36"
 		api "org.springframework.ldap:spring-ldap-core:2.4.0-M1"
 		api "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
+		api "org.springframework.security:spring-security-oauth2-authorization-server:0.3.1"
 	}
 }
 
