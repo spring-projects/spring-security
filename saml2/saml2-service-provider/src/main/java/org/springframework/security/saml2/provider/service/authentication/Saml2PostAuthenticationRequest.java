@@ -31,8 +31,8 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
 public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
 	Saml2PostAuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
-			String relyingPartyRegistrationId) {
-		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId);
+			String relyingPartyRegistrationId, String id) {
+		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId, id);
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class Saml2PostAuthenticationRequest extends AbstractSaml2AuthenticationR
 		 */
 		public Saml2PostAuthenticationRequest build() {
 			return new Saml2PostAuthenticationRequest(this.samlRequest, this.relayState, this.authenticationRequestUri,
-					this.relyingPartyRegistrationId);
+					this.relyingPartyRegistrationId, this.id);
 		}
 
 	}
