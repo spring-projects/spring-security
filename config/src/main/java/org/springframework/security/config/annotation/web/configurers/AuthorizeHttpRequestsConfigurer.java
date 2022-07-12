@@ -319,6 +319,39 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 
 		/**
+		 * Specify that URLs are allowed by users who have authenticated and were not
+		 * "remembered".
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customization
+		 * @since 5.8
+		 * @see RememberMeConfigurer
+		 */
+		public AuthorizationManagerRequestMatcherRegistry fullyAuthenticated() {
+			return access(AuthenticatedAuthorizationManager.fullyAuthenticated());
+		}
+
+		/**
+		 * Specify that URLs are allowed by users that have been remembered.
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customization
+		 * @since 5.8
+		 * @see RememberMeConfigurer
+		 */
+		public AuthorizationManagerRequestMatcherRegistry rememberMe() {
+			return access(AuthenticatedAuthorizationManager.rememberMe());
+		}
+
+		/**
+		 * Specify that URLs are allowed by anonymous users.
+		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
+		 * customization
+		 * @since 5.8
+		 */
+		public AuthorizationManagerRequestMatcherRegistry anonymous() {
+			return access(AuthenticatedAuthorizationManager.anonymous());
+		}
+
+		/**
 		 * Allows specifying a custom {@link AuthorizationManager}.
 		 * @param manager the {@link AuthorizationManager} to use
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
