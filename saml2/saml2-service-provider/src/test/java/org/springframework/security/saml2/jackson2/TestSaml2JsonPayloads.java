@@ -97,6 +97,7 @@ final class TestSaml2JsonPayloads {
 	static final String RELYINGPARTY_REGISTRATION_ID = "registrationIdValue";
 	static final String SIG_ALG = "sigAlgValue";
 	static final String SIGNATURE = "signatureValue";
+	static final String ID = "idValue";
 
 	// @formatter:off
 	static final String DEFAULT_REDIRECT_AUTH_REQUEST_JSON = "{"
@@ -106,7 +107,8 @@ final class TestSaml2JsonPayloads {
 			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\","
 			+ " \"relyingPartyRegistrationId\": \"" + RELYINGPARTY_REGISTRATION_ID + "\","
 			+ " \"sigAlg\": \"" + SIG_ALG + "\","
-			+ " \"signature\": \"" + SIGNATURE + "\""
+			+ " \"signature\": \"" + SIGNATURE + "\","
+			+ " \"id\": \"" + ID + "\""
 			+ "}";
 	// @formatter:on
 
@@ -116,11 +118,11 @@ final class TestSaml2JsonPayloads {
 			+ " \"samlRequest\": \"" + SAML_REQUEST + "\","
 			+ " \"relayState\": \"" + RELAY_STATE + "\","
 			+ " \"relyingPartyRegistrationId\": \"" + RELYINGPARTY_REGISTRATION_ID + "\","
-			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\""
+			+ " \"authenticationRequestUri\": \"" + AUTHENTICATION_REQUEST_URI + "\","
+			+ " \"id\": \"" + ID + "\""
 			+ "}";
 	// @formatter:on
 
-	static final String ID = "idValue";
 	static final String LOCATION = "locationValue";
 	static final String BINDNG = "REDIRECT";
 	static final String ADDITIONAL_PARAM = "additionalParamValue";
@@ -146,7 +148,7 @@ final class TestSaml2JsonPayloads {
 				TestRelyingPartyRegistrations.full().registrationId(RELYINGPARTY_REGISTRATION_ID)
 						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
 						.build())
-				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).build();
+				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).id(ID).build();
 	}
 
 	static Saml2RedirectAuthenticationRequest createDefaultSaml2RedirectAuthenticationRequest() {
@@ -155,7 +157,7 @@ final class TestSaml2JsonPayloads {
 						.registrationId(RELYINGPARTY_REGISTRATION_ID)
 						.assertingPartyDetails((party) -> party.singleSignOnServiceLocation(AUTHENTICATION_REQUEST_URI))
 						.build())
-				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).sigAlg(SIG_ALG).signature(SIGNATURE).build();
+				.samlRequest(SAML_REQUEST).relayState(RELAY_STATE).sigAlg(SIG_ALG).signature(SIGNATURE).id(ID).build();
 	}
 
 	static Saml2LogoutRequest createDefaultSaml2LogoutRequest() {

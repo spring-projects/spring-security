@@ -142,13 +142,14 @@ class OpenSamlAuthenticationRequestResolver {
 			String xml = serialize(authnRequest);
 			String encoded = Saml2Utils.samlEncode(xml.getBytes(StandardCharsets.UTF_8));
 			return (T) Saml2PostAuthenticationRequest.withRelyingPartyRegistration(registration).samlRequest(encoded)
-					.relayState(relayState).build();
+					.relayState(relayState).id(authnRequest.getID()).build();
 		}
 		else {
 			String xml = serialize(authnRequest);
 			String deflatedAndEncoded = Saml2Utils.samlEncode(Saml2Utils.samlDeflate(xml));
 			Saml2RedirectAuthenticationRequest.Builder builder = Saml2RedirectAuthenticationRequest
-					.withRelyingPartyRegistration(registration).samlRequest(deflatedAndEncoded).relayState(relayState);
+					.withRelyingPartyRegistration(registration).samlRequest(deflatedAndEncoded).relayState(relayState)
+					.id(authnRequest.getID());
 			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()) {
 				Map<String, String> parameters = OpenSamlSigningUtils.sign(registration)
 						.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)

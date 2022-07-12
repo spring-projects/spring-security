@@ -49,6 +49,8 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 
 	private final String relyingPartyRegistrationId;
 
+	private final String id;
+
 	/**
 	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}
 	 * @param samlRequest - the SAMLRequest XML data, SAML encoded, cannot be empty or
@@ -58,15 +60,18 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	 * send the XML message, cannot be empty or null
 	 * @param relyingPartyRegistrationId the registration id of the relying party, may be
 	 * null
+	 * @param id This is the unique id used in the {@link #samlRequest}, cannot be empty
+	 * or null
 	 */
 	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
-			String relyingPartyRegistrationId) {
+			String relyingPartyRegistrationId, String id) {
 		Assert.hasText(samlRequest, "samlRequest cannot be null or empty");
 		Assert.hasText(authenticationRequestUri, "authenticationRequestUri cannot be null or empty");
 		this.authenticationRequestUri = authenticationRequestUri;
 		this.samlRequest = samlRequest;
 		this.relayState = relayState;
 		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+		this.id = id;
 	}
 
 	/**
@@ -107,6 +112,15 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 	}
 
 	/**
+	 * The unique identifier for this Authentication Request
+	 * @return the Authentication Request identifier
+	 * @since 5.8
+	 */
+	public String getId() {
+		return this.id;
+	}
+
+	/**
 	 * Returns the binding this AuthNRequest will be sent and encoded with. If
 	 * {@link Saml2MessageBinding#REDIRECT} is used, the DEFLATE encoding will be
 	 * automatically applied.
@@ -126,6 +140,8 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		String relayState;
 
 		String relyingPartyRegistrationId;
+
+		String id;
 
 		/**
 		 * @deprecated Use {@link #Builder(RelyingPartyRegistration)} instead
@@ -181,6 +197,19 @@ public abstract class AbstractSaml2AuthenticationRequest implements Serializable
 		 */
 		public T authenticationRequestUri(String authenticationRequestUri) {
 			this.authenticationRequestUri = authenticationRequestUri;
+			return _this();
+		}
+
+		/**
+		 * This is the unique id used in the {@link #samlRequest}
+		 * @param id the SAML2 request id
+		 * @return the {@link AbstractSaml2AuthenticationRequest.Builder} for further
+		 * configurations
+		 * @since 5.8
+		 */
+		public T id(String id) {
+			Assert.notNull(id, "id cannot be null");
+			this.id = id;
 			return _this();
 		}
 

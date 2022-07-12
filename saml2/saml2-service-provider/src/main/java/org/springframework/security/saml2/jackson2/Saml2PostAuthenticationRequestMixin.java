@@ -48,7 +48,8 @@ class Saml2PostAuthenticationRequestMixin {
 	Saml2PostAuthenticationRequestMixin(@JsonProperty("samlRequest") String samlRequest,
 			@JsonProperty("relayState") String relayState,
 			@JsonProperty("authenticationRequestUri") String authenticationRequestUri,
-			@JsonProperty("relyingPartyRegistrationId") String relyingPartyRegistrationId) {
+			@JsonProperty("relyingPartyRegistrationId") String relyingPartyRegistrationId,
+			@JsonProperty("id") String id) {
 	}
 
 }

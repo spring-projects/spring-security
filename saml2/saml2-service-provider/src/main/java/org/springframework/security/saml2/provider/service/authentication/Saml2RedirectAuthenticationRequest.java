@@ -35,8 +35,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	private final String signature;
 
 	private Saml2RedirectAuthenticationRequest(String samlRequest, String sigAlg, String signature, String relayState,
-			String authenticationRequestUri, String relyingPartyRegistrationId) {
-		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId);
+			String authenticationRequestUri, String relyingPartyRegistrationId, String id) {
+		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId, id);
 		this.sigAlg = sigAlg;
 		this.signature = signature;
 	}
@@ -116,7 +116,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 */
 		public Saml2RedirectAuthenticationRequest build() {
 			return new Saml2RedirectAuthenticationRequest(this.samlRequest, this.sigAlg, this.signature,
-					this.relayState, this.authenticationRequestUri, this.relyingPartyRegistrationId);
+					this.relayState, this.authenticationRequestUri, this.relyingPartyRegistrationId, this.id);
 		}
 
 	}
