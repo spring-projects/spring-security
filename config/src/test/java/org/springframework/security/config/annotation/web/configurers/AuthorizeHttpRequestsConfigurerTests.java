@@ -26,6 +26,8 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
+import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -35,7 +37,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
@@ -57,6 +62,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -492,6 +498,50 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		};
 	}
 
+	@Test
+	public void getWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
+		RememberMeAuthenticationToken rememberMe = new RememberMeAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MockHttpServletRequestBuilder requestWithRememberMe = get("/").with(authentication(rememberMe));
+		this.mvc.perform(requestWithRememberMe).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenFullyAuthenticatedConfiguredAndUserThenRespondsWithOk() throws Exception {
+		this.spring.register(FullyAuthenticatedConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user").roles("USER"));
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenRememberMeConfiguredAndNoUserThenRespondsWithUnauthorized() throws Exception {
+		this.spring.register(RememberMeConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	public void getWhenRememberMeConfiguredAndRememberMeTokenThenRespondsWithOk() throws Exception {
+		this.spring.register(RememberMeConfig.class, BasicController.class).autowire();
+		RememberMeAuthenticationToken rememberMe = new RememberMeAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MockHttpServletRequestBuilder requestWithRememberMe = get("/").with(authentication(rememberMe));
+		this.mvc.perform(requestWithRememberMe).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenAnonymousConfiguredAndAnonymousUserThenRespondsWithOk() throws Exception {
+		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/")).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenAnonymousConfiguredAndLoggedInUserThenRespondsWithForbidden() throws Exception {
+		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
+		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
 	@EnableWebSecurity
 	static class NoRequestsConfig {
 
@@ -883,6 +933,74 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				return username;
 			}
 
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class FullyAuthenticatedConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.httpBasic()
+					.and()
+					.rememberMe()
+					.and()
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().fullyAuthenticated()
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(TestAuthentication.user());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class RememberMeConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.httpBasic()
+					.and()
+					.rememberMe()
+					.and()
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().rememberMe()
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(TestAuthentication.user());
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class AnonymousConfig {
+
+		@Bean
+		SecurityFilterChain chain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.httpBasic()
+					.and()
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().anonymous()
+					);
+			// @formatter:on
+			return http.build();
 		}
 
 	}
