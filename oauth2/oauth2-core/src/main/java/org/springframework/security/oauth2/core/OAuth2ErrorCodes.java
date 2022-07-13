@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,38 +22,38 @@ package org.springframework.security.oauth2.core;
  * @author Joe Grandja
  * @since 5.0
  */
-public interface OAuth2ErrorCodes {
+public final class OAuth2ErrorCodes {
 
 	/**
 	 * {@code invalid_request} - The request is missing a required parameter, includes an
 	 * invalid parameter value, includes a parameter more than once, or is otherwise
 	 * malformed.
 	 */
-	String INVALID_REQUEST = "invalid_request";
+	public static final String INVALID_REQUEST = "invalid_request";
 
 	/**
 	 * {@code unauthorized_client} - The client is not authorized to request an
 	 * authorization code or access token using this method.
 	 */
-	String UNAUTHORIZED_CLIENT = "unauthorized_client";
+	public static final String UNAUTHORIZED_CLIENT = "unauthorized_client";
 
 	/**
 	 * {@code access_denied} - The resource owner or authorization server denied the
 	 * request.
 	 */
-	String ACCESS_DENIED = "access_denied";
+	public static final String ACCESS_DENIED = "access_denied";
 
 	/**
 	 * {@code unsupported_response_type} - The authorization server does not support
 	 * obtaining an authorization code or access token using this method.
 	 */
-	String UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
+	public static final String UNSUPPORTED_RESPONSE_TYPE = "unsupported_response_type";
 
 	/**
 	 * {@code invalid_scope} - The requested scope is invalid, unknown, malformed or
 	 * exceeds the scope granted by the resource owner.
 	 */
-	String INVALID_SCOPE = "invalid_scope";
+	public static final String INVALID_SCOPE = "invalid_scope";
 
 	/**
 	 * {@code insufficient_scope} - The request requires higher privileges than provided
@@ -64,7 +64,7 @@ public interface OAuth2ErrorCodes {
 	 * @see <a href="https://tools.ietf.org/html/rfc6750#section-3.1">RFC-6750 - Section
 	 * 3.1 - Error Codes</a>
 	 */
-	String INSUFFICIENT_SCOPE = "insufficient_scope";
+	public static final String INSUFFICIENT_SCOPE = "insufficient_scope";
 
 	/**
 	 * {@code invalid_token} - The access token provided is expired, revoked, malformed,
@@ -75,7 +75,7 @@ public interface OAuth2ErrorCodes {
 	 * @see <a href="https://tools.ietf.org/html/rfc6750#section-3.1">RFC-6750 - Section
 	 * 3.1 - Error Codes</a>
 	 */
-	String INVALID_TOKEN = "invalid_token";
+	public static final String INVALID_TOKEN = "invalid_token";
 
 	/**
 	 * {@code server_error} - The authorization server encountered an unexpected condition
@@ -83,7 +83,7 @@ public interface OAuth2ErrorCodes {
 	 * 500 Internal Server Error HTTP status code cannot be returned to the client via a
 	 * HTTP redirect.)
 	 */
-	String SERVER_ERROR = "server_error";
+	public static final String SERVER_ERROR = "server_error";
 
 	/**
 	 * {@code temporarily_unavailable} - The authorization server is currently unable to
@@ -91,7 +91,7 @@ public interface OAuth2ErrorCodes {
 	 * (This error code is needed because a 503 Service Unavailable HTTP status code
 	 * cannot be returned to the client via an HTTP redirect.)
 	 */
-	String TEMPORARILY_UNAVAILABLE = "temporarily_unavailable";
+	public static final String TEMPORARILY_UNAVAILABLE = "temporarily_unavailable";
 
 	/**
 	 * {@code invalid_client} - Client authentication failed (e.g., unknown client, no
@@ -103,7 +103,7 @@ public interface OAuth2ErrorCodes {
 	 * include the &quot;WWW-Authenticate&quot; response header field matching the
 	 * authentication scheme used by the client.
 	 */
-	String INVALID_CLIENT = "invalid_client";
+	public static final String INVALID_CLIENT = "invalid_client";
 
 	/**
 	 * {@code invalid_grant} - The provided authorization grant (e.g., authorization code,
@@ -111,13 +111,13 @@ public interface OAuth2ErrorCodes {
 	 * match the redirection URI used in the authorization request, or was issued to
 	 * another client.
 	 */
-	String INVALID_GRANT = "invalid_grant";
+	public static final String INVALID_GRANT = "invalid_grant";
 
 	/**
 	 * {@code unsupported_grant_type} - The authorization grant type is not supported by
 	 * the authorization server.
 	 */
-	String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
+	public static final String UNSUPPORTED_GRANT_TYPE = "unsupported_grant_type";
 
 	/**
 	 * {@code unsupported_token_type} - The authorization server does not support the
@@ -127,7 +127,7 @@ public interface OAuth2ErrorCodes {
 	 * @see <a href="https://tools.ietf.org/html/rfc7009#section-2.2.1">RFC-7009 - Section
 	 * 2.2.1 - Error Response</a>
 	 */
-	String UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
+	public static final String UNSUPPORTED_TOKEN_TYPE = "unsupported_token_type";
 
 	/**
 	 * {@code invalid_redirect_uri} - The value of one or more redirection URIs is
@@ -137,6 +137,9 @@ public interface OAuth2ErrorCodes {
 	 * @see <a href="https://datatracker.ietf.org/doc/html/rfc7591#section-3.2.2">RFC-7591
 	 * - Section 3.2.2 - Client Registration Error Response</a>
 	 */
-	String INVALID_REDIRECT_URI = "invalid_redirect_uri";
+	public static final String INVALID_REDIRECT_URI = "invalid_redirect_uri";
+
+	private OAuth2ErrorCodes() {
+	}
 
 }

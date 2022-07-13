@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,35 +33,38 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
  * "https://openid.net/specs/openid-connect-core-1_0.html#ScopeClaims">Requesting Claims
  * using Scope Values</a>
  */
-public interface OidcScopes {
+public final class OidcScopes {
 
 	/**
 	 * The {@code openid} scope is required for OpenID Connect Authentication Requests.
 	 */
-	String OPENID = "openid";
+	public static final String OPENID = "openid";
 
 	/**
 	 * The {@code profile} scope requests access to the default profile claims, which are:
 	 * {@code name, family_name, given_name, middle_name, nickname, preferred_username,
 	 * profile, picture, website, gender, birthdate, zoneinfo, locale, updated_at}.
 	 */
-	String PROFILE = "profile";
+	public static final String PROFILE = "profile";
 
 	/**
 	 * The {@code email} scope requests access to the {@code email} and
 	 * {@code email_verified} claims.
 	 */
-	String EMAIL = "email";
+	public static final String EMAIL = "email";
 
 	/**
 	 * The {@code address} scope requests access to the {@code address} claim.
 	 */
-	String ADDRESS = "address";
+	public static final String ADDRESS = "address";
 
 	/**
 	 * The {@code phone} scope requests access to the {@code phone_number} and
 	 * {@code phone_number_verified} claims.
 	 */
-	String PHONE = "phone";
+	public static final String PHONE = "phone";
+
+	private OidcScopes() {
+	}
 
 }

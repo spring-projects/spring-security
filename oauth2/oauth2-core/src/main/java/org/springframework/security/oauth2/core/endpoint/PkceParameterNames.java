@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,24 @@ package org.springframework.security.oauth2.core.endpoint;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7636#section-6.1">6.1
  * OAuth Parameters Registry</a>
  */
-public interface PkceParameterNames {
+public final class PkceParameterNames {
 
 	/**
 	 * {@code code_challenge} - used in Authorization Request.
 	 */
-	String CODE_CHALLENGE = "code_challenge";
+	public static final String CODE_CHALLENGE = "code_challenge";
 
 	/**
 	 * {@code code_challenge_method} - used in Authorization Request.
 	 */
-	String CODE_CHALLENGE_METHOD = "code_challenge_method";
+	public static final String CODE_CHALLENGE_METHOD = "code_challenge_method";
 
 	/**
 	 * {@code code_verifier} - used in Token Request.
 	 */
-	String CODE_VERIFIER = "code_verifier";
+	public static final String CODE_VERIFIER = "code_verifier";
+
+	private PkceParameterNames() {
+	}
 
 }
