@@ -329,6 +329,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: spring-io/spring-gradle-build-action@v1
+        with:
+          java-version: '11'
+          distribution: 'adopt'
       - name: Schedule next release (if not already scheduled)
         run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
   notify_result:
