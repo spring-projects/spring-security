@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ package org.springframework.security.oauth2.core;
  * @since 5.1
  */
 @FunctionalInterface
-public interface OAuth2TokenValidator<T extends AbstractOAuth2Token> {
+public interface OAuth2TokenValidator<T extends OAuth2Token> {
 
 	/**
 	 * Verify the validity and/or constraints of the provided OAuth 2.0 Token.
