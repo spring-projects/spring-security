@@ -33,9 +33,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.test.web.CodecTestUtils;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices.RememberMeTokenAlgorithm;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -47,6 +49,7 @@ import static org.mockito.Mockito.mock;
  * .
  *
  * @author Ben Alex
+ * @author Marcus Da Coregio
  */
 public class TokenBasedRememberMeServicesTests {
 
@@ -412,7 +415,7 @@ public class TokenBasedRememberMeServicesTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(AbstractRememberMeServices.DEFAULT_PARAMETER, "true");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		this.services.setEncodingAlgorithm(RememberMeTokenAlgorithm.SHA256);
+		this.services = new TokenBasedRememberMeServices("key", this.uds, RememberMeTokenAlgorithm.SHA256);
 		this.services.loginSuccess(request, response,
 				new TestingAuthenticationToken("someone", "password", "ROLE_ABC"));
 		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
@@ -446,6 +449,21 @@ public class TokenBasedRememberMeServicesTests {
 				- System.currentTimeMillis() > AbstractRememberMeServices.TWO_WEEKS_S - 50).isTrue();
 		assertThat(cookie.getMaxAge()).isEqualTo(-1);
 		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
+	}
+
+	@Test
+	public void constructorWhenEncodingAlgorithmNullThenException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> new TokenBasedRememberMeServices("key", this.uds, null))
+				.withMessage("encodingAlgorithm cannot be null");
+	}
+
+	@Test
+	public void constructorWhenNoEncodingAlgorithmSpecifiedThenMd5() {
+		TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("key", this.uds);
+		RememberMeTokenAlgorithm encodingAlgorithm = (RememberMeTokenAlgorithm) ReflectionTestUtils
+				.getField(rememberMeServices, "encodingAlgorithm");
+		assertThat(encodingAlgorithm).isSameAs(RememberMeTokenAlgorithm.MD5);
 	}
 
 }
