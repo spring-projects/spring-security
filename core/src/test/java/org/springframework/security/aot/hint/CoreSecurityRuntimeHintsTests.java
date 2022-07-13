@@ -53,11 +53,11 @@ import org.springframework.util.ClassUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link CoreSecurityHints}
+ * Tests for {@link CoreSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class CoreSecurityHintsTests {
+class CoreSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 

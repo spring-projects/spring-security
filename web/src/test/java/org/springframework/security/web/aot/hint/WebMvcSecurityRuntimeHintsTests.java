@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.aot.hint;
+package org.springframework.security.web.aot.hint;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,19 +23,18 @@ import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
-import org.springframework.core.annotation.SynthesizedAnnotation;
 import org.springframework.core.io.support.SpringFactoriesLoader;
-import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
+import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
 import org.springframework.util.ClassUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link GlobalMethodSecurityHints}
+ * Tests for {@link WebMvcSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class GlobalMethodSecurityHintsTests {
+class WebMvcSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
@@ -46,11 +45,10 @@ class GlobalMethodSecurityHintsTests {
 	}
 
 	@Test
-	void enableGlobalAuthenticationHasHints() {
-		assertThat(RuntimeHintsPredicates.reflection().onType(EnableGlobalAuthentication.class)
-				.withMemberCategory(MemberCategory.INVOKE_DECLARED_METHODS)).accepts(this.hints);
-		assertThat(RuntimeHintsPredicates.proxies().forInterfaces(EnableGlobalAuthentication.class,
-				SynthesizedAnnotation.class)).accepts(this.hints);
+	void webSecurityExpressionRootHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(WebSecurityExpressionRoot.class)
+				.withMemberCategories(MemberCategory.INVOKE_DECLARED_METHODS, MemberCategory.DECLARED_FIELDS))
+						.accepts(this.hints);
 	}
 
 }

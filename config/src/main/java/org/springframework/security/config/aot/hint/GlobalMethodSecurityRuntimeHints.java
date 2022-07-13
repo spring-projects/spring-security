@@ -28,7 +28,7 @@ import org.springframework.security.config.annotation.authentication.configurati
  * @author Marcus Da Coregio
  * @since 6.0
  */
-class GlobalMethodSecurityHints implements RuntimeHintsRegistrar {
+class GlobalMethodSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {

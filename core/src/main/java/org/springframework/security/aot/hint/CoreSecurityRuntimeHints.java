@@ -48,7 +48,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  * @author Marcus Da Coregio
  * @since 6.0
  */
-class CoreSecurityHints implements RuntimeHintsRegistrar {
+class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {

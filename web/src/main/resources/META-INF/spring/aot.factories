@@ -1,2 +1,2 @@
 org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.security.web.aot.hint.WebMvcSecurityHints
+org.springframework.security.web.aot.hint.WebMvcSecurityRuntimeHints

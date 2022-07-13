@@ -27,7 +27,7 @@ import org.springframework.security.web.access.expression.WebSecurityExpressionR
  * @author Marcus Da Coregio
  * @since 6.0
  */
-class WebMvcSecurityHints implements RuntimeHintsRegistrar {
+class WebMvcSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {

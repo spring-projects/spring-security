@@ -27,7 +27,7 @@ import org.springframework.aot.hint.TypeReference;
  * @author Marcus Da Coregio
  * @since 6.0
  */
-class LdapSecurityHints implements RuntimeHintsRegistrar {
+class LdapSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {

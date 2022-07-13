@@ -29,11 +29,11 @@ import org.springframework.util.ClassUtils;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link LdapSecurityHints}
+ * Tests for {@link LdapSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
  */
-class LdapSecurityHintsTests {
+class LdapSecurityRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
 
