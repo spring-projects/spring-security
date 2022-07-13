@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.oauth2.client;
 
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistration.Builder;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -25,7 +26,8 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 /**
  * Common OAuth2 Providers that can be used to create
  * {@link org.springframework.security.oauth2.client.registration.ClientRegistration.Builder
- * builders} pre-configured with sensible defaults.
+ * builders} pre-configured with sensible defaults for the
+ * {@link HttpSecurity#oauth2Login()} flow.
  *
  * @author Phillip Webb
  * @since 5.0
