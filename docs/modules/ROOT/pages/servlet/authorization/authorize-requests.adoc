@@ -137,3 +137,71 @@ You will notice that since we are invoking the `hasRole` method we do not need t
 You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
 <5> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
+
+[[filtersecurityinterceptor-every-request]]
+== Apply FilterSecurityInterceptor to every request
+
+By default, the `FilterSecurityInterceptor` only applies once to a request.
+This means that if a request is dispatched from a request that was already filtered, the `FilterSecurityInterceptor` will back-off and not perform any authorization checks.
+In some scenarios, you may want to apply the filter to every request.
+You can configure Spring Security to apply the authorization rules to every request by using the `filterSecurityInterceptorOncePerRequest` method:
+
+.Set filterSecurityInterceptorOncePerRequest to false
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests((authorize) -> authorize
+            .filterSecurityInterceptorOncePerRequest(false)
+            .anyRequest.authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.XML
+[source,xml]
+----
+<http once-per-request="false">
+    <intercept-url pattern="/**" access="authenticated"/>
+</http>
+----
+====
+
+You can also configure authorization based on the request dispatcher type:
+
+.Permit ASYNC dispatcher type
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests((authorize) -> authorize
+            .filterSecurityInterceptorOncePerRequest(false)
+            .dispatcherTypeMatchers(DispatcherType.ASYNC).permitAll()
+            .anyRequest.authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.XML
+[source,xml]
+----
+<http auto-config="true" once-per-request="false">
+    <intercept-url request-matcher-ref="dispatcherTypeMatcher" access="permitAll" />
+    <intercept-url pattern="/**" access="authenticated"/>
+</http>
+
+<b:bean id="dispatcherTypeMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+    <b:constructor-arg value="ASYNC"/>
+</b:bean>
+----
+====
