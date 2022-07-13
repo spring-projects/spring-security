@@ -205,3 +205,78 @@ open fun web(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 ====
+
+Now with the authorization rules applying to all dispatcher types, you have more control of the authorization on them.
+For example, you may want to configure `shouldFilterAllDispatcherTypes` to `true` but not apply authorization on requests with dispatcher type `ASYNC` or `FORWARD`.
+
+.Permit ASYNC and FORWARD dispatcher type
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .shouldFilterAllDispatcherTypes(true)
+            .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
+            .anyRequest().authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            shouldFilterAllDispatcherTypes = true
+            authorize(DispatcherTypeRequestMatcher(DispatcherType.ASYNC, DispatcherType.FORWARD), permitAll)
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
+}
+----
+====
+
+You can also customize it to require a specific role for a dispatcher type:
+
+.Require ADMIN for Dispatcher Type ERROR
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .shouldFilterAllDispatcherTypes(true)
+            .dispatcherTypeMatchers(DispatcherType.ERROR).hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            shouldFilterAllDispatcherTypes = true
+            authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), hasRole("ADMIN"))
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
+}
+----
+====
