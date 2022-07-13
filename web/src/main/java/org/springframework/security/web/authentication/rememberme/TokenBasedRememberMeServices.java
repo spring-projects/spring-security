@@ -90,6 +90,7 @@ import org.springframework.util.StringUtils;
  * not be stored when the browser is closed.
  *
  * @author Ben Alex
+ * @author Marcus Da Coregio
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
@@ -97,12 +98,27 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	private static final RememberMeTokenAlgorithm DEFAULT_ENCODING_ALGORITHM = RememberMeTokenAlgorithm.MD5;
 
+	private final RememberMeTokenAlgorithm encodingAlgorithm;
+
 	private RememberMeTokenAlgorithm matchingAlgorithm = DEFAULT_MATCHING_ALGORITHM;
 
-	private RememberMeTokenAlgorithm encodingAlgorithm = DEFAULT_ENCODING_ALGORITHM;
-
 	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
+		this(key, userDetailsService, DEFAULT_ENCODING_ALGORITHM);
+	}
+
+	/**
+	 * Construct the instance with the parameters provided
+	 * @param key the signature key
+	 * @param userDetailsService the {@link UserDetailsService}
+	 * @param encodingAlgorithm the {@link RememberMeTokenAlgorithm} used to encode the
+	 * signature
+	 * @since 5.8
+	 */
+	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
+			RememberMeTokenAlgorithm encodingAlgorithm) {
 		super(key, userDetailsService);
+		Assert.notNull(encodingAlgorithm, "encodingAlgorithm cannot be null");
+		this.encodingAlgorithm = encodingAlgorithm;
 	}
 
 	@Override
@@ -176,6 +192,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	/**
 	 * Calculates the digital signature to be put in the cookie.
+	 * @since 5.8
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
 			RememberMeTokenAlgorithm algorithm) {
@@ -227,17 +244,9 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Sets the algorithm to be used to encode the token signature
-	 * @param encodingAlgorithm the encoding algorithm
-	 */
-	public void setEncodingAlgorithm(RememberMeTokenAlgorithm encodingAlgorithm) {
-		Assert.notNull(encodingAlgorithm, "encodingAlgorithm cannot be null");
-		this.encodingAlgorithm = encodingAlgorithm;
-	}
-
-	/**
 	 * Sets the algorithm to be used to match the token signature
 	 * @param matchingAlgorithm the matching algorithm
+	 * @since 5.8
 	 */
 	public void setMatchingAlgorithm(RememberMeTokenAlgorithm matchingAlgorithm) {
 		Assert.notNull(matchingAlgorithm, "matchingAlgorithm cannot be null");

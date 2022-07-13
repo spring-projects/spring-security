@@ -127,7 +127,7 @@ To do that you can specify your customized `TokenBasedRememberMeServices` as a B
 @Bean
 SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
 	http
-			.authorizeRequests((authorize) -> authorize
+			.authorizeHttpRequests((authorize) -> authorize
 					.anyRequest().authenticated()
 			)
 			.rememberMe((remember) -> remember
@@ -138,9 +138,9 @@ SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices re
 
 @Bean
 RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-	TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService);
+	RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
+	TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
 	rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-	rememberMe.setEncodingAlgorithm(RememberMeTokenAlgorithm.SHA256);
 	return rememberMe;
 }
 ----
