@@ -69,8 +69,8 @@ import org.springframework.util.xml.DomUtils;
  */
 public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDecorator {
 
-	private final InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator authorizationManagerDelegate =
-			new InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator();
+	private final InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator authorizationManagerDelegate = new InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator();
+
 	private final BeanDefinitionDecorator delegate = new InternalInterceptMethodsBeanDefinitionDecorator();
 
 	@Override
@@ -198,7 +198,8 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			}
 
 			private boolean prefixMatches(String mappedName, String methodName) {
-				return mappedName.endsWith("*") && methodName.startsWith(mappedName.substring(0, mappedName.length() - 1));
+				return mappedName.endsWith("*")
+						&& methodName.startsWith(mappedName.substring(0, mappedName.length() - 1));
 			}
 
 			private boolean suffixMatches(String mappedName, String methodName) {
@@ -218,7 +219,8 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			@Override
 			public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
 				for (Map.Entry<Pointcut, AuthorizationManager<MethodInvocation>> entry : this.managers.entrySet()) {
-					Class<?> targetClass = (object.getThis() != null) ? AopUtils.getTargetClass(object.getThis()) : null;
+					Class<?> targetClass = (object.getThis() != null) ? AopUtils.getTargetClass(object.getThis())
+							: null;
 					if (entry.getKey().getClassFilter().matches(targetClass)
 							&& entry.getKey().getMethodMatcher().matches(object.getMethod(), targetClass)) {
 						return entry.getValue().check(authentication, object);
@@ -251,7 +253,9 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 			}
 
 		}
+
 	}
+
 	/**
 	 * This is the real class which does the work. We need access to the ParserContext in
 	 * order to do bean registration.
