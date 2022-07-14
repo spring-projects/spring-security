@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,13 +60,17 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
+import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
+import org.springframework.security.oauth2.client.InMemoryReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.JwtBearerReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizationContext;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
+import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.endpoint.JwtBearerGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
@@ -79,7 +83,6 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
-import org.springframework.security.oauth2.client.web.server.UnAuthenticatedServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
@@ -872,13 +875,32 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	@Test
 	public void filterWhenClientCredentialsClientNotAuthorizedAndOutsideRequestContextThenGetNewToken() {
 		setupMockHeaders();
-		// Use UnAuthenticatedServerOAuth2AuthorizedClientRepository when operating
-		// outside of a request context
-		ServerOAuth2AuthorizedClientRepository unauthenticatedAuthorizedClientRepository = spy(
-				new UnAuthenticatedServerOAuth2AuthorizedClientRepository());
-		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(this.clientRegistrationRepository,
-				unauthenticatedAuthorizedClientRepository);
-		this.function.setClientCredentialsTokenResponseClient(this.clientCredentialsTokenResponseClient);
+		ReactiveOAuth2AuthorizedClientService authorizedClientServiceDelegate = new InMemoryReactiveOAuth2AuthorizedClientService(
+				this.clientRegistrationRepository);
+		ReactiveOAuth2AuthorizedClientService authorizedClientService = new ReactiveOAuth2AuthorizedClientService() {
+			@Override
+			public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
+					String principalName) {
+				return authorizedClientServiceDelegate.loadAuthorizedClient(clientRegistrationId, principalName);
+			}
+
+			@Override
+			public Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal) {
+				return authorizedClientServiceDelegate.saveAuthorizedClient(authorizedClient, principal);
+			}
+
+			@Override
+			public Mono<Void> removeAuthorizedClient(String clientRegistrationId, String principalName) {
+				return authorizedClientServiceDelegate.removeAuthorizedClient(clientRegistrationId, principalName);
+			}
+		};
+		authorizedClientService = spy(authorizedClientService);
+		AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager authorizedClientManager = new AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+				this.clientRegistrationRepository, authorizedClientService);
+		ClientCredentialsReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = new ClientCredentialsReactiveOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setAccessTokenResponseClient(this.clientCredentialsTokenResponseClient);
+		authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
+		this.function = new ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager);
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("new-token")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(360).build();
 		given(this.clientCredentialsTokenResponseClient.getTokenResponse(any()))
@@ -892,9 +914,9 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		this.function.filter(request, this.exchange).block();
-		verify(unauthenticatedAuthorizedClientRepository).loadAuthorizedClient(any(), any(), any());
+		verify(authorizedClientService).loadAuthorizedClient(any(), any());
 		verify(this.clientCredentialsTokenResponseClient).getTokenResponse(any());
-		verify(unauthenticatedAuthorizedClientRepository).saveAuthorizedClient(any(), any(), any());
+		verify(authorizedClientService).saveAuthorizedClient(any(), any());
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
 		ClientRequest request1 = requests.get(0);
