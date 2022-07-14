@@ -188,9 +188,6 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 			}
 			return builder;
 		}
-		if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-			return OAuth2AuthorizationRequest.implicit();
-		}
 		throw new IllegalArgumentException(
 				"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
 						+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());

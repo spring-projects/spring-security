@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,20 +80,6 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void buildWhenRedirectUriIsNullForImplicitThenThrowIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> OAuth2AuthorizationRequest.implicit()
-						.authorizationUri(AUTHORIZATION_URI)
-						.clientId(CLIENT_ID)
-						.redirectUri(null)
-						.scopes(SCOPES)
-						.state(STATE).build()
-				);
-		// @formatter:on
-	}
-
-	@Test
 	public void buildWhenRedirectUriIsNullForAuthorizationCodeThenDoesNotThrowAnyException() {
 		// @formatter:off
 		OAuth2AuthorizationRequest.authorizationCode()
@@ -147,21 +133,6 @@ public class OAuth2AuthorizationRequestTests {
 	}
 
 	@Test
-	public void buildWhenImplicitThenGrantTypeResponseTypeIsSet() {
-		// @formatter:off
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
-				.authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI)
-				.scopes(SCOPES)
-				.state(STATE)
-				.build();
-		// @formatter:on
-		assertThat(authorizationRequest.getGrantType()).isEqualTo(AuthorizationGrantType.IMPLICIT);
-		assertThat(authorizationRequest.getResponseType()).isEqualTo(OAuth2AuthorizationResponseType.TOKEN);
-	}
-
-	@Test
 	public void buildWhenAuthorizationCodeThenGrantTypeResponseTypeIsSet() {
 		// @formatter:off
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
@@ -206,22 +177,6 @@ public class OAuth2AuthorizationRequestTests {
 		assertThat(authorizationRequest.getAdditionalParameters()).isEqualTo(additionalParameters);
 		assertThat(authorizationRequest.getAttributes()).isEqualTo(attributes);
 		assertThat(authorizationRequest.getAuthorizationRequestUri()).isEqualTo(AUTHORIZATION_URI);
-	}
-
-	@Test
-	public void buildWhenScopesMultiThenSeparatedByEncodedSpace() {
-		// @formatter:off
-		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.implicit()
-				.authorizationUri(AUTHORIZATION_URI)
-				.clientId(CLIENT_ID)
-				.redirectUri(REDIRECT_URI)
-				.scopes(SCOPES)
-				.state(STATE)
-				.build();
-		// @formatter:on
-		assertThat(authorizationRequest.getAuthorizationRequestUri())
-				.isEqualTo("https://provider.com/oauth2/authorize?" + "response_type=token&client_id=client-id&"
-						+ "scope=scope1%20scope2&state=state&" + "redirect_uri=https://example.com");
 	}
 
 	@Test

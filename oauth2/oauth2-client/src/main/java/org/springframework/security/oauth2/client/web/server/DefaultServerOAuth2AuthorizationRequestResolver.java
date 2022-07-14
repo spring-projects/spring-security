@@ -201,9 +201,6 @@ public class DefaultServerOAuth2AuthorizationRequestResolver implements ServerOA
 			}
 			return builder;
 		}
-		if (AuthorizationGrantType.IMPLICIT.equals(clientRegistration.getAuthorizationGrantType())) {
-			return OAuth2AuthorizationRequest.implicit();
-		}
 		throw new IllegalArgumentException(
 				"Invalid Authorization Grant Type (" + clientRegistration.getAuthorizationGrantType().getValue()
 						+ ") for Client Registration with Id: " + clientRegistration.getRegistrationId());

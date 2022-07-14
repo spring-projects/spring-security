@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,9 +73,6 @@ abstract class StdConverters {
 			String value = JsonNodeUtils.findStringValue(jsonNode, "value");
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.AUTHORIZATION_CODE;
-			}
-			if (AuthorizationGrantType.IMPLICIT.getValue().equalsIgnoreCase(value)) {
-				return AuthorizationGrantType.IMPLICIT;
 			}
 			if (AuthorizationGrantType.CLIENT_CREDENTIALS.getValue().equalsIgnoreCase(value)) {
 				return AuthorizationGrantType.CLIENT_CREDENTIALS;

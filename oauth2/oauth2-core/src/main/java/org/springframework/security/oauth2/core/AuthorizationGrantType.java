@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import org.springframework.util.Assert;
  *
  * <p>
  * The OAuth 2.0 Authorization Framework defines four standard grant types: authorization
- * code, implicit, resource owner password credentials, and client credentials. It also
- * provides an extensibility mechanism for defining additional grant types.
+ * code, resource owner password credentials, and client credentials. It also provides an
+ * extensibility mechanism for defining additional grant types.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -41,17 +41,6 @@ public final class AuthorizationGrantType implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	public static final AuthorizationGrantType AUTHORIZATION_CODE = new AuthorizationGrantType("authorization_code");
-
-	/**
-	 * It is not recommended to use the implicit flow due to the inherent risks of
-	 * returning access tokens in an HTTP redirect without any confirmation that it has
-	 * been received by the client.
-	 *
-	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
-	 * Implicit Grant</a>
-	 */
-	@Deprecated
-	public static final AuthorizationGrantType IMPLICIT = new AuthorizationGrantType("implicit");
 
 	public static final AuthorizationGrantType REFRESH_TOKEN = new AuthorizationGrantType("refresh_token");
 

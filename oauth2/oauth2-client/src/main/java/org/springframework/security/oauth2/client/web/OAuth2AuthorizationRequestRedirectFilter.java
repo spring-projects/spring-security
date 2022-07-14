@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,9 +39,8 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * This {@code Filter} initiates the authorization code grant or implicit grant flow by
- * redirecting the End-User's user-agent to the Authorization Server's Authorization
- * Endpoint.
+ * This {@code Filter} initiates the authorization code grant flow by redirecting the
+ * End-User's user-agent to the Authorization Server's Authorization Endpoint.
  *
  * <p>
  * It builds the OAuth 2.0 Authorization Request, which is used as the redirect
@@ -80,11 +79,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request
  * (Authorization Code)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section
- * 4.2 Implicit Grant</a>
- * @see <a target="_blank" href=
- * "https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Authorization Request
- * (Implicit)</a>
  */
 public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilter {
 

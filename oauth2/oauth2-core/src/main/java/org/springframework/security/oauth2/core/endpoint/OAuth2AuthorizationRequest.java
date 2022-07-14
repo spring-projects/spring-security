@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import org.springframework.web.util.UriUtils;
 
 /**
  * A representation of an OAuth 2.0 Authorization Request for the authorization code grant
- * type or implicit grant type.
+ * type.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -50,9 +50,6 @@ import org.springframework.web.util.UriUtils;
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Code
  * Grant Request</a>
- * @see <a target="_blank" href=
- * "https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Implicit Grant
- * Request</a>
  */
 public final class OAuth2AuthorizationRequest implements Serializable {
 
@@ -192,20 +189,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the implicit grant type.
-	 * @return the {@link Builder}
-	 * @deprecated It is not recommended to use the implicit flow due to the inherent
-	 * risks of returning access tokens in an HTTP redirect without any confirmation that
-	 * it has been received by the client.
-	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
-	 * Implicit Grant</a>
-	 */
-	@Deprecated
-	public static Builder implicit() {
-		return new Builder(AuthorizationGrantType.IMPLICIT);
-	}
-
-	/**
 	 * Returns a new {@link Builder}, initialized with the values from the provided
 	 * {@code authorizationRequest}.
 	 * @param authorizationRequest the authorization request used for initializing the
@@ -264,9 +247,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 			this.authorizationGrantType = authorizationGrantType;
 			if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(authorizationGrantType)) {
 				this.responseType = OAuth2AuthorizationResponseType.CODE;
-			}
-			else if (AuthorizationGrantType.IMPLICIT.equals(authorizationGrantType)) {
-				this.responseType = OAuth2AuthorizationResponseType.TOKEN;
 			}
 			this.uriBuilderFactory = new DefaultUriBuilderFactory();
 			// The supplied authorizationUri may contain encoded parameters
@@ -440,9 +420,6 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 		public OAuth2AuthorizationRequest build() {
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
-			if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
-				Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-			}
 			OAuth2AuthorizationRequest authorizationRequest = new OAuth2AuthorizationRequest();
 			authorizationRequest.authorizationUri = this.authorizationUri;
 			authorizationRequest.authorizationGrantType = this.authorizationGrantType;
