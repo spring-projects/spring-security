@@ -944,13 +944,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain chain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.httpBasic()
-					.and()
-					.rememberMe()
-					.and()
-					.authorizeHttpRequests((requests) -> requests
-							.anyRequest().fullyAuthenticated()
-					);
+				.httpBasic(withDefaults())
+				.rememberMe(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().fullyAuthenticated()
+				);
 			// @formatter:on
 			return http.build();
 		}
@@ -969,13 +967,11 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain chain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.httpBasic()
-					.and()
-					.rememberMe()
-					.and()
-					.authorizeHttpRequests((requests) -> requests
-							.anyRequest().rememberMe()
-					);
+				.httpBasic(withDefaults())
+				.rememberMe(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().rememberMe()
+				);
 			// @formatter:on
 			return http.build();
 		}
@@ -994,11 +990,10 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		SecurityFilterChain chain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-					.httpBasic()
-					.and()
-					.authorizeHttpRequests((requests) -> requests
-							.anyRequest().anonymous()
-					);
+				.httpBasic(withDefaults())
+				.authorizeHttpRequests((requests) -> requests
+					.anyRequest().anonymous()
+				);
 			// @formatter:on
 			return http.build();
 		}
