@@ -17,11 +17,9 @@
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -48,9 +46,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
@@ -438,16 +434,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OAuth2UserRequest.class,
 				OAuth2User.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
-		if (bean != null) {
-			return bean;
-		}
-		if (this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
-			return new DefaultOAuth2UserService();
-		}
-		List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-		userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-		userServices.add(new DefaultOAuth2UserService());
-		return new DelegatingOAuth2UserService<>(userServices);
+		return (bean != null) ? bean : new DefaultOAuth2UserService();
 	}
 
 	private <T> T getBeanOrNull(ResolvableType type) {
@@ -666,8 +653,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 
-		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-
 		private UserInfoEndpointConfig() {
 		}
 
@@ -694,23 +679,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		public UserInfoEndpointConfig oidcUserService(OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService) {
 			Assert.notNull(oidcUserService, "oidcUserService cannot be null");
 			this.oidcUserService = oidcUserService;
-			return this;
-		}
-
-		/**
-		 * Sets a custom {@link OAuth2User} type and associates it to the provided client
-		 * {@link ClientRegistration#getRegistrationId() registration identifier}.
-		 * @param customUserType a custom {@link OAuth2User} type
-		 * @param clientRegistrationId the client registration identifier
-		 * @return the {@link UserInfoEndpointConfig} for further configuration
-		 * @deprecated See {@link CustomUserTypesOAuth2UserService} for alternative usage.
-		 */
-		@Deprecated
-		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType,
-				String clientRegistrationId) {
-			Assert.notNull(customUserType, "customUserType cannot be null");
-			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-			this.customUserTypes.put(clientRegistrationId, customUserType);
 			return this;
 		}
 
