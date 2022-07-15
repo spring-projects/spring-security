@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,8 +81,10 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 	}
 
 	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request) {
+	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
+			HttpServletResponse response) {
 		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(response, "response cannot be null");
 		String stateParameter = this.getStateParameter(request);
 		if (stateParameter == null) {
 			return null;
@@ -100,13 +102,6 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
 		}
 		return originalRequest;
-	}
-
-	@Override
-	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
-			HttpServletResponse response) {
-		Assert.notNull(response, "response cannot be null");
-		return this.removeAuthorizationRequest(request);
 	}
 
 	/**
