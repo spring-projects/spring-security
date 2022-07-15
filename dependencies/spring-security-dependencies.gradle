@@ -11,7 +11,7 @@ dependencies {
 	api platform("io.projectreactor:reactor-bom:2022.0.0-M4")
 	api platform("io.rsocket:rsocket-bom:1.1.2")
 	api platform("org.junit:junit-bom:5.9.0-RC1")
-	api platform("org.springframework.data:spring-data-bom:2022.0.0-M4")
+	api platform("org.springframework.data:spring-data-bom:2022.0.0-M5")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4")
 	api platform("com.fasterxml.jackson:jackson-bom:2.13.3")
@@ -51,7 +51,7 @@ dependencies {
 		api "org.eclipse.jetty:jetty-servlet:11.0.11"
 		api "jakarta.persistence:jakarta.persistence-api:3.1.0"
 		api "org.hamcrest:hamcrest:2.2"
-		api "org.hibernate:hibernate-core-jakarta:5.6.10.Final"
+		api "org.hibernate.orm:hibernate-core:6.1.1.Final"
 		api "org.hsqldb:hsqldb:2.6.1"
 		api "org.jasig.cas.client:cas-client-core:3.6.4"
 		api "org.mockito:mockito-core:3.12.4"

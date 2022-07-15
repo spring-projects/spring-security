@@ -75,7 +75,7 @@ dependencies {
 	testImplementation 'org.apache.directory.shared:shared-ldap'
 	testImplementation "com.unboundid:unboundid-ldapsdk"
 	testImplementation 'jakarta.persistence:jakarta.persistence-api'
-	testImplementation 'org.hibernate:hibernate-core-jakarta'
+	testImplementation "org.hibernate.orm:hibernate-core"
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation "org.mockito:mockito-inline"
