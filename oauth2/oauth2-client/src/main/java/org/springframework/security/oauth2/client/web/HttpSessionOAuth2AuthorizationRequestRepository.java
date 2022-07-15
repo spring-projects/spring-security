@@ -16,9 +16,6 @@
 
 package org.springframework.security.oauth2.client.web;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -46,17 +43,16 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
-	private boolean allowMultipleAuthorizationRequests;
-
 	@Override
 	public OAuth2AuthorizationRequest loadAuthorizationRequest(HttpServletRequest request) {
 		Assert.notNull(request, "request cannot be null");
-		String stateParameter = this.getStateParameter(request);
+		String stateParameter = getStateParameter(request);
 		if (stateParameter == null) {
 			return null;
 		}
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
-		return authorizationRequests.get(stateParameter);
+		OAuth2AuthorizationRequest authorizationRequest = getAuthorizationRequest(request);
+		return (authorizationRequest != null && stateParameter.equals(authorizationRequest.getState()))
+				? authorizationRequest : null;
 	}
 
 	@Override
@@ -65,43 +61,23 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
 		if (authorizationRequest == null) {
-			this.removeAuthorizationRequest(request, response);
+			removeAuthorizationRequest(request, response);
 			return;
 		}
 		String state = authorizationRequest.getState();
 		Assert.hasText(state, "authorizationRequest.state cannot be empty");
-		if (this.allowMultipleAuthorizationRequests) {
-			Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
-			authorizationRequests.put(state, authorizationRequest);
-			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
-		}
-		else {
-			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequest);
-		}
+		request.getSession().setAttribute(this.sessionAttributeName, authorizationRequest);
 	}
 
 	@Override
 	public OAuth2AuthorizationRequest removeAuthorizationRequest(HttpServletRequest request,
 			HttpServletResponse response) {
-		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
-		String stateParameter = this.getStateParameter(request);
-		if (stateParameter == null) {
-			return null;
-		}
-		Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(request);
-		OAuth2AuthorizationRequest originalRequest = authorizationRequests.remove(stateParameter);
-		if (authorizationRequests.size() == 0) {
+		OAuth2AuthorizationRequest authorizationRequest = loadAuthorizationRequest(request);
+		if (authorizationRequest != null) {
 			request.getSession().removeAttribute(this.sessionAttributeName);
 		}
-		else if (authorizationRequests.size() == 1) {
-			request.getSession().setAttribute(this.sessionAttributeName,
-					authorizationRequests.values().iterator().next());
-		}
-		else {
-			request.getSession().setAttribute(this.sessionAttributeName, authorizationRequests);
-		}
-		return originalRequest;
+		return authorizationRequest;
 	}
 
 	/**
@@ -113,48 +89,9 @@ public final class HttpSessionOAuth2AuthorizationRequestRepository
 		return request.getParameter(OAuth2ParameterNames.STATE);
 	}
 
-	/**
-	 * Gets a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()} to
-	 * an {@link OAuth2AuthorizationRequest}
-	 * @param request
-	 * @return a non-null and mutable map of {@link OAuth2AuthorizationRequest#getState()}
-	 * to an {@link OAuth2AuthorizationRequest}.
-	 */
-	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(HttpServletRequest request) {
+	private OAuth2AuthorizationRequest getAuthorizationRequest(HttpServletRequest request) {
 		HttpSession session = request.getSession(false);
-		Object sessionAttributeValue = (session != null) ? session.getAttribute(this.sessionAttributeName) : null;
-		if (sessionAttributeValue == null) {
-			return new HashMap<>();
-		}
-		else if (sessionAttributeValue instanceof OAuth2AuthorizationRequest) {
-			OAuth2AuthorizationRequest auth2AuthorizationRequest = (OAuth2AuthorizationRequest) sessionAttributeValue;
-			Map<String, OAuth2AuthorizationRequest> authorizationRequests = new HashMap<>(1);
-			authorizationRequests.put(auth2AuthorizationRequest.getState(), auth2AuthorizationRequest);
-			return authorizationRequests;
-		}
-		else if (sessionAttributeValue instanceof Map) {
-			@SuppressWarnings("unchecked")
-			Map<String, OAuth2AuthorizationRequest> authorizationRequests = (Map<String, OAuth2AuthorizationRequest>) sessionAttributeValue;
-			return authorizationRequests;
-		}
-		else {
-			throw new IllegalStateException(
-					"authorizationRequests is supposed to be a Map or OAuth2AuthorizationRequest but actually is a "
-							+ sessionAttributeValue.getClass());
-		}
-	}
-
-	/**
-	 * Configure if multiple {@link OAuth2AuthorizationRequest}s should be stored per
-	 * session. Default is false (not allow multiple {@link OAuth2AuthorizationRequest}
-	 * per session).
-	 * @param allowMultipleAuthorizationRequests true allows more than one
-	 * {@link OAuth2AuthorizationRequest} to be stored per session.
-	 * @since 5.5
-	 */
-	@Deprecated
-	public void setAllowMultipleAuthorizationRequests(boolean allowMultipleAuthorizationRequests) {
-		this.allowMultipleAuthorizationRequests = allowMultipleAuthorizationRequests;
+		return (session != null) ? (OAuth2AuthorizationRequest) session.getAttribute(this.sessionAttributeName) : null;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,12 +35,12 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Rob Winch
  * @since 5.1
  */
-public abstract class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
+public class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests {
 
-	protected WebSessionOAuth2ServerAuthorizationRequestRepository repository;
+	private WebSessionOAuth2ServerAuthorizationRequestRepository repository = new WebSessionOAuth2ServerAuthorizationRequestRepository();
 
 	// @formatter:off
-	protected OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
+	private OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 			.authorizationUri("https://example.com/oauth2/authorize")
 			.clientId("client-id")
 			.redirectUri("http://localhost/client-1")
@@ -48,7 +48,7 @@ public abstract class WebSessionOAuth2ServerAuthorizationRequestRepositoryTests 
 			.build();
 	// @formatter:on
 
-	protected ServerWebExchange exchange = MockServerWebExchange
+	private ServerWebExchange exchange = MockServerWebExchange
 			.from(MockServerHttpRequest.get("/").queryParam(OAuth2ParameterNames.STATE, "state"));
 
 	@Test
