@@ -35,22 +35,10 @@ public final class ClientAuthenticationMethod implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	/**
-	 * @deprecated Use {@link #CLIENT_SECRET_BASIC}
-	 */
-	@Deprecated
-	public static final ClientAuthenticationMethod BASIC = new ClientAuthenticationMethod("basic");
-
-	/**
 	 * @since 5.5
 	 */
 	public static final ClientAuthenticationMethod CLIENT_SECRET_BASIC = new ClientAuthenticationMethod(
 			"client_secret_basic");
-
-	/**
-	 * @deprecated Use {@link #CLIENT_SECRET_POST}
-	 */
-	@Deprecated
-	public static final ClientAuthenticationMethod POST = new ClientAuthenticationMethod("post");
 
 	/**
 	 * @since 5.5

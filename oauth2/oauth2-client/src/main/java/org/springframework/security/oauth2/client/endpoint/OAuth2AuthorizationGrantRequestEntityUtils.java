@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,8 +49,7 @@ final class OAuth2AuthorizationGrantRequestEntityUtils {
 	static HttpHeaders getTokenRequestHeaders(ClientRegistration clientRegistration) {
 		HttpHeaders headers = new HttpHeaders();
 		headers.addAll(DEFAULT_TOKEN_REQUEST_HEADERS);
-		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())
-				|| ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
 			String clientId = encodeClientCredential(clientRegistration.getClientId());
 			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
 			headers.setBasicAuth(clientId, clientSecret);
