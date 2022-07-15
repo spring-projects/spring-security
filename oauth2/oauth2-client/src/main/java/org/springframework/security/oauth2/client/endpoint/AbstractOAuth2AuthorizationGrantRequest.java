@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,20 +37,6 @@ public abstract class AbstractOAuth2AuthorizationGrantRequest {
 	private final AuthorizationGrantType authorizationGrantType;
 
 	private final ClientRegistration clientRegistration;
-
-	/**
-	 * Sub-class constructor.
-	 * @param authorizationGrantType the authorization grant type
-	 * @deprecated Use
-	 * {@link #AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType, ClientRegistration)}
-	 * instead
-	 */
-	@Deprecated
-	protected AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType authorizationGrantType) {
-		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
-		this.authorizationGrantType = authorizationGrantType;
-		this.clientRegistration = null;
-	}
 
 	/**
 	 * Sub-class constructor.
