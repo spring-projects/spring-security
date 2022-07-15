@@ -112,16 +112,6 @@ public final class ClientRegistration implements Serializable {
 
 	/**
 	 * Returns the uri (or uri template) for the redirection endpoint.
-	 * @return the uri (or uri template) for the redirection endpoint
-	 * @deprecated Use {@link #getRedirectUri()} instead
-	 */
-	@Deprecated
-	public String getRedirectUriTemplate() {
-		return getRedirectUri();
-	}
-
-	/**
-	 * Returns the uri (or uri template) for the redirection endpoint.
 	 *
 	 * <br />
 	 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort},
@@ -441,18 +431,6 @@ public final class ClientRegistration implements Serializable {
 		public Builder authorizationGrantType(AuthorizationGrantType authorizationGrantType) {
 			this.authorizationGrantType = authorizationGrantType;
 			return this;
-		}
-
-		/**
-		 * Sets the uri (or uri template) for the redirection endpoint.
-		 * @param redirectUriTemplate the uri (or uri template) for the redirection
-		 * endpoint
-		 * @return the {@link Builder}
-		 * @deprecated Use {@link #redirectUri(String)} instead
-		 */
-		@Deprecated
-		public Builder redirectUriTemplate(String redirectUriTemplate) {
-			return redirectUri(redirectUriTemplate);
 		}
 
 		/**
