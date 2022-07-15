@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -123,18 +123,6 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-		given(this.exchange.getPrincipal()).willReturn(Mono.just(token));
-		WebFilterExchange f = new WebFilterExchange(this.exchange, this.chain);
-		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
-		this.handler.onLogoutSuccess(f, token).block();
-		assertThat(redirectedUrl(this.exchange)).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
-				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
-	}
-
-	@Test
 	public void logoutWhenUsingPostLogoutBaseUrlRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
@@ -204,11 +192,6 @@ public class OidcClientInitiatedServerLogoutSuccessHandlerTests {
 		assertThat(redirectedUrl(this.exchange)).isEqualTo(String.format(
 				"https://endpoint?" + "id_token_hint=id-token&" + "post_logout_redirect_uri=https://rp.example.org/%s",
 				this.registration.getRegistrationId()));
-	}
-
-	@Test
-	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
 	}
 
 	@Test

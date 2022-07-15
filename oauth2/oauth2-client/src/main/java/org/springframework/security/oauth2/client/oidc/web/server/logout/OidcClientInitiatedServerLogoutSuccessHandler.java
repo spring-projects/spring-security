@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,18 +151,6 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.buildAndExpand(uriVariables)
 				.toUriString();
 		// @formatter:on
-	}
-
-	/**
-	 * Set the post logout redirect uri to use
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
-	 * logging out the user
-	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
-	 */
-	@Deprecated
-	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
-		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be empty");
-		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
 	}
 
 	/**

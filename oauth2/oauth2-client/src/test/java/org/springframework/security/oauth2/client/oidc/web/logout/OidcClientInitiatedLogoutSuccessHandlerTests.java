@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.Collections;
 
 import jakarta.servlet.ServletException;
@@ -112,17 +111,6 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 	}
 
 	@Test
-	public void logoutWhenUsingPostLogoutRedirectUriThenIncludesItInRedirect() throws IOException, ServletException {
-		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
-				AuthorityUtils.NO_AUTHORITIES, this.registration.getRegistrationId());
-		this.handler.setPostLogoutRedirectUri(URI.create("https://postlogout?encodedparam=value"));
-		this.request.setUserPrincipal(token);
-		this.handler.onLogoutSuccess(this.request, this.response, token);
-		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?" + "id_token_hint=id-token&"
-				+ "post_logout_redirect_uri=https://postlogout?encodedparam%3Dvalue");
-	}
-
-	@Test
 	public void logoutWhenUsingPostLogoutBaseUrlRedirectUriTemplateThenBuildsItForRedirect()
 			throws IOException, ServletException {
 		OAuth2AuthenticationToken token = new OAuth2AuthenticationToken(TestOidcUsers.create(),
@@ -194,11 +182,6 @@ public class OidcClientInitiatedLogoutSuccessHandlerTests {
 		this.handler.onLogoutSuccess(this.request, this.response, token);
 		assertThat(this.response.getRedirectedUrl()).isEqualTo("https://endpoint?id_token_hint=id-token&"
 				+ "post_logout_redirect_uri=https://rp.example.org/context?forwardUrl%3Dsecured%253Fparam%253Dtrue");
-	}
-
-	@Test
-	public void setPostLogoutRedirectUriWhenGivenNullThenThrowsException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setPostLogoutRedirectUri((URI) null));
 	}
 
 	@Test

@@ -138,18 +138,6 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	}
 
 	/**
-	 * Set the post logout redirect uri to use
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
-	 * logging out the user
-	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
-	 */
-	@Deprecated
-	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
-		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
-		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
-	}
-
-	/**
 	 * Set the post logout redirect uri template.
 	 *
 	 * <br />
