@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.web.reactive.function.client;
 
-import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,18 +34,12 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.ClientAuthorizationException;
-import org.springframework.security.oauth2.client.ClientCredentialsReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProvider;
-import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientProviderBuilder;
-import org.springframework.security.oauth2.client.RefreshTokenReactiveOAuth2AuthorizedClientProvider;
 import org.springframework.security.oauth2.client.RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
-import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
-import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
@@ -143,17 +136,9 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 
 	private final ReactiveOAuth2AuthorizedClientManager authorizedClientManager;
 
-	private boolean defaultAuthorizedClientManager;
-
 	private boolean defaultOAuth2AuthorizedClient;
 
 	private String defaultClientRegistrationId;
-
-	@Deprecated
-	private Duration accessTokenExpiresSkew = Duration.ofMinutes(1);
-
-	@Deprecated
-	private ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient;
 
 	private ClientResponseHandler clientResponseHandler;
 
@@ -216,7 +201,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		this.authorizedClientManager = createDefaultAuthorizedClientManager(clientRegistrationRepository,
 				authorizedClientRepository, authorizationFailureHandler);
 		this.clientResponseHandler = new AuthorizationFailureForwarder(authorizationFailureHandler);
-		this.defaultAuthorizedClientManager = true;
 	}
 
 	private static ReactiveOAuth2AuthorizedClientManager createDefaultAuthorizedClientManager(
@@ -253,8 +237,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 *
 	 * <ul>
 	 * <li>A refresh token is present on the OAuth2AuthorizedClient</li>
-	 * <li>The access token will be expired in
-	 * {@link #setAccessTokenExpiresSkew(Duration)}</li>
+	 * <li>The access token will be expired in 1 minute (the default)</li>
 	 * <li>The {@link ReactiveSecurityContextHolder} will be used to attempt to save the
 	 * token. If it is empty, then the principal name on the OAuth2AuthorizedClient will
 	 * be used to create an Authentication for saving.</li>
@@ -337,73 +320,6 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 	 */
 	public void setDefaultClientRegistrationId(String clientRegistrationId) {
 		this.defaultClientRegistrationId = clientRegistrationId;
-	}
-
-	/**
-	 * Sets the {@link ReactiveOAuth2AccessTokenResponseClient} used for getting an
-	 * {@link OAuth2AuthorizedClient} for the client_credentials grant.
-	 * @param clientCredentialsTokenResponseClient the client to use
-	 * @deprecated Use
-	 * {@link #ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)}
-	 * instead. Create an instance of
-	 * {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider} configured with a
-	 * {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setAccessTokenResponseClient(ReactiveOAuth2AccessTokenResponseClient)
-	 * WebClientReactiveClientCredentialsTokenResponseClient} (or a custom one) and than
-	 * supply it to
-	 * {@link DefaultReactiveOAuth2AuthorizedClientManager#setAuthorizedClientProvider(ReactiveOAuth2AuthorizedClientProvider)
-	 * DefaultReactiveOAuth2AuthorizedClientManager}.
-	 */
-	@Deprecated
-	public void setClientCredentialsTokenResponseClient(
-			ReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient) {
-		Assert.notNull(clientCredentialsTokenResponseClient, "clientCredentialsTokenResponseClient cannot be null");
-		Assert.state(this.defaultAuthorizedClientManager,
-				"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-						+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
-		this.clientCredentialsTokenResponseClient = clientCredentialsTokenResponseClient;
-		updateDefaultAuthorizedClientManager();
-	}
-
-	private void updateDefaultAuthorizedClientManager() {
-		// @formatter:off
-		ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder()
-				.authorizationCode()
-				.refreshToken((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
-				.clientCredentials(this::updateClientCredentialsProvider)
-				.password((configurer) -> configurer.clockSkew(this.accessTokenExpiresSkew))
-				.build();
-		// @formatter:on
-		((DefaultReactiveOAuth2AuthorizedClientManager) this.authorizedClientManager)
-				.setAuthorizedClientProvider(authorizedClientProvider);
-	}
-
-	private void updateClientCredentialsProvider(
-			ReactiveOAuth2AuthorizedClientProviderBuilder.ClientCredentialsGrantBuilder builder) {
-		if (this.clientCredentialsTokenResponseClient != null) {
-			builder.accessTokenResponseClient(this.clientCredentialsTokenResponseClient);
-		}
-		builder.clockSkew(this.accessTokenExpiresSkew);
-	}
-
-	/**
-	 * An access token will be considered expired by comparing its expiration to now +
-	 * this skewed Duration. The default is 1 minute.
-	 * @param accessTokenExpiresSkew the Duration to use.
-	 * @deprecated The {@code accessTokenExpiresSkew} should be configured with the
-	 * specific {@link ReactiveOAuth2AuthorizedClientProvider} implementation, e.g.
-	 * {@link ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setClockSkew(Duration)
-	 * ClientCredentialsReactiveOAuth2AuthorizedClientProvider} or
-	 * {@link RefreshTokenReactiveOAuth2AuthorizedClientProvider#setClockSkew(Duration)
-	 * RefreshTokenReactiveOAuth2AuthorizedClientProvider}.
-	 */
-	@Deprecated
-	public void setAccessTokenExpiresSkew(Duration accessTokenExpiresSkew) {
-		Assert.notNull(accessTokenExpiresSkew, "accessTokenExpiresSkew cannot be null");
-		Assert.state(this.defaultAuthorizedClientManager,
-				"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-						+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
-		this.accessTokenExpiresSkew = accessTokenExpiresSkew;
-		updateDefaultAuthorizedClientManager();
 	}
 
 	@Override

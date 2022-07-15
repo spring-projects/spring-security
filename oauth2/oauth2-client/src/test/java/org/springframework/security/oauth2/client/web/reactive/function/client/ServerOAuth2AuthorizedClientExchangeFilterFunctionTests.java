@@ -77,7 +77,6 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentia
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.WebClientReactiveClientCredentialsTokenResponseClient;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
@@ -107,7 +106,6 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -210,31 +208,6 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 	public void constructorWhenAuthorizedClientManagerIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new ServerOAuth2AuthorizedClientExchangeFilterFunction(null));
-	}
-
-	@Test
-	public void setClientCredentialsTokenResponseClientWhenClientIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(null))
-				.withMessage("clientCredentialsTokenResponseClient cannot be null");
-	}
-
-	@Test
-	public void setClientCredentialsTokenResponseClientWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.function.setClientCredentialsTokenResponseClient(
-						new WebClientReactiveClientCredentialsTokenResponseClient()))
-				.withMessage(
-						"The client cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
-	}
-
-	@Test
-	public void setAccessTokenExpiresSkewWhenNotDefaultAuthorizedClientManagerThenThrowIllegalStateException() {
-		assertThatIllegalStateException()
-				.isThrownBy(() -> this.function.setAccessTokenExpiresSkew(Duration.ofSeconds(30))).withMessage(
-						"The accessTokenExpiresSkew cannot be set when the constructor used is \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)\". "
-								+ "Instead, use the constructor \"ServerOAuth2AuthorizedClientExchangeFilterFunction(ClientRegistrationRepository, OAuth2AuthorizedClientRepository)\".");
 	}
 
 	@Test
