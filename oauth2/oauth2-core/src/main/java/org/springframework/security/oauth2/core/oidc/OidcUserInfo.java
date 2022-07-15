@@ -248,17 +248,6 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}
 		 * @param phoneNumberVerified The verified-phone-number indicator to use
 		 * @return the {@link Builder} for further configurations
-		 * @deprecated Use {@link Builder#phoneNumberVerified(Boolean)}
-		 */
-		@Deprecated
-		public Builder phoneNumberVerified(String phoneNumberVerified) {
-			return this.claim(StandardClaimNames.PHONE_NUMBER_VERIFIED, phoneNumberVerified);
-		}
-
-		/**
-		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}
-		 * @param phoneNumberVerified The verified-phone-number indicator to use
-		 * @return the {@link Builder} for further configurations
 		 * @since 5.8
 		 */
 		public Builder phoneNumberVerified(Boolean phoneNumberVerified) {
