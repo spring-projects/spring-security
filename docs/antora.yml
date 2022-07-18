@@ -1,3 +1,4 @@
-name: ROOT
-version: '5.8.0'
-prerelease: '-SNAPSHOT'
+'display_version': '5.8.0-M1'
+'name': 'ROOT'
+'prerelease': 'true'
+'version': '5.8.0-M1'
