@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.http;
 import java.util.Collections;
 import java.util.Map;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.ServletRegistration;
 
 import org.junit.jupiter.api.Test;
@@ -33,10 +34,12 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -373,6 +376,29 @@ public class InterceptUrlConfigTests {
 				.configLocations(this.xml("DefaultMatcherServletPathAuthorizationManager")).autowire());
 	}
 
+	@Test
+	public void requestWhenUsingFilterAllDispatcherTypesAndAuthorizationManagerThenAuthorizesRequestsAccordingly()
+			throws Exception {
+		this.spring.configLocations(this.xml("AuthorizationManagerFilterAllDispatcherTypes")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(adminCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/error").with((request) -> {
+			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+			request.setDispatcherType(DispatcherType.ERROR);
+			return request;
+		})).andExpect(status().isOk());
+		this.mvc.perform(get("/path").with((request) -> {
+			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/path");
+			request.setDispatcherType(DispatcherType.ERROR);
+			return request;
+		})).andExpect(status().isUnauthorized());
+		// @formatter:on
+		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
 	private static RequestPostProcessor adminCredentials() {
 		return httpBasic("admin", "password");
 	}
@@ -406,6 +432,16 @@ public class InterceptUrlConfigTests {
 		@RequestMapping("/path/{un}/path")
 		String path(@PathVariable("un") String name) {
 			return name;
+		}
+
+	}
+
+	@RestController
+	static class ErrorController {
+
+		@GetMapping("/error")
+		String error() {
+			return "error";
 		}
 
 	}
