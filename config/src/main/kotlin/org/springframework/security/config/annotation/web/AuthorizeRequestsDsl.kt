@@ -46,7 +46,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(matches: RequestMatcher = AnyRequestMatcher.INSTANCE,
-                  access: String = "authenticated") {
+                  access: String) {
         authorizationRules.add(MatcherAuthorizationRule(matches, access))
     }
 
@@ -65,7 +65,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(pattern: String, access: String = "authenticated") {
+    fun authorize(pattern: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         rule = access))
@@ -87,7 +87,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(method: HttpMethod, pattern: String, access: String = "authenticated") {
+    fun authorize(method: HttpMethod, pattern: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         httpMethod = method,
@@ -111,7 +111,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(pattern: String, servletPath: String, access: String = "authenticated") {
+    fun authorize(pattern: String, servletPath: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         servletPath = servletPath,
@@ -136,7 +136,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(method: HttpMethod, pattern: String, servletPath: String, access: String = "authenticated") {
+    fun authorize(method: HttpMethod, pattern: String, servletPath: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         servletPath = servletPath,
