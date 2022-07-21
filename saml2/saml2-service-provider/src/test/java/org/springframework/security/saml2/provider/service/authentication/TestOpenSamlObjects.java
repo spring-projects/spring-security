@@ -312,6 +312,18 @@ public final class TestOpenSamlObjects {
 		name.setValue("John Doe");
 		nameAttr.getAttributeValues().add(name);
 		attrStmt1.getAttributes().add(nameAttr);
+		Attribute roleOneAttr = attributeBuilder.buildObject(); // gh-11042
+		roleOneAttr.setName("role");
+		XSString roleOne = new XSStringBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+		roleOne.setValue("RoleOne");
+		roleOneAttr.getAttributeValues().add(roleOne);
+		attrStmt1.getAttributes().add(roleOneAttr);
+		Attribute roleTwoAttr = attributeBuilder.buildObject(); // gh-11042
+		roleTwoAttr.setName("role");
+		XSString roleTwo = new XSStringBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSString.TYPE_NAME);
+		roleTwo.setValue("RoleTwo");
+		roleTwoAttr.getAttributeValues().add(roleTwo);
+		attrStmt1.getAttributes().add(roleTwoAttr);
 		Attribute ageAttr = attributeBuilder.buildObject();
 		ageAttr.setName("age");
 		XSInteger age = new XSIntegerBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSInteger.TYPE_NAME);

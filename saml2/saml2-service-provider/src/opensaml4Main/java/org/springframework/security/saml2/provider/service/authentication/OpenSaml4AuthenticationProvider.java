@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -86,6 +85,8 @@ import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 /**
@@ -601,7 +602,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	}
 
 	private static Map<String, List<Object>> getAssertionAttributes(Assertion assertion) {
-		Map<String, List<Object>> attributeMap = new LinkedHashMap<>();
+		MultiValueMap<String, Object> attributeMap = new LinkedMultiValueMap<>();
 		for (AttributeStatement attributeStatement : assertion.getAttributeStatements()) {
 			for (Attribute attribute : attributeStatement.getAttributes()) {
 				List<Object> attributeValues = new ArrayList<>();
@@ -611,7 +612,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 						attributeValues.add(attributeValue);
 					}
 				}
-				attributeMap.put(attribute.getName(), attributeValues);
+				attributeMap.addAll(attribute.getName(), attributeValues);
 			}
 		}
 		return attributeMap;

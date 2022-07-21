@@ -245,6 +245,7 @@ public class OpenSaml4AuthenticationProviderTests {
 		expected.put("registered", Collections.singletonList(true));
 		Instant registeredDate = Instant.parse("1970-01-01T00:00:00Z");
 		expected.put("registeredDate", Collections.singletonList(registeredDate));
+		expected.put("role", Arrays.asList("RoleOne", "RoleTwo")); // gh-11042
 		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
 		assertThat(principal.getAttributes()).isEqualTo(expected);
 	}
