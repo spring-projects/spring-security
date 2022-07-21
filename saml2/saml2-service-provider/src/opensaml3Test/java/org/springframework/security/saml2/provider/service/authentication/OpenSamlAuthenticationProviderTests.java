@@ -244,6 +244,7 @@ public class OpenSamlAuthenticationProviderTests {
 		expected.put("age", Collections.singletonList(21));
 		expected.put("website", Collections.singletonList("https://johndoe.com/"));
 		expected.put("registered", Collections.singletonList(true));
+		expected.put("role", Arrays.asList("RoleTwo"));
 		Instant registeredDate = Instant.ofEpochMilli(DateTime.parse("1970-01-01T00:00:00Z").getMillis());
 		expected.put("registeredDate", Collections.singletonList(registeredDate));
 		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
