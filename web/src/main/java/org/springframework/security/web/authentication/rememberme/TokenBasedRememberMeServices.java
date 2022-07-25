@@ -94,9 +94,9 @@ import org.springframework.util.StringUtils;
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
-	private static final RememberMeTokenAlgorithm DEFAULT_MATCHING_ALGORITHM = RememberMeTokenAlgorithm.MD5;
+	private static final RememberMeTokenAlgorithm DEFAULT_MATCHING_ALGORITHM = RememberMeTokenAlgorithm.SHA256;
 
-	private static final RememberMeTokenAlgorithm DEFAULT_ENCODING_ALGORITHM = RememberMeTokenAlgorithm.MD5;
+	private static final RememberMeTokenAlgorithm DEFAULT_ENCODING_ALGORITHM = RememberMeTokenAlgorithm.SHA256;
 
 	private final RememberMeTokenAlgorithm encodingAlgorithm;
 

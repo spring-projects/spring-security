@@ -407,7 +407,7 @@ public class TokenBasedRememberMeServicesTests {
 		assertThat(cookie.getMaxAge()).isEqualTo(this.services.getTokenValiditySeconds());
 		assertThat(CodecTestUtils.isBase64(cookie.getValue().getBytes())).isTrue();
 		assertThat(new Date().before(new Date(determineExpiryTimeFromBased64EncodedToken(cookie.getValue())))).isTrue();
-		assertThat("MD5").isEqualTo(determineAlgorithmNameFromBase64EncodedToken(cookie.getValue()));
+		assertThat("SHA256").isEqualTo(determineAlgorithmNameFromBase64EncodedToken(cookie.getValue()));
 	}
 
 	@Test
@@ -459,11 +459,11 @@ public class TokenBasedRememberMeServicesTests {
 	}
 
 	@Test
-	public void constructorWhenNoEncodingAlgorithmSpecifiedThenMd5() {
+	public void constructorWhenNoEncodingAlgorithmSpecifiedThenSha256() {
 		TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices("key", this.uds);
 		RememberMeTokenAlgorithm encodingAlgorithm = (RememberMeTokenAlgorithm) ReflectionTestUtils
 				.getField(rememberMeServices, "encodingAlgorithm");
-		assertThat(encodingAlgorithm).isSameAs(RememberMeTokenAlgorithm.MD5);
+		assertThat(encodingAlgorithm).isSameAs(RememberMeTokenAlgorithm.SHA256);
 	}
 
 }
