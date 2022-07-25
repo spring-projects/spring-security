@@ -96,7 +96,7 @@ dependencies {
 	implementation 'io.spring.nohttp:nohttp-gradle:0.0.10'
 	implementation 'net.sourceforge.htmlunit:htmlunit:2.37.0'
 	implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
-	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.26.1'
+	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0'
 	implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
 
 	testImplementation platform('org.junit:junit-bom:5.9.0-RC1')
