@@ -8,9 +8,9 @@ permissions:
 
 jobs:
   main:
+    runs-on: ubuntu-latest
     permissions:
       contents: none
-    runs-on: ubuntu-latest
     steps:
       - name: Delete artifacts in cron job
         env:
