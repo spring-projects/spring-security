@@ -64,7 +64,6 @@ The following page shows an explicit version of the minimal WebFlux Security con
 .Java
 [source,java,role="primary"]
 -----
-@Configuration
 @EnableWebFluxSecurity
 public class HelloWebfluxSecurityConfig {
 
@@ -94,7 +93,6 @@ public class HelloWebfluxSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 -----
-@Configuration
 @EnableWebFluxSecurity
 class HelloWebfluxSecurityConfig {
 
@@ -138,7 +136,6 @@ For example, you can isolate configuration for URLs that start with `/api`:
 .Java
 [source,java,role="primary"]
 ----
-@Configuration
 @EnableWebFluxSecurity
 static class MultiSecurityHttpConfig {
 
@@ -176,7 +173,6 @@ static class MultiSecurityHttpConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@Configuration
 @EnableWebFluxSecurity
 open class MultiSecurityHttpConfig {
     @Order(Ordered.HIGHEST_PRECEDENCE)                                                      <1>
