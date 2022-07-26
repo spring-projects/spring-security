@@ -20,6 +20,9 @@ env:
   ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
   RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
 
+permissions:
+  contents: read
+
 jobs:
   prerequisites:
     name: Pre-requisites for building
@@ -232,11 +235,11 @@ jobs:
           DOCS_SSH_KEY: ${{ secrets.DOCS_SSH_KEY }}
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   perform_release:
-    permissions:
-      contents: write  # for Git to git push
     name: Perform release
     needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     timeout-minutes: 90
     if: ${{ !endsWith(needs.prerequisites.outputs.project_version, '-SNAPSHOT') }}
     env:
@@ -325,6 +328,9 @@ jobs:
     name: Perform post-release
     needs: [prerequisites, deploy_artifacts, deploy_docs, deploy_schema]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     timeout-minutes: 90
     if: ${{ endsWith(needs.prerequisites.outputs.project_version, '-SNAPSHOT') }}
     env:
@@ -343,6 +349,8 @@ jobs:
     needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, perform_release, perform_post_release]
     if: failure()
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
     steps:
       - name: Send Slack message
         # Workaround while waiting for Gamesight/slack-workflow-status#38 to be fixed

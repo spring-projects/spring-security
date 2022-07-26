@@ -9,11 +9,17 @@ env:
   GRADLE_ENTERPRISE_CACHE_PASSWORD: ${{ secrets.GRADLE_ENTERPRISE_CACHE_PASSWORD }}
   GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
 
+permissions:
+  contents: read
+
 jobs:
   update_scheduled_release_version:
     name: Initiate Release If Scheduled
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     steps:
       - id: checkout-source
         name: Checkout Source Code
