@@ -17,6 +17,7 @@ package io.spring.gradle.convention
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 class ArtifactoryPlugin implements Plugin<Project> {
 
@@ -36,8 +37,14 @@ class ArtifactoryPlugin implements Plugin<Project> {
 						password = artifactoryPassword
 					}
 				}
-				defaults {
-					publications('mavenJava')
+			}
+		}
+		project.plugins.withType(MavenPublishPlugin) {
+			project.artifactory {
+				publish {
+					defaults {
+						publications('mavenJava')
+					}
 				}
 			}
 		}
