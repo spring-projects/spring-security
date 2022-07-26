@@ -5,6 +5,9 @@ on:
     - cron: '15 15 * * MON' # Every Monday at 3:15pm UTC
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   dispatch_scheduled_releases:
     name: Dispatch scheduled releases
