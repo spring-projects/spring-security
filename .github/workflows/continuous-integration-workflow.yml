@@ -36,6 +36,7 @@ jobs:
         name: Determine if should continue
         if: env.RUN_JOBS == 'true'
         run: |
+          # Run jobs if in upstream repository
           echo "::set-output name=runjobs::true"
           # Extract version from gradle.properties
           version=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
@@ -50,18 +51,11 @@ jobs:
     if: needs.prerequisites.outputs.runjobs
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 11
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Build with Gradle
         env:
           GRADLE_ENTERPRISE_CACHE_USERNAME: ${{ secrets.GRADLE_ENTERPRISE_CACHE_USER }}
@@ -75,18 +69,11 @@ jobs:
     if: needs.prerequisites.outputs.runjobs
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Snapshot Tests
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -100,18 +87,11 @@ jobs:
     if: needs.prerequisites.outputs.runjobs
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Check samples project
         env:
           LOCAL_REPOSITORY_PATH: ${{ github.workspace }}/build/publications/repos
@@ -129,18 +109,11 @@ jobs:
     if: needs.prerequisites.outputs.runjobs
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Check for package tangles
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -153,18 +126,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Deploy artifacts
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -184,18 +150,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Deploy Docs
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -212,18 +171,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Deploy Schema
         run: |
           export GRADLE_ENTERPRISE_CACHE_USERNAME="$GRADLE_ENTERPRISE_CACHE_USER"
@@ -251,18 +203,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
-      - name: Setup gradle user name
-        run: |
-          mkdir -p ~/.gradle
-          echo 'systemProp.user.name=spring-builds+github' >> ~/.gradle/gradle.properties
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'adopt'
       - name: Wait for Artifactory Artifacts
         if: ${{ contains(needs.prerequisites.outputs.project_version, '-RC') || contains(needs.prerequisites.outputs.project_version, '-M') }}
         run: |
@@ -338,7 +283,8 @@ jobs:
       VERSION: ${{ needs.prerequisites.outputs.project_version }}
     steps:
       - uses: actions/checkout@v2
-      - uses: spring-io/spring-gradle-build-action@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '11'
           distribution: 'adopt'
@@ -346,7 +292,7 @@ jobs:
         run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
   notify_result:
     name: Check for failures
-    needs: [build_jdk_11, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, perform_release, perform_post_release]
+    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, perform_release, perform_post_release]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
