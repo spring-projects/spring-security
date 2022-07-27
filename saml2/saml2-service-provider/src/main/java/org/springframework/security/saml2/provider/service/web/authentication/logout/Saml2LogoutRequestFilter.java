@@ -215,6 +215,8 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
+		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
+				.append("content=\"script-src 'sha256-ePniVEkSivX/c7XWBGafqh8tSpiRrKiqYeqbG7N1TOE='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
 		html.append("    <body onload=\"document.forms[0].submit()\">\n");
