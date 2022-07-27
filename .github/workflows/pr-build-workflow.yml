@@ -2,9 +2,6 @@ name: PR Build
 
 on: pull_request
 
-env:
-  RUN_JOBS: ${{ github.repository == 'spring-projects/spring-security' }}
-
 permissions:
   contents: read
 
@@ -12,14 +9,13 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
     steps:
-      - if: env.RUN_JOBS == 'true'
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '17'
           distribution: 'temurin'
       - name: Build with Gradle
-        if: env.RUN_JOBS == 'true'
         run: ./gradlew clean build --continue --scan
