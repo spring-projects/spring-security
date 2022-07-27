@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -338,8 +338,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			if (this.cache == null) {
 				return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
 			}
-			ResourceRetriever cachingJwkSetRetriever = new CachingResourceRetriever(this.cache, jwkSetRetriever);
-			return new RemoteJWKSet<>(toURL(this.jwkSetUri), cachingJwkSetRetriever, new NoOpJwkSetCache());
+			JWKSetCache jwkSetCache = new SpringJWKSetCache(this.jwkSetUri, this.cache);
+			return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever, jwkSetCache);
 		}
 
 		JWTProcessor<SecurityContext> processor() {
@@ -371,52 +371,48 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			}
 		}
 
-		private static class NoOpJwkSetCache implements JWKSetCache {
+		private static final class SpringJWKSetCache implements JWKSetCache {
 
+			private final String jwkSetUri;
+
+			private final Cache cache;
+
+			private JWKSet jwkSet;
+
+			SpringJWKSetCache(String jwkSetUri, Cache cache) {
+				this.jwkSetUri = jwkSetUri;
+				this.cache = cache;
+				this.updateJwkSetFromCache();
+			}
+
+			private void updateJwkSetFromCache() {
+				String cachedJwkSet = this.cache.get(this.jwkSetUri, String.class);
+				if (cachedJwkSet != null) {
+					try {
+						this.jwkSet = JWKSet.parse(cachedJwkSet);
+					}
+					catch (ParseException ignored) {
+						// Ignore invalid cache value
+					}
+				}
+			}
+
+			// Note: Only called from inside a synchronized block in RemoteJWKSet.
 			@Override
 			public void put(JWKSet jwkSet) {
+				this.jwkSet = jwkSet;
+				this.cache.put(this.jwkSetUri, jwkSet.toString(false));
 			}
 
 			@Override
 			public JWKSet get() {
-				return null;
+				return (!requiresRefresh()) ? this.jwkSet : null;
+
 			}
 
 			@Override
 			public boolean requiresRefresh() {
-				return true;
-			}
-
-		}
-
-		private static class CachingResourceRetriever implements ResourceRetriever {
-
-			private final Cache cache;
-
-			private final ResourceRetriever resourceRetriever;
-
-			CachingResourceRetriever(Cache cache, ResourceRetriever resourceRetriever) {
-				this.cache = cache;
-				this.resourceRetriever = resourceRetriever;
-			}
-
-			@Override
-			public Resource retrieveResource(URL url) throws IOException {
-				try {
-					String jwkSet = this.cache.get(url.toString(),
-							() -> this.resourceRetriever.retrieveResource(url).getContent());
-					return new Resource(jwkSet, "UTF-8");
-				}
-				catch (Cache.ValueRetrievalException ex) {
-					Throwable thrownByValueLoader = ex.getCause();
-					if (thrownByValueLoader instanceof IOException) {
-						throw (IOException) thrownByValueLoader;
-					}
-					throw new IOException(thrownByValueLoader);
-				}
-				catch (Exception ex) {
-					throw new IOException(ex);
-				}
+				return this.cache.get(this.jwkSetUri) == null;
 			}
 
 		}
