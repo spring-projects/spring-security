@@ -263,6 +263,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @deprecated Use {@link #privilegeEvaluator(WebInvocationPrivilegeEvaluator)}
 	 * instead
 	 */
+	@Deprecated
 	public WebSecurity securityInterceptor(FilterSecurityInterceptor securityInterceptor) {
 		this.filterSecurityInterceptor = securityInterceptor;
 		return this;
