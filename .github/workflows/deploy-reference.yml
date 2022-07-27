@@ -16,23 +16,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Set up JDK 17
-        uses: actions/setup-java@v2
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@e6e38bacfdf1a337459f332974bb2327a31aaf4b
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
-        with:
-          # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-          # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-          gradle-home-cache-excludes: |
-            caches/modules-2/modules-2.lock
-            caches/modules-2/gc.properties
+      - name: Cleanup Gradle Cache
+        # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+        # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+        run: |
+          rm -f /home/runner/.gradle/caches/modules-2/modules-2.lock
+          rm -f /home/runner/.gradle/caches/modules-2/gc.properties
       - name: Build with Gradle
         run: ./gradlew :spring-security-docs:antora --stacktrace
       - name: Deploy

@@ -19,14 +19,11 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v2
-      - name: Set up JDK
-        uses: actions/setup-java@v1
+      - name: Set up gradle
+        uses: spring-io/spring-gradle-build-action@v1
         with:
           java-version: '17'
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-        env:
-          GRADLE_USER_HOME: ~/.gradle
+          distribution: 'temurin'
       - name: Generate antora.yml
         run: ./gradlew :spring-security-docs:generateAntora
       - name: Extract Branch Name
