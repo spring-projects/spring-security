@@ -292,7 +292,7 @@ jobs:
         run: ./gradlew scheduleNextRelease -PnextVersion=$VERSION -PgitHubAccessToken=$TOKEN
   notify_result:
     name: Check for failures
-    needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles, deploy_artifacts, deploy_docs, deploy_schema, perform_release, perform_post_release]
+    needs: [perform_release, perform_post_release]
     if: failure()
     runs-on: ubuntu-latest
     permissions:
