@@ -9,6 +9,7 @@ permissions:
 jobs:
   main:
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
     permissions:
       contents: none
     steps:
