@@ -13,6 +13,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
     permissions:
       contents: read
       issues: write
