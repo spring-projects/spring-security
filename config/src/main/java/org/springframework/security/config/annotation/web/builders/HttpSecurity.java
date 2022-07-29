@@ -408,23 +408,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                 .contentTypeOptions()
-	 *                 .and()
-	 *                 .xssProtection()
-	 *                 .and()
-	 *                 .cacheControl()
-	 *                 .and()
-	 *                 .httpStrictTransportSecurity()
-	 *                 .and()
-	 *                 .frameOptions()
-	 *                 .and()
-	 *             ...;
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				.contentTypeOptions()
+	 * 				.and()
+	 * 				.xssProtection()
+	 * 				.and()
+	 * 				.cacheControl()
+	 * 				.and()
+	 * 				.httpStrictTransportSecurity()
+	 * 				.and()
+	 * 				.frameOptions()
+	 * 				.and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -435,13 +435,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers().disable()
-	 *             ...;
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers().disable()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -456,18 +456,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                  .defaultsDisabled()
-	 *                  .cacheControl()
-	 *                  .and()
-	 *                  .frameOptions()
-	 *                  .and()
-	 *             ...;
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				.defaultsDisabled()
+	 * 				.cacheControl()
+	 * 				.and()
+	 * 				.frameOptions()
+	 * 				.and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -480,16 +480,16 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                  .frameOptions()
-	 *                  	.disable()
-	 *                  .and()
-	 *             ...;
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				 .frameOptions()
+	 * 				 	.disable()
+	 * 				 .and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @return the {@link HeadersConfigurer} for further customizations
@@ -625,12 +625,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CorsSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .cors(withDefaults());
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.cors(withDefaults());
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param corsCustomizer the {@link Customizer} to provide more options for the
@@ -1836,13 +1836,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .csrf().disable()
-	 *             ...;
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.csrf().disable()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @return the {@link CsrfConfigurer} for further customizations
@@ -1862,12 +1862,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;EnableWebSecurity
 	 * public class CsrfSecurityConfig {
 	 *
-	 *     &#064;Bean
-	 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .csrf((csrf) -&gt; csrf.disable());
-	 *         return http.build();
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.csrf((csrf) -&gt; csrf.disable());
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param csrfCustomizer the {@link Customizer} to provide more options for the
