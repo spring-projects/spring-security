@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
@@ -30,7 +30,7 @@ import org.springframework.security.web.csrf.CsrfToken;
 
 /**
  * Adds a Filter that will generate a login page if one is not specified otherwise when
- * using {@link WebSecurityConfigurerAdapter}.
+ * using {@link EnableWebSecurity}.
  *
  * <p>
  * By default an
@@ -64,7 +64,7 @@ import org.springframework.security.web.csrf.CsrfToken;
  *
  * @author Rob Winch
  * @since 3.2
- * @see WebSecurityConfigurerAdapter
+ * @see EnableWebSecurity
  */
 public final class DefaultLoginPageConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<DefaultLoginPageConfigurer<H>, H> {
