@@ -25,7 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.PortMapper;
@@ -307,14 +307,14 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	/**
 	 * <p>
 	 * Specifies the URL to send users to if login is required. If used with
-	 * {@link WebSecurityConfigurerAdapter} a default login page will be generated when
-	 * this attribute is not specified.
+	 * {@link EnableWebSecurity} a default login page will be generated when this
+	 * attribute is not specified.
 	 * </p>
 	 *
 	 * <p>
 	 * If a URL is specified or this is not being used in conjunction with
-	 * {@link WebSecurityConfigurerAdapter}, users are required to process the specified
-	 * URL to generate a login page.
+	 * {@link EnableWebSecurity}, users are required to process the specified URL to
+	 * generate a login page.
 	 * </p>
 	 */
 	protected T loginPage(String loginPage) {

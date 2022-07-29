@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
@@ -84,15 +84,15 @@ public final class FormLoginConfigurer<H extends HttpSecurityBuilder<H>> extends
 	/**
 	 * <p>
 	 * Specifies the URL to send users to if login is required. If used with
-	 * {@link WebSecurityConfigurerAdapter} a default login page will be generated when
-	 * this attribute is not specified.
+	 * {@link EnableWebSecurity} a default login page will be generated when this
+	 * attribute is not specified.
 	 * </p>
 	 *
 	 * <p>
 	 * If a URL is specified or this is not being used in conjunction with
-	 * {@link WebSecurityConfigurerAdapter}, users are required to process the specified
-	 * URL to generate a login page. In general, the login page should create a form that
-	 * submits a request with the following requirements to work with
+	 * {@link EnableWebSecurity}, users are required to process the specified URL to
+	 * generate a login page. In general, the login page should create a form that submits
+	 * a request with the following requirements to work with
 	 * {@link UsernamePasswordAuthenticationFilter}:
 	 * </p>
 	 *

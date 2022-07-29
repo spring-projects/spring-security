@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.header.HeaderWriter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.header.writers.CacheControlHeadersWriter;
@@ -50,7 +50,7 @@ import org.springframework.util.Assert;
 /**
  * <p>
  * Adds the Security HTTP headers to the response. Security HTTP headers is activated by
- * default when using {@link WebSecurityConfigurerAdapter}'s default constructor.
+ * default when using {@link EnableWebSecurity}'s default constructor.
  * </p>
  *
  * <p>
