@@ -22,10 +22,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -150,13 +148,10 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Specifies the {@link UserDetailsService} used to look up the {@link UserDetails}
-	 * when a remember me token is valid. The default is to use the
-	 * {@link UserDetailsService} found by invoking
-	 * {@link HttpSecurity#getSharedObject(Class)} which is set when using
-	 * {@link WebSecurityConfigurerAdapter#configure(AuthenticationManagerBuilder)}. When
-	 * using a {@link org.springframework.security.web.SecurityFilterChain} bean, the
-	 * default is to look for a {@link UserDetailsService} bean. Alternatively, one can
-	 * populate {@link #rememberMeServices(RememberMeServices)}.
+	 * when a remember me token is valid. When using a
+	 * {@link org.springframework.security.web.SecurityFilterChain} bean, the default is
+	 * to look for a {@link UserDetailsService} bean. Alternatively, one can populate
+	 * {@link #rememberMeServices(RememberMeServices)}.
 	 * @param userDetailsService the {@link UserDetailsService} to configure
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices
