@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.RememberMeConfigurer;
@@ -61,29 +61,29 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
  * <h2>Example Configuration</h2>
  *
  * <pre>
- *
  * &#064;Configuration
  * &#064;EnableWebSecurity
- * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
+ * public class OpenIDLoginConfig {
  *
- * 	&#064;Override
- * 	protected void configure(HttpSecurity http) {
+ * 	&#064;Bean
+ * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
  * 		http
  * 			.authorizeRequests()
  * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
  * 				.and()
  * 			.openidLogin()
  * 				.permitAll();
+ * 		return http.build();
  * 	}
  *
- * 	&#064;Override
- * 	protected void configure(AuthenticationManagerBuilder auth)(
- * 			AuthenticationManagerBuilder auth) throws Exception {
- * 		auth
- * 			.inMemoryAuthentication()
- * 				.withUser(&quot;https://www.google.com/accounts/o8/id?id=lmkCn9xzPdsxVwG7pjYMuDgNNdASFmobNkcRPaWU&quot;)
- * 					.password(&quot;password&quot;)
- * 					.roles(&quot;USER&quot;);
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;https://www.google.com/accounts/o8/id?id=lmkCn9xzPdsxVwG7pjYMuDgNNdASFmobNkcRPaWU&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user);
  * 	}
  * }
  * </pre>
@@ -229,14 +229,14 @@ public final class OpenIDLoginConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * <p>
 	 * Specifies the URL to send users to if login is required. If used with
-	 * {@link WebSecurityConfigurerAdapter} a default login page will be generated when
-	 * this attribute is not specified.
+	 * {@link EnableWebSecurity} a default login page will be generated when this
+	 * attribute is not specified.
 	 * </p>
 	 *
 	 * <p>
 	 * If a URL is specified or this is not being used in conjunction with
-	 * {@link WebSecurityConfigurerAdapter}, users are required to process the specified
-	 * URL to generate a login page.
+	 * {@link EnableWebSecurity}, users are required to process the specified URL to
+	 * generate a login page.
 	 * </p>
 	 *
 	 * <ul>
