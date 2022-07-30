@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -61,6 +62,7 @@ class ServerPasswordManagementDslTests {
                 .expectHeader().valueEquals(HttpHeaders.LOCATION, "/change-password")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PasswordManagementWithDefaultChangePasswordPageConfig {
@@ -83,6 +85,7 @@ class ServerPasswordManagementDslTests {
                 .expectHeader().valueEquals(HttpHeaders.LOCATION, "/custom-change-password-page")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PasswordManagementWithCustomChangePasswordPageConfig {

@@ -131,6 +131,7 @@ public class DefaultFiltersTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderMissingConfig {
 
@@ -155,6 +156,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
 
@@ -169,6 +171,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
 
@@ -192,6 +195,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultFiltersConfigPermitAll extends WebSecurityConfigurerAdapter {
 

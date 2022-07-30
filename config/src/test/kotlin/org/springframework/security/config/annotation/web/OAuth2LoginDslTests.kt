@@ -62,6 +62,7 @@ class OAuth2LoginDslTests {
         this.spring.register(ClientRepoConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ClientRepoConfig {
         @Bean
@@ -89,6 +90,7 @@ class OAuth2LoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class OAuth2LoginConfig {
         @Bean
@@ -110,6 +112,7 @@ class OAuth2LoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class LoginPageConfig {
         @Bean
@@ -160,6 +163,7 @@ class OAuth2LoginDslTests {
         verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomAuthenticationDetailsSourceConfig {
 

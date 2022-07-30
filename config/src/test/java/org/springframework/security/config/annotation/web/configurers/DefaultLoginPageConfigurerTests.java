@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -310,6 +311,7 @@ public class DefaultLoginPageConfigurerTests {
 		this.mvc.perform(get("/logout").with(user("user"))).andExpect(status().isNotFound());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -335,6 +337,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -354,6 +357,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLoginPageCustomLogoutSuccessUrlConfig extends WebSecurityConfigurerAdapter {
 
@@ -373,6 +377,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLoginPageWithRememberMeConfig extends WebSecurityConfigurerAdapter {
 
@@ -391,6 +396,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLoginWithCustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -410,6 +416,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -432,6 +439,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLogoutPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -448,6 +456,7 @@ public class DefaultLoginPageConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
 

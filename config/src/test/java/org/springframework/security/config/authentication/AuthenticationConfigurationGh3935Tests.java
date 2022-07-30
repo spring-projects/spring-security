@@ -77,6 +77,7 @@ public class AuthenticationConfigurationGh3935Tests {
 		assertThat(auth.getPrincipal()).isEqualTo(PasswordEncodedUser.user());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurity extends WebSecurityConfigurerAdapter {
 

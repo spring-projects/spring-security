@@ -80,6 +80,7 @@ class AuthorizationCodeGrantDslTests {
         verify(exactly = 1) { RequestRepositoryConfig.REQUEST_REPOSITORY.loadAuthorizationRequest(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequestRepositoryConfig {
 
@@ -131,6 +132,7 @@ class AuthorizationCodeGrantDslTests {
         verify(exactly = 1) { AuthorizedClientConfig.CLIENT.getTokenResponse(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthorizedClientConfig {
         companion object {
@@ -174,6 +176,7 @@ class AuthorizationCodeGrantDslTests {
         verify(exactly = 1) { requestResolverConfig.requestResolver.resolve(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequestResolverConfig {
 

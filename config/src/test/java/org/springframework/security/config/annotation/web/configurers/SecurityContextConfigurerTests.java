@@ -139,6 +139,7 @@ public class SecurityContextConfigurerTests {
 		assertThat(securityContext.getAuthentication()).isNotNull();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -168,6 +169,7 @@ public class SecurityContextConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -221,6 +223,7 @@ public class SecurityContextConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -244,6 +247,7 @@ public class SecurityContextConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -267,6 +271,7 @@ public class SecurityContextConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullSecurityContextRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -293,6 +298,7 @@ public class SecurityContextConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequireExplicitSaveConfig extends WebSecurityConfigurerAdapter {
 

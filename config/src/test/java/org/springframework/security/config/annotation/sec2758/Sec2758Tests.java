@@ -24,6 +24,7 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 import org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource;
@@ -77,6 +78,7 @@ public class Sec2758Tests {
 		this.service.doPreAuthorize();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableGlobalMethodSecurity(prePostEnabled = true, jsr250Enabled = true)
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -59,6 +60,7 @@ public class LdapPasswordComparisonAuthenticationManagerFactoryITests {
 		this.mockMvc.perform(formLogin().user("bob").password("bob")).andExpect(authenticated().withUsername("bob"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomPasswordEncoderConfig extends BaseLdapServerConfig {
 
@@ -72,6 +74,7 @@ public class LdapPasswordComparisonAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomPasswordAttributeConfig extends BaseLdapServerConfig {
 
@@ -86,6 +89,7 @@ public class LdapPasswordComparisonAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	abstract static class BaseLdapServerConfig implements DisposableBean {
 

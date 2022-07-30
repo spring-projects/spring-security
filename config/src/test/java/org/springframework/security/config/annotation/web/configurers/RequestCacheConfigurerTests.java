@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -299,6 +300,7 @@ public class RequestCacheConfigurerTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -328,6 +330,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -346,6 +349,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -362,6 +366,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -373,6 +378,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -391,6 +397,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -409,6 +416,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomRequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -430,6 +438,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 

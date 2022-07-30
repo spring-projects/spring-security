@@ -50,6 +50,7 @@ class SessionManagementDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -77,6 +78,7 @@ class SessionManagementDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *

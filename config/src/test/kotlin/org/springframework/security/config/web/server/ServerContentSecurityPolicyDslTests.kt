@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -59,6 +60,7 @@ class ServerContentSecurityPolicyDslTests {
                 .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY, "default-src 'self'")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class ContentSecurityPolicyConfig {
@@ -82,6 +84,7 @@ class ServerContentSecurityPolicyDslTests {
                 .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY, "default-src 'self'; script-src trustedscripts.example.com")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomPolicyDirectivesConfig {
@@ -107,6 +110,7 @@ class ServerContentSecurityPolicyDslTests {
                 .expectHeader().valueEquals(ContentSecurityPolicyServerHttpHeadersWriter.CONTENT_SECURITY_POLICY_REPORT_ONLY, "default-src 'self'")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class ReportOnlyConfig {

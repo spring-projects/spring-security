@@ -104,6 +104,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		verify(strategy, atLeastOnce()).getContext();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BearerFilterConfig extends WebSecurityConfigurerAdapter {
 
@@ -120,6 +121,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BearerFilterlessConfig extends WebSecurityConfigurerAdapter {
 

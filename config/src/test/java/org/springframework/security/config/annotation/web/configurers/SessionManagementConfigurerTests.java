@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -339,6 +340,7 @@ public class SessionManagementConfigurerTests {
 		this.mvc.perform(get("/")).andExpect(content().string("encoded"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionManagementRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -358,6 +360,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionManagementSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
 
@@ -377,6 +380,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
@@ -393,6 +397,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
 
@@ -419,6 +424,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -447,6 +453,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
 
@@ -473,6 +480,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -503,6 +511,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -519,6 +528,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -549,6 +559,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -564,6 +575,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionRegistryOneBeanConfig extends WebSecurityConfigurerAdapter {
 
@@ -585,6 +597,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionRegistryTwoBeansConfig extends WebSecurityConfigurerAdapter {
 
@@ -613,6 +626,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultUrlRewriteConfig {
 
@@ -628,6 +642,7 @@ public class SessionManagementConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EnableUrlRewriteConfig {
 

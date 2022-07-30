@@ -95,6 +95,7 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -124,6 +125,7 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -153,6 +155,7 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -182,6 +185,7 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *

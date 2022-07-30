@@ -277,11 +277,13 @@ public class GlobalMethodSecurityConfigurationTests {
 		assertThat(methodInterceptor.getSecurityMetadataSource()).isSameAs(methodSecurityMetadataSource);
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity
 	public static class IllegalStateGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity
 	public static class CustomMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
 
@@ -293,6 +295,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class InMemoryAuthWithGlobalMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
@@ -312,6 +315,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class CustomTrustResolverConfig {
 
@@ -327,6 +331,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true, proxyTargetClass = true)
 	static class ExpressionHandlerHasBeanResolverSetConfig {
 
@@ -342,6 +347,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class MethodSecurityServiceConfig {
 
@@ -352,6 +358,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class AutowirePermissionEvaluatorConfig {
 
@@ -367,6 +374,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class MultiPermissionEvaluatorConfig {
 
@@ -387,6 +395,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class ParentConfig {
 
@@ -407,6 +416,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class Sec2479ChildConfig {
 
@@ -417,6 +427,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class Sec2815Config {
 
@@ -450,6 +461,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class Sec9845Config {
 
@@ -486,6 +498,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true, mode = AdviceMode.ASPECTJ)
 	@EnableTransactionManagement
 	static class Sec3005Config {
@@ -536,6 +549,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class CustomGrantedAuthorityConfig {
 
@@ -564,6 +578,7 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class EmptyRolePrefixGrantedAuthorityConfig {
 

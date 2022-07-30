@@ -27,6 +27,7 @@ The following code shows the complete configuration options available for the `o
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -55,6 +56,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -121,6 +123,7 @@ The following listing shows an example:
 .Java
 [source,java,role="primary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -153,6 +156,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -220,6 +224,7 @@ If you would like to customize the Authorization Response redirection endpoint, 
 .Java
 [source,java,role="primary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -238,6 +243,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -317,6 +323,7 @@ Register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied t
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -364,6 +371,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -413,6 +421,7 @@ The following example shows how to implement and configure a delegation-based st
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -453,6 +462,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -509,6 +519,7 @@ Whether you customize `DefaultReactiveOAuth2UserService` or provide your own imp
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -531,6 +542,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -567,6 +579,7 @@ Whether you customize `OidcReactiveOAuth2UserService` or provide your own implem
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -589,6 +602,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -686,6 +700,7 @@ spring:
 .Java
 [source,java,role="primary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -722,6 +737,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary",subs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 

@@ -72,6 +72,7 @@ public class EnableGlobalAuthenticationTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalAuthentication
 	static class BeanProxyEnabledByDefaultConfig {
 

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -228,6 +229,7 @@ public class ExceptionHandlingConfigurerTests {
 				any(HttpServletResponse.class), any(AuthenticationException.class));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -257,6 +259,7 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 
@@ -272,6 +275,7 @@ public class ExceptionHandlingConfigurerTests {
 			// @formatter:off
 		}
 	}
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasicAndFormLoginEntryPointsConfig extends WebSecurityConfigurerAdapter {
 		@Override
@@ -295,6 +299,7 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -307,11 +312,13 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultHttpConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BasicAuthenticationEntryPointBeforeFormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -330,6 +337,7 @@ public class ExceptionHandlingConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 

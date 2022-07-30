@@ -325,6 +325,7 @@ The following example shows how to register a `SecurityWebFilterChain` `@Bean` w
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -344,6 +345,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -373,6 +375,7 @@ The following example shows how to completely override the auto-configuration by
 .Java
 [source,java,role="primary",attrs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginConfig {
 
@@ -414,6 +417,7 @@ public class OAuth2LoginConfig {
 .Kotlin
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginConfig {
 
@@ -465,6 +469,7 @@ If you are not able to use Spring Boot 2.x and would like to configure one of th
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginConfig {
 
@@ -508,6 +513,7 @@ public class OAuth2LoginConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2LoginConfig {
 

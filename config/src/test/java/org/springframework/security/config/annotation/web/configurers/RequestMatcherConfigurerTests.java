@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -67,6 +68,7 @@ public class RequestMatcherConfigurerTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Sec2908Config extends WebSecurityConfigurerAdapter {
 
@@ -87,6 +89,7 @@ public class RequestMatcherConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizeRequestInLambdaConfig extends WebSecurityConfigurerAdapter {
 

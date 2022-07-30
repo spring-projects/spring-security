@@ -64,6 +64,7 @@ class OAuth2ClientDslTests {
         this.spring.register(ClientRepoConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ClientRepoConfig {
         @Bean
@@ -119,6 +120,7 @@ class OAuth2ClientDslTests {
         verify(exactly = 1) { ClientRepositoryConfig.CLIENT_REPOSITORY.saveAuthorizedClient(any(), any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ClientRepositoryConfig {
 

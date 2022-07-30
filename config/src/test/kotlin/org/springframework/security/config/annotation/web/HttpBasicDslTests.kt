@@ -87,6 +87,7 @@ class HttpBasicDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HttpBasicConfig {
         @Bean
@@ -111,6 +112,7 @@ class HttpBasicDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomRealmConfig {
         @Bean
@@ -138,6 +140,7 @@ class HttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationEntryPointConfig.ENTRY_POINT.commence(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomAuthenticationEntryPointConfig {
 
@@ -176,6 +179,7 @@ class HttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomAuthenticationDetailsSourceConfig {
 

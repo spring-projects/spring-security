@@ -100,6 +100,7 @@ public class EnableWebSecurityTests {
 		assertThat(parentBean.getChild()).isNotSameAs(childBean);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -136,11 +137,13 @@ public class EnableWebSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity(debug = true)
 	static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class AuthenticationPrincipalConfig extends WebSecurityConfigurerAdapter {
@@ -161,6 +164,7 @@ public class EnableWebSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class SecurityFilterChainAuthenticationPrincipalConfig {
@@ -182,6 +186,7 @@ public class EnableWebSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BeanProxyEnabledByDefaultConfig extends WebSecurityConfigurerAdapter {
 

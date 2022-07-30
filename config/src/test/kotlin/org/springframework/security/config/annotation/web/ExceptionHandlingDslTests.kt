@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -59,6 +60,7 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class ExceptionHandlingConfig {
@@ -83,6 +85,7 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ExceptionHandlingDisabledConfig {
         @Bean
@@ -111,6 +114,7 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AccessDeniedPageConfig {
@@ -141,6 +145,7 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AccessDeniedHandlerConfig {
@@ -180,6 +185,7 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AccessDeniedHandlerForConfig {
@@ -215,6 +221,7 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthenticationEntryPointConfig {
@@ -249,6 +256,7 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthenticationEntryPointForConfig {

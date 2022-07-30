@@ -88,6 +88,7 @@ public class Issue55Tests {
 		return this.spring.getContext().getBean(FilterChainProxy.class).getFilterChains().get(index);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
 
@@ -117,6 +118,7 @@ public class Issue55Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultiWebSecurityConfigurerAdapterDefaultsAuthManagerConfig {
 

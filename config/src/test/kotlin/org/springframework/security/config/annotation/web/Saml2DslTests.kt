@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
@@ -69,6 +70,7 @@ class Saml2DslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class Saml2LoginNoRelyingPArtyRegistrationRepoConfig {
         @Bean
@@ -90,6 +92,7 @@ class Saml2DslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class Saml2LoginConfig {
 
@@ -133,6 +136,7 @@ class Saml2DslTests {
         verify(exactly = 1) { Saml2LoginCustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class Saml2LoginCustomAuthenticationManagerConfig {
         companion object {

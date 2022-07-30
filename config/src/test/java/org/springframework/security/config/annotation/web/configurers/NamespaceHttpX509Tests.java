@@ -31,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -131,6 +132,7 @@ public class NamespaceHttpX509Tests {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	public static class X509Config extends WebSecurityConfigurerAdapter {
@@ -157,6 +159,7 @@ public class NamespaceHttpX509Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
@@ -190,6 +193,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
 
@@ -217,6 +221,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class CustomPrincipalExtractorConfig extends WebSecurityConfigurerAdapter {
 
@@ -249,6 +254,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -276,6 +282,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
 

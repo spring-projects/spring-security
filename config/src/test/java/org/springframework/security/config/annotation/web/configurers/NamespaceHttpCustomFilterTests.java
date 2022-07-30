@@ -98,6 +98,7 @@ public class NamespaceHttpCustomFilterTests {
 		return assertThat(filters);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
 
@@ -112,6 +113,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
 
@@ -126,6 +128,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterPositionConfig extends WebSecurityConfigurerAdapter {
 
@@ -146,6 +149,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterPositionAtConfig extends WebSecurityConfigurerAdapter {
 
@@ -164,6 +168,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoAuthenticationManagerInHttpConfigurationConfig extends WebSecurityConfigurerAdapter {
 

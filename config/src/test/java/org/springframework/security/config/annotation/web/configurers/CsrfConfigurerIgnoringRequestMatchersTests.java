@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -79,6 +80,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 		this.mvc.perform(put("/no-csrf")).andExpect(status().isOk());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IgnoringRequestMatchers extends WebSecurityConfigurerAdapter {
 
@@ -96,6 +98,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IgnoringRequestInLambdaMatchers extends WebSecurityConfigurerAdapter {
 
@@ -115,6 +118,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchers extends WebSecurityConfigurerAdapter {
 
@@ -132,6 +136,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IgnoringPathsAndMatchersInLambdaConfig extends WebSecurityConfigurerAdapter {
 

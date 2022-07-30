@@ -198,6 +198,7 @@ import org.springframework.web.server.WebFilterChain;
  * A minimal configuration can be found below:
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableWebFluxSecurity
  * public class MyMinimalSecurityConfiguration {
  *
@@ -217,6 +218,7 @@ import org.springframework.web.server.WebFilterChain;
  * {@code ServerHttpSecurity}.
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
  *

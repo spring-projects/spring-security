@@ -225,6 +225,7 @@ Replacing this is as simple as exposing the bean within the application:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
     @Bean
@@ -247,6 +248,7 @@ public class MyCustomSecurityConfiguration {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
     @Bean
@@ -343,6 +345,7 @@ An authorization server's Introspection Uri can be configured <<oauth2resourcese
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class DirectlyConfiguredIntrospectionUri {
     @Bean
@@ -365,6 +368,7 @@ public class DirectlyConfiguredIntrospectionUri {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class DirectlyConfiguredIntrospectionUri {
     @Bean
@@ -409,6 +413,7 @@ More powerful than `introspectionUri()` is `introspector()`, which will complete
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class DirectlyConfiguredIntrospector {
     @Bean
@@ -430,6 +435,7 @@ public class DirectlyConfiguredIntrospector {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class DirectlyConfiguredIntrospector {
     @Bean
@@ -492,6 +498,7 @@ This means that to protect an endpoint or method with a scope derived from an Op
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class MappedAuthorities {
     @Bean
@@ -511,6 +518,7 @@ public class MappedAuthorities {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class MappedAuthorities {
     @Bean

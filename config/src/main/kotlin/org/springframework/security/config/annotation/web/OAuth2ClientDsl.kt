@@ -64,6 +64,7 @@ class OAuth2ClientDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *

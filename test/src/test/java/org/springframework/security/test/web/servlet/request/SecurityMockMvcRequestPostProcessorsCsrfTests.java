@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -226,6 +227,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 

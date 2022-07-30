@@ -102,6 +102,7 @@ class RedirectionEndpointDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class UserServiceConfig {
 

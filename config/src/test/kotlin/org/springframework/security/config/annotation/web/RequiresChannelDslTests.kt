@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.ConfigAttribute
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -63,6 +64,7 @@ class RequiresChannelDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequiresSecureConfig {
         @Bean
@@ -96,6 +98,7 @@ class RequiresChannelDslTests {
                 .andExpect(MockMvcResultMatchers.status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherServletPathConfig {
@@ -129,6 +132,7 @@ class RequiresChannelDslTests {
         verify(exactly = 0) {  ChannelProcessorsConfig.CHANNEL_PROCESSOR.supports(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ChannelProcessorsConfig {
 

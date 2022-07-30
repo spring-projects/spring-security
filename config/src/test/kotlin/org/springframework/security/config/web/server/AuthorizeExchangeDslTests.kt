@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -31,7 +32,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
-import java.util.Base64
+import java.util.*
 
 /**
  * Tests for [AuthorizeExchangeDsl]
@@ -63,6 +64,7 @@ class AuthorizeExchangeDslTests {
                 .expectStatus().isUnauthorized
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class MatcherAuthenticatedConfig {
@@ -86,6 +88,7 @@ class AuthorizeExchangeDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class MatcherPermitAllConfig {
@@ -126,6 +129,7 @@ class AuthorizeExchangeDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PatternAuthenticatedConfig {
@@ -158,6 +162,7 @@ class AuthorizeExchangeDslTests {
                 .expectStatus().isForbidden
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class HasRoleConfig {
@@ -194,6 +199,7 @@ class AuthorizeExchangeDslTests {
             .expectStatus().isForbidden
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class HasIpAddressConfig {

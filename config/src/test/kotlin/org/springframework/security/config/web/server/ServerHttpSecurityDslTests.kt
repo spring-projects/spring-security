@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken
@@ -87,6 +88,7 @@ class ServerHttpSecurityDslTests {
                 .expectStatus().isUnauthorized
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PatternMatcherConfig {
@@ -127,6 +129,7 @@ class ServerHttpSecurityDslTests {
                 .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class DefaultSecurityConfig {
@@ -146,6 +149,7 @@ class ServerHttpSecurityDslTests {
         assertThat(filters).last().isExactlyInstanceOf(CustomWebFilter::class.java)
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterAtConfig {
@@ -169,6 +173,7 @@ class ServerHttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterBeforeConfig {
@@ -192,6 +197,7 @@ class ServerHttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterAfterConfig {
@@ -220,6 +226,7 @@ class ServerHttpSecurityDslTests {
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebFlux
     @EnableWebFluxSecurity
     open class AuthenticationManagerConfig {

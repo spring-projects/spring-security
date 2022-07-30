@@ -183,6 +183,7 @@ public class WebTestUtilsTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityNoCsrfConfig extends WebSecurityConfigurerAdapter {
 
@@ -193,6 +194,7 @@ public class WebTestUtilsTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -213,6 +215,7 @@ public class WebTestUtilsTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PartialSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -231,11 +234,13 @@ public class WebTestUtilsTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextHolderFilterConfig {
 

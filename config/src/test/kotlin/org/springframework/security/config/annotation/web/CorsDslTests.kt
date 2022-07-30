@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -57,6 +58,7 @@ class CorsDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultCorsConfig {
         @Bean
@@ -80,6 +82,7 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
     open class CorsCrossOriginBeanConfig {
@@ -116,6 +119,7 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
     open class CorsDisabledConfig {
@@ -155,6 +159,7 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
     open class CorsCrossOriginSourceConfig {

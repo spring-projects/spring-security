@@ -204,6 +204,7 @@ You can replace it by exposing the bean within the application:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class MyCustomSecurityConfiguration {
     @Bean
@@ -282,6 +283,7 @@ You can configure an authorization server's Introspection URI <<webflux-oauth2re
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class DirectlyConfiguredIntrospectionUri {
     @Bean
@@ -332,6 +334,7 @@ Using `introspectionUri()` takes precedence over any configuration property.
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class DirectlyConfiguredIntrospector {
     @Bean
@@ -416,6 +419,7 @@ This means that, to protect an endpoint or method with a scope derived from an O
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class MappedAuthorities {
     @Bean

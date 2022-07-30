@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -125,6 +126,7 @@ public class ReactiveOAuth2ClientImportSelectorTest {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class OAuth2AuthorizedClientManagerRegisteredConfig {

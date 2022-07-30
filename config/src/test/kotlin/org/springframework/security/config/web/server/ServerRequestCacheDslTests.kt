@@ -72,6 +72,7 @@ class ServerRequestCacheDslTests {
         verify(exactly = 1) { RequestCacheConfig.REQUEST_CACHE.saveRequest(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class RequestCacheConfig {

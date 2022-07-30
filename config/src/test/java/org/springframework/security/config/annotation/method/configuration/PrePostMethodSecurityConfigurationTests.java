@@ -406,6 +406,7 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.methodSecurityService.preAuthorizeBean(true);
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
 
@@ -421,6 +422,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(jsr250Enabled = true)
 	static class BusinessServiceConfig {
 
@@ -431,6 +433,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(prePostEnabled = false, securedEnabled = true)
 	static class SecuredConfig {
 
@@ -441,6 +444,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(prePostEnabled = false, jsr250Enabled = true)
 	static class Jsr250Config {
 
@@ -451,6 +455,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 	static class MethodSecurityServiceEnabledConfig {
 
@@ -461,6 +466,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomPermissionEvaluatorConfig {
 
@@ -485,6 +491,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomGrantedAuthorityDefaultsConfig {
 
@@ -495,6 +502,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomAuthorizationManagerBeforeAdviceConfig {
 
@@ -513,6 +521,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomAuthorizationManagerAfterAdviceConfig {
 

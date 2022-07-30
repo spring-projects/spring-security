@@ -71,6 +71,7 @@ The following minimal method security configures method security in reactive app
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 	@Bean
@@ -92,6 +93,7 @@ public class SecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableReactiveMethodSecurity
 class SecurityConfig {
 	@Bean
@@ -168,6 +170,7 @@ When integrating with xref:reactive/configuration/webflux.adoc#jc-webflux[WebFlu
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
@@ -203,6 +206,7 @@ public class SecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 class SecurityConfig {

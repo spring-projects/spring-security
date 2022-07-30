@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -73,6 +74,7 @@ public class CsrfConfigurerNoWebMvcTests {
 		this.context = annotationConfigApplicationContext;
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EnableWebConfig extends WebSecurityConfigurerAdapter {
 
@@ -82,6 +84,7 @@ public class CsrfConfigurerNoWebMvcTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EnableWebOverrideRequestDataConfig {
 
@@ -93,6 +96,7 @@ public class CsrfConfigurerNoWebMvcTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EnableWebMvcConfig extends WebSecurityConfigurerAdapter {
 

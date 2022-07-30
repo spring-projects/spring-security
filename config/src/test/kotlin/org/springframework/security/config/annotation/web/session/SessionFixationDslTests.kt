@@ -68,6 +68,7 @@ class SessionFixationDslTests {
         assertThat(resultingSession.getAttribute("name")).isNull()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class NewSessionConfig {
         @Bean
@@ -103,6 +104,7 @@ class SessionFixationDslTests {
         assertThat(resultingSession.getAttribute("name")).isEqualTo("value")
     }
 
+    @Configuration
     @EnableWebSecurity
     open class MigrateSessionConfig {
         @Bean
@@ -138,6 +140,7 @@ class SessionFixationDslTests {
         assertThat(resultingSession.getAttribute("name")).isEqualTo("value")
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ChangeSessionIdConfig {
         @Bean
@@ -173,6 +176,7 @@ class SessionFixationDslTests {
         assertThat(resultingSession.getAttribute("name")).isEqualTo("value")
     }
 
+    @Configuration
     @EnableWebSecurity
     open class NoneConfig {
         @Bean

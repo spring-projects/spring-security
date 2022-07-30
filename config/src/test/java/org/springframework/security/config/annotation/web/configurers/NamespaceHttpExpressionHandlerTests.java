@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -74,6 +75,7 @@ public class NamespaceHttpExpressionHandlerTests {
 		return verify(this.spring.getContext().getBean(beanName, beanClass));
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	private static class ExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
