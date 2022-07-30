@@ -22,6 +22,7 @@ For that reason, you can configure `OpenSaml4AuthenticationProvider` 's default 
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
@@ -52,6 +53,7 @@ public class SecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class SecurityConfig {
     @Bean
@@ -90,6 +92,7 @@ In that case, the response authentication converter can come in handy, as can be
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
     @Autowired
@@ -123,6 +126,7 @@ public class SecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class SecurityConfig {
     @Autowired
@@ -309,6 +313,7 @@ This authentication manager should expect a `Saml2AuthenticationToken` object co
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
@@ -331,6 +336,7 @@ public class SecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class SecurityConfig {
     @Bean

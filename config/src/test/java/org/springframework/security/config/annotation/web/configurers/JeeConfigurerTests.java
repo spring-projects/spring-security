@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -151,6 +152,7 @@ public class JeeConfigurerTests {
 		this.mvc.perform(authRequest).andExpect(authenticated().withRoles("USER"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -180,6 +182,7 @@ public class JeeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
@@ -196,6 +199,7 @@ public class JeeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
 
@@ -216,6 +220,7 @@ public class JeeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	public static class JeeMappableAuthoritiesConfig extends WebSecurityConfigurerAdapter {
 
@@ -236,6 +241,7 @@ public class JeeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	public static class JeeCustomAuthenticatedUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
 

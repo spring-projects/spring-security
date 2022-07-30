@@ -28,6 +28,7 @@ import reactor.util.context.Context;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -402,6 +403,7 @@ public class EnableReactiveMethodSecurityTests {
 		return publisher(Flux.just(data));
 	}
 
+	@Configuration
 	@EnableReactiveMethodSecurity
 	static class Config {
 

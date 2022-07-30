@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -75,6 +76,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config {

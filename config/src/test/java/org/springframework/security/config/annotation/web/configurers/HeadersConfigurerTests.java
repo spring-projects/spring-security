@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -544,6 +545,7 @@ public class HeadersConfigurerTests {
 				HttpHeaders.CROSS_ORIGIN_EMBEDDER_POLICY, HttpHeaders.CROSS_ORIGIN_RESOURCE_POLICY);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersConfig extends WebSecurityConfigurerAdapter {
 
@@ -557,6 +559,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -570,6 +573,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -585,6 +589,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentTypeOptionsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -602,6 +607,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FrameOptionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -617,6 +623,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HstsConfig extends WebSecurityConfigurerAdapter {
 
@@ -632,6 +639,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CacheControlConfig extends WebSecurityConfigurerAdapter {
 
@@ -647,6 +655,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CacheControlInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -664,6 +673,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
 
@@ -679,6 +689,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class XssProtectionInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -696,6 +707,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersCustomSameOriginConfig extends WebSecurityConfigurerAdapter {
 
@@ -710,6 +722,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersCustomSameOriginInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -726,6 +739,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigNoPins extends WebSecurityConfigurerAdapter {
 
@@ -741,6 +755,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfig extends WebSecurityConfigurerAdapter {
 
@@ -757,6 +772,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigWithPins extends WebSecurityConfigurerAdapter {
 
@@ -776,6 +792,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigCustomAge extends WebSecurityConfigurerAdapter {
 
@@ -793,6 +810,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigTerminateConnection extends WebSecurityConfigurerAdapter {
 
@@ -810,6 +828,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigIncludeSubDomains extends WebSecurityConfigurerAdapter {
 
@@ -827,6 +846,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigWithReportURI extends WebSecurityConfigurerAdapter {
 
@@ -844,6 +864,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpConfigWithReportURIAsString extends WebSecurityConfigurerAdapter {
 
@@ -861,6 +882,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HpkpWithReportUriInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -882,6 +904,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -897,6 +920,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyReportOnlyConfig extends WebSecurityConfigurerAdapter {
 
@@ -913,6 +937,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyReportOnlyInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -934,6 +959,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyInvalidConfig extends WebSecurityConfigurerAdapter {
 
@@ -949,6 +975,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyInvalidInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -968,6 +995,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentSecurityPolicyNoDirectivesInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -985,6 +1013,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ReferrerPolicyDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -1000,6 +1029,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ReferrerPolicyDefaultInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -1017,6 +1047,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ReferrerPolicyCustomConfig extends WebSecurityConfigurerAdapter {
 
@@ -1032,6 +1063,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ReferrerPolicyCustomInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -1051,6 +1083,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FeaturePolicyConfig extends WebSecurityConfigurerAdapter {
 
@@ -1066,6 +1099,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FeaturePolicyInvalidConfig extends WebSecurityConfigurerAdapter {
 
@@ -1081,6 +1115,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermissionsPolicyConfig extends WebSecurityConfigurerAdapter {
 
@@ -1096,6 +1131,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermissionsPolicyStringConfig extends WebSecurityConfigurerAdapter {
 
@@ -1112,6 +1148,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermissionsPolicyInvalidConfig extends WebSecurityConfigurerAdapter {
 
@@ -1127,6 +1164,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermissionsPolicyInvalidStringConfig extends WebSecurityConfigurerAdapter {
 
@@ -1143,6 +1181,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HstsWithPreloadConfig extends WebSecurityConfigurerAdapter {
 
@@ -1159,6 +1198,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HstsWithPreloadInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -1176,6 +1216,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CrossOriginCustomPoliciesInLambdaConfig {
 
@@ -1200,6 +1241,7 @@ public class HeadersConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CrossOriginCustomPoliciesConfig {
 

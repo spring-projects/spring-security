@@ -87,6 +87,7 @@ class ServerHttpBasicDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class HttpBasicConfig {
@@ -124,6 +125,7 @@ class ServerHttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAuthenticationManagerConfig {
@@ -167,6 +169,7 @@ class ServerHttpBasicDslTests {
         verify(exactly = 1) { CustomSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY.save(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomSecurityContextRepositoryConfig {
@@ -203,6 +206,7 @@ class ServerHttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationEntryPointConfig.ENTRY_POINT.commence(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAuthenticationEntryPointConfig {

@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -79,6 +80,7 @@ class ServerLogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class LogoutConfig {
@@ -109,6 +111,7 @@ class ServerLogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomUrlConfig {
@@ -141,6 +144,7 @@ class ServerLogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class RequiresLogoutConfig {
@@ -169,6 +173,7 @@ class ServerLogoutDslTests {
         verify(exactly = 1) { CustomLogoutHandlerConfig.LOGOUT_HANDLER.logout(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomLogoutHandlerConfig {
@@ -204,6 +209,7 @@ class ServerLogoutDslTests {
         verify(exactly = 1) { CustomLogoutSuccessHandlerConfig.LOGOUT_HANDLER.onLogoutSuccess(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomLogoutSuccessHandlerConfig {
@@ -234,6 +240,7 @@ class ServerLogoutDslTests {
                 .expectStatus().isNotFound
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class LogoutDisabledConfig {

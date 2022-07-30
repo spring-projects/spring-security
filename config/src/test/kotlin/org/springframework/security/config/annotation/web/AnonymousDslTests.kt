@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -59,6 +60,7 @@ class AnonymousDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class PrincipalConfig {
@@ -83,6 +85,7 @@ class AnonymousDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class KeyConfig {
@@ -107,6 +110,7 @@ class AnonymousDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AnonymousDisabledConfig {
@@ -131,6 +135,7 @@ class AnonymousDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AnonymousAuthoritiesConfig {

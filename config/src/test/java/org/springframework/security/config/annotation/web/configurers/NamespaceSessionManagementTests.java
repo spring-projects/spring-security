@@ -254,11 +254,13 @@ public class NamespaceSessionManagementTests {
 		return new SessionResultMatcher();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionManagementConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomSessionManagementConfig extends WebSecurityConfigurerAdapter {
 
@@ -290,6 +292,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvalidSessionStrategyConfig extends WebSecurityConfigurerAdapter {
 
@@ -311,6 +314,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RefsSessionManagementConfig extends WebSecurityConfigurerAdapter {
 
@@ -334,6 +338,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SFPNoneSessionManagementConfig extends WebSecurityConfigurerAdapter {
 
@@ -350,6 +355,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SFPMigrateSessionManagementConfig extends WebSecurityConfigurerAdapter {
 
@@ -365,6 +371,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SFPPostProcessedConfig extends WebSecurityConfigurerAdapter {
 
@@ -385,6 +392,7 @@ public class NamespaceSessionManagementTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SFPNewSessionSessionManagementConfig extends WebSecurityConfigurerAdapter {
 

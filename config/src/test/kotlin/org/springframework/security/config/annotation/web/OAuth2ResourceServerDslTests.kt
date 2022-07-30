@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationManagerResolver
@@ -78,6 +79,7 @@ class OAuth2ResourceServerDslTests {
         verify(exactly = 1) { EntryPointConfig.ENTRY_POINT.commence(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class EntryPointConfig {
 
@@ -116,6 +118,7 @@ class OAuth2ResourceServerDslTests {
         verify(exactly = 1) { BearerTokenResolverConfig.RESOLVER.resolve(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class BearerTokenResolverConfig {
 
@@ -171,6 +174,7 @@ class OAuth2ResourceServerDslTests {
         verify(exactly = 1) { AccessDeniedHandlerConfig.DENIED_HANDLER.handle(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AccessDeniedHandlerConfig {
 
@@ -214,6 +218,7 @@ class OAuth2ResourceServerDslTests {
         verify(exactly = 1) { AuthenticationManagerResolverConfig.RESOLVER.resolve(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerResolverConfig {
 
@@ -243,6 +248,7 @@ class OAuth2ResourceServerDslTests {
                 .withMessageContaining("authenticationManagerResolver")
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerResolverAndOpaqueConfig {
         @Bean

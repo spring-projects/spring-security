@@ -165,6 +165,7 @@ public class AuthenticationManagerBuilderTests {
 				.andExpect(authenticated().withUsername("joe").withRoles("USER"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 
@@ -182,6 +183,7 @@ public class AuthenticationManagerBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
 
@@ -201,6 +203,7 @@ public class AuthenticationManagerBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
 

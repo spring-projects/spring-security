@@ -105,6 +105,7 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthorizeHttpRequestsByRegexConfig {
         @Bean
@@ -162,6 +163,7 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthorizeHttpRequestsByMvcConfig {
@@ -207,6 +209,7 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherPathVariablesConfig {
@@ -253,6 +256,7 @@ class AuthorizeHttpRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasRoleConfig {
@@ -318,6 +322,7 @@ class AuthorizeHttpRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasAnyRoleConfig {
@@ -382,6 +387,7 @@ class AuthorizeHttpRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasAuthorityConfig {
@@ -447,6 +453,7 @@ class AuthorizeHttpRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasAnyAuthorityConfig {
@@ -508,6 +515,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherServletPathConfig {
@@ -544,6 +552,7 @@ class AuthorizeHttpRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthorizeRequestsByMvcConfigWithHttpMethod {
@@ -596,6 +605,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherServletPathHttpMethodConfig {
@@ -628,6 +638,7 @@ class AuthorizeHttpRequestsDslTests {
             )
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class BothAuthorizeRequestsConfig {
@@ -659,6 +670,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isForbidden)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class ShouldFilterAllDispatcherTypesTrueDenyAllConfig {
@@ -697,6 +709,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class ShouldFilterAllDispatcherTypesTruePermitAllConfig {
@@ -735,6 +748,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class ShouldFilterAllDispatcherTypesFalseAndDenyAllConfig {
@@ -773,6 +787,7 @@ class AuthorizeHttpRequestsDslTests {
             .andExpect(status().isForbidden)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class ShouldFilterAllDispatcherTypesOmittedAndDenyAllConfig {

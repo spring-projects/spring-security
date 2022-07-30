@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.AuthenticationManager
@@ -74,6 +75,7 @@ class JwtDslTests {
         this.spring.register(CustomJwtDecoderConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomJwtDecoderConfig {
         @Bean
@@ -94,6 +96,7 @@ class JwtDslTests {
         this.spring.register(CustomJwkSetUriConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomJwkSetUriConfig {
         @Bean
@@ -130,6 +133,7 @@ class JwtDslTests {
         verify(exactly = 1) { CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomJwtAuthenticationConverterConfig {
 
@@ -181,6 +185,7 @@ class JwtDslTests {
         verify(exactly = 1) { JwtDecoderAfterJwkSetUriConfig.DECODER.decode(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class JwtDecoderAfterJwkSetUriConfig {
 
@@ -229,6 +234,7 @@ class JwtDslTests {
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerConfig {
 

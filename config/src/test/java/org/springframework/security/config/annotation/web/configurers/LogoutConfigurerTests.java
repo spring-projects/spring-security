@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
@@ -321,6 +322,7 @@ public class LogoutConfigurerTests {
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isNotFound());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -335,6 +337,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -350,6 +353,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -364,6 +368,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -379,6 +384,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -408,6 +414,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -432,6 +439,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -447,6 +455,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisabledAndCustomLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -463,6 +472,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisabledAndCustomLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -478,6 +488,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullLogoutHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -492,6 +503,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -505,6 +517,7 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
 
@@ -521,11 +534,13 @@ public class LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
 

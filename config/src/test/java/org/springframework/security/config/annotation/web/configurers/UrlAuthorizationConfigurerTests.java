@@ -268,6 +268,7 @@ public class UrlAuthorizationConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	@Configuration
 	@EnableWebMvc
 	static class MultiMvcMatcherConfig {
 

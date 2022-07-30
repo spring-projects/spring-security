@@ -83,6 +83,7 @@ class ServerFormLoginDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class DefaultFormLoginConfig {
@@ -112,6 +113,7 @@ class ServerFormLoginDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomLoginPageConfig {
@@ -147,6 +149,7 @@ class ServerFormLoginDslTests {
         verify(exactly = 1) { CustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAuthenticationManagerConfig {
@@ -228,6 +231,7 @@ class ServerFormLoginDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomConfig {
@@ -268,6 +272,7 @@ class ServerFormLoginDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomSuccessHandlerConfig {
@@ -303,6 +308,7 @@ class ServerFormLoginDslTests {
         verify(exactly = 1) { CustomSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY.save(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomSecurityContextRepositoryConfig {

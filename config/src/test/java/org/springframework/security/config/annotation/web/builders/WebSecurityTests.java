@@ -237,6 +237,7 @@ public class WebSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestRejectedHandlerConfig extends WebSecurityConfigurerAdapter {
 

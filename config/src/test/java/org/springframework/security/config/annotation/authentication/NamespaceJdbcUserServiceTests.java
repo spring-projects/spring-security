@@ -70,6 +70,7 @@ public class NamespaceJdbcUserServiceTests {
 		this.mockMvc.perform(formLogin()).andExpect(dba);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
 
@@ -100,6 +101,7 @@ public class NamespaceJdbcUserServiceTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
 

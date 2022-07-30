@@ -213,6 +213,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
@@ -260,6 +261,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class SampleWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
@@ -333,6 +335,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class SampleMultiHttpSecurityConfig {
 

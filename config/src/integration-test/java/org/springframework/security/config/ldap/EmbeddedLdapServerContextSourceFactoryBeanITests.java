@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.support.LdapContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -81,6 +82,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 				.withMessageContaining("managerPassword is required if managerDn is supplied");
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FromEmbeddedLdapServerConfig {
 
@@ -98,6 +100,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PortZeroConfig {
 
@@ -118,6 +121,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomLdifAndRootConfig {
 
@@ -139,6 +143,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomManagerDnConfig {
 
@@ -161,6 +166,7 @@ public class EmbeddedLdapServerContextSourceFactoryBeanITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomManagerDnNoPasswordConfig {
 

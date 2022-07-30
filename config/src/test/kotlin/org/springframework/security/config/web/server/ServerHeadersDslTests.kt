@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -73,6 +74,7 @@ class ServerHeadersDslTests {
                 .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class DefaultHeadersConfig {
@@ -100,6 +102,7 @@ class ServerHeadersDslTests {
                 .expectHeader().doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class HeadersDisabledConfig {
@@ -123,6 +126,7 @@ class ServerHeadersDslTests {
                 .expectHeader().valueEquals("Feature-Policy", "geolocation 'self'")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     @Suppress("DEPRECATION")
@@ -149,6 +153,7 @@ class ServerHeadersDslTests {
                 .expectHeader().doesNotExist("Cross-Origin-Resource-Policy")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CrossOriginPoliciesConfig {
@@ -172,6 +177,7 @@ class ServerHeadersDslTests {
                 .expectHeader().valueEquals("Cross-Origin-Resource-Policy", "same-origin")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CrossOriginPoliciesCustomConfig {

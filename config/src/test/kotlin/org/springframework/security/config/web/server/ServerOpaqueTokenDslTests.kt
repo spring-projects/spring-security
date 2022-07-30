@@ -34,6 +34,7 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import jakarta.annotation.PreDestroy
+import org.springframework.context.annotation.Configuration
 
 /**
  * Tests for [ServerOpaqueTokenDsl]
@@ -70,6 +71,7 @@ class ServerOpaqueTokenDslTests {
         assertThat(recordedRequest.path).isEqualTo("/introspect")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class IntrospectorBeanConfig {
@@ -120,6 +122,7 @@ class ServerOpaqueTokenDslTests {
         assertThat(recordedRequest.path).isEqualTo("/introspector")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomIntrospectorConfig {
@@ -167,6 +170,7 @@ class ServerOpaqueTokenDslTests {
         assertThat(recordedRequest.path).isEqualTo("/introspection-uri")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomIntrospectionUriAndCredentialsConfig {

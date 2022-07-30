@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
@@ -131,6 +132,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 				.andExpect(authenticated().withUsername("bob"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FromContextSourceConfig extends BaseLdapServerConfig {
 
@@ -143,6 +145,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthoritiesMapperConfig extends BaseLdapServerConfig {
 
@@ -158,6 +161,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthoritiesPopulatorConfig extends BaseLdapServerConfig {
 
@@ -173,6 +177,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomUserDetailsContextMapperConfig extends BaseLdapServerConfig {
 
@@ -188,6 +193,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomUserDnPatternsConfig extends BaseLdapServerConfig {
 
@@ -200,6 +206,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomUserSearchConfig extends BaseLdapServerConfig {
 
@@ -213,6 +220,7 @@ public class LdapBindAuthenticationManagerFactoryITests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	abstract static class BaseLdapServerConfig implements DisposableBean {
 

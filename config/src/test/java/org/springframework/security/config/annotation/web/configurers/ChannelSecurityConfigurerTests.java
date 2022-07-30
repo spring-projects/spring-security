@@ -25,6 +25,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -128,6 +129,7 @@ public class ChannelSecurityConfigurerTests {
 		this.mvc.perform(get("/test-3")).andExpect(redirectedUrl("https://localhost/test-3"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -158,6 +160,7 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -174,6 +177,7 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequiresChannelInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -190,6 +194,7 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequiresChannelWithTestUrlRedirectStrategy extends WebSecurityConfigurerAdapter {
 
@@ -221,6 +226,7 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class RequiresChannelMultiMvcMatchersConfig {
@@ -248,6 +254,7 @@ public class ChannelSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class RequiresChannelMultiMvcMatchersInLambdaConfig {

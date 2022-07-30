@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -302,6 +303,7 @@ public class RememberMeConfigurerTests {
 		this.mvc.perform(requestWithRememberme).andExpect(remembermeAuthentication);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
 
@@ -331,6 +333,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -369,6 +372,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -403,6 +407,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UserDetailsServiceBeanConfig {
 
@@ -423,6 +428,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
 
@@ -450,6 +456,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -477,6 +484,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
 
@@ -505,6 +513,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -535,6 +544,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieNameAndRememberMeServicesConfig extends WebSecurityConfigurerAdapter {
 
@@ -567,6 +577,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FallbackRememberMeKeyConfig extends RememberMeConfig {
 

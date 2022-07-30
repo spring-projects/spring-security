@@ -269,6 +269,7 @@ public class HttpSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultWithFilterChainConfig {
 
@@ -279,6 +280,7 @@ public class HttpSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizeRequestsConfig {
 
@@ -295,6 +297,7 @@ public class HttpSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityEnabledConfig {
 
@@ -329,6 +332,7 @@ public class HttpSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizeHttpRequestsBeforeAuthorizeRequestsConfig {
 
@@ -348,6 +352,7 @@ public class HttpSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizeHttpRequestsAfterAuthorizeRequestsConfig {
 

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -55,6 +56,7 @@ class FrameOptionsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FrameOptionsConfig {
         @Bean
@@ -80,6 +82,7 @@ class FrameOptionsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FrameOptionsDenyConfig {
         @Bean
@@ -107,6 +110,7 @@ class FrameOptionsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FrameOptionsSameOriginConfig {
         @Bean
@@ -134,6 +138,7 @@ class FrameOptionsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FrameOptionsSameOriginAndDenyConfig {
         @Bean
@@ -162,6 +167,7 @@ class FrameOptionsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FrameOptionsDisabledConfig {
         @Bean

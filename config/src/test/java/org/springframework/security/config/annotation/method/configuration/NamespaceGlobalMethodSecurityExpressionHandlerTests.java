@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
@@ -66,6 +67,7 @@ public class NamespaceGlobalMethodSecurityExpressionHandlerTests {
 				.isThrownBy(() -> this.service.postHasPermission("denied"));
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
 

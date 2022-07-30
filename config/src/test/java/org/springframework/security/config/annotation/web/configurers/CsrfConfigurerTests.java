@@ -418,6 +418,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -427,6 +428,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
 
@@ -441,6 +443,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -454,6 +457,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -482,6 +486,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -512,6 +517,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
 
@@ -528,6 +534,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -544,6 +551,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -559,6 +567,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryConfig extends WebSecurityConfigurerAdapter {
 
@@ -586,6 +595,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -602,6 +612,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -618,6 +629,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultAccessDeniedHandlerForConfig extends WebSecurityConfigurerAdapter {
 
@@ -636,6 +648,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -649,6 +662,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class LogoutAllowsGetConfig extends WebSecurityConfigurerAdapter {
 
@@ -665,6 +679,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullRequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -679,6 +694,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultDoesNotCreateSession extends WebSecurityConfigurerAdapter {
 
@@ -706,6 +722,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullAuthenticationStrategy extends WebSecurityConfigurerAdapter {
 
@@ -720,6 +737,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
 

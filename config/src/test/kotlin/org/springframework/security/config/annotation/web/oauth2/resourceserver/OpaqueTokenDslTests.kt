@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -101,6 +102,7 @@ class OpaqueTokenDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultOpaqueConfig {
 
@@ -146,6 +148,7 @@ class OpaqueTokenDslTests {
         verify(exactly = 1) { CustomIntrospectorConfig.INTROSPECTOR.introspect("token") }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomIntrospectorConfig {
 
@@ -184,6 +187,7 @@ class OpaqueTokenDslTests {
         verify(exactly = 1) { IntrospectorAfterClientCredentialsConfig.INTROSPECTOR.introspect("token") }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class IntrospectorAfterClientCredentialsConfig {
 
@@ -227,6 +231,7 @@ class OpaqueTokenDslTests {
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerConfig {
 

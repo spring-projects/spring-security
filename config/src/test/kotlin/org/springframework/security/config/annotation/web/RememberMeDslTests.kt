@@ -391,6 +391,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeConfig : DefaultUserConfig() {
         @Bean
@@ -406,6 +407,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeDomainConfig : DefaultUserConfig() {
         @Bean
@@ -423,6 +425,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeServicesRefConfig : DefaultUserConfig() {
 
@@ -442,6 +445,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeSuccessHandlerConfig : DefaultUserConfig() {
 
@@ -461,6 +465,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class WithAndWithoutKeyConfig : DefaultUserConfig() {
         @Bean
@@ -491,6 +496,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeTokenRepositoryConfig : DefaultUserConfig() {
 
@@ -510,6 +516,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeTokenValidityConfig : DefaultUserConfig() {
         @Bean
@@ -524,6 +531,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeUseSecureCookieConfig : DefaultUserConfig() {
         @Bean
@@ -538,6 +546,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeParameterConfig : DefaultUserConfig() {
         @Bean
@@ -552,6 +561,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeCookieNameConfig : DefaultUserConfig() {
         @Bean
@@ -566,6 +576,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeDefaultUserDetailsServiceConfig {
 
@@ -595,6 +606,7 @@ internal class RememberMeDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeUserDetailsServiceConfig : DefaultUserConfig() {
 
@@ -616,6 +628,7 @@ internal class RememberMeDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeAlwaysRememberConfig : DefaultUserConfig() {
         @Bean

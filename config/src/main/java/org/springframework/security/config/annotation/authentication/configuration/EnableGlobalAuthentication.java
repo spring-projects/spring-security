@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -88,7 +87,6 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 @Target(ElementType.TYPE)
 @Documented
 @Import(AuthenticationConfiguration.class)
-@Configuration
 public @interface EnableGlobalAuthentication {
 
 }

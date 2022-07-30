@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -53,6 +54,7 @@ public class SecurityMockMvcRequestPostProcessorsCsrfDebugFilterTests {
 		assertThat(csrfTokenRepository).isEqualTo(Config.cookieCsrfTokenRepository);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 

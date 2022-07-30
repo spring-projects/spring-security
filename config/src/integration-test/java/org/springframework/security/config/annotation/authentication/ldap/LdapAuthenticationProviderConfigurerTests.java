@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.ldap.LdapAuthenticationProviderBuilderSecurityBuilderTests.BaseLdapProviderConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -114,6 +115,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 		this.mockMvc.perform(request).andExpect(expectedUser);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 
@@ -135,6 +137,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
 
@@ -158,6 +161,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
 
@@ -176,6 +180,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
 

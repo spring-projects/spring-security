@@ -328,6 +328,7 @@ The following example shows how to register a `SecurityFilterChain` `@Bean` with
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -346,6 +347,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -463,6 +465,7 @@ If you are not able to use Spring Boot 2.x and would like to configure one of th
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginConfig {
 
@@ -505,6 +508,7 @@ public class OAuth2LoginConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class OAuth2LoginConfig {
     @Bean

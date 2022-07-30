@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -64,6 +65,7 @@ class SecurityContextDslTests {
         verify(exactly = 1) { DuplicateDoesNotOverrideConfig.SECURITY_CONTEXT_REPOSITORY.loadContext(any<HttpRequestResponseHolder>()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DuplicateDoesNotOverrideConfig {
         @Bean
@@ -103,6 +105,7 @@ class SecurityContextDslTests {
         assertThat(securityContext.authentication).isNotNull
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequireExplicitSaveConfig {
         @Bean

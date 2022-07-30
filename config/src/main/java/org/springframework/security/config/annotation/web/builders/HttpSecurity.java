@@ -1853,6 +1853,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * public class Saml2LoginConfig {
 	 *
+	 *  &#064;Configuration
 	 * 	&#064;EnableWebSecurity
 	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * 		&#064;Override
@@ -1942,6 +1943,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * public class Saml2LoginConfig {
 	 *
+	 *  &#064;Configuration
 	 * 	&#064;EnableWebSecurity
 	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * 		&#064;Override
@@ -2178,6 +2180,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * &#064;Configuration
 	 * public class OAuth2LoginConfig {
 	 *
+	 *  &#064;Configuration
 	 * 	&#064;EnableWebSecurity
 	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 	 * 		&#064;Override

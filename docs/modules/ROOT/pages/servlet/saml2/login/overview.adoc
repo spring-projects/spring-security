@@ -341,6 +341,7 @@ You can replace this by exposing the bean within the application:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
     @Bean
@@ -359,6 +360,7 @@ public class MyCustomSecurityConfiguration {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
     @Bean
@@ -495,6 +497,7 @@ Alternatively, you can directly wire up the repository by using the DSL, which a
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class MyCustomSecurityConfiguration {
     @Bean
@@ -515,6 +518,7 @@ public class MyCustomSecurityConfiguration {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class MyCustomSecurityConfiguration {
     @Bean

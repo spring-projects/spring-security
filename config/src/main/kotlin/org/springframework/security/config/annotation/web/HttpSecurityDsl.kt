@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest
  * Example:
  *
  * ```
+ * @Configuration
  * @EnableWebSecurity
  * class SecurityConfig : WebSecurityConfigurerAdapter() {
  *
@@ -82,6 +83,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -122,6 +124,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -151,6 +154,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -179,6 +183,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -208,6 +213,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig {
      *
@@ -240,6 +246,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -268,6 +275,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -297,6 +305,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -327,6 +336,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -355,6 +365,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -386,6 +397,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -414,6 +426,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -443,6 +456,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -470,6 +484,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -496,6 +511,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -524,6 +540,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -549,6 +566,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -579,6 +597,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -607,6 +626,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -637,6 +657,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -665,6 +686,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -691,6 +713,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -719,6 +742,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -746,6 +770,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -773,6 +798,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -799,6 +825,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -826,6 +853,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -852,6 +880,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -879,6 +908,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -913,6 +943,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *

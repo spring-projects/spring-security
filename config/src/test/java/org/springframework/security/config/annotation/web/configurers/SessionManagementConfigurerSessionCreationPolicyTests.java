@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -71,6 +72,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class StatelessCreateSessionSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -82,6 +84,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class StatelessCreateSessionUserConfig extends WebSecurityConfigurerAdapter {
 
@@ -97,6 +100,7 @@ public class SessionManagementConfigurerSessionCreationPolicyTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultConfig extends WebSecurityConfigurerAdapter {
 

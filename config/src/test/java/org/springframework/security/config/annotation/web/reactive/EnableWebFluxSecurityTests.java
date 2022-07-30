@@ -320,12 +320,14 @@ public class EnableWebFluxSecurityTests {
 		context.refresh();
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class Config {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	static class CustomPasswordEncoderConfig {
 
@@ -342,6 +344,7 @@ public class EnableWebFluxSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	static class MapReactiveUserDetailsServiceConfig {
 
@@ -358,6 +361,7 @@ public class EnableWebFluxSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class MultiSecurityHttpConfig {
@@ -377,6 +381,7 @@ public class EnableWebFluxSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	@EnableWebFlux
 	@Import(ReactiveAuthenticationTestConfiguration.class)
@@ -407,6 +412,7 @@ public class EnableWebFluxSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	@Import(ReactiveAuthenticationTestConfiguration.class)
 	static class BeanProxyEnabledByDefaultConfig {

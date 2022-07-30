@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -80,6 +81,7 @@ class CsrfDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultCsrfConfig {
         @Bean
@@ -101,6 +103,7 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CsrfDisabledConfig {
         @Bean
@@ -127,6 +130,7 @@ class CsrfDslTests {
         verify(exactly = 1) { CustomRepositoryConfig.REPO.loadToken(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomRepositoryConfig {
 
@@ -160,6 +164,7 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequireCsrfProtectionMatcherConfig {
         @Bean
@@ -185,6 +190,7 @@ class CsrfDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomStrategyConfig {
 
@@ -229,6 +235,7 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class IgnoringRequestMatchersConfig {
         @Bean
@@ -258,6 +265,7 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class IgnoringAntMatchersConfig {
         @Bean

@@ -36,6 +36,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -436,6 +437,7 @@ public class Saml2LogoutConfigurerTests {
 		return new SamlQueryStringRequestPostProcessor();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutDefaultsConfig {
@@ -461,6 +463,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutCsrfDisabledConfig {
@@ -487,6 +490,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutWithHttpGet {
@@ -518,6 +522,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2DefaultsWithObjectPostProcessorConfig {
@@ -542,6 +547,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutComponentsConfig {

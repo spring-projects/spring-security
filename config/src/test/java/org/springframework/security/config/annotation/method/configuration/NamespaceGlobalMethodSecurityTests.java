@@ -234,6 +234,7 @@ public class NamespaceGlobalMethodSecurityTests {
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> this.service.preAuthorize());
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
 	public static class CustomAccessDecisionManagerConfig extends GlobalMethodSecurityConfiguration {
 
@@ -264,6 +265,7 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomAfterInvocationManagerConfig extends GlobalMethodSecurityConfiguration {
 
@@ -294,6 +296,7 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomAuthenticationConfig extends GlobalMethodSecurityConfiguration {
 
@@ -319,6 +322,7 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity
 	public static class CustomMethodSecurityMetadataSourceConfig extends GlobalMethodSecurityConfiguration {
 
@@ -342,11 +346,13 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
 	public static class AspectJModeConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
 	public static class AspectJModeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
 
@@ -380,44 +386,52 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(order = -135, jsr250Enabled = true)
 	@Import(AdvisorOrderConfig.class)
 	public static class CustomOrderConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(jsr250Enabled = true)
 	@Import(AdvisorOrderConfig.class)
 	public static class DefaultOrderConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(jsr250Enabled = true)
 	@Import(AdvisorOrderConfig.class)
 	public static class DefaultOrderExtendsMethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class PreAuthorizeConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class PreAuthorizeExtendsGMSCConfig extends GlobalMethodSecurityConfiguration {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(proxyTargetClass = true, prePostEnabled = true)
 	public static class ProxyTargetClassConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class DefaultProxyConfig {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	public static class CustomRunAsManagerConfig extends GlobalMethodSecurityConfiguration {
 
@@ -430,6 +444,7 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	public static class SecuredConfig {
 

@@ -29,6 +29,7 @@ import org.springframework.web.server.WebFilter
  * Example:
  *
  * ```
+ * @Configuration
  * @EnableWebFluxSecurity
  * class SecurityConfig {
  *
@@ -72,6 +73,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -100,6 +102,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -125,6 +128,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -150,6 +154,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -175,6 +180,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -204,6 +210,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -234,6 +241,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -261,6 +269,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -291,6 +300,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -325,6 +335,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -354,6 +365,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -385,6 +397,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -414,6 +427,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -441,6 +455,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -467,6 +482,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -493,6 +509,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -521,6 +538,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -551,6 +569,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -579,6 +598,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -607,6 +627,7 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *

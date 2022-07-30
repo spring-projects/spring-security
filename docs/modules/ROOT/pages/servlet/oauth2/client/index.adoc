@@ -29,6 +29,7 @@ The following code shows the complete configuration options provided by the `Htt
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -53,6 +54,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2ClientSecurityConfig {
 

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -65,6 +66,7 @@ class HeadersDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultHeadersConfig {
         @Bean
@@ -86,6 +88,7 @@ class HeadersDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @Suppress("DEPRECATION")
     open class FeaturePolicyConfig {
@@ -110,6 +113,7 @@ class HeadersDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class PermissionsPolicyConfig {
         @Bean
@@ -141,6 +145,7 @@ class HeadersDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HeadersDisabledConfig {
         @Bean
@@ -164,6 +169,7 @@ class HeadersDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HeaderWriterConfig {
         @Bean

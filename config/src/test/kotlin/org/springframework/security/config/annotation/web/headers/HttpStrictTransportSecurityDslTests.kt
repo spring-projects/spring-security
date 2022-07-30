@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -56,6 +57,7 @@ class HttpStrictTransportSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HstsConfig {
         @Bean
@@ -81,6 +83,7 @@ class HttpStrictTransportSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HstsPreloadConfig {
         @Bean
@@ -108,6 +111,7 @@ class HttpStrictTransportSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HstsMaxAgeConfig {
         @Bean
@@ -135,6 +139,7 @@ class HttpStrictTransportSecurityDslTests {
         Assertions.assertThat(result.response.headerNames).isEmpty()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HstsCustomMatcherConfig {
         @Bean
@@ -162,6 +167,7 @@ class HttpStrictTransportSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HstsDisabledConfig {
         @Bean

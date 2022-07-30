@@ -95,6 +95,7 @@ class AuthorizeRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthorizeRequestsByRegexConfig {
         @Bean
@@ -152,6 +153,7 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthorizeRequestsByMvcConfig {
@@ -197,6 +199,7 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherPathVariablesConfig {
@@ -240,6 +243,7 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasRoleConfig {
@@ -305,6 +309,7 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasAnyRoleConfig {
@@ -375,6 +380,7 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class HasAnyAuthorityConfig {
@@ -436,6 +442,7 @@ class AuthorizeRequestsDslTests {
                 .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherServletPathConfig {
@@ -459,6 +466,7 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class AuthorizeRequestsByMvcConfigWithHttpMethod{
@@ -496,6 +504,7 @@ class AuthorizeRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MvcMatcherServletPathHttpMethodConfig {

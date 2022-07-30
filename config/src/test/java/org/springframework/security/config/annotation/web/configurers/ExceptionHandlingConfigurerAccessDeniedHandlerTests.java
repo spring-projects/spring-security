@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -74,6 +75,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 		this.mvc.perform(get("/goodbye")).andExpect(status().isIAmATeapot());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherBasedAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -99,6 +101,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -129,6 +132,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SingleRequestMatcherAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
