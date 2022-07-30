@@ -153,7 +153,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	@Override
 	public final boolean isFullyAuthenticated() {
 		Authentication authentication = getAuthentication();
-		return !this.trustResolver.isAnonymous(authentication) && !this.trustResolver.isRememberMe(authentication);
+		return this.trustResolver.isFullyAuthenticated(authentication);
 	}
 
 	/**
