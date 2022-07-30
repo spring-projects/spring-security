@@ -41,7 +41,6 @@ import org.springframework.security.config.annotation.web.AbstractRequestMatcher
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
@@ -76,8 +75,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * <p>
  * Customizations to the {@link WebSecurity} can be made by creating a
- * {@link WebSecurityConfigurer}, overriding {@link WebSecurityConfigurerAdapter} or
- * exposing a {@link WebSecurityCustomizer} bean.
+ * {@link WebSecurityConfigurer} or exposing a {@link WebSecurityCustomizer} bean.
  * </p>
  *
  * @author Rob Winch
@@ -199,7 +197,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 *
 	 * <p>
 	 * Typically this method is invoked automatically within the framework from
-	 * {@link WebSecurityConfigurerAdapter#init(WebSecurity)}
+	 * {@link WebSecurityConfiguration#springSecurityFilterChain()}
 	 * </p>
 	 * @param securityFilterChainBuilder the builder to use to create the
 	 * {@link SecurityFilterChain} instances
@@ -257,7 +255,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	/**
 	 * Sets the {@link FilterSecurityInterceptor}. This is typically invoked by
-	 * {@link WebSecurityConfigurerAdapter}.
+	 * {@link WebSecurityConfiguration#springSecurityFilterChain()}.
 	 * @param securityInterceptor the {@link FilterSecurityInterceptor} to use
 	 * @return the {@link WebSecurity} for further customizations
 	 * @deprecated Use {@link #privilegeEvaluator(WebInvocationPrivilegeEvaluator)}
@@ -296,8 +294,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	protected Filter performBuild() throws Exception {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
 				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
-						+ "Typically this is done by exposing a SecurityFilterChain bean "
-						+ "or by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
+						+ "Typically this is done by exposing a SecurityFilterChain bean. "
 						+ "More advanced users can invoke " + WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");
 		int chainSize = this.ignoredRequests.size() + this.securityFilterChainBuilders.size();

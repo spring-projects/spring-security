@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,19 +23,16 @@ import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Allows customization to the {@link WebSecurity}. In most instances users will use
- * {@link EnableWebSecurity} and either create a {@link Configuration} that extends
- * {@link WebSecurityConfigurerAdapter} or expose a {@link SecurityFilterChain} bean. Both
- * will automatically be applied to the {@link WebSecurity} by the
- * {@link EnableWebSecurity} annotation.
+ * {@link EnableWebSecurity} and create a {@link Configuration} that exposes a
+ * {@link SecurityFilterChain} bean. This will automatically be applied to the
+ * {@link WebSecurity} by the {@link EnableWebSecurity} annotation.
  *
  * @author Rob Winch
  * @since 3.2
- * @see WebSecurityConfigurerAdapter
  * @see SecurityFilterChain
  */
 public interface WebSecurityConfigurer<T extends SecurityBuilder<Filter>> extends SecurityConfigurer<Filter, T> {
