@@ -61,7 +61,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -317,10 +316,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 	@Override
 	public void init(WebSecurity web) throws Exception {
 		HttpSecurity http = getHttp();
-		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
-			FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
-			web.securityInterceptor(securityInterceptor);
-		});
+		web.addSecurityFilterChainBuilder(http);
 	}
 
 	/**

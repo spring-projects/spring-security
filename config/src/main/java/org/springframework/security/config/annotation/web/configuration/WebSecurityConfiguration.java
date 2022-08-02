@@ -47,7 +47,6 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.util.Assert;
 
@@ -112,12 +111,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);
-			for (Filter filter : securityFilterChain.getFilters()) {
-				if (filter instanceof FilterSecurityInterceptor) {
-					this.webSecurity.securityInterceptor((FilterSecurityInterceptor) filter);
-					break;
-				}
-			}
 		}
 		for (WebSecurityCustomizer customizer : this.webSecurityCustomizers) {
 			customizer.customize(this.webSecurity);

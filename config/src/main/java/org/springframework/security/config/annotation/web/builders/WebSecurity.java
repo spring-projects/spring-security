@@ -95,8 +95,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	private IgnoredRequestConfigurer ignoredRequestRegistry;
 
-	private FilterSecurityInterceptor filterSecurityInterceptor;
-
 	private HttpFirewall httpFirewall;
 
 	private RequestRejectedHandler requestRejectedHandler;
@@ -211,8 +209,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	/**
 	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is not
-	 * specified, then a {@link DefaultWebInvocationPrivilegeEvaluator} will be created
-	 * when {@link #securityInterceptor(FilterSecurityInterceptor)} is non null.
+	 * specified, then a {@link RequestMatcherDelegatingWebInvocationPrivilegeEvaluator}
+	 * will be created based on the list of {@link SecurityFilterChain}.
 	 * @param privilegeEvaluator the {@link WebInvocationPrivilegeEvaluator} to use
 	 * @return the {@link WebSecurity} for further customizations
 	 */
@@ -246,25 +244,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @return the {@link WebInvocationPrivilegeEvaluator} for further customizations
 	 */
 	public WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
-		if (this.privilegeEvaluator != null) {
-			return this.privilegeEvaluator;
-		}
-		return (this.filterSecurityInterceptor != null)
-				? new DefaultWebInvocationPrivilegeEvaluator(this.filterSecurityInterceptor) : null;
-	}
-
-	/**
-	 * Sets the {@link FilterSecurityInterceptor}. This is typically invoked by
-	 * {@link WebSecurityConfiguration#springSecurityFilterChain()}.
-	 * @param securityInterceptor the {@link FilterSecurityInterceptor} to use
-	 * @return the {@link WebSecurity} for further customizations
-	 * @deprecated Use {@link #privilegeEvaluator(WebInvocationPrivilegeEvaluator)}
-	 * instead
-	 */
-	@Deprecated
-	public WebSecurity securityInterceptor(FilterSecurityInterceptor securityInterceptor) {
-		this.filterSecurityInterceptor = securityInterceptor;
-		return this;
+		return this.privilegeEvaluator;
 	}
 
 	/**
