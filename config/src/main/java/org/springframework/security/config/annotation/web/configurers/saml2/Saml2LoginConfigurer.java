@@ -47,10 +47,16 @@ import org.springframework.security.saml2.provider.service.web.Saml2Authenticati
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -252,8 +258,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				this.updateAuthenticationDefaults();
 				this.updateAccessDefaults(http);
 				String loginUrl = providerUrlMap.entrySet().iterator().next().getKey();
-				final LoginUrlAuthenticationEntryPoint entryPoint = new LoginUrlAuthenticationEntryPoint(loginUrl);
-				registerAuthenticationEntryPoint(http, entryPoint);
+				registerAuthenticationEntryPoint(http, getLoginEntryPoint(http, loginUrl));
 			}
 			else {
 				super.init(http);
@@ -293,6 +298,22 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
 		}
 		return this.relyingPartyRegistrationRepository;
+	}
+
+	private AuthenticationEntryPoint getLoginEntryPoint(B http, String providerLoginPage) {
+		RequestMatcher loginPageMatcher = new AntPathRequestMatcher(this.getLoginPage());
+		RequestMatcher faviconMatcher = new AntPathRequestMatcher("/favicon.ico");
+		RequestMatcher defaultEntryPointMatcher = this.getAuthenticationEntryPointMatcher(http);
+		RequestMatcher defaultLoginPageMatcher = new AndRequestMatcher(
+				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
+		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
+				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
+		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
+				new LoginUrlAuthenticationEntryPoint(providerLoginPage));
+		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
+		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
+		return loginEntryPoint;
 	}
 
 	private void setAuthenticationRequestRepository(B http,
