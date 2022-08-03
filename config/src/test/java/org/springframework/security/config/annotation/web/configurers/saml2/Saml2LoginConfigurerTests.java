@@ -40,6 +40,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -348,6 +349,16 @@ public class Saml2LoginConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request).andExpect(redirectedUrl("/"));
 		verify(authenticationConverter).convert(any(HttpServletRequest.class));
+	}
+
+	// gh-11657
+	@Test
+	public void getFaviconWhenDefaultConfigurationThenDoesNotSaveAuthnRequest() throws Exception {
+		this.spring.register(Saml2LoginConfig.class).autowire();
+		this.mvc.perform(get("/favicon.ico").accept(MediaType.TEXT_HTML)).andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/login"));
+		this.mvc.perform(get("/").accept(MediaType.TEXT_HTML)).andExpect(status().isFound())
+				.andExpect(redirectedUrl("http://localhost/saml2/authenticate/registration-id"));
 	}
 
 	private void validateSaml2WebSsoAuthenticationFilterConfiguration() {
