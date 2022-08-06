@@ -66,12 +66,13 @@ public class HttpSessionRequestCache implements RequestCache {
 			}
 			return;
 		}
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver,
-				this.matchingRequestParameterName);
+
 		if (this.createSessionAllowed || request.getSession(false) != null) {
 			// Store the HTTP request itself. Used by
 			// AbstractAuthenticationProcessingFilter
 			// for redirection after successful authentication (SEC-29)
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver,
+					this.matchingRequestParameterName);
 			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Saved request %s to session", savedRequest.getRedirectUrl()));
