@@ -52,6 +52,8 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletConfig;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -59,6 +61,7 @@ import org.springframework.security.config.annotation.SecurityContextChangedList
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.MessageAuthorizationContext;
@@ -94,7 +97,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	AnnotationConfigWebApplicationContext context;
 
-	TestingAuthenticationToken messageUser;
+	Authentication messageUser;
 
 	CsrfToken token;
 
@@ -310,6 +313,56 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		Stream<Class<? extends ChannelInterceptor>> interceptors = ((AbstractMessageChannel) messageChannel)
 				.getInterceptors().stream().map(ChannelInterceptor::getClass);
 		assertThat(interceptors).contains(AuthorizationChannelInterceptor.class);
+	}
+
+	@Test
+	public void sendMessageWhenFullyAuthenticatedConfiguredAndRememberMeTokenThenAccessDeniedException() {
+		loadConfig(WebSocketSecurityConfig.class);
+		this.messageUser = new RememberMeAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/fullyAuthenticated")))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendMessageWhenFullyAuthenticatedConfiguredAndUserThenPasses() {
+		loadConfig(WebSocketSecurityConfig.class);
+		clientInboundChannel().send(message("/fullyAuthenticated"));
+	}
+
+	@Test
+	public void sendMessageWhenRememberMeConfiguredAndNoUserThenAccessDeniedException() {
+		loadConfig(WebSocketSecurityConfig.class);
+		this.messageUser = null;
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/rememberMe")))
+				.withCauseInstanceOf(AccessDeniedException.class);
+	}
+
+	@Test
+	public void sendMessageWhenRememberMeConfiguredAndRememberMeTokenThenPasses() {
+		loadConfig(WebSocketSecurityConfig.class);
+		this.messageUser = new RememberMeAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		clientInboundChannel().send(message("/rememberMe"));
+	}
+
+	@Test
+	public void sendMessageWhenAnonymousConfiguredAndAnonymousUserThenPasses() {
+		loadConfig(WebSocketSecurityConfig.class);
+		this.messageUser = new AnonymousAuthenticationToken("key", "user",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		clientInboundChannel().send(message("/anonymous"));
+	}
+
+	@Test
+	public void sendMessageWhenAnonymousConfiguredAndLoggedInUserThenAccessDeniedException() {
+		loadConfig(WebSocketSecurityConfig.class);
+		assertThatExceptionOfType(MessageDeliveryException.class)
+				.isThrownBy(() -> clientInboundChannel().send(message("/anonymous")))
+				.withCauseInstanceOf(AccessDeniedException.class);
+
 	}
 
 	private void assertHandshake(HttpServletRequest request) {
@@ -709,6 +762,9 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 			messages
 				.simpDestMatchers("/permitAll/**").permitAll()
 				.simpDestMatchers("/authenticated/**").authenticated()
+				.simpDestMatchers("/fullyAuthenticated/**").fullyAuthenticated()
+				.simpDestMatchers("/rememberMe/**").rememberMe()
+				.simpDestMatchers("/anonymous/**").anonymous()
 				.anyMessage().denyAll();
 			// @formatter:on
 			return messages.build();
