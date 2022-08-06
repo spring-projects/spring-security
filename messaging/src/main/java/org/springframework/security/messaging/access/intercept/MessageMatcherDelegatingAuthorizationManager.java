@@ -333,6 +333,34 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 			}
 
 			/**
+			 * Specify that Messages are allowed by users who have authenticated and were
+			 * not "remembered".
+			 * @return the {@link Builder} for further customization
+			 * @since 5.8
+			 */
+			public Builder fullyAuthenticated() {
+				return access(AuthenticatedAuthorizationManager.fullyAuthenticated());
+			}
+
+			/**
+			 * Specify that Messages are allowed by users that have been remembered.
+			 * @return the {@link Builder} for further customization
+			 * @since 5.8
+			 */
+			public Builder rememberMe() {
+				return access(AuthenticatedAuthorizationManager.rememberMe());
+			}
+
+			/**
+			 * Specify that Messages are allowed by anonymous users.
+			 * @return the {@link Builder} for further customization
+			 * @since 5.8
+			 */
+			public Builder anonymous() {
+				return access(AuthenticatedAuthorizationManager.anonymous());
+			}
+
+			/**
 			 * Allows specifying that Messages are secured by an arbitrary expression
 			 * @param authorizationManager the {@link AuthorizationManager} to secure the
 			 * destinations
