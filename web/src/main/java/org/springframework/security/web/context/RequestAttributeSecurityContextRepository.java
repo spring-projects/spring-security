@@ -66,18 +66,26 @@ public final class RequestAttributeSecurityContextRepository implements Security
 
 	@Override
 	public boolean containsContext(HttpServletRequest request) {
-		return loadContext(request).get() != null;
+		return getContext(request) != null;
 	}
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		SecurityContext context = loadContext(requestResponseHolder.getRequest()).get();
-		return (context != null) ? context : SecurityContextHolder.createEmptyContext();
+		return getContextOrEmpty(requestResponseHolder.getRequest());
 	}
 
 	@Override
 	public Supplier<SecurityContext> loadContext(HttpServletRequest request) {
-		return () -> (SecurityContext) request.getAttribute(this.requestAttributeName);
+		return () -> getContextOrEmpty(request);
+	}
+
+	private SecurityContext getContextOrEmpty(HttpServletRequest request) {
+		SecurityContext context = getContext(request);
+		return (context != null) ? context : SecurityContextHolder.createEmptyContext();
+	}
+
+	private SecurityContext getContext(HttpServletRequest request) {
+		return (SecurityContext) request.getAttribute(this.requestAttributeName);
 	}
 
 	@Override

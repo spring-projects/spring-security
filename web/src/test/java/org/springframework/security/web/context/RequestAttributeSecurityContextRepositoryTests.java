@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.context;
 
+import java.util.function.Supplier;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -65,6 +67,19 @@ class RequestAttributeSecurityContextRepositoryTests {
 	void containsContextWhenSavedThenTrue() {
 		this.repository.saveContext(this.expectedSecurityContext, this.request, this.response);
 		assertThat(this.repository.containsContext(this.request)).isTrue();
+	}
+
+	@Test
+	void loadDeferredContextWhenNotPresentThenEmptyContext() {
+		Supplier<SecurityContext> deferredContext = this.repository.loadContext(this.request);
+		assertThat(deferredContext.get()).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
+	void loadContextWhenNotPresentThenEmptyContext() {
+		SecurityContext context = this.repository
+				.loadContext(new HttpRequestResponseHolder(this.request, this.response));
+		assertThat(context).isEqualTo(SecurityContextHolder.createEmptyContext());
 	}
 
 }
