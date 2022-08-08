@@ -40,6 +40,7 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -154,6 +155,8 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
 
+	private ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
+
 	public FilterChainProxy() {
 	}
 
@@ -182,8 +185,15 @@ public class FilterChainProxy extends GenericFilterBean {
 			request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 			doFilterInternal(request, response, chain);
 		}
-		catch (RequestRejectedException ex) {
-			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
+		catch (Exception ex) {
+			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+			Throwable requestRejectedException = this.throwableAnalyzer
+					.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
+			if (!(requestRejectedException instanceof RequestRejectedException)) {
+				throw ex;
+			}
+			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
+					(RequestRejectedException) requestRejectedException);
 		}
 		finally {
 			SecurityContextHolder.clearContext();
