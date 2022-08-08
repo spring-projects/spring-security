@@ -49,6 +49,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -257,6 +258,20 @@ public class FilterChainProxyTests {
 		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
 		given(fw.getFirewalledRequest(this.request)).willThrow(requestRejectedException);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
+	}
+
+	@Test
+	public void requestRejectedHandlerIsCalledIfFirewallThrowsWrappedRequestRejectedException() throws Exception {
+		HttpFirewall fw = mock(HttpFirewall.class);
+		RequestRejectedHandler rjh = mock(RequestRejectedHandler.class);
+		this.fcp.setFirewall(fw);
+		this.fcp.setRequestRejectedHandler(rjh);
+		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
+		ServletException servletException = new ServletException(requestRejectedException);
+		given(fw.getFirewalledRequest(this.request)).willReturn(mock(FirewalledRequest.class));
+		willThrow(servletException).given(this.chain).doFilter(any(), any());
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
 	}
