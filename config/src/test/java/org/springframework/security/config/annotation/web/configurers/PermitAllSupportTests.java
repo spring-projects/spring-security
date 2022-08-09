@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -89,6 +90,7 @@ public class PermitAllSupportTests {
 						"permitAll only works with either HttpSecurity.authorizeRequests() or HttpSecurity.authorizeHttpRequests()");
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -107,6 +109,7 @@ public class PermitAllSupportTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermitAllConfigAuthorizeHttpRequests extends WebSecurityConfigurerAdapter {
 
@@ -125,6 +128,7 @@ public class PermitAllSupportTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermitAllConfigWithBothConfigs extends WebSecurityConfigurerAdapter {
 
@@ -146,6 +150,7 @@ public class PermitAllSupportTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoAuthorizedUrlsConfig extends WebSecurityConfigurerAdapter {
 

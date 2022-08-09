@@ -109,6 +109,7 @@ public class NamespaceHttpFormLoginTests {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -130,6 +131,7 @@ public class NamespaceHttpFormLoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
 
@@ -153,6 +155,7 @@ public class NamespaceHttpFormLoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginCustomRefsConfig extends WebSecurityConfigurerAdapter {
 

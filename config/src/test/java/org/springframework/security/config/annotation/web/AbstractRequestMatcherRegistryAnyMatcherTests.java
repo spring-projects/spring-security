@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -73,6 +74,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 		context.refresh();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AntMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -88,6 +90,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MvcMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -103,6 +106,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RegexMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 
@@ -118,6 +122,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnyRequestAfterItselfConfig extends WebSecurityConfigurerAdapter {
 
@@ -133,6 +138,7 @@ public class AbstractRequestMatcherRegistryAnyMatcherTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatchersAfterAnyRequestConfig extends WebSecurityConfigurerAdapter {
 

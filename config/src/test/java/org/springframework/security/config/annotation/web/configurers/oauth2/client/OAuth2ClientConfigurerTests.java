@@ -27,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -281,6 +282,7 @@ public class OAuth2ClientConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	@Configuration
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 
@@ -326,6 +328,7 @@ public class OAuth2ClientConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	@Configuration
 	@EnableWebMvc
 	static class OAuth2ClientInLambdaConfig extends WebSecurityConfigurerAdapter {
 

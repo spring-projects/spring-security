@@ -38,6 +38,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
@@ -411,6 +412,7 @@ public class Saml2LoginConfigurerTests {
 		};
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	@Import(Saml2LoginConfigBeans.class)
@@ -426,6 +428,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LoginConfigWithCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
@@ -438,6 +441,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LoginConfigWithDefaultAndCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
@@ -456,6 +460,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LoginConfigWithAuthenticationDefaultsWithPostProcessor extends WebSecurityConfigurerAdapter {
@@ -477,6 +482,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationFailureHandler extends WebSecurityConfigurerAdapter {
@@ -492,6 +498,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestResolverBean {
@@ -522,6 +529,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestResolverDsl {
@@ -554,6 +562,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationConverter extends WebSecurityConfigurerAdapter {
@@ -568,6 +577,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationConverterBean {
@@ -589,6 +599,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestRepository {
@@ -610,6 +621,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomLoginProcessingUrlDefaultAuthenticationConverter {
@@ -626,6 +638,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomAuthenticationRequestUriCustomAuthenticationConverter {
@@ -650,6 +663,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomLoginProcessingUrlCustomAuthenticationConverter {
@@ -669,6 +683,7 @@ public class Saml2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class CustomLoginProcessingUrlSaml2AuthenticationTokenConverterBean {

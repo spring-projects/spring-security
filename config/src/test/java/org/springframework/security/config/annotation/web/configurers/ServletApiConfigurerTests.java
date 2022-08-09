@@ -211,6 +211,7 @@ public class ServletApiConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -240,6 +241,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
 
@@ -259,6 +261,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -289,6 +292,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -305,6 +309,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -320,6 +325,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -333,6 +339,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RolePrefixInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -361,6 +368,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
 

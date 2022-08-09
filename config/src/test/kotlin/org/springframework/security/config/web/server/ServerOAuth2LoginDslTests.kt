@@ -70,6 +70,7 @@ class ServerOAuth2LoginDslTests {
         this.spring.register(ClientRepoConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class ClientRepoConfig {
@@ -100,6 +101,7 @@ class ServerOAuth2LoginDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class OAuth2LoginConfig {
@@ -125,6 +127,7 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthorizationRequestRepositoryConfig.AUTHORIZATION_REQUEST_REPOSITORY.removeAuthorizationRequest(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthorizationRequestRepositoryConfig {
@@ -190,6 +193,7 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthenticationMatcherConfig.AUTHENTICATION_MATCHER.matches(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationMatcherConfig {
@@ -223,6 +227,7 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthenticationConverterConfig.AUTHENTICATION_CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationConverterConfig {

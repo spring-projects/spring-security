@@ -101,6 +101,7 @@ class UserInfoEndpointDslTests {
         verify(exactly = 1) { UserServiceConfig.USER_SERVICE.loadUser(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class UserServiceConfig {
 

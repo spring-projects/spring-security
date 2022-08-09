@@ -27,6 +27,7 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -110,6 +111,7 @@ public class WebSecurityConfigurerAdapterMockitoTests {
 		this.context = context;
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 
@@ -137,6 +139,7 @@ public class WebSecurityConfigurerAdapterMockitoTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebAsyncPopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 

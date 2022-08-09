@@ -18,7 +18,7 @@ The following listing shows a minimal WebFlux Security configuration:
 .Java
 [source,java,role="primary"]
 -----
-
+@Configuration
 @EnableWebFluxSecurity
 public class HelloWebfluxSecurityConfig {
 
@@ -37,6 +37,7 @@ public class HelloWebfluxSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 -----
+@Configuration
 @EnableWebFluxSecurity
 class HelloWebfluxSecurityConfig {
 

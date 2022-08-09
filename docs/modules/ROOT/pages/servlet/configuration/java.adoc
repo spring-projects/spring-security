@@ -28,6 +28,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.authentication.builders.*;
 import org.springframework.security.config.annotation.web.configuration.*;
 
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
@@ -191,6 +192,7 @@ The following example has a different configuration for URL's that start with `/
 ====
 [source,java]
 ----
+@Configuration
 @EnableWebSecurity
 public class MultiHttpSecurityConfig {
 	@Bean                                                             <1>
@@ -284,6 +286,7 @@ You can then use the custom DSL:
 ====
 [source,java]
 ----
+@Configuration
 @EnableWebSecurity
 public class Config {
 	@Bean
@@ -321,6 +324,7 @@ You can also explicit disable the default:
 ====
 [source,java]
 ----
+@Configuration
 @EnableWebSecurity
 public class Config {
 	@Bean

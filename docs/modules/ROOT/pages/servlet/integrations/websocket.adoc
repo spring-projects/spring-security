@@ -514,6 +514,7 @@ Similarly, you can customize frame options to use the same origin within Java Co
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
@@ -534,6 +535,7 @@ public class WebSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class WebSecurityConfig {
     @Bean

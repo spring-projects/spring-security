@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -57,6 +58,7 @@ public class AuthenticationConfigurationPublishTests {
 		this.authenticationManager = authenticationConfiguration.getAuthenticationManager();
 	}
 
+	@Configuration
 	@EnableGlobalAuthentication
 	@Import(AuthenticationTestConfiguration.class)
 	static class Config {

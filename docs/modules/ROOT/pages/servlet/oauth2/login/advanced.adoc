@@ -13,6 +13,7 @@ The following code shows an example:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -41,6 +42,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -94,6 +96,7 @@ The following code shows the complete configuration options available for the `o
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -130,6 +133,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -235,6 +239,7 @@ The following listing shows an example:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -257,6 +262,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -326,6 +332,7 @@ If you would like to customize the Authorization Response `baseUri`, configure i
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -346,6 +353,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -438,6 +446,7 @@ Provide an implementation of `GrantedAuthoritiesMapper` and configure it, as fol
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -487,6 +496,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -541,6 +551,7 @@ Alternatively, you can register a `GrantedAuthoritiesMapper` `@Bean` to have it 
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -561,6 +572,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -594,6 +606,7 @@ The following example shows how to implement and configure a delegation-based st
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -635,6 +648,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig  {
 
@@ -720,6 +734,7 @@ Whether you customize `DefaultOAuth2UserService` or provide your own implementat
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -744,6 +759,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -783,6 +799,7 @@ Whether you customize `OidcUserService` or provide your own implementation of `O
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -807,6 +824,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
 
@@ -913,6 +931,7 @@ Also, you can configure `OidcClientInitiatedLogoutSuccessHandler`, which impleme
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -948,6 +967,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
     @Autowired

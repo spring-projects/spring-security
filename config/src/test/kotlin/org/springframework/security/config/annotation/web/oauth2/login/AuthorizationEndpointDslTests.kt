@@ -67,6 +67,7 @@ class AuthorizationEndpointDslTests {
         verify(exactly = 1) { ResolverConfig.RESOLVER.resolve(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ResolverConfig {
 
@@ -106,6 +107,7 @@ class AuthorizationEndpointDslTests {
         verify(exactly = 1) { RequestRepoConfig.REPOSITORY.saveAuthorizationRequest(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RequestRepoConfig {
 
@@ -168,6 +170,7 @@ class AuthorizationEndpointDslTests {
         verify(exactly = 1) { AuthorizationUriConfig.REPOSITORY.saveAuthorizationRequest(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthorizationUriConfig {
 

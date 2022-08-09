@@ -140,6 +140,7 @@ public class RsaKeyConversionServicePostProcessorTests {
 				.withRootCauseInstanceOf(IllegalArgumentException.class);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultConfig {
 

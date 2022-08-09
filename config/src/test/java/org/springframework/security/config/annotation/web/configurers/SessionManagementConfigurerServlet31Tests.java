@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -106,6 +107,7 @@ public class SessionManagementConfigurerServlet31Tests {
 		repo.saveContext(securityContextImpl, requestResponseHolder.getRequest(), requestResponseHolder.getResponse());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SessionManagementDefaultSessionFixationServlet31Config extends WebSecurityConfigurerAdapter {
 

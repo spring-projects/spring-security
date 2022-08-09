@@ -574,6 +574,7 @@ public class OAuth2LoginTests {
 		return this.spring.getContext().getBean(beanClass);
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	static class OAuth2LoginWithMultipleClientRegistrations {
 
@@ -589,6 +590,7 @@ public class OAuth2LoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	static class OAuth2LoginWithSingleClientRegistrations {
 
@@ -599,6 +601,7 @@ public class OAuth2LoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebFluxSecurity
 	static class OAuth2LoginWithAuthorizationCodeAndClientCredentialsClientRegistration {
 
@@ -838,6 +841,7 @@ public class OAuth2LoginTests {
 	}
 
 	@EnableWebFlux
+	@Configuration
 	@EnableWebFluxSecurity
 	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler {
 

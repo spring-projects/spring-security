@@ -90,6 +90,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FormLoginConfig {
         @Bean
@@ -112,6 +113,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AllSecuredConfig {
         @Bean
@@ -137,6 +139,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class LoginPageConfig {
         @Bean
@@ -164,6 +167,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SuccessHandlerConfig {
         @Bean
@@ -188,6 +192,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FailureHandlerConfig {
         @Bean
@@ -212,6 +217,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class FailureUrlConfig {
         @Bean
@@ -236,6 +242,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class LoginProcessingUrlConfig {
         @Bean
@@ -260,6 +267,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultSuccessUrlConfig {
         @Bean
@@ -283,6 +291,7 @@ class FormLoginDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class PermitAllConfig {
         @Bean
@@ -325,6 +334,7 @@ class FormLoginDslTests {
         verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomAuthenticationDetailsSourceConfig {
 

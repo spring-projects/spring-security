@@ -55,6 +55,7 @@ class OAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *
@@ -83,6 +84,7 @@ class OAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
      * class SecurityConfig : WebSecurityConfigurerAdapter() {
      *

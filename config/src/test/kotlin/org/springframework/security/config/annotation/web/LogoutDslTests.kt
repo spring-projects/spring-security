@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -68,6 +69,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomLogoutUrlConfig {
         @Bean
@@ -93,6 +95,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomLogoutRequestMatcherConfig {
         @Bean
@@ -118,6 +121,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SuccessUrlConfig {
         @Bean
@@ -143,6 +147,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SuccessHandlerConfig {
         @Bean
@@ -168,6 +173,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class PermitAllConfig {
         @Bean
@@ -204,6 +210,7 @@ class LogoutDslTests {
         assertThat(currentContext.authentication).isNotNull
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ClearAuthenticationFalseConfig {
         @Bean
@@ -233,6 +240,7 @@ class LogoutDslTests {
         assertThat(currentSession.isInvalid).isFalse()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class InvalidateHttpSessionFalseConfig {
         @Bean
@@ -259,6 +267,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DeleteCookiesConfig {
         @Bean
@@ -291,6 +300,7 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultLogoutSuccessHandlerForConfig {
         @Bean
@@ -318,6 +328,7 @@ class LogoutDslTests {
         verify(exactly = 1) { CustomLogoutHandlerConfig.HANDLER.logout(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class CustomLogoutHandlerConfig {
 

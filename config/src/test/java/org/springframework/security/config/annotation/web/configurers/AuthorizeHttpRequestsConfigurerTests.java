@@ -542,6 +542,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoRequestsConfig {
 
@@ -556,6 +557,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoRequestsNoParameterConfig {
 
@@ -571,6 +573,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IncompleteMappingConfig {
 
@@ -585,6 +588,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IncompleteMappingNoParameterConfig {
 
@@ -601,6 +605,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AfterAnyRequestConfig {
 
@@ -618,6 +623,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthorizationManagerConfig {
 
@@ -636,6 +642,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthorizationManagerNoParameterConfig {
 
@@ -654,6 +661,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig {
 
@@ -686,6 +694,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserAnyAuthorityConfig {
 
@@ -704,6 +713,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserAuthorityConfig {
 
@@ -722,6 +732,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrRoleAdminAuthorityConfig {
 
@@ -740,6 +751,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserConfig {
 
@@ -756,6 +768,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrAdminConfig {
 
@@ -772,6 +785,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DenyAllConfig {
 
@@ -790,6 +804,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermitAllConfig {
 
@@ -806,6 +821,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotResetConfig {
 
@@ -825,6 +841,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ServletPathConfig {
@@ -842,6 +859,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticatedConfig {
 
@@ -860,6 +878,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ExpressionRoleUserConfig {
 
@@ -876,6 +895,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ExpressionRoleUserOrAdminConfig {
 
@@ -892,6 +912,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ExpressionIpAddressLocalhostConfig {
 
@@ -937,6 +958,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FullyAuthenticatedConfig {
 
@@ -960,6 +982,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeConfig {
 
@@ -983,6 +1006,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousConfig {
 

@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -64,6 +65,7 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class X509Config {
         @Bean
@@ -95,6 +97,7 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class X509RegexConfig {
         @Bean
@@ -128,6 +131,7 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class UserDetailsServiceConfig {
         @Bean
@@ -160,6 +164,7 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationUserDetailsServiceConfig {
         @Bean
@@ -194,6 +199,7 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class X509PrincipalExtractorConfig {
         @Bean

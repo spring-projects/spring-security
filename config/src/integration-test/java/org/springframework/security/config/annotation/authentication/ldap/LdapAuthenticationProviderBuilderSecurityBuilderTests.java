@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.ldap.core.support.BaseLdapPathContextSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -155,6 +156,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 		return port;
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultLdapConfig extends BaseLdapProviderConfig {
 
@@ -170,6 +172,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GroupRolesConfig extends BaseLdapProviderConfig {
 
@@ -186,6 +189,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
 
@@ -202,6 +206,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
 
@@ -219,6 +224,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RolePrefixConfig extends BaseLdapProviderConfig {
 
@@ -235,6 +241,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BindAuthenticationConfig extends BaseLdapServerConfig {
 
@@ -252,6 +259,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PasswordEncoderConfig extends BaseLdapServerConfig {
 
@@ -270,6 +278,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	abstract static class BaseLdapServerConfig extends BaseLdapProviderConfig {
 
@@ -283,6 +292,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableGlobalAuthentication
 	@Import(ObjectPostProcessorConfiguration.class)

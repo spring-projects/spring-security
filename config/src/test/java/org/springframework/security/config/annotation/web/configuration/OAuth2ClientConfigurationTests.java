@@ -25,6 +25,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestContext;
@@ -212,6 +213,7 @@ public class OAuth2ClientConfigurationTests {
 		verifyNoInteractions(authorizedClientRepository);
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
@@ -252,6 +254,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -289,6 +292,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ClientRegistrationRepositoryNotRegisteredConfig extends WebSecurityConfigurerAdapter {
@@ -306,6 +310,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ClientRegistrationRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -343,6 +348,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class AccessTokenResponseClientRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -380,6 +386,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientManagerRegisteredConfig extends WebSecurityConfigurerAdapter {

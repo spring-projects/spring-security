@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 
@@ -34,6 +33,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
  * A minimal configuration can be found below:
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableWebFluxSecurity
  * public class MyMinimalSecurityConfiguration {
  *
@@ -53,6 +53,7 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
  * {@code ServerHttpSecurity}.
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableWebFluxSecurity
  * public class MyExplicitSecurityConfiguration {
  *     &#064;Bean
@@ -86,7 +87,6 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 @Documented
 @Import({ ServerHttpSecurityConfiguration.class, WebFluxSecurityConfiguration.class,
 		ReactiveOAuth2ClientImportSelector.class })
-@Configuration
 public @interface EnableWebFluxSecurity {
 
 }

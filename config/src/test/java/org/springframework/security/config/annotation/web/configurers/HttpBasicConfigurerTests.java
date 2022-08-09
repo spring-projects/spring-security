@@ -147,6 +147,7 @@ public class HttpBasicConfigurerTests {
 		verify(listener).securityContextChanged(setAuthentication(UsernamePasswordAuthenticationToken.class));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -176,6 +177,7 @@ public class HttpBasicConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultsLambdaEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -201,6 +203,7 @@ public class HttpBasicConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -225,6 +228,7 @@ public class HttpBasicConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -252,6 +256,7 @@ public class HttpBasicConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -311,6 +316,7 @@ public class HttpBasicConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasic {
 

@@ -658,6 +658,7 @@ public class OAuth2LoginConfigurerTests {
 		};
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -682,6 +683,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigFormLogin extends CommonWebSecurityConfigurerAdapter {
 
@@ -702,6 +704,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginInLambdaConfig extends CommonLambdaWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -728,6 +731,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithConfigurer extends CommonWebSecurityConfigurerAdapter {
 
@@ -746,6 +750,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithBeanRegistration extends CommonWebSecurityConfigurerAdapter {
 
@@ -770,6 +775,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
 
@@ -821,6 +827,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigLoginProcessingUrl extends CommonWebSecurityConfigurerAdapter {
 
@@ -838,6 +845,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRequestResolver extends CommonWebSecurityConfigurerAdapter {
 
@@ -860,6 +868,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda
 			extends CommonLambdaWebSecurityConfigurerAdapter {
@@ -887,6 +896,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRedirectStrategy extends CommonWebSecurityConfigurerAdapter {
 
@@ -957,6 +967,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigAuthorizationCodeClientAndOtherClients extends CommonWebSecurityConfigurerAdapter {
 
@@ -974,6 +985,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPage extends CommonWebSecurityConfigurerAdapter {
 
@@ -991,6 +1003,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPageInLambda extends CommonLambdaWebSecurityConfigurerAdapter {
 
@@ -1010,6 +1023,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler extends CommonWebSecurityConfigurerAdapter {
 
@@ -1037,6 +1051,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginWithHttpBasicConfig extends CommonWebSecurityConfigurerAdapter {
 
@@ -1055,6 +1070,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginWithXHREntryPointConfig extends CommonWebSecurityConfigurerAdapter {
 

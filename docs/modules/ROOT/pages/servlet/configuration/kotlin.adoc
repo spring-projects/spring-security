@@ -62,6 +62,7 @@ The following example has a different configuration for URL's that start with `/
 ====
 [source,kotlin]
 ----
+@Configuration
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
     @Bean                                                            <1>

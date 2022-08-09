@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -275,6 +276,7 @@ public class NamespaceHttpTests {
 				.isAssignableFrom(config.filterInvocationSecurityMetadataSourceType);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDecisionManagerRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -292,6 +294,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -310,6 +313,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationManagerRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -333,6 +337,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CreateSessionAlwaysConfig extends WebSecurityConfigurerAdapter {
 
@@ -350,6 +355,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CreateSessionStatelessConfig extends WebSecurityConfigurerAdapter {
 
@@ -367,6 +373,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IfRequiredConfig extends WebSecurityConfigurerAdapter {
 
@@ -387,6 +394,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CreateSessionNeverConfig extends WebSecurityConfigurerAdapter {
 
@@ -404,6 +412,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EntryPointRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -423,6 +432,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JaasApiProvisionConfig extends WebSecurityConfigurerAdapter {
 
@@ -436,6 +446,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RealmConfig extends WebSecurityConfigurerAdapter {
 
@@ -453,6 +464,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherAntConfig extends WebSecurityConfigurerAdapter {
 
@@ -466,6 +478,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherRegexConfig extends WebSecurityConfigurerAdapter {
 
@@ -479,6 +492,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -501,6 +515,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityNoneConfig extends WebSecurityConfigurerAdapter {
 
@@ -515,6 +530,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityContextRepoConfig extends WebSecurityConfigurerAdapter {
 
@@ -543,6 +559,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiProvisionConfig extends WebSecurityConfigurerAdapter {
 
@@ -560,6 +577,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiProvisionDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -587,6 +605,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UseExpressionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -616,6 +635,7 @@ public class NamespaceHttpTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableUseExpressionsConfig extends WebSecurityConfigurerAdapter {
 

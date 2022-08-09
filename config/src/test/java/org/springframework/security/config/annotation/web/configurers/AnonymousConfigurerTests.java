@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -89,6 +90,7 @@ public class AnonymousConfigurerTests {
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
@@ -107,6 +109,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class AnonymousPrincipalInLambdaConfig extends WebSecurityConfigurerAdapter {
@@ -124,6 +127,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -150,6 +154,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 

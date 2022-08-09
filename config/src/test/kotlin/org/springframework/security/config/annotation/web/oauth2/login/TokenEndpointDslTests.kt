@@ -93,6 +93,7 @@ class TokenEndpointDslTests {
         verify(exactly = 1) { TokenConfig.CLIENT.getTokenResponse(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class TokenConfig {
 

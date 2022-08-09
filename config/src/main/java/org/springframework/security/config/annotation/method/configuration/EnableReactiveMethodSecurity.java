@@ -23,7 +23,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.AdviceMode;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
 
@@ -36,7 +35,6 @@ import org.springframework.core.Ordered;
 @Target(ElementType.TYPE)
 @Documented
 @Import(ReactiveMethodSecuritySelector.class)
-@Configuration
 public @interface EnableReactiveMethodSecurity {
 
 	/**

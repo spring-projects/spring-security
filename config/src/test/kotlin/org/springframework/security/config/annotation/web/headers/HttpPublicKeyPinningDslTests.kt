@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -57,6 +58,7 @@ class HttpPublicKeyPinningDslTests {
         Assertions.assertThat(result.response.headerNames).isEmpty()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpNoPinConfig {
         @Bean
@@ -82,6 +84,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpPinConfig {
         @Bean
@@ -109,6 +112,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpMaxAgeConfig {
         @Bean
@@ -137,6 +141,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpReportOnlyFalseConfig {
         @Bean
@@ -168,6 +173,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpIncludeSubdomainsConfig {
         @Bean
@@ -199,6 +205,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpReportUriConfig {
         @Bean
@@ -229,6 +236,7 @@ class HttpPublicKeyPinningDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class HpkpDisabledConfig {
         @Bean

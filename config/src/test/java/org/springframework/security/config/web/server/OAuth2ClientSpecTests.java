@@ -204,6 +204,7 @@ public class OAuth2ClientSpecTests {
 		verify(requestCache).getRedirectUri(any());
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class Config {
@@ -239,6 +240,7 @@ public class OAuth2ClientSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class ClientRegistrationConfig {

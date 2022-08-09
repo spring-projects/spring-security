@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -181,6 +182,7 @@ public class CorsConfigurerTests {
 				.andExpect(header().exists("X-Content-Type-Options"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultCorsConfig extends WebSecurityConfigurerAdapter {
 
@@ -197,6 +199,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class MvcCorsConfig extends WebSecurityConfigurerAdapter {
@@ -225,6 +228,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class MvcCorsInLambdaConfig extends WebSecurityConfigurerAdapter {
@@ -254,6 +258,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ConfigSourceConfig extends WebSecurityConfigurerAdapter {
 
@@ -280,6 +285,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ConfigSourceInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -307,6 +313,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CorsFilterConfig extends WebSecurityConfigurerAdapter {
 
@@ -333,6 +340,7 @@ public class CorsConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CorsFilterInLambdaConfig extends WebSecurityConfigurerAdapter {
 

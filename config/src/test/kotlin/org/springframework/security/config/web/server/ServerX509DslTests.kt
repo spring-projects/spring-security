@@ -91,6 +91,7 @@ class ServerX509DslTests {
                 .expectBody<String>().isEqualTo("rod")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class X509DefaultConfig {
@@ -118,6 +119,7 @@ class ServerX509DslTests {
                 .expectBody<String>().isEqualTo("rod")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PrincipalExtractorConfig {
@@ -149,6 +151,7 @@ class ServerX509DslTests {
                 .expectBody<String>().isEqualTo("rod")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationManagerConfig {

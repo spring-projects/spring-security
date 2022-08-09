@@ -26,6 +26,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.event.AuthorizedEvent;
@@ -549,6 +550,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HasRoleStartingWithRoleConfig extends WebSecurityConfigurerAdapter {
 
@@ -563,6 +565,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
 
@@ -584,6 +587,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
 
@@ -597,6 +601,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
 
@@ -612,6 +617,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
 
@@ -628,6 +634,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserAuthorityConfig extends WebSecurityConfigurerAdapter {
 
@@ -644,6 +651,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrRoleAdminAuthorityConfig extends WebSecurityConfigurerAdapter {
 
@@ -660,6 +668,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserConfig extends WebSecurityConfigurerAdapter {
 
@@ -674,6 +683,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
 
@@ -693,6 +703,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
 
@@ -712,6 +723,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrAdminConfig extends WebSecurityConfigurerAdapter {
 
@@ -726,6 +738,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrAdminWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
 
@@ -745,6 +758,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleUserOrAdminWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
 
@@ -764,6 +778,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
 
@@ -780,6 +795,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
 
@@ -796,6 +812,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
 
@@ -823,6 +840,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DenyAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -839,6 +857,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
 
@@ -855,6 +874,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FullyAuthenticatedConfig extends WebSecurityConfigurerAdapter {
 
@@ -873,6 +893,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessConfig extends WebSecurityConfigurerAdapter {
 
@@ -891,6 +912,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
 
@@ -909,6 +931,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AllPropertiesWorkConfig extends WebSecurityConfigurerAdapter {
 
@@ -932,6 +955,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizedRequestsWithPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -961,6 +985,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
 
@@ -991,6 +1016,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
 
@@ -1041,6 +1067,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Sec3011Config extends WebSecurityConfigurerAdapter {
 
@@ -1070,6 +1097,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermissionEvaluatorConfig extends WebSecurityConfigurerAdapter {
 
@@ -1105,6 +1133,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleHierarchyConfig extends WebSecurityConfigurerAdapter {
 

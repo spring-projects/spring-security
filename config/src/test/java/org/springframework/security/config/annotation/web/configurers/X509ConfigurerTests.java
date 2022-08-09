@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
@@ -151,6 +152,7 @@ public class X509ConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -180,6 +182,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -205,6 +208,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -227,6 +231,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SubjectPrincipalRegexInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -252,6 +257,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UserDetailsServiceBeanConfig {
 
@@ -279,6 +285,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UserDetailsServiceAndBeanConfig {
 

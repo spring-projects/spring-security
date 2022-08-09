@@ -86,6 +86,7 @@ public class HttpSecurityHeadersTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 

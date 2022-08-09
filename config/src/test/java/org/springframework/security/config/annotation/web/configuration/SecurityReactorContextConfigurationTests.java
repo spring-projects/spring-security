@@ -33,6 +33,7 @@ import reactor.core.publisher.Operators;
 import reactor.test.StepVerifier;
 import reactor.util.context.Context;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -268,6 +269,7 @@ public class SecurityReactorContextConfigurationTests {
 		verify(strategy, times(2)).getContext();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 

@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
@@ -151,6 +152,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleAfterConfig extends WebSecurityConfigurerAdapter {
 
@@ -165,6 +167,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleBeforeConfig extends WebSecurityConfigurerAdapter {
 
@@ -179,6 +182,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleAtConfig extends WebSecurityConfigurerAdapter {
 
@@ -193,6 +197,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterAfterConfig {
 
@@ -208,6 +213,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterBeforeConfig {
 
@@ -223,6 +229,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterAtConfig {
 
@@ -238,6 +245,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterBeforeToMyFilterMultipleAfterConfig {
 
@@ -254,6 +262,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyAnotherFilterRelativeToMyCustomFiltersMultipleConfig {
 

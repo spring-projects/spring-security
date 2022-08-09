@@ -175,6 +175,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -191,6 +192,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -208,6 +210,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -224,6 +227,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -241,6 +245,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -263,6 +268,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -285,6 +291,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -304,6 +311,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 

@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -67,6 +68,7 @@ class ServerAnonymousDslTests {
                 .expectBody<String>().isEqualTo("anonymousUser")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AnonymousConfig {
@@ -89,6 +91,7 @@ class ServerAnonymousDslTests {
                 .expectBody<String>().isEqualTo("anon")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomPrincipalConfig {
@@ -113,6 +116,7 @@ class ServerAnonymousDslTests {
                 .expectBody<String>().consumeWith { body -> assertThat(body.responseBody).isNull() }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AnonymousDisabledConfig {
@@ -137,6 +141,7 @@ class ServerAnonymousDslTests {
                 .expectBody<String>().isEqualTo("key".hashCode().toString())
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomKeyConfig {
@@ -160,6 +165,7 @@ class ServerAnonymousDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAuthoritiesConfig {

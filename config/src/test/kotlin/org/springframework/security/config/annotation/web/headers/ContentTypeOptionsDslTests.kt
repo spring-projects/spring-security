@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.invoke
@@ -53,6 +54,7 @@ class ContentTypeOptionsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ContentTypeOptionsConfig {
         @Bean
@@ -77,6 +79,7 @@ class ContentTypeOptionsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ContentTypeOptionsDisabledConfig {
         @Bean

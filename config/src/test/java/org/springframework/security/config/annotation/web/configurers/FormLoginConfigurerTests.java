@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
@@ -375,6 +376,7 @@ public class FormLoginConfigurerTests {
 		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(ExceptionTranslationFilter.class));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -392,6 +394,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheBeanConfig {
 
@@ -402,6 +405,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -437,6 +441,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -463,6 +468,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfigPermitAll extends WebSecurityConfigurerAdapter {
 
@@ -480,6 +486,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -501,6 +508,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -523,6 +531,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginLoginProcessingUrlConfig extends WebSecurityConfigurerAdapter {
 
@@ -559,6 +568,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginLoginProcessingUrlInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -597,6 +607,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginUsesPortMapperConfig extends WebSecurityConfigurerAdapter {
 
@@ -622,6 +633,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PermitAllIgnoresFailureHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -642,6 +654,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -667,6 +680,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginUserForwardAuthenticationSuccessAndFailureConfig extends WebSecurityConfigurerAdapter {
 
@@ -697,6 +711,7 @@ public class FormLoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 

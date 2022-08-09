@@ -110,6 +110,7 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class DefaultSecurityConfig {
         @Bean
@@ -159,6 +160,7 @@ class HttpSecurityDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SecurityRequestMatcherRequestsConfig {
         @Bean
@@ -173,6 +175,7 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SecurityRequestMatcherHttpRequestsConfig {
         @Bean
@@ -215,6 +218,7 @@ class HttpSecurityDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class SecurityPatternMatcherRequestsConfig {
@@ -230,6 +234,7 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class SecurityPatternMatcherHttpRequestsConfig {
@@ -269,6 +274,7 @@ class HttpSecurityDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MultiMatcherRequestsConfig {
@@ -285,6 +291,7 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class MultiMatcherHttpRequestsConfig {
@@ -322,6 +329,7 @@ class HttpSecurityDslTests {
         val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerRequestsConfig {
         @Bean
@@ -337,6 +345,7 @@ class HttpSecurityDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class AuthenticationManagerHttpRequestsConfig {
         @Bean
@@ -362,6 +371,7 @@ class HttpSecurityDslTests {
         assertThat(filters).anyMatch { it is CustomFilter }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterConfig {
@@ -384,6 +394,7 @@ class HttpSecurityDslTests {
         assertThat(filters).anyMatch { it is CustomFilter }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterConfigReified {
@@ -409,6 +420,7 @@ class HttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterAfterConfig {
@@ -435,6 +447,7 @@ class HttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterAfterConfigReified{
@@ -461,6 +474,7 @@ class HttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterBeforeConfig {
@@ -487,6 +501,7 @@ class HttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
     open class CustomFilterBeforeConfigReified{

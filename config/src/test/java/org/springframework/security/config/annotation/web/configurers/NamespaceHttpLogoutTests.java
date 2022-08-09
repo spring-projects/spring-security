@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -162,6 +163,7 @@ public class NamespaceHttpLogoutTests {
 				.is(new Condition<>(sessionPredicate, "sessionPredicate failed"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -171,6 +173,7 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpLogoutDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -181,6 +184,7 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -198,6 +202,7 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -216,6 +221,7 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutConfig extends WebSecurityConfigurerAdapter {
 
@@ -232,6 +238,7 @@ public class NamespaceHttpLogoutTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SuccessHandlerRefHttpLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
 

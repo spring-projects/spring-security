@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -73,6 +74,7 @@ public class NamespaceAuthenticationManagerTests {
 		this.mockMvc.perform(formLogin()).andExpect(notNullCredentials);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EraseCredentialsTrueDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -87,6 +89,7 @@ public class NamespaceAuthenticationManagerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
 
@@ -102,6 +105,7 @@ public class NamespaceAuthenticationManagerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GlobalEraseCredentialsFalseConfig extends WebSecurityConfigurerAdapter {
 

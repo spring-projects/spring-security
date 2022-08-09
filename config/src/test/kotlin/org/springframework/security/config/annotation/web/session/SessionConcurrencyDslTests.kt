@@ -75,6 +75,7 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/login?error"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class MaximumSessionsConfig {
         @Bean
@@ -106,6 +107,7 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/expired-session"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ExpiredUrlConfig {
 
@@ -145,6 +147,7 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/expired-session"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class ExpiredSessionStrategyConfig {
 

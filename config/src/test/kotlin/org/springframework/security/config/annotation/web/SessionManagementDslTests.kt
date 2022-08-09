@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -72,6 +73,7 @@ class SessionManagementDslTests {
             .andExpect(redirectedUrl("/invalid"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class InvalidSessionUrlConfig {
         @Bean
@@ -99,6 +101,7 @@ class SessionManagementDslTests {
             .andExpect(redirectedUrl("/invalid"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class InvalidSessionStrategyConfig {
         @Bean
@@ -127,6 +130,7 @@ class SessionManagementDslTests {
             .andExpect(redirectedUrl("/session-auth-error"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SessionAuthenticationErrorUrlConfig {
         @Bean
@@ -158,6 +162,7 @@ class SessionManagementDslTests {
             .andExpect(redirectedUrl("/session-auth-error"))
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SessionAuthenticationFailureHandlerConfig {
         @Bean
@@ -184,6 +189,7 @@ class SessionManagementDslTests {
         assertThat(result.request.getSession(false)).isNull()
     }
 
+    @Configuration
     @EnableWebSecurity
     open class StatelessSessionManagementConfig {
         @Bean
@@ -217,6 +223,7 @@ class SessionManagementDslTests {
         verify(exactly = 1) { SessionAuthenticationStrategyConfig.STRATEGY.onAuthentication(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class SessionAuthenticationStrategyConfig {
 

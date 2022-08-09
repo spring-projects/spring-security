@@ -51,6 +51,7 @@ class ServerOAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *
@@ -80,6 +81,7 @@ class ServerOAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebFluxSecurity
      * class SecurityConfig {
      *

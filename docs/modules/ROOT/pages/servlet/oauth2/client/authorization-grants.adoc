@@ -132,6 +132,7 @@ The following example shows how to configure the `DefaultOAuth2AuthorizationRequ
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -176,6 +177,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class SecurityConfig {
 
@@ -288,6 +290,7 @@ If you have a custom implementation of `AuthorizationRequestRepository`, you can
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -308,6 +311,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2ClientSecurityConfig {
 
@@ -411,6 +415,7 @@ Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide y
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -431,6 +436,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2ClientSecurityConfig {
 

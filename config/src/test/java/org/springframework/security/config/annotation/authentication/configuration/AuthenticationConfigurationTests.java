@@ -296,16 +296,19 @@ public class AuthenticationConfigurationTests {
 		assertThatExceptionOfType(AlreadyBuiltException.class).isThrownBy(ap::build);
 	}
 
+	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class GlobalMethodSecurityAutowiredConfig {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfig {
 
 	}
 
+	@Configuration
 	@EnableWebMvcSecurity
 	static class WebMvcSecurityConfig {
 

@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -103,6 +104,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -120,6 +122,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedPageInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -139,6 +142,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -161,6 +165,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefInLambdaConfig extends WebSecurityConfigurerAdapter {
 

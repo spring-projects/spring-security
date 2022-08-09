@@ -12,6 +12,7 @@ Users can integrate the `CorsFilter` with Spring Security by providing a `CorsCo
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
@@ -39,6 +40,7 @@ public class WebSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class WebSecurityConfig {
     @Bean
@@ -85,6 +87,7 @@ If you use Spring MVC's CORS support, you can omit specifying the `CorsConfigura
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class WebSecurityConfig {
 
@@ -103,6 +106,7 @@ public class WebSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 open class WebSecurityConfig {
     @Bean

@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -59,6 +60,7 @@ class ServerXssProtectionDslTests {
                 .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class XssConfig {
@@ -82,6 +84,7 @@ class ServerXssProtectionDslTests {
                 .expectHeader().doesNotExist(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class XssDisabledConfig {
