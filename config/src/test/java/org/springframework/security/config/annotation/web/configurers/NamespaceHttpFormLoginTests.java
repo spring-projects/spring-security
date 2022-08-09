@@ -131,6 +131,7 @@ public class NamespaceHttpFormLoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
 

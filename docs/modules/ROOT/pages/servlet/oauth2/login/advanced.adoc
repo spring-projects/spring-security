@@ -931,6 +931,7 @@ Also, you can configure `OidcClientInitiatedLogoutSuccessHandler`, which impleme
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -966,6 +967,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class OAuth2LoginSecurityConfig {
     @Autowired

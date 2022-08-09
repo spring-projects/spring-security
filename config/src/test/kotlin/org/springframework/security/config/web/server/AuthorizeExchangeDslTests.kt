@@ -32,7 +32,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
-import java.util.*
+import java.util.Base64
 
 /**
  * Tests for [AuthorizeExchangeDsl]

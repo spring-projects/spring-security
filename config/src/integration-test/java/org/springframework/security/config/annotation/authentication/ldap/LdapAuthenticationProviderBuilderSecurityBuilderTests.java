@@ -189,6 +189,7 @@ public class LdapAuthenticationProviderBuilderSecurityBuilderTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class GroupSearchConfig extends BaseLdapProviderConfig {
 

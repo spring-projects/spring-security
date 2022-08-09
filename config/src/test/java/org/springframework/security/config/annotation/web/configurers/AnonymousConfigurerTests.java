@@ -127,6 +127,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 

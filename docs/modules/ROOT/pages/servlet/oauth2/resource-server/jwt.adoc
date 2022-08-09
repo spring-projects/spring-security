@@ -757,6 +757,7 @@ public class DirectlyConfiguredJwkSetUri {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
 class DirectlyConfiguredJwkSetUri {
     @Bean
@@ -949,6 +950,7 @@ static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAut
 
 // ...
 
+@Configuration
 @EnableWebSecurity
 public class CustomAuthenticationConverterConfig {
     @Bean
@@ -978,6 +980,7 @@ internal class CustomAuthenticationConverter : Converter<Jwt, AbstractAuthentica
 
 // ...
 
+@Configuration
 @EnableWebSecurity
 class CustomAuthenticationConverterConfig {
     @Bean

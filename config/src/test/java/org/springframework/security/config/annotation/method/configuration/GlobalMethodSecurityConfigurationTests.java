@@ -531,8 +531,8 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@Configuration
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class RoleHierarchyConfig {
 
 		@Bean
@@ -607,8 +607,8 @@ public class GlobalMethodSecurityConfigurationTests {
 
 	}
 
-	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	@Configuration
+	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	public static class CustomMetadataSourceBeanProxyEnabledConfig extends GlobalMethodSecurityConfiguration {
 
 	}

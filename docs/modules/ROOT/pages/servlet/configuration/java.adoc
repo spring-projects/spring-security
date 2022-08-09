@@ -324,6 +324,7 @@ You can also explicit disable the default:
 ====
 [source,java]
 ----
+@Configuration
 @EnableWebSecurity
 public class Config {
 	@Bean

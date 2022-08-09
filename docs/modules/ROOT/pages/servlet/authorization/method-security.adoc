@@ -1,3 +1,4 @@
+
 [[jc-method]]
 = Method Security
 
@@ -32,6 +33,7 @@ For example, the following would enable Spring Security's `@PreAuthorize` annota
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity
 public class MethodSecurityConfig {
 	// ...
@@ -41,6 +43,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig {
 	// ...
@@ -98,6 +101,7 @@ You can enable support for Spring Security's `@Secured` annotation using:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
 	// ...
@@ -107,6 +111,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity(securedEnabled = true)
 class MethodSecurityConfig {
 	// ...
@@ -127,6 +132,7 @@ or JSR-250 using:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity(jsr250Enabled = true)
 public class MethodSecurityConfig {
 	// ...
@@ -136,6 +142,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity(jsr250Enabled = true)
 class MethodSecurityConfig {
 	// ...
@@ -264,6 +271,7 @@ To recreate what adding `@EnableMethodSecurity` does by default, you would publi
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
 	@Bean
@@ -295,6 +303,7 @@ class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
 	@Bean
@@ -392,6 +401,7 @@ You may want to only support `@PreAuthorize` in your application, in which case 
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
 	@Bean
@@ -405,6 +415,7 @@ class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity(prePostEnabled = false)
 class MethodSecurityConfig {
 	@Bean
@@ -440,6 +451,7 @@ Thus, you can configure Spring Security to invoke your `AuthorizationManager` in
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig {
 	@Bean
@@ -458,6 +470,7 @@ class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig {
 	@Bean
@@ -542,6 +555,7 @@ For example, if you have your own custom annotation, you can configure it like s
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig {
 	@Bean
@@ -558,6 +572,7 @@ class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableMethodSecurity
 class MethodSecurityConfig {
 	@Bean
@@ -607,6 +622,7 @@ The following example enables Spring Security's `@Secured` annotation:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class MethodSecurityConfig {
 // ...
@@ -616,6 +632,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(securedEnabled = true)
 open class MethodSecurityConfig {
 	// ...
@@ -666,6 +683,7 @@ Support for JSR-250 annotations can be enabled by using:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 public class MethodSecurityConfig {
 // ...
@@ -675,6 +693,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 open class MethodSecurityConfig {
 	// ...
@@ -689,6 +708,7 @@ To use the new expression-based syntax, you would use:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig {
 // ...
@@ -698,6 +718,7 @@ public class MethodSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 open class MethodSecurityConfig {
 	// ...
@@ -750,6 +771,7 @@ For example, if you wanted to provide a custom `MethodSecurityExpressionHandler`
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 	@Override
@@ -763,6 +785,7 @@ public class MethodSecurityConfig extends GlobalMethodSecurityConfiguration {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 open class MethodSecurityConfig : GlobalMethodSecurityConfiguration() {
     override fun createExpressionHandler(): MethodSecurityExpressionHandler {

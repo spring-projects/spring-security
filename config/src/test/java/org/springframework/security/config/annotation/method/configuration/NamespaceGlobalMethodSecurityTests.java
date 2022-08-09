@@ -316,8 +316,8 @@ public class NamespaceGlobalMethodSecurityTests {
 
 	}
 
-	@EnableGlobalMethodSecurity(jsr250Enabled = true)
 	@Configuration
+	@EnableGlobalMethodSecurity(jsr250Enabled = true)
 	public static class Jsr250Config {
 
 	}
