@@ -98,8 +98,8 @@ public class Saml2RelyingPartyInitiatedLogoutSuccessHandlerTests {
 		assertThat(content).contains(Saml2ParameterNames.SAML_REQUEST);
 		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 		assertThat(content).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-ePniVEkSivX/c7XWBGafqh8tSpiRrKiqYeqbG7N1TOE='\">");
-		assertThat(content).contains("<body onload=\"document.forms[0].submit()\">");
+				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">");
+		assertThat(content).contains("<script>window.onload = () => document.forms[0].submit();</script>");
 	}
 
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {
