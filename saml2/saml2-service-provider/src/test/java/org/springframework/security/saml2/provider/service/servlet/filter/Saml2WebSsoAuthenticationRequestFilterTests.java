@@ -199,8 +199,8 @@ public class Saml2WebSsoAuthenticationRequestFilterTests {
 		this.filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getHeader("Location")).isNull();
 		assertThat(this.response.getContentAsString()).contains(
-				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-ePniVEkSivX/c7XWBGafqh8tSpiRrKiqYeqbG7N1TOE='\">")
-				.contains("<body onload=\"document.forms[0].submit()\">")
+				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">")
+				.contains("<script>window.onload = () => document.forms[0].submit();</script>")
 				.contains("<form action=\"https://sso-url.example.com/IDP/SSO\" method=\"post\">")
 				.contains("<input type=\"hidden\" name=\"SAMLRequest\"")
 				.contains("value=\"" + relayStateEncoded + "\"");
