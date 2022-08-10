@@ -147,10 +147,10 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
 		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-ePniVEkSivX/c7XWBGafqh8tSpiRrKiqYeqbG7N1TOE='\">\n");
+				.append("content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
-		html.append("    <body onload=\"document.forms[0].submit()\">\n");
+		html.append("    <body>\n");
 		html.append("        <noscript>\n");
 		html.append("            <p>\n");
 		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
@@ -179,6 +179,7 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		html.append("        </form>\n");
 		html.append("        \n");
 		html.append("    </body>\n");
+		html.append("    <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("</html>");
 		return html.toString();
 	}
