@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -336,6 +336,30 @@ public class CsrfFilterTests {
 	}
 
 	@Test
+	public void doFilterWhenRequestAttributeHandlerThenUsed() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		CsrfTokenRequestAttributeHandler requestAttributeHandler = mock(CsrfTokenRequestAttributeHandler.class);
+		this.filter.setRequestAttributeHandler(requestAttributeHandler);
+		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(requestAttributeHandler).handle(eq(this.request), eq(this.response), any());
+		verify(this.filterChain).doFilter(this.request, this.response);
+	}
+
+	@Test
+	public void doFilterWhenRequestResolverThenUsed() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		CsrfTokenRequestResolver requestResolver = mock(CsrfTokenRequestResolver.class);
+		given(requestResolver.resolveCsrfTokenValue(this.request, this.token)).willReturn(this.token.getToken());
+		this.filter.setRequestResolver(requestResolver);
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(requestResolver).resolveCsrfTokenValue(this.request, this.token);
+		verify(this.filterChain).doFilter(this.request, this.response);
+	}
+
+	@Test
 	public void setRequireCsrfProtectionMatcherNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setRequireCsrfProtectionMatcher(null));
 	}
@@ -351,7 +375,9 @@ public class CsrfFilterTests {
 			throws ServletException, IOException {
 		CsrfFilter filter = createCsrfFilter(this.tokenRepository);
 		String csrfAttrName = "_csrf";
-		filter.setCsrfRequestAttributeName(csrfAttrName);
+		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
+		csrfTokenRequestProcessor.setCsrfRequestAttributeName(csrfAttrName);
+		filter.setRequestAttributeHandler(csrfTokenRequestProcessor);
 		CsrfToken expectedCsrfToken = mock(CsrfToken.class);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(expectedCsrfToken);
 
