@@ -36,6 +36,7 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.DefaultCsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -127,7 +128,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets the {@link CsrfFilter#setCsrfRequestAttributeName(String)}
+	 * Sets the {@link org.springframework.security.web.csrf.DefaultCsrfTokenRequestHandler#setCsrfRequestAttributeName(String)}
 	 * @param csrfRequestAttributeName the attribute name to set the CsrfToken on.
 	 * @return the {@link CsrfConfigurer} for further customizations.
 	 */
@@ -215,7 +216,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	public void configure(H http) {
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
 		if (this.csrfRequestAttributeName != null) {
-			filter.setCsrfRequestAttributeName(this.csrfRequestAttributeName);
+			DefaultCsrfTokenRequestHandler csrfTokenRequestHandler = new DefaultCsrfTokenRequestHandler();
+			csrfTokenRequestHandler.setCsrfRequestAttributeName(this.csrfRequestAttributeName);
+			filter.setRequestAttributeHandler(csrfTokenRequestHandler);
+			filter.setRequestResolver(csrfTokenRequestHandler);
 		}
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {

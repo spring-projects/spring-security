@@ -351,7 +351,9 @@ public class CsrfFilterTests {
 			throws ServletException, IOException {
 		CsrfFilter filter = createCsrfFilter(this.tokenRepository);
 		String csrfAttrName = "_csrf";
-		filter.setCsrfRequestAttributeName(csrfAttrName);
+		DefaultCsrfTokenRequestHandler csrfTokenRequestAttributeHandler = new DefaultCsrfTokenRequestHandler();
+		csrfTokenRequestAttributeHandler.setCsrfRequestAttributeName(csrfAttrName);
+		filter.setRequestAttributeHandler(csrfTokenRequestAttributeHandler);
 		CsrfToken expectedCsrfToken = mock(CsrfToken.class);
 		given(this.tokenRepository.loadToken(this.request)).willReturn(expectedCsrfToken);
 

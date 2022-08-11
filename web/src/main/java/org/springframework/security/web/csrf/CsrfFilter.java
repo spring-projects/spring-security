@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,11 +87,16 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
-	private String csrfRequestAttributeName;
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler;
+
+	private CsrfTokenRequestResolver requestResolver;
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.tokenRepository = csrfTokenRepository;
+		DefaultCsrfTokenRequestHandler csrfTokenRequestHandler = new DefaultCsrfTokenRequestHandler();
+		this.requestAttributeHandler = csrfTokenRequestHandler;
+		this.requestResolver = csrfTokenRequestHandler;
 	}
 
 	@Override
@@ -109,10 +114,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			csrfToken = this.tokenRepository.generateToken(request);
 			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
-		request.setAttribute(CsrfToken.class.getName(), csrfToken);
-		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
-				: csrfToken.getParameterName();
-		request.setAttribute(csrfAttrName, csrfToken);
+		this.requestAttributeHandler.handle(request, csrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
@@ -121,10 +123,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String actualToken = request.getHeader(csrfToken.getHeaderName());
-		if (actualToken == null) {
-			actualToken = request.getParameter(csrfToken.getParameterName());
-		}
+		String actualToken = this.requestResolver.resolve(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
@@ -172,15 +171,23 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * The {@link CsrfToken} is available as a request attribute named
-	 * {@code CsrfToken.class.getName()}. By default, an additional request attribute that
-	 * is the same as {@link CsrfToken#getParameterName()} is set. This attribute allows
-	 * overriding the additional attribute.
-	 * @param csrfRequestAttributeName the name of an additional request attribute with
-	 * the value of the CsrfToken. Default is {@link CsrfToken#getParameterName()}
+	 * TODO
+	 *
+	 * @param requestAttributeHandler
+	 * @since 5.8
 	 */
-	public void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
-		this.csrfRequestAttributeName = csrfRequestAttributeName;
+	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		this.requestAttributeHandler = requestAttributeHandler;
+	}
+
+	/**
+	 * TODO
+	 *
+	 * @param requestResolver
+	 * @since 5.8
+	 */
+	public void setRequestResolver(CsrfTokenRequestResolver requestResolver) {
+		this.requestResolver = requestResolver;
 	}
 
 	/**
