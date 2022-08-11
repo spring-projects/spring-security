@@ -47,6 +47,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
@@ -341,6 +342,23 @@ public class CsrfFilterTests {
 	@Test
 	public void setAccessDeniedHandlerNull() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.filter.setAccessDeniedHandler(null));
+	}
+
+	// This ensures that the HttpSession on get requests unless the CsrfToken is used
+	@Test
+	public void doFilterWhenCsrfRequestAttributeNameThenNoCsrfTokenMethodInvokedOnGet()
+			throws ServletException, IOException {
+		CsrfFilter filter = createCsrfFilter(this.tokenRepository);
+		String csrfAttrName = "_csrf";
+		filter.setCsrfRequestAttributeName(csrfAttrName);
+		CsrfToken expectedCsrfToken = mock(CsrfToken.class);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(expectedCsrfToken);
+
+		filter.doFilter(this.request, this.response, this.filterChain);
+
+		verifyNoInteractions(expectedCsrfToken);
+		CsrfToken tokenFromRequest = (CsrfToken) this.request.getAttribute(csrfAttrName);
+		assertThat(tokenFromRequest).isEqualTo(expectedCsrfToken);
 	}
 
 	private static CsrfTokenAssert assertToken(Object token) {

@@ -86,6 +86,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
+	private String csrfRequestAttributeName;
+
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.tokenRepository = csrfTokenRepository;
@@ -107,7 +109,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
-		request.setAttribute(csrfToken.getParameterName(), csrfToken);
+		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
+				: csrfToken.getParameterName();
+		request.setAttribute(csrfAttrName, csrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
@@ -164,6 +168,18 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
+	}
+
+	/**
+	 * The {@link CsrfToken} is available as a request attribute named
+	 * {@code CsrfToken.class.getName()}. By default, an additional request attribute that
+	 * is the same as {@link CsrfToken#getParameterName()} is set. This attribute allows
+	 * overriding the additional attribute.
+	 * @param csrfRequestAttributeName the name of an additional request attribute with
+	 * the value of the CsrfToken. Default is {@link CsrfToken#getParameterName()}
+	 */
+	public void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
+		this.csrfRequestAttributeName = csrfRequestAttributeName;
 	}
 
 	/**

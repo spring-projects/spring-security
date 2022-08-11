@@ -66,9 +66,13 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String DISPATCHER_SERVLET_CLASS_NAME = "org.springframework.web.servlet.DispatcherServlet";
 
+	private static final String ATT_REQUEST_ATTRIBUTE_NAME = "request-attribute-name";
+
 	private static final String ATT_MATCHER = "request-matcher-ref";
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
+
+	private String requestAttributeName;
 
 	private String csrfRepositoryRef;
 
@@ -93,6 +97,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element != null) {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
+			this.requestAttributeName = element.getAttribute(ATT_REQUEST_ATTRIBUTE_NAME);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
@@ -108,6 +113,9 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		builder.addConstructorArgReference(this.csrfRepositoryRef);
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
+		}
+		if (StringUtils.hasText(this.requestAttributeName)) {
+			builder.addPropertyValue("csrfRequestAttributeName", this.requestAttributeName);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;
