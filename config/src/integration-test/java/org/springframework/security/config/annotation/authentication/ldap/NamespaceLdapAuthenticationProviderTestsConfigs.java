@@ -65,7 +65,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.ldif("classpath:users.xldif") // ldap-server@ldif
 						.managerDn("uid=admin,ou=system") // ldap-server@manager-dn
 						.managerPassword("secret") // ldap-server@manager-password
-						.port(33399) // ldap-server@port
+						.port(0) // ldap-server@port
 						.root("dc=springframework,dc=org"); // ldap-server@root
 						// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
 			// @formatter:on
