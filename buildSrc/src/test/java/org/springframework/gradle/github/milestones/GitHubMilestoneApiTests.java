@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.mockwebserver.MockResponse;
@@ -637,7 +638,7 @@ public class GitHubMilestoneApiTests {
 				"      \"state\":\"open\",\n" +
 				"      \"created_at\":\"2020-09-16T13:28:03Z\",\n" +
 				"      \"updated_at\":\"2021-04-06T23:47:10Z\",\n" +
-				"      \"due_on\":\"" + Instant.now().toString() + "\",\n" +
+				"      \"due_on\":\"" + LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant().toString() + "\",\n" +
 				"      \"closed_at\":null\n" +
 				"   }\n" +
 				"]";
