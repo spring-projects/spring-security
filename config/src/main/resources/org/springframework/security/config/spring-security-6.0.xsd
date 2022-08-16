@@ -3127,6 +3127,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="request-attribute-name" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>The request attribute name the CsrfToken is set on. Default is to set to
+                CsrfToken.parameterName
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="request-matcher-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>The RequestMatcher instance to be used to determine if CSRF should be applied. Default is
