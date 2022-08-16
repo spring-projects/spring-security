@@ -1,2 +1,0 @@
-org.springframework.aot.hint.RuntimeHintsRegistrar=\
-org.springframework.security.config.aot.hint.GlobalMethodSecurityRuntimeHints
