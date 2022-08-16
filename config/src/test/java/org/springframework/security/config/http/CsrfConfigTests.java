@@ -292,6 +292,15 @@ public class CsrfConfigTests {
 	}
 
 	@Test
+	public void getWhenUsingCsrfAndCustomRequestAttributeThenSetUsingCsrfAttrName() throws Exception {
+		this.spring.configLocations(this.xml("WithRequestAttrName")).autowire();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/ok")).andReturn();
+		assertThat(result.getRequest().getAttribute("csrf-attribute-name")).isInstanceOf(CsrfToken.class);
+		// @formatter:on
+	}
+
+	@Test
 	public void postWhenHasCsrfTokenButSessionExpiresThenRequestIsCancelledAfterSuccessfulAuthentication()
 			throws Exception {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();

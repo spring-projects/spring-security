@@ -89,6 +89,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
+	private String csrfRequestAttributeName;
+
 	private final ApplicationContext context;
 
 	/**
@@ -121,6 +123,16 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	public CsrfConfigurer<H> requireCsrfProtectionMatcher(RequestMatcher requireCsrfProtectionMatcher) {
 		Assert.notNull(requireCsrfProtectionMatcher, "requireCsrfProtectionMatcher cannot be null");
 		this.requireCsrfProtectionMatcher = requireCsrfProtectionMatcher;
+		return this;
+	}
+
+	/**
+	 * Sets the {@link CsrfFilter#setCsrfRequestAttributeName(String)}
+	 * @param csrfRequestAttributeName the attribute name to set the CsrfToken on.
+	 * @return the {@link CsrfConfigurer} for further customizations.
+	 */
+	public CsrfConfigurer<H> csrfRequestAttributeName(String csrfRequestAttributeName) {
+		this.csrfRequestAttributeName = csrfRequestAttributeName;
 		return this;
 	}
 
@@ -202,6 +214,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@Override
 	public void configure(H http) {
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
+		if (this.csrfRequestAttributeName != null) {
+			filter.setCsrfRequestAttributeName(this.csrfRequestAttributeName);
+		}
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
