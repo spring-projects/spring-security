@@ -1,4 +1,89 @@
-= Update Dependencies
+= Release Process
+
+The release process for Spring Security is partially automated. The following table outlines which steps are automated and which are manual. Follow the links to read about each step.
+
+[cols="1,1"]
+|===
+| Step | Status
+
+| <<update-dependencies>>
+| :x: manual
+
+| <<check-all-issues-are-closed>>
+| :white_check_mark: automated (scheduled release will abort if any issues are open)
+
+| <<update-release-version>>
+| :white_check_mark: automated
+
+| <<update-antora-version>>
+| :white_check_mark: automated
+
+| <<build-locally>>
+| :x: manual (when updating dependencies)
+
+| <<push-release-commit>>
+| :white_check_mark: automated
+
+| <<announce-release-on-slack>>
+| :white_check_mark: automated
+
+| <<tag-release>>
+| :white_check_mark: automated
+
+| <<update-to-next-development-version>>
+| :white_check_mark: automated
+
+| <<update-version-on-project-page>>
+| :x: manual
+
+| <<update-release-notes-on-github>>
+| :white_check_mark: automated
+
+| <<close-create-milestone,Close milestone>>
+| :x: manual (move issues to new milestone before release)
+
+| <<close-create-milestone,Create milestone>>
+| :white_check_mark: automated (if not already created)
+
+| <<announce-release-on-other-channels>>
+| :x: manual
+|===
+
+*When should I update dependencies manually?* Dependencies should be updated at the latest the end of the week prior to the release. This is usually the Friday following the 2nd Monday of the month (counting from the first week with a Monday). When in doubt, check the https://github.com/spring-projects/spring-security/milestones[milestones] page for release due dates.
+
+*When do scheduled releases occur?* Automated releases are scheduled to occur at *3:15 PM UTC* on the *3rd Monday of the month* (counting from the first week with a Monday).
+
+[NOTE]
+The scheduled release process currently runs every Monday but only releases when a release is due. See the performed checks below for more information.
+
+The automated release process occurs on the following branches:
+
+* `main`
+* `5.8.x`
+* `5.7.x`
+* `5.6.x`
+
+For each of the above branches, the automated process performs the following checks before proceeding with the release:
+
+1. _Check if the milestone is due today._ This check compares the current (SNAPSHOT) version of the branch with available milestones and chooses the first match (sorted alphabetically). If the due date on the matched milestone is *not* today, the process stops.
+2. _Check if all issues are closed._ This check uses the milestone from the previous step and looks for open issues. If any open issues are found, the process stops.
+
+[IMPORTANT]
+You should ensure all issues are closed or moved to another milestone prior to a scheduled release.
+
+If the above checks pass, the version number is updated (in `gradle.properties` and `antora.yml`) and a commit is pushed to trigger the CI process.
+
+*How do I trigger a release manually?* You can trigger a release manually in two ways:
+
+1. Trigger a release for a particular branch via https://github.com/spring-projects/spring-security/actions/workflows/update-scheduled-release-version.yml[`update-scheduled-release-version.yml`] on the desired branch. The above checks are performed for that branch, and the release will proceed if all checks pass. _This is the recommended way to trigger a release that did not pass the above checks during a regularly scheduled release._
+2. Trigger releases for all branches via https://github.com/spring-projects/spring-security/actions/workflows/release-scheduler.yml[`release-scheduler.yml`] on the `main` branch. The above checks are performed for each branch, and only releases that pass all checks will proceed.
+
+*When should additional manual steps be performed?* All other automated steps listed above occur during the normal CI process. Additional manual steps can be performed at any time once the builds pass and releases are finished.
+
+*What if something goes wrong?* If the normal CI process fails, you can retry by re-running the failed jobs with the "Re-run failed jobs" option in GitHub Actions. If changes are required, you should revert the "Release x.y.z" commit, delete the tag, and proceed manually.
+
+[#update-dependencies]
+== Update dependencies
 
 Ensure you have no changes in your local repository.
 Change to a new branch.
@@ -59,7 +144,8 @@ $ ./gradlew updateDependencies -PupdateMode=GITHUB_ISSUE -PgitHubAccessToken=<gi
 
 Apply any fixes from your previous branch that were necessary.
 
-= Check All Issues are Closed
+[#check-all-issues-are-closed]
+== Check all issues are closed
 
 The following command will check if there are any open issues for the ticket.
 Before running the command, replace the following values:
@@ -74,11 +160,13 @@ $ ./gradlew gitHubCheckMilestoneHasNoOpenIssues -PgitHubAccessToken=<github-pers
 
 Alternatively, you can manually check using https://github.com/spring-projects/spring-security/milestones
 
-= Update Release Version
+[#update-release-version]
+== Update release version
 
 Update the version number in `gradle.properties` for the release, for example `5.5.0-M1`, `5.5.0-RC1`, `5.5.0`
 
-= Update Antora Version
+[#update-antora-version]
+== Update antora version
 
 You will need to update the antora.yml version.
 If you are unsure of what the values should be, the following task will instruct you what the expected values are:
@@ -88,7 +176,8 @@ If you are unsure of what the values should be, the following task will instruct
 ./gradlew :spring-security-docs:antoraCheckVersion
 ----
 
-= Build Locally
+[#build-locally]
+== Build locally
 
 Run the build using
 
@@ -97,7 +186,8 @@ Run the build using
 $ ./gradlew check
 ----
 
-= Push the Release Commit
+[#push-release-commit]
+== Push release commit
 
 Push the commit and GitHub actions will build and deploy the artifacts
 If you are pushing to Maven Central, then you can get notified when it’s uploaded by running the following:
@@ -107,7 +197,8 @@ If you are pushing to Maven Central, then you can get notified when it’s uploa
 $ ./scripts/release/wait-for-done.sh 5.5.0
 ----
 
-= Announce the release on Slack
+[#announce-release-on-slack]
+== Announce release on Slack
 
 * Announce via Slack on
 https://pivotal.slack.com/messages/spring-release[#spring-release],
@@ -118,7 +209,8 @@ Something like:
 spring-security-announcing 5.5.0 is available.
 ....
 
-= Tag the release
+[#tag-release]
+== Tag release
 
 * Tag the release and then push the tag
 
@@ -127,11 +219,13 @@ git tag 5.4.0-RC1
 git push origin 5.4.0-RC1
 ....
 
-== 7. Update to Next Development Version
+[#update-to-next-development-version]
+== Update to next development version
 
 * Update `gradle.properties` version to next `+SNAPSHOT+` version, update antora.yml, and then push
 
-== 8. Update version on project page
+[#update-version-on-project-page]
+== Update version on project page
 
 The following command will update https://spring.io/projects/spring-security#learn with the new release version using the following parameters
 
@@ -144,9 +238,8 @@ The following command will update https://spring.io/projects/spring-security#lea
 $ ./gradlew saganCreateRelease saganDeleteRelease -PgitHubAccessToken=<github-personal-access-token> -PnextVersion=<next-version> -PpreviousVersion=<previous-version>
 ----
 
-
-
-== 9. Update Release Notes on GitHub
+[#update-release-notes-on-github]
+== Update release notes on GitHub
 
 Generate the Release Notes replacing:
 
@@ -167,7 +260,8 @@ cat build/changelog/release-notes.md | xclip -selection clipboard
 https://github.com/spring-projects/spring-security/releases[release on
 GitHub], associate it with the tag, and paste the generated notes
 
-== 10. Close / Create Milestone
+[#close-create-milestone]
+== Close / Create milestone
 
 * In
 https://github.com/spring-projects/spring-security/milestones[GitHub
@@ -176,7 +270,8 @@ Milestones], create a new milestone for the next release version
 the new milestone
 * Close the milestone for the release.
 
-== 11. Announce the release on other channels
+[#announce-release-on-other-channels]
+== Announce release on other channels
 
 * Create a https://spring.io/admin/blog[Blog]
 * Tweet from [@SpringSecurity](https://twitter.com/springsecurity)
