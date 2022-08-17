@@ -890,6 +890,9 @@ session-management =
 	element session-management {session-management.attlist, concurrency-control?}
 
 session-management.attlist &=
+	## Specifies that SessionAuthenticationStrategy must be explicitly invoked. Default false (i.e. SessionManagementFilter will implicitly invoke SessionAuthenticationStrategy).
+	attribute authentication-strategy-explicit-invocation {xsd:boolean}?
+session-management.attlist &=
 	## Indicates how session fixation protection will be applied when a user authenticates. If set to "none", no protection will be applied. "newSession" will create a new empty session, with only Spring Security-related attributes migrated. "migrateSession" will create a new session and copy all session attributes to the new session. In Servlet 3.1 (Java EE 7) and newer containers, specifying "changeSessionId" will keep the existing session and use the container-supplied session fixation protection (HttpServletRequest#changeSessionId()). Defaults to "changeSessionId" in Servlet 3.1 and newer containers, "migrateSession" in older containers. Throws an exception if "changeSessionId" is used in older containers.
 	attribute session-fixation-protection {"none" | "newSession" | "migrateSession" | "changeSessionId" }?
 session-management.attlist &=

@@ -2572,6 +2572,13 @@
   </xs:attributeGroup>
   
   <xs:attributeGroup name="session-management.attlist">
+      <xs:attribute name="authentication-strategy-explicit-invocation" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Specifies that SessionAuthenticationStrategy must be explicitly invoked. Default false
+                (i.e. SessionManagementFilter will implicitly invoke SessionAuthenticationStrategy).
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="session-fixation-protection">
          <xs:annotation>
             <xs:documentation>Indicates how session fixation protection will be applied when a user authenticates. If
