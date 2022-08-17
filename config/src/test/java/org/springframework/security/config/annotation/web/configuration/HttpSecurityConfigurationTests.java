@@ -29,12 +29,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -56,7 +61,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -259,6 +266,40 @@ public class HttpSecurityConfigurationTests {
 		assertThat(configurer.configure).isTrue();
 	}
 
+	@Test
+	public void loginWhenAuthenticationEventPublisherBeanThenUses() throws Exception {
+		this.spring.register(UserDetailsConfig.class, AuthenticationEventPublisherConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		// @formatter:on
+		this.mockMvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+
+		AuthenticationEventPublisher authenticationEventPublisher = this.spring.getContext()
+				.getBean(AuthenticationEventPublisher.class);
+		verify(authenticationEventPublisher).publishAuthenticationSuccess(any(Authentication.class));
+	}
+
+	@Test
+	public void loginWhenNoAuthenticationEventPublisherBeanThenUsesDefaultAuthenticationEventPublisher()
+			throws Exception {
+		this.spring.register(UserDetailsConfig.class, ApplicationListenerConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.param("username", "user")
+				.param("password", "password")
+				.with(csrf());
+		// @formatter:on
+		this.mockMvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+
+		@SuppressWarnings("unchecked")
+		ApplicationListener<AuthenticationSuccessEvent> eventListener = this.spring.getContext()
+				.getBean("authenticationSuccessListener", ApplicationListener.class);
+		verify(eventListener).onApplicationEvent(any(AuthenticationSuccessEvent.class));
+	}
+
 	@RestController
 	static class NameController {
 
@@ -368,6 +409,67 @@ public class HttpSecurityConfigurationTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class AuthenticationEventPublisherConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.formLogin(withDefaults())
+					.authenticationProvider(authenticationProvider(userDetailsService))
+					.build();
+			// @formatter:on
+		}
+
+		@Bean
+		AuthenticationEventPublisher authenticationEventPublisher() {
+			return mock(AuthenticationEventPublisher.class);
+		}
+
+		private AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+			DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+			authenticationProvider.setUserDetailsService(userDetailsService);
+			return authenticationProvider;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ApplicationListenerConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, UserDetailsService userDetailsService) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((authorize) -> authorize
+							.anyRequest().authenticated()
+					)
+					.formLogin(withDefaults())
+					.authenticationProvider(authenticationProvider(userDetailsService))
+					.build();
+			// @formatter:on
+		}
+
+		@Bean
+		@SuppressWarnings("unchecked")
+		ApplicationListener<AuthenticationSuccessEvent> authenticationSuccessListener() {
+			return mock(ApplicationListener.class);
+		}
+
+		private AuthenticationProvider authenticationProvider(UserDetailsService userDetailsService) {
+			DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
+			authenticationProvider.setUserDetailsService(userDetailsService);
+			return authenticationProvider;
 		}
 
 	}
