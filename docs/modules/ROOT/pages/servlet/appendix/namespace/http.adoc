@@ -2243,6 +2243,10 @@ Session-management related functionality is implemented by the addition of a `Se
 === <session-management> Attributes
 
 
+[[nsa-session-management-authentication-strategy-explicit-invocation]]
+* **authentication-strategy-explicit-invocation**
+Setting this attribute to true will mean that `SessionManagementFilter` will not be injected and explicit invocation of SessionAuthenticationStrategy is required.
+
 [[nsa-session-management-invalid-session-url]]
 * **invalid-session-url**
 Setting this attribute will inject the `SessionManagementFilter` with a `SimpleRedirectInvalidSessionStrategy` configured with the attribute value.

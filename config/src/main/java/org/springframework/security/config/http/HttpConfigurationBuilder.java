@@ -103,6 +103,8 @@ class HttpConfigurationBuilder {
 
 	private static final String OPT_CHANGE_SESSION_ID = "changeSessionId";
 
+	private static final String ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION = "authentication-strategy-explicit-invocation";
+
 	private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
@@ -538,7 +540,11 @@ class HttpConfigurationBuilder {
 			sessionMgmtFilter.addPropertyReference("invalidSessionStrategy", invalidSessionStrategyRef);
 		}
 		sessionMgmtFilter.addConstructorArgReference(sessionAuthStratRef);
-		this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
+		boolean registerSessionMgmtFilter = (sessionMgmtElt == null
+				|| !"true".equals(sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION)));
+		if (registerSessionMgmtFilter) {
+			this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
+		}
 		this.sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);
 	}
 
