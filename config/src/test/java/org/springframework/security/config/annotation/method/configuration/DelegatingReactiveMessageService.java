@@ -112,6 +112,11 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 		return flux;
 	}
 
+	@PostFilter("filterObject.length > 5")
+	public Flux<String> fluxPostFilter(Flux<String> flux) {
+		return flux;
+	}
+
 	@Override
 	public Publisher<String> publisherFindById(long id) {
 		return this.delegate.publisherFindById(id);

@@ -35,15 +35,19 @@ import org.springframework.util.Assert;
  */
 final class PostAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	private final MethodSecurityExpressionHandler expressionHandler;
+
+	PostAuthorizeExpressionAttributeRegistry() {
+		this(new DefaultMethodSecurityExpressionHandler());
+	}
+
+	PostAuthorizeExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+	}
 
 	MethodSecurityExpressionHandler getExpressionHandler() {
 		return this.expressionHandler;
-	}
-
-	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
 	}
 
 	@NonNull

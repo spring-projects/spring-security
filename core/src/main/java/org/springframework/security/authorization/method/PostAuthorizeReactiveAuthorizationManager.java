@@ -19,11 +19,13 @@ package org.springframework.security.authorization.method;
 import org.aopalliance.intercept.MethodInvocation;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * A {@link ReactiveAuthorizationManager} which can determine if an {@link Authentication}
@@ -36,14 +38,15 @@ import org.springframework.security.core.Authentication;
 public final class PostAuthorizeReactiveAuthorizationManager
 		implements ReactiveAuthorizationManager<MethodInvocationResult> {
 
-	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
+	private final PostAuthorizeExpressionAttributeRegistry registry;
 
-	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
-	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
-	 */
-	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
+	public PostAuthorizeReactiveAuthorizationManager() {
+		this(new DefaultMethodSecurityExpressionHandler());
+	}
+
+	public PostAuthorizeReactiveAuthorizationManager(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**

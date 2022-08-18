@@ -35,15 +35,19 @@ import org.springframework.util.Assert;
 final class PreFilterExpressionAttributeRegistry
 		extends AbstractExpressionAttributeRegistry<PreFilterExpressionAttributeRegistry.PreFilterExpressionAttribute> {
 
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	private final MethodSecurityExpressionHandler expressionHandler;
+
+	PreFilterExpressionAttributeRegistry() {
+		this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	}
+
+	PreFilterExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+	}
 
 	MethodSecurityExpressionHandler getExpressionHandler() {
 		return this.expressionHandler;
-	}
-
-	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
 	}
 
 	@NonNull

@@ -50,7 +50,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 	private Supplier<Authentication> authentication = getAuthentication(
 			SecurityContextHolder.getContextHolderStrategy());
 
-	private final PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
+	private PreFilterExpressionAttributeRegistry registry = new PreFilterExpressionAttributeRegistry();
 
 	private int order = AuthorizationInterceptorsOrder.PRE_FILTER.getOrder();
 
@@ -69,7 +69,7 @@ public final class PreFilterAuthorizationMethodInterceptor
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
+		this.registry = new PreFilterExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**

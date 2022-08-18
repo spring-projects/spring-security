@@ -44,15 +44,15 @@ public class PostFilterAuthorizationReactiveMethodInterceptorTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PostFilterAuthorizationReactiveMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
-		interceptor.setExpressionHandler(expressionHandler);
+		PostFilterAuthorizationReactiveMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor(
+				expressionHandler);
 		assertThat(interceptor).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PostFilterAuthorizationReactiveMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
-		assertThatIllegalArgumentException().isThrownBy(() -> interceptor.setExpressionHandler(null))
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new PostFilterAuthorizationReactiveMethodInterceptor(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 

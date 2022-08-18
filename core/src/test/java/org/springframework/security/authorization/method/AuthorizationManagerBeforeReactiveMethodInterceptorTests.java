@@ -24,6 +24,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -60,7 +62,8 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 	@Test
 	public void invokeMonoWhenMockReactiveAuthorizationManagerThenVerify() throws Throwable {
-		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
 		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
@@ -75,7 +78,8 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 	@Test
 	public void invokeFluxWhenMockReactiveAuthorizationManagerThenVerify() throws Throwable {
-		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("flux")));
 		given(mockMethodInvocation.proceed()).willReturn(Flux.just("john", "bob"));
 		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
@@ -90,7 +94,8 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 
 	@Test
 	public void invokeWhenMockReactiveAuthorizationManagerDeniedThenAccessDeniedException() throws Throwable {
-		MethodInvocation mockMethodInvocation = mock(MethodInvocation.class);
+		MethodInvocation mockMethodInvocation = spy(
+				new MockMethodInvocation(new Sample(), Sample.class.getDeclaredMethod("mono")));
 		given(mockMethodInvocation.proceed()).willReturn(Mono.just("john"));
 		ReactiveAuthorizationManager<MethodInvocation> mockReactiveAuthorizationManager = mock(
 				ReactiveAuthorizationManager.class);
@@ -103,6 +108,18 @@ public class AuthorizationManagerBeforeReactiveMethodInterceptorTests {
 				.asInstanceOf(InstanceOfAssertFactories.type(Mono.class)).extracting(Mono::block))
 				.withMessage("Access Denied");
 		verify(mockReactiveAuthorizationManager).verify(any(), eq(mockMethodInvocation));
+	}
+
+	class Sample {
+
+		Mono<String> mono() {
+			return Mono.just("john");
+		}
+
+		Flux<String> flux() {
+			return Flux.just("john", "bob");
+		}
+
 	}
 
 }

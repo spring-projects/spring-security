@@ -16,6 +16,8 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.Method;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -26,14 +28,15 @@ import reactor.core.publisher.Mono;
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.core.Ordered;
+import org.springframework.core.ReactiveAdapter;
+import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.expression.EvaluationContext;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionOperations;
 import org.springframework.security.access.prepost.PostFilter;
+import org.springframework.util.Assert;
 
 /**
  * A {@link MethodInterceptor} which filters the returned object from the
@@ -43,14 +46,12 @@ import org.springframework.security.access.prepost.PostFilter;
  * @author Evgeniy Cheban
  * @since 5.8
  */
-public final class PostFilterAuthorizationReactiveMethodInterceptor implements Ordered, MethodInterceptor,
-		PointcutAdvisor, AopInfrastructureBean, BeanDefinitionRegistryPostProcessor {
+public final class PostFilterAuthorizationReactiveMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
-	private final AuthorizationBeanFactoryPostProcessor beanFactoryPostProcessor = new AuthorizationBeanFactoryPostProcessor();
+	private final PostFilterExpressionAttributeRegistry registry;
 
-	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
-
-	private final Pointcut pointcut;
+	private final Pointcut pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);
 
 	private int order = AuthorizationInterceptorsOrder.POST_FILTER.getOrder();
 
@@ -58,15 +59,15 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements O
 	 * Creates an instance.
 	 */
 	public PostFilterAuthorizationReactiveMethodInterceptor() {
-		this.pointcut = AuthorizationMethodPointcuts.forAnnotations(PostFilter.class);
+		this(new DefaultMethodSecurityExpressionHandler());
 	}
 
 	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
-	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
+	 * Creates an instance.
 	 */
-	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
+	public PostFilterAuthorizationReactiveMethodInterceptor(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.registry = new PostFilterExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**
@@ -77,25 +78,41 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements O
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
 		ExpressionAttribute attribute = this.registry.getAttribute(mi);
 		if (attribute == ExpressionAttribute.NULL_ATTRIBUTE) {
-			return publisher;
+			return ReactiveMethodInvocationUtils.proceed(mi);
 		}
 		Mono<EvaluationContext> toInvoke = ReactiveAuthenticationUtils.getAuthentication()
 				.map((auth) -> this.registry.getExpressionHandler().createEvaluationContext(auth, mi));
-		if (publisher instanceof Mono<?>) {
-			return toInvoke.flatMap((ctx) -> filterMono((Mono<?>) publisher, ctx, attribute));
+		Method method = mi.getMethod();
+		Class<?> type = method.getReturnType();
+		Assert.state(Publisher.class.isAssignableFrom(type),
+				() -> String.format("The parameter type %s on %s must be an instance of org.reactivestreams.Publisher "
+						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
+		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
+		if (isMultiValue(type, adapter)) {
+			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+			Flux<?> flux = toInvoke.flatMapMany((ctx) -> filterMultiValue(publisher, ctx, attribute));
+			return (adapter != null) ? adapter.fromPublisher(flux) : flux;
 		}
-		return toInvoke.flatMapMany((ctx) -> filterPublisher(publisher, ctx, attribute));
+		Publisher<?> publisher = Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+		Mono<?> mono = toInvoke.flatMap((ctx) -> filterSingleValue(publisher, ctx, attribute));
+		return (adapter != null) ? adapter.fromPublisher(mono) : mono;
 	}
 
-	private Mono<?> filterMono(Mono<?> mono, EvaluationContext ctx, ExpressionAttribute attribute) {
-		return mono.doOnNext((result) -> setFilterObject(ctx, result))
+	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+		if (Flux.class.isAssignableFrom(returnType)) {
+			return true;
+		}
+		return adapter == null || adapter.isMultiValue();
+	}
+
+	private Mono<?> filterSingleValue(Publisher<?> publisher, EvaluationContext ctx, ExpressionAttribute attribute) {
+		return Mono.from(publisher).doOnNext((result) -> setFilterObject(ctx, result))
 				.flatMap((result) -> postFilter(ctx, result, attribute));
 	}
 
-	private Flux<?> filterPublisher(Publisher<?> publisher, EvaluationContext ctx, ExpressionAttribute attribute) {
+	private Flux<?> filterMultiValue(Publisher<?> publisher, EvaluationContext ctx, ExpressionAttribute attribute) {
 		return Flux.from(publisher).doOnNext((result) -> setFilterObject(ctx, result))
 				.flatMap((result) -> postFilter(ctx, result, attribute));
 	}
@@ -131,16 +148,6 @@ public final class PostFilterAuthorizationReactiveMethodInterceptor implements O
 
 	public void setOrder(int order) {
 		this.order = order;
-	}
-
-	@Override
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
-		this.beanFactoryPostProcessor.postProcessBeanDefinitionRegistry(registry);
-	}
-
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-		this.beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
 	}
 
 }

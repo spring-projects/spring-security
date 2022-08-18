@@ -35,7 +35,16 @@ import org.springframework.util.Assert;
  */
 final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAttributeRegistry<ExpressionAttribute> {
 
-	private MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	private final MethodSecurityExpressionHandler expressionHandler;
+
+	PreAuthorizeExpressionAttributeRegistry() {
+		this.expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	}
+
+	PreAuthorizeExpressionAttributeRegistry(MethodSecurityExpressionHandler expressionHandler) {
+		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+		this.expressionHandler = expressionHandler;
+	}
 
 	/**
 	 * Returns the {@link MethodSecurityExpressionHandler}.
@@ -43,15 +52,6 @@ final class PreAuthorizeExpressionAttributeRegistry extends AbstractExpressionAt
 	 */
 	MethodSecurityExpressionHandler getExpressionHandler() {
 		return this.expressionHandler;
-	}
-
-	/**
-	 * Sets the {@link MethodSecurityExpressionHandler}.
-	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
-	 */
-	void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		Assert.notNull(expressionHandler, "expressionHandler cannot be null");
-		this.expressionHandler = expressionHandler;
 	}
 
 	@NonNull

@@ -46,15 +46,14 @@ public class PreFilterAuthorizationReactiveMethodInterceptorTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PreFilterAuthorizationReactiveMethodInterceptor interceptor = new PreFilterAuthorizationReactiveMethodInterceptor();
-		interceptor.setExpressionHandler(expressionHandler);
+		PreFilterAuthorizationReactiveMethodInterceptor interceptor = new PreFilterAuthorizationReactiveMethodInterceptor(
+				expressionHandler);
 		assertThat(interceptor).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PreFilterAuthorizationReactiveMethodInterceptor interceptor = new PreFilterAuthorizationReactiveMethodInterceptor();
-		assertThatIllegalArgumentException().isThrownBy(() -> interceptor.setExpressionHandler(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new PreFilterAuthorizationReactiveMethodInterceptor(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 

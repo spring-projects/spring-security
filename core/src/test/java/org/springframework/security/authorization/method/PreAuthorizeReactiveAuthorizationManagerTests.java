@@ -45,15 +45,14 @@ public class PreAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		manager.setExpressionHandler(expressionHandler);
+		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
 		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PreAuthorizeReactiveAuthorizationManager manager = new PreAuthorizeReactiveAuthorizationManager();
-		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new PreAuthorizeReactiveAuthorizationManager(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 

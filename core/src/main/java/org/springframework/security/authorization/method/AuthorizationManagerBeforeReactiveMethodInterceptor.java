@@ -16,19 +16,21 @@
 
 package org.springframework.security.authorization.method;
 
+import java.lang.reflect.Method;
+
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.aop.Pointcut;
 import org.springframework.aop.PointcutAdvisor;
 import org.springframework.aop.framework.AopInfrastructureBean;
-import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.BeanDefinitionRegistryPostProcessor;
 import org.springframework.core.Ordered;
+import org.springframework.core.ReactiveAdapter;
+import org.springframework.core.ReactiveAdapterRegistry;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -40,18 +42,17 @@ import org.springframework.util.Assert;
  * {@link ReactiveAuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @author Josh Cummings
  * @since 5.8
  */
-public final class AuthorizationManagerBeforeReactiveMethodInterceptor implements Ordered, MethodInterceptor,
-		PointcutAdvisor, AopInfrastructureBean, BeanDefinitionRegistryPostProcessor {
-
-	private final AuthorizationBeanFactoryPostProcessor beanFactoryPostProcessor = new AuthorizationBeanFactoryPostProcessor();
+public final class AuthorizationManagerBeforeReactiveMethodInterceptor
+		implements Ordered, MethodInterceptor, PointcutAdvisor, AopInfrastructureBean {
 
 	private final Pointcut pointcut;
 
 	private final ReactiveAuthorizationManager<MethodInvocation> authorizationManager;
 
-	private int order = AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder();
+	private int order = AuthorizationInterceptorsOrder.FIRST.getOrder();
 
 	/**
 	 * Creates an instance for the {@link PreAuthorize} annotation.
@@ -68,8 +69,10 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 	 */
 	public static AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorize(
 			ReactiveAuthorizationManager<MethodInvocation> authorizationManager) {
-		return new AuthorizationManagerBeforeReactiveMethodInterceptor(
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(
 				AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder());
+		return interceptor;
 	}
 
 	/**
@@ -94,13 +97,29 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 	 */
 	@Override
 	public Object invoke(MethodInvocation mi) throws Throwable {
-		Publisher<?> publisher = ReactiveMethodInvocationUtils.proceed(mi);
+		Method method = mi.getMethod();
+		Class<?> type = method.getReturnType();
+		Assert.state(Publisher.class.isAssignableFrom(type),
+				() -> String.format("The returnType %s on %s must return an instance of org.reactivestreams.Publisher "
+						+ "(for example, a Mono or Flux) in order to support Reactor Context", type, method));
 		Mono<Authentication> authentication = ReactiveAuthenticationUtils.getAuthentication();
+		ReactiveAdapter adapter = ReactiveAdapterRegistry.getSharedInstance().getAdapter(type);
 		Mono<Void> preAuthorize = this.authorizationManager.verify(authentication, mi);
-		if (publisher instanceof Mono<?>) {
-			return preAuthorize.then((Mono<?>) publisher);
+		if (isMultiValue(type, adapter)) {
+			Publisher<?> publisher = Flux.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+			Flux<?> result = preAuthorize.thenMany(publisher);
+			return (adapter != null) ? adapter.fromPublisher(result) : result;
 		}
-		return preAuthorize.thenMany(publisher);
+		Mono<?> publisher = Mono.defer(() -> ReactiveMethodInvocationUtils.proceed(mi));
+		Mono<?> result = preAuthorize.then(publisher);
+		return (adapter != null) ? adapter.fromPublisher(result) : result;
+	}
+
+	private boolean isMultiValue(Class<?> returnType, ReactiveAdapter adapter) {
+		if (Flux.class.isAssignableFrom(returnType)) {
+			return true;
+		}
+		return adapter == null || adapter.isMultiValue();
 	}
 
 	@Override
@@ -125,16 +144,6 @@ public final class AuthorizationManagerBeforeReactiveMethodInterceptor implement
 
 	public void setOrder(int order) {
 		this.order = order;
-	}
-
-	@Override
-	public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) {
-		this.beanFactoryPostProcessor.postProcessBeanDefinitionRegistry(registry);
-	}
-
-	@Override
-	public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) {
-		this.beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
 	}
 
 }

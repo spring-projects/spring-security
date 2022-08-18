@@ -42,7 +42,7 @@ import static org.mockito.Mockito.reset;
 
 /**
  * Tests for {@link EnableReactiveMethodSecurity} with the
- * {@link EnableReactiveMethodSecurity#authorizationManager()} flag set to true.
+ * {@link EnableReactiveMethodSecurity#useAuthorizationManager()} flag set to true.
  *
  * @author Evgeniy Cheban
  */
@@ -79,8 +79,7 @@ public class EnableAuthorizationManagerReactiveMethodSecurityTests {
 				.withMessage("The returnType class java.lang.String on public abstract java.lang.String "
 						+ "org.springframework.security.config.annotation.method.configuration.ReactiveMessageService"
 						+ ".notPublisherPreAuthorizeFindById(long) must return an instance of org.reactivestreams"
-						+ ".Publisher (i.e. Mono / Flux) or the function must be a Kotlin coroutine "
-						+ "function in order to support Reactor Context");
+						+ ".Publisher (for example, a Mono or Flux) in order to support Reactor Context");
 	}
 
 	@Test
@@ -340,6 +339,13 @@ public class EnableAuthorizationManagerReactiveMethodSecurityTests {
 		StepVerifier.create(flux).expectNext("harold", "jonathan").expectError(AccessDeniedException.class).verify();
 	}
 
+	@Test
+	public void fluxPostFilterWhenFilteringThenWorks() {
+		Flux<String> flux = this.messageService.fluxPostFilter(Flux.just("harold", "jonathan", "michael", "pete", "bo"))
+				.contextWrite(this.withAdmin);
+		StepVerifier.create(flux).expectNext("harold", "jonathan", "michael").verifyComplete();
+	}
+
 	// Publisher tests
 	@Test
 	public void publisherWhenPermitAllThenAopDoesNotSubscribe() {
@@ -458,7 +464,7 @@ public class EnableAuthorizationManagerReactiveMethodSecurityTests {
 		return publisher(Flux.just(data));
 	}
 
-	@EnableReactiveMethodSecurity(authorizationManager = true)
+	@EnableReactiveMethodSecurity(useAuthorizationManager = true)
 	static class Config {
 
 		ReactiveMessageService delegate = mock(ReactiveMessageService.class);

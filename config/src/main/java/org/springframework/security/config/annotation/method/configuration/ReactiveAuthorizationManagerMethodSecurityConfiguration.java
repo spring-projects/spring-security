@@ -45,17 +45,15 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
-		PreFilterAuthorizationReactiveMethodInterceptor preFilter = new PreFilterAuthorizationReactiveMethodInterceptor();
-		preFilter.setExpressionHandler(expressionHandler);
-		return preFilter;
+		return new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
-		PreAuthorizeReactiveAuthorizationManager authorizationManager = new PreAuthorizeReactiveAuthorizationManager();
-		authorizationManager.setExpressionHandler(expressionHandler);
+		PreAuthorizeReactiveAuthorizationManager authorizationManager = new PreAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
 		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(authorizationManager);
 	}
 
@@ -63,17 +61,15 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
-		PostFilterAuthorizationReactiveMethodInterceptor postFilter = new PostFilterAuthorizationReactiveMethodInterceptor();
-		postFilter.setExpressionHandler(expressionHandler);
-		return postFilter;
+		return new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
-		PostAuthorizeReactiveAuthorizationManager authorizationManager = new PostAuthorizeReactiveAuthorizationManager();
-		authorizationManager.setExpressionHandler(expressionHandler);
+		PostAuthorizeReactiveAuthorizationManager authorizationManager = new PostAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
 		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(authorizationManager);
 	}
 

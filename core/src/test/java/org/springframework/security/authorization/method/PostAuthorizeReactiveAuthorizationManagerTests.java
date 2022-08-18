@@ -48,15 +48,14 @@ public class PostAuthorizeReactiveAuthorizationManagerTests {
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
-		manager.setExpressionHandler(expressionHandler);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
 		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
-		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new PostAuthorizeReactiveAuthorizationManager(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 

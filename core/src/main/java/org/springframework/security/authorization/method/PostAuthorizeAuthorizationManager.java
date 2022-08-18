@@ -39,14 +39,14 @@ import org.springframework.security.core.Authentication;
  */
 public final class PostAuthorizeAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
 
-	private final PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
+	private PostAuthorizeExpressionAttributeRegistry registry = new PostAuthorizeExpressionAttributeRegistry();
 
 	/**
 	 * Use this the {@link MethodSecurityExpressionHandler}.
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
+		this.registry = new PostAuthorizeExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**

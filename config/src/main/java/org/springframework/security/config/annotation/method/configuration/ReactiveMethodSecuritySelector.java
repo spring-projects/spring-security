@@ -44,7 +44,7 @@ class ReactiveMethodSecuritySelector implements ImportSelector {
 		EnableReactiveMethodSecurity annotation = importMetadata.getAnnotations()
 				.get(EnableReactiveMethodSecurity.class).synthesize();
 		List<String> imports = new ArrayList<>(Arrays.asList(this.autoProxy.selectImports(importMetadata)));
-		if (annotation.authorizationManager()) {
+		if (annotation.useAuthorizationManager()) {
 			imports.add(ReactiveAuthorizationManagerMethodSecurityConfiguration.class.getName());
 		}
 		else {

@@ -75,6 +75,6 @@ public @interface EnableReactiveMethodSecurity {
 	 * used.
 	 * @since 5.8
 	 */
-	boolean authorizationManager() default false;
+	boolean useAuthorizationManager() default false;
 
 }

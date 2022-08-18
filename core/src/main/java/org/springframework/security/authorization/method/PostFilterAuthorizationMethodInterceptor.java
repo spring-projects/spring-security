@@ -49,7 +49,7 @@ public final class PostFilterAuthorizationMethodInterceptor
 	private Supplier<Authentication> authentication = getAuthentication(
 			SecurityContextHolder.getContextHolderStrategy());
 
-	private final PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
+	private PostFilterExpressionAttributeRegistry registry = new PostFilterExpressionAttributeRegistry();
 
 	private int order = AuthorizationInterceptorsOrder.POST_FILTER.getOrder();
 
@@ -68,7 +68,7 @@ public final class PostFilterAuthorizationMethodInterceptor
 	 * @param expressionHandler the {@link MethodSecurityExpressionHandler} to use
 	 */
 	public void setExpressionHandler(MethodSecurityExpressionHandler expressionHandler) {
-		this.registry.setExpressionHandler(expressionHandler);
+		this.registry = new PostFilterExpressionAttributeRegistry(expressionHandler);
 	}
 
 	/**

@@ -48,6 +48,8 @@ public interface ReactiveMessageService {
 
 	Flux<String> fluxManyAnnotations(Flux<String> flux);
 
+	Flux<String> fluxPostFilter(Flux<String> flux);
+
 	Publisher<String> publisherFindById(long id);
 
 	Publisher<String> publisherPreAuthorizeHasRoleFindById(long id);
