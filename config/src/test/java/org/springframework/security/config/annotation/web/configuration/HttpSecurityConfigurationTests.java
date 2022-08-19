@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configuration;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import javax.servlet.http.HttpServletRequest;
@@ -27,12 +29,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +57,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -200,6 +210,48 @@ public class HttpSecurityConfigurationTests {
 		this.mockMvc.perform(get("/login?logout")).andExpect(status().isOk());
 	}
 
+	@Test
+	public void loginWhenUsingDefaultThenAuthenticationEventPublished() throws Exception {
+		this.spring
+				.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
+				.autowire();
+		AuthenticationEventListenerConfig.clearEvents();
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+		assertThat(AuthenticationEventListenerConfig.EVENTS).isNotEmpty();
+		assertThat(AuthenticationEventListenerConfig.EVENTS).hasSize(1);
+	}
+
+	@Test
+	public void loginWhenUsingDefaultAndNoUserDetailsServiceThenAuthenticationEventPublished() throws Exception {
+		this.spring
+				.register(SecurityEnabledConfig.class, UserDetailsConfig.class, AuthenticationEventListenerConfig.class)
+				.autowire();
+		AuthenticationEventListenerConfig.clearEvents();
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+		assertThat(AuthenticationEventListenerConfig.EVENTS).isNotEmpty();
+		assertThat(AuthenticationEventListenerConfig.EVENTS).hasSize(1);
+	}
+
+	@Test
+	public void loginWhenUsingCustomAuthenticationEventPublisherThenAuthenticationEventPublished() throws Exception {
+		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class,
+				CustomAuthenticationEventPublisherConfig.class).autowire();
+		CustomAuthenticationEventPublisherConfig.clearEvents();
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+		assertThat(CustomAuthenticationEventPublisherConfig.EVENTS).isNotEmpty();
+		assertThat(CustomAuthenticationEventPublisherConfig.EVENTS).hasSize(1);
+	}
+
+	@Test
+	public void loginWhenUsingCustomAuthenticationEventPublisherAndNoUserDetailsServiceThenAuthenticationEventPublished()
+			throws Exception {
+		this.spring.register(SecurityEnabledConfig.class, CustomAuthenticationEventPublisherConfig.class).autowire();
+		CustomAuthenticationEventPublisherConfig.clearEvents();
+		this.mockMvc.perform(formLogin()).andExpect(status().is3xxRedirection());
+		assertThat(CustomAuthenticationEventPublisherConfig.EVENTS).isNotEmpty();
+		assertThat(CustomAuthenticationEventPublisherConfig.EVENTS).hasSize(1);
+	}
+
 	@RestController
 	static class NameController {
 
@@ -266,6 +318,55 @@ public class HttpSecurityConfigurationTests {
 					.build();
 			// @formatter:on
 			return new InMemoryUserDetailsManager(user);
+		}
+
+	}
+
+	@Configuration
+	static class CustomAuthenticationEventPublisherConfig {
+
+		static List<Authentication> EVENTS = new ArrayList<>();
+
+		static void clearEvents() {
+			EVENTS.clear();
+		}
+
+		@Bean
+		AuthenticationEventPublisher publisher() {
+			return new AuthenticationEventPublisher() {
+
+				@Override
+				public void publishAuthenticationSuccess(Authentication authentication) {
+					EVENTS.add(authentication);
+				}
+
+				@Override
+				public void publishAuthenticationFailure(AuthenticationException exception,
+						Authentication authentication) {
+					EVENTS.add(authentication);
+				}
+			};
+		}
+
+	}
+
+	@Configuration
+	static class AuthenticationEventListenerConfig {
+
+		static List<AbstractAuthenticationEvent> EVENTS = new ArrayList<>();
+
+		static void clearEvents() {
+			EVENTS.clear();
+		}
+
+		@EventListener
+		void onAuthenticationSuccessEvent(AuthenticationSuccessEvent event) {
+			EVENTS.add(event);
+		}
+
+		@EventListener
+		void onAuthenticationFailureEvent(AbstractAuthenticationFailureEvent event) {
+			EVENTS.add(event);
 		}
 
 	}
