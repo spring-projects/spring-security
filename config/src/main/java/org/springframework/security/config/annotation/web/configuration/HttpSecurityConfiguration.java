@@ -26,7 +26,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -85,6 +87,7 @@ class HttpSecurityConfiguration {
 		AuthenticationManagerBuilder authenticationBuilder = new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
+		authenticationBuilder.authenticationEventPublisher(getAuthenticationEventPublisher());
 		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
 		// @formatter:off
 		http
@@ -107,6 +110,13 @@ class HttpSecurityConfiguration {
 	private AuthenticationManager authenticationManager() throws Exception {
 		return (this.authenticationManager != null) ? this.authenticationManager
 				: this.authenticationConfiguration.getAuthenticationManager();
+	}
+
+	private AuthenticationEventPublisher getAuthenticationEventPublisher() {
+		if (this.context.getBeanNamesForType(AuthenticationEventPublisher.class).length > 0) {
+			return this.context.getBean(AuthenticationEventPublisher.class);
+		}
+		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
 	}
 
 	private void applyDefaultConfigurers(HttpSecurity http) throws Exception {
