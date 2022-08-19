@@ -34,8 +34,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,6 +53,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,6 +65,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -296,6 +300,28 @@ public class AuthenticationConfigurationTests {
 		assertThatExceptionOfType(AlreadyBuiltException.class).isThrownBy(ap::build);
 	}
 
+	@Test
+	public void configureWhenDefaultsThenDefaultAuthenticationEventPublisher() {
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class).autowire();
+		AuthenticationManagerBuilder authenticationManagerBuilder = this.spring.getContext()
+				.getBean(AuthenticationManagerBuilder.class);
+		AuthenticationEventPublisher eventPublisher = (AuthenticationEventPublisher) ReflectionTestUtils
+				.getField(authenticationManagerBuilder, "eventPublisher");
+		assertThat(eventPublisher).isInstanceOf(DefaultAuthenticationEventPublisher.class);
+	}
+
+	@Test
+	public void configureWhenCustomAuthenticationEventPublisherThenCustomAuthenticationEventPublisher() {
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				CustomAuthenticationEventPublisherConfig.class).autowire();
+		AuthenticationManagerBuilder authenticationManagerBuilder = this.spring.getContext()
+				.getBean(AuthenticationManagerBuilder.class);
+		AuthenticationEventPublisher eventPublisher = (AuthenticationEventPublisher) ReflectionTestUtils
+				.getField(authenticationManagerBuilder, "eventPublisher");
+		assertThat(eventPublisher)
+				.isInstanceOf(CustomAuthenticationEventPublisherConfig.MyAuthenticationEventPublisher.class);
+	}
+
 	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class GlobalMethodSecurityAutowiredConfig {
@@ -347,6 +373,30 @@ public class AuthenticationConfigurationTests {
 		@Bean
 		Service service() {
 			return new ServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	static class CustomAuthenticationEventPublisherConfig {
+
+		@Bean
+		AuthenticationEventPublisher eventPublisher() {
+			return new MyAuthenticationEventPublisher();
+		}
+
+		static class MyAuthenticationEventPublisher implements AuthenticationEventPublisher {
+
+			@Override
+			public void publishAuthenticationSuccess(Authentication authentication) {
+
+			}
+
+			@Override
+			public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+
+			}
+
 		}
 
 	}
