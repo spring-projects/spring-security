@@ -55,16 +55,6 @@ dependencies {
 		api "org.hibernate.orm:hibernate-core:6.1.1.Final"
 		api "org.hsqldb:hsqldb:2.6.1"
 		api "org.jasig.cas.client:cas-client-core:3.6.4"
-<<<<<<< HEAD
-		api "org.mockito:mockito-core:3.12.4"
-		api "org.mockito:mockito-inline:3.12.4"
-		api "org.mockito:mockito-junit-jupiter:3.12.4"
-<<<<<<< HEAD
-=======
-		api "org.openid4java:openid4java-nodeps:0.9.6"
-=======
->>>>>>> 8e018fd921 (Update to mockito 4.7.0)
->>>>>>> 5.8.x
 		api "org.opensaml:opensaml-core:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-impl:$openSamlVersion"
