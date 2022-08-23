@@ -52,14 +52,22 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
-		hints.reflection().registerTypes(getDefaultAuthenticationExceptionEventPublisherTypes(),
-				(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
+		registerExceptionEventsHints(hints);
+		registerExpressionEvaluationHints(hints);
+		hints.resources().registerResourceBundle("org.springframework.security.messages");
+	}
+
+	private void registerExpressionEvaluationHints(RuntimeHints hints) {
 		hints.reflection().registerTypes(
 				List.of(TypeReference.of(SecurityExpressionOperations.class),
 						TypeReference.of(SecurityExpressionRoot.class)),
 				(builder) -> builder.withMembers(MemberCategory.DECLARED_FIELDS,
 						MemberCategory.INVOKE_DECLARED_METHODS));
-		hints.resources().registerResourceBundle("org.springframework.security.messages");
+	}
+
+	private void registerExceptionEventsHints(RuntimeHints hints) {
+		hints.reflection().registerTypes(getDefaultAuthenticationExceptionEventPublisherTypes(),
+				(builder) -> builder.withMembers(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS));
 	}
 
 	private List<TypeReference> getDefaultAuthenticationExceptionEventPublisherTypes() {
