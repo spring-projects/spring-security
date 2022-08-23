@@ -45,7 +45,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link RememberMeAuthenticationFilter}.
@@ -151,7 +151,7 @@ public class RememberMeAuthenticationFilterTests {
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
 		// Should return after success handler is invoked, so chain should not proceed
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 	}
 
 	@Test

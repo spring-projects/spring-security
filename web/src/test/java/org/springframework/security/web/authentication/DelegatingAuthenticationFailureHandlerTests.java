@@ -35,7 +35,7 @@ import org.springframework.security.core.AuthenticationException;
 
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Test class for
@@ -77,7 +77,7 @@ public class DelegatingAuthenticationFailureHandlerTests {
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
 		AuthenticationException exception = new AccountExpiredException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-		verifyZeroInteractions(this.handler1, this.handler2);
+		verifyNoMoreInteractions(this.handler1, this.handler2);
 		verify(this.defaultHandler).onAuthenticationFailure(this.request, this.response, exception);
 	}
 
@@ -88,7 +88,7 @@ public class DelegatingAuthenticationFailureHandlerTests {
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
 		AuthenticationException exception = new BadCredentialsException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-		verifyZeroInteractions(this.handler2, this.defaultHandler);
+		verifyNoMoreInteractions(this.handler2, this.defaultHandler);
 		verify(this.handler1).onAuthenticationFailure(this.request, this.response, exception);
 	}
 
@@ -100,7 +100,7 @@ public class DelegatingAuthenticationFailureHandlerTests {
 		this.handler = new DelegatingAuthenticationFailureHandler(this.handlers, this.defaultHandler);
 		AuthenticationException exception = new CredentialsExpiredException("");
 		this.handler.onAuthenticationFailure(this.request, this.response, exception);
-		verifyZeroInteractions(this.handler1, this.defaultHandler);
+		verifyNoMoreInteractions(this.handler1, this.defaultHandler);
 		verify(this.handler2).onAuthenticationFailure(this.request, this.response, exception);
 	}
 

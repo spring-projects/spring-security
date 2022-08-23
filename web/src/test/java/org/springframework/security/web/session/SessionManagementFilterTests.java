@@ -43,7 +43,6 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * @author Luke Taylor
@@ -76,7 +75,7 @@ public class SessionManagementFilterTests {
 		HttpServletRequest request = new MockHttpServletRequest();
 		authenticateUser();
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-		verifyZeroInteractions(strategy);
+		verifyNoMoreInteractions(strategy);
 	}
 
 	@Test
@@ -86,7 +85,7 @@ public class SessionManagementFilterTests {
 		SessionManagementFilter filter = new SessionManagementFilter(repo, strategy);
 		HttpServletRequest request = new MockHttpServletRequest();
 		filter.doFilter(request, new MockHttpServletResponse(), new MockFilterChain());
-		verifyZeroInteractions(strategy);
+		verifyNoMoreInteractions(strategy);
 	}
 
 	@Test
@@ -121,7 +120,7 @@ public class SessionManagementFilterTests {
 		willThrow(exception).given(strategy).onAuthentication(SecurityContextHolder.getContext().getAuthentication(),
 				request, response);
 		filter.doFilter(request, response, fc);
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 		verify(failureHandler).onAuthenticationFailure(request, response, exception);
 	}
 
@@ -146,7 +145,7 @@ public class SessionManagementFilterTests {
 		filter.setInvalidSessionStrategy(iss);
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/timedOut");
 	}
 
@@ -172,7 +171,7 @@ public class SessionManagementFilterTests {
 		filter.setInvalidSessionStrategy(iss);
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/requested");
 	}
 

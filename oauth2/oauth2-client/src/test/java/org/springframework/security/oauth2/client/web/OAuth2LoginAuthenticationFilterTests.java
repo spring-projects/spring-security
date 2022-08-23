@@ -69,7 +69,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link OAuth2LoginAuthenticationFilter}.
@@ -310,7 +310,7 @@ public class OAuth2LoginAuthenticationFilterTests {
 		this.setUpAuthorizationRequest(request, response, this.registration2, state);
 		this.setUpAuthenticationResult(this.registration2);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		verify(this.filter).attemptAuthentication(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 

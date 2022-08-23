@@ -42,7 +42,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -88,7 +88,7 @@ public class AuthenticationWebFilterTests {
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
@@ -99,7 +99,7 @@ public class AuthenticationWebFilterTests {
 		EntityExchangeResult<String> result = client.get().uri("/").exchange().expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
-		verifyZeroInteractions(this.authenticationManagerResolver);
+		verifyNoMoreInteractions(this.authenticationManagerResolver);
 		assertThat(result.getResponseCookies()).isEmpty();
 	}
 
@@ -162,7 +162,7 @@ public class AuthenticationWebFilterTests {
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody(String.class)
 				.consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok")).returnResult();
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
+		verifyNoMoreInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
 	}
 
 	@Test
@@ -171,7 +171,7 @@ public class AuthenticationWebFilterTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
+		verifyNoMoreInteractions(this.authenticationManager, this.successHandler, this.failureHandler);
 	}
 
 	@Test
@@ -185,7 +185,7 @@ public class AuthenticationWebFilterTests {
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody().isEmpty();
 		verify(this.successHandler).onAuthenticationSuccess(any(), eq(authentication.block()));
 		verify(this.securityContextRepository).save(any(), any());
-		verifyZeroInteractions(this.failureHandler);
+		verifyNoMoreInteractions(this.failureHandler);
 	}
 
 	@Test
@@ -196,7 +196,7 @@ public class AuthenticationWebFilterTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.successHandler, this.failureHandler);
+		verifyNoMoreInteractions(this.successHandler, this.failureHandler);
 	}
 
 	@Test
@@ -208,7 +208,7 @@ public class AuthenticationWebFilterTests {
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"))
 				.returnResult();
 		assertThat(result.getResponseCookies()).isEmpty();
-		verifyZeroInteractions(this.authenticationConverter, this.authenticationManager, this.successHandler);
+		verifyNoMoreInteractions(this.authenticationConverter, this.authenticationManager, this.successHandler);
 	}
 
 	@Test
@@ -222,7 +222,7 @@ public class AuthenticationWebFilterTests {
 		client.get().uri("/").exchange().expectStatus().isOk().expectBody().isEmpty();
 		verify(this.failureHandler).onAuthenticationFailure(any(), any());
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.successHandler);
+		verifyNoMoreInteractions(this.successHandler);
 	}
 
 	@Test
@@ -233,7 +233,7 @@ public class AuthenticationWebFilterTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(this.filter).build();
 		client.get().uri("/").exchange().expectStatus().is5xxServerError().expectBody().isEmpty();
 		verify(this.securityContextRepository, never()).save(any(), any());
-		verifyZeroInteractions(this.successHandler, this.failureHandler);
+		verifyNoMoreInteractions(this.successHandler, this.failureHandler);
 	}
 
 	@Test

@@ -53,7 +53,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Sergey Bespalov
@@ -97,7 +97,7 @@ public class AuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -110,7 +110,7 @@ public class AuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(this.authenticationManagerResolver);
+		verifyNoMoreInteractions(this.authenticationManagerResolver);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -208,7 +208,7 @@ public class AuthenticationFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/");
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, new MockHttpServletResponse(), chain);
-		verifyZeroInteractions(this.authenticationManagerResolver);
+		verifyNoMoreInteractions(this.authenticationManagerResolver);
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
@@ -227,7 +227,7 @@ public class AuthenticationFilterTests {
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, response, chain);
 		verify(this.successHandler).onAuthenticationSuccess(any(), any(), any(), eq(authentication));
-		verifyZeroInteractions(this.failureHandler);
+		verifyNoMoreInteractions(this.failureHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 	}
 
@@ -244,7 +244,7 @@ public class AuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain));
-		verifyZeroInteractions(this.successHandler);
+		verifyNoMoreInteractions(this.successHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
@@ -258,7 +258,7 @@ public class AuthenticationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(this.authenticationConverter, this.authenticationManagerResolver, this.successHandler);
+		verifyNoMoreInteractions(this.authenticationConverter, this.authenticationManagerResolver, this.successHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
 	}
 
