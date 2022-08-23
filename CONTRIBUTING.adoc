@@ -43,9 +43,12 @@ If you're considering anything more than correcting a typo or fixing a minor bug
 
 If you have not previously done so, please fill out and submit the https://cla.pivotal.io/sign/spring[Contributor License Agreement].
 
-= Create your branch from main
+= Create your branch from oldest maintenance branch
 
-Create your topic branch to be submitted as a pull request from main. The Spring team will consider your pull request for backporting on a case-by-case basis; you don't need to worry about submitting anything for backporting.
+Create your topic branch to be submitted as a pull request from the oldest impacted and supported maintenance branch.
+You can find the supported versions by looking at the https://github.com/spring-projects/spring-security/milestones[milestones page].
+Switch to a branch named `<major>.<minor>.x` from the smallest milestone in the format of `<major>.<minor>.<patch>(-<prerelease>)`.
+The spring team will ensure the code gets merged forward into additional branches.
 
 = Use short branch names
 
