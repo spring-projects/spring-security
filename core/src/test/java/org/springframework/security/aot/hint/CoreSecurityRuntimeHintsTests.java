@@ -26,10 +26,12 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
+import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -92,6 +94,20 @@ class CoreSecurityRuntimeHintsTests {
 	void exceptionEventsHasHints(Class<? extends AbstractAuthenticationEvent> event) {
 		assertThat(RuntimeHintsPredicates.reflection().onType(event)
 				.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	@Test
+	void methodSecurityExpressionRootHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection()
+				.onType(TypeReference
+						.of("org.springframework.security.access.expression.method.MethodSecurityExpressionRoot"))
+				.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
+	}
+
+	@Test
+	void abstractAuthenticationTokenHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(AbstractAuthenticationToken.class)
+				.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
 	}
 
 	private static Stream<Class<? extends AbstractAuthenticationEvent>> getAuthenticationEvents() {

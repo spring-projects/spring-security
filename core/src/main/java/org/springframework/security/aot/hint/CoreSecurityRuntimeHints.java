@@ -25,6 +25,7 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -54,7 +55,16 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		registerExceptionEventsHints(hints);
 		registerExpressionEvaluationHints(hints);
+		registerMethodSecurityHints(hints);
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
+	}
+
+	private void registerMethodSecurityHints(RuntimeHints hints) {
+		hints.reflection().registerType(
+				TypeReference.of("org.springframework.security.access.expression.method.MethodSecurityExpressionRoot"),
+				(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+		hints.reflection().registerType(AbstractAuthenticationToken.class,
+				(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
 	}
 
 	private void registerExpressionEvaluationHints(RuntimeHints hints) {
