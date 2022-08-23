@@ -117,7 +117,7 @@ config = YAML.load_file(File.join(Dir.home, '.spring-boot', 'forward-merge.yml')
 username = config['github']['credentials']['username']
 password = config['github']['credentials']['password']
 dry_run = config['dry_run']
-repository = 'spring-project/spring-security'
+repository = 'spring-projects/spring-security'
 
 forward_merges.each do |forward_merge|
   existing_issue = get_issue(username, password, repository, forward_merge.issue)
