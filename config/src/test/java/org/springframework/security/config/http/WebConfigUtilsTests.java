@@ -23,7 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.beans.factory.xml.ParserContext;
 
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @ExtendWith(MockitoExtension.class)
 public class WebConfigUtilsTests {
@@ -38,7 +38,7 @@ public class WebConfigUtilsTests {
 	public void validateHttpRedirectSpELNoParserWarning() {
 		WebConfigUtils.validateHttpRedirect("#{T(org.springframework.security.config.http.WebConfigUtilsTest).URL}",
 				this.parserContext, "fakeSource");
-		verifyZeroInteractions(this.parserContext);
+		verifyNoMoreInteractions(this.parserContext);
 	}
 
 }

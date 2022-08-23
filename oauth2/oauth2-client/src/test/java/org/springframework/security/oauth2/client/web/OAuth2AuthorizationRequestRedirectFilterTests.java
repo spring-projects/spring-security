@@ -56,7 +56,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link OAuth2AuthorizationRequestRedirectFilter}.
@@ -150,7 +150,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}
@@ -164,7 +164,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
@@ -182,7 +182,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		verify(authorizationRequestRepository).saveAuthorizationRequest(any(OAuth2AuthorizationRequest.class),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -230,7 +230,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id");
@@ -268,7 +268,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 		filter.doFilter(request, response, filterChain);
 		verify(filterChain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.value());
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
 	}
@@ -294,7 +294,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		given(resolver.resolve(any())).willReturn(result);
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 		filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&"
@@ -335,7 +335,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		given(resolver.resolve(any())).willReturn(result);
 		OAuth2AuthorizationRequestRedirectFilter filter = new OAuth2AuthorizationRequestRedirectFilter(resolver);
 		filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=code&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/login/oauth2/code/registration-id&"
@@ -360,7 +360,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		};
 		this.filter.setAuthorizationRedirectStrategy(customRedirectStrategy);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
 		assertThat(response.getContentType()).isEqualTo(MediaType.TEXT_PLAIN_VALUE);
 		assertThat(response.getContentAsString(StandardCharsets.UTF_8))

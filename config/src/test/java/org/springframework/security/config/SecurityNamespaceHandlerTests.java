@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
@@ -89,7 +89,7 @@ public class SecurityNamespaceHandlerTests {
 		ReflectionTestUtils.setField(handler, "logger", logger);
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		handler.init();
-		verifyZeroInteractions(logger);
+		verifyNoMoreInteractions(logger);
 	}
 
 	@Test

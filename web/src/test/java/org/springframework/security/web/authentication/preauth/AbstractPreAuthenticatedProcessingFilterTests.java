@@ -52,7 +52,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -171,7 +171,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(am);
+		verifyNoMoreInteractions(am);
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(am);
+		verifyNoMoreInteractions(am);
 	}
 
 	@Test
@@ -294,7 +294,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(am);
+		verifyNoMoreInteractions(am);
 	}
 
 	@Test
@@ -359,7 +359,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(am);
+		verifyNoMoreInteractions(am);
 	}
 
 	@Test
@@ -373,7 +373,7 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.setAuthenticationManager(am);
 		filter.afterPropertiesSet();
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(am);
+		verifyNoMoreInteractions(am);
 	}
 
 	@Test

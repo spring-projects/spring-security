@@ -36,7 +36,7 @@ import org.springframework.web.servlet.handler.RequestMatchResult;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -161,7 +161,7 @@ public class MvcRequestMatcherTests {
 		this.matcher.setMethod(HttpMethod.POST);
 		assertThat(this.matcher.matches(this.request)).isFalse();
 		// method compare should be done first since faster
-		verifyZeroInteractions(this.introspector);
+		verifyNoMoreInteractions(this.introspector);
 	}
 
 	/**
@@ -175,7 +175,7 @@ public class MvcRequestMatcherTests {
 		this.request.setMethod("invalid");
 		assertThat(this.matcher.matches(this.request)).isFalse();
 		// method compare should be done first since faster
-		verifyZeroInteractions(this.introspector);
+		verifyNoMoreInteractions(this.introspector);
 	}
 
 	@Test

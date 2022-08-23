@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -284,7 +284,7 @@ public class ExceptionTranslationFilterTests {
 		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain))
 				.withCauseInstanceOf(AccessDeniedException.class);
-		verifyZeroInteractions(this.mockEntryPoint);
+		verifyNoMoreInteractions(this.mockEntryPoint);
 	}
 
 	@Test

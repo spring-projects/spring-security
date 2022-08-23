@@ -45,7 +45,6 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.atLeastOnce;
@@ -104,7 +103,7 @@ public class DefaultFilterChainValidatorTests {
 	@Test
 	public void validateCheckLoginPageIsntProtectedThrowsIllegalArgumentException() {
 		IllegalArgumentException toBeThrown = new IllegalArgumentException("failed to eval expression");
-		willThrow(toBeThrown).given(this.accessDecisionManager).decide(any(Authentication.class), anyObject(),
+		willThrow(toBeThrown).given(this.accessDecisionManager).decide(any(Authentication.class), any(),
 				any(Collection.class));
 		this.validator.validate(this.chain);
 		verify(this.logger).info(

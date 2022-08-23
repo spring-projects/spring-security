@@ -34,7 +34,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
@@ -68,7 +68,7 @@ public class AclPermissionCacheOptimizerTests {
 		pco.setObjectIdentityRetrievalStrategy(oids);
 		pco.setSidRetrievalStrategy(sids);
 		pco.cachePermissionsFor(mock(Authentication.class), Collections.emptyList());
-		verifyZeroInteractions(service, sids, oids);
+		verifyNoMoreInteractions(service, sids, oids);
 	}
 
 }

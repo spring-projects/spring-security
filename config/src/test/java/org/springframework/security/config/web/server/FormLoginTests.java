@@ -53,7 +53,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -294,7 +294,7 @@ public class FormLoginTests {
 				.submit(HomePage.class);
 		// @formatter:on
 		homePage.assertAt();
-		verifyZeroInteractions(defaultAuthenticationManager);
+		verifyNoMoreInteractions(defaultAuthenticationManager);
 	}
 
 	@Test

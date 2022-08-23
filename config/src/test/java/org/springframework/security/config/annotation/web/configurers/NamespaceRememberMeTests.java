@@ -57,7 +57,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -129,7 +129,7 @@ public class NamespaceRememberMeTests {
 		AuthSuccessConfig.SUCCESS_HANDLER = mock(AuthenticationSuccessHandler.class);
 		this.spring.register(AuthSuccessConfig.class).autowire();
 		MvcResult result = this.mvc.perform(post("/login").with(rememberMeLogin())).andReturn();
-		verifyZeroInteractions(AuthSuccessConfig.SUCCESS_HANDLER);
+		verifyNoMoreInteractions(AuthSuccessConfig.SUCCESS_HANDLER);
 		Cookie rememberMe = result.getResponse().getCookie("remember-me");
 		assertThat(rememberMe).isNotNull();
 		this.mvc.perform(get("/somewhere").cookie(rememberMe));
