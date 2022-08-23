@@ -61,7 +61,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link DaoAuthenticationProvider}.
@@ -302,7 +302,7 @@ public class DaoAuthenticationProviderTests {
 		given(encoder.matches(any(), any())).willReturn(false);
 		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> provider.authenticate(token));
-		verifyZeroInteractions(passwordManager);
+		verifyNoMoreInteractions(passwordManager);
 	}
 
 	@Test
@@ -321,7 +321,7 @@ public class DaoAuthenticationProviderTests {
 		given(encoder.upgradeEncoding(any())).willReturn(false);
 		given(userDetailsService.loadUserByUsername(any())).willReturn(user);
 		Authentication result = provider.authenticate(token);
-		verifyZeroInteractions(passwordManager);
+		verifyNoMoreInteractions(passwordManager);
 	}
 
 	@Test

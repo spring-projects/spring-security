@@ -31,7 +31,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -81,7 +81,7 @@ public class LazyCsrfTokenRepositoryTests {
 	@Test
 	public void saveNonNullDoesNothing() {
 		this.repository.saveToken(this.token, this.request, this.response);
-		verifyZeroInteractions(this.delegate);
+		verifyNoMoreInteractions(this.delegate);
 	}
 
 	@Test

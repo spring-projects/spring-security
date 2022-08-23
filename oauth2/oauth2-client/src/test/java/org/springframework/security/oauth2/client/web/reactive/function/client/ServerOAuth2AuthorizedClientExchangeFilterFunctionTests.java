@@ -114,7 +114,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -822,7 +822,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		// @formatter:on
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
-		verifyZeroInteractions(this.clientRegistrationRepository, this.authorizedClientRepository);
+		verifyNoMoreInteractions(this.clientRegistrationRepository, this.authorizedClientRepository);
 	}
 
 	@Test

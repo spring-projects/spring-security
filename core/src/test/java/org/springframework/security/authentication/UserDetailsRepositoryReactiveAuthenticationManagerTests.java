@@ -42,7 +42,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -128,7 +128,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 				this.user.getPassword());
 		assertThatExceptionOfType(BadCredentialsException.class)
 				.isThrownBy(() -> this.manager.authenticate(token).block());
-		verifyZeroInteractions(this.userDetailsPasswordService);
+		verifyNoMoreInteractions(this.userDetailsPasswordService);
 	}
 
 	@Test
@@ -141,7 +141,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		Authentication result = this.manager.authenticate(token).block();
-		verifyZeroInteractions(this.userDetailsPasswordService);
+		verifyNoMoreInteractions(this.userDetailsPasswordService);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class UserDetailsRepositoryReactiveAuthenticationManagerTests {
 		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated(this.user,
 				this.user.getPassword());
 		this.manager.authenticate(token).block();
-		verifyZeroInteractions(this.postAuthenticationChecks);
+		verifyNoMoreInteractions(this.postAuthenticationChecks);
 	}
 
 	@Test

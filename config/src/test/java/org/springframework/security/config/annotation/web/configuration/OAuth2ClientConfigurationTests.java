@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -102,7 +102,7 @@ public class OAuth2ClientConfigurationTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("resolved"));
 		// @formatter:on
-		verifyZeroInteractions(accessTokenResponseClient);
+		verifyNoMoreInteractions(accessTokenResponseClient);
 	}
 
 	@Test

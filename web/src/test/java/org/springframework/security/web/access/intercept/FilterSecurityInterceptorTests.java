@@ -52,7 +52,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link FilterSecurityInterceptor}.
@@ -137,7 +137,7 @@ public class FilterSecurityInterceptorTests {
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
 		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.interceptor.invoke(fi));
-		verifyZeroInteractions(aim);
+		verifyNoMoreInteractions(aim);
 	}
 
 	// SEC-1967

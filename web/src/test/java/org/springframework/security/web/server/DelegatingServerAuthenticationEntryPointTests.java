@@ -34,7 +34,7 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -71,7 +71,7 @@ public class DelegatingServerAuthenticationEntryPointTests {
 				new DelegateEntry(this.matcher2, this.delegate2));
 		Mono<Void> actualResult = this.entryPoint.commence(this.exchange, this.e);
 		actualResult.block();
-		verifyZeroInteractions(this.delegate1);
+		verifyNoMoreInteractions(this.delegate1);
 		verify(this.delegate2).commence(this.exchange, this.e);
 	}
 
@@ -82,7 +82,7 @@ public class DelegatingServerAuthenticationEntryPointTests {
 				new DelegateEntry(this.matcher1, this.delegate1));
 		this.entryPoint.commence(this.exchange, this.e).block();
 		assertThat(this.exchange.getResponse().getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-		verifyZeroInteractions(this.delegate1);
+		verifyNoMoreInteractions(this.delegate1);
 	}
 
 }

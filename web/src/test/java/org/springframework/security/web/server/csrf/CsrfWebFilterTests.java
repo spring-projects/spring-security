@@ -41,7 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -164,7 +164,7 @@ public class CsrfWebFilterTests {
 		MockServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.post("/post").build());
 		CsrfWebFilter.skipExchange(exchange);
 		this.csrfFilter.filter(exchange, this.chain).block();
-		verifyZeroInteractions(matcher);
+		verifyNoMoreInteractions(matcher);
 	}
 
 	@Test

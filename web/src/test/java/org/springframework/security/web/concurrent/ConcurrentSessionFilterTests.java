@@ -51,7 +51,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link ConcurrentSessionFilter}.
@@ -110,7 +110,7 @@ public class ConcurrentSessionFilterTests {
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
 		// Expect that the filter chain will not be invoked, as we redirect to expiredUrl
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/expired.jsp");
 	}
 
@@ -127,7 +127,7 @@ public class ConcurrentSessionFilterTests {
 		ConcurrentSessionFilter filter = new ConcurrentSessionFilter(registry);
 		FilterChain fc = mock(FilterChain.class);
 		filter.doFilter(request, response, fc);
-		verifyZeroInteractions(fc);
+		verifyNoMoreInteractions(fc);
 		assertThat(response.getContentAsString())
 				.isEqualTo("This session has been expired (possibly due to multiple concurrent logins being "
 						+ "attempted as the same user).");

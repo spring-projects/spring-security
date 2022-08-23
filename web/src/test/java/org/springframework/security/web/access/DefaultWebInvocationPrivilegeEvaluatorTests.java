@@ -36,7 +36,6 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyObject;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
@@ -76,14 +75,14 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	@Test
 	public void permitsAccessIfNoMatchingAttributesAndPublicInvocationsAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		given(this.ods.getAttributes(anyObject())).willReturn(null);
+		given(this.ods.getAttributes(any())).willReturn(null);
 		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isTrue();
 	}
 
 	@Test
 	public void deniesAccessIfNoMatchingAttributesAndPublicInvocationsNotAllowed() {
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		given(this.ods.getAttributes(anyObject())).willReturn(null);
+		given(this.ods.getAttributes(any())).willReturn(null);
 		this.interceptor.setRejectPublicInvocations(true);
 		assertThat(wipe.isAllowed("/context", "/foo/index.jsp", "GET", mock(Authentication.class))).isFalse();
 	}
@@ -106,8 +105,7 @@ public class DefaultWebInvocationPrivilegeEvaluatorTests {
 	public void deniesAccessIfAccessDecisionManagerDoes() {
 		Authentication token = new TestingAuthenticationToken("test", "Password", "MOCK_INDEX");
 		DefaultWebInvocationPrivilegeEvaluator wipe = new DefaultWebInvocationPrivilegeEvaluator(this.interceptor);
-		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), anyObject(),
-				anyList());
+		willThrow(new AccessDeniedException("")).given(this.adm).decide(any(Authentication.class), any(), anyList());
 		assertThat(wipe.isAllowed("/foo/index.jsp", token)).isFalse();
 	}
 

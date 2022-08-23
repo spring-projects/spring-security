@@ -66,7 +66,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -191,7 +191,7 @@ public class PayloadInterceptorRSocketTests {
 				.isThrownBy(() -> interceptor.requestResponse(this.payload).block()).isEqualTo(expected);
 		verify(this.interceptor).intercept(this.exchange.capture(), any());
 		assertThat(this.exchange.getValue().getPayload()).isEqualTo(this.payload);
-		verifyZeroInteractions(this.delegate);
+		verifyNoMoreInteractions(this.delegate);
 	}
 
 	@Test
@@ -442,7 +442,7 @@ public class PayloadInterceptorRSocketTests {
 				.isThrownBy(() -> interceptor.fireAndForget(this.payload).block()).isEqualTo(expected);
 		verify(this.interceptor).intercept(this.exchange.capture(), any());
 		assertThat(this.exchange.getValue().getPayload()).isEqualTo(this.payload);
-		verifyZeroInteractions(this.interceptor2);
+		verifyNoMoreInteractions(this.interceptor2);
 		this.voidResult.assertWasNotSubscribed();
 	}
 

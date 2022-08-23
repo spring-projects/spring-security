@@ -85,7 +85,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -409,7 +409,7 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
 		// @formatter:on
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 	}
 
 	@Test
@@ -438,7 +438,7 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
 		// @formatter:on
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 		verify(customAuthenticationManager).authenticate(any(Authentication.class));
 	}
 

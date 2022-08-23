@@ -52,7 +52,7 @@ import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
@@ -108,7 +108,7 @@ public class FilterChainProxyTests {
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		assertThat(this.fcp.getFilterChains()).hasSize(1);
 		assertThat(this.fcp.getFilterChains().get(0).getFilters().get(0)).isSameAs(this.filter);
-		verifyZeroInteractions(this.filter);
+		verifyNoMoreInteractions(this.filter);
 		// The actual filter chain should be invoked though
 		verify(this.chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -146,7 +146,7 @@ public class FilterChainProxyTests {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(false);
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(this.matcher).matches(any(FirewalledRequest.class));
-		verifyZeroInteractions(this.filter);
+		verifyNoMoreInteractions(this.filter);
 		verify(this.chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
 	}
 

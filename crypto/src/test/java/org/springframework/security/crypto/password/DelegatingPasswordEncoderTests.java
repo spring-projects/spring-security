@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -150,7 +150,7 @@ public class DelegatingPasswordEncoderTests {
 		this.passwordEncoder.setDefaultPasswordEncoderForMatches(this.invalidId);
 		assertThat(this.passwordEncoder.matches(this.rawPassword, encodedPassword)).isFalse();
 		verify(this.invalidId).matches(this.rawPassword, encodedPassword);
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -170,7 +170,7 @@ public class DelegatingPasswordEncoderTests {
 		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.bcryptEncodedPassword)).isTrue();
 		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
-		verifyZeroInteractions(this.noop);
+		verifyNoMoreInteractions(this.noop);
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class DelegatingPasswordEncoderTests {
 		given(this.bcrypt.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 		assertThat(this.onlySuffixPasswordEncoder.matches(this.rawPassword, "bcrypt$" + this.encodedPassword)).isTrue();
 		verify(this.bcrypt).matches(this.rawPassword, this.encodedPassword);
-		verifyZeroInteractions(this.noop);
+		verifyNoMoreInteractions(this.noop);
 	}
 
 	@Test
@@ -186,7 +186,7 @@ public class DelegatingPasswordEncoderTests {
 		given(this.noop.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.noopEncodedPassword)).isTrue();
 		verify(this.noop).matches(this.rawPassword, this.encodedPassword);
-		verifyZeroInteractions(this.bcrypt);
+		verifyNoMoreInteractions(this.bcrypt);
 	}
 
 	@Test
@@ -194,7 +194,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{unmapped}" + this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"unmapped\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -202,7 +202,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{bcrypt" + this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -210,7 +210,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "bcrypt}" + this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -218,7 +218,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.passwordEncoder.matches(this.rawPassword, "{}" + this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -228,7 +228,7 @@ public class DelegatingPasswordEncoderTests {
 						() -> this.passwordEncoder.matches(this.rawPassword, "invalid" + this.bcryptEncodedPassword))
 				.isInstanceOf(IllegalArgumentException.class)
 				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -238,7 +238,7 @@ public class DelegatingPasswordEncoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> passwordEncoder.matches(this.rawPassword, this.rawPassword))
 				.withMessage("There is no PasswordEncoder mapped for the id \"null\"");
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -248,7 +248,7 @@ public class DelegatingPasswordEncoderTests {
 		given(this.invalidId.matches(this.rawPassword, this.encodedPassword)).willReturn(true);
 		assertThat(this.passwordEncoder.matches(this.rawPassword, this.encodedPassword)).isTrue();
 		verify(this.invalidId).matches(this.rawPassword, this.encodedPassword);
-		verifyZeroInteractions(this.bcrypt, this.noop);
+		verifyNoMoreInteractions(this.bcrypt, this.noop);
 	}
 
 	@Test
@@ -287,7 +287,7 @@ public class DelegatingPasswordEncoderTests {
 	@Test
 	public void upgradeEncodingWhenDifferentIdThenTrue() {
 		assertThat(this.passwordEncoder.upgradeEncoding(this.noopEncodedPassword)).isTrue();
-		verifyZeroInteractions(this.bcrypt);
+		verifyNoMoreInteractions(this.bcrypt);
 	}
 
 }

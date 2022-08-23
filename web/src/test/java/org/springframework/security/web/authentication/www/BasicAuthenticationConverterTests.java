@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Sergey Bespalov
@@ -79,7 +79,7 @@ public class BasicAuthenticationConverterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("Authorization", "Bearer someOtherToken");
 		UsernamePasswordAuthenticationToken authentication = this.converter.convert(request);
-		verifyZeroInteractions(this.authenticationDetailsSource);
+		verifyNoMoreInteractions(this.authenticationDetailsSource);
 		assertThat(authentication).isNull();
 	}
 
