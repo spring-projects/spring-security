@@ -41,6 +41,7 @@ import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -116,7 +117,11 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
 		}
 		if (StringUtils.hasText(this.requestAttributeName)) {
-			builder.addPropertyValue("csrfRequestAttributeName", this.requestAttributeName);
+			BeanDefinition csrfTokenRequestProcessor = BeanDefinitionBuilder
+					.rootBeanDefinition(CsrfTokenRequestProcessor.class)
+					.addPropertyValue("csrfRequestAttributeName", this.requestAttributeName).getBeanDefinition();
+			builder.addPropertyValue("requestAttributeHandler", csrfTokenRequestProcessor);
+			builder.addPropertyValue("requestResolver", csrfTokenRequestProcessor);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;

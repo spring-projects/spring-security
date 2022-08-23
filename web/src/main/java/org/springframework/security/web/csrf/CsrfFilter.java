@@ -94,9 +94,9 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.tokenRepository = csrfTokenRepository;
-		DefaultCsrfTokenRequestHandler csrfTokenRequestHandler = new DefaultCsrfTokenRequestHandler();
-		this.requestAttributeHandler = csrfTokenRequestHandler;
-		this.requestResolver = csrfTokenRequestHandler;
+		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
+		this.requestAttributeHandler = csrfTokenRequestProcessor;
+		this.requestResolver = csrfTokenRequestProcessor;
 	}
 
 	@Override
@@ -123,7 +123,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String actualToken = this.requestResolver.resolve(request, csrfToken);
+		String actualToken = this.requestResolver.resolveCsrfTokenValue(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
@@ -172,7 +172,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	/**
 	 * TODO
-	 *
 	 * @param requestAttributeHandler
 	 * @since 5.8
 	 */
@@ -182,7 +181,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	/**
 	 * TODO
-	 *
 	 * @param requestResolver
 	 * @since 5.8
 	 */

@@ -39,7 +39,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final CsrfTokenRequestAttributeHandler requestAttributeHandler = new DefaultCsrfTokenRequestHandler();
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestProcessor();
 
 	private final CsrfTokenRepository csrfTokenRepository;
 
@@ -50,6 +50,14 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	public CsrfAuthenticationStrategy(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.csrfTokenRepository = csrfTokenRepository;
+	}
+
+	/**
+	 * TODO
+	 * @param requestAttributeHandler
+	 */
+	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		this.requestAttributeHandler = requestAttributeHandler;
 	}
 
 	@Override

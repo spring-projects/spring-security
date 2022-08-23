@@ -29,11 +29,10 @@ public interface CsrfTokenRequestResolver {
 
 	/**
 	 * TODO
-	 *
 	 * @param request
 	 * @param csrfToken
 	 * @return
 	 */
-	String resolve(HttpServletRequest request, CsrfToken csrfToken);
+	String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken);
 
 }

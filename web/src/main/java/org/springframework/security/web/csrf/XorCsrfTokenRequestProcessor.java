@@ -24,33 +24,21 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.codec.Utf8;
 
 /**
+ * TODO
+ *
  * @author Steve Riesenberg
+ * @since 5.8
  */
-public final class XorCsrfTokenRequestHandler implements CsrfTokenRequestAttributeHandler, CsrfTokenRequestResolver {
-
-	private final DefaultCsrfTokenRequestHandler delegate = new DefaultCsrfTokenRequestHandler();
+public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcessor {
 
 	private SecureRandom secureRandom = new SecureRandom();
 
 	/**
 	 * TODO
-	 *
 	 * @param secureRandom
 	 */
 	public void setSecureRandom(SecureRandom secureRandom) {
 		this.secureRandom = secureRandom;
-	}
-
-	/**
-	 * The {@link CsrfToken} is available as a request attribute named
-	 * {@code CsrfToken.class.getName()}. By default, an additional request attribute that
-	 * is the same as {@link CsrfToken#getParameterName()} is set. This attribute allows
-	 * overriding the additional attribute.
-	 * @param csrfRequestAttributeName the name of an additional request attribute with
-	 * the value of the CsrfToken. Default is {@link CsrfToken#getParameterName()}
-	 */
-	public void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
-		this.delegate.setCsrfRequestAttributeName(csrfRequestAttributeName);
 	}
 
 	@Override
@@ -58,12 +46,12 @@ public final class XorCsrfTokenRequestHandler implements CsrfTokenRequestAttribu
 		String updatedToken = createXoredCsrfToken(csrfToken.getToken());
 		DefaultCsrfToken updatedCsrfToken = new DefaultCsrfToken(csrfToken.getHeaderName(),
 				csrfToken.getParameterName(), updatedToken);
-		this.delegate.handle(request, updatedCsrfToken);
+		super.handle(request, updatedCsrfToken);
 	}
 
 	@Override
-	public String resolve(HttpServletRequest request, CsrfToken csrfToken) {
-		String actualToken = this.delegate.resolve(request, csrfToken);
+	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
 		byte[] actualBytes;
 		try {
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);

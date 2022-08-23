@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Steve Riesenberg
  * @since 5.8
  */
-public final class DefaultCsrfTokenRequestHandler implements CsrfTokenRequestAttributeHandler, CsrfTokenRequestResolver {
+public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandler, CsrfTokenRequestResolver {
 
 	private String csrfRequestAttributeName;
 
@@ -36,7 +36,7 @@ public final class DefaultCsrfTokenRequestHandler implements CsrfTokenRequestAtt
 	 * @param csrfRequestAttributeName the name of an additional request attribute with
 	 * the value of the CsrfToken. Default is {@link CsrfToken#getParameterName()}
 	 */
-	public void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
+	public final void setCsrfRequestAttributeName(String csrfRequestAttributeName) {
 		this.csrfRequestAttributeName = csrfRequestAttributeName;
 	}
 
@@ -49,7 +49,7 @@ public final class DefaultCsrfTokenRequestHandler implements CsrfTokenRequestAtt
 	}
 
 	@Override
-	public String resolve(HttpServletRequest request, CsrfToken csrfToken) {
+	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());

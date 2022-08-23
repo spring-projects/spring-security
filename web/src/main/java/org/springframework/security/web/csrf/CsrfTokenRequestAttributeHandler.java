@@ -29,7 +29,6 @@ public interface CsrfTokenRequestAttributeHandler {
 
 	/**
 	 * TODO
-	 *
 	 * @param request
 	 * @param csrfToken
 	 */
