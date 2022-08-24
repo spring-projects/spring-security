@@ -196,7 +196,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain filterChain = mock(FilterChain.class);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		assertThat(response.getRedirectedUrl()).matches("https://example.com/login/oauth/authorize\\?"
 				+ "response_type=token&client_id=client-id&" + "scope=read:user&state=.{15,}&"
 				+ "redirect_uri=http://localhost/authorize/oauth2/implicit/registration-3");
@@ -214,7 +214,7 @@ public class OAuth2AuthorizationRequestRedirectFilterTests {
 				AuthorizationRequestRepository.class);
 		this.filter.setAuthorizationRequestRepository(authorizationRequestRepository);
 		this.filter.doFilter(request, response, filterChain);
-		verifyZeroInteractions(filterChain);
+		verifyNoMoreInteractions(filterChain);
 		verify(authorizationRequestRepository, times(0)).saveAuthorizationRequest(any(OAuth2AuthorizationRequest.class),
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}

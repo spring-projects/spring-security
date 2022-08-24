@@ -46,7 +46,6 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests {@link CasAuthenticationFilter}.
@@ -177,7 +176,7 @@ public class CasAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull()
 				.withFailMessage("Authentication should not be null");
 		verify(chain).doFilter(request, response);
-		verifyZeroInteractions(successHandler);
+		verifyNoMoreInteractions(successHandler);
 		// validate for when the filterProcessUrl matches
 		filter.setFilterProcessesUrl(request.getServletPath());
 		SecurityContextHolder.clearContext();
@@ -229,7 +228,7 @@ public class CasAuthenticationFilterTests {
 		filter.setProxyGrantingTicketStorage(mock(ProxyGrantingTicketStorage.class));
 		filter.setProxyReceptorUrl(request.getServletPath());
 		filter.doFilter(request, response, chain);
-		verifyZeroInteractions(chain);
+		verifyNoMoreInteractions(chain);
 	}
 
 }
