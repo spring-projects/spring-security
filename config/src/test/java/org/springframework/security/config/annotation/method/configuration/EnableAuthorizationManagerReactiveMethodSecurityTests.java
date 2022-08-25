@@ -28,6 +28,7 @@ import reactor.util.context.Context;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -465,6 +466,7 @@ public class EnableAuthorizationManagerReactiveMethodSecurityTests {
 	}
 
 	@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+	@Configuration
 	static class Config {
 
 		ReactiveMessageService delegate = mock(ReactiveMessageService.class);
