@@ -16,14 +16,17 @@
   -->
 
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:p="http://www.springframework.org/schema/p"
 		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 		 xmlns="http://www.springframework.org/schema/security"
 		 xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http auto-config="true">
-		<csrf request-attribute-name="csrf-attribute-name"/>
+		<csrf request-attribute-handler-ref="requestAttributeHandler"/>
 	</http>
 
+	<b:bean id="requestAttributeHandler" class="org.springframework.security.web.csrf.CsrfTokenRequestProcessor"
+		p:csrfRequestAttributeName="csrf-attribute-name"/>
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
 </b:beans>

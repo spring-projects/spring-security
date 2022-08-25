@@ -41,7 +41,6 @@ import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
-import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -68,19 +67,23 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String DISPATCHER_SERVLET_CLASS_NAME = "org.springframework.web.servlet.DispatcherServlet";
 
-	private static final String ATT_REQUEST_ATTRIBUTE_NAME = "request-attribute-name";
-
 	private static final String ATT_MATCHER = "request-matcher-ref";
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
-	private String requestAttributeName;
+	private static final String ATT_REQUEST_ATTRIBUTE_HANDLER = "request-attribute-handler-ref";
+
+	private static final String ATT_REQUEST_RESOLVER = "request-resolver-ref";
 
 	private String csrfRepositoryRef;
 
 	private BeanDefinition csrfFilter;
 
 	private String requestMatcherRef;
+
+	private String requestAttributeHandlerRef;
+
+	private String requestResolverRef;
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -99,8 +102,9 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		if (element != null) {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
-			this.requestAttributeName = element.getAttribute(ATT_REQUEST_ATTRIBUTE_NAME);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
+			this.requestAttributeHandlerRef = element.getAttribute(ATT_REQUEST_ATTRIBUTE_HANDLER);
+			this.requestResolverRef = element.getAttribute(ATT_REQUEST_RESOLVER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
 			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
@@ -116,12 +120,11 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
 		}
-		if (StringUtils.hasText(this.requestAttributeName)) {
-			BeanDefinition csrfTokenRequestProcessor = BeanDefinitionBuilder
-					.rootBeanDefinition(CsrfTokenRequestProcessor.class)
-					.addPropertyValue("csrfRequestAttributeName", this.requestAttributeName).getBeanDefinition();
-			builder.addPropertyValue("requestAttributeHandler", csrfTokenRequestProcessor);
-			builder.addPropertyValue("requestResolver", csrfTokenRequestProcessor);
+		if (StringUtils.hasText(this.requestAttributeHandlerRef)) {
+			builder.addPropertyReference("requestAttributeHandler", this.requestAttributeHandlerRef);
+		}
+		if (StringUtils.hasText(this.requestResolverRef)) {
+			builder.addPropertyReference("requestResolver", this.requestResolverRef);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,8 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestResolver;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -65,9 +66,7 @@ import org.springframework.util.Assert;
  *
  * <h2>Shared Objects Created</h2>
  *
- * <ul>
- * <li>{@link CsrfTokenRequestProcessor}</li>
- * </ul>
+ * No shared objects are created.
  *
  * <h2>Shared Objects Used</h2>
  *
@@ -91,6 +90,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	private List<RequestMatcher> ignoredCsrfProtectionMatchers = new ArrayList<>();
 
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
+
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler;
+
+	private CsrfTokenRequestResolver requestResolver;
 
 	private final ApplicationContext context;
 
@@ -128,14 +131,23 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets the {@link CsrfTokenRequestProcessor#setCsrfRequestAttributeName(String)}
-	 * @param csrfRequestAttributeName the attribute name to set the CsrfToken on.
-	 * @return the {@link CsrfConfigurer} for further customizations.
+	 * TODO
+	 * @param requestAttributeHandler
+	 * @return
 	 */
-	public CsrfConfigurer<H> csrfRequestAttributeName(String csrfRequestAttributeName) {
-		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
-		csrfTokenRequestProcessor.setCsrfRequestAttributeName(csrfRequestAttributeName);
-		getBuilder().setSharedObject(CsrfTokenRequestProcessor.class, csrfTokenRequestProcessor);
+	public CsrfConfigurer<H> csrfTokenRequestAttributeHandler(
+			CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		this.requestAttributeHandler = requestAttributeHandler;
+		return this;
+	}
+
+	/**
+	 * TODO
+	 * @param requestResolver
+	 * @return
+	 */
+	public CsrfConfigurer<H> csrfTokenRequestResolver(CsrfTokenRequestResolver requestResolver) {
+		this.requestResolver = requestResolver;
 		return this;
 	}
 
@@ -217,11 +229,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@Override
 	public void configure(H http) {
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
-		CsrfTokenRequestProcessor csrfTokenRequestProcessor = getCsrfTokenRequestProcessor();
-		if (csrfTokenRequestProcessor != null) {
-			filter.setRequestAttributeHandler(csrfTokenRequestProcessor);
-			filter.setRequestResolver(csrfTokenRequestProcessor);
-		}
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
@@ -237,6 +244,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
 			sessionConfigurer.addSessionAuthenticationStrategy(getSessionAuthenticationStrategy());
+		}
+		if (this.requestAttributeHandler != null) {
+			filter.setRequestAttributeHandler(this.requestAttributeHandler);
+		}
+		if (this.requestResolver != null) {
+			filter.setRequestResolver(this.requestResolver);
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);
@@ -292,14 +305,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the shared {@link CsrfTokenRequestProcessor} or null if not available.
-	 * @return the {@link CsrfTokenRequestProcessor}
-	 */
-	private CsrfTokenRequestProcessor getCsrfTokenRequestProcessor() {
-		return getBuilder().getSharedObject(CsrfTokenRequestProcessor.class);
-	}
-
-	/**
 	 * Creates the {@link AccessDeniedHandler} from the result of
 	 * {@link #getDefaultAccessDeniedHandler(HttpSecurityBuilder)} and
 	 * {@link #getInvalidSessionStrategy(HttpSecurityBuilder)}. If
@@ -336,9 +341,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 		CsrfAuthenticationStrategy csrfAuthenticationStrategy = new CsrfAuthenticationStrategy(
 				this.csrfTokenRepository);
-		CsrfTokenRequestProcessor csrfTokenRequestProcessor = getCsrfTokenRequestProcessor();
-		if (csrfTokenRequestProcessor != null) {
-			csrfAuthenticationStrategy.setRequestAttributeHandler(csrfTokenRequestProcessor);
+		if (this.requestAttributeHandler != null) {
+			csrfAuthenticationStrategy.setRequestAttributeHandler(this.requestAttributeHandler);
 		}
 		return csrfAuthenticationStrategy;
 	}
