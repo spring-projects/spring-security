@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,37 +17,55 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.AdviceModeImportSelector;
 import org.springframework.context.annotation.AutoProxyRegistrar;
+import org.springframework.context.annotation.ImportSelector;
+import org.springframework.core.type.AnnotationMetadata;
+import org.springframework.lang.NonNull;
 
 /**
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 5.0
  */
-class ReactiveMethodSecuritySelector extends AdviceModeImportSelector<EnableReactiveMethodSecurity> {
+class ReactiveMethodSecuritySelector implements ImportSelector {
+
+	private final ImportSelector autoProxy = new AutoProxyRegistrarSelector();
 
 	@Override
-	protected String[] selectImports(AdviceMode adviceMode) {
-		if (adviceMode == AdviceMode.PROXY) {
-			return getProxyImports();
+	public String[] selectImports(AnnotationMetadata importMetadata) {
+		if (!importMetadata.hasAnnotation(EnableReactiveMethodSecurity.class.getName())) {
+			return new String[0];
 		}
-		throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
+		EnableReactiveMethodSecurity annotation = importMetadata.getAnnotations()
+				.get(EnableReactiveMethodSecurity.class).synthesize();
+		List<String> imports = new ArrayList<>(Arrays.asList(this.autoProxy.selectImports(importMetadata)));
+		if (annotation.useAuthorizationManager()) {
+			imports.add(ReactiveAuthorizationManagerMethodSecurityConfiguration.class.getName());
+		}
+		else {
+			imports.add(ReactiveMethodSecurityConfiguration.class.getName());
+		}
+		return imports.toArray(new String[0]);
 	}
 
-	/**
-	 * Return the imports to use if the {@link AdviceMode} is set to
-	 * {@link AdviceMode#PROXY}.
-	 * <p>
-	 * Take care of adding the necessary JSR-107 import if it is available.
-	 */
-	private String[] getProxyImports() {
-		List<String> result = new ArrayList<>();
-		result.add(AutoProxyRegistrar.class.getName());
-		result.add(ReactiveMethodSecurityConfiguration.class.getName());
-		return result.toArray(new String[0]);
+	private static final class AutoProxyRegistrarSelector
+			extends AdviceModeImportSelector<EnableReactiveMethodSecurity> {
+
+		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
+
+		@Override
+		protected String[] selectImports(@NonNull AdviceMode adviceMode) {
+			if (adviceMode == AdviceMode.PROXY) {
+				return IMPORTS;
+			}
+			throw new IllegalStateException("AdviceMode " + adviceMode + " is not supported");
+		}
+
 	}
 
 }

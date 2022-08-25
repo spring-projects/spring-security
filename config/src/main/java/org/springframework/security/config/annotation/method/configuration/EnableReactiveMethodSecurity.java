@@ -25,6 +25,7 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.Ordered;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 
 /**
  *
@@ -66,5 +67,12 @@ public @interface EnableReactiveMethodSecurity {
 	 * @return the order the security advisor should be applied
 	 */
 	int order() default Ordered.LOWEST_PRECEDENCE;
+
+	/**
+	 * Indicate whether {@link ReactiveAuthorizationManager} based Method Security to be
+	 * used.
+	 * @since 5.8
+	 */
+	boolean useAuthorizationManager() default false;
 
 }

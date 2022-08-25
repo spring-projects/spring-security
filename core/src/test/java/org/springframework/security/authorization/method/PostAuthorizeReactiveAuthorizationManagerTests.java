@@ -21,16 +21,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
+import reactor.core.publisher.Mono;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.intercept.method.MockMethodInvocation;
 import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
@@ -40,24 +39,23 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
- * Tests for {@link PostAuthorizeAuthorizationManager}.
+ * Tests for {@link PostAuthorizeReactiveAuthorizationManager}.
  *
  * @author Evgeniy Cheban
  */
-public class PostAuthorizeAuthorizationManagerTests {
+public class PostAuthorizeReactiveAuthorizationManagerTests {
 
 	@Test
 	public void setExpressionHandlerWhenNotNullThenSetsExpressionHandler() {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		manager.setExpressionHandler(expressionHandler);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager(
+				expressionHandler);
 		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
 	public void setExpressionHandlerWhenNullThenException() {
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		assertThatIllegalArgumentException().isThrownBy(() -> manager.setExpressionHandler(null))
+		assertThatIllegalArgumentException().isThrownBy(() -> new PostAuthorizeReactiveAuthorizationManager(null))
 				.withMessage("expressionHandler cannot be null");
 	}
 
@@ -65,9 +63,9 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void checkDoSomethingWhenNoPostAuthorizeAnnotationThenNullDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomething", new Class[] {}, new Object[] {});
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationDecision decision = manager.check(ReactiveAuthenticationUtils.getAuthentication(), result).block();
 		assertThat(decision).isNull();
 	}
 
@@ -75,9 +73,9 @@ public class PostAuthorizeAuthorizationManagerTests {
 	public void checkDoSomethingStringWhenArgIsGrantThenGrantedDecision() throws Exception {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "grant" });
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		AuthorizationDecision decision = manager.check(ReactiveAuthenticationUtils.getAuthentication(), result).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -87,8 +85,8 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingString", new Class[] { String.class }, new Object[] { "deny" });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
+		AuthorizationDecision decision = manager.check(ReactiveAuthenticationUtils.getAuthentication(), result).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
@@ -99,8 +97,8 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, list);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
+		AuthorizationDecision decision = manager.check(ReactiveAuthenticationUtils.getAuthentication(), result).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
@@ -111,58 +109,66 @@ public class PostAuthorizeAuthorizationManagerTests {
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"doSomethingList", new Class[] { List.class }, new Object[] { list });
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, list);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, result);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
+		AuthorizationDecision decision = manager.check(ReactiveAuthenticationUtils.getAuthentication(), result).block();
 		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
 
 	@Test
 	public void checkRequiresAdminWhenClassAnnotationsThenMethodAnnotationsTakePrecedence() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Mono<Authentication> authentication = Mono
+				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedAdmin");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, result);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
+		AuthorizationDecision decision = manager.check(authentication, result).block();
+		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
-		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, result);
+		authentication = Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_ADMIN"));
+		decision = manager.check(authentication, result).block();
+		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
 	}
 
 	@Test
 	public void checkRequiresUserWhenClassAnnotationsThenApplies() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Mono<Authentication> authentication = Mono
+				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "securedUser");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
-		AuthorizationDecision decision = manager.check(authentication, result);
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
+		AuthorizationDecision decision = manager.check(authentication, result).block();
+		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isTrue();
-		authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_ADMIN");
-		decision = manager.check(authentication, result);
+		authentication = Mono.just(new TestingAuthenticationToken("user", "password", "ROLE_ADMIN"));
+		decision = manager.check(authentication, result).block();
+		assertThat(decision).isNotNull();
 		assertThat(decision.isGranted()).isFalse();
 	}
 
 	@Test
 	public void checkInheritedAnnotationsWhenDuplicatedThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Mono<Authentication> authentication = Mono
+				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
 				"inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, result));
 	}
 
 	@Test
 	public void checkInheritedAnnotationsWhenConflictingThenAnnotationConfigurationException() throws Exception {
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		Mono<Authentication> authentication = Mono
+				.just(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
 		MockMethodInvocation methodInvocation = new MockMethodInvocation(new ClassLevelAnnotations(),
 				ClassLevelAnnotations.class, "inheritedAnnotations");
 		MethodInvocationResult result = new MethodInvocationResult(methodInvocation, null);
-		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+		PostAuthorizeReactiveAuthorizationManager manager = new PostAuthorizeReactiveAuthorizationManager();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> manager.check(authentication, result));
 	}

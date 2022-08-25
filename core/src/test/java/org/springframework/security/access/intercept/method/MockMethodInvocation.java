@@ -38,8 +38,13 @@ public class MockMethodInvocation implements MethodInvocation {
 
 	public MockMethodInvocation(Object targetObject, Class clazz, String methodName, Class... parameterTypes)
 			throws NoSuchMethodException {
-		this.method = clazz.getMethod(methodName, parameterTypes);
+		this(targetObject, clazz.getMethod(methodName, parameterTypes));
 		this.targetObject = targetObject;
+	}
+
+	public MockMethodInvocation(Object targetObject, Method method) {
+		this.targetObject = targetObject;
+		this.method = method;
 	}
 
 	@Override

@@ -6,8 +6,289 @@ The following example shows how to retrieve the currently logged in user's messa
 
 [NOTE]
 ====
-For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`) or the function must be a Kotlin coroutine function.
+For this example to work, the return type of the method must be a `org.reactivestreams.Publisher` (that is, a `Mono` or a `Flux`).
 This is necessary to integrate with Reactor's `Context`.
+====
+
+[[jc-enable-reactive-method-security-authorization-manager]]
+== EnableReactiveMethodSecurity with AuthorizationManager
+
+In Spring Security 5.8, we can enable annotation-based security using the `@EnableReactiveMethodSecurity(useAuthorizationManager=true)` annotation on any `@Configuration` instance.
+
+This improves upon `@EnableReactiveMethodSecurity` in a number of ways. `@EnableReactiveMethodSecurity(useAuthorizationManager=true)`:
+
+1. Uses the simplified `AuthorizationManager` API instead of metadata sources, config attributes, decision managers, and voters.
+This simplifies reuse and customization.
+2. Supports reactive return types. Note that we are waiting on https://github.com/spring-projects/spring-framework/issues/22462[additional coroutine support from the Spring Framework] before adding coroutine support.
+3. Is built using native Spring AOP, removing abstractions and allowing you to use Spring AOP building blocks to customize
+4. Checks for conflicting annotations to ensure an unambiguous security configuration
+5. Complies with JSR-250
+
+[NOTE]
+====
+For earlier versions, please read about similar support with <<jc-enable-reactive-method-security, @EnableReactiveMethodSecurity>>.
+====
+
+For example, the following would enable Spring Security's `@PreAuthorize` annotation:
+
+.Method Security Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager=true)
+public class MethodSecurityConfig {
+	// ...
+}
+----
+====
+
+Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
+Spring Security's native annotation support defines a set of attributes for the method.
+These will be passed to the various method interceptors, like `AuthorizationManagerBeforeReactiveMethodInterceptor`, for it to make the actual decision:
+
+.Method Security Annotation Usage
+====
+.Java
+[source,java,role="primary"]
+----
+public interface BankService {
+	@PreAuthorize("hasRole('USER')")
+	Mono<Account> readAccount(Long id);
+
+	@PreAuthorize("hasRole('USER')")
+	Flux<Account> findAccounts();
+
+	@PreAuthorize("@func.apply(#account)")
+	Mono<Account> post(Account account, Double amount);
+}
+----
+====
+
+In this case `hasRole` refers to the method found in `SecurityExpressionRoot` that gets invoked by the SpEL evaluation engine.
+
+`@bean` refers to a custom component you have defined, where `apply` can return `Boolean` or `Mono<Boolean>` to indicate the authorization decision.
+A bean like that might look something like this:
+
+.Method Security Reactive Boolean Expression
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public Function<Account, Mono<Boolean>> func() {
+    return (account) -> Mono.defer(() -> Mono.just(account.getId().equals(12)));
+}
+----
+====
+
+=== Customizing Authorization
+
+Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
+
+[[jc-reactive-method-security-custom-granted-authority-defaults]]
+
+Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
+You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
+
+.Custom MethodSecurityExpressionHandler
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+	return new GrantedAuthorityDefaults("MYPREFIX_");
+}
+----
+====
+
+[TIP]
+====
+We expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
+[[jc-reactive-method-security-custom-authorization-manager]]
+=== Custom Authorization Managers
+
+Method authorization is a combination of before- and after-method authorization.
+
+[NOTE]
+====
+Before-method authorization is performed before the method is invoked.
+If that authorization denies access, the method is not invoked, and an `AccessDeniedException` is thrown.
+After-method authorization is performed after the method is invoked, but before the method returns to the caller.
+If that authorization denies access, the value is not returned, and an `AccessDeniedException` is thrown
+====
+
+To recreate what adding `@EnableReactiveMethodSecurity(useAuthorizationManager=true)` does by default, you would publish the following configuration:
+
+.Full Pre-post Method Security Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+class MethodSecurityConfig {
+	@Bean
+	BeanDefinitionRegistryPostProcessor aopConfig() {
+		return AopConfigUtils::registerAutoProxyCreatorIfNecessary;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor() {
+		return new PreFilterAuthorizationReactiveMethodInterceptor();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor() {
+		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor() {
+		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize();
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor() {
+		return new PostFilterAuthorizationReactiveMethodInterceptor();
+	}
+}
+----
+====
+
+Notice that Spring Security's method security is built using Spring AOP.
+So, interceptors are invoked based on the order specified.
+This can be customized by calling `setOrder` on the interceptor instances like so:
+
+.Publish Custom Advisor
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+Advisor postFilterAuthorizationMethodInterceptor() {
+	PostFilterAuthorizationMethodInterceptor interceptor = new PostFilterAuthorizationReactiveMethodInterceptor();
+	interceptor.setOrder(AuthorizationInterceptorOrders.POST_AUTHORIZE.getOrder() - 1);
+	return interceptor;
+}
+----
+====
+
+You may want to only support `@PreAuthorize` in your application, in which case you can do the following:
+
+.Only @PreAuthorize Configuration
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+class MethodSecurityConfig {
+	@Bean
+	BeanDefinitionRegistryPostProcessor aopConfig() {
+		return AopConfigUtils::registerAutoProxyCreatorIfNecessary;
+	}
+
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	Advisor preAuthorize() {
+		return AuthorizationManagerBeforeMethodInterceptor.preAuthorize();
+	}
+}
+----
+====
+
+Or, you may have a custom before-method `ReactiveAuthorizationManager` that you want to add to the list.
+
+In this case, you will need to tell Spring Security both the `ReactiveAuthorizationManager` and to which methods and classes your authorization manager applies.
+
+Thus, you can configure Spring Security to invoke your `ReactiveAuthorizationManager` in between `@PreAuthorize` and `@PostAuthorize` like so:
+
+.Custom Before Advisor
+====
+
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager=true)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	public Advisor customAuthorize() {
+		JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+		pattern.setPattern("org.mycompany.myapp.service.*");
+		ReactiveAuthorizationManager<MethodInvocation> rule = AuthorityAuthorizationManager.isAuthenticated();
+		AuthorizationManagerBeforeReactiveMethodInterceptor interceptor = new AuthorizationManagerBeforeReactiveMethodInterceptor(pattern, rule);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+    }
+}
+----
+====
+
+[TIP]
+====
+You can place your interceptor in between Spring Security method interceptors using the order constants specified in `AuthorizationInterceptorsOrder`.
+====
+
+The same can be done for after-method authorization.
+After-method authorization is generally concerned with analysing the return value to verify access.
+
+For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
+
+.@PostAuthorize example
+====
+.Java
+[source,java,role="primary"]
+----
+public interface BankService {
+
+	@PreAuthorize("hasRole('USER')")
+	@PostAuthorize("returnObject.owner == authentication.name")
+	Mono<Account> readAccount(Long id);
+}
+----
+====
+
+You can supply your own `AuthorizationMethodInterceptor` to customize how access to the return value is evaluated.
+
+For example, if you have your own custom annotation, you can configure it like so:
+
+
+.Custom After Advisor
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager=true)
+class MethodSecurityConfig {
+	@Bean
+	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
+	public Advisor customAuthorize(ReactiveAuthorizationManager<MethodInvocationResult> rules) {
+		AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
+		AuthorizationManagerAfterReactiveMethodInterceptor interceptor = new AuthorizationManagerAfterReactiveMethodInterceptor(pattern, rules);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
+		return interceptor;
+	}
+}
+----
+====
+
+and it will be invoked after the `@PostAuthorize` interceptor.
+
+== EnableReactiveMethodSecurity
+
+[WARNING]
+====
+`@EnableReactiveMethodSecurity` also supports Kotlin coroutines, though only to a limited degree.
+When intercepting coroutines, only the first interceptor participates.
+If any other interceptors are present and come after Spring Security's method security interceptor, https://github.com/spring-projects/spring-framework/issues/22462[they will be skipped].
 ====
 
 ====
