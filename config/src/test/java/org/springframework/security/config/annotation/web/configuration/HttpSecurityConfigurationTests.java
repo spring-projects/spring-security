@@ -23,6 +23,7 @@ import java.util.concurrent.Callable;
 
 import com.google.common.net.HttpHeaders;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -54,6 +55,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -192,8 +194,11 @@ public class HttpSecurityConfigurationTests {
 	public void authenticateWhenDefaultFilterChainBeanThenRedirectsToSavedRequest() throws Exception {
 		this.spring.register(SecurityEnabledConfig.class, UserDetailsConfig.class).autowire();
 		// @formatter:off
-		MockHttpSession session = (MockHttpSession) this.mockMvc.perform(get("/messages"))
-				.andReturn()
+		MvcResult mvcResult = this.mockMvc.perform(get("/messages"))
+				.andReturn();
+		HttpServletRequest request = mvcResult.getRequest();
+		HttpServletResponse response = mvcResult.getResponse();
+		MockHttpSession session = (MockHttpSession) mvcResult
 				.getRequest()
 				.getSession();
 		// @formatter:on
@@ -203,10 +208,8 @@ public class HttpSecurityConfigurationTests {
 				.param("password", "password")
 				.session(session)
 				.with(csrf());
-		// @formatter:on
-		// @formatter:off
 		this.mockMvc.perform(loginRequest)
-				.andExpect(redirectedUrl("http://localhost/messages"));
+				.andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 		// @formatter:on
 	}
 

@@ -35,6 +35,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -337,7 +338,7 @@ public class CsrfConfigTests {
 				.session(session)
 				.with(csrf());
 		this.mvc.perform(login)
-				.andExpect(redirectedUrl("http://localhost/authenticated"));
+				.andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 		// @formatter:on
 	}
 

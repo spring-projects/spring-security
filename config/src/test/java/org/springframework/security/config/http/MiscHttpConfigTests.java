@@ -79,6 +79,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
@@ -807,7 +808,7 @@ public class MiscHttpConfigTests {
 				.session(session)
 				.with(csrf());
 		session = (MockHttpSession) this.mvc.perform(loginRequest)
-				.andExpect(redirectedUrl("https://localhost:9443/protected"))
+				.andExpect(RequestCacheResultMatcher.redirectToCachedRequest())
 				.andReturn()
 				.getRequest()
 				.getSession(false);

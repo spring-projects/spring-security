@@ -120,6 +120,21 @@ public class HttpSessionRequestCacheTests {
 		assertThat(matchingRequest).isNotNull();
 	}
 
+	@Test
+	public void getMatchingRequestWhenMatchesThenRemoved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.setMatchingRequestParameterName("success");
+		cache.saveRequest(request, new MockHttpServletResponse());
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setParameter("success", "");
+		requestToMatch.setSession(request.getSession());
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNotNull();
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
+	}
+
 	private static final class CustomSavedRequest implements SavedRequest {
 
 		private final SavedRequest delegate;

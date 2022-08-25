@@ -42,6 +42,8 @@ import org.springframework.security.web.authentication.session.SessionAuthentica
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
@@ -187,9 +189,11 @@ public class CsrfConfigurerTests {
 	public void loginWhenCsrfDisabledThenRedirectsToPreviousPostRequest() throws Exception {
 		this.spring.register(DisableCsrfEnablesRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(post("/to-save")).andReturn();
+		RequestCache requestCache = new HttpSessionRequestCache();
+		String redirectUrl = requestCache.getRequest(mvcResult.getRequest(), mvcResult.getResponse()).getRedirectUrl();
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password")
 				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/to-save"));
+				.andExpect(redirectedUrl(redirectUrl));
 	}
 
 	@Test
@@ -215,9 +219,11 @@ public class CsrfConfigurerTests {
 		given(CsrfDisablesPostRequestFromRequestCacheConfig.REPO.generateToken(any())).willReturn(csrfToken);
 		this.spring.register(CsrfDisablesPostRequestFromRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/some-url")).andReturn();
+		RequestCache requestCache = new HttpSessionRequestCache();
+		String redirectUrl = requestCache.getRequest(mvcResult.getRequest(), mvcResult.getResponse()).getRedirectUrl();
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf())
 				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/some-url"));
+				.andExpect(redirectedUrl(redirectUrl));
 		verify(CsrfDisablesPostRequestFromRequestCacheConfig.REPO, atLeastOnce())
 				.loadToken(any(HttpServletRequest.class));
 	}

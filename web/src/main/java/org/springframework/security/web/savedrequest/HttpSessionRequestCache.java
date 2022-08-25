@@ -52,7 +52,7 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	private String sessionAttrName = SAVED_REQUEST;
 
-	private String matchingRequestParameterName;
+	private String matchingRequestParameterName = "continue";
 
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
@@ -177,7 +177,7 @@ public class HttpSessionRequestCache implements RequestCache {
 	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}
 	 * @param matchingRequestParameterName the parameter name that must be in the request
 	 * for {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} to check
-	 * the session.
+	 * the session. Default is "continue".
 	 */
 	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
 		this.matchingRequestParameterName = matchingRequestParameterName;

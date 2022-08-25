@@ -26,19 +26,21 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class RequestCacheAwareFilterTests {
 
 	@Test
 	public void doFilterWhenHttpSessionRequestCacheConfiguredThenSavedRequestRemovedAfterMatch() throws Exception {
-		RequestCacheAwareFilter filter = new RequestCacheAwareFilter();
-		HttpSessionRequestCache cache = new HttpSessionRequestCache();
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
 		MockHttpServletResponse response = new MockHttpServletResponse();
-		cache.saveRequest(request, response);
-		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		RequestCache requestCache = mock(RequestCache.class);
+		RequestCacheAwareFilter filter = new RequestCacheAwareFilter(requestCache);
+		given(requestCache.getMatchingRequest(request, response)).willReturn(request);
 		filter.doFilter(request, response, new MockFilterChain());
-		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
+		verify(requestCache).getMatchingRequest(request, response);
 	}
 
 	@Test

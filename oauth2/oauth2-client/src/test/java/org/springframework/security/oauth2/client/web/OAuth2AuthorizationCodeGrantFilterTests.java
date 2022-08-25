@@ -57,6 +57,7 @@ import org.springframework.security.oauth2.core.endpoint.TestOAuth2Authorization
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -319,8 +320,9 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(request, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
+		String redirectUrl = requestCache.getRequest(request, response).getRedirectUrl();
 		this.filter.doFilter(request, response, filterChain);
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/saved-request");
+		assertThat(response.getRedirectedUrl()).isEqualTo(redirectUrl);
 	}
 
 	@Test
@@ -331,13 +333,17 @@ public class OAuth2AuthorizationCodeGrantFilterTests {
 		FilterChain filterChain = mock(FilterChain.class);
 		this.setUpAuthorizationRequest(authorizationRequest, response, this.registration1);
 		this.setUpAuthenticationResult(this.registration1);
-		RequestCache requestCache = spy(HttpSessionRequestCache.class);
+		RequestCache requestCache = mock(RequestCache.class);
+		SavedRequest savedRequest = mock(SavedRequest.class);
+		String redirectUrl = "https://example.com/saved-request?success";
+		given(savedRequest.getRedirectUrl()).willReturn(redirectUrl);
+		given(requestCache.getRequest(any(), any())).willReturn(savedRequest);
 		this.filter.setRequestCache(requestCache);
 		authorizationRequest.setRequestURI("/saved-request");
 		requestCache.saveRequest(authorizationRequest, response);
 		this.filter.doFilter(authorizationResponse, response, filterChain);
 		verify(requestCache).getRequest(any(HttpServletRequest.class), any(HttpServletResponse.class));
-		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/saved-request");
+		assertThat(response.getRedirectedUrl()).isEqualTo(redirectUrl);
 	}
 
 	@Test
