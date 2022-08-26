@@ -23,6 +23,10 @@ Defaults to "false".
 Enables JSR-250 authorization annotations (@RolesAllowed, @PermitAll, @DenyAll) for this application context.
 Defaults to "false".
 
+[[nsa-method-security-mode]]
+* **mode**
+If set to "aspectj", then uses AspectJ to intercept method invocations.
+
 [[nsa-method-security-proxy-target-class]]
 * **proxy-target-class**
 If true, class based proxying will be used instead of interface based proxying.

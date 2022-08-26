@@ -32,6 +32,7 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
@@ -406,6 +407,17 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.methodSecurityService.preAuthorizeBean(true);
 	}
 
+	@Test
+	public void configureWhenAspectJThenRegistersAspects() {
+		this.spring.register(AspectJMethodSecurityServiceConfig.class).autowire();
+		assertThat(this.spring.getContext().containsBean("preFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("preAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
+	}
+
 	@Configuration
 	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
@@ -552,6 +564,21 @@ public class PrePostMethodSecurityConfigurationTests {
 		@Bean
 		AuthorizationEventPublisher authorizationEventPublisher() {
 			return this.publisher;
+		}
+
+	}
+
+	@EnableMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
+	static class AspectJMethodSecurityServiceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+		@Bean
+		Authz authz() {
+			return new Authz();
 		}
 
 	}

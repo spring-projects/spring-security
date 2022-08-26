@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,38 +14,30 @@
  * limitations under the License.
  */
 
-package org.springframework.security.access.intercept.aspectj;
+package org.springframework.security.authorization.method.aspectj;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
+import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.reflect.CodeSignature;
 
 import org.springframework.util.Assert;
 
-/**
- * Decorates a JoinPoint to allow it to be used with method-security infrastructure
- * classes which support {@code MethodInvocation} instances.
- *
- * @author Luke Taylor
- * @since 3.0.3
- * @deprecated This class will be removed from the public API. See
- * `JoinPointMethodInvocation` in `spring-security-aspects` for its replacement
- */
-@Deprecated
-public final class MethodInvocationAdapter implements MethodInvocation {
+class JoinPointMethodInvocation implements MethodInvocation {
 
-	private final ProceedingJoinPoint jp;
+	private final JoinPoint jp;
 
 	private final Method method;
 
 	private final Object target;
 
-	MethodInvocationAdapter(JoinPoint jp) {
-		this.jp = (ProceedingJoinPoint) jp;
+	private final Supplier<Object> proceed;
+
+	JoinPointMethodInvocation(JoinPoint jp, Supplier<Object> proceed) {
+		this.jp = jp;
 		if (jp.getTarget() != null) {
 			this.target = jp.getTarget();
 		}
@@ -58,6 +50,7 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 		Class<?> declaringType = jp.getStaticPart().getSignature().getDeclaringType();
 		this.method = findMethod(targetMethodName, declaringType, types);
 		Assert.notNull(this.method, () -> "Could not obtain target method from JoinPoint: '" + jp + "'");
+		this.proceed = proceed;
 	}
 
 	private Method findMethod(String name, Class<?> declaringType, Class<?>[] params) {
@@ -99,7 +92,7 @@ public final class MethodInvocationAdapter implements MethodInvocation {
 
 	@Override
 	public Object proceed() throws Throwable {
-		return this.jp.proceed();
+		return this.proceed.get();
 	}
 
 }
