@@ -24,7 +24,10 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.codec.Utf8;
 
 /**
- * TODO
+ * An implementation of the {@link CsrfTokenRequestAttributeHandler} and
+ * {@link CsrfTokenRequestResolver} interfaces that is capable of masking the value of the
+ * {@link CsrfToken} on each request and resolving the raw token value from the masked
+ * value as either a header or parameter value of the request.
  *
  * @author Steve Riesenberg
  * @since 5.8
@@ -34,8 +37,9 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 	private SecureRandom secureRandom = new SecureRandom();
 
 	/**
-	 * TODO
-	 * @param secureRandom
+	 * Specifies the {@code SecureRandom} used to generate random bytes that are used to
+	 * mask the value of the {@link CsrfToken} on each request.
+	 * @param secureRandom the {@code SecureRandom} to use to generate random bytes
 	 */
 	public void setSecureRandom(SecureRandom secureRandom) {
 		this.secureRandom = secureRandom;
@@ -43,7 +47,7 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 
 	@Override
 	public void handle(HttpServletRequest request, CsrfToken csrfToken) {
-		String updatedToken = createXoredCsrfToken(csrfToken.getToken());
+		String updatedToken = createXoredCsrfToken(this.secureRandom, csrfToken.getToken());
 		DefaultCsrfToken updatedCsrfToken = new DefaultCsrfToken(csrfToken.getHeaderName(),
 				csrfToken.getParameterName(), updatedToken);
 		super.handle(request, updatedCsrfToken);
@@ -52,6 +56,10 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 	@Override
 	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
 		String actualToken = super.resolveCsrfTokenValue(request, csrfToken);
+		return getTokenValue(actualToken, csrfToken.getToken());
+	}
+
+	private static String getTokenValue(String actualToken, String token) {
 		byte[] actualBytes;
 		try {
 			actualBytes = Base64.getUrlDecoder().decode(actualToken);
@@ -60,7 +68,7 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 			return null;
 		}
 
-		byte[] tokenBytes = Utf8.encode(csrfToken.getToken());
+		byte[] tokenBytes = Utf8.encode(token);
 		int tokenSize = tokenBytes.length;
 		if (actualBytes.length < tokenSize) {
 			return null;
@@ -78,10 +86,10 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 		return Utf8.decode(csrfBytes);
 	}
 
-	private String createXoredCsrfToken(String token) {
+	private static String createXoredCsrfToken(SecureRandom secureRandom, String token) {
 		byte[] tokenBytes = Utf8.encode(token);
 		byte[] randomBytes = new byte[tokenBytes.length];
-		this.secureRandom.nextBytes(randomBytes);
+		secureRandom.nextBytes(randomBytes);
 
 		byte[] xoredBytes = xorCsrf(randomBytes, tokenBytes);
 		byte[] combinedBytes = new byte[tokenBytes.length + randomBytes.length];

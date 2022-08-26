@@ -19,18 +19,22 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * TODO
+ * A callback interface that is used to make the {@link CsrfToken} created by the
+ * {@link CsrfTokenRepository} available as a request attribute. Implementations of this
+ * interface may choose to perform additional tasks or customize how the token is made
+ * available to the application through request attributes.
  *
  * @author Steve Riesenberg
  * @since 5.8
+ * @see CsrfTokenRequestProcessor
  */
 @FunctionalInterface
 public interface CsrfTokenRequestAttributeHandler {
 
 	/**
-	 * TODO
-	 * @param request
-	 * @param csrfToken
+	 * Handles a request using a {@link CsrfToken}.
+	 * @param request the {@code HttpServletRequest} being handled
+	 * @param csrfToken the {@link CsrfToken} created by the {@link CsrfTokenRepository}
 	 */
 	void handle(HttpServletRequest request, CsrfToken csrfToken);
 

@@ -58,6 +58,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * </p>
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
@@ -171,20 +172,32 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * TODO
-	 * @param requestAttributeHandler
+	 * Specifies a {@link CsrfTokenRequestAttributeHandler} that is used to make the
+	 * {@link CsrfToken} available as a request attribute.
+	 *
+	 * <p>
+	 * The default is {@link CsrfTokenRequestProcessor}.
+	 * </p>
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
 	 * @since 5.8
 	 */
 	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
 		this.requestAttributeHandler = requestAttributeHandler;
 	}
 
 	/**
-	 * TODO
-	 * @param requestResolver
+	 * Specifies a {@link CsrfTokenRequestResolver} that is used to resolve the token
+	 * value from the request.
+	 *
+	 * <p>
+	 * The default is {@link CsrfTokenRequestProcessor}.
+	 * </p>
+	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
 	 * @since 5.8
 	 */
 	public void setRequestResolver(CsrfTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
 		this.requestResolver = requestResolver;
 	}
 

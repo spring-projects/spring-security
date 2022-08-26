@@ -131,9 +131,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * TODO
-	 * @param requestAttributeHandler
-	 * @return
+	 * Specify a {@link CsrfTokenRequestAttributeHandler} to use for making the
+	 * {@code CsrfToken} available as a request attribute.
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
 	public CsrfConfigurer<H> csrfTokenRequestAttributeHandler(
 			CsrfTokenRequestAttributeHandler requestAttributeHandler) {
@@ -142,9 +143,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * TODO
-	 * @param requestResolver
-	 * @return
+	 * Specify a {@link CsrfTokenRequestResolver} to use for resolving the token value
+	 * from the request.
+	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
+	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
 	public CsrfConfigurer<H> csrfTokenRequestResolver(CsrfTokenRequestResolver requestResolver) {
 		this.requestResolver = requestResolver;

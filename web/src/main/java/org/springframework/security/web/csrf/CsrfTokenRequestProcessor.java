@@ -19,7 +19,10 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * TODO
+ * An implementation of the {@link CsrfTokenRequestAttributeHandler} and
+ * {@link CsrfTokenRequestResolver} interfaces that is capable of making the
+ * {@link CsrfToken} available as a request attribute and resolving the token value as
+ * either a header or parameter value of the request.
  *
  * @author Steve Riesenberg
  * @since 5.8

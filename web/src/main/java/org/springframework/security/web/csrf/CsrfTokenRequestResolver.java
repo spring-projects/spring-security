@@ -19,19 +19,23 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * TODO
+ * Implementations of this interface are capable of resolving the token value of a
+ * {@link CsrfToken} from the provided {@code HttpServletRequest}. Used by the
+ * {@link CsrfFilter}.
  *
  * @author Steve Riesenberg
  * @since 5.8
+ * @see CsrfTokenRequestProcessor
  */
 @FunctionalInterface
 public interface CsrfTokenRequestResolver {
 
 	/**
-	 * TODO
-	 * @param request
-	 * @param csrfToken
-	 * @return
+	 * Returns the token value resolved from the provided {@code HttpServletRequest} and
+	 * {@link CsrfToken} or {@code null} if not available.
+	 * @param request the {@code HttpServletRequest} being processed
+	 * @param csrfToken the {@link CsrfToken} created by the {@link CsrfTokenRepository}
+	 * @return the token value resolved from the request
 	 */
 	String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken);
 
