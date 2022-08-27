@@ -16,16 +16,16 @@
 
 package org.springframework.security.web.jackson2;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.skyscreamer.jsonassert.JSONAssert;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.jackson2.AbstractMixinTests;
 import org.springframework.security.jackson2.SimpleGrantedAuthorityMixinTests;
 import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.skyscreamer.jsonassert.JSONAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

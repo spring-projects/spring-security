@@ -16,14 +16,14 @@
 
 package org.springframework.security.web.jackson2;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
-
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
 
 /**
  * Jackson mixin class to serialize/deserialize {@link SwitchUserGrantedAuthority}.
