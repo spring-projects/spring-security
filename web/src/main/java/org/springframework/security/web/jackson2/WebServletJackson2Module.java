@@ -16,14 +16,15 @@
 
 package org.springframework.security.web.jackson2;
 
+import org.springframework.security.jackson2.SecurityJackson2Modules;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
+import org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority;
+import org.springframework.security.web.savedrequest.DefaultSavedRequest;
+import org.springframework.security.web.savedrequest.SavedCookie;
+
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import jakarta.servlet.http.Cookie;
-
-import org.springframework.security.jackson2.SecurityJackson2Modules;
-import org.springframework.security.web.authentication.WebAuthenticationDetails;
-import org.springframework.security.web.savedrequest.DefaultSavedRequest;
-import org.springframework.security.web.savedrequest.SavedCookie;
 
 /**
  * Jackson module for spring-security-web related to servlet. This module register
@@ -56,6 +57,7 @@ public class WebServletJackson2Module extends SimpleModule {
 		context.setMixInAnnotations(SavedCookie.class, SavedCookieMixin.class);
 		context.setMixInAnnotations(DefaultSavedRequest.class, DefaultSavedRequestMixin.class);
 		context.setMixInAnnotations(WebAuthenticationDetails.class, WebAuthenticationDetailsMixin.class);
+		context.setMixInAnnotations(SwitchUserGrantedAuthority.class, SwitchUserGrantedAuthorityMixIn.class);
 	}
 
 }
