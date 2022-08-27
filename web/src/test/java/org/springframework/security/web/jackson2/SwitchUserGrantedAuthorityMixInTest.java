@@ -51,12 +51,12 @@ public class SwitchUserGrantedAuthorityMixInTest extends AbstractMixinTests {
 			}
 			""".formatted(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON);
 	SwitchUserGrantedAuthority expected;
+
 	Authentication source;
 
 	@BeforeEach
 	public void setupExpected() {
-		this.source = new UsernamePasswordAuthenticationToken(
-				"principal", "credentials",
+		this.source = new UsernamePasswordAuthenticationToken("principal", "credentials",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		this.expected = new SwitchUserGrantedAuthority("switched", this.source);
 	}
