@@ -37,19 +37,19 @@ public class SwitchUserGrantedAuthorityMixInTest extends AbstractMixinTests {
 
 	// language=JSON
 	private static final String SWITCH_JSON = """
-        {
-          "@class": "org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority",
-          "role": "switched",
-          "source": {
-			  "@class": "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
-			  "principal": "principal",
-			  "credentials": "credentials",
-			  "authenticated": true,
-			  "details": null,
-			  "authorities": %s
-          }
-        }
-		""".formatted(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON);
+			{
+				"@class": "org.springframework.security.web.authentication.switchuser.SwitchUserGrantedAuthority",
+				"role": "switched",
+				"source": {
+					"@class": "org.springframework.security.authentication.UsernamePasswordAuthenticationToken",
+					"principal": "principal",
+					"credentials": "credentials",
+					"authenticated": true,
+					"details": null,
+					"authorities": %s
+				}
+			}
+			""".formatted(SimpleGrantedAuthorityMixinTests.AUTHORITIES_ARRAYLIST_JSON);
 	SwitchUserGrantedAuthority expected;
 	Authentication source;
 

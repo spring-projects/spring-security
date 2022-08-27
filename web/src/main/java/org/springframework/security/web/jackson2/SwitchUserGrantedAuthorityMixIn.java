@@ -36,11 +36,11 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
-        isGetterVisibility = JsonAutoDetect.Visibility.NONE)
+		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 public abstract class SwitchUserGrantedAuthorityMixIn {
 
-    @JsonCreator
-    SwitchUserGrantedAuthorityMixIn(@JsonProperty("role") String role, @JsonProperty("source") Authentication source) {
-    }
+	@JsonCreator
+	SwitchUserGrantedAuthorityMixIn(@JsonProperty("role") String role, @JsonProperty("source") Authentication source) {
+	}
 
 }
