@@ -27,7 +27,6 @@
 	<b:bean class="org.springframework.security.config.http.DeferHttpSessionXmlConfigTests$Service" />
 
 	<http auto-config="true"
-			security-context-explicit-save="true"
 			use-authorization-manager="true">
 		<intercept-url  pattern="/**" access="permitAll"/>
 		<csrf request-attribute-name="_csrf"

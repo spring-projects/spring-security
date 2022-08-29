@@ -45,6 +45,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
@@ -92,8 +93,11 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 
 	private List<LogoutHandler> logoutHandlers;
 
-	HttpServlet3RequestFactory(String rolePrefix) {
+	private SecurityContextRepository securityContextRepository;
+
+	HttpServlet3RequestFactory(String rolePrefix, SecurityContextRepository securityContextRepository) {
 		this.rolePrefix = rolePrefix;
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	/**
@@ -244,6 +248,7 @@ final class HttpServlet3RequestFactory implements HttpServletRequestFactory {
 					.createEmptyContext();
 			context.setAuthentication(authentication);
 			HttpServlet3RequestFactory.this.securityContextHolderStrategy.setContext(context);
+			HttpServlet3RequestFactory.this.securityContextRepository.saveContext(context, this, this.response);
 		}
 
 		private Authentication getAuthentication(AuthenticationManager authManager, String username, String password)

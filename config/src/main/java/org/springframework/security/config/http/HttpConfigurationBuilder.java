@@ -323,7 +323,7 @@ class HttpConfigurationBuilder {
 
 	private boolean isExplicitSave() {
 		String explicitSaveAttr = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_EXPLICIT_SAVE);
-		return Boolean.parseBoolean(explicitSaveAttr);
+		return !StringUtils.hasText(explicitSaveAttr) || Boolean.parseBoolean(explicitSaveAttr);
 	}
 
 	private void createForceEagerSessionCreationFilter() {

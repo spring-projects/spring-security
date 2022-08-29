@@ -82,9 +82,6 @@ public class DeferHttpSessionJavaConfigTests {
 			csrfRepository.setDeferLoadToken(true);
 			// @formatter:off
 			http
-				.securityContext((securityContext) -> securityContext
-					.requireExplicitSave(true)
-				)
 				.authorizeHttpRequests((requests) -> requests
 					.anyRequest().permitAll()
 				)

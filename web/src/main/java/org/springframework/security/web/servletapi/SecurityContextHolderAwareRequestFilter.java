@@ -35,6 +35,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -83,6 +85,18 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private List<LogoutHandler> logoutHandlers;
 
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to use. The default is to use {@link HttpSessionSecurityContextRepository}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * @since 6.0
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
 
 	/**
 	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
@@ -188,7 +202,7 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	}
 
 	private HttpServletRequestFactory createServlet3Factory(String rolePrefix) {
-		HttpServlet3RequestFactory factory = new HttpServlet3RequestFactory(rolePrefix);
+		HttpServlet3RequestFactory factory = new HttpServlet3RequestFactory(rolePrefix, this.securityContextRepository);
 		factory.setTrustResolver(this.trustResolver);
 		factory.setAuthenticationEntryPoint(this.authenticationEntryPoint);
 		factory.setAuthenticationManager(this.authenticationManager);

@@ -354,7 +354,7 @@ http.attlist &=
 	## A reference to a SecurityContextRepository bean. This can be used to customize how the SecurityContext is stored between requests.
 	attribute security-context-repository-ref {xsd:token}?
 http.attlist &=
-	## Optional attribute that specifies that the SecurityContext should require explicit saving rather than being synchronized from the SecurityContextHolder. Defaults to "false".
+	## Optional attribute that specifies that the SecurityContext should require explicit saving rather than being synchronized from the SecurityContextHolder. Defaults to "true".
 	attribute security-context-explicit-save {xsd:boolean}?
 http.attlist &=
 	request-matcher?

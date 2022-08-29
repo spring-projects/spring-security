@@ -93,7 +93,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -356,7 +356,7 @@ public class MiscHttpConfigTests {
 		List<Filter> filters = getFilters("/");
 		Class<?> userFilterClass = this.spring.getContext().getBean("userFilter").getClass();
 		assertThat(filters).extracting((Extractor<Filter, Class<?>>) (filter) -> filter.getClass()).containsSubsequence(
-				userFilterClass, userFilterClass, SecurityContextPersistenceFilter.class, LogoutFilter.class,
+				userFilterClass, userFilterClass, SecurityContextHolderFilter.class, LogoutFilter.class,
 				userFilterClass);
 	}
 
@@ -472,7 +472,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("SecurityContextRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpRequestResponseHolder.class))).willReturn(context);
+		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/protected").with(userCredentials()))
 				.andExpect(status().isOk())
@@ -839,7 +839,7 @@ public class MiscHttpConfigTests {
 	private void assertThatFiltersMatchExpectedAutoConfigList(String url) {
 		Iterator<Filter> filters = getFilters(url).iterator();
 		assertThat(filters.next()).isInstanceOf(DisableEncodeUrlFilter.class);
-		assertThat(filters.next()).isInstanceOf(SecurityContextPersistenceFilter.class);
+		assertThat(filters.next()).isInstanceOf(SecurityContextHolderFilter.class);
 		assertThat(filters.next()).isInstanceOf(WebAsyncManagerIntegrationFilter.class);
 		assertThat(filters.next()).isInstanceOf(HeaderWriterFilter.class);
 		assertThat(filters.next()).isInstanceOf(CsrfFilter.class);

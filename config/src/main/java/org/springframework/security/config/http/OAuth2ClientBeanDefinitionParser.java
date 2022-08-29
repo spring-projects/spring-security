@@ -105,10 +105,6 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 				.addConstructorArgValue(clientRegistrationRepository).addConstructorArgValue(authorizedClientRepository)
 				.addConstructorArgValue(this.authenticationManager)
 				.addPropertyValue("authorizationRequestRepository", authorizationRequestRepository);
-		if (this.authenticationFilterSecurityContextRepositoryRef != null) {
-			authorizationCodeGrantFilterBldr.addPropertyValue("securityContextRepository",
-					this.authenticationFilterSecurityContextRepositoryRef);
-		}
 		this.authorizationCodeGrantFilter = authorizationCodeGrantFilterBldr.getBeanDefinition();
 
 		BeanMetadataElement accessTokenResponseClient = getAccessTokenResponseClient(authorizationCodeGrantElt);
