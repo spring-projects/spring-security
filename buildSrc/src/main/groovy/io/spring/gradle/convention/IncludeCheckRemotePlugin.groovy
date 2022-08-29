@@ -39,6 +39,7 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 			it.dependsOn 'includeRepo'
 			it.dir = includeRepoTask.get().outputDirectory
 			it.tasks = extension.getTasks()
+			it.startParameter.buildScan = extension.getBuildScan()
 			extension.getInitScripts().forEach {script ->
 				it.startParameter.addInitScript(new File(script))
 			}
@@ -74,6 +75,11 @@ class IncludeCheckRemotePlugin implements Plugin<Project> {
 		 * Map of properties for the build
 		 */
 		Map<String, String> projectProperties = [:]
+
+		/**
+		 * Whether the Build Scan should be published
+		 */
+		boolean buildScan = false
 
 	}
 
