@@ -677,6 +677,17 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="mode">
+         <xs:annotation>
+            <xs:documentation>If set to aspectj, then use AspectJ to intercept method invocation
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="aspectj"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
       <xs:attribute name="security-context-holder-strategy-ref" type="xs:string">
          <xs:annotation>
             <xs:documentation>Specifies the security context holder strategy to use, by default uses a ThreadLocal-based
