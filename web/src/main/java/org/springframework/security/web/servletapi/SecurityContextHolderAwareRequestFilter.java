@@ -89,7 +89,8 @@ public class SecurityContextHolderAwareRequestFilter extends GenericFilterBean {
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	/**
-	 * Sets the {@link SecurityContextRepository} to use. The default is to use {@link HttpSessionSecurityContextRepository}.
+	 * Sets the {@link SecurityContextRepository} to use. The default is to use
+	 * {@link HttpSessionSecurityContextRepository}.
 	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
 	 * @since 6.0
 	 */
