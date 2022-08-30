@@ -1325,6 +1325,10 @@ The Client Id to use for client authentication against the provided `introspecti
 * **client-secret**
 The Client Secret to use for client authentication against the provided `introspection-uri`.
 
+[[nsa-opaque-token-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to an `OpaqueTokenAuthenticationConverter`. Responsible for converting successful introspection result into an `Authentication` instance.
+
 
 [[nsa-relying-party-registrations]]
 == <relying-party-registrations>

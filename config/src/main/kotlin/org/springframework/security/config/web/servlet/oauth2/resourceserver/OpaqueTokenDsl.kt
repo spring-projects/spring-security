@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
@@ -37,6 +38,7 @@ class OpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: OpaqueTokenIntrospector? = null
     private var clientCredentials: Pair<String, String>? = null
+    private var _authenticationConverter: OpaqueTokenAuthenticationConverter? = null
 
     var authenticationManager: AuthenticationManager? = null
 
@@ -54,6 +56,11 @@ class OpaqueTokenDsl {
             clientCredentials = null
         }
 
+    var authenticationConverter: OpaqueTokenAuthenticationConverter?
+        get() = _authenticationConverter
+        set(value) {
+            _authenticationConverter = value
+        }
 
     /**
      * Configures the credentials for Introspection endpoint.
@@ -70,6 +77,7 @@ class OpaqueTokenDsl {
         return { opaqueToken ->
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             introspector?.also { opaqueToken.introspector(introspector) }
+            authenticationConverter?.also { opaqueToken.authenticationConverter(authenticationConverter) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
             authenticationManager?.also { opaqueToken.authenticationManager(authenticationManager) }
         }

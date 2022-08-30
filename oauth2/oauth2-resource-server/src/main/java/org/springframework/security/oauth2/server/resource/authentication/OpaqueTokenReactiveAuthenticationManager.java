@@ -16,28 +16,27 @@
 
 package org.springframework.security.oauth2.server.resource.authentication;
 
-import java.time.Instant;
-import java.util.Collection;
-
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.core.OAuth2AccessToken;
-import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.util.Assert;
 
 /**
  * An {@link ReactiveAuthenticationManager} implementation for opaque
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target= "_blank">Bearer
  * Token</a>s, using an
  * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
  * Endpoint</a> to check the token's validity and reveal its attributes.
@@ -46,22 +45,25 @@ import org.springframework.util.Assert;
  * verifying an opaque access token, returning its attributes set as part of the
  * {@link Authentication} statement.
  * <p>
- * Scopes are translated into {@link GrantedAuthority}s according to the following
- * algorithm:
- * <ol>
- * <li>If there is a "scope" attribute, then convert to a {@link Collection} of
- * {@link String}s.
- * <li>Take the resulting {@link Collection} and prepend the "SCOPE_" keyword to each
- * element, adding as {@link GrantedAuthority}s.
- * </ol>
+ * <p>
+ * {@link ReactiveOpaqueTokenIntrospector} is responsible for retrieving token attributes
+ * from authorization-server.
+ * </p>
+ * <p>
+ * authenticationConverter is responsible for turning successful introspection into
+ * {@link Authentication} (which includes {@link GrantedAuthority}s mapping from token
+ * attributes or retrieving from another source)
  *
  * @author Josh Cummings
+ * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2
  * @see ReactiveAuthenticationManager
  */
 public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
 
 	private final ReactiveOpaqueTokenIntrospector introspector;
+
+	private ReactiveOpaqueTokenAuthenticationConverter authenticationConverter;
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
@@ -71,8 +73,23 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 	public OpaqueTokenReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspector) {
 		Assert.notNull(introspector, "introspector cannot be null");
 		this.introspector = introspector;
+		this.setAuthenticationConverter(OpaqueTokenReactiveAuthenticationManager::convert);
 	}
 
+	/**
+	 * <p>
+	 * Introspect and validate the opaque
+	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
+	 * Token</a> and then delegates {@link Authentication} instantiation to
+	 * {@link OpaqueTokenAuthenticationConverter}.
+	 * </p>
+	 * <p>
+	 * If created Authentication is instance of {@link AbstractAuthenticationToken} and
+	 * details are null, then introspection result details are used.
+	 * </p>
+	 * @param authentication the authentication request object.
+	 * @return A successful authentication
+	 */
 	@Override
 	public Mono<Authentication> authenticate(Authentication authentication) {
 		// @formatter:off
@@ -80,21 +97,14 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 				.filter(BearerTokenAuthenticationToken.class::isInstance)
 				.cast(BearerTokenAuthenticationToken.class)
 				.map(BearerTokenAuthenticationToken::getToken)
-				.flatMap(this::authenticate)
-				.cast(Authentication.class);
+				.flatMap(this::authenticate);
 		// @formatter:on
 	}
 
-	private Mono<BearerTokenAuthentication> authenticate(String token) {
+	private Mono<Authentication> authenticate(String token) {
 		// @formatter:off
 		return this.introspector.introspect(token)
-				.map((principal) -> {
-					Instant iat = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.IAT);
-					Instant exp = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.EXP);
-					// construct token
-					OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
-					return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
-				})
+				.flatMap((principal) -> this.authenticationConverter.convert(token, principal))
 				.onErrorMap(OAuth2IntrospectionException.class, this::onError);
 		// @formatter:on
 	}
@@ -104,6 +114,29 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 			return new InvalidBearerTokenException(ex.getMessage(), ex);
 		}
 		return new AuthenticationServiceException(ex.getMessage(), ex);
+	}
+
+	/**
+	 * Default reactive {@link OpaqueTokenAuthenticationConverter}.
+	 * @param introspectedToken the bearer sring that was successfuly introspected
+	 * @param authenticatedPrincipal the successful introspection output
+	 * @returna an async wrapper of default {@link OpaqueTokenAuthenticationConverter}
+	 * result
+	 */
+	static Mono<Authentication> convert(String introspectedToken, OAuth2AuthenticatedPrincipal authenticatedPrincipal) {
+		return Mono.just(OpaqueTokenAuthenticationProvider.convert(introspectedToken, authenticatedPrincipal));
+	}
+
+	/**
+	 * Provide with a custom bean to turn successful introspection result into an
+	 * {@link Authentication} instance of your choice. By default,
+	 * {@link BearerTokenAuthentication} will be built.
+	 * @param authenticationConverter the converter to use
+	 * @since 5.8
+	 */
+	public void setAuthenticationConverter(ReactiveOpaqueTokenAuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 }

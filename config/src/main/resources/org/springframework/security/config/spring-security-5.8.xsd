@@ -2060,6 +2060,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="authentication-converter-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Reference to an OpaqueTokenAuthenticationConverter responsible for converting successful
+                introspection result into an Authentication.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   
   <xs:element name="attribute-exchange">

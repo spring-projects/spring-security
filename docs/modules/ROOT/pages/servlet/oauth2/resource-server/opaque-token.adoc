@@ -295,11 +295,13 @@ fun introspector(): OpaqueTokenIntrospector {
 ----
 ====
 
-If the application doesn't expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
+If the application doesn't expose an <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
 
 And its configuration can be overridden using `introspectionUri()` and `introspectionClientCredentials()` or replaced using `introspector()`.
 
-Or, if you're not using Spring Boot at all, then both of these components - the filter chain and a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> can be specified in XML.
+If the application doesn't expose an `OpaqueTokenAuthenticationConverter` bean, then spring-security will build `BearerTokenAuthentication`.
+
+Or, if you're not using Spring Boot at all, then all of these components - the filter chain, an <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> and an `OpaqueTokenAuthenticationConverter` can be specified in XML.
 
 The filter chain is specified like so:
 
