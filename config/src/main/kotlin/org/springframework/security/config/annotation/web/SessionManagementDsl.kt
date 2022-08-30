@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,14 +52,16 @@ class SessionManagementDsl {
      * ```
      * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          sessionManagement {
-     *              sessionFixation { }
-     *          }
-     *      }
+     *  @Bean
+     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             sessionManagement {
+     *                 sessionFixation { }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```
@@ -80,17 +82,19 @@ class SessionManagementDsl {
      * ```
      * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          sessionManagement {
-     *              sessionConcurrency {
-     *                  maximumSessions = 1
-     *                  maxSessionsPreventsLogin = true
-     *              }
-     *          }
-     *      }
+     *  @Bean
+     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             sessionManagement {
+     *                 sessionConcurrency {
+     *                     maximumSessions = 1
+     *                     maxSessionsPreventsLogin = true
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```
