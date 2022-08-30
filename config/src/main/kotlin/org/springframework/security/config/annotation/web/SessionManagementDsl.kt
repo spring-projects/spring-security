@@ -54,15 +54,15 @@ class SessionManagementDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
      *             sessionManagement {
      *                 sessionFixation { }
      *             }
      *         }
      *         return http.build()
-     *  }
+     *     }
      * }
      * ```
      *
@@ -84,8 +84,8 @@ class SessionManagementDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
      *             sessionManagement {
      *                 sessionConcurrency {
@@ -95,7 +95,7 @@ class SessionManagementDsl {
      *             }
      *         }
      *         return http.build()
-     *  }
+     *     }
      * }
      * ```
      *
