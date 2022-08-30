@@ -99,17 +99,17 @@ class OAuth2LoginDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2Login {
-     *              authorizationEndpoint {
-     *                  baseUri = "/auth"
-     *              }
-     *          }
-     *      }
-     *      return http.build()
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login {
+     *                 authorizationEndpoint {
+     *                     baseUri = "/auth"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -132,14 +132,14 @@ class OAuth2LoginDsl {
      *
      *  @Bean
      *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2Login {
-     *              tokenEndpoint {
-     *                  accessTokenResponseClient = getAccessTokenResponseClient()
-     *              }
-     *          }
-     *      }
-     *      return http.build()
+     *         http {
+     *             oauth2Login {
+     *                 tokenEndpoint {
+     *                     accessTokenResponseClient = getAccessTokenResponseClient()
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```
@@ -163,14 +163,14 @@ class OAuth2LoginDsl {
      *
      *  @Bean
      *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2Login {
-     *              redirectionEndpoint {
-     *                  baseUri = "/home"
-     *              }
-     *          }
-     *      }
-     *      return http.build()
+     *         http {
+     *             oauth2Login {
+     *                 redirectionEndpoint {
+     *                     baseUri = "/home"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```
@@ -194,14 +194,14 @@ class OAuth2LoginDsl {
      *
      *  @Bean
      *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2Login {
-     *              userInfoEndpoint {
-     *                  userService = getUserService()
-     *              }
-     *          }
-     *      }
-     *      return http.build()
+     *         http {
+     *             oauth2Login {
+     *                 userInfoEndpoint {
+     *                     userService = getUserService()
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```

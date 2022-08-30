@@ -55,12 +55,12 @@ class SessionManagementDsl {
      *
      *  @Bean
      *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          sessionManagement {
-     *              sessionFixation { }
-     *          }
-     *      }
-     *      return http.build()
+     *         http {
+     *             sessionManagement {
+     *                 sessionFixation { }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```
@@ -84,15 +84,15 @@ class SessionManagementDsl {
      *
      *  @Bean
      *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          sessionManagement {
-     *              sessionConcurrency {
-     *                  maximumSessions = 1
-     *                  maxSessionsPreventsLogin = true
-     *              }
-     *          }
-     *      }
-     *      return http.build()
+     *         http {
+     *             sessionManagement {
+     *                 sessionConcurrency {
+     *                     maximumSessions = 1
+     *                     maxSessionsPreventsLogin = true
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
      *  }
      * }
      * ```

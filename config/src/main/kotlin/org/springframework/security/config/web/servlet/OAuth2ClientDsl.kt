@@ -67,17 +67,17 @@ class OAuth2ClientDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2Client {
-     *              authorizationCodeGrant {
-     *                  authorizationRequestResolver = getAuthorizationRequestResolver()
-     *              }
-     *          }
-     *      }
-     *      return http.build()
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Client {
+     *                 authorizationCodeGrant {
+     *                     authorizationRequestResolver = getAuthorizationRequestResolver()
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *

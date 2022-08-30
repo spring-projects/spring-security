@@ -58,17 +58,17 @@ class OAuth2ResourceServerDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2ResourceServer {
-     *              jwt {
-     *                  jwkSetUri = "https://example.com/oauth2/jwk"
-     *              }
-     *          }
-     *      }
-     *      return http.build()
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 jwt {
+     *                     jwkSetUri = "https://example.com/oauth2/jwk"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -88,15 +88,15 @@ class OAuth2ResourceServerDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-     *      http {
-     *          oauth2ResourceServer {
-     *              opaqueToken { }
-     *          }
-     *      }
-     *      return http.build()
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 opaqueToken { }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
