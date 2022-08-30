@@ -204,6 +204,7 @@ tasks.register('checkSamples') {
 	includeCheckRemote {
 		repository = 'spring-projects/spring-security-samples'
 		ref = samplesBranch
+		buildScan = true
 		if (project.hasProperty("samplesInitScript")) {
 			initScripts = [samplesInitScript]
 			projectProperties = ["localRepositoryPath": localRepositoryPath, "springSecurityVersion": project.version]
