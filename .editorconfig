@@ -1,0 +1,22 @@
+# EditorConfig for Spring Security
+# see https://github.com/spring-projects/spring-security/blob/master/CONTRIBUTING.adoc#mind-the-whitespace
+
+root = true
+
+[*]
+end_of_line = lf
+trim_trailing_whitespace = true
+insert_final_newline = true
+max_line_length = 120
+
+[*.{java,xml}]
+indent_style = tab
+indent_size = 4
+charset = utf-8
+continuation_indent_size = 8
+
+ij_smart_tabs = false
+ij_java_align_multiline_parameters = false
+
+[*.gradle]
+indent_style = tab
