@@ -145,4 +145,35 @@ class IncludeCheckRemotePluginTest {
 		assertThat(checkRemote).isNotNull();
 	}
 
+	@Test
+	void applyWhenNoBuildScanSpecifiedThenRegisterCheckRemoteTaskWithBuildScanFalse() {
+		this.rootProject = ProjectBuilder.builder().build();
+		this.rootProject.getPluginManager().apply(IncludeCheckRemotePlugin.class);
+		this.rootProject.getExtensions().configure(IncludeCheckRemotePlugin.IncludeCheckRemoteExtension.class,
+				(includeCheckRemoteExtension) -> {
+					includeCheckRemoteExtension.setProperty("repository", "my-project/my-repository");
+					includeCheckRemoteExtension.setProperty("ref", "main");
+				});
+
+		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
+		assertThat(checkRemote).isNotNull();
+		assertThat(checkRemote.getStartParameter().isBuildScan()).isFalse();
+	}
+
+	@Test
+	void applyWhenBuildScanTrueThenRegisterCheckRemoteTaskWithBuildScanTrue() {
+		this.rootProject = ProjectBuilder.builder().build();
+		this.rootProject.getPluginManager().apply(IncludeCheckRemotePlugin.class);
+		this.rootProject.getExtensions().configure(IncludeCheckRemotePlugin.IncludeCheckRemoteExtension.class,
+				(includeCheckRemoteExtension) -> {
+					includeCheckRemoteExtension.setProperty("repository", "my-project/my-repository");
+					includeCheckRemoteExtension.setProperty("ref", "main");
+					includeCheckRemoteExtension.setProperty("buildScan", true);
+				});
+
+		GradleBuild checkRemote = (GradleBuild) this.rootProject.getTasks().named("checkRemote").get();
+		assertThat(checkRemote).isNotNull();
+		assertThat(checkRemote.getStartParameter().isBuildScan()).isTrue();
+	}
+
 }
