@@ -130,8 +130,8 @@ class OAuth2LoginDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
      *             oauth2Login {
      *                 tokenEndpoint {
@@ -140,7 +140,7 @@ class OAuth2LoginDsl {
      *             }
      *         }
      *         return http.build()
-     *  }
+     *     }
      * }
      * ```
      *
@@ -161,8 +161,8 @@ class OAuth2LoginDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
      *             oauth2Login {
      *                 redirectionEndpoint {
@@ -171,7 +171,7 @@ class OAuth2LoginDsl {
      *             }
      *         }
      *         return http.build()
-     *  }
+     *     }
      * }
      * ```
      *
@@ -192,8 +192,8 @@ class OAuth2LoginDsl {
      * @EnableWebSecurity
      * class SecurityConfig {
      *
-     *  @Bean
-     *  fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
      *             oauth2Login {
      *                 userInfoEndpoint {
@@ -202,7 +202,7 @@ class OAuth2LoginDsl {
      *             }
      *         }
      *         return http.build()
-     *  }
+     *     }
      * }
      * ```
      *
