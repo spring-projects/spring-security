@@ -21,10 +21,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
@@ -46,6 +48,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenAuthenticationProvider;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.introspection.SpringOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
@@ -107,8 +110,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * </ul>
  *
  * <p>
- * When using {@link #opaqueToken(Customizer)}, supply an introspection endpoint and its
- * authentication configuration
+ * When using {@link #opaqueToken(Customizer)}, supply an introspection endpoint with its
+ * client credentials and an OpaqueTokenAuthenticationConverter
  * </p>
  *
  * <h2>Security Filters</h2>
@@ -138,6 +141,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  * @author Josh Cummings
  * @author Evgeniy Cheban
+ * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.1
  * @see BearerTokenAuthenticationFilter
  * @see JwtAuthenticationProvider
@@ -456,6 +460,8 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private Supplier<OpaqueTokenIntrospector> introspector;
 
+		private Supplier<OpaqueTokenAuthenticationConverter> authenticationConverter;
+
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
 		}
@@ -490,6 +496,13 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
+		public OpaqueTokenConfigurer authenticationConverter(
+				OpaqueTokenAuthenticationConverter authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = () -> authenticationConverter;
+			return this;
+		}
+
 		OpaqueTokenIntrospector getIntrospector() {
 			if (this.introspector != null) {
 				return this.introspector.get();
@@ -497,12 +510,27 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this.context.getBean(OpaqueTokenIntrospector.class);
 		}
 
+		Optional<OpaqueTokenAuthenticationConverter> getAuthenticationConverter() {
+			if (this.authenticationConverter != null) {
+				return Optional.of(this.authenticationConverter.get());
+			}
+			try {
+				return Optional.of(this.context.getBean(OpaqueTokenAuthenticationConverter.class));
+			}
+			catch (NoSuchBeanDefinitionException nsbde) {
+				return Optional.empty();
+			}
+		}
+
 		AuthenticationProvider getAuthenticationProvider() {
 			if (this.authenticationManager != null) {
 				return null;
 			}
 			OpaqueTokenIntrospector introspector = getIntrospector();
-			return new OpaqueTokenAuthenticationProvider(introspector);
+			final OpaqueTokenAuthenticationProvider opaqueTokenAuthenticationProvider = new OpaqueTokenAuthenticationProvider(
+					introspector);
+			getAuthenticationConverter().ifPresent(opaqueTokenAuthenticationProvider::setAuthenticationConverter);
+			return opaqueTokenAuthenticationProvider;
 		}
 
 		AuthenticationManager getAuthenticationManager(H http) {

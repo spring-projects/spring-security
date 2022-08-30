@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
 
 /**
@@ -30,6 +31,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 class ServerOpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: ReactiveOpaqueTokenIntrospector? = null
+    private var _authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter? = null
     private var clientCredentials: Pair<String, String>? = null
 
     var introspectionUri: String?
@@ -37,13 +39,20 @@ class ServerOpaqueTokenDsl {
         set(value) {
             _introspectionUri = value
             _introspector = null
+            _authenticationConverter = null
         }
     var introspector: ReactiveOpaqueTokenIntrospector?
         get() = _introspector
         set(value) {
             _introspector = value
+            _authenticationConverter = null
             _introspectionUri = null
             clientCredentials = null
+        }
+    var authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter?
+        get() = _authenticationConverter
+        set(value) {
+            _authenticationConverter = value
         }
 
     /**
@@ -55,6 +64,7 @@ class ServerOpaqueTokenDsl {
     fun introspectionClientCredentials(clientId: String, clientSecret: String) {
         clientCredentials = Pair(clientId, clientSecret)
         _introspector = null
+        _authenticationConverter = null
     }
 
     internal fun get(): (ServerHttpSecurity.OAuth2ResourceServerSpec.OpaqueTokenSpec) -> Unit {
@@ -62,6 +72,7 @@ class ServerOpaqueTokenDsl {
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
             introspector?.also { opaqueToken.introspector(introspector) }
+            authenticationConverter?.also { opaqueToken.authenticationConverter(authenticationConverter) }
         }
     }
 }

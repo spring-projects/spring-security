@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -35,6 +36,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
@@ -95,6 +97,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtRea
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
@@ -4283,6 +4286,8 @@ public class ServerHttpSecurity {
 
 			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
 
+			private Supplier<ReactiveOpaqueTokenAuthenticationConverter> authenticationConverter;
+
 			private OpaqueTokenSpec() {
 			}
 
@@ -4321,6 +4326,13 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
+			public OpaqueTokenSpec authenticationConverter(
+					ReactiveOpaqueTokenAuthenticationConverter authenticationConverter) {
+				Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+				this.authenticationConverter = () -> authenticationConverter;
+				return this;
+			}
+
 			/**
 			 * Allows method chaining to continue configuring the
 			 * {@link ServerHttpSecurity}
@@ -4331,7 +4343,11 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OpaqueTokenReactiveAuthenticationManager(getIntrospector());
+				final OpaqueTokenReactiveAuthenticationManager authenticationManager = new OpaqueTokenReactiveAuthenticationManager(
+						getIntrospector());
+				Optional.ofNullable(getAuthenticationConverter())
+						.ifPresent(authenticationManager::setAuthenticationConverter);
+				return authenticationManager;
 			}
 
 			protected ReactiveOpaqueTokenIntrospector getIntrospector() {
@@ -4339,6 +4355,18 @@ public class ServerHttpSecurity {
 					return this.introspector.get();
 				}
 				return getBean(ReactiveOpaqueTokenIntrospector.class);
+			}
+
+			protected ReactiveOpaqueTokenAuthenticationConverter getAuthenticationConverter() {
+				if (this.authenticationConverter != null) {
+					return this.authenticationConverter.get();
+				}
+				try {
+					return getBean(ReactiveOpaqueTokenAuthenticationConverter.class);
+				}
+				catch (NoSuchBeanDefinitionException nsbde) {
+					return null;
+				}
 			}
 
 			protected void configure(ServerHttpSecurity http) {
