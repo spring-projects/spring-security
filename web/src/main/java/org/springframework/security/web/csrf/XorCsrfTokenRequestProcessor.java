@@ -22,6 +22,7 @@ import java.util.Base64;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.security.crypto.codec.Utf8;
+import org.springframework.util.Assert;
 
 /**
  * An implementation of the {@link CsrfTokenRequestAttributeHandler} and
@@ -42,11 +43,14 @@ public final class XorCsrfTokenRequestProcessor extends CsrfTokenRequestProcesso
 	 * @param secureRandom the {@code SecureRandom} to use to generate random bytes
 	 */
 	public void setSecureRandom(SecureRandom secureRandom) {
+		Assert.notNull(secureRandom, "secureRandom cannot be null");
 		this.secureRandom = secureRandom;
 	}
 
 	@Override
 	public void handle(HttpServletRequest request, CsrfToken csrfToken) {
+		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		String updatedToken = createXoredCsrfToken(this.secureRandom, csrfToken.getToken());
 		DefaultCsrfToken updatedCsrfToken = new DefaultCsrfToken(csrfToken.getHeaderName(),
 				csrfToken.getParameterName(), updatedToken);

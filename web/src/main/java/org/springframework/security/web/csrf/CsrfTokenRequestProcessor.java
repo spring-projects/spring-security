@@ -18,6 +18,8 @@ package org.springframework.security.web.csrf;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.util.Assert;
+
 /**
  * An implementation of the {@link CsrfTokenRequestAttributeHandler} and
  * {@link CsrfTokenRequestResolver} interfaces that is capable of making the
@@ -45,6 +47,8 @@ public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandl
 
 	@Override
 	public void handle(HttpServletRequest request, CsrfToken csrfToken) {
+		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
 				: csrfToken.getParameterName();
@@ -53,6 +57,8 @@ public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandl
 
 	@Override
 	public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		String actualToken = request.getHeader(csrfToken.getHeaderName());
 		if (actualToken == null) {
 			actualToken = request.getParameter(csrfToken.getParameterName());

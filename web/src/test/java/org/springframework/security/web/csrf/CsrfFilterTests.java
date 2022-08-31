@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.csrf;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -35,6 +36,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -333,6 +336,70 @@ public class CsrfFilterTests {
 		given(this.requestMatcher.matches(this.request)).willReturn(true);
 		filter.doFilterInternal(this.request, this.response, this.filterChain);
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+	}
+
+	@Test
+	public void doFilterWhenRequestAttributeHandlerThenUsed() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		CsrfTokenRequestAttributeHandler requestAttributeHandler = mock(CsrfTokenRequestAttributeHandler.class);
+		this.filter.setRequestAttributeHandler(requestAttributeHandler);
+		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(requestAttributeHandler).handle(this.request, this.token);
+		verify(this.filterChain).doFilter(this.request, this.response);
+	}
+
+	@Test
+	public void doFilterWhenRequestResolverThenUsed() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		CsrfTokenRequestResolver requestResolver = mock(CsrfTokenRequestResolver.class);
+		given(requestResolver.resolveCsrfTokenValue(this.request, this.token)).willReturn(this.token.getToken());
+		this.filter.setRequestResolver(requestResolver);
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(requestResolver).resolveCsrfTokenValue(this.request, this.token);
+		verify(this.filterChain).doFilter(this.request, this.response);
+	}
+
+	@Test
+	public void doFilterWhenXorCsrfTokenRequestProcessorAndValidTokenThenSuccess() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(false);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		XorCsrfTokenRequestProcessor csrfTokenRequestProcessor = new XorCsrfTokenRequestProcessor();
+		this.filter.setRequestAttributeHandler(csrfTokenRequestProcessor);
+		this.filter.setRequestResolver(csrfTokenRequestProcessor);
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.request.getAttribute(this.token.getParameterName())).isNotNull();
+		assertThat(this.request.getAttribute(this.token.getParameterName())).isNotEqualTo(this.token);
+		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isNotNull();
+		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isNotEqualTo(this.token);
+		verify(this.filterChain).doFilter(this.request, this.response);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
+
+		CsrfToken csrfTokenAttribute = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
+		byte[] csrfTokenAttributeBytes = Base64.getUrlDecoder().decode(csrfTokenAttribute.getToken());
+		byte[] actualTokenBytes = Utf8.encode(this.token.getToken());
+		// XOR'd token length is 2x due to containing the random bytes
+		assertThat(csrfTokenAttributeBytes).hasSize(actualTokenBytes.length * 2);
+
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		this.request.setParameter(this.token.getParameterName(), csrfTokenAttribute.getToken());
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(this.filterChain, times(2)).doFilter(this.request, this.response);
+	}
+
+	@Test
+	public void doFilterWhenXorCsrfTokenRequestProcessorAndRawTokenThenAccessDeniedException() throws Exception {
+		given(this.requestMatcher.matches(this.request)).willReturn(true);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		XorCsrfTokenRequestProcessor csrfTokenRequestProcessor = new XorCsrfTokenRequestProcessor();
+		this.filter.setRequestAttributeHandler(csrfTokenRequestProcessor);
+		this.filter.setRequestResolver(csrfTokenRequestProcessor);
+		this.request.setParameter(this.token.getParameterName(), this.token.getToken());
+		this.filter.doFilter(this.request, this.response, this.filterChain);
+		verify(this.deniedHandler).handle(eq(this.request), eq(this.response), any(AccessDeniedException.class));
+		verifyNoMoreInteractions(this.filterChain);
 	}
 
 	@Test

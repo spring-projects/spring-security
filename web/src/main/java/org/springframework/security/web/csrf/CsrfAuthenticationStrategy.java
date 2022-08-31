@@ -39,9 +39,9 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestProcessor();
-
 	private final CsrfTokenRepository csrfTokenRepository;
+
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestProcessor();
 
 	/**
 	 * Creates a new instance
@@ -53,10 +53,12 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	}
 
 	/**
-	 * TODO
-	 * @param requestAttributeHandler
+	 * Specify a {@link CsrfTokenRequestAttributeHandler} to use for making the
+	 * {@code CsrfToken} available as a request attribute.
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
 	 */
 	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
 		this.requestAttributeHandler = requestAttributeHandler;
 	}
 

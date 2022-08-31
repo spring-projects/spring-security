@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -297,6 +297,39 @@ public class CsrfConfigTests {
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/ok")).andReturn();
 		assertThat(result.getRequest().getAttribute("csrf-attribute-name")).isInstanceOf(CsrfToken.class);
+		// @formatter:on
+	}
+
+	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorThenOk() throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestProcessor"), this.xml("shared-controllers"))
+				.autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/ok"))
+				.andExpect(status().isOk())
+				.andReturn();
+		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+		CsrfToken csrfToken = (CsrfToken) mvcResult.getRequest().getAttribute("_csrf");
+		MockHttpServletRequestBuilder ok = post("/ok")
+				.header(csrfToken.getHeaderName(), csrfToken.getToken())
+				.session(session);
+		this.mvc.perform(ok).andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorWithRawTokenThenForbidden() throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestProcessor"), this.xml("shared-controllers"))
+				.autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/ok"))
+				.andExpect(status().isOk())
+				.andReturn();
+		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+		MockHttpServletRequestBuilder ok = post("/ok")
+				.with(csrf())
+				.session(session);
+		this.mvc.perform(ok).andExpect(status().isForbidden());
 		// @formatter:on
 	}
 
