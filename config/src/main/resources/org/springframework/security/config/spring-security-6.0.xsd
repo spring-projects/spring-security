@@ -1277,7 +1277,7 @@
       <xs:attribute name="security-context-explicit-save" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Optional attribute that specifies that the SecurityContext should require explicit saving
-                rather than being synchronized from the SecurityContextHolder. Defaults to "false".
+                rather than being synchronized from the SecurityContextHolder. Defaults to "true".
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
