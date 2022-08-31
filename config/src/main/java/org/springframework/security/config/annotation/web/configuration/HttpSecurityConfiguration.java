@@ -56,8 +56,6 @@ class HttpSecurityConfiguration {
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
 
-	private AuthenticationManager authenticationManager;
-
 	private AuthenticationConfiguration authenticationConfiguration;
 
 	private ApplicationContext context;
@@ -68,10 +66,6 @@ class HttpSecurityConfiguration {
 	@Autowired
 	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
-	}
-
-	void setAuthenticationManager(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
 	}
 
 	@Autowired
@@ -120,8 +114,7 @@ class HttpSecurityConfiguration {
 	}
 
 	private AuthenticationManager authenticationManager() throws Exception {
-		return (this.authenticationManager != null) ? this.authenticationManager
-				: this.authenticationConfiguration.getAuthenticationManager();
+		return this.authenticationConfiguration.getAuthenticationManager();
 	}
 
 	private AuthenticationEventPublisher getAuthenticationEventPublisher() {
