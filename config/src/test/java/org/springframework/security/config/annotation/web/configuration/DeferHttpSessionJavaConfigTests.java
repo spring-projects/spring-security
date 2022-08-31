@@ -89,7 +89,6 @@ public class DeferHttpSessionJavaConfigTests {
 					.requireExplicitAuthenticationStrategy(true)
 				)
 				.csrf((csrf) -> csrf
-					.csrfRequestAttributeName("_csrf")
 					.csrfTokenRepository(csrfRepository)
 				);
 			// @formatter:on

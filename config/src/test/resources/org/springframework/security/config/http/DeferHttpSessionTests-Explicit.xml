@@ -29,8 +29,7 @@
 	<http auto-config="true"
 			use-authorization-manager="true">
 		<intercept-url  pattern="/**" access="permitAll"/>
-		<csrf request-attribute-name="_csrf"
-			token-repository-ref="csrfRepository"/>
+		<csrf token-repository-ref="csrfRepository"/>
 		<request-cache ref="requestCache"/>
 		<session-management authentication-strategy-explicit-invocation="true"/>
 	</http>
