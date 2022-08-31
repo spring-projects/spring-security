@@ -18,9 +18,11 @@ package org.springframework.security.config.annotation.web
 
 import org.springframework.context.ApplicationContext
 import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.annotation.SecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
+import org.springframework.security.web.DefaultSecurityFilterChain
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.util.ClassUtils
 import jakarta.servlet.Filter
@@ -75,6 +77,31 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
 
     var authenticationManager: AuthenticationManager? = null
+
+    /**
+     * Applies a [SecurityConfigurerAdapter] to this [HttpSecurity]
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     *
+     *  override fun configure(http: HttpSecurity) {
+     *      http {
+     *          apply(CustomSecurityConfigurer<HttpSecurity>())
+     *      }
+     *  }
+     * }
+     * ```
+     *
+     * @param configurer
+     * the [SecurityConfigurerAdapter] for further customizations
+     */
+    fun <C : SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> apply(configurer: C): C {
+        return this.http.apply(configurer)
+    }
 
     /**
      * Allows configuring the [HttpSecurity] to only be invoked when matching the

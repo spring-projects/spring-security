@@ -30,7 +30,9 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.config.Customizer
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -516,4 +518,40 @@ class HttpSecurityDslTests {
     }
 
     class CustomFilter : UsernamePasswordAuthenticationFilter()
+
+    @Test
+    fun `HTTP security when apply customer security configurer then custom filter added to filter chain`() {
+        this.spring.register(CustomSecurityConfigurerConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).contains(
+            CustomFilter::class.java
+        )
+    }
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomSecurityConfigurerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                apply(CustomSecurityConfigurer<HttpSecurity>()).custom {
+                }
+            }
+            return http.build()
+        }
+    }
+
+    class CustomSecurityConfigurer<H : HttpSecurityBuilder<H>> : AbstractHttpConfigurer<CustomSecurityConfigurer<H>, H>() {
+        override fun configure(builder: H) {
+            builder.addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        }
+
+        fun custom(configurer: Customizer<CustomSecurityConfigurer<H>>): CustomSecurityConfigurer<H> {
+            configurer.customize(CustomSecurityConfigurer())
+            return this
+        }
+    }
 }
