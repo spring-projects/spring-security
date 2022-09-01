@@ -1,0 +1,28 @@
+name: Deploy Docs
+on:
+  workflow_dispatch:
+permissions: read-all
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    #if: github.repository_owner == 'spring-projects'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 5
+    - name: Set Up Gradle
+      uses: spring-io/spring-gradle-build-action@v1
+      with:
+        java-version: '17'
+        distribution: temurin
+    - name: Scrub Gradle Cache
+      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
+      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
+      run: |
+        rm -f /home/runner/.gradle/caches/modules-2/modules-2.lock
+        rm -f /home/runner/.gradle/caches/modules-2/gc.properties
+    - name: Run Antora
+      run: ./gradlew antora
+    - name: Publish Docs
+      run: ${GITHUB_WORKSPACE}/.github/actions/publish-docs.sh "${{ secrets.DOCS_USERNAME }}@${{ secrets.DOCS_HOST }}" /opt/www/domains/spring.io/docs/htdocs/spring-security/reference/ "${{ secrets.DOCS_SSH_KEY }}" "${{ secrets.DOCS_SSH_HOST_KEY }}"
