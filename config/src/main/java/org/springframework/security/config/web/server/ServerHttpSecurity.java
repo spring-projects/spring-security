@@ -147,6 +147,8 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler;
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
 import org.springframework.security.web.server.header.CompositeServerHttpHeadersWriter;
@@ -1852,9 +1854,25 @@ public class ServerHttpSecurity {
 		 * @param enabled true if should read from multipart form body, else false.
 		 * Default is false
 		 * @return the {@link CsrfSpec} for additional configuration
+		 * @deprecated Use
+		 * {@link ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled(boolean)}
+		 * instead
 		 */
+		@Deprecated
 		public CsrfSpec tokenFromMultipartDataEnabled(boolean enabled) {
 			this.filter.setTokenFromMultipartDataEnabled(enabled);
+			return this;
+		}
+
+		/**
+		 * Specifies a {@link ServerCsrfTokenRequestHandler} that is used to make the
+		 * {@code CsrfToken} available as an exchange attribute.
+		 * @param requestHandler the {@link ServerCsrfTokenRequestHandler} to use
+		 * @return the {@link CsrfSpec} for additional configuration
+		 * @since 5.8
+		 */
+		public CsrfSpec csrfTokenRequestHandler(ServerCsrfTokenRequestHandler requestHandler) {
+			this.filter.setRequestHandler(requestHandler);
 			return this;
 		}
 

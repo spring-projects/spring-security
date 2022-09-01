@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -33,6 +34,8 @@ import org.springframework.security.web.server.authorization.ServerAccessDeniedH
 import org.springframework.security.web.server.csrf.CsrfToken
 import org.springframework.security.web.server.csrf.DefaultCsrfToken
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -288,6 +291,57 @@ class ServerCsrfDslTests {
                 csrf {
                     csrfTokenRepository = TOKEN_REPOSITORY
                     tokenFromMultipartDataEnabled = true
+                }
+            }
+        }
+
+        @RestController
+        internal class TestController {
+            @PostMapping("/")
+            fun home() {
+            }
+        }
+    }
+
+    @Test
+    fun `csrf when custom request handler then handler used`() {
+        this.spring.register(CustomRequestHandlerConfig::class.java).autowire()
+        mockkObject(CustomRequestHandlerConfig.REPOSITORY)
+        every {
+            CustomRequestHandlerConfig.REPOSITORY.loadToken(any())
+        } returns Mono.just(this.token)
+        mockkObject(CustomRequestHandlerConfig.HANDLER)
+        every {
+            CustomRequestHandlerConfig.HANDLER.handle(any(), any())
+        } returns Unit
+        every {
+            CustomRequestHandlerConfig.HANDLER.resolveCsrfTokenValue(any(), any())
+        } returns Mono.just(this.token.token)
+
+        this.client.post()
+            .uri("/")
+            .exchange()
+            .expectStatus().isOk
+        verify(exactly = 2) { CustomRequestHandlerConfig.REPOSITORY.loadToken(any()) }
+        verify(exactly = 1) { CustomRequestHandlerConfig.HANDLER.resolveCsrfTokenValue(any(), any()) }
+        verify(exactly = 1) { CustomRequestHandlerConfig.HANDLER.handle(any(), any()) }
+    }
+
+    @Configuration
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CustomRequestHandlerConfig {
+        companion object {
+            val REPOSITORY: ServerCsrfTokenRepository = WebSessionServerCsrfTokenRepository()
+            val HANDLER: ServerCsrfTokenRequestHandler = ServerCsrfTokenRequestAttributeHandler()
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                csrf {
+                    csrfTokenRepository = REPOSITORY
+                    csrfTokenRequestHandler = HANDLER
                 }
             }
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,17 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
@@ -64,6 +68,15 @@ public class CsrfWebFilterTests {
 	private MockServerWebExchange get = MockServerWebExchange.from(MockServerHttpRequest.get("/"));
 
 	private MockServerWebExchange post = MockServerWebExchange.from(MockServerHttpRequest.post("/"));
+
+	@Test
+	public void setRequestHandlerWhenNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.csrfFilter.setRequestHandler(null))
+				.withMessage("requestHandler cannot be null");
+		// @formatter:on
+	}
 
 	@Test
 	public void filterWhenGetThenSessionNotCreatedAndChainContinues() {
@@ -143,6 +156,28 @@ public class CsrfWebFilterTests {
 		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
 		StepVerifier.create(result).verifyComplete();
 		chainResult.assertWasSubscribed();
+	}
+
+	@Test
+	public void filterWhenRequestHandlerSetThenUsed() {
+		ServerCsrfTokenRequestHandler requestHandler = mock(ServerCsrfTokenRequestHandler.class);
+		given(requestHandler.resolveCsrfTokenValue(any(ServerWebExchange.class), any(CsrfToken.class)))
+				.willReturn(Mono.just(this.token.getToken()));
+		this.csrfFilter.setRequestHandler(requestHandler);
+
+		PublisherProbe<Void> chainResult = PublisherProbe.empty();
+		given(this.chain.filter(any())).willReturn(chainResult.mono());
+		this.csrfFilter.setCsrfTokenRepository(this.repository);
+		given(this.repository.loadToken(any())).willReturn(Mono.just(this.token));
+		given(this.repository.generateToken(any())).willReturn(Mono.just(this.token));
+		this.post = MockServerWebExchange
+				.from(MockServerHttpRequest.post("/").header(this.token.getHeaderName(), this.token.getToken()));
+		Mono<Void> result = this.csrfFilter.filter(this.post, this.chain);
+		StepVerifier.create(result).verifyComplete();
+		chainResult.assertWasSubscribed();
+
+		verify(requestHandler).handle(eq(this.post), any());
+		verify(requestHandler).resolveCsrfTokenValue(this.post, this.token);
 	}
 
 	@Test
