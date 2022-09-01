@@ -131,7 +131,7 @@ public class WithSecurityContextTestExecutionListener extends AbstractTestExecut
 	}
 
 	private Annotation findAnnotation(AnnotatedElement annotated, Class<? extends Annotation> type) {
-		Annotation findAnnotation = AnnotationUtils.findAnnotation(annotated, type);
+		Annotation findAnnotation = AnnotatedElementUtils.findMergedAnnotation(annotated, type);
 		if (findAnnotation != null) {
 			return findAnnotation;
 		}
