@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestResolver;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -89,7 +91,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private SessionAuthenticationStrategy sessionAuthenticationStrategy;
 
-	private String csrfRequestAttributeName;
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler;
+
+	private CsrfTokenRequestResolver requestResolver;
 
 	private final ApplicationContext context;
 
@@ -127,12 +131,25 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Sets the {@link CsrfFilter#setCsrfRequestAttributeName(String)}
-	 * @param csrfRequestAttributeName the attribute name to set the CsrfToken on.
-	 * @return the {@link CsrfConfigurer} for further customizations.
+	 * Specify a {@link CsrfTokenRequestAttributeHandler} to use for making the
+	 * {@code CsrfToken} available as a request attribute.
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 * @return the {@link CsrfConfigurer} for further customizations
 	 */
-	public CsrfConfigurer<H> csrfRequestAttributeName(String csrfRequestAttributeName) {
-		this.csrfRequestAttributeName = csrfRequestAttributeName;
+	public CsrfConfigurer<H> csrfTokenRequestAttributeHandler(
+			CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		this.requestAttributeHandler = requestAttributeHandler;
+		return this;
+	}
+
+	/**
+	 * Specify a {@link CsrfTokenRequestResolver} to use for resolving the token value
+	 * from the request.
+	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
+	 * @return the {@link CsrfConfigurer} for further customizations
+	 */
+	public CsrfConfigurer<H> csrfTokenRequestResolver(CsrfTokenRequestResolver requestResolver) {
+		this.requestResolver = requestResolver;
 		return this;
 	}
 
@@ -214,9 +231,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@Override
 	public void configure(H http) {
 		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
-		if (this.csrfRequestAttributeName != null) {
-			filter.setCsrfRequestAttributeName(this.csrfRequestAttributeName);
-		}
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
@@ -232,6 +246,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
 			sessionConfigurer.addSessionAuthenticationStrategy(getSessionAuthenticationStrategy());
+		}
+		if (this.requestAttributeHandler != null) {
+			filter.setRequestAttributeHandler(this.requestAttributeHandler);
+		}
+		if (this.requestResolver != null) {
+			filter.setRequestResolver(this.requestResolver);
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);
@@ -321,7 +341,12 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.sessionAuthenticationStrategy != null) {
 			return this.sessionAuthenticationStrategy;
 		}
-		return new CsrfAuthenticationStrategy(this.csrfTokenRepository);
+		CsrfAuthenticationStrategy csrfAuthenticationStrategy = new CsrfAuthenticationStrategy(
+				this.csrfTokenRepository);
+		if (this.requestAttributeHandler != null) {
+			csrfAuthenticationStrategy.setRequestAttributeHandler(this.requestAttributeHandler);
+		}
+		return csrfAuthenticationStrategy;
 	}
 
 	/**

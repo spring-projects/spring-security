@@ -33,8 +33,10 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -69,6 +71,25 @@ public class CsrfAuthenticationStrategyTests {
 	@Test
 	public void constructorNullCsrfTokenRepository() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new CsrfAuthenticationStrategy(null));
+	}
+
+	@Test
+	public void setRequestAttributeHandlerWhenNullThenIllegalStateException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setRequestAttributeHandler(null))
+				.withMessage("requestAttributeHandler cannot be null");
+	}
+
+	@Test
+	public void onAuthenticationWhenCustomRequestAttributeHandlerThenUsed() {
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
+
+		CsrfTokenRequestAttributeHandler requestAttributeHandler = mock(CsrfTokenRequestAttributeHandler.class);
+		this.strategy.setRequestAttributeHandler(requestAttributeHandler);
+		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
+				this.response);
+		verify(requestAttributeHandler).handle(eq(this.request), eq(this.response), any());
+		verifyNoMoreInteractions(requestAttributeHandler);
 	}
 
 	@Test
