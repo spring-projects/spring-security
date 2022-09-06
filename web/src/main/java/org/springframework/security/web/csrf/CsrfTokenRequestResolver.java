@@ -16,7 +16,7 @@
 
 package org.springframework.security.web.csrf;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Implementations of this interface are capable of resolving the token value of a

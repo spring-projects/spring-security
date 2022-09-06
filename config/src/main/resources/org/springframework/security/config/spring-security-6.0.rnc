@@ -1115,14 +1115,17 @@ csrf-options.attlist &=
 	## Specifies if csrf protection should be disabled. Default false (i.e. CSRF protection is enabled).
 	attribute disabled {xsd:boolean}?
 csrf-options.attlist &=
-	## The request attribute name the CsrfToken is set on. Default is to set to CsrfToken.parameterName
-	attribute request-attribute-name { xsd:token }?
-csrf-options.attlist &=
 	## The RequestMatcher instance to be used to determine if CSRF should be applied. Default is any HTTP method except "GET", "TRACE", "HEAD", "OPTIONS"
 	attribute request-matcher-ref { xsd:token }?
 csrf-options.attlist &=
 	## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository wrapped by LazyCsrfTokenRepository.
 	attribute token-repository-ref { xsd:token }?
+csrf-options.attlist &=
+	## The CsrfTokenRequestAttributeHandler to use. The default is CsrfTokenRequestProcessor.
+	attribute request-attribute-handler-ref { xsd:token }?
+csrf-options.attlist &=
+	## The CsrfTokenRequestResolver to use. The default is CsrfTokenRequestProcessor.
+	attribute request-resolver-ref { xsd:token }?
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.

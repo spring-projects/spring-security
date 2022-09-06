@@ -18,8 +18,8 @@ package org.springframework.security.web.csrf;
 
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.util.Assert;
 
@@ -34,7 +34,7 @@ import org.springframework.util.Assert;
  */
 public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandler, CsrfTokenRequestResolver {
 
-	private String csrfRequestAttributeName;
+	private String csrfRequestAttributeName = "_csrf";
 
 	/**
 	 * The {@link CsrfToken} is available as a request attribute named

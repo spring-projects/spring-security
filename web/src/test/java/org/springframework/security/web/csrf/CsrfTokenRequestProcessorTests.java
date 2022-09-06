@@ -78,17 +78,17 @@ public class CsrfTokenRequestProcessorTests {
 
 	@Test
 	public void handleWhenCsrfRequestAttributeSetThenUsed() {
-		this.processor.setCsrfRequestAttributeName("_csrf");
+		this.processor.setCsrfRequestAttributeName("_csrf.attr");
 		this.processor.handle(this.request, this.response, () -> this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(this.request.getAttribute("_csrf")).isEqualTo(this.token);
+		assertThat(this.request.getAttribute("_csrf.attr")).isEqualTo(this.token);
 	}
 
 	@Test
 	public void handleWhenValidParametersThenRequestAttributesSet() {
 		this.processor.handle(this.request, this.response, () -> this.token);
 		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
+		assertThat(this.request.getAttribute("_csrf")).isEqualTo(this.token);
 	}
 
 	@Test

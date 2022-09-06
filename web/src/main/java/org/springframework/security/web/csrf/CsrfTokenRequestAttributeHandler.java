@@ -18,8 +18,8 @@ package org.springframework.security.web.csrf;
 
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A callback interface that is used to make the {@link CsrfToken} created by the
