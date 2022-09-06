@@ -4,7 +4,7 @@ on:
 permissions: read-all
 jobs:
   build:
-    #if: github.repository_owner == 'spring-projects'
+    if: github.repository_owner == 'spring-projects'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
