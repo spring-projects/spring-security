@@ -252,6 +252,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 		static final String CLIENT_SECRET = "client-secret";
 
 		static final String AUTHENTICATION_CONVERTER_REF = "authentication-converter-ref";
+
 		static final String AUTHENTICATION_CONVERTER = "authenticationConverter";
 
 		OpaqueTokenBeanDefinitionParser() {
@@ -266,8 +267,7 @@ final class OAuth2ResourceServerBeanDefinitionParser implements BeanDefinitionPa
 					.rootBeanDefinition(OpaqueTokenAuthenticationProvider.class);
 			opaqueTokenProviderBuilder.addConstructorArgValue(introspector);
 			if (StringUtils.hasText(authenticationConverterRef)) {
-				opaqueTokenProviderBuilder.addPropertyValue(AUTHENTICATION_CONVERTER,
-						new RuntimeBeanReference(authenticationConverterRef));
+				opaqueTokenProviderBuilder.addPropertyReference(AUTHENTICATION_CONVERTER, authenticationConverterRef);
 			}
 			return opaqueTokenProviderBuilder.getBeanDefinition();
 		}

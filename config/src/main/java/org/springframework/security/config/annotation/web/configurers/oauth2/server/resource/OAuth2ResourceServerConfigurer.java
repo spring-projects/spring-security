@@ -21,12 +21,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.MediaType;
@@ -460,7 +458,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 
 		private Supplier<OpaqueTokenIntrospector> introspector;
 
-		private Supplier<OpaqueTokenAuthenticationConverter> authenticationConverter;
+		private OpaqueTokenAuthenticationConverter authenticationConverter;
 
 		OpaqueTokenConfigurer(ApplicationContext context) {
 			this.context = context;
@@ -499,7 +497,7 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		public OpaqueTokenConfigurer authenticationConverter(
 				OpaqueTokenAuthenticationConverter authenticationConverter) {
 			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-			this.authenticationConverter = () -> authenticationConverter;
+			this.authenticationConverter = authenticationConverter;
 			return this;
 		}
 
@@ -510,16 +508,14 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this.context.getBean(OpaqueTokenIntrospector.class);
 		}
 
-		Optional<OpaqueTokenAuthenticationConverter> getAuthenticationConverter() {
+		OpaqueTokenAuthenticationConverter getAuthenticationConverter() {
 			if (this.authenticationConverter != null) {
-				return Optional.of(this.authenticationConverter.get());
+				return this.authenticationConverter;
 			}
-			try {
-				return Optional.of(this.context.getBean(OpaqueTokenAuthenticationConverter.class));
+			if (this.context.getBeanNamesForType(OpaqueTokenAuthenticationConverter.class).length > 0) {
+				return this.context.getBean(OpaqueTokenAuthenticationConverter.class);
 			}
-			catch (NoSuchBeanDefinitionException nsbde) {
-				return Optional.empty();
-			}
+			return null;
 		}
 
 		AuthenticationProvider getAuthenticationProvider() {
@@ -527,9 +523,12 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 				return null;
 			}
 			OpaqueTokenIntrospector introspector = getIntrospector();
-			final OpaqueTokenAuthenticationProvider opaqueTokenAuthenticationProvider = new OpaqueTokenAuthenticationProvider(
+			OpaqueTokenAuthenticationProvider opaqueTokenAuthenticationProvider = new OpaqueTokenAuthenticationProvider(
 					introspector);
-			getAuthenticationConverter().ifPresent(opaqueTokenAuthenticationProvider::setAuthenticationConverter);
+			OpaqueTokenAuthenticationConverter authenticationConverter = getAuthenticationConverter();
+			if (authenticationConverter != null) {
+				opaqueTokenAuthenticationProvider.setAuthenticationConverter(authenticationConverter);
+			}
 			return opaqueTokenAuthenticationProvider;
 		}
 

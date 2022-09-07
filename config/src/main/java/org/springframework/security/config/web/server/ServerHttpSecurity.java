@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -36,7 +35,6 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.Ordered;
 import org.springframework.core.ResolvableType;
@@ -4286,7 +4284,7 @@ public class ServerHttpSecurity {
 
 			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
 
-			private Supplier<ReactiveOpaqueTokenAuthenticationConverter> authenticationConverter;
+			private ReactiveOpaqueTokenAuthenticationConverter authenticationConverter;
 
 			private OpaqueTokenSpec() {
 			}
@@ -4329,7 +4327,7 @@ public class ServerHttpSecurity {
 			public OpaqueTokenSpec authenticationConverter(
 					ReactiveOpaqueTokenAuthenticationConverter authenticationConverter) {
 				Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
-				this.authenticationConverter = () -> authenticationConverter;
+				this.authenticationConverter = authenticationConverter;
 				return this;
 			}
 
@@ -4343,10 +4341,12 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				final OpaqueTokenReactiveAuthenticationManager authenticationManager = new OpaqueTokenReactiveAuthenticationManager(
+				OpaqueTokenReactiveAuthenticationManager authenticationManager = new OpaqueTokenReactiveAuthenticationManager(
 						getIntrospector());
-				Optional.ofNullable(getAuthenticationConverter())
-						.ifPresent(authenticationManager::setAuthenticationConverter);
+				ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = getAuthenticationConverter();
+				if (authenticationConverter != null) {
+					authenticationManager.setAuthenticationConverter(authenticationConverter);
+				}
 				return authenticationManager;
 			}
 
@@ -4359,14 +4359,9 @@ public class ServerHttpSecurity {
 
 			protected ReactiveOpaqueTokenAuthenticationConverter getAuthenticationConverter() {
 				if (this.authenticationConverter != null) {
-					return this.authenticationConverter.get();
+					return this.authenticationConverter;
 				}
-				try {
-					return getBean(ReactiveOpaqueTokenAuthenticationConverter.class);
-				}
-				catch (NoSuchBeanDefinitionException nsbde) {
-					return null;
-				}
+				return getBeanOrNull(ReactiveOpaqueTokenAuthenticationConverter.class);
 			}
 
 			protected void configure(ServerHttpSecurity http) {

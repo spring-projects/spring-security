@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,6 @@ class OpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: OpaqueTokenIntrospector? = null
     private var clientCredentials: Pair<String, String>? = null
-    private var _authenticationConverter: OpaqueTokenAuthenticationConverter? = null
 
     var authenticationManager: AuthenticationManager? = null
 
@@ -56,11 +55,7 @@ class OpaqueTokenDsl {
             clientCredentials = null
         }
 
-    var authenticationConverter: OpaqueTokenAuthenticationConverter?
-        get() = _authenticationConverter
-        set(value) {
-            _authenticationConverter = value
-        }
+    var authenticationConverter: OpaqueTokenAuthenticationConverter? = null
 
     /**
      * Configures the credentials for Introspection endpoint.

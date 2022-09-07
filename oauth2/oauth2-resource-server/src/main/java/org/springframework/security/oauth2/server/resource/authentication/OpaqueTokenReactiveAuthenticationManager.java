@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link ReactiveAuthenticationManager} implementation for opaque
- * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target= "_blank">Bearer
+ * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
  * Token</a>s, using an
  * <a href="https://tools.ietf.org/html/rfc7662" target="_blank">OAuth 2.0 Introspection
  * Endpoint</a> to check the token's validity and reveal its attributes.
@@ -45,14 +45,13 @@ import org.springframework.util.Assert;
  * verifying an opaque access token, returning its attributes set as part of the
  * {@link Authentication} statement.
  * <p>
+ * A {@link ReactiveOpaqueTokenIntrospector} is responsible for retrieving token
+ * attributes from an authorization server.
  * <p>
- * {@link ReactiveOpaqueTokenIntrospector} is responsible for retrieving token attributes
- * from authorization-server.
- * </p>
- * <p>
- * authenticationConverter is responsible for turning successful introspection into
- * {@link Authentication} (which includes {@link GrantedAuthority}s mapping from token
- * attributes or retrieving from another source)
+ * A {@link ReactiveOpaqueTokenAuthenticationConverter} is responsible for turning a
+ * successful introspection result into an {@link Authentication} instance (which may
+ * include mapping {@link GrantedAuthority}s from token attributes or retrieving from
+ * another source).
  *
  * @author Josh Cummings
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
@@ -63,7 +62,7 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 
 	private final ReactiveOpaqueTokenIntrospector introspector;
 
-	private ReactiveOpaqueTokenAuthenticationConverter authenticationConverter;
+	private ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = OpaqueTokenReactiveAuthenticationManager::convert;
 
 	/**
 	 * Creates a {@code OpaqueTokenReactiveAuthenticationManager} with the provided
@@ -73,20 +72,16 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 	public OpaqueTokenReactiveAuthenticationManager(ReactiveOpaqueTokenIntrospector introspector) {
 		Assert.notNull(introspector, "introspector cannot be null");
 		this.introspector = introspector;
-		this.setAuthenticationConverter(OpaqueTokenReactiveAuthenticationManager::convert);
 	}
 
 	/**
-	 * <p>
 	 * Introspect and validate the opaque
 	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
 	 * Token</a> and then delegates {@link Authentication} instantiation to
-	 * {@link OpaqueTokenAuthenticationConverter}.
-	 * </p>
+	 * {@link ReactiveOpaqueTokenAuthenticationConverter}.
 	 * <p>
 	 * If created Authentication is instance of {@link AbstractAuthenticationToken} and
 	 * details are null, then introspection result details are used.
-	 * </p>
 	 * @param authentication the authentication request object.
 	 * @return A successful authentication
 	 */
@@ -117,10 +112,10 @@ public class OpaqueTokenReactiveAuthenticationManager implements ReactiveAuthent
 	}
 
 	/**
-	 * Default reactive {@link OpaqueTokenAuthenticationConverter}.
-	 * @param introspectedToken the bearer sring that was successfuly introspected
+	 * Default {@link ReactiveOpaqueTokenAuthenticationConverter}.
+	 * @param introspectedToken the bearer string that was successfully introspected
 	 * @param authenticatedPrincipal the successful introspection output
-	 * @returna an async wrapper of default {@link OpaqueTokenAuthenticationConverter}
+	 * @return an async wrapper of default {@link OpaqueTokenAuthenticationConverter}
 	 * result
 	 */
 	static Mono<Authentication> convert(String introspectedToken, OAuth2AuthenticatedPrincipal authenticatedPrincipal) {

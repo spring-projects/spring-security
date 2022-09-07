@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 class ServerOpaqueTokenDsl {
     private var _introspectionUri: String? = null
     private var _introspector: ReactiveOpaqueTokenIntrospector? = null
-    private var _authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter? = null
     private var clientCredentials: Pair<String, String>? = null
 
     var introspectionUri: String?
@@ -39,21 +38,15 @@ class ServerOpaqueTokenDsl {
         set(value) {
             _introspectionUri = value
             _introspector = null
-            _authenticationConverter = null
         }
     var introspector: ReactiveOpaqueTokenIntrospector?
         get() = _introspector
         set(value) {
             _introspector = value
-            _authenticationConverter = null
             _introspectionUri = null
             clientCredentials = null
         }
-    var authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter?
-        get() = _authenticationConverter
-        set(value) {
-            _authenticationConverter = value
-        }
+    var authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter? = null
 
     /**
      * Configures the credentials for Introspection endpoint.
@@ -64,7 +57,6 @@ class ServerOpaqueTokenDsl {
     fun introspectionClientCredentials(clientId: String, clientSecret: String) {
         clientCredentials = Pair(clientId, clientSecret)
         _introspector = null
-        _authenticationConverter = null
     }
 
     internal fun get(): (ServerHttpSecurity.OAuth2ResourceServerSpec.OpaqueTokenSpec) -> Unit {

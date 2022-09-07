@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Instant;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,7 +25,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
@@ -50,18 +50,21 @@ import org.springframework.util.Assert;
  * opaque access token, returning its attributes set as part of the {@link Authentication}
  * statement.
  * <p>
- * This {@link ReactiveAuthenticationManager} is responsible for introspecting and
- * verifying an opaque access token, returning its attributes set as part of the
- * {@link Authentication} statement.
+ * Scopes are translated into {@link GrantedAuthority}s according to the following
+ * algorithm:
+ * <ol>
+ * <li>If there is a "scope" attribute, then convert to a {@link Collection} of
+ * {@link String}s.
+ * <li>Take the resulting {@link Collection} and prepend the "SCOPE_" keyword to each
+ * element, adding as {@link GrantedAuthority}s.
+ * </ol>
  * <p>
+ * An {@link OpaqueTokenIntrospector} is responsible for retrieving token attributes from
+ * an authorization server.
  * <p>
- * {@link org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector}
- * is responsible for retrieving token attributes from authorization-server.
- * </p>
- * <p>
- * authenticationConverter is responsible for turning successful introspection into
- * {@link Authentication} (which includes {@link GrantedAuthority}s mapping from token
- * attributes or retrieving from an other source)
+ * An {@link OpaqueTokenAuthenticationConverter} is responsible for turning a successful
+ * introspection result into an {@link Authentication} instance (which may include mapping
+ * {@link GrantedAuthority}s from token attributes or retrieving from another source).
  *
  * @author Josh Cummings
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
@@ -74,7 +77,7 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 
 	private final OpaqueTokenIntrospector introspector;
 
-	private OpaqueTokenAuthenticationConverter authenticationConverter;
+	private OpaqueTokenAuthenticationConverter authenticationConverter = OpaqueTokenAuthenticationProvider::convert;
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -83,20 +86,16 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	public OpaqueTokenAuthenticationProvider(OpaqueTokenIntrospector introspector) {
 		Assert.notNull(introspector, "introspector cannot be null");
 		this.introspector = introspector;
-		this.setAuthenticationConverter(OpaqueTokenAuthenticationProvider::convert);
 	}
 
 	/**
-	 * <p>
 	 * Introspect and validate the opaque
 	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
 	 * Token</a> and then delegates {@link Authentication} instantiation to
 	 * {@link OpaqueTokenAuthenticationConverter}.
-	 * </p>
 	 * <p>
 	 * If created Authentication is instance of {@link AbstractAuthenticationToken} and
 	 * details are null, then introspection result details are used.
-	 * </p>
 	 * @param authentication the authentication request object.
 	 * @return A successful authentication
 	 * @throws AuthenticationException if authentication failed for some reason
@@ -142,9 +141,9 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 
 	/**
 	 * Default {@link OpaqueTokenAuthenticationConverter}.
-	 * @param introspectedToken the bearer sring that was successfuly introspected
+	 * @param introspectedToken the bearer string that was successfully introspected
 	 * @param authenticatedPrincipal the successful introspection output
-	 * @returna {@link BearerTokenAuthentication}
+	 * @return a {@link BearerTokenAuthentication}
 	 */
 	static BearerTokenAuthentication convert(String introspectedToken,
 			OAuth2AuthenticatedPrincipal authenticatedPrincipal) {

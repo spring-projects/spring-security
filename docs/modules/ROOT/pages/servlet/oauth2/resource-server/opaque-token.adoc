@@ -313,7 +313,8 @@ The filter chain is specified like so:
 <http>
     <intercept-uri pattern="/**" access="authenticated"/>
     <oauth2-resource-server>
-        <opaque-token introspector-ref="opaqueTokenIntrospector"/>
+        <opaque-token introspector-ref="opaqueTokenIntrospector"
+                authentication-converter-ref="opaqueTokenAuthenticationConverter"/>
     </oauth2-resource-server>
 </http>
 ----
@@ -332,6 +333,18 @@ And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntr
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.client_id}"/>
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.client_secret}"/>
 </bean>
+----
+====
+
+And the `OpaqueTokenAuthenticationConverter` like so:
+
+.Opaque Token Authentication Converter
+====
+.Xml
+[source,xml,role="primary"]
+----
+<bean id="opaqueTokenAuthenticationConverter"
+        class="com.example.CustomOpaqueTokenAuthenticationConverter"/>
 ----
 ====
 

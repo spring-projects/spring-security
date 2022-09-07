@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 
 /**
- * Turn successful introspection result into an Authentication instance
+ * Convert a successful introspection result into an authentication result.
  *
  * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.8
@@ -30,6 +30,12 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 @FunctionalInterface
 public interface ReactiveOpaqueTokenAuthenticationConverter {
 
+	/**
+	 * Converts a successful introspection result into an authentication result.
+	 * @param introspectedToken the bearer token used to perform token introspection
+	 * @param authenticatedPrincipal the result of token introspection
+	 * @return an {@link Authentication} instance
+	 */
 	Mono<Authentication> convert(String introspectedToken, OAuth2AuthenticatedPrincipal authenticatedPrincipal);
 
 }
