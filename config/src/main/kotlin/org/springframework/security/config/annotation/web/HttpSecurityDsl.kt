@@ -86,13 +86,15 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * ```
      * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      http {
-     *          apply(CustomSecurityConfigurer<HttpSecurity>())
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             apply(CustomSecurityConfigurer<HttpSecurity>())
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
