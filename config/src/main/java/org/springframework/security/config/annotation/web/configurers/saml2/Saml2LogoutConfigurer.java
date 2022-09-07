@@ -22,8 +22,6 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.opensaml.core.Version;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -44,8 +42,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml3LogoutRequestResolver;
-import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml3LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
@@ -313,15 +309,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return this.context.getBean(clazz);
 	}
 
-	private String version() {
-		String version = Version.getVersion();
-		if (version != null) {
-			return version;
-		}
-		return Version.class.getModule().getDescriptor().version().map(Object::toString)
-				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
-	}
-
 	/**
 	 * A configurer for SAML 2.0 LogoutRequest components
 	 */
@@ -401,10 +388,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			if (this.logoutRequestResolver != null) {
 				return this.logoutRequestResolver;
 			}
-			if (version().startsWith("4")) {
-				return new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
-			}
-			return new OpenSaml3LogoutRequestResolver(relyingPartyRegistrationResolver);
+			return new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
 		}
 
 	}
@@ -471,10 +455,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		private Saml2LogoutResponseResolver logoutResponseResolver(
 				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 			if (this.logoutResponseResolver == null) {
-				if (version().startsWith("4")) {
-					return new OpenSaml4LogoutResponseResolver(relyingPartyRegistrationResolver);
-				}
-				return new OpenSaml3LogoutResponseResolver(relyingPartyRegistrationResolver);
+				return new OpenSaml4LogoutResponseResolver(relyingPartyRegistrationResolver);
 			}
 			return this.logoutResponseResolver;
 		}
@@ -507,14 +488,6 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		@Override
 		public boolean matches(HttpServletRequest request) {
 			return this.test.test(request.getParameter(this.name));
-		}
-
-	}
-
-	private static class NoopLogoutHandler implements LogoutHandler {
-
-		@Override
-		public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		}
 
 	}
