@@ -6,6 +6,8 @@ Below are the highlights of the release.
 
 == Breaking Changes
 
+* https://github.com/spring-projects/spring-security/issues/10556[gh-10556] - Remove EOL OpenSaml 3 Support.
+Use the OpenSaml 4 Support instead.
 * https://github.com/spring-projects/spring-security/issues/8980[gh-8980] - Remove unsafe/deprecated `Encryptors.querableText(CharSequence,CharSequence)`.
 Instead use data storage to encrypt values.
 * https://github.com/spring-projects/spring-security/issues/11520[gh-11520] - Remember Me uses SHA256 by default
