@@ -71,7 +71,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 			WebApplicationContext context) {
 		String securityBeanId = BeanIds.SPRING_SECURITY_FILTER_CHAIN;
 		if (getSpringSecurityFilterChain() == null && context.containsBean(securityBeanId)) {
-			setSpringSecurityFitlerChain(context.getBean(securityBeanId, Filter.class));
+			setSpringSecurityFilterChain(context.getBean(securityBeanId, Filter.class));
 		}
 		Assert.state(getSpringSecurityFilterChain() != null,
 				() -> "springSecurityFilterChain cannot be null. Ensure a Bean with the name " + securityBeanId
@@ -81,7 +81,7 @@ final class SecurityMockMvcConfigurer extends MockMvcConfigurerAdapter {
 		return testSecurityContext();
 	}
 
-	private void setSpringSecurityFitlerChain(Filter filter) {
+	private void setSpringSecurityFilterChain(Filter filter) {
 		this.delegateFilter.setDelegate(filter);
 	}
 
