@@ -6,16 +6,22 @@ plugins {
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
+node {
+	version = "16.17.0"
+}
+
 antora {
-	antoraVersion = "3.0.0"
-	arguments = ["--fetch", "--stacktrace"]
+	antoraVersion = "3.1.0"
+	playbookFile = file("local-antora-playbook.yml")
+	arguments = ["--clean", "--stacktrace"]
 }
 
 tasks.antora {
+	dependsOn "generateAntora"
 	environment = [
-			"ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
-			"ALGOLIA_APP_ID" : "244V8V9FGG",
-			"ALGOLIA_INDEX_NAME" : "security-docs"
+		"ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
+		"ALGOLIA_APP_ID" : "244V8V9FGG",
+		"ALGOLIA_INDEX_NAME" : "security-docs"
 	]
 }
 
@@ -63,8 +69,6 @@ ${ymlVersions}
 """)
 	}
 }
-
-
 
 dependencies {
 	testImplementation platform(project(":spring-security-dependencies"))

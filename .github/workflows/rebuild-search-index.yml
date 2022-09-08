@@ -1,0 +1,8 @@
+name: Rebuild Search Index
+on:
+  workflow_dispatch:
+jobs:
+  register:
+    if: false
+    steps:
+    - run: echo Workflow registered!
