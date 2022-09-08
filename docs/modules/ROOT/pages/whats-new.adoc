@@ -4,4 +4,5 @@
 Spring Security 5.8 provides a number of new features.
 Below are the highlights of the release.
 
-[[whats-new-servlet]]
+* https://github.com/spring-projects/spring-security/pull/11782[gh-11782] - @WithMockUser Supported as Merged Annotation
+	
