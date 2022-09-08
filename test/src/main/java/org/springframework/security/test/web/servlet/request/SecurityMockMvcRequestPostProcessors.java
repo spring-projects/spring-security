@@ -180,7 +180,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	/**
 	 * Creates a {@link RequestPostProcessor} that can be used to ensure that the
 	 * resulting request is ran with the user in the {@link TestSecurityContextHolder}.
-	 * @return the {@link RequestPostProcessor} to sue
+	 * @return the {@link RequestPostProcessor} to use
 	 */
 	public static RequestPostProcessor testSecurityContext() {
 		return new TestSecurityContextHolderPostProcessor();
