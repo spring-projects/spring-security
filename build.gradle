@@ -1,0 +1,27 @@
+plugins {
+	id "io.github.rwinch.antora" version "0.0.2"
+}
+
+group = 'org.springframework.security'
+description = 'Spring Security'
+
+node {
+	version = "16.17.0"
+}
+
+antora {
+	antoraVersion = "3.1.0"
+	arguments = ["--clean", "--fetch", "--stacktrace"]
+}
+
+tasks.antora {
+	environment = [
+		"ALGOLIA_API_KEY" : "82c7ead946afbac3cf98c32446154691",
+		"ALGOLIA_APP_ID" : "244V8V9FGG",
+		"ALGOLIA_INDEX_NAME" : "security-docs"
+	]
+}
+
+repositories {
+	mavenCentral()
+}

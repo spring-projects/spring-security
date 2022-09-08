@@ -1,0 +1,15 @@
+name: Rebuild Search Index
+on:
+  workflow_dispatch:
+permissions: read-all
+jobs:
+  build:
+    if: github.repository_owner == 'spring-projects'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 5
+    - name: Run Docsearch Scraper
+      run: $GITHUB_WORKSPACE/.github/actions/algolia-docsearch-scraper.sh "${{ secrets.ALGOLIA_APPLICATION_ID }}" "${{ secrets.ALGOLIA_WRITE_API_KEY }}" $GITHUB_WORKSPACE/.github/actions/algolia-config.json
