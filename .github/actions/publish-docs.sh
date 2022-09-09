@@ -11,8 +11,15 @@ if [ "$#" -ne 4 ]; then
   exit 1
 fi
 
-install -m 600 -D /dev/null "$SSH_PRIVATE_KEY_PATH"
-echo "$SSH_PRIVATE_KEY" > "$SSH_PRIVATE_KEY_PATH"
-echo "$SSH_KNOWN_HOST" > ~/.ssh/known_hosts
-rsync --delete -avze "ssh -i $SSH_PRIVATE_KEY_PATH" build/site/ "$HOST:$HOST_PATH"
+(
+  set -e
+  install -m 600 -D /dev/null "$SSH_PRIVATE_KEY_PATH"
+  echo "$SSH_PRIVATE_KEY" > "$SSH_PRIVATE_KEY_PATH"
+  echo "$SSH_KNOWN_HOST" > ~/.ssh/known_hosts
+  rsync --delete -avze "ssh -i $SSH_PRIVATE_KEY_PATH" build/site/ "$HOST:$HOST_PATH"
+)
+exit_code=$?
+
 rm -f "$SSH_PRIVATE_KEY_PATH"
+
+exit $exit_code
