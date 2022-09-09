@@ -2,7 +2,7 @@ name: Deploy Docs
 on:
   workflow_dispatch:
   push:
-    branches: docs-deploy
+    branches: docs-build
 permissions: read-all
 jobs:
   build:
