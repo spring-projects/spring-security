@@ -4,7 +4,7 @@ HOST="$1"
 HOST_PATH="$2"
 SSH_PRIVATE_KEY="$3"
 SSH_KNOWN_HOST="$4"
-SSH_PRIVATE_KEY_PATH="$HOME/.ssh-ci/${GITHUB_REPOSITORY:-publish-docs}"
+SSH_PRIVATE_KEY_PATH="$HOME/.ssh/${GITHUB_REPOSITORY:-publish-docs}"
 
 if [ "$#" -ne 4 ]; then
   echo -e "not enough arguments USAGE:\n\n$0 \$HOST \$HOST_PATH \$SSH_PRIVATE_KEY \$SSH_KNOWN_HOSTS\n\n" >&2
