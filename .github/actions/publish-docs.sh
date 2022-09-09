@@ -7,7 +7,7 @@ SSH_KNOWN_HOST="$4"
 SSH_PRIVATE_KEY_PATH="$HOME/.ssh/${GITHUB_REPOSITORY:-publish-docs}"
 
 if [ "$#" -ne 4 ]; then
-  echo -e "not enough arguments USAGE:\n\n$0 \$HOST \$HOST_PATH \$SSH_PRIVATE_KEY \$SSH_KNOWN_HOSTS\n\n" >&2
+  echo -e "not enough arguments USAGE:\n\n$0 \$HOST \$HOST_PATH \$SSH_PRIVATE_KEY \$SSH_KNOWN_HOST\n\n" >&2
   exit 1
 fi
 
