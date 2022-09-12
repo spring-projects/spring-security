@@ -35,6 +35,10 @@ public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthent
 		this.exception = exception;
 	}
 
+	public Authentication getAuthentication() {
+		return (Authentication) getSource();
+	}
+
 	public AuthenticationException getException() {
 		return this.exception;
 	}

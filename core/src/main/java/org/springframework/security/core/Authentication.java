@@ -134,4 +134,8 @@ public interface Authentication extends Principal, Serializable {
 	 */
 	void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException;
 
+	default String getAuthenticationType() {
+		return this.getClass().getSimpleName();
+	}
+
 }

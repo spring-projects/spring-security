@@ -16,14 +16,14 @@
 
 package org.springframework.security.access.event;
 
-import org.springframework.context.ApplicationEvent;
+import org.springframework.security.event.SecurityEvent;
 
 /**
  * Abstract superclass for all security interception related events.
  *
  * @author Ben Alex
  */
-public abstract class AbstractAuthorizationEvent extends ApplicationEvent {
+public abstract class AbstractAuthorizationEvent extends SecurityEvent {
 
 	/**
 	 * Construct the event, passing in the secure object being intercepted.

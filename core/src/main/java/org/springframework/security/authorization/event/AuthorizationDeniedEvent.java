@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.event.SecurityEvent;
 
 /**
  * An {@link ApplicationEvent} which indicates failed authorization.
@@ -29,7 +30,7 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationDeniedEvent<T> extends ApplicationEvent {
+public class AuthorizationDeniedEvent<T> extends SecurityEvent {
 
 	private final Supplier<Authentication> authentication;
 

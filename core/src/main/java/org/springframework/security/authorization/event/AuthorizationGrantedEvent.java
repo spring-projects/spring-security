@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.event.SecurityEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -30,7 +31,7 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationGrantedEvent<T> extends ApplicationEvent {
+public class AuthorizationGrantedEvent<T> extends SecurityEvent {
 
 	private final Supplier<Authentication> authentication;
 
