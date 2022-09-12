@@ -16,27 +16,36 @@
 
 package org.springframework.security.core.context;
 
-import org.junit.jupiter.api.Test;
+import java.util.function.Supplier;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import org.springframework.security.authentication.TestingAuthenticationToken;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 public class ListeningSecurityContextHolderStrategyTests {
 
 	@Test
 	public void setContextWhenInvokedThenListenersAreNotified() {
-		SecurityContextHolderStrategy delegate = mock(SecurityContextHolderStrategy.class);
+		SecurityContextHolderStrategy delegate = spy(new MockSecurityContextHolderStrategy());
 		SecurityContextChangedListener one = mock(SecurityContextChangedListener.class);
 		SecurityContextChangedListener two = mock(SecurityContextChangedListener.class);
 		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, one, two);
 		given(delegate.createEmptyContext()).willReturn(new SecurityContextImpl());
 		SecurityContext context = strategy.createEmptyContext();
 		strategy.setContext(context);
-		verify(delegate).setContext(context);
+		strategy.getContext();
 		verify(one).securityContextChanged(any());
 		verify(two).securityContextChanged(any());
 	}
@@ -49,8 +58,66 @@ public class ListeningSecurityContextHolderStrategyTests {
 		SecurityContext context = new SecurityContextImpl();
 		given(delegate.getContext()).willReturn(context);
 		strategy.setContext(strategy.getContext());
-		verify(delegate).setContext(context);
+		strategy.getContext();
 		verifyNoInteractions(listener);
+	}
+
+	@Test
+	public void clearContextWhenNoGetContextThenContextIsNotRead() {
+		SecurityContextHolderStrategy delegate = mock(SecurityContextHolderStrategy.class);
+		SecurityContextChangedListener listener = mock(SecurityContextChangedListener.class);
+		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, listener);
+		Supplier<SecurityContext> context = mock(Supplier.class);
+		ArgumentCaptor<SecurityContextChangedEvent> event = ArgumentCaptor.forClass(SecurityContextChangedEvent.class);
+		given(delegate.getDeferredContext()).willReturn(context);
+		given(delegate.getContext()).willAnswer((invocation) -> context.get());
+		strategy.clearContext();
+		verifyNoInteractions(context);
+		verify(listener).securityContextChanged(event.capture());
+		assertThat(event.getValue().isCleared()).isTrue();
+		strategy.getContext();
+		verify(context).get();
+		strategy.clearContext();
+		verifyNoMoreInteractions(context);
+	}
+
+	@Test
+	public void getContextWhenCalledMultipleTimesThenEventPublishedOnce() {
+		SecurityContextHolderStrategy delegate = new MockSecurityContextHolderStrategy();
+		SecurityContextChangedListener listener = mock(SecurityContextChangedListener.class);
+		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, listener);
+		strategy.setContext(new SecurityContextImpl());
+		verifyNoInteractions(listener);
+		strategy.getContext();
+		verify(listener).securityContextChanged(any());
+		strategy.getContext();
+		verifyNoMoreInteractions(listener);
+	}
+
+	@Test
+	public void setContextWhenCalledMultipleTimesThenPublishedEventsAlign() {
+		SecurityContextHolderStrategy delegate = new MockSecurityContextHolderStrategy();
+		SecurityContextChangedListener listener = mock(SecurityContextChangedListener.class);
+		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, listener);
+		SecurityContext one = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		SecurityContext two = new SecurityContextImpl(new TestingAuthenticationToken("admin", "pass"));
+		ArgumentCaptor<SecurityContextChangedEvent> event = ArgumentCaptor.forClass(SecurityContextChangedEvent.class);
+		strategy.setContext(one);
+		strategy.setContext(two);
+		verifyNoInteractions(listener);
+		strategy.getContext();
+		verify(listener).securityContextChanged(event.capture());
+		assertThat(event.getValue().getOldContext()).isEqualTo(one);
+		assertThat(event.getValue().getNewContext()).isEqualTo(two);
+		strategy.getContext();
+		verifyNoMoreInteractions(listener);
+		strategy.setContext(one);
+		verifyNoMoreInteractions(listener);
+		reset(listener);
+		strategy.getContext();
+		verify(listener).securityContextChanged(event.capture());
+		assertThat(event.getValue().getOldContext()).isEqualTo(two);
+		assertThat(event.getValue().getNewContext()).isEqualTo(one);
 	}
 
 	@Test
