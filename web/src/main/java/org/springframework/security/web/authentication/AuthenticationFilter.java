@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.core.Authentication;
@@ -74,6 +75,8 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 	private RequestMatcher requestMatcher = AnyRequestMatcher.INSTANCE;
 
 	private AuthenticationConverter authenticationConverter;
+
+	private AuthenticationEventPublisher eventPublisher = new NullEventPublisher();
 
 	private AuthenticationSuccessHandler successHandler = new SavedRequestAwareAuthenticationSuccessHandler();
 
@@ -166,6 +169,10 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
+	public void setEventPublisher(AuthenticationEventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
+	}
+
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
@@ -176,19 +183,33 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
+		Authentication authenticationRequest = null;
 		try {
-			Authentication authenticationResult = attemptAuthentication(request, response);
-			if (authenticationResult == null) {
+			authenticationRequest = this.authenticationConverter.convert(request);
+			if (authenticationRequest == null) {
 				filterChain.doFilter(request, response);
 				return;
+			}
+		}
+		catch (AuthenticationException ex) {
+			this.securityContextHolderStrategy.clearContext();
+			this.failureHandler.onAuthenticationFailure(request, response, ex);
+		}
+		try {
+			AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
+			Authentication authenticationResult = authenticationManager.authenticate(authenticationRequest);
+			if (authenticationResult == null) {
+				throw new ServletException("AuthenticationManager should not return null Authentication object.");
 			}
 			HttpSession session = request.getSession(false);
 			if (session != null) {
 				request.changeSessionId();
 			}
+			this.eventPublisher.publishAuthenticationSuccess(authenticationRequest);
 			successfulAuthentication(request, response, filterChain, authenticationResult);
 		}
 		catch (AuthenticationException ex) {
+			this.eventPublisher.publishAuthenticationFailure(ex, authenticationRequest);
 			unsuccessfulAuthentication(request, response, ex);
 		}
 	}
@@ -208,18 +229,16 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 		this.successHandler.onAuthenticationSuccess(request, response, chain, authentication);
 	}
 
-	private Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-			throws AuthenticationException, ServletException {
-		Authentication authentication = this.authenticationConverter.convert(request);
-		if (authentication == null) {
-			return null;
+	private static final class NullEventPublisher implements AuthenticationEventPublisher {
+
+		@Override
+		public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
 		}
-		AuthenticationManager authenticationManager = this.authenticationManagerResolver.resolve(request);
-		Authentication authenticationResult = authenticationManager.authenticate(authentication);
-		if (authenticationResult == null) {
-			throw new ServletException("AuthenticationManager should not return null Authentication object.");
+
+		@Override
+		public void publishAuthenticationSuccess(Authentication authentication) {
 		}
-		return authenticationResult;
+
 	}
 
 }
