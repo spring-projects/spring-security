@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -29,14 +30,14 @@ public class ListeningSecurityContextHolderStrategyTests {
 
 	@Test
 	public void setContextWhenInvokedThenListenersAreNotified() {
-		SecurityContextHolderStrategy delegate = mock(SecurityContextHolderStrategy.class);
+		SecurityContextHolderStrategy delegate = spy(new MockSecurityContextHolderStrategy());
 		SecurityContextChangedListener one = mock(SecurityContextChangedListener.class);
 		SecurityContextChangedListener two = mock(SecurityContextChangedListener.class);
 		SecurityContextHolderStrategy strategy = new ListeningSecurityContextHolderStrategy(delegate, one, two);
 		given(delegate.createEmptyContext()).willReturn(new SecurityContextImpl());
 		SecurityContext context = strategy.createEmptyContext();
 		strategy.setContext(context);
-		verify(delegate).setContext(context);
+		strategy.getContext();
 		verify(one).securityContextChanged(any());
 		verify(two).securityContextChanged(any());
 	}
@@ -49,7 +50,7 @@ public class ListeningSecurityContextHolderStrategyTests {
 		SecurityContext context = new SecurityContextImpl();
 		given(delegate.getContext()).willReturn(context);
 		strategy.setContext(strategy.getContext());
-		verify(delegate).setContext(context);
+		strategy.getContext();
 		verifyNoInteractions(listener);
 	}
 

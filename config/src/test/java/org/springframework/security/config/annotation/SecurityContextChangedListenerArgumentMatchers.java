@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation;
 
+import java.util.function.Supplier;
+
 import org.mockito.ArgumentMatcher;
 
 import org.springframework.security.core.Authentication;
@@ -29,8 +31,8 @@ public final class SecurityContextChangedListenerArgumentMatchers {
 	public static SecurityContextChangedEvent setAuthentication(Class<? extends Authentication> authenticationClass) {
 		return argThat(new ArgumentMatcher<SecurityContextChangedEvent>() {
 			public boolean matches(SecurityContextChangedEvent event) {
-				Authentication previous = authentication(event.getOldContext());
-				Authentication next = authentication(event.getNewContext());
+				Authentication previous = authentication(event.getDeferredOldContext());
+				Authentication next = authentication(event.getDeferredNewContext());
 				return previous == null && next != null && authenticationClass.isAssignableFrom(next.getClass());
 			}
 
@@ -40,11 +42,14 @@ public final class SecurityContextChangedListenerArgumentMatchers {
 		});
 	}
 
-	private static Authentication authentication(SecurityContext context) {
+	private static Authentication authentication(Supplier<SecurityContext> context) {
 		if (context == null) {
 			return null;
 		}
-		return context.getAuthentication();
+		if (context.get() == null) {
+			return null;
+		}
+		return context.get().getAuthentication();
 	}
 
 	private SecurityContextChangedListenerArgumentMatchers() {

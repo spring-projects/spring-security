@@ -16,6 +16,8 @@
 
 package org.springframework.security.core.context;
 
+import java.util.function.Supplier;
+
 import org.springframework.context.ApplicationEvent;
 
 /**
@@ -26,9 +28,15 @@ import org.springframework.context.ApplicationEvent;
  */
 public class SecurityContextChangedEvent extends ApplicationEvent {
 
-	private final SecurityContext oldContext;
+	private final Supplier<SecurityContext> oldContext;
 
-	private final SecurityContext newContext;
+	private final Supplier<SecurityContext> newContext;
+
+	public SecurityContextChangedEvent(Supplier<SecurityContext> oldContext, Supplier<SecurityContext> newContext) {
+		super(SecurityContextHolder.class);
+		this.oldContext = oldContext;
+		this.newContext = newContext;
+	}
 
 	/**
 	 * Construct an event
@@ -37,8 +45,8 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 */
 	public SecurityContextChangedEvent(SecurityContext oldContext, SecurityContext newContext) {
 		super(SecurityContextHolder.class);
-		this.oldContext = oldContext;
-		this.newContext = newContext;
+		this.oldContext = () -> oldContext;
+		this.newContext = () -> newContext;
 	}
 
 	/**
@@ -47,6 +55,10 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 * @return the previous {@link SecurityContext}
 	 */
 	public SecurityContext getOldContext() {
+		return this.oldContext.get();
+	}
+
+	public Supplier<SecurityContext> getDeferredOldContext() {
 		return this.oldContext;
 	}
 
@@ -56,6 +68,10 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 * @return the current {@link SecurityContext}
 	 */
 	public SecurityContext getNewContext() {
+		return this.newContext.get();
+	}
+
+	public Supplier<SecurityContext> getDeferredNewContext() {
 		return this.newContext;
 	}
 

@@ -18,6 +18,8 @@ package org.springframework.security.core.context;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Supplier;
 
 import org.springframework.util.Assert;
 
@@ -127,9 +129,9 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	 */
 	@Override
 	public void clearContext() {
-		SecurityContext from = getContext();
+		Supplier<SecurityContext> deferred = this.delegate.getDeferredContext();
 		this.delegate.clearContext();
-		publish(from, null);
+		publish(deferred, null);
 	}
 
 	/**
@@ -140,14 +142,25 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 		return this.delegate.getContext();
 	}
 
+	@Override
+	public Supplier<SecurityContext> getDeferredContext() {
+		return this.delegate.getDeferredContext();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void setContext(SecurityContext context) {
-		SecurityContext from = getContext();
-		this.delegate.setContext(context);
-		publish(from, context);
+		setDeferredContext(() -> context);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void setDeferredContext(Supplier<SecurityContext> deferredContext) {
+		this.delegate.setDeferredContext(new PublishOnceSupplier(getDeferredContext(), deferredContext));
 	}
 
 	/**
@@ -158,7 +171,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 		return this.delegate.createEmptyContext();
 	}
 
-	private void publish(SecurityContext previous, SecurityContext current) {
+	private void publish(Supplier<SecurityContext> previous, Supplier<SecurityContext> current) {
 		if (previous == current) {
 			return;
 		}
@@ -166,6 +179,36 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 		for (SecurityContextChangedListener listener : this.listeners) {
 			listener.securityContextChanged(event);
 		}
+	}
+
+	class PublishOnceSupplier implements Supplier<SecurityContext> {
+
+		private final AtomicBoolean isPublished = new AtomicBoolean(false);
+
+		private final Supplier<SecurityContext> old;
+
+		private final Supplier<SecurityContext> updated;
+
+		PublishOnceSupplier(Supplier<SecurityContext> old, Supplier<SecurityContext> updated) {
+			if (old instanceof PublishOnceSupplier) {
+				this.old = ((PublishOnceSupplier) old).updated;
+			}
+			else {
+				this.old = old;
+			}
+			this.updated = updated;
+		}
+
+		@Override
+		public SecurityContext get() {
+			if (this.isPublished.compareAndSet(false, true)) {
+				SecurityContext updated = this.updated.get();
+				publish(this.old, this.updated);
+				return updated;
+			}
+			return this.updated.get();
+		}
+
 	}
 
 }
