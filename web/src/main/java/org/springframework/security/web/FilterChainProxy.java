@@ -28,6 +28,11 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import io.micrometer.common.KeyValues;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -158,6 +163,12 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private RequestRejectedHandler requestRejectedHandler = new HttpStatusRequestRejectedHandler();
 
+	private static final String OBSERVATION_NAME = "spring.security.filter.chain";
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+	private FilterChainObservationConvention observationConvention = new FilterChainObservationConvention();
+
 	private ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 
 	public FilterChainProxy() {
@@ -184,11 +195,18 @@ public class FilterChainProxy extends GenericFilterBean {
 			doFilterInternal(request, response, chain);
 			return;
 		}
-		try {
+		FilterChainObservationContext context = new FilterChainObservationContext(request);
+		Observation observation = Observation.createNotStarted(OBSERVATION_NAME, context, this.observationRegistry)
+				.observationConvention(this.observationConvention).start();
+		try (Observation.Scope scope = observation.openScope()) {
 			request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-			doFilterInternal(request, response, chain);
+			doFilterInternal(request, response, (req, res) -> {
+				observation.event(Observation.Event.of("request.secured"));
+				chain.doFilter(req, res);
+			});
 		}
 		catch (Exception ex) {
+			observation.error(ex);
 			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
 			Throwable requestRejectedException = this.throwableAnalyzer
 					.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
@@ -200,6 +218,7 @@ public class FilterChainProxy extends GenericFilterBean {
 		}
 		finally {
 			this.securityContextHolderStrategy.clearContext();
+			observation.stop();
 			request.removeAttribute(FILTER_APPLIED);
 		}
 	}
@@ -302,6 +321,18 @@ public class FilterChainProxy extends GenericFilterBean {
 		this.requestRejectedHandler = requestRejectedHandler;
 	}
 
+	/**
+	 * Sets the {@link ObservationRegistry} to use.
+	 * Use {@link ObservationRegistry#NOOP} to turn off observations.
+	 *
+	 * @param observationRegistry the {@link ObservationRegistry} to use
+	 * @since 6.0
+	 */
+	public void setObservationRegistry(ObservationRegistry observationRegistry) {
+		Assert.notNull(observationRegistry, "observationRegistry cannot be null");
+		this.observationRegistry = observationRegistry;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -372,6 +403,36 @@ public class FilterChainProxy extends GenericFilterBean {
 
 		@Override
 		public void validate(FilterChainProxy filterChainProxy) {
+		}
+
+	}
+
+	private static class FilterChainObservationContext extends Observation.Context {
+
+		private final ServletRequest request;
+
+		private FilterChainObservationContext(ServletRequest request) {
+			this.request = request;
+		}
+
+		String getRequestLine() {
+			return requestLine((HttpServletRequest) this.request);
+		}
+
+	}
+
+	private static class FilterChainObservationConvention
+			implements ObservationConvention<FilterChainObservationContext> {
+
+		@Override
+		public KeyValues getHighCardinalityKeyValues(FilterChainObservationContext context) {
+			String requestLine = context.getRequestLine();
+			return KeyValues.of("request.line", requestLine);
+		}
+
+		@Override
+		public boolean supportsContext(Observation.Context context) {
+			return context instanceof FilterChainObservationContext;
 		}
 
 	}

@@ -22,6 +22,8 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
+
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -102,6 +104,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private boolean debugEnabled;
 
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
 	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
@@ -231,6 +235,12 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		return this;
 	}
 
+	public WebSecurity observationRegistry(ObservationRegistry observationRegistry) {
+		Assert.notNull(observationRegistry, "observationRegistry cannot be null");
+		this.observationRegistry = observationRegistry;
+		return this;
+	}
+
 	/**
 	 * Gets the {@link SecurityExpressionHandler} to be used.
 	 * @return the {@link SecurityExpressionHandler} for further customizations
@@ -305,6 +315,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.requestRejectedHandler != null) {
 			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
+		filterChainProxy.setObservationRegistry(this.observationRegistry);
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
@@ -365,6 +376,11 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		try {
 			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+		}
+		try {
+			this.observationRegistry = applicationContext.getBean(ObservationRegistry.class);
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}

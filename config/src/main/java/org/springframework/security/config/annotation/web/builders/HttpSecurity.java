@@ -28,12 +28,15 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -2984,7 +2987,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			setSharedObject(AuthenticationManager.class, this.authenticationManager);
 		}
 		else {
-			setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+			ObservationRegistry registry = getObservationRegistry();
+			AuthenticationManager manager = getAuthenticationRegistry().build();
+			if (!registry.isNoop()) {
+				setSharedObject(AuthenticationManager.class, new ObservationAuthenticationManager(registry, manager));
+			} else {
+				setSharedObject(AuthenticationManager.class, manager);
+			}
 		}
 	}
 
@@ -3507,6 +3516,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			return HttpSecurity.this;
 		}
 
+	}
+
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getContext();
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return (ObservationRegistry) context.getBean(names[0]);
+		}
+		return ObservationRegistry.NOOP;
 	}
 
 	/**

@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.reactive;
 import java.util.Arrays;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -55,6 +57,8 @@ class WebFluxSecurityConfiguration {
 
 	private List<SecurityWebFilterChain> securityWebFilterChains;
 
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 	@Autowired
 	ApplicationContext context;
 
@@ -63,10 +67,17 @@ class WebFluxSecurityConfiguration {
 		this.securityWebFilterChains = securityWebFilterChains;
 	}
 
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.observationRegistry = observationRegistry;
+	}
+
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
 	WebFilterChainProxy springSecurityWebFilterChainFilter() {
-		return new WebFilterChainProxy(getSecurityWebFilterChains());
+		WebFilterChainProxy proxy = new WebFilterChainProxy(getSecurityWebFilterChains());
+		proxy.setObservationRegistry(this.observationRegistry);
+		return proxy;
 	}
 
 	@Bean(name = AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME)

@@ -270,10 +270,23 @@ public class FilterChainProxyTests {
 		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
 		ServletException servletException = new ServletException(requestRejectedException);
-		given(fw.getFirewalledRequest(this.request)).willReturn(mock(FirewalledRequest.class));
+		given(fw.getFirewalledRequest(this.request)).willReturn(new MockFirewalledRequest(this.request));
 		willThrow(servletException).given(this.chain).doFilter(any(), any());
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
+	}
+
+	private static class MockFirewalledRequest extends FirewalledRequest {
+
+		MockFirewalledRequest(HttpServletRequest request) {
+			super(request);
+		}
+
+		@Override
+		public void reset() {
+
+		}
+
 	}
 
 }
