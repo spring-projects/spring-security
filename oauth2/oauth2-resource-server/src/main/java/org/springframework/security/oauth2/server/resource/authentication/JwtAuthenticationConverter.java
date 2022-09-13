@@ -39,7 +39,7 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
 	private String principalClaimName = JwtClaimNames.SUB;
 
 	@Override
-	public final AbstractAuthenticationToken convert(Jwt jwt) {
+	public AbstractAuthenticationToken convert(Jwt jwt) {
 		Collection<GrantedAuthority> authorities = this.jwtGrantedAuthoritiesConverter.convert(jwt);
 
 		String principalClaimValue = jwt.getClaimAsString(this.principalClaimName);
