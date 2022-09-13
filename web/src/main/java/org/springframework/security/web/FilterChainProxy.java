@@ -322,9 +322,8 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	/**
-	 * Sets the {@link ObservationRegistry} to use.
-	 * Use {@link ObservationRegistry#NOOP} to turn off observations.
-	 *
+	 * Sets the {@link ObservationRegistry} to use. Use {@link ObservationRegistry#NOOP}
+	 * to turn off observations.
 	 * @param observationRegistry the {@link ObservationRegistry} to use
 	 * @since 6.0
 	 */

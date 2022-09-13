@@ -102,6 +102,14 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 		return interceptor;
 	}
 
+	public static AuthorizationManagerBeforeMethodInterceptor preAuthorize(
+			AuthorizationManager<MethodInvocation> authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(PreAuthorize.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder());
+		return interceptor;
+	}
+
 	/**
 	 * Creates an interceptor for the {@link Secured} annotation
 	 * @return the interceptor
@@ -123,6 +131,14 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 		return interceptor;
 	}
 
+	public static AuthorizationManagerBeforeMethodInterceptor secured(
+			AuthorizationManager<MethodInvocation> authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(Secured.class), authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.SECURED.getOrder());
+		return interceptor;
+	}
+
 	/**
 	 * Creates an interceptor for the JSR-250 annotations
 	 * @return the interceptor
@@ -137,6 +153,15 @@ public final class AuthorizationManagerBeforeMethodInterceptor
 	 * @return the interceptor
 	 */
 	public static AuthorizationManagerBeforeMethodInterceptor jsr250(Jsr250AuthorizationManager authorizationManager) {
+		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(RolesAllowed.class, DenyAll.class, PermitAll.class),
+				authorizationManager);
+		interceptor.setOrder(AuthorizationInterceptorsOrder.JSR250.getOrder());
+		return interceptor;
+	}
+
+	public static AuthorizationManagerBeforeMethodInterceptor jsr250(
+			AuthorizationManager<MethodInvocation> authorizationManager) {
 		AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(
 				AuthorizationMethodPointcuts.forAnnotations(RolesAllowed.class, DenyAll.class, PermitAll.class),
 				authorizationManager);

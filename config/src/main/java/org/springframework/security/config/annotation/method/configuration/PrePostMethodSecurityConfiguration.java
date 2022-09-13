@@ -16,6 +16,11 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import java.util.function.Supplier;
+
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -25,15 +30,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
@@ -52,11 +62,11 @@ final class PrePostMethodSecurityConfiguration {
 
 	private final AuthorizationManagerBeforeMethodInterceptor preAuthorizeAuthorizationMethodInterceptor;
 
-	private final PreAuthorizeAuthorizationManager preAuthorizeAuthorizationManager = new PreAuthorizeAuthorizationManager();
+	private final ObservationPreAuthorizationManager preAuthorizeAuthorizationManager = new ObservationPreAuthorizationManager();
 
 	private final AuthorizationManagerAfterMethodInterceptor postAuthorizeAuthorizaitonMethodInterceptor;
 
-	private final PostAuthorizeAuthorizationManager postAuthorizeAuthorizationManager = new PostAuthorizeAuthorizationManager();
+	private final ObservationPostAuthorizationManager postAuthorizeAuthorizationManager = new ObservationPostAuthorizationManager();
 
 	private final PostFilterAuthorizationMethodInterceptor postFilterAuthorizationMethodInterceptor = new PostFilterAuthorizationMethodInterceptor();
 
@@ -64,10 +74,10 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Autowired
 	PrePostMethodSecurityConfiguration(ApplicationContext context) {
-		this.preAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.preAuthorizeAuthorizationManager.manager.setExpressionHandler(this.expressionHandler);
 		this.preAuthorizeAuthorizationMethodInterceptor = AuthorizationManagerBeforeMethodInterceptor
 				.preAuthorize(this.preAuthorizeAuthorizationManager);
-		this.postAuthorizeAuthorizationManager.setExpressionHandler(this.expressionHandler);
+		this.postAuthorizeAuthorizationManager.manager.setExpressionHandler(this.expressionHandler);
 		this.postAuthorizeAuthorizaitonMethodInterceptor = AuthorizationManagerAfterMethodInterceptor
 				.postAuthorize(this.postAuthorizeAuthorizationManager);
 		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(this.expressionHandler);
@@ -105,9 +115,15 @@ final class PrePostMethodSecurityConfiguration {
 	@Autowired(required = false)
 	void setMethodSecurityExpressionHandler(MethodSecurityExpressionHandler methodSecurityExpressionHandler) {
 		this.preFilterAuthorizationMethodInterceptor.setExpressionHandler(methodSecurityExpressionHandler);
-		this.preAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
-		this.postAuthorizeAuthorizationManager.setExpressionHandler(methodSecurityExpressionHandler);
+		this.preAuthorizeAuthorizationManager.manager.setExpressionHandler(methodSecurityExpressionHandler);
+		this.postAuthorizeAuthorizationManager.manager.setExpressionHandler(methodSecurityExpressionHandler);
 		this.postFilterAuthorizationMethodInterceptor.setExpressionHandler(methodSecurityExpressionHandler);
+	}
+
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.preAuthorizeAuthorizationManager.setObservationRegistry(observationRegistry);
+		this.postAuthorizeAuthorizationManager.setObservationRegistry(observationRegistry);
 	}
 
 	@Autowired(required = false)
@@ -127,6 +143,42 @@ final class PrePostMethodSecurityConfiguration {
 	void setAuthorizationEventPublisher(AuthorizationEventPublisher eventPublisher) {
 		this.preAuthorizeAuthorizationMethodInterceptor.setAuthorizationEventPublisher(eventPublisher);
 		this.postAuthorizeAuthorizaitonMethodInterceptor.setAuthorizationEventPublisher(eventPublisher);
+	}
+
+	private static class ObservationPreAuthorizationManager implements AuthorizationManager<MethodInvocation> {
+
+		private PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+
+		private ObservationAuthorizationManager<MethodInvocation> observation = new ObservationAuthorizationManager<>(
+				ObservationRegistry.NOOP, this.manager);
+
+		@Override
+		public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation object) {
+			return this.observation.check(authentication, object);
+		}
+
+		void setObservationRegistry(ObservationRegistry observationRegistry) {
+			this.observation = new ObservationAuthorizationManager<>(observationRegistry, this.manager);
+		}
+
+	}
+
+	private static class ObservationPostAuthorizationManager implements AuthorizationManager<MethodInvocationResult> {
+
+		private PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
+
+		private ObservationAuthorizationManager<MethodInvocationResult> observation = new ObservationAuthorizationManager<>(
+				ObservationRegistry.NOOP, this.manager);
+
+		@Override
+		public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocationResult object) {
+			return this.observation.check(authentication, object);
+		}
+
+		void setObservationRegistry(ObservationRegistry observationRegistry) {
+			this.observation = new ObservationAuthorizationManager<>(observationRegistry, this.manager);
+		}
+
 	}
 
 }
