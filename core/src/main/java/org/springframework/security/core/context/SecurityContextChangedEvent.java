@@ -28,6 +28,8 @@ import org.springframework.context.ApplicationEvent;
  */
 public class SecurityContextChangedEvent extends ApplicationEvent {
 
+	private static final Supplier<SecurityContext> NULL_SUPPLIER = () -> null;
+
 	private final Supplier<SecurityContext> oldContext;
 
 	private final Supplier<SecurityContext> newContext;
@@ -44,9 +46,7 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 	 * @param newContext the new security context
 	 */
 	public SecurityContextChangedEvent(SecurityContext oldContext, SecurityContext newContext) {
-		super(SecurityContextHolder.class);
-		this.oldContext = () -> oldContext;
-		this.newContext = () -> newContext;
+		this(() -> oldContext, () -> newContext);
 	}
 
 	/**
@@ -73,6 +73,18 @@ public class SecurityContextChangedEvent extends ApplicationEvent {
 
 	public Supplier<SecurityContext> getDeferredNewContext() {
 		return this.newContext;
+	}
+
+	public static SecurityContextChangedEvent cleared(Supplier<SecurityContext> old) {
+		return new SecurityContextChangedEvent(old, NULL_SUPPLIER);
+	}
+
+	public static SecurityContextChangedEvent cleared(SecurityContext old) {
+		return new SecurityContextChangedEvent(() -> old, NULL_SUPPLIER);
+	}
+
+	public boolean isContextCleared() {
+		return this.newContext == NULL_SUPPLIER;
 	}
 
 }

@@ -131,7 +131,7 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 	public void clearContext() {
 		Supplier<SecurityContext> deferred = this.delegate.getDeferredContext();
 		this.delegate.clearContext();
-		publish(deferred, null);
+		publishCleared(deferred);
 	}
 
 	/**
@@ -171,11 +171,18 @@ public final class ListeningSecurityContextHolderStrategy implements SecurityCon
 		return this.delegate.createEmptyContext();
 	}
 
+	private void publishCleared(Supplier<SecurityContext> previous) {
+		publish(SecurityContextChangedEvent.cleared(previous));
+	}
+
 	private void publish(Supplier<SecurityContext> previous, Supplier<SecurityContext> current) {
 		if (previous == current) {
 			return;
 		}
-		SecurityContextChangedEvent event = new SecurityContextChangedEvent(previous, current);
+		publish(new SecurityContextChangedEvent(previous, current));
+	}
+
+	private void publish(SecurityContextChangedEvent event) {
 		for (SecurityContextChangedListener listener : this.listeners) {
 			listener.securityContextChanged(event);
 		}

@@ -23,8 +23,6 @@ import org.springframework.security.core.Authentication;
 
 public class ObservationSecurityContextChangedEventListener implements SecurityContextChangedListener {
 
-	private static final String SECURITY_CONTEXT_OBSERVATION_NAME = "with.security.context";
-
 	private final ObservationRegistry registry;
 
 	public ObservationSecurityContextChangedEventListener(ObservationRegistry registry) {
@@ -33,62 +31,31 @@ public class ObservationSecurityContextChangedEventListener implements SecurityC
 
 	@Override
 	public void securityContextChanged(SecurityContextChangedEvent event) {
-		if (event.getDeferredNewContext() == null) {
-			closeObservation();
+		Observation observation = this.registry.getCurrentObservation();
+		if (observation == null) {
 			return;
+		}
+		if (event.isContextCleared()) {
+			observation.event(Observation.Event.of("security.context.cleared"));
 		}
 		Authentication oldAuthentication = getAuthentication(event.getOldContext());
 		Authentication newAuthentication = getAuthentication(event.getNewContext());
+		if (oldAuthentication == null && newAuthentication == null) {
+			return;
+		}
+		if (oldAuthentication == null) {
+			observation.event(Observation.Event.of("security.context.started",
+					"security.context.started [" + oldAuthentication.getAuthenticationType() + "]"));
+			return;
+		}
 		if (newAuthentication == null) {
+			observation.event(Observation.Event.of("security.context.cleared",
+					"security.context.cleared [" + oldAuthentication.getAuthenticationType() + "]"));
 			return;
 		}
-		if (newAuthentication.equals(oldAuthentication)) {
-			return;
-		}
-		replaceObservation();
-	}
-
-	private Observation.Scope ifSecurityScopeOpened() {
-		Observation.Scope scope = this.registry.getCurrentObservationScope();
-		if (scope == null) {
-			return null;
-		}
-		Observation observation = scope.getCurrentObservation();
-		String observationName = observation.getContext().getName();
-		if (!SECURITY_CONTEXT_OBSERVATION_NAME.equals(observationName)) {
-			return null;
-		}
-		return scope;
-	}
-
-	private void replaceObservation() {
-		Observation.Scope scope = this.registry.getCurrentObservationScope();
-		if (scope == null) {
-			Observation.start(SECURITY_CONTEXT_OBSERVATION_NAME, this.registry).openScope();
-			return;
-		}
-		Observation observation = scope.getCurrentObservation();
-		String observationName = scope.getCurrentObservation().getContext().getName();
-		if (!SECURITY_CONTEXT_OBSERVATION_NAME.equals(observationName)) {
-			Observation.start(SECURITY_CONTEXT_OBSERVATION_NAME, this.registry).openScope();
-			return;
-		}
-		scope.close();
-		observation.stop();
-		Observation.start(SECURITY_CONTEXT_OBSERVATION_NAME, this.registry).openScope();
-	}
-
-	private void closeObservation() {
-		Observation.Scope scope = ifSecurityScopeOpened();
-		if (scope == null) {
-			return;
-		}
-		Observation observation = scope.getCurrentObservation();
-		if (!SECURITY_CONTEXT_OBSERVATION_NAME.equals(observation.getContext().getName())) {
-			return;
-		}
-		scope.close();
-		observation.stop();
+		observation.event(Observation.Event.of("security.context.replaced",
+				"security.context.replaced [" + newAuthentication.getAuthenticationType() + "] -> ["
+						+ newAuthentication.getAuthenticationType() + "]"));
 	}
 
 	private static Authentication getAuthentication(SecurityContext context) {
