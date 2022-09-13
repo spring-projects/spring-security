@@ -21,7 +21,7 @@ import io.micrometer.observation.Observation;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
-import org.springframework.security.event.KeyValuesEvent;
+import org.springframework.security.event.KeyValuesObservationEvent;
 
 /**
  * A strategy to collect {@link KeyValues} for
@@ -40,7 +40,7 @@ public final class AuthorizationDeniedObservationEventConverter
 	public Observation.Event convert(AuthorizationDeniedEvent event) {
 		AuthorizationObservationContext<?> context = AuthorizationObservationContext.fromEvent(event);
 		KeyValues kv = this.convention.getLowCardinalityKeyValues(context);
-		return new KeyValuesEvent(kv, Observation.Event.of(context.getName()));
+		return new KeyValuesObservationEvent(kv, Observation.Event.of(context.getName()));
 	}
 
 }

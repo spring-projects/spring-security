@@ -56,9 +56,14 @@ public final class ObservationSecurityEventListener<T extends SecurityEvent> imp
 	@Override
 	public void onApplicationEvent(T event) {
 		Observation observation = this.registry.getCurrentObservation();
-		if (observation != null) {
-			observation.event(this.keyValuesConverter.convert(event));
+		if (observation == null) {
+			return;
 		}
+		Observation.Event observationEvent = this.keyValuesConverter.convert(event);
+		if (observationEvent == null) {
+			return;
+		}
+		observation.event(observationEvent);
 	}
 
 }

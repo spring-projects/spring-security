@@ -65,7 +65,7 @@ public class DelegatingObservationSecurityEventListenerTests {
 			listener.onApplicationEvent(
 					new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "password")));
 		});
-		verify(handler, times(2)).onEvent(any(KeyValuesEvent.class), any());
+		verify(handler, times(2)).onEvent(any(KeyValuesObservationEvent.class), any());
 	}
 
 	private static class MyEvent extends SecurityEvent {

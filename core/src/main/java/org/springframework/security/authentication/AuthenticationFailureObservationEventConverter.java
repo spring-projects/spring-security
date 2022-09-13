@@ -21,7 +21,7 @@ import io.micrometer.observation.Observation;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
-import org.springframework.security.event.KeyValuesEvent;
+import org.springframework.security.event.KeyValuesObservationEvent;
 
 /**
  * A strategy to collect {@link KeyValues} for
@@ -39,7 +39,7 @@ public final class AuthenticationFailureObservationEventConverter
 	public Observation.Event convert(AbstractAuthenticationFailureEvent event) {
 		AuthenticationObservationContext context = AuthenticationObservationContext.fromEvent(event);
 		KeyValues kv = this.convention.getLowCardinalityKeyValues(context);
-		return new KeyValuesEvent(kv, Observation.Event.of(context.getName()));
+		return new KeyValuesObservationEvent(kv, Observation.Event.of(context.getName()));
 	}
 
 }

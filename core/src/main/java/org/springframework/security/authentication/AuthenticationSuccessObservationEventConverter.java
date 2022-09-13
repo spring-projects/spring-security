@@ -22,7 +22,7 @@ import io.micrometer.observation.ObservationConvention;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.event.KeyValuesEvent;
+import org.springframework.security.event.KeyValuesObservationEvent;
 
 /**
  * A strategy to collect {@link KeyValues} for
@@ -40,7 +40,7 @@ public final class AuthenticationSuccessObservationEventConverter
 	public Observation.Event convert(AuthenticationSuccessEvent event) {
 		AuthenticationObservationContext context = AuthenticationObservationContext.fromEvent(event);
 		KeyValues kv = this.convention.getLowCardinalityKeyValues(context);
-		return new KeyValuesEvent(kv, Observation.Event.of(context.getName()));
+		return new KeyValuesObservationEvent(kv, Observation.Event.of(context.getName()));
 	}
 
 }

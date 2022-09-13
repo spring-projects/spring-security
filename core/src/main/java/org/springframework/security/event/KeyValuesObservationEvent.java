@@ -25,13 +25,13 @@ import io.micrometer.observation.Observation;
  * @author Josh Cummings
  * @since 6.0
  */
-public class KeyValuesEvent implements Observation.Event {
+public class KeyValuesObservationEvent implements Observation.Event {
 
 	private final Observation.Event event;
 
 	private final KeyValues kv;
 
-	public KeyValuesEvent(KeyValues kv, Observation.Event event) {
+	public KeyValuesObservationEvent(KeyValues kv, Observation.Event event) {
 		this.event = event;
 		this.kv = (kv != null) ? kv : KeyValues.empty();
 	}
@@ -47,8 +47,8 @@ public class KeyValuesEvent implements Observation.Event {
 	}
 
 	@Override
-	public KeyValuesEvent format(Object... dynamicEntriesForContextualName) {
-		return new KeyValuesEvent(this.kv, this.event.format(dynamicEntriesForContextualName));
+	public KeyValuesObservationEvent format(Object... dynamicEntriesForContextualName) {
+		return new KeyValuesObservationEvent(this.kv, this.event.format(dynamicEntriesForContextualName));
 	}
 
 	public KeyValues getKeyValues() {

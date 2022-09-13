@@ -74,7 +74,7 @@ public final class DelegatingObservationSecurityEventListener implements Applica
 		}
 
 		public <T extends SecurityEvent> Builder add(Class<T> clazz) {
-			return add(clazz, (event) -> new KeyValuesEvent(KeyValues.empty(),
+			return add(clazz, (event) -> new KeyValuesObservationEvent(KeyValues.empty(),
 					Observation.Event.of("spring.security." + event.getEventType())));
 		}
 
