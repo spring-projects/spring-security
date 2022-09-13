@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package org.springframework.security.event;
+package org.springframework.security.authentication;
 
 import io.micrometer.common.KeyValues;
+import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authentication.AuthenticationObservationContext;
-import org.springframework.security.authentication.AuthenticationObservationConvention;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.event.KeyValuesEvent;
 
 /**
  * A strategy to collect {@link KeyValues} for
@@ -31,14 +31,16 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
  * @author Josh Cummings
  * @since 6.0
  */
-public final class AuthenticationSuccessEventKeyValuesConverter
-		implements Converter<AuthenticationSuccessEvent, KeyValues> {
+public final class AuthenticationSuccessObservationEventConverter
+		implements Converter<AuthenticationSuccessEvent, Observation.Event> {
 
 	private final ObservationConvention<AuthenticationObservationContext> convention = new AuthenticationObservationConvention();
 
 	@Override
-	public KeyValues convert(AuthenticationSuccessEvent event) {
-		return this.convention.getLowCardinalityKeyValues(AuthenticationObservationContext.fromEvent(event));
+	public Observation.Event convert(AuthenticationSuccessEvent event) {
+		AuthenticationObservationContext context = AuthenticationObservationContext.fromEvent(event);
+		KeyValues kv = this.convention.getLowCardinalityKeyValues(context);
+		return new KeyValuesEvent(kv, Observation.Event.of(context.getName()));
 	}
 
 }

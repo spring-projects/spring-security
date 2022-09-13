@@ -21,6 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.micrometer.common.KeyValues;
+import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 
 import org.springframework.context.ApplicationEvent;
@@ -73,11 +74,12 @@ public final class DelegatingObservationSecurityEventListener implements Applica
 		}
 
 		public <T extends SecurityEvent> Builder add(Class<T> clazz) {
-			return add(clazz, (event) -> KeyValues.empty());
+			return add(clazz, (event) -> new KeyValuesEvent(KeyValues.empty(),
+					Observation.Event.of("spring.security." + event.getEventType())));
 		}
 
-		public <T extends SecurityEvent> Builder add(Class<T> clazz, Converter<T, KeyValues> keyValuesConverter) {
-			return add(clazz, new ObservationSecurityEventListener<>(this.registry, keyValuesConverter));
+		public <T extends SecurityEvent> Builder add(Class<T> clazz, Converter<T, Observation.Event> eventConverter) {
+			return add(clazz, new ObservationSecurityEventListener<>(this.registry, eventConverter));
 		}
 
 		public <T extends SecurityEvent> Builder add(Class<T> clazz, ObservationSecurityEventListener<T> listener) {

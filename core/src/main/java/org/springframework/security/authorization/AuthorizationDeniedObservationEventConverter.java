@@ -14,32 +14,33 @@
  * limitations under the License.
  */
 
-package org.springframework.security.event;
+package org.springframework.security.authorization;
 
 import io.micrometer.common.KeyValues;
-import io.micrometer.observation.ObservationConvention;
+import io.micrometer.observation.Observation;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.security.authorization.AuthorizationObservationContext;
-import org.springframework.security.authorization.AuthorizationObservationConvention;
-import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
+import org.springframework.security.event.KeyValuesEvent;
 
 /**
  * A strategy to collect {@link KeyValues} for
- * {@link org.springframework.security.authorization.event.AuthorizationGrantedEvent}s
+ * {@link org.springframework.security.authorization.event.AuthorizationDeniedEvent}s
  *
  * @author Josh Cummings
  * @since 6.0
  */
 @SuppressWarnings("rawtypes")
-public final class AuthorizationGrantedEventKeyValuesConverter
-		implements Converter<AuthorizationGrantedEvent, KeyValues> {
+public final class AuthorizationDeniedObservationEventConverter
+		implements Converter<AuthorizationDeniedEvent, Observation.Event> {
 
-	private final ObservationConvention<AuthorizationObservationContext<?>> convention = new AuthorizationObservationConvention();
+	private final AuthorizationObservationConvention convention = new AuthorizationObservationConvention();
 
 	@Override
-	public KeyValues convert(AuthorizationGrantedEvent event) {
-		return this.convention.getLowCardinalityKeyValues(AuthorizationObservationContext.fromEvent(event));
+	public Observation.Event convert(AuthorizationDeniedEvent event) {
+		AuthorizationObservationContext<?> context = AuthorizationObservationContext.fromEvent(event);
+		KeyValues kv = this.convention.getLowCardinalityKeyValues(context);
+		return new KeyValuesEvent(kv, Observation.Event.of(context.getName()));
 	}
 
 }

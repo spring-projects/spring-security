@@ -16,7 +16,6 @@
 
 package org.springframework.security.event;
 
-import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
 
@@ -36,14 +35,15 @@ public final class ObservationSecurityEventListener<T extends SecurityEvent> imp
 
 	private final ObservationRegistry registry;
 
-	private final Converter<T, KeyValues> keyValuesConverter;
+	private final Converter<T, Observation.Event> keyValuesConverter;
 
 	/**
 	 * Construct a {@link ObservationSecurityEventListener}
 	 * @param registry the {@link ObservationRegistry} to use
 	 * @param keyValuesConverter the strategy to deriving the event context
 	 */
-	public ObservationSecurityEventListener(ObservationRegistry registry, Converter<T, KeyValues> keyValuesConverter) {
+	public ObservationSecurityEventListener(ObservationRegistry registry,
+			Converter<T, Observation.Event> keyValuesConverter) {
 		Assert.notNull(registry, "registry cannot be null");
 		Assert.notNull(keyValuesConverter, "keyValuesConverter cannot be null");
 		this.registry = registry;
@@ -57,9 +57,7 @@ public final class ObservationSecurityEventListener<T extends SecurityEvent> imp
 	public void onApplicationEvent(T event) {
 		Observation observation = this.registry.getCurrentObservation();
 		if (observation != null) {
-			String name = "spring.security." + event.getEventType();
-			KeyValues kv = this.keyValuesConverter.convert(event);
-			observation.event(new KeyValuesEvent(kv, Observation.Event.of(name)));
+			observation.event(this.keyValuesConverter.convert(event));
 		}
 	}
 

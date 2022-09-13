@@ -20,7 +20,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 		this.object = object;
 	}
 
-	public static <T> AuthorizationObservationContext<T> fromEvent(AuthorizationGrantedEvent<T> event) {
+	public static <T> AuthorizationObservationContext<T> fromEvent(AuthorizationGrantedEvent<? extends T> event) {
 		Supplier<Authentication> authentication = event.getAuthentication();
 		T object = (T) event.getSource();
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);
@@ -30,7 +30,7 @@ public class AuthorizationObservationContext<T> extends Observation.Context {
 		return context;
 	}
 
-	public static <T> AuthorizationObservationContext<T> fromEvent(AuthorizationDeniedEvent<T> event) {
+	public static <T> AuthorizationObservationContext<T> fromEvent(AuthorizationDeniedEvent<? extends T> event) {
 		Supplier<Authentication> authentication = event.getAuthentication();
 		T object = (T) event.getSource();
 		AuthorizationObservationContext<T> context = new AuthorizationObservationContext<>(object);

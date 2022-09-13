@@ -9,11 +9,11 @@ import io.micrometer.observation.ObservationConvention;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-public final class AuthorizationObservationConvention<T>
-		implements ObservationConvention<AuthorizationObservationContext<T>> {
+public final class AuthorizationObservationConvention
+		implements ObservationConvention<AuthorizationObservationContext<?>> {
 
 	@Override
-	public KeyValues getLowCardinalityKeyValues(AuthorizationObservationContext<T> context) {
+	public KeyValues getLowCardinalityKeyValues(AuthorizationObservationContext<?> context) {
 		KeyValues kvs = KeyValues.empty();
 		Authentication authentication = context.getAuthentication();
 		if (authentication != null) {
@@ -28,7 +28,7 @@ public final class AuthorizationObservationConvention<T>
 	}
 
 	@Override
-	public KeyValues getHighCardinalityKeyValues(AuthorizationObservationContext<T> context) {
+	public KeyValues getHighCardinalityKeyValues(AuthorizationObservationContext<?> context) {
 		KeyValues kvs = KeyValues.empty();
 		Authentication authentication = context.getAuthentication();
 		if (authentication != null) {
