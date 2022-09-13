@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector
 
 /**
@@ -45,6 +46,7 @@ class ServerOpaqueTokenDsl {
             _introspectionUri = null
             clientCredentials = null
         }
+    var authenticationConverter: ReactiveOpaqueTokenAuthenticationConverter? = null
 
     /**
      * Configures the credentials for Introspection endpoint.
@@ -62,6 +64,7 @@ class ServerOpaqueTokenDsl {
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
             introspector?.also { opaqueToken.introspector(introspector) }
+            authenticationConverter?.also { opaqueToken.authenticationConverter(authenticationConverter) }
         }
     }
 }

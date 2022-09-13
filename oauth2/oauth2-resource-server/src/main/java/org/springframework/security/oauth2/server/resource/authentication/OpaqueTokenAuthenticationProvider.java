@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.security.oauth2.server.resource.BearerTokenAuthentica
 import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.BadOpaqueTokenException;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.util.Assert;
 
@@ -57,8 +58,16 @@ import org.springframework.util.Assert;
  * <li>Take the resulting {@link Collection} and prepend the "SCOPE_" keyword to each
  * element, adding as {@link GrantedAuthority}s.
  * </ol>
+ * <p>
+ * An {@link OpaqueTokenIntrospector} is responsible for retrieving token attributes from
+ * an authorization server.
+ * <p>
+ * An {@link OpaqueTokenAuthenticationConverter} is responsible for turning a successful
+ * introspection result into an {@link Authentication} instance (which may include mapping
+ * {@link GrantedAuthority}s from token attributes or retrieving from another source).
  *
  * @author Josh Cummings
+ * @author Jerome Wacongne &lt;ch4mp@c4-soft.com&gt;
  * @since 5.2
  * @see AuthenticationProvider
  */
@@ -67,6 +76,8 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final OpaqueTokenIntrospector introspector;
+
+	private OpaqueTokenAuthenticationConverter authenticationConverter = OpaqueTokenAuthenticationProvider::convert;
 
 	/**
 	 * Creates a {@code OpaqueTokenAuthenticationProvider} with the provided parameters
@@ -80,7 +91,11 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	/**
 	 * Introspect and validate the opaque
 	 * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
-	 * Token</a>.
+	 * Token</a> and then delegates {@link Authentication} instantiation to
+	 * {@link OpaqueTokenAuthenticationConverter}.
+	 * <p>
+	 * If created Authentication is instance of {@link AbstractAuthenticationToken} and
+	 * details are null, then introspection result details are used.
 	 * @param authentication the authentication request object.
 	 * @return A successful authentication
 	 * @throws AuthenticationException if authentication failed for some reason
@@ -92,8 +107,16 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		}
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		OAuth2AuthenticatedPrincipal principal = getOAuth2AuthenticatedPrincipal(bearer);
-		AbstractAuthenticationToken result = convert(principal, bearer.getToken());
-		result.setDetails(bearer.getDetails());
+		Authentication result = this.authenticationConverter.convert(bearer.getToken(), principal);
+		if (result == null) {
+			return null;
+		}
+		if (AbstractAuthenticationToken.class.isAssignableFrom(result.getClass())) {
+			final AbstractAuthenticationToken auth = (AbstractAuthenticationToken) result;
+			if (auth.getDetails() == null) {
+				auth.setDetails(bearer.getDetails());
+			}
+		}
 		this.logger.debug("Authenticated token");
 		return result;
 	}
@@ -116,11 +139,32 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 		return BearerTokenAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
-	private AbstractAuthenticationToken convert(OAuth2AuthenticatedPrincipal principal, String token) {
-		Instant iat = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.IAT);
-		Instant exp = principal.getAttribute(OAuth2TokenIntrospectionClaimNames.EXP);
-		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, token, iat, exp);
-		return new BearerTokenAuthentication(principal, accessToken, principal.getAuthorities());
+	/**
+	 * Default {@link OpaqueTokenAuthenticationConverter}.
+	 * @param introspectedToken the bearer string that was successfully introspected
+	 * @param authenticatedPrincipal the successful introspection output
+	 * @return a {@link BearerTokenAuthentication}
+	 */
+	static BearerTokenAuthentication convert(String introspectedToken,
+			OAuth2AuthenticatedPrincipal authenticatedPrincipal) {
+		Instant iat = authenticatedPrincipal.getAttribute(OAuth2TokenIntrospectionClaimNames.IAT);
+		Instant exp = authenticatedPrincipal.getAttribute(OAuth2TokenIntrospectionClaimNames.EXP);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER, introspectedToken,
+				iat, exp);
+		return new BearerTokenAuthentication(authenticatedPrincipal, accessToken,
+				authenticatedPrincipal.getAuthorities());
+	}
+
+	/**
+	 * Provide with a custom bean to turn successful introspection result into an
+	 * {@link Authentication} instance of your choice. By default,
+	 * {@link BearerTokenAuthentication} will be built.
+	 * @param authenticationConverter the converter to use
+	 * @since 5.8
+	 */
+	public void setAuthenticationConverter(OpaqueTokenAuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 }

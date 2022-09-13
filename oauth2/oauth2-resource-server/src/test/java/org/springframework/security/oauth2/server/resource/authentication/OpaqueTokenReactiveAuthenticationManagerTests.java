@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimNames;
@@ -33,6 +34,7 @@ import org.springframework.security.oauth2.core.TestOAuth2AuthenticatedPrincipal
 import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionException;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +43,8 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests for {@link OpaqueTokenReactiveAuthenticationManager}
@@ -110,6 +114,36 @@ public class OpaqueTokenReactiveAuthenticationManagerTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> new OpaqueTokenReactiveAuthenticationManager(null));
 		// @formatter:on
+	}
+
+	@Test
+	public void setAuthenticationConverterWhenNullThenThrowsIllegalArgumentException() {
+		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
+		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> provider.setAuthenticationConverter(null))
+				.withMessage("authenticationConverter cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void authenticateWhenCustomAuthenticationConverterThenUses() {
+		ReactiveOpaqueTokenIntrospector introspector = mock(ReactiveOpaqueTokenIntrospector.class);
+		OAuth2AuthenticatedPrincipal principal = TestOAuth2AuthenticatedPrincipals.active();
+		given(introspector.introspect(any())).willReturn(Mono.just(principal));
+		OpaqueTokenReactiveAuthenticationManager provider = new OpaqueTokenReactiveAuthenticationManager(introspector);
+		ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = mock(
+				ReactiveOpaqueTokenAuthenticationConverter.class);
+		given(authenticationConverter.convert(any(), any(OAuth2AuthenticatedPrincipal.class)))
+				.willReturn(Mono.just(new TestingAuthenticationToken(principal, null, Collections.emptyList())));
+		provider.setAuthenticationConverter(authenticationConverter);
+
+		Authentication result = provider.authenticate(new BearerTokenAuthenticationToken("token")).block();
+		assertThat(result).isNotNull();
+		verify(introspector).introspect("token");
+		verify(authenticationConverter).convert("token", principal);
+		verifyNoMoreInteractions(introspector, authenticationConverter);
 	}
 
 }

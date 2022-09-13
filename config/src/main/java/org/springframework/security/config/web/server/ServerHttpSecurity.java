@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,6 +95,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtRea
 import org.springframework.security.oauth2.server.resource.authentication.OpaqueTokenReactiveAuthenticationManager;
 import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusReactiveOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.ReactiveOpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.access.server.BearerTokenServerAccessDeniedHandler;
 import org.springframework.security.oauth2.server.resource.web.server.BearerTokenServerAuthenticationEntryPoint;
@@ -4285,6 +4286,8 @@ public class ServerHttpSecurity {
 
 			private Supplier<ReactiveOpaqueTokenIntrospector> introspector;
 
+			private ReactiveOpaqueTokenAuthenticationConverter authenticationConverter;
+
 			private OpaqueTokenSpec() {
 			}
 
@@ -4323,6 +4326,13 @@ public class ServerHttpSecurity {
 				return this;
 			}
 
+			public OpaqueTokenSpec authenticationConverter(
+					ReactiveOpaqueTokenAuthenticationConverter authenticationConverter) {
+				Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+				this.authenticationConverter = authenticationConverter;
+				return this;
+			}
+
 			/**
 			 * Allows method chaining to continue configuring the
 			 * {@link ServerHttpSecurity}
@@ -4333,7 +4343,13 @@ public class ServerHttpSecurity {
 			}
 
 			protected ReactiveAuthenticationManager getAuthenticationManager() {
-				return new OpaqueTokenReactiveAuthenticationManager(getIntrospector());
+				OpaqueTokenReactiveAuthenticationManager authenticationManager = new OpaqueTokenReactiveAuthenticationManager(
+						getIntrospector());
+				ReactiveOpaqueTokenAuthenticationConverter authenticationConverter = getAuthenticationConverter();
+				if (authenticationConverter != null) {
+					authenticationManager.setAuthenticationConverter(authenticationConverter);
+				}
+				return authenticationManager;
 			}
 
 			protected ReactiveOpaqueTokenIntrospector getIntrospector() {
@@ -4341,6 +4357,13 @@ public class ServerHttpSecurity {
 					return this.introspector.get();
 				}
 				return getBean(ReactiveOpaqueTokenIntrospector.class);
+			}
+
+			protected ReactiveOpaqueTokenAuthenticationConverter getAuthenticationConverter() {
+				if (this.authenticationConverter != null) {
+					return this.authenticationConverter;
+				}
+				return getBeanOrNull(ReactiveOpaqueTokenAuthenticationConverter.class);
 			}
 
 			protected void configure(ServerHttpSecurity http) {

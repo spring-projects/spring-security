@@ -80,6 +80,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -98,6 +99,7 @@ import org.springframework.security.oauth2.client.registration.ClientRegistratio
 import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -116,6 +118,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerAuthenticationManagerResolver;
 import org.springframework.security.oauth2.server.resource.introspection.NimbusOpaqueTokenIntrospector;
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationEntryPoint;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
@@ -1353,6 +1356,22 @@ public class OAuth2ResourceServerConfigurerTests {
 				.isThrownBy(jwtConfigurer::getJwtAuthenticationConverter);
 	}
 
+	@Test
+	public void getWhenCustomAuthenticationConverterThenConverts() throws Exception {
+		this.spring.register(RestOperationsConfig.class, OpaqueTokenAuthenticationConverterConfig.class,
+				BasicController.class).autowire();
+		OpaqueTokenAuthenticationConverter authenticationConverter = this.spring.getContext()
+				.getBean(OpaqueTokenAuthenticationConverter.class);
+		given(authenticationConverter.convert(anyString(), any(OAuth2AuthenticatedPrincipal.class)))
+				.willReturn(new TestingAuthenticationToken("jdoe", null, Collections.emptyList()));
+		mockRestOperations(json("Active"));
+		// @formatter:off
+		this.mvc.perform(get("/authenticated").with(bearerToken("token")))
+				.andExpect(status().isOk())
+				.andExpect(content().string("jdoe"));
+		// @formatter:on
+	}
+
 	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {
 		context.registerBean(name, clazz, () -> mock(clazz));
 	}
@@ -2440,6 +2459,30 @@ public class OAuth2ResourceServerConfigurerTests {
 					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class))
 					.opaqueToken();
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OpaqueTokenAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeRequests()
+					.antMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
+					.anyRequest().authenticated()
+					.and()
+					.oauth2ResourceServer()
+					.opaqueToken()
+					.authenticationConverter(authenticationConverter());
+			// @formatter:on
+		}
+
+		@Bean
+		OpaqueTokenAuthenticationConverter authenticationConverter() {
+			return mock(OpaqueTokenAuthenticationConverter.class);
 		}
 
 	}

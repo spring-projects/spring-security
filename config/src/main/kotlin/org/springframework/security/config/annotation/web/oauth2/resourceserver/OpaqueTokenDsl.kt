@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer
 import org.springframework.security.core.Authentication
+import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenAuthenticationConverter
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector
 
 /**
@@ -54,6 +55,7 @@ class OpaqueTokenDsl {
             clientCredentials = null
         }
 
+    var authenticationConverter: OpaqueTokenAuthenticationConverter? = null
 
     /**
      * Configures the credentials for Introspection endpoint.
@@ -70,6 +72,7 @@ class OpaqueTokenDsl {
         return { opaqueToken ->
             introspectionUri?.also { opaqueToken.introspectionUri(introspectionUri) }
             introspector?.also { opaqueToken.introspector(introspector) }
+            authenticationConverter?.also { opaqueToken.authenticationConverter(authenticationConverter) }
             clientCredentials?.also { opaqueToken.introspectionClientCredentials(clientCredentials!!.first, clientCredentials!!.second) }
             authenticationManager?.also { opaqueToken.authenticationManager(authenticationManager) }
         }
