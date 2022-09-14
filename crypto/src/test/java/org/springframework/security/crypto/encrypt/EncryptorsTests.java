@@ -67,17 +67,6 @@ public class EncryptorsTests {
 	}
 
 	@Test
-	public void queryableText() {
-		CryptoAssumptions.assumeCBCJCE();
-		TextEncryptor encryptor = Encryptors.queryableText("password", "5c0744940b5c369b");
-		String result = encryptor.encrypt("text");
-		assertThat(result).isNotNull();
-		assertThat(result.equals("text")).isFalse();
-		assertThat(encryptor.decrypt(result)).isEqualTo("text");
-		assertThat(result.equals(encryptor.encrypt("text"))).isTrue();
-	}
-
-	@Test
 	public void noOpText() {
 		TextEncryptor encryptor = Encryptors.noOpText();
 		assertThat(encryptor.encrypt("text")).isEqualTo("text");

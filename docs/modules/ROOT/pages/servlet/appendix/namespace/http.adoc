@@ -774,10 +774,13 @@ It is highly recommended to leave CSRF protection enabled.
 The CsrfTokenRepository to use.
 The default is `HttpSessionCsrfTokenRepository`.
 
-[[nsa-csrf-request-attribute-name]]
-* **request-attribute-name**
-Optional attribute that specifies the request attribute name to set the `CsrfToken` on.
-The default is `CsrfToken.parameterName`.
+[[nsa-csrf-request-attribute-handler-ref]]
+* **request-attribute-handler-ref**
+The optional `CsrfTokenRequestAttributeHandler` to use. The default is `CsrfTokenRequestProcessor`.
+
+[[nsa-csrf-request-resolver-ref]]
+* **request-resolver-ref**
+The optional `CsrfTokenRequestResolver` to use. The default is `CsrfTokenRequestProcessor`.
 
 [[nsa-csrf-request-matcher-ref]]
 * **request-matcher-ref**
