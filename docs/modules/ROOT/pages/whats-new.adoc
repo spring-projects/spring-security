@@ -8,3 +8,4 @@ Below are the highlights of the release.
 * https://github.com/spring-projects/spring-security/pull/11782[gh-11782] - @WithMockUser Supported as Merged Annotation
 * https://github.com/spring-projects/spring-security/issues/11661[gh-11661] - Configurable authentication converter for resource-servers with token introspection
 * https://github.com/spring-projects/spring-security/pull/11771[gh-11771] - `HttpSecurityDsl` should support `apply` method
+* https://github.com/spring-projects/spring-security/pull/11232[gh-11232] - `ClientRegistrations#rest` defines 30s connect and read timeouts
