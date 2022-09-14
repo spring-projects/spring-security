@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
@@ -71,11 +70,19 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
+	private static final String ATT_REQUEST_ATTRIBUTE_HANDLER = "request-attribute-handler-ref";
+
+	private static final String ATT_REQUEST_RESOLVER = "request-resolver-ref";
+
 	private String csrfRepositoryRef;
 
 	private BeanDefinition csrfFilter;
 
 	private String requestMatcherRef;
+
+	private String requestAttributeHandlerRef;
+
+	private String requestResolverRef;
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -95,6 +102,8 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (element != null) {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
+			this.requestAttributeHandlerRef = element.getAttribute(ATT_REQUEST_ATTRIBUTE_HANDLER);
+			this.requestResolverRef = element.getAttribute(ATT_REQUEST_RESOLVER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
 			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
@@ -109,6 +118,12 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		builder.addConstructorArgReference(this.csrfRepositoryRef);
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
+		}
+		if (StringUtils.hasText(this.requestAttributeHandlerRef)) {
+			builder.addPropertyReference("requestAttributeHandler", this.requestAttributeHandlerRef);
+		}
+		if (StringUtils.hasText(this.requestResolverRef)) {
+			builder.addPropertyReference("requestResolver", this.requestResolverRef);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;

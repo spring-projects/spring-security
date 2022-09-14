@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,19 +62,6 @@ public interface ClaimAccessor {
 	default boolean hasClaim(String claim) {
 		Assert.notNull(claim, "claim cannot be null");
 		return getClaims().containsKey(claim);
-	}
-
-	/**
-	 * Returns {@code true} if the claim exists in {@link #getClaims()}, otherwise
-	 * {@code false}.
-	 * @param claim the name of the claim
-	 * @return {@code true} if the claim exists, otherwise {@code false}
-	 * @deprecated Use
-	 * {@link org.springframework.security.oauth2.core.ClaimAccessor#hasClaim} instead.
-	 */
-	@Deprecated
-	default Boolean containsClaim(String claim) {
-		return hasClaim(claim);
 	}
 
 	/**

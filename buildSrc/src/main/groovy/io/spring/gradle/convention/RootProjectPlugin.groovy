@@ -21,6 +21,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.PluginManager
+import org.springframework.gradle.classpath.CheckProhibitedDependenciesLifecyclePlugin
 import org.springframework.gradle.maven.SpringNexusPublishPlugin
 
 class RootProjectPlugin implements Plugin<Project> {
@@ -32,6 +33,8 @@ class RootProjectPlugin implements Plugin<Project> {
 		pluginManager.apply(SchemaPlugin)
 		pluginManager.apply(NoHttpPlugin)
 		pluginManager.apply(SpringNexusPublishPlugin)
+		pluginManager.apply(CheckProhibitedDependenciesLifecyclePlugin)
+		pluginManager.apply(ArtifactoryPlugin)
 		pluginManager.apply("org.sonarqube")
 
 		project.repositories.mavenCentral()

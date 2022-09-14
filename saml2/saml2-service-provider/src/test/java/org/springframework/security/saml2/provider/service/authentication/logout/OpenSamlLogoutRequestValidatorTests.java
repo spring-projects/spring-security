@@ -61,6 +61,20 @@ public class OpenSamlLogoutRequestValidatorTests {
 	}
 
 	@Test
+	public void handleWhenNameIdIsEncryptedIdPostThenValidates() {
+
+		RelyingPartyRegistration registration = decrypting(encrypting(registration())).build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequestNameIdInEncryptedId(registration);
+		sign(logoutRequest, registration);
+		Saml2LogoutRequest request = post(logoutRequest, registration);
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).withFailMessage(() -> result.getErrors().toString()).isFalse();
+
+	}
+
+	@Test
 	public void handleWhenRedirectBindingThenValidatesSignatureParameter() {
 		RelyingPartyRegistration registration = registration()
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.REDIRECT))
@@ -129,9 +143,36 @@ public class OpenSamlLogoutRequestValidatorTests {
 		assertThat(result.getErrors().iterator().next().getErrorCode()).isEqualTo(Saml2ErrorCodes.INVALID_DESTINATION);
 	}
 
+	// gh-10923
+	@Test
+	public void handleWhenLogoutResponseHasLineBreaksThenHandles() {
+		RelyingPartyRegistration registration = registration().build();
+		LogoutRequest logoutRequest = TestOpenSamlObjects.assertingPartyLogoutRequest(registration);
+		sign(logoutRequest, registration);
+		String encoded = new StringBuffer(
+				Saml2Utils.samlEncode(serialize(logoutRequest).getBytes(StandardCharsets.UTF_8))).insert(10, "\r\n")
+						.toString();
+		Saml2LogoutRequest request = Saml2LogoutRequest.withRelyingPartyRegistration(registration).samlRequest(encoded)
+				.build();
+		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(request,
+				registration, authentication(registration));
+		Saml2LogoutValidatorResult result = this.manager.validate(parameters);
+		assertThat(result.hasErrors()).isFalse();
+	}
+
 	private RelyingPartyRegistration.Builder registration() {
 		return signing(verifying(TestRelyingPartyRegistrations.noCredentials()))
 				.assertingPartyDetails((party) -> party.singleLogoutServiceBinding(Saml2MessageBinding.POST));
+	}
+
+	private RelyingPartyRegistration.Builder decrypting(RelyingPartyRegistration.Builder builder) {
+		return builder
+				.decryptionX509Credentials((c) -> c.add(TestSaml2X509Credentials.relyingPartyDecryptingCredential()));
+	}
+
+	private RelyingPartyRegistration.Builder encrypting(RelyingPartyRegistration.Builder builder) {
+		return builder.assertingPartyDetails((party) -> party.encryptionX509Credentials(
+				(c) -> c.add(TestSaml2X509Credentials.assertingPartyEncryptingCredential())));
 	}
 
 	private RelyingPartyRegistration.Builder verifying(RelyingPartyRegistration.Builder builder) {

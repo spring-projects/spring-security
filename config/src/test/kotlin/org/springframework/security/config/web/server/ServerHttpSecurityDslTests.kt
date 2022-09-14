@@ -25,12 +25,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.context.SecurityContextServerWebExchangeWebFilter
@@ -86,6 +88,7 @@ class ServerHttpSecurityDslTests {
                 .expectStatus().isUnauthorized
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PatternMatcherConfig {
@@ -126,6 +129,7 @@ class ServerHttpSecurityDslTests {
                 .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class DefaultSecurityConfig {
@@ -145,6 +149,7 @@ class ServerHttpSecurityDslTests {
         assertThat(filters).last().isExactlyInstanceOf(CustomWebFilter::class.java)
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterAtConfig {
@@ -168,6 +173,7 @@ class ServerHttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterBeforeConfig {
@@ -191,6 +197,7 @@ class ServerHttpSecurityDslTests {
         )
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomWebFilterAfterConfig {
@@ -219,11 +226,12 @@ class ServerHttpSecurityDslTests {
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebFlux
     @EnableWebFluxSecurity
     open class AuthenticationManagerConfig {
         companion object {
-            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = ReactiveAuthenticationManager { Mono.empty() }
+            val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = NoopReactiveAuthenticationManager()
         }
 
         @Bean
@@ -235,6 +243,12 @@ class ServerHttpSecurityDslTests {
                 }
                 httpBasic { }
             }
+        }
+    }
+
+    class NoopReactiveAuthenticationManager: ReactiveAuthenticationManager {
+        override fun authenticate(authentication: Authentication?): Mono<Authentication> {
+            return Mono.empty()
         }
     }
 }

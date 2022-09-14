@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -244,6 +244,7 @@ public class OpenSamlAuthenticationProviderTests {
 		expected.put("age", Collections.singletonList(21));
 		expected.put("website", Collections.singletonList("https://johndoe.com/"));
 		expected.put("registered", Collections.singletonList(true));
+		expected.put("role", Arrays.asList("RoleTwo"));
 		Instant registeredDate = Instant.ofEpochMilli(DateTime.parse("1970-01-01T00:00:00Z").getMillis());
 		expected.put("registeredDate", Collections.singletonList(registeredDate));
 		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
@@ -606,9 +607,9 @@ public class OpenSamlAuthenticationProviderTests {
 
 	private Consumer<Saml2AuthenticationException> errorOf(String errorCode, String description) {
 		return (ex) -> {
-			assertThat(ex.getError().getErrorCode()).isEqualTo(errorCode);
+			assertThat(ex.getSaml2Error().getErrorCode()).isEqualTo(errorCode);
 			if (StringUtils.hasText(description)) {
-				assertThat(ex.getError().getDescription()).contains(description);
+				assertThat(ex.getSaml2Error().getDescription()).contains(description);
 			}
 		};
 	}

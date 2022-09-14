@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,13 @@
 
 package org.springframework.security.authorization;
 
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -37,10 +40,23 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
-	private final Set<GrantedAuthority> authorities;
+	private final List<GrantedAuthority> authorities;
+
+	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = new HashSet<>(AuthorityUtils.createAuthorityList(authorities));
+		this.authorities = AuthorityUtils.createAuthorityList(authorities);
+	}
+
+	/**
+	 * Sets the {@link RoleHierarchy} to be used. Default is {@link NullRoleHierarchy}.
+	 * Cannot be null.
+	 * @param roleHierarchy the {@link RoleHierarchy} to use
+	 * @since 5.8
+	 */
+	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
+		Assert.notNull(roleHierarchy, "roleHierarchy cannot be null");
+		this.roleHierarchy = roleHierarchy;
 	}
 
 	/**
@@ -132,14 +148,17 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	}
 
 	private boolean isAuthorized(Authentication authentication) {
-		for (GrantedAuthority grantedAuthority : authentication.getAuthorities()) {
-			for (GrantedAuthority authority : this.authorities) {
-				if (authority.getAuthority().equals(grantedAuthority.getAuthority())) {
-					return true;
-				}
+		Set<String> authorities = AuthorityUtils.authorityListToSet(this.authorities);
+		for (GrantedAuthority grantedAuthority : getGrantedAuthorities(authentication)) {
+			if (authorities.contains(grantedAuthority.getAuthority())) {
+				return true;
 			}
 		}
 		return false;
+	}
+
+	private Collection<? extends GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
+		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
 	}
 
 	@Override

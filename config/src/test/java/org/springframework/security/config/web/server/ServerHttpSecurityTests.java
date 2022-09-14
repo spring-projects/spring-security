@@ -39,14 +39,18 @@ import org.springframework.security.config.annotation.web.reactive.ServerHttpSec
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
+import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
+import org.springframework.security.oauth2.client.web.server.OAuth2AuthorizationRequestRedirectWebFilter;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.authentication.OAuth2LoginAuthenticationWebFilter;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AuthorizationRequests;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
+import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
@@ -76,11 +80,12 @@ import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -404,7 +409,7 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
 		// @formatter:on
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 	}
 
 	@Test
@@ -433,7 +438,7 @@ public class ServerHttpSecurityTests {
 				.expectStatus().isOk()
 				.expectBody(String.class).consumeWith((b) -> assertThat(b.getResponseBody()).isEqualTo("ok"));
 		// @formatter:on
-		verifyZeroInteractions(this.authenticationManager);
+		verifyNoMoreInteractions(this.authenticationManager);
 		verify(customAuthenticationManager).authenticate(any(Authentication.class));
 	}
 
@@ -531,6 +536,90 @@ public class ServerHttpSecurityTests {
 		verify(authorizationRequestRepository).removeAuthorizationRequest(any());
 	}
 
+	@Test
+	public void shouldUseDefaultAuthorizationRedirectStrategyForOAuth2Login() {
+		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
+				ReactiveClientRegistrationRepository.class);
+		given(clientRegistrationRepository.findByRegistrationId(anyString()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+
+		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
+				.clientRegistrationRepository(clientRegistrationRepository).and().build();
+
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
+		client.get().uri("/oauth2/authorization/registration-id").exchange().expectStatus().is3xxRedirection();
+
+		OAuth2AuthorizationRequestRedirectWebFilter filter = getWebFilter(securityFilterChain,
+				OAuth2AuthorizationRequestRedirectWebFilter.class).get();
+		assertThat(ReflectionTestUtils.getField(filter, "authorizationRedirectStrategy"))
+				.isInstanceOf(DefaultServerRedirectStrategy.class);
+	}
+
+	@Test
+	public void shouldConfigureAuthorizationRedirectStrategyForOAuth2Login() {
+		ServerRedirectStrategy authorizationRedirectStrategy = mock(ServerRedirectStrategy.class);
+		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
+				ReactiveClientRegistrationRepository.class);
+		given(clientRegistrationRepository.findByRegistrationId(anyString()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+		given(authorizationRedirectStrategy.sendRedirect(any(), any())).willReturn(Mono.empty());
+
+		SecurityWebFilterChain securityFilterChain = this.http.oauth2Login()
+				.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRedirectStrategy(authorizationRedirectStrategy).and().build();
+
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
+		client.get().uri("/oauth2/authorization/registration-id").exchange();
+		verify(authorizationRedirectStrategy).sendRedirect(any(), any());
+
+		OAuth2AuthorizationRequestRedirectWebFilter filter = getWebFilter(securityFilterChain,
+				OAuth2AuthorizationRequestRedirectWebFilter.class).get();
+		assertThat(ReflectionTestUtils.getField(filter, "authorizationRedirectStrategy"))
+				.isSameAs(authorizationRedirectStrategy);
+	}
+
+	@Test
+	public void shouldUseDefaultAuthorizationRedirectStrategyForOAuth2Client() {
+		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
+				ReactiveClientRegistrationRepository.class);
+		given(clientRegistrationRepository.findByRegistrationId(anyString()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+
+		SecurityWebFilterChain securityFilterChain = this.http.oauth2Client()
+				.clientRegistrationRepository(clientRegistrationRepository).and().build();
+
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
+		client.get().uri("/oauth2/authorization/registration-id").exchange().expectStatus().is3xxRedirection();
+
+		OAuth2AuthorizationRequestRedirectWebFilter filter = getWebFilter(securityFilterChain,
+				OAuth2AuthorizationRequestRedirectWebFilter.class).get();
+		assertThat(ReflectionTestUtils.getField(filter, "authorizationRedirectStrategy"))
+				.isInstanceOf(DefaultServerRedirectStrategy.class);
+	}
+
+	@Test
+	public void shouldConfigureAuthorizationRedirectStrategyForOAuth2Client() {
+		ServerRedirectStrategy authorizationRedirectStrategy = mock(ServerRedirectStrategy.class);
+		ReactiveClientRegistrationRepository clientRegistrationRepository = mock(
+				ReactiveClientRegistrationRepository.class);
+		given(clientRegistrationRepository.findByRegistrationId(anyString()))
+				.willReturn(Mono.just(TestClientRegistrations.clientRegistration().build()));
+		given(authorizationRedirectStrategy.sendRedirect(any(), any())).willReturn(Mono.empty());
+
+		SecurityWebFilterChain securityFilterChain = this.http.oauth2Client()
+				.clientRegistrationRepository(clientRegistrationRepository)
+				.authorizationRedirectStrategy(authorizationRedirectStrategy).and().build();
+
+		WebTestClient client = WebTestClientBuilder.bindToWebFilters(securityFilterChain).build();
+		client.get().uri("/oauth2/authorization/registration-id").exchange();
+		verify(authorizationRedirectStrategy).sendRedirect(any(), any());
+
+		OAuth2AuthorizationRequestRedirectWebFilter filter = getWebFilter(securityFilterChain,
+				OAuth2AuthorizationRequestRedirectWebFilter.class).get();
+		assertThat(ReflectionTestUtils.getField(filter, "authorizationRedirectStrategy"))
+				.isSameAs(authorizationRedirectStrategy);
+	}
+
 	private boolean isX509Filter(WebFilter filter) {
 		try {
 			Object converter = ReflectionTestUtils.getField(filter, "authenticationConverter");
@@ -557,7 +646,7 @@ public class ServerHttpSecurityTests {
 
 		@GetMapping("/**")
 		Mono<String> pathWithinApplicationFromContext() {
-			return Mono.subscriberContext().filter((c) -> c.hasKey(ServerWebExchange.class))
+			return Mono.deferContextual(Mono::just).filter((c) -> c.hasKey(ServerWebExchange.class))
 					.map((c) -> c.get(ServerWebExchange.class))
 					.map((e) -> e.getRequest().getPath().pathWithinApplication().value());
 		}

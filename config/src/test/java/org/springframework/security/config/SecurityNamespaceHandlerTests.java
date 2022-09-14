@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
@@ -89,7 +89,7 @@ public class SecurityNamespaceHandlerTests {
 		ReflectionTestUtils.setField(handler, "logger", logger);
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		handler.init();
-		verifyZeroInteractions(logger);
+		verifyNoMoreInteractions(logger);
 	}
 
 	@Test
@@ -98,7 +98,7 @@ public class SecurityNamespaceHandlerTests {
 		expectClassUtilsForNameThrowsNoClassDefFoundError(className);
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK))
-				.withMessageContaining("NoClassDefFoundError: " + className);
+				.havingRootCause().isInstanceOf(NoClassDefFoundError.class).withMessage(className);
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class SecurityNamespaceHandlerTests {
 		expectClassUtilsForNameThrowsClassNotFoundException(className);
 		assertThatExceptionOfType(BeanDefinitionParsingException.class)
 				.isThrownBy(() -> new InMemoryXmlApplicationContext(XML_AUTHENTICATION_MANAGER + XML_HTTP_BLOCK))
-				.withMessageContaining("ClassNotFoundException: " + className);
+				.havingRootCause().isInstanceOf(ClassNotFoundException.class).withMessage(className);
 	}
 
 	@Test

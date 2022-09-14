@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -150,6 +151,7 @@ public class NamespaceHttpHeadersTests {
 		};
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -163,6 +165,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersCacheControlConfig extends WebSecurityConfigurerAdapter {
 
@@ -178,6 +181,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HstsConfig extends WebSecurityConfigurerAdapter {
 
@@ -193,6 +197,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HstsCustomConfig extends WebSecurityConfigurerAdapter {
 
@@ -212,6 +217,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FrameOptionsSameOriginConfig extends WebSecurityConfigurerAdapter {
 
@@ -229,6 +235,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FrameOptionsAllowFromConfig extends WebSecurityConfigurerAdapter {
 
@@ -246,6 +253,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class XssProtectionConfig extends WebSecurityConfigurerAdapter {
 
@@ -262,6 +270,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class XssProtectionCustomConfig extends WebSecurityConfigurerAdapter {
 
@@ -280,6 +289,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentTypeOptionsConfig extends WebSecurityConfigurerAdapter {
 
@@ -296,6 +306,7 @@ public class NamespaceHttpHeadersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeaderRefConfig extends WebSecurityConfigurerAdapter {
 

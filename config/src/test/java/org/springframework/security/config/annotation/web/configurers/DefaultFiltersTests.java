@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -50,7 +49,7 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
@@ -106,7 +105,7 @@ public class DefaultFiltersTests {
 		List<? extends Class<? extends Filter>> classes = secondFilter.getFilters().stream().map(Filter::getClass)
 				.collect(Collectors.toList());
 		assertThat(classes.contains(WebAsyncManagerIntegrationFilter.class)).isTrue();
-		assertThat(classes.contains(SecurityContextPersistenceFilter.class)).isTrue();
+		assertThat(classes.contains(SecurityContextHolderFilter.class)).isTrue();
 		assertThat(classes.contains(HeaderWriterFilter.class)).isTrue();
 		assertThat(classes.contains(LogoutFilter.class)).isTrue();
 		assertThat(classes.contains(CsrfFilter.class)).isTrue();
@@ -132,6 +131,7 @@ public class DefaultFiltersTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("/login?logout");
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderMissingConfig {
 
@@ -156,6 +156,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
 
@@ -170,6 +171,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
 
@@ -193,6 +195,7 @@ public class DefaultFiltersTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultFiltersConfigPermitAll extends WebSecurityConfigurerAdapter {
 

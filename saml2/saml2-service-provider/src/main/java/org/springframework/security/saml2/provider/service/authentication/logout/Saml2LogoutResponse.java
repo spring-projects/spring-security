@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,19 @@
 
 package org.springframework.security.saml2.provider.service.authentication.logout;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 /**
  * A class that represents a signed and serialized SAML 2.0 Logout Response
@@ -34,16 +38,31 @@ import org.springframework.security.saml2.provider.service.web.authentication.lo
  */
 public final class Saml2LogoutResponse {
 
+	private static final Function<Map<String, String>, String> DEFAULT_ENCODER = (params) -> {
+		if (params.isEmpty()) {
+			return null;
+		}
+		UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
+		for (Map.Entry<String, String> component : params.entrySet()) {
+			builder.queryParam(component.getKey(), UriUtils.encode(component.getValue(), StandardCharsets.ISO_8859_1));
+		}
+		return builder.build(true).toString().substring(1);
+	};
+
 	private final String location;
 
 	private final Saml2MessageBinding binding;
 
 	private final Map<String, String> parameters;
 
-	private Saml2LogoutResponse(String location, Saml2MessageBinding binding, Map<String, String> parameters) {
+	private final Function<Map<String, String>, String> encoder;
+
+	private Saml2LogoutResponse(String location, Saml2MessageBinding binding, Map<String, String> parameters,
+			Function<Map<String, String>, String> encoder) {
 		this.location = location;
 		this.binding = binding;
-		this.parameters = Collections.unmodifiableMap(new HashMap<>(parameters));
+		this.parameters = Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
+		this.encoder = encoder;
 	}
 
 	/**
@@ -104,6 +123,16 @@ public final class Saml2LogoutResponse {
 	}
 
 	/**
+	 * Get an encoded query string of all parameters. Resulting query does not contain a
+	 * leading question mark.
+	 * @return an encoded string of all parameters
+	 * @since 5.8
+	 */
+	public String getParametersQuery() {
+		return this.encoder.apply(this.parameters);
+	}
+
+	/**
 	 * Create a {@link Builder} instance from this {@link RelyingPartyRegistration}
 	 *
 	 * Specifically, this will pull the <a href=
@@ -122,7 +151,9 @@ public final class Saml2LogoutResponse {
 
 		private Saml2MessageBinding binding;
 
-		private Map<String, String> parameters = new HashMap<>();
+		private Map<String, String> parameters = new LinkedHashMap<>();
+
+		private Function<Map<String, String>, String> encoder = DEFAULT_ENCODER;
 
 		private Builder(RelyingPartyRegistration registration) {
 			this.location = registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation();
@@ -196,11 +227,26 @@ public final class Saml2LogoutResponse {
 		}
 
 		/**
+		 * Use this strategy for converting parameters into an encoded query string. The
+		 * resulting query does not contain a leading question mark.
+		 *
+		 * In the event that you already have an encoded version that you want to use, you
+		 * can call this by doing {@code parameterEncoder((params) -> encodedValue)}.
+		 * @param encoder the strategy to use
+		 * @return the {@link Saml2LogoutRequest.Builder} for further configurations
+		 * @since 5.8
+		 */
+		public Builder parametersQuery(Function<Map<String, String>, String> encoder) {
+			this.encoder = encoder;
+			return this;
+		}
+
+		/**
 		 * Build the {@link Saml2LogoutResponse}
 		 * @return a constructed {@link Saml2LogoutResponse}
 		 */
 		public Saml2LogoutResponse build() {
-			return new Saml2LogoutResponse(this.location, this.binding, this.parameters);
+			return new Saml2LogoutResponse(this.location, this.binding, this.parameters, this.encoder);
 		}
 
 	}

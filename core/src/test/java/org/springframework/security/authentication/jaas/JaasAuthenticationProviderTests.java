@@ -75,8 +75,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testBadPassword() {
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "asdf")));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.jaasProvider
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "asdf")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
 				.isNotNull();
@@ -85,8 +85,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testBadUser() {
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("asdf", "password")));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> this.jaasProvider
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("asdf", "password")));
 		assertThat(this.eventCheck.failedEvent).as("Failure event not fired").isNotNull();
 		assertThat(this.eventCheck.failedEvent.getException()).withFailMessage("Failure event exception was null")
 				.isNotNull();
@@ -158,8 +158,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testFull() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("user",
+				"password", AuthorityUtils.createAuthorityList("ROLE_ONE"));
 		assertThat(this.jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		Authentication auth = this.jaasProvider.authenticate(token);
 		assertThat(this.jaasProvider.getAuthorityGranters()).isNotNull();
@@ -198,7 +198,7 @@ public class JaasAuthenticationProviderTests {
 		assertThat(this.jaasProvider.getLoginExceptionResolver()).isNotNull();
 		this.jaasProvider.setLoginExceptionResolver((e) -> new LockedException("This is just a test!"));
 		try {
-			this.jaasProvider.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+			this.jaasProvider.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		}
 		catch (LockedException ex) {
 		}
@@ -221,7 +221,8 @@ public class JaasAuthenticationProviderTests {
 
 	@Test
 	public void testNullDefaultAuthorities() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		assertThat(this.jaasProvider.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
 		Authentication auth = this.jaasProvider.authenticate(token);
 		assertThat(auth.getAuthorities()).withFailMessage("Only ROLE_TEST1 and ROLE_TEST2 should have been returned")

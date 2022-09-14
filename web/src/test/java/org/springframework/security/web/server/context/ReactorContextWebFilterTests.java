@@ -110,7 +110,7 @@ public class ReactorContextWebFilterTests {
 	public void filterWhenMainContextThenDoesNotOverride() {
 		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		String contextKey = "main";
-		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
+		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).contextWrite(Context.of(contextKey, true));
 		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(),
 				List.of(mainContextWebFilter, this.filter));
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));

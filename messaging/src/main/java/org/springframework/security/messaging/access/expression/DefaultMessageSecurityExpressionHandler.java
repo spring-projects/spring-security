@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,10 @@
 
 package org.springframework.security.messaging.access.expression;
 
+import java.util.function.Supplier;
+
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.messaging.Message;
 import org.springframework.security.access.expression.AbstractSecurityExpressionHandler;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
@@ -31,6 +35,7 @@ import org.springframework.util.Assert;
  *
  * @param <T> the type for the body of the Message
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 4.0
  */
 public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurityExpressionHandler<Message<T>> {
@@ -38,7 +43,20 @@ public class DefaultMessageSecurityExpressionHandler<T> extends AbstractSecurity
 	private AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
 
 	@Override
+	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, Message<T> message) {
+		MessageSecurityExpressionRoot root = createSecurityExpressionRoot(authentication, message);
+		StandardEvaluationContext ctx = new StandardEvaluationContext(root);
+		ctx.setBeanResolver(getBeanResolver());
+		return ctx;
+	}
+
+	@Override
 	protected SecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			Message<T> invocation) {
+		return createSecurityExpressionRoot(() -> authentication, invocation);
+	}
+
+	private MessageSecurityExpressionRoot createSecurityExpressionRoot(Supplier<Authentication> authentication,
 			Message<T> invocation) {
 		MessageSecurityExpressionRoot root = new MessageSecurityExpressionRoot(authentication, invocation);
 		root.setPermissionEvaluator(getPermissionEvaluator());

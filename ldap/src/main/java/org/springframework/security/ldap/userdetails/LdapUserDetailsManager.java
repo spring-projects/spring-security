@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
@@ -81,6 +82,9 @@ import org.springframework.util.Assert;
 public class LdapUserDetailsManager implements UserDetailsManager {
 
 	private final Log logger = LogFactory.getLog(LdapUserDetailsManager.class);
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	/**
 	 * The strategy for mapping usernames to LDAP distinguished names. This will be used
@@ -179,7 +183,7 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 */
 	@Override
 	public void changePassword(final String oldPassword, final String newPassword) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		Assert.notNull(authentication,
 				"No authentication object found in security context. Can't change current user's password!");
 		String username = authentication.getName();
@@ -386,6 +390,17 @@ public class LdapUserDetailsManager implements UserDetailsManager {
 	 */
 	public void setUsePasswordModifyExtensionOperation(boolean usePasswordModifyExtensionOperation) {
 		this.usePasswordModifyExtensionOperation = usePasswordModifyExtensionOperation;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	private void changePasswordUsingAttributeModification(DistinguishedName userDn, String oldPassword,

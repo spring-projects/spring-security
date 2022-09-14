@@ -58,11 +58,13 @@ DigestAuthenticationFilter digestAuthenticationFilter() {
 	result.setAuthenticationEntryPoint(entryPoint());
 }
 
-protected void configure(HttpSecurity http) throws Exception {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.exceptionHandling(e -> e.authenticationEntryPoint(authenticationEntryPoint()))
 		.addFilterBefore(digestFilter());
+	return http.build();
 }
 ----
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,16 @@ import org.assertj.core.api.Assertions.assertThatExceptionOfType
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User.withUsername
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.access.AccessDeniedHandlerImpl
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -58,16 +60,19 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class ExceptionHandlingConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ExceptionHandlingConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
                 exceptionHandling { }
             }
+            return http.build()
         }
     }
 
@@ -80,9 +85,11 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ExceptionHandlingDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ExceptionHandlingDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -91,6 +98,7 @@ class ExceptionHandlingDslTests {
                     disable()
                 }
             }
+            return http.build()
         }
     }
 
@@ -106,10 +114,12 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AccessDeniedPageConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AccessDeniedPageConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/admin", hasAuthority("ROLE_ADMIN"))
@@ -119,6 +129,7 @@ class ExceptionHandlingDslTests {
                     accessDeniedPage = "/access-denied"
                 }
             }
+            return http.build()
         }
     }
 
@@ -134,10 +145,12 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AccessDeniedHandlerConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AccessDeniedHandlerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val customAccessDeniedHandler = AccessDeniedHandlerImpl()
             customAccessDeniedHandler.setErrorPage("/access-denied")
             http {
@@ -149,6 +162,7 @@ class ExceptionHandlingDslTests {
                     accessDeniedHandler = customAccessDeniedHandler
                 }
             }
+            return http.build()
         }
     }
 
@@ -171,10 +185,12 @@ class ExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AccessDeniedHandlerForConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AccessDeniedHandlerForConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val customAccessDeniedHandler1 = AccessDeniedHandlerImpl()
             customAccessDeniedHandler1.setErrorPage("/access-denied1")
             val customAccessDeniedHandler2 = AccessDeniedHandlerImpl()
@@ -190,6 +206,7 @@ class ExceptionHandlingDslTests {
                     defaultAccessDeniedHandlerFor(customAccessDeniedHandler2, AntPathRequestMatcher("/admin2"))
                 }
             }
+            return http.build()
         }
     }
 
@@ -204,10 +221,12 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AuthenticationEntryPointConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthenticationEntryPointConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -216,6 +235,7 @@ class ExceptionHandlingDslTests {
                     authenticationEntryPoint = LoginUrlAuthenticationEntryPoint("/custom-login")
                 }
             }
+            return http.build()
         }
     }
 
@@ -236,10 +256,12 @@ class ExceptionHandlingDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AuthenticationEntryPointForConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthenticationEntryPointForConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val customAuthenticationEntryPoint1 = LoginUrlAuthenticationEntryPoint("/custom-login1")
             val customAuthenticationEntryPoint2 = LoginUrlAuthenticationEntryPoint("/custom-login2")
             http {
@@ -251,6 +273,7 @@ class ExceptionHandlingDslTests {
                     defaultAuthenticationEntryPointFor(customAuthenticationEntryPoint2, AntPathRequestMatcher("/secured2"))
                 }
             }
+            return http.build()
         }
     }
 }

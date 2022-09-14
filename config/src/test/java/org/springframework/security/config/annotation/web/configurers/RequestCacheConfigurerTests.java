@@ -18,12 +18,12 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
@@ -36,6 +36,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
@@ -177,7 +178,7 @@ public class RequestCacheConfigurerTests {
 				.getRequest()
 				.getSession();
 		// @formatter:on
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	@Test
@@ -191,7 +192,7 @@ public class RequestCacheConfigurerTests {
 				.getRequest()
 				.getSession();
 		// @formatter:on
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	@Test
@@ -206,7 +207,7 @@ public class RequestCacheConfigurerTests {
 				.getRequest()
 				.getSession();
 		// @formatter:on
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	@Test
@@ -221,7 +222,7 @@ public class RequestCacheConfigurerTests {
 				.getRequest()
 				.getSession();
 		// @formatter:on
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/messages"));
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	// gh-6102
@@ -275,7 +276,7 @@ public class RequestCacheConfigurerTests {
 				.getRequest()
 				.getSession();
 		// @formatter:on
-		this.mvc.perform(formLogin(session)).andExpect(redirectedUrl("http://localhost/bob"));
+		this.mvc.perform(formLogin(session)).andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 	}
 
 	@Test
@@ -300,6 +301,7 @@ public class RequestCacheConfigurerTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -329,6 +331,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -347,6 +350,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -363,6 +367,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -374,6 +379,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -392,6 +398,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -410,6 +417,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomRequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -431,6 +439,7 @@ public class RequestCacheConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultSecurityConfig {
 

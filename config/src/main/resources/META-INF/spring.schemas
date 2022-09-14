@@ -1,5 +1,7 @@
 http\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.0.xsd
 http\://www.springframework.org/schema/security/spring-security-6.0.xsd=org/springframework/security/config/spring-security-6.0.xsd
+http\://www.springframework.org/schema/security/spring-security-5.8.xsd=org/springframework/security/config/spring-security-5.8.xsd
+http\://www.springframework.org/schema/security/spring-security-5.7.xsd=org/springframework/security/config/spring-security-5.7.xsd
 http\://www.springframework.org/schema/security/spring-security-5.6.xsd=org/springframework/security/config/spring-security-5.6.xsd
 http\://www.springframework.org/schema/security/spring-security-5.5.xsd=org/springframework/security/config/spring-security-5.5.xsd
 http\://www.springframework.org/schema/security/spring-security-5.4.xsd=org/springframework/security/config/spring-security-5.4.xsd
@@ -20,6 +22,8 @@ http\://www.springframework.org/schema/security/spring-security-2.0.2.xsd=org/sp
 http\://www.springframework.org/schema/security/spring-security-2.0.4.xsd=org/springframework/security/config/spring-security-2.0.4.xsd
 https\://www.springframework.org/schema/security/spring-security.xsd=org/springframework/security/config/spring-security-6.0.xsd
 https\://www.springframework.org/schema/security/spring-security-6.0.xsd=org/springframework/security/config/spring-security-6.0.xsd
+https\://www.springframework.org/schema/security/spring-security-5.8.xsd=org/springframework/security/config/spring-security-5.8.xsd
+https\://www.springframework.org/schema/security/spring-security-5.7.xsd=org/springframework/security/config/spring-security-5.7.xsd
 https\://www.springframework.org/schema/security/spring-security-5.6.xsd=org/springframework/security/config/spring-security-5.6.xsd
 https\://www.springframework.org/schema/security/spring-security-5.5.xsd=org/springframework/security/config/spring-security-5.5.xsd
 https\://www.springframework.org/schema/security/spring-security-5.4.xsd=org/springframework/security/config/spring-security-5.4.xsd

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,13 +30,16 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -63,6 +69,16 @@ public class AnonymousConfigurerTests {
 	}
 
 	@Test
+	public void requestWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(AnonymousPrincipalInLambdaConfig.class, SecurityContextChangedListenerConfig.class,
+				PrincipalController.class).autowire();
+		this.mockMvc.perform(get("/")).andExpect(content().string("principal"));
+		SecurityContextChangedListener listener = this.spring.getContext()
+				.getBean(SecurityContextChangedListener.class);
+		verify(listener).securityContextChanged(setAuthentication(AnonymousAuthenticationToken.class));
+	}
+
+	@Test
 	public void requestWhenAnonymousDisabledInLambdaThenRespondsWithForbidden() throws Exception {
 		this.spring.register(AnonymousDisabledInLambdaConfig.class, PrincipalController.class).autowire();
 		this.mockMvc.perform(get("/")).andExpect(status().isForbidden());
@@ -74,6 +90,7 @@ public class AnonymousConfigurerTests {
 		this.mockMvc.perform(get("/")).andExpect(status().isOk());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
@@ -92,6 +109,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class AnonymousPrincipalInLambdaConfig extends WebSecurityConfigurerAdapter {
@@ -109,6 +127,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -135,6 +154,7 @@ public class AnonymousConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 

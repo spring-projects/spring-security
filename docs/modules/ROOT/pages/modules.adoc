@@ -139,10 +139,6 @@ None of the classes are intended for direct use in an application.
 |
 | Required if you are using the LDAP namespace options (optional).
 
-| spring-security-openid
-|
-| Required if you are using OpenID authentication (optional).
-
 | aspectjweaver
 | 1.6.10
 | Required if using the protect-pointcut namespace syntax (optional).
@@ -273,44 +269,6 @@ This is the basis of the Spring Security integration.
 | ehcache
 | 1.6.2
 | Required if you are using the Ehcache-based ticket cache (optional).
-|===
-
-[[spring-security-openid]]
-== OpenID -- `spring-security-openid.jar`
-
-[NOTE]
-====
-The OpenID 1.0 and 2.0 protocols have been deprecated and users are encouraged to migrate to OpenID Connect, which is supported by spring-security-oauth2.
-====
-
-This module contains OpenID web authentication support.
-It is used to authenticate users against an external OpenID server.
-The top-level package is `org.springframework.security.openid`.
-It requires OpenID4Java.
-
-.OpenID Dependencies
-|===
-| Dependency | Version | Description
-
-| spring-security-core
-|
-|
-
-| spring-security-web
-|
-|
-
-| openid4java-nodeps
-| 0.9.6
-| Spring Security's OpenID integration uses OpenID4Java.
-
-| httpclient
-| 4.1.1
-| openid4java-nodeps depends on HttpClient 4.
-
-| guice
-| 2.0
-| openid4java-nodeps depends on Guice 2.
 |===
 
 

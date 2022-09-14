@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -110,6 +109,7 @@ public class NamespaceHttpFormLoginTests {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -131,6 +131,7 @@ public class NamespaceHttpFormLoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginCustomConfig extends WebSecurityConfigurerAdapter {
 
@@ -154,6 +155,7 @@ public class NamespaceHttpFormLoginTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginCustomRefsConfig extends WebSecurityConfigurerAdapter {
 

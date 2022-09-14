@@ -1,26 +1,26 @@
+# The purpose of this Antora playbook is to generate a preview of the docs in the current branch.
+antora:
+  extensions:
+  - ./antora-linked-worktree-patch.js
+runtime:
+  log:
+    format: pretty
 site:
   title: Spring Security
-  url: https://docs.spring.io/spring-security/reference/
-asciidoc:
-  attributes:
-    page-pagination: true
+  url: https://docs.spring.io/spring-security/reference
 content:
   sources:
-    - url: ../../spring-io/spring-generated-docs
-      branches: [spring-projects/spring-security/*]
-    - url: ../../spring-projects/spring-security
-      branches: [main,5.6.x]
-      start_path: docs
+  - url: ./..
+    branches: HEAD
+    start_paths: [docs, 'docs/build/generateAntora*']
+    worktrees: true
+asciidoc:
+  attributes:
+    page-pagination: ''
+    hide-uri-scheme: '@'
 urls:
-  latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
-  redirect_facility: httpd
 ui:
   bundle:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/latest/ui-bundle.zip
     snapshot: true
-
-pipeline:
-  extensions:
-    - require: ./antora/extensions/major-minor-segment.js
-    - require: ./antora/extensions/root-component-name.js

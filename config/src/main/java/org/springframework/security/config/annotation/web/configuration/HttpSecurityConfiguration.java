@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +25,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.support.SpringFactoriesLoader;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.DefaultLoginPageConfigurer;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -49,19 +56,16 @@ class HttpSecurityConfiguration {
 
 	private ObjectPostProcessor<Object> objectPostProcessor;
 
-	private AuthenticationManager authenticationManager;
-
 	private AuthenticationConfiguration authenticationConfiguration;
 
 	private ApplicationContext context;
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	@Autowired
 	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
-	}
-
-	void setAuthenticationManager(AuthenticationManager authenticationManager) {
-		this.authenticationManager = authenticationManager;
 	}
 
 	@Autowired
@@ -74,6 +78,11 @@ class HttpSecurityConfiguration {
 		this.context = context;
 	}
 
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	@Bean(HTTPSECURITY_BEAN_NAME)
 	@Scope("prototype")
 	HttpSecurity httpSecurity() throws Exception {
@@ -82,11 +91,14 @@ class HttpSecurityConfiguration {
 		AuthenticationManagerBuilder authenticationBuilder = new WebSecurityConfigurerAdapter.DefaultPasswordEncoderAuthenticationManagerBuilder(
 				this.objectPostProcessor, passwordEncoder);
 		authenticationBuilder.parentAuthenticationManager(authenticationManager());
+		authenticationBuilder.authenticationEventPublisher(getAuthenticationEventPublisher());
 		HttpSecurity http = new HttpSecurity(this.objectPostProcessor, authenticationBuilder, createSharedObjects());
+		WebAsyncManagerIntegrationFilter webAsyncManagerIntegrationFilter = new WebAsyncManagerIntegrationFilter();
+		webAsyncManagerIntegrationFilter.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		// @formatter:off
 		http
 			.csrf(withDefaults())
-			.addFilter(new WebAsyncManagerIntegrationFilter())
+			.addFilter(webAsyncManagerIntegrationFilter)
 			.exceptionHandling(withDefaults())
 			.headers(withDefaults())
 			.sessionManagement(withDefaults())
@@ -97,12 +109,28 @@ class HttpSecurityConfiguration {
 			.apply(new DefaultLoginPageConfigurer<>());
 		http.logout(withDefaults());
 		// @formatter:on
+		applyDefaultConfigurers(http);
 		return http;
 	}
 
 	private AuthenticationManager authenticationManager() throws Exception {
-		return (this.authenticationManager != null) ? this.authenticationManager
-				: this.authenticationConfiguration.getAuthenticationManager();
+		return this.authenticationConfiguration.getAuthenticationManager();
+	}
+
+	private AuthenticationEventPublisher getAuthenticationEventPublisher() {
+		if (this.context.getBeanNamesForType(AuthenticationEventPublisher.class).length > 0) {
+			return this.context.getBean(AuthenticationEventPublisher.class);
+		}
+		return this.objectPostProcessor.postProcess(new DefaultAuthenticationEventPublisher());
+	}
+
+	private void applyDefaultConfigurers(HttpSecurity http) throws Exception {
+		ClassLoader classLoader = this.context.getClassLoader();
+		List<AbstractHttpConfigurer> defaultHttpConfigurers = SpringFactoriesLoader
+				.loadFactories(AbstractHttpConfigurer.class, classLoader);
+		for (AbstractHttpConfigurer configurer : defaultHttpConfigurers) {
+			http.apply(configurer);
+		}
 	}
 
 	private Map<Class<?>, Object> createSharedObjects() {

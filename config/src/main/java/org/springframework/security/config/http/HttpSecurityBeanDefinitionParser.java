@@ -144,9 +144,12 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		boolean forceAutoConfig = isDefaultHttpConfig(element);
 		HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, forceAutoConfig, pc, portMapper,
 				portResolver, authenticationManager);
+		httpBldr.getSecurityContextRepositoryForAuthenticationFilters();
 		AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, forceAutoConfig, pc,
 				httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
-				httpBldr.getSessionStrategy(), portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
+				httpBldr.getSecurityContextHolderStrategyForAuthenticationFilters(),
+				httpBldr.getSecurityContextRepositoryForAuthenticationFilters(), httpBldr.getSessionStrategy(),
+				portMapper, portResolver, httpBldr.getCsrfLogoutHandler());
 		httpBldr.setLogoutHandlers(authBldr.getLogoutHandlers());
 		httpBldr.setEntryPoint(authBldr.getEntryPointBean());
 		httpBldr.setAccessDeniedHandler(authBldr.getAccessDeniedHandlerBean());

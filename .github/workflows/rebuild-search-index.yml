@@ -1,0 +1,20 @@
+name: Rebuild Search Index
+on:
+  schedule:
+  - cron: '0 10 * * *' # Once per day at 10am UTC
+  workflow_dispatch:
+permissions: read-all
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.repository_owner == 'spring-projects'
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        ref: docs-build
+        fetch-depth: 1
+    - name: Dispatch
+      run: gh workflow run --ref $(git rev-parse --abbrev-ref HEAD) rebuild-search-index.yml
+      env:
+        GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}

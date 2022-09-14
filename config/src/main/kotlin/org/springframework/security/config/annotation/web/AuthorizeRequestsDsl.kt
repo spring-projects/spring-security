@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
     fun authorize(matches: RequestMatcher = AnyRequestMatcher.INSTANCE,
-                  access: String = "authenticated") {
+                  access: String) {
         authorizationRules.add(MatcherAuthorizationRule(matches, access))
     }
 
@@ -54,7 +54,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * Adds a request authorization rule for an endpoint matching the provided
      * pattern.
      * If Spring MVC is on the classpath, it will use an MVC matcher.
-     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * If Spring MVC is not on the classpath, it will use an ant matcher.
      * The MVC will use the same rules that Spring MVC uses for matching.
      * For example, often times a mapping of the path "/path" will match on
      * "/path", "/path/", "/path.html", etc.
@@ -65,7 +65,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(pattern: String, access: String = "authenticated") {
+    fun authorize(pattern: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         rule = access))
@@ -75,7 +75,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * Adds a request authorization rule for an endpoint matching the provided
      * pattern.
      * If Spring MVC is on the classpath, it will use an MVC matcher.
-     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * If Spring MVC is not on the classpath, it will use an ant matcher.
      * The MVC will use the same rules that Spring MVC uses for matching.
      * For example, often times a mapping of the path "/path" will match on
      * "/path", "/path/", "/path.html", etc.
@@ -87,7 +87,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(method: HttpMethod, pattern: String, access: String = "authenticated") {
+    fun authorize(method: HttpMethod, pattern: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         httpMethod = method,
@@ -98,7 +98,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * Adds a request authorization rule for an endpoint matching the provided
      * pattern.
      * If Spring MVC is on the classpath, it will use an MVC matcher.
-     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * If Spring MVC is not on the classpath, it will use an ant matcher.
      * The MVC will use the same rules that Spring MVC uses for matching.
      * For example, often times a mapping of the path "/path" will match on
      * "/path", "/path/", "/path.html", etc.
@@ -111,7 +111,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(pattern: String, servletPath: String, access: String = "authenticated") {
+    fun authorize(pattern: String, servletPath: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         servletPath = servletPath,
@@ -122,7 +122,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * Adds a request authorization rule for an endpoint matching the provided
      * pattern.
      * If Spring MVC is on the classpath, it will use an MVC matcher.
-     * If Spring MVC is not an the classpath, it will use an ant matcher.
+     * If Spring MVC is not on the classpath, it will use an ant matcher.
      * The MVC will use the same rules that Spring MVC uses for matching.
      * For example, often times a mapping of the path "/path" will match on
      * "/path", "/path/", "/path.html", etc.
@@ -136,7 +136,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
      * @param access the SpEL expression to secure the matching request
      * (i.e. "hasAuthority('ROLE_USER') and hasAuthority('ROLE_SUPER')")
      */
-    fun authorize(method: HttpMethod, pattern: String, servletPath: String, access: String = "authenticated") {
+    fun authorize(method: HttpMethod, pattern: String, servletPath: String, access: String) {
         authorizationRules.add(PatternAuthorizationRule(pattern = pattern,
                                                         patternType = PATTERN_TYPE,
                                                         servletPath = servletPath,
@@ -154,7 +154,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     fun hasAuthority(authority: String) = "hasAuthority('$authority')"
 
     /**
-     * Specify that URLs requires any of a number authorities.
+     * Specify that URLs require any number of authorities.
      *
      * @param authorities the authorities to require (i.e. ROLE_USER, ROLE_ADMIN, etc).
      * @return the SpEL expression "hasAnyAuthority" with the given authorities as a
@@ -175,7 +175,7 @@ class AuthorizeRequestsDsl : AbstractRequestMatcherDsl() {
     fun hasRole(role: String) = "hasRole('$role')"
 
     /**
-     * Specify that URLs requires any of a number roles.
+     * Specify that URLs require any number of roles.
      *
      * @param roles the roles to require (i.e. USER, ADMIN, etc).
      * @return the SpEL expression "hasAnyRole" with the given roles as a

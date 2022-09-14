@@ -21,7 +21,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.access.prepost.PreFilter;
 
 public class DelegatingReactiveMessageService implements ReactiveMessageService {
 
@@ -61,6 +63,12 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	}
 
 	@Override
+	@PreAuthorize("@authz.checkReactive(#id)")
+	public Mono<String> monoPreAuthorizeBeanFindByIdReactiveExpression(long id) {
+		return this.delegate.monoPreAuthorizeBeanFindByIdReactiveExpression(id);
+	}
+
+	@Override
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Mono<String> monoPostAuthorizeBeanFindById(long id) {
 		return this.delegate.monoPostAuthorizeBeanFindById(id);
@@ -93,6 +101,20 @@ public class DelegatingReactiveMessageService implements ReactiveMessageService 
 	@PostAuthorize("@authz.check(authentication, returnObject)")
 	public Flux<String> fluxPostAuthorizeBeanFindById(long id) {
 		return this.delegate.fluxPostAuthorizeBeanFindById(id);
+	}
+
+	@PreFilter("filterObject.length > 3")
+	@PreAuthorize("hasRole('ADMIN')")
+	@PostFilter("filterObject.length > 5")
+	@PostAuthorize("returnObject == 'harold' or returnObject == 'jonathan'")
+	@Override
+	public Flux<String> fluxManyAnnotations(Flux<String> flux) {
+		return flux;
+	}
+
+	@PostFilter("filterObject.length > 5")
+	public Flux<String> fluxPostFilter(Flux<String> flux) {
+		return flux;
 	}
 
 	@Override

@@ -29,7 +29,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -55,7 +55,7 @@ public class HttpStatusServerAccessDeniedHandlerTests {
 	@Test
 	public void commenceWhenNoSubscribersThenNoActions() {
 		this.handler.handle(this.exchange, this.exception);
-		verifyZeroInteractions(this.exchange);
+		verifyNoMoreInteractions(this.exchange);
 	}
 
 	@Test

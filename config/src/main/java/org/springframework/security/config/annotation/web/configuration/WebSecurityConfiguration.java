@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,17 +47,15 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.util.Assert;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
  * based security for Spring Security. It then exports the necessary beans. Customizations
- * can be made to {@link WebSecurity} by extending {@link WebSecurityConfigurerAdapter}
- * and exposing it as a {@link Configuration} or implementing
- * {@link WebSecurityConfigurer} and exposing it as a {@link Configuration}. This
- * configuration is imported when using {@link EnableWebSecurity}.
+ * can be made to {@link WebSecurity} by implementing {@link WebSecurityConfigurer} and
+ * exposing it as a {@link Configuration} or exposing a {@link WebSecurityCustomizer}
+ * bean. This configuration is imported when using {@link EnableWebSecurity}.
  *
  * @author Rob Winch
  * @author Keesun Baik
@@ -113,12 +111,6 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);
-			for (Filter filter : securityFilterChain.getFilters()) {
-				if (filter instanceof FilterSecurityInterceptor) {
-					this.webSecurity.securityInterceptor((FilterSecurityInterceptor) filter);
-					break;
-				}
-			}
 		}
 		for (WebSecurityCustomizer customizer : this.webSecurityCustomizers) {
 			customizer.customize(this.webSecurity);

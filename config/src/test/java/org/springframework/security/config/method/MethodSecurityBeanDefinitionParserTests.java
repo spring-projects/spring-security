@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,8 @@ import org.springframework.lang.Nullable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.annotation.BusinessService;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -41,7 +43,11 @@ import org.springframework.security.config.annotation.method.configuration.Metho
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -49,6 +55,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Josh Cummings
@@ -59,7 +66,7 @@ public class MethodSecurityBeanDefinitionParserTests {
 
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/method/MethodSecurityBeanDefinitionParserTests";
 
-	private final UsernamePasswordAuthenticationToken bob = new UsernamePasswordAuthenticationToken("bob",
+	private final UsernamePasswordAuthenticationToken bob = UsernamePasswordAuthenticationToken.unauthenticated("bob",
 			"bobspassword");
 
 	@Autowired(required = false)
@@ -76,6 +83,17 @@ public class MethodSecurityBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MethodSecurityService")).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorize)
 				.withMessage("Access Denied");
+	}
+
+	@Test
+	public void configureWhenAspectJThenRegistersAspects() {
+		this.spring.configLocations(xml("AspectJMethodSecurityServiceEnabled")).autowire();
+		assertThat(this.spring.getContext().containsBean("preFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("preAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
 	}
 
 	@WithAnonymousUser
@@ -117,6 +135,17 @@ public class MethodSecurityBeanDefinitionParserTests {
 		assertThat(result).isNull();
 	}
 
+	@Test
+	public void securedWhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.configLocations(xml("MethodSecurityServiceEnabledCustomSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		strategy.setContext(context);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::secured)
+				.withMessage("Access Denied");
+		verify(strategy).getContext();
+	}
+
 	@WithMockUser(roles = "ADMIN")
 	@Test
 	public void securedUserWhenRoleAdminThenAccessDeniedException() {
@@ -146,6 +175,17 @@ public class MethodSecurityBeanDefinitionParserTests {
 	public void preAuthorizeAdminWhenRoleAdminThenPasses() {
 		this.spring.configLocations(xml("MethodSecurityService")).autowire();
 		this.methodSecurityService.preAuthorizeAdmin();
+	}
+
+	@Test
+	public void preAuthorizeWhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.configLocations(xml("MethodSecurityServiceEnabledCustomSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		strategy.setContext(context);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorizeAdmin)
+				.withMessage("Access Denied");
+		verify(strategy).getContext();
 	}
 
 	@WithMockUser(authorities = "PREFIX_ADMIN")
@@ -185,6 +225,30 @@ public class MethodSecurityBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MethodSecurityService")).autowire();
 		String result = this.methodSecurityService.postAnnotation("grant");
 		assertThat(result).isNull();
+	}
+
+	@Test
+	public void preFilterWhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.configLocations(xml("MethodSecurityServiceEnabledCustomSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		strategy.setContext(context);
+		List<String> result = this.methodSecurityService
+				.preFilterByUsername(new ArrayList<>(Arrays.asList("user", "bob", "joe")));
+		assertThat(result).containsExactly("user");
+		verify(strategy).getContext();
+	}
+
+	@Test
+	public void postFilterWhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.configLocations(xml("MethodSecurityServiceEnabledCustomSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		strategy.setContext(context);
+		List<String> result = this.methodSecurityService
+				.postFilterByUsername(new ArrayList<>(Arrays.asList("user", "bob", "joe")));
+		assertThat(result).containsExactly("user");
+		verify(strategy).getContext();
 	}
 
 	@WithMockUser("bob")
@@ -251,6 +315,17 @@ public class MethodSecurityBeanDefinitionParserTests {
 		this.spring.configLocations(xml("MethodSecurityServiceEnabled")).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::jsr250)
 				.withMessage("Access Denied");
+	}
+
+	@Test
+	public void jsr250WhenCustomSecurityContextHolderStrategyThenUses() {
+		this.spring.configLocations(xml("MethodSecurityServiceEnabledCustomSecurityContextHolderStrategy")).autowire();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "pass"));
+		strategy.setContext(context);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(this.methodSecurityService::jsr250RolesAllowed).withMessage("Access Denied");
+		verify(strategy).getContext();
 	}
 
 	@WithAnonymousUser
@@ -337,6 +412,28 @@ public class MethodSecurityBeanDefinitionParserTests {
 		this.spring.configLocations(xml("Secured")).autowire();
 		assertThatExceptionOfType(AnnotationConfigurationException.class)
 				.isThrownBy(() -> this.businessService.repeatedAnnotations());
+	}
+
+	@WithMockUser
+	@Test
+	public void supportsMethodArgumentsInPointcut() {
+		this.spring.configLocations(xml("ProtectPointcut")).autowire();
+		this.businessService.someOther(0);
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.businessService.someOther("somestring"));
+	}
+
+	@Test
+	public void supportsBooleanPointcutExpressions() {
+		this.spring.configLocations(xml("ProtectPointcutBoolean")).autowire();
+		this.businessService.someOther("somestring");
+		// All others should require ROLE_USER
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(() -> this.businessService.someOther(0));
+		SecurityContextHolder.getContext().setAuthentication(
+				new TestingAuthenticationToken("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER")));
+		this.businessService.someOther(0);
+		SecurityContextHolder.clearContext();
 	}
 
 	private static String xml(String configName) {

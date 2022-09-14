@@ -32,7 +32,6 @@ import jakarta.servlet.http.HttpSession;
 
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.WebAttributes;
-import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices;
 import org.springframework.util.Assert;
@@ -63,8 +62,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private boolean formLoginEnabled;
 
-	private boolean openIdEnabled;
-
 	private boolean oauth2LoginEnabled;
 
 	private boolean saml2LoginEnabled;
@@ -77,12 +74,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	private String rememberMeParameter;
 
-	private String openIDauthenticationUrl;
-
-	private String openIDusernameParameter;
-
-	private String openIDrememberMeParameter;
-
 	private Map<String, String> oauth2AuthenticationUrlToClientName;
 
 	private Map<String, String> saml2AuthenticationUrlToProviderName;
@@ -92,30 +83,12 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	public DefaultLoginPageGeneratingFilter() {
 	}
 
-	public DefaultLoginPageGeneratingFilter(AbstractAuthenticationProcessingFilter filter) {
-		if (filter instanceof UsernamePasswordAuthenticationFilter) {
-			init((UsernamePasswordAuthenticationFilter) filter, null);
-		}
-		else {
-			init(null, filter);
-		}
-	}
-
-	public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationFilter authFilter,
-			AbstractAuthenticationProcessingFilter openIDFilter) {
-		init(authFilter, openIDFilter);
-	}
-
-	private void init(UsernamePasswordAuthenticationFilter authFilter,
-			AbstractAuthenticationProcessingFilter openIDFilter) {
+	public DefaultLoginPageGeneratingFilter(UsernamePasswordAuthenticationFilter authFilter) {
 		this.loginPageUrl = DEFAULT_LOGIN_PAGE_URL;
 		this.logoutSuccessUrl = DEFAULT_LOGIN_PAGE_URL + "?logout";
 		this.failureUrl = DEFAULT_LOGIN_PAGE_URL + "?" + ERROR_PARAMETER_NAME;
 		if (authFilter != null) {
 			initAuthFilter(authFilter);
-		}
-		if (openIDFilter != null) {
-			initOpenIdFilter(openIDFilter);
 		}
 	}
 
@@ -125,15 +98,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.passwordParameter = authFilter.getPasswordParameter();
 		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
 			this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
-		}
-	}
-
-	private void initOpenIdFilter(AbstractAuthenticationProcessingFilter openIDFilter) {
-		this.openIdEnabled = true;
-		this.openIDusernameParameter = "openid_identifier";
-		if (openIDFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-			this.openIDrememberMeParameter = ((AbstractRememberMeServices) openIDFilter.getRememberMeServices())
-					.getParameter();
 		}
 	}
 
@@ -149,7 +113,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	public boolean isEnabled() {
-		return this.formLoginEnabled || this.openIdEnabled || this.oauth2LoginEnabled || this.saml2LoginEnabled;
+		return this.formLoginEnabled || this.oauth2LoginEnabled || this.saml2LoginEnabled;
 	}
 
 	public void setLogoutSuccessUrl(String logoutSuccessUrl) {
@@ -170,10 +134,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	public void setFormLoginEnabled(boolean formLoginEnabled) {
 		this.formLoginEnabled = formLoginEnabled;
-	}
-
-	public void setOpenIdEnabled(boolean openIdEnabled) {
-		this.openIdEnabled = openIdEnabled;
 	}
 
 	public void setOauth2LoginEnabled(boolean oauth2LoginEnabled) {
@@ -198,15 +158,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 
 	public void setRememberMeParameter(String rememberMeParameter) {
 		this.rememberMeParameter = rememberMeParameter;
-		this.openIDrememberMeParameter = rememberMeParameter;
-	}
-
-	public void setOpenIDauthenticationUrl(String openIDauthenticationUrl) {
-		this.openIDauthenticationUrl = openIDauthenticationUrl;
-	}
-
-	public void setOpenIDusernameParameter(String openIDusernameParameter) {
-		this.openIDusernameParameter = openIDusernameParameter;
 	}
 
 	public void setOauth2AuthenticationUrlToClientName(Map<String, String> oauth2AuthenticationUrlToClientName) {
@@ -279,19 +230,6 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 					+ "\" class=\"form-control\" placeholder=\"Password\" required>\n");
 			sb.append("        </p>\n");
 			sb.append(createRememberMe(this.rememberMeParameter) + renderHiddenInputs(request));
-			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
-			sb.append("      </form>\n");
-		}
-		if (this.openIdEnabled) {
-			sb.append("      <form name=\"oidf\" class=\"form-signin\" method=\"post\" action=\"" + contextPath
-					+ this.openIDauthenticationUrl + "\">\n");
-			sb.append("        <h2 class=\"form-signin-heading\">Login with OpenID Identity</h2>\n");
-			sb.append(createError(loginError, errorMsg) + createLogoutSuccess(logoutSuccess) + "        <p>\n");
-			sb.append("          <label for=\"username\" class=\"sr-only\">Identity</label>\n");
-			sb.append("          <input type=\"text\" id=\"username\" name=\"" + this.openIDusernameParameter
-					+ "\" class=\"form-control\" placeholder=\"Username\" required autofocus>\n");
-			sb.append("        </p>\n");
-			sb.append(createRememberMe(this.openIDrememberMeParameter) + renderHiddenInputs(request));
 			sb.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n");
 			sb.append("      </form>\n");
 		}

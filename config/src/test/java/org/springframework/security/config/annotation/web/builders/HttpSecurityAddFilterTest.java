@@ -25,12 +25,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
@@ -40,7 +40,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.header.HeaderWriterFilter;
 
@@ -96,7 +96,7 @@ public class HttpSecurityAddFilterTest {
 		this.spring.register(MyOtherFilterRelativeToMyFilterAtConfig.class).autowire();
 
 		assertThatFilters().containsSubsequence(WebAsyncManagerIntegrationFilter.class, MyFilter.class,
-				MyOtherFilter.class, SecurityContextPersistenceFilter.class);
+				MyOtherFilter.class, SecurityContextHolderFilter.class);
 	}
 
 	@Test
@@ -152,6 +152,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleAfterConfig extends WebSecurityConfigurerAdapter {
 
@@ -166,6 +167,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleBeforeConfig extends WebSecurityConfigurerAdapter {
 
@@ -180,6 +182,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyFilterMultipleAtConfig extends WebSecurityConfigurerAdapter {
 
@@ -194,6 +197,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterAfterConfig {
 
@@ -209,6 +213,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterBeforeConfig {
 
@@ -224,6 +229,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterRelativeToMyFilterAtConfig {
 
@@ -239,6 +245,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyOtherFilterBeforeToMyFilterMultipleAfterConfig {
 
@@ -255,6 +262,7 @@ public class HttpSecurityAddFilterTest {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MyAnotherFilterRelativeToMyCustomFiltersMultipleConfig {
 

@@ -24,11 +24,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.security.web.server.csrf.CsrfToken
 import org.springframework.security.web.server.csrf.DefaultCsrfToken
@@ -74,6 +77,7 @@ class ServerCsrfDslTests {
                 .expectStatus().isForbidden
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CsrfConfig {
@@ -95,6 +99,7 @@ class ServerCsrfDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CsrfDisabledConfig {
@@ -135,6 +140,7 @@ class ServerCsrfDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CsrfMatcherConfig {
@@ -171,11 +177,12 @@ class ServerCsrfDslTests {
         verify(exactly = 1) { CustomAccessDeniedHandlerConfig.ACCESS_DENIED_HANDLER.handle(any(), any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomAccessDeniedHandlerConfig {
         companion object {
-            val ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = ServerAccessDeniedHandler { _, _ -> Mono.empty() }
+            val ACCESS_DENIED_HANDLER: ServerAccessDeniedHandler = HttpStatusServerAccessDeniedHandler(HttpStatus.FORBIDDEN)
         }
 
         @Bean
@@ -203,6 +210,7 @@ class ServerCsrfDslTests {
         verify(exactly = 1) { CustomCsrfTokenRepositoryConfig.TOKEN_REPOSITORY.loadToken(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomCsrfTokenRepositoryConfig {
@@ -239,6 +247,7 @@ class ServerCsrfDslTests {
                 .expectStatus().isForbidden
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class MultipartFormDataNotEnabledConfig {
@@ -275,6 +284,7 @@ class ServerCsrfDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class MultipartFormDataEnabledConfig {

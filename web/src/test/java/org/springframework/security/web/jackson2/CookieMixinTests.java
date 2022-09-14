@@ -18,9 +18,8 @@ package org.springframework.security.web.jackson2;
 
 import java.io.IOException;
 
-import jakarta.servlet.http.Cookie;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import jakarta.servlet.http.Cookie;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;

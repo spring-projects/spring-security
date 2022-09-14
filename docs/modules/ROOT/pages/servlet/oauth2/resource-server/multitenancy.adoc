@@ -1,4 +1,4 @@
-= OAuth 2.0 Resource Server Multitenancy
+= OAuth 2.0 Resource Server Multi-tenancy
 
 [[oauth2reourceserver-opaqueandjwt]]
 == Supporting both JWT and Opaque Token
@@ -100,7 +100,7 @@ In each case, there are two things that need to be done and trade-offs associate
 
 One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, this can be done with the `JwtIssuerAuthenticationManagerResolver`, like so:
 
-.Multitenancy Tenant by JWT Claim
+.Multi-tenancy Tenant by JWT Claim
 ====
 .Java
 [source,java,role="primary"]

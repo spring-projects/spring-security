@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,14 +58,15 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
+		String contextPath = exchange.getRequest().getPath().contextPath().value();
 		return token.map(LogoutPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map((csrfTokenHtmlInput) -> {
-			byte[] bytes = createPage(csrfTokenHtmlInput);
+			byte[] bytes = createPage(csrfTokenHtmlInput, contextPath);
 			DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 			return bufferFactory.wrap(bytes);
 		});
 	}
 
-	private static byte[] createPage(String csrfTokenHtmlInput) {
+	private static byte[] createPage(String csrfTokenHtmlInput, String contextPath) {
 		StringBuilder page = new StringBuilder();
 		page.append("<!DOCTYPE html>\n");
 		page.append("<html lang=\"en\">\n");
@@ -82,7 +83,7 @@ public class LogoutPageGeneratingWebFilter implements WebFilter {
 		page.append("  </head>\n");
 		page.append("  <body>\n");
 		page.append("     <div class=\"container\">\n");
-		page.append("      <form class=\"form-signin\" method=\"post\" action=\"/logout\">\n");
+		page.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/logout\">\n");
 		page.append("        <h2 class=\"form-signin-heading\">Are you sure you want to log out?</h2>\n");
 		page.append(csrfTokenHtmlInput);
 		page.append("        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Log Out</button>\n");

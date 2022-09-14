@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.web.access;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -23,6 +24,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.FilterInvocation;
 import org.springframework.util.Assert;
+import org.springframework.web.context.ServletContextAware;
 
 /**
  * An implementation of {@link WebInvocationPrivilegeEvaluator} which delegates the checks
@@ -31,9 +33,12 @@ import org.springframework.util.Assert;
  * @author Marcus Da Coregio
  * @since 5.5.5
  */
-public final class AuthorizationManagerWebInvocationPrivilegeEvaluator implements WebInvocationPrivilegeEvaluator {
+public final class AuthorizationManagerWebInvocationPrivilegeEvaluator
+		implements WebInvocationPrivilegeEvaluator, ServletContextAware {
 
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	private ServletContext servletContext;
 
 	public AuthorizationManagerWebInvocationPrivilegeEvaluator(
 			AuthorizationManager<HttpServletRequest> authorizationManager) {
@@ -48,10 +53,15 @@ public final class AuthorizationManagerWebInvocationPrivilegeEvaluator implement
 
 	@Override
 	public boolean isAllowed(String contextPath, String uri, String method, Authentication authentication) {
-		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method);
+		FilterInvocation filterInvocation = new FilterInvocation(contextPath, uri, method, this.servletContext);
 		AuthorizationDecision decision = this.authorizationManager.check(() -> authentication,
 				filterInvocation.getHttpRequest());
-		return decision != null && decision.isGranted();
+		return decision == null || decision.isGranted();
+	}
+
+	@Override
+	public void setServletContext(ServletContext servletContext) {
+		this.servletContext = servletContext;
 	}
 
 }

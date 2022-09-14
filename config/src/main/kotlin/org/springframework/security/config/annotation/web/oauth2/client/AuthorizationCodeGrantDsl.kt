@@ -23,6 +23,7 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.web.RedirectStrategy
 
 /**
  * A Kotlin DSL to configure OAuth 2.0 Authorization Code Grant.
@@ -31,6 +32,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
  * @since 5.3
  * @property authorizationRequestResolver the resolver used for resolving [OAuth2AuthorizationRequest]'s.
  * @property authorizationRequestRepository the repository used for storing [OAuth2AuthorizationRequest]'s.
+ * @property authorizationRedirectStrategy the redirect strategy for Authorization Endpoint redirect URI.
  * @property accessTokenResponseClient the client used for requesting the access token credential
  * from the Token Endpoint.
  */
@@ -38,12 +40,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 class AuthorizationCodeGrantDsl {
     var authorizationRequestResolver: OAuth2AuthorizationRequestResolver? = null
     var authorizationRequestRepository: AuthorizationRequestRepository<OAuth2AuthorizationRequest>? = null
+    var authorizationRedirectStrategy: RedirectStrategy? = null
     var accessTokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest>? = null
 
     internal fun get(): (OAuth2ClientConfigurer<HttpSecurity>.AuthorizationCodeGrantConfigurer) -> Unit {
         return { authorizationCodeGrant ->
             authorizationRequestResolver?.also { authorizationCodeGrant.authorizationRequestResolver(authorizationRequestResolver) }
             authorizationRequestRepository?.also { authorizationCodeGrant.authorizationRequestRepository(authorizationRequestRepository) }
+            authorizationRedirectStrategy?.also { authorizationCodeGrant.authorizationRedirectStrategy(authorizationRedirectStrategy) }
             accessTokenResponseClient?.also { authorizationCodeGrant.accessTokenResponseClient(accessTokenResponseClient) }
         }
     }

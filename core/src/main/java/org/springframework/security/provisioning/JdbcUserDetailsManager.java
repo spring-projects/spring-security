@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -107,6 +108,9 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 	public static final String DEF_DELETE_GROUP_AUTHORITY_SQL = "delete from group_authorities where group_id = ? and authority = ?";
 
 	protected final Log logger = LogFactory.getLog(getClass());
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private String createUserSql = DEF_CREATE_USER_SQL;
 
@@ -260,7 +264,7 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	@Override
 	public void changePassword(String oldPassword, String newPassword) throws AuthenticationException {
-		Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+		Authentication currentUser = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (currentUser == null) {
 			// This would indicate bad coding somewhere
 			throw new AccessDeniedException(
@@ -271,7 +275,8 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		// supplied password.
 		if (this.authenticationManager != null) {
 			this.logger.debug(LogMessage.format("Reauthenticating user '%s' for password change request.", username));
-			this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, oldPassword));
+			this.authenticationManager
+					.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, oldPassword));
 		}
 		else {
 			this.logger.debug("No authentication manager set. Password won't be re-checked.");
@@ -279,16 +284,16 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 		this.logger.debug("Changing password for user '" + username + "'");
 		getJdbcTemplate().update(this.changePasswordSql, newPassword, username);
 		Authentication authentication = createNewAuthentication(currentUser, newPassword);
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
 		this.userCache.removeUserFromCache(username);
 	}
 
 	protected Authentication createNewAuthentication(Authentication currentAuth, String newPassword) {
 		UserDetails user = loadUserByUsername(currentAuth.getName());
-		UsernamePasswordAuthenticationToken newAuthentication = new UsernamePasswordAuthenticationToken(user, null,
-				user.getAuthorities());
+		UsernamePasswordAuthenticationToken newAuthentication = UsernamePasswordAuthenticationToken.authenticated(user,
+				null, user.getAuthorities());
 		newAuthentication.setDetails(currentAuth.getDetails());
 		return newAuthentication;
 	}
@@ -416,6 +421,17 @@ public class JdbcUserDetailsManager extends JdbcDaoImpl implements UserDetailsMa
 
 	private int findGroupId(String group) {
 		return getJdbcTemplate().queryForObject(this.findGroupIdSql, Integer.class, group);
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public void setAuthenticationManager(AuthenticationManager authenticationManager) {

@@ -40,7 +40,7 @@ public final class OrRequestMatcher implements RequestMatcher {
 	 */
 	public OrRequestMatcher(List<RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
-		Assert.isTrue(!requestMatchers.contains(null), "requestMatchers cannot contain null values");
+		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
 	}
 

@@ -21,7 +21,6 @@ import java.time.Instant;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.opensaml.saml.saml2.core.LogoutResponse;
 
 import org.springframework.security.core.Authentication;

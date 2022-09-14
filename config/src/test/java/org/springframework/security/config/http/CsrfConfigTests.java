@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.eclipse.jetty.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +35,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -292,6 +292,15 @@ public class CsrfConfigTests {
 	}
 
 	@Test
+	public void getWhenUsingCsrfAndCustomRequestAttributeThenSetUsingCsrfAttrName() throws Exception {
+		this.spring.configLocations(this.xml("WithRequestAttrName")).autowire();
+		// @formatter:off
+		MvcResult result = this.mvc.perform(get("/ok")).andReturn();
+		assertThat(result.getRequest().getAttribute("csrf-attribute-name")).isInstanceOf(CsrfToken.class);
+		// @formatter:on
+	}
+
+	@Test
 	public void postWhenHasCsrfTokenButSessionExpiresThenRequestIsCancelledAfterSuccessfulAuthentication()
 			throws Exception {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
@@ -329,7 +338,7 @@ public class CsrfConfigTests {
 				.session(session)
 				.with(csrf());
 		this.mvc.perform(login)
-				.andExpect(redirectedUrl("http://localhost/authenticated"));
+				.andExpect(RequestCacheResultMatcher.redirectToCachedRequest());
 		// @formatter:on
 	}
 

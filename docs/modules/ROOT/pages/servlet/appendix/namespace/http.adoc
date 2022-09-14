@@ -29,6 +29,13 @@ These are fixed and cannot be replaced with alternatives.
 === <http> Attributes
 The attributes on the `<http>` element control some of the properties on the core filters.
 
+[[nsa-http-use-authorization-manager]]
+* **use-authorization-manager**
+Use AuthorizationManager API instead of SecurityMetadataSource
+
+[[nsa-http-authorization-manager-ref]]
+* **access-decision-manager-ref**
+Use this AuthorizationManager instead of deriving one from <intercept-url> elements
 
 [[nsa-http-access-decision-manager-ref]]
 * **access-decision-manager-ref**
@@ -87,7 +94,7 @@ A bean identifier, used for referring to the bean elsewhere in the context.
 [[nsa-http-once-per-request]]
 * **once-per-request**
 Corresponds to the `observeOncePerRequest` property of `FilterSecurityInterceptor`.
-Defaults to `true`.
+Defaults to `false`.
 
 
 [[nsa-http-pattern]]
@@ -124,6 +131,15 @@ This is a more powerful alternative to <<nsa-http-pattern,pattern>>.
 A request pattern can be mapped to an empty filter chain, by setting this attribute to `none`.
 No security will be applied and none of Spring Security's features will be available.
 
+[[nsa-http-security-context-holder-strategy-ref]]
+* **security-context-repository-ref**
+Allows injection of a custom `SecurityContextHolderStrategy` into `SecurityContextPersistenceFilter`, `SecurityContextHolderFilter`, `BasicAuthenticationFilter`, `UsernamePasswordAuthenticationFilter`, `ExceptionTranslationFilter`, `LogoutFilter`, and others.
+
+[[nsa-http-security-context-explicit-save]]
+* **security-context-explicit-save**
+If true, use `SecurityContextHolderFilter` instead of `SecurityContextPersistenceFilter`.
+Requires explicit save
+
 
 [[nsa-http-security-context-repository-ref]]
 * **security-context-repository-ref**
@@ -159,11 +175,12 @@ The default value is true.
 * <<nsa-oauth2-client,oauth2-client>>
 * <<nsa-oauth2-login,oauth2-login>>
 * <<nsa-oauth2-resource-server,oauth2-resource-server>>
-* <<nsa-openid-login,openid-login>>
 * <<nsa-password-management,password-management>>
 * <<nsa-port-mappings,port-mappings>>
 * <<nsa-remember-me,remember-me>>
 * <<nsa-request-cache,request-cache>>
+* <<nsa-saml2-login,saml2-login>>
+* <<nsa-saml2-logout,saml2-logout>>
 * <<nsa-session-management,session-management>>
 * <<nsa-x509,x509>>
 
@@ -757,6 +774,13 @@ It is highly recommended to leave CSRF protection enabled.
 The CsrfTokenRepository to use.
 The default is `HttpSessionCsrfTokenRepository`.
 
+[[nsa-csrf-request-attribute-handler-ref]]
+* **request-attribute-handler-ref**
+The optional `CsrfTokenRequestAttributeHandler` to use. The default is `CsrfTokenRequestProcessor`.
+
+[[nsa-csrf-request-resolver-ref]]
+* **request-resolver-ref**
+The optional `CsrfTokenRequestResolver` to use. The default is `CsrfTokenRequestProcessor`.
 
 [[nsa-csrf-request-matcher-ref]]
 * **request-matcher-ref**
@@ -838,7 +862,7 @@ Used to add an `UsernamePasswordAuthenticationFilter` to the filter stack and an
 This will always take precedence over other namespace-created entry points.
 If no attributes are supplied, a login page will be generated automatically at the URL "/login" footnote:[
 This feature is really just provided for convenience and is not intended for production (where a view technology will have been chosen and can be used to render a customized login page).
-The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OpenID if required.
+The class `DefaultLoginPageGeneratingFilter` is responsible for rendering the login page and will provide login forms for both normal form login and/or OIDC if required.
 ] The behaviour can be customized using the <<nsa-form-login-attributes, `<form-login>` Attributes>>.
 
 
@@ -966,6 +990,11 @@ Reference to the `AuthorizationRequestRepository`.
 Reference to the `OAuth2AuthorizationRequestResolver`.
 
 
+[[nsa-oauth2-login-authorization-redirect-strategy-ref]]
+* **authorization-redirect-strategy-ref**
+Reference to the authorization `RedirectStrategy`.
+
+
 [[nsa-oauth2-login-access-token-response-client-ref]]
 * **access-token-response-client-ref**
 Reference to the `OAuth2AccessTokenResponseClient`.
@@ -1064,6 +1093,11 @@ Configures xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-aut
 [[nsa-authorization-code-grant-authorization-request-repository-ref]]
 * **authorization-request-repository-ref**
 Reference to the `AuthorizationRequestRepository`.
+
+
+[[nsa-authorization-code-grant-authorization-redirect-strategy-ref]]
+* **authorization-redirect-strategy-ref**
+Reference to the authorization `RedirectStrategy`.
 
 
 [[nsa-authorization-code-grant-authorization-request-resolver-ref]]
@@ -1290,6 +1324,248 @@ The Client Id to use for client authentication against the provided `introspecti
 * **client-secret**
 The Client Secret to use for client authentication against the provided `introspection-uri`.
 
+
+[[nsa-relying-party-registrations]]
+== <relying-party-registrations>
+The container element for relying party(ies) registered (xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistration[ClientRegistration]) with a SAML 2.0 Identity Provider.
+
+
+[[nsa-relying-party-registrations-children]]
+=== Child Elements of <relying-party-registrations>
+
+* <<nsa-asserting-party,asserting-party>>
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-relying-party-registration]]
+== <relying-party-registration>
+Represents a relying party registered with a SAML 2.0 Identity Provider
+
+
+[[nsa-relying-party-registration-parents]]
+=== Parent Elements of <relying-party-registration>
+
+* <<nsa-relying-party-registrations,relying-party-registrations>>
+
+
+[[nsa-relying-party-registration-attributes]]
+=== <relying-party-registration> Attributes
+
+
+[[nsa-relying-party-registration-registration-id]]
+* **registration-id**
+The ID that uniquely identifies the `RelyingPartyRegistration`.
+
+[[nsa-relying-party-registration-metadata-location]]
+* **metadata-location**
+The asserting party metadata location.
+
+[[nsa-relying-party-registration-entity-id]]
+* **client-id**
+The relying party's https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor[EntityID].
+
+
+[[nsa-relying-party-registration-assertion-consumer-service-location]]
+* **assertion-consumer-service-location**
+The AssertionConsumerService Location. Equivalent to the value found in `&lt;AssertionConsumerService Location="..."/&gt;` in the relying party's `&lt;SPSSODescriptor&gt;`.
+
+
+[[nsa-relying-party-registration-assertion-consumer-service-binding]]
+* **assertion-consumer-service-binding**
+the AssertionConsumerService Binding. Equivalent to the value found in `&lt;AssertionConsumerService Binding="..."/&gt;` in the relying party's `&lt;SPSSODescriptor&gt;`.
+The supported values are *POST* and *REDIRECT*.
+
+[[nsa-relying-party-registration-single-logout-service-location]]
+* **single-logout-service-location**
+The SingleLogoutService Location. Equivalent to the value found in &lt;SingleLogoutService Location="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+
+[[nsa-relying-party-registration-single-logout-service-response-location]]
+* **single-logout-service-response-location**
+The SingleLogoutService ResponseLocation. Equivalent to the value found in &lt;SingleLogoutService ResponseLocation="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+
+[[nsa-relying-party-registration-single-logout-service-binding]]
+* **single-logout-service-binding**
+The SingleLogoutService Binding. Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in the relying party's &lt;SPSSODescriptor&gt;.
+The supported values are *POST* and *REDIRECT*.
+
+[[nsa-relying-party-registration-asserting-party-id]]
+* **asserting-party-id**
+A reference to the associated asserting party. Must reference an `<asserting-party>` element.
+
+[[nsa-relying-party-registration-children]]
+=== Child Elements of <relying-party-registration>
+
+* <<nsa-decryption-credential,decryption-credential>>
+* <<nsa-signing-credential,signing-credential>>
+
+
+[[nsa-decryption-credential]]
+== <decryption-credential>
+The decryption credentials associated with the relying party.
+
+
+[[nsa-decryption-credential-parents]]
+=== Parent Elements of <decryption-credential>
+
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-decryption-credential-attributes]]
+=== <decryption-credential> Attributes
+
+
+[[nsa-decryption-credential-certificate-location]]
+* **certificate-location**
+The location to get the certificate
+
+[[nsa-decryption-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+[[nsa-signing-credential]]
+== <signing-credential>
+The signing credentials associated with the relying party.
+
+
+[[nsa-signing-credential-parents]]
+=== Parent Elements of <verification-credential>
+
+* <<nsa-relying-party-registration,relying-party-registration>>
+
+
+[[nsa-signing-credential-attributes]]
+=== <verification-credential> Attributes
+
+
+[[nsa-signing-credential-certificate-location]]
+* **certificate-location**
+The location to get this certificate
+
+[[nsa-signing-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+
+[[nsa-asserting-party]]
+== <asserting-party>
+The configuration information for a SAML 2.0 Asserting Party.
+
+
+[[nsa-asserting-party-parents]]
+=== Parent Elements of <asserting-party>
+
+* <<nsa-relying-party-registrations,relying-party-registrations>>
+
+
+[[nsa-asserting-party-attributes]]
+=== <asserting-party> Attributes
+
+
+[[nsa-asserting-party-asserting-party-id]]
+* **asserting-party-id**
+The ID that uniquely identifies the asserting party.
+
+
+[[nsa-asserting-party-entity-id]]
+* **entity-id**
+The EntityID of the Asserting Party
+
+
+[[nsa-asserting-party-want-authn-requests-signed]]
+* **want-authn-requests-signed**
+The `WantAuthnRequestsSigned` setting, indicating the asserting party's preference that relying parties should sign the `AuthnRequest` before sending.
+
+
+[[nsa-asserting-party-single-sign-on-service-location]]
+* **single-sign-on-service-location**
+The https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint[SingleSignOnService] Location.
+
+
+[[nsa-asserting-party-single-sign-on-service-binding]]
+* **single-sign-on-service-binding**
+The https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.5%20Endpoint[SingleSignOnService] Binding.
+The supported values are *POST* and *REDIRECT*.
+
+
+[[nsa-asserting-party-signing-algorithms]]
+* **signing-algorithms**
+The list of `org.opensaml.saml.ext.saml2alg.SigningMethod` Algorithms for this asserting party, in preference order.
+
+
+[[nsa-asserting-party-single-logout-service-location]]
+* **single-logout-service-location**
+The SingleLogoutService Location. Equivalent to the value found in &lt;SingleLogoutService Location="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+
+
+[[nsa-asserting-party-single-logout-service-response-location]]
+* **single-logout-service-response-location**
+The SingleLogoutService ResponseLocation. Equivalent to the value found in &lt;SingleLogoutService ResponseLocation="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+
+
+[[nsa-asserting-party-single-logout-service-binding]]
+* **single-logout-service-binding**
+The SingleLogoutService Binding. Equivalent to the value found in &lt;SingleLogoutService Binding="..."/&gt; in the asserting party's &lt;IDPSSODescriptor&gt;.
+The supported values are *POST* and *REDIRECT*.
+
+
+[[nsa-asserting-party-children]]
+=== Child Elements of <asserting-party>
+
+* <<nsa-encryption-credential,encryption-credential>>
+* <<nsa-verification-credential,verification-credential>>
+
+
+[[nsa-encryption-credential]]
+== <encryption-credential>
+The encryption credentials associated with the asserting party.
+
+
+[[nsa-encryption-credential-parents]]
+=== Parent Elements of <encryption-credential>
+
+* <<nsa-asserting-party,asserting-party>>
+
+
+[[nsa-encryption-credential-attributes]]
+=== <encryption-credential> Attributes
+
+
+[[nsa-encryption-credential-certificate-location]]
+* **certificate-location**
+The location to get the certificate
+
+[[nsa-encryption-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+[[nsa-verification-credential]]
+== <verification-credential>
+The verification credentials associated with the asserting party.
+
+
+[[nsa-verification-credential-parents]]
+=== Parent Elements of <verification-credential>
+
+* <<nsa-asserting-party,asserting-party>>
+
+
+[[nsa-verification-credential-attributes]]
+=== <verification-credential> Attributes
+
+
+[[nsa-verification-credential-certificate-location]]
+* **certificate-location**
+The location to get this certificate
+
+[[nsa-verification-credential-private-key-location]]
+* **private-key-location**
+The location to get the Relying Party's private key
+
+
+
 [[nsa-http-basic]]
 == <http-basic>
 Adds a `BasicAuthenticationFilter` and `BasicAuthenticationEntryPoint` to the configuration.
@@ -1476,181 +1752,124 @@ Defaults to "/logout".
 May be used to supply an instance of `LogoutSuccessHandler` which will be invoked to control the navigation after logging out.
 
 
-[[nsa-openid-login]]
-== <openid-login>
-Similar to `<form-login>` and has the same attributes.
-The default value for `login-processing-url` is "/login/openid".
-An `OpenIDAuthenticationFilter` and `OpenIDAuthenticationProvider` will be registered.
-The latter requires a reference to a `UserDetailsService`.
-Again, this can be specified by `id`, using the `user-service-ref` attribute, or will be located automatically in the application context.
+[[nsa-saml2-login]]
+== <saml2-login>
+The xref:servlet/saml2/login/index.adoc#servlet-saml2login[SAML 2.0 Login] feature configures authentication support using an SAML 2.0 Service Provider.
 
 
-[[nsa-openid-login-parents]]
-=== Parent Elements of <openid-login>
-
+[[nsa-saml2-login-parents]]
+=== Parent Elements of <saml2-login>
 
 * <<nsa-http,http>>
 
+[[nsa-saml2-login-attributes]]
+=== <saml2-login> Attributes
 
 
-[[nsa-openid-login-attributes]]
-=== <openid-login> Attributes
+[[nsa-saml2-login-relying-party-registration-repository-ref]]
+* **relying-party-registration-repository-ref**
+Reference to the `RelyingPartyRegistrationRepository`.
 
 
-[[nsa-openid-login-always-use-default-target]]
-* **always-use-default-target**
-Whether the user should always be redirected to the default-target-url after login.
+[[nsa-saml2-login-authentication-request-repository-ref]]
+* **authentication-request-repository-ref**
+Reference to the `Saml2AuthenticationRequestRepository`.
 
 
-[[nsa-openid-login-authentication-details-source-ref]]
-* **authentication-details-source-ref**
-Reference to an AuthenticationDetailsSource which will be used by the authentication filter
+[[nsa-saml2-login-authentication-request-resolver-ref]]
+* **authentication-request-context-resolver-ref**
+Reference to the `Saml2AuthenticationRequestResolver`.
 
 
-[[nsa-openid-login-authentication-failure-handler-ref]]
-* **authentication-failure-handler-ref**
-Reference to an AuthenticationFailureHandler bean which should be used to handle a failed authentication request.
-Should not be used in combination with authentication-failure-url as the implementation should always deal with navigation to the subsequent destination
+[[nsa-saml2-login-authentication-converter-ref]]
+* **authentication-converter-ref**
+Reference to the `AuthenticationConverter`.
 
 
-[[nsa-openid-login-authentication-failure-url]]
-* **authentication-failure-url**
-The URL for the login failure page.
-If no login failure URL is specified, Spring Security will automatically create a failure login URL at /login?login_error and a corresponding filter to render that login failure URL when requested.
-
-
-[[nsa-openid-login-authentication-success-forward-url]]
-* **authentication-success-forward-url**
-Maps a `ForwardAuthenticationSuccessHandler` to `authenticationSuccessHandler` property of `UsernamePasswordAuthenticationFilter`.
-
-
-[[nsa-openid-login-authentication-failure-forward-url]]
-* **authentication-failure-forward-url**
-Maps a `ForwardAuthenticationFailureHandler` to `authenticationFailureHandler` property of `UsernamePasswordAuthenticationFilter`.
-
-
-[[nsa-openid-login-authentication-success-handler-ref]]
-* **authentication-success-handler-ref**
-Reference to an AuthenticationSuccessHandler bean which should be used to handle a successful authentication request.
-Should not be used in combination with <<nsa-openid-login-default-target-url,default-target-url>> (or <<nsa-openid-login-always-use-default-target, always-use-default-target>>) as the implementation should always deal with navigation to the subsequent destination
-
-
-[[nsa-openid-login-default-target-url]]
-* **default-target-url**
-The URL that will be redirected to after successful authentication, if the user's previous action could not be resumed.
-This generally happens if the user visits a login page without having first requested a secured operation that triggers authentication.
-If unspecified, defaults to the root of the application.
-
-
-[[nsa-openid-login-login-page]]
-* **login-page**
-The URL for the login page.
-If no login URL is specified, Spring Security will automatically create a login URL at /login and a corresponding filter to render that login URL when requested.
-
-
-[[nsa-openid-login-login-processing-url]]
+[[nsa-saml2-login-login-processing-url]]
 * **login-processing-url**
-The URL that the login form is posted to.
-If unspecified, it defaults to /login.
+The URI where the filter processes authentication requests.
 
 
-[[nsa-openid-login-password-parameter]]
-* **password-parameter**
-The name of the request parameter which contains the password.
-Defaults to "password".
+[[nsa-saml2-login-login-page]]
+* **login-page**
+The URI to send users to login.
 
 
-[[nsa-openid-login-user-service-ref]]
-* **user-service-ref**
-A reference to a user-service (or UserDetailsService bean) Id
+[[nsa-saml2-login-authentication-success-handler-ref]]
+* **authentication-success-handler-ref**
+Reference to the `AuthenticationSuccessHandler`.
 
 
-[[nsa-openid-login-username-parameter]]
-* **username-parameter**
-The name of the request parameter which contains the username.
-Defaults to "username".
+[[nsa-saml2-login-authentication-failure-handler-ref]]
+* **authentication-failure-handler-ref**
+Reference to the `AuthenticationFailureHandler`.
 
 
-[[nsa-openid-login-children]]
-=== Child Elements of <openid-login>
-* <<nsa-attribute-exchange,attribute-exchange>>
+[[nsa-saml2-login-authentication-manager-ref]]
+* **authentication-manager-ref**
+Reference to the `AuthenticationManager`.
 
 
-
-[[nsa-attribute-exchange]]
-== <attribute-exchange>
-The `attribute-exchange` element defines the list of attributes which should be requested from the identity provider.
-An example can be found in the xref:servlet/authentication/openid.adoc#servlet-openid[OpenID Support] section of the namespace configuration chapter.
-More than one can be used, in which case each must have an `identifier-match` attribute, containing a regular expression which is matched against the supplied OpenID identifier.
-This allows different attribute lists to be fetched from different providers (Google, Yahoo etc).
+[[nsa-saml2-logout]]
+== <saml2-logout>
+The xref:servlet/saml2/logout.adoc#servlet-saml2login-logout[SAML 2.0 Single Logout] feature configures support for RP- and AP-initiated SAML 2.0 Single Logout.
 
 
-[[nsa-attribute-exchange-parents]]
-=== Parent Elements of <attribute-exchange>
+[[nsa-saml2-logout-parents]]
+=== Parent Elements of <saml2-logout>
+
+* <<nsa-http,http>>
+
+[[nsa-saml2-logout-attributes]]
+=== <saml2-logout> Attributes
 
 
-* <<nsa-openid-login,openid-login>>
+[[nsa-saml2-logout-logout-url]]
+* **logout-url**
+The URL by which the relying or asserting party can trigger logout.
 
 
-
-[[nsa-attribute-exchange-attributes]]
-=== <attribute-exchange> Attributes
-
-
-[[nsa-attribute-exchange-identifier-match]]
-* **identifier-match**
-A regular expression which will be compared against the claimed identity, when deciding which attribute-exchange configuration to use during authentication.
+[[nsa-saml2-logout-logout-request-url]]
+* **logout-request-url**
+The URL by which the asserting party can send a SAML 2.0 Logout Request.
 
 
-[[nsa-attribute-exchange-children]]
-=== Child Elements of <attribute-exchange>
+[[nsa-saml2-logout-logout-response-url]]
+* **logout-response-url**
+The URL by which the asserting party can send a SAML 2.0 Logout Response.
 
 
-* <<nsa-openid-attribute,openid-attribute>>
+[[nsa-saml2-logout-relying-party-registration-repository-ref]]
+* **relying-party-registration-repository-ref**
+Reference to the `RelyingPartyRegistrationRepository`.
 
 
-
-[[nsa-openid-attribute]]
-== <openid-attribute>
-Attributes used when making an OpenID AX https://openid.net/specs/openid-attribute-exchange-1_0.html#fetch_request[ Fetch Request]
-
-
-[[nsa-openid-attribute-parents]]
-=== Parent Elements of <openid-attribute>
+[[nsa-saml2-logout-logout-request-validator-ref]]
+* **logout-request-validator-ref**
+Reference to the `Saml2LogoutRequestValidator`.
 
 
-* <<nsa-attribute-exchange,attribute-exchange>>
+[[nsa-saml2-logout-logout-request-resolver-ref]]
+* **logout-request-resolver-ref**
+Reference to the `Saml2LogoutRequestResolver`.
 
 
-
-[[nsa-openid-attribute-attributes]]
-=== <openid-attribute> Attributes
-
-
-[[nsa-openid-attribute-count]]
-* **count**
-Specifies the number of attributes that you wish to get back.
-For example, return 3 emails.
-The default value is 1.
+[[nsa-saml2-logout-logout-request-repository-ref]]
+* **logout-request-repository-ref**
+Reference to the `Saml2LogoutRequestRepository`.
 
 
-[[nsa-openid-attribute-name]]
-* **name**
-Specifies the name of the attribute that you wish to get back.
-For example, email.
+[[nsa-saml2-logout-logout-response-validator-ref]]
+* **logout-response-validator-ref**
+Reference to the `Saml2LogoutResponseValidator`.
 
 
-[[nsa-openid-attribute-required]]
-* **required**
-Specifies if this attribute is required to the OP, but does not error out if the OP does not return the attribute.
-Default is false.
+[[nsa-saml2-logout-logout-response-resolver-ref]]
+* **logout-response-resolver-ref**
+Reference to the `Saml2LogoutResponseResolver`.
 
 
-[[nsa-openid-attribute-type]]
-* **type**
-Specifies the attribute type.
-For example, https://axschema.org/contact/email.
-See your OP's documentation for valid attribute types.
 
 [[nsa-password-management]]
 == <password-management>
@@ -1849,6 +2068,10 @@ Session-management related functionality is implemented by the addition of a `Se
 [[nsa-session-management-attributes]]
 === <session-management> Attributes
 
+
+[[nsa-session-management-authentication-strategy-explicit-invocation]]
+* **authentication-strategy-explicit-invocation**
+Setting this attribute to true will mean that `SessionManagementFilter` will not be injected and explicit invocation of SessionAuthenticationStrategy is required.
 
 [[nsa-session-management-invalid-session-url]]
 * **invalid-session-url**

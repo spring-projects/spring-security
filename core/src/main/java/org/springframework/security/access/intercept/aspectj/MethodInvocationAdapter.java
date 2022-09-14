@@ -32,7 +32,10 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @since 3.0.3
+ * @deprecated This class will be removed from the public API. See
+ * `JoinPointMethodInvocation` in `spring-security-aspects` for its replacement
  */
+@Deprecated
 public final class MethodInvocationAdapter implements MethodInvocation {
 
 	private final ProceedingJoinPoint jp;

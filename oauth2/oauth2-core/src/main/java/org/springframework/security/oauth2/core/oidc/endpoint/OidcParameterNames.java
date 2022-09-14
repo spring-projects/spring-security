@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,16 +27,19 @@ package org.springframework.security.oauth2.core.oidc.endpoint;
  * "https://openid.net/specs/openid-connect-core-1_0.html#OAuthParametersRegistry">18.2
  * OAuth Parameters Registration</a>
  */
-public interface OidcParameterNames {
+public final class OidcParameterNames {
 
 	/**
 	 * {@code id_token} - used in the Access Token Response.
 	 */
-	String ID_TOKEN = "id_token";
+	public static final String ID_TOKEN = "id_token";
 
 	/**
 	 * {@code nonce} - used in the Authentication Request.
 	 */
-	String NONCE = "nonce";
+	public static final String NONCE = "nonce";
+
+	private OidcParameterNames() {
+	}
 
 }

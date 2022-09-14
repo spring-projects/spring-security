@@ -48,7 +48,7 @@ public class FilterSecurityInterceptor extends AbstractSecurityInterceptor imple
 
 	private FilterInvocationSecurityMetadataSource securityMetadataSource;
 
-	private boolean observeOncePerRequest = true;
+	private boolean observeOncePerRequest = false;
 
 	/**
 	 * Not used (we rely on IoC container lifecycle services instead)

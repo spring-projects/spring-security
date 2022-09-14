@@ -21,13 +21,13 @@ import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -59,6 +59,8 @@ import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.web.DefaultRedirectStrategy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -69,6 +71,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -95,6 +98,8 @@ public class OAuth2ClientConfigurerTests {
 	private static OAuth2AuthorizedClientRepository authorizedClientRepository;
 
 	private static OAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
+	private static RedirectStrategy authorizationRedirectStrategy;
 
 	private static OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient;
 
@@ -131,6 +136,7 @@ public class OAuth2ClientConfigurerTests {
 				authorizedClientService);
 		authorizationRequestResolver = new DefaultOAuth2AuthorizationRequestResolver(clientRegistrationRepository,
 				"/oauth2/authorization");
+		authorizationRedirectStrategy = new DefaultRedirectStrategy();
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse.withToken("access-token-1234")
 				.tokenType(OAuth2AccessToken.TokenType.BEARER).expiresIn(300).build();
 		accessTokenResponseClient = mock(OAuth2AccessTokenResponseClient.class);
@@ -262,7 +268,21 @@ public class OAuth2ClientConfigurerTests {
 		verify(authorizationRequestResolver).resolve(any());
 	}
 
+	@Test
+	public void configureWhenCustomAuthorizationRedirectStrategySetThenAuthorizationRedirectStrategyUsed()
+			throws Exception {
+		authorizationRedirectStrategy = mock(RedirectStrategy.class);
+		this.spring.register(OAuth2ClientConfig.class).autowire();
+		// @formatter:off
+		this.mockMvc.perform(get("/oauth2/authorization/registration-1"))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
+		verify(authorizationRedirectStrategy).sendRedirect(any(), any(), anyString());
+	}
+
 	@EnableWebSecurity
+	@Configuration
 	@EnableWebMvc
 	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
 
@@ -279,6 +299,7 @@ public class OAuth2ClientConfigurerTests {
 				.oauth2Client()
 					.authorizationCodeGrant()
 						.authorizationRequestResolver(authorizationRequestResolver)
+						.authorizationRedirectStrategy(authorizationRedirectStrategy)
 						.accessTokenResponseClient(accessTokenResponseClient);
 			// @formatter:on
 		}
@@ -307,6 +328,7 @@ public class OAuth2ClientConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	@Configuration
 	@EnableWebMvc
 	static class OAuth2ClientInLambdaConfig extends WebSecurityConfigurerAdapter {
 

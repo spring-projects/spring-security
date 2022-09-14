@@ -44,7 +44,7 @@ final class Saml2Utils {
 	}
 
 	static byte[] samlDecode(String s) {
-		return Base64.getDecoder().decode(s);
+		return Base64.getMimeDecoder().decode(s);
 	}
 
 	static byte[] samlDeflate(String s) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,18 +55,21 @@ class OAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2ResourceServer {
-     *              jwt {
-     *                  jwkSetUri = "https://example.com/oauth2/jwk"
-     *              }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 jwt {
+     *                     jwkSetUri = "https://example.com/oauth2/jwk"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -83,16 +86,19 @@ class OAuth2ResourceServerDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2ResourceServer {
-     *              opaqueToken { }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2ResourceServer {
+     *                 opaqueToken { }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *

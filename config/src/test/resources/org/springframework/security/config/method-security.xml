@@ -6,7 +6,7 @@
 	xmlns:tx="http://www.springframework.org/schema/tx"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 		http://www.springframework.org/schema/tx https://www.springframework.org/schema/tx/spring-tx.xsd
-		http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
+		http://www.springframework.org/schema/security org/springframework/security/config/spring-security-6.0.xsd">
 
 	<tx:annotation-driven />
 
@@ -30,6 +30,30 @@
 		</intercept-methods>
 	</b:bean>
 
+	<b:bean id="transactionalTargetAuthorizationManager" class="org.springframework.security.config.TransactionalTestBusinessBean">
+		<intercept-methods use-authorization-manager="true">
+			<protect method="*" access="hasRole('ROLE_USER')" />
+		</intercept-methods>
+	</b:bean>
+
+
+	<b:bean id="targetAuthorizationManager" class="org.springframework.security.config.TestBusinessBeanImpl">
+		<!-- This will add a security interceptor to the bean -->
+		<intercept-methods use-authorization-manager="true">
+			<protect method="org.springframework.security.config.TestBusinessBean.set*" access="hasRole('${admin.role}')" />
+			<protect method="get*" access="hasAnyRole('${admin.role}','ROLE_USER')" />
+			<protect method="doSomething" access="hasRole('ROLE_USER')" />
+			<protect method="*" access="permitAll"/>
+		</intercept-methods>
+	</b:bean>
+
+	<b:bean id="targetCustomAuthorizationManager" class="org.springframework.security.config.TestBusinessBeanImpl">
+		<!-- This will add a security interceptor to the bean -->
+		<intercept-methods authorization-manager-ref="authorization-manager">
+			<protect method="*" access="denyAll"/>
+		</intercept-methods>
+	</b:bean>
+
 	<authentication-manager>
 		<authentication-provider>
 			<user-service>
@@ -39,4 +63,7 @@
 		</authentication-provider>
 	</authentication-manager>
 
+	<b:bean id="authorization-manager" class="org.mockito.Mockito" factory-method="mock">
+		<b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager"/>
+	</b:bean>
 </b:beans>

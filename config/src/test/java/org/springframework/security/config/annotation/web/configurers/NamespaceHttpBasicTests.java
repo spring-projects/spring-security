@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -176,6 +175,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -192,6 +192,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -209,6 +210,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -225,6 +227,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -242,6 +245,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -264,6 +268,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationDetailsSourceHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -286,6 +291,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicConfig extends WebSecurityConfigurerAdapter {
 
@@ -305,6 +311,7 @@ public class NamespaceHttpBasicTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class EntryPointRefHttpBasicLambdaConfig extends WebSecurityConfigurerAdapter {
 

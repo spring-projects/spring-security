@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -34,14 +35,22 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 
 	private final Map<String, List<Object>> attributes;
 
+	private final List<String> sessionIndexes;
+
 	private String registrationId;
 
 	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes) {
+		this(name, attributes, Collections.emptyList());
+	}
+
+	public DefaultSaml2AuthenticatedPrincipal(String name, Map<String, List<Object>> attributes,
+			List<String> sessionIndexes) {
 		Assert.notNull(name, "name cannot be null");
 		Assert.notNull(attributes, "attributes cannot be null");
+		Assert.notNull(sessionIndexes, "sessionIndexes cannot be null");
 		this.name = name;
 		this.attributes = attributes;
-		this.registrationId = null;
+		this.sessionIndexes = sessionIndexes;
 	}
 
 	@Override
@@ -52,6 +61,11 @@ public class DefaultSaml2AuthenticatedPrincipal implements Saml2AuthenticatedPri
 	@Override
 	public Map<String, List<Object>> getAttributes() {
 		return this.attributes;
+	}
+
+	@Override
+	public List<String> getSessionIndexes() {
+		return this.sessionIndexes;
 	}
 
 	@Override

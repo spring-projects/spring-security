@@ -17,7 +17,6 @@
 package org.springframework.security.config.http;
 
 import jakarta.servlet.Filter;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

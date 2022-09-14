@@ -38,7 +38,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Checks that the embedded version information is up to date.
@@ -94,7 +94,7 @@ public class SpringSecurityCoreVersionTests {
 		expectSpringSecurityVersionThenReturn(version);
 		expectSpringVersionThenReturn(version);
 		performChecks();
-		verifyZeroInteractions(this.logger);
+		verifyNoMoreInteractions(this.logger);
 	}
 
 	@Test
@@ -103,7 +103,7 @@ public class SpringSecurityCoreVersionTests {
 		expectSpringSecurityVersionThenReturn(version);
 		expectSpringVersionThenReturn(null);
 		performChecks();
-		verifyZeroInteractions(this.logger);
+		verifyNoMoreInteractions(this.logger);
 	}
 
 	@Test
@@ -139,7 +139,7 @@ public class SpringSecurityCoreVersionTests {
 		expectSpringVersionThenReturn("2");
 		System.setProperty(getDisableChecksProperty(), Boolean.TRUE.toString());
 		performChecks();
-		verifyZeroInteractions(this.logger);
+		verifyNoMoreInteractions(this.logger);
 	}
 
 	private String getDisableChecksProperty() {

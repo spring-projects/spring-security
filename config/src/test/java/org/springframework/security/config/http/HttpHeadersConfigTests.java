@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -386,10 +386,16 @@ public class HttpHeadersConfigTests {
 
 	@Test
 	public void configureWhenXssProtectionDisabledAndBlockSetThenAutowireFails() {
+		/*
+		 * NOTE: Original error message "Cannot set block to true with enabled false" no
+		 * longer shows up in stack trace as of Spring Framework 6.x.
+		 *
+		 * See https://github.com/spring-projects/spring-framework/issues/25162.
+		 */
 		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring
 						.configLocations(this.xml("DefaultsDisabledWithXssProtectionDisabledAndBlockSet")).autowire())
-				.withMessageContaining("Cannot set block to true with enabled false");
+				.havingRootCause().withMessageContaining("Property 'block' threw exception");
 	}
 
 	@Test
@@ -445,14 +451,14 @@ public class HttpHeadersConfigTests {
 	public void configureWhenUsingHpkpWithoutPinsThenAutowireFails() {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 				.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyHpkp")).autowire())
-				.withMessageContaining("The content of element 'hpkp' is not complete");
+				.havingRootCause().withMessageContaining("The content of element 'hpkp' is not complete");
 	}
 
 	@Test
 	public void configureWhenUsingHpkpWithEmptyPinsThenAutowireFails() {
 		assertThatExceptionOfType(XmlBeanDefinitionStoreException.class)
 				.isThrownBy(() -> this.spring.configLocations(this.xml("DefaultsDisabledWithEmptyPins")).autowire())
-				.withMessageContaining("The content of element 'pins' is not complete");
+				.havingRootCause().withMessageContaining("The content of element 'pins' is not complete");
 	}
 
 	@Test

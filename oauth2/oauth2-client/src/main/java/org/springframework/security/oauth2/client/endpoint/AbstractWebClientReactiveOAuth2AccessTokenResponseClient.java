@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -116,8 +116,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 		ClientRegistration clientRegistration = clientRegistration(grantRequest);
 		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 		headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())
-				|| ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
 			String clientId = encodeClientCredential(clientRegistration.getClientId());
 			String clientSecret = encodeClientCredential(clientRegistration.getClientSecret());
 			headers.setBasicAuth(clientId, clientSecret);
@@ -178,12 +177,11 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	BodyInserters.FormInserter<String> populateTokenRequestBody(T grantRequest,
 			BodyInserters.FormInserter<String> body) {
 		ClientRegistration clientRegistration = clientRegistration(grantRequest);
-		if (!ClientAuthenticationMethod.CLIENT_SECRET_BASIC.equals(clientRegistration.getClientAuthenticationMethod())
-				&& !ClientAuthenticationMethod.BASIC.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (!ClientAuthenticationMethod.CLIENT_SECRET_BASIC
+				.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_ID, clientRegistration.getClientId());
 		}
-		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())
-				|| ClientAuthenticationMethod.POST.equals(clientRegistration.getClientAuthenticationMethod())) {
+		if (ClientAuthenticationMethod.CLIENT_SECRET_POST.equals(clientRegistration.getClientAuthenticationMethod())) {
 			body.with(OAuth2ParameterNames.CLIENT_SECRET, clientRegistration.getClientSecret());
 		}
 		Set<String> scopes = scopes(grantRequest);

@@ -55,6 +55,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  * A minimal example can be found below:
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
  *     &#064;Bean
@@ -82,6 +83,7 @@ import org.springframework.security.rsocket.util.matcher.RoutePayloadExchangeMat
  * A more advanced configuration can be seen below:
  *
  * <pre class="code">
+ * &#064;Configuration
  * &#064;EnableRSocketSecurity
  * public class SecurityConfig {
  *     &#064;Bean

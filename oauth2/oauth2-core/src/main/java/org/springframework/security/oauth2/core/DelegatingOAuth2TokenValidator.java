@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import org.springframework.util.Assert;
 /**
  * A composite validator
  *
- * @param <T> the type of {@link AbstractOAuth2Token} this validator validates
+ * @param <T> the type of {@link OAuth2Token} this validator validates
  * @author Josh Cummings
  * @since 5.1
  */
-public final class DelegatingOAuth2TokenValidator<T extends AbstractOAuth2Token> implements OAuth2TokenValidator<T> {
+public final class DelegatingOAuth2TokenValidator<T extends OAuth2Token> implements OAuth2TokenValidator<T> {
 
 	private final Collection<OAuth2TokenValidator<T>> tokenValidators;
 

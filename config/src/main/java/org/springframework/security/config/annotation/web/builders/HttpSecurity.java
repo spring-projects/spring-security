@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ import org.springframework.security.config.annotation.web.AbstractRequestMatcher
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AuthorizeHttpRequestsConfigurer.AuthorizationManagerRequestMatcherRegistry;
@@ -70,7 +69,6 @@ import org.springframework.security.config.annotation.web.configurers.X509Config
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
-import org.springframework.security.config.annotation.web.configurers.openid.OpenIDLoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
 import org.springframework.security.core.Authentication;
@@ -114,16 +112,22 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  * <pre>
  * &#064;Configuration
  * &#064;EnableWebSecurity
- * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+ * public class FormLoginSecurityConfig {
  *
- * 	&#064;Override
- * 	protected void configure(HttpSecurity http) throws Exception {
+ * 	&#064;Bean
+ * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
  * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+ * 		return http.build();
  * 	}
  *
- * 	&#064;Override
- * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
- * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;user&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user);
  * 	}
  * }
  * </pre>
@@ -172,245 +176,33 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
-	 * Allows configuring OpenID based authentication.
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * A basic example accepting the defaults and not using attribute exchange:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) {
-	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().openidLogin()
-	 * 				.permitAll();
-	 * 	}
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication()
-	 * 				// the username must match the OpenID of the user you are
-	 * 				// logging in with
-	 * 				.withUser(
-	 * 						&quot;https://www.google.com/accounts/o8/id?id=lmkCn9xzPdsxVwG7pjYMuDgNNdASFmobNkcRPaWU&quot;)
-	 * 				.password(&quot;password&quot;).roles(&quot;USER&quot;);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * A more advanced example demonstrating using attribute exchange and providing a
-	 * custom AuthenticationUserDetailsService that will make any user that authenticates
-	 * a valid user.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) {
-	 * 		http.authorizeRequests()
-	 * 				.antMatchers(&quot;/**&quot;)
-	 * 				.hasRole(&quot;USER&quot;)
-	 * 				.and()
-	 * 				.openidLogin()
-	 * 				.loginPage(&quot;/login&quot;)
-	 * 				.permitAll()
-	 * 				.authenticationUserDetailsService(
-	 * 						new AutoProvisioningUserDetailsService())
-	 * 				.attributeExchange(&quot;https://www.google.com/.*&quot;).attribute(&quot;email&quot;)
-	 * 				.type(&quot;https://axschema.org/contact/email&quot;).required(true).and()
-	 * 				.attribute(&quot;firstname&quot;).type(&quot;https://axschema.org/namePerson/first&quot;)
-	 * 				.required(true).and().attribute(&quot;lastname&quot;)
-	 * 				.type(&quot;https://axschema.org/namePerson/last&quot;).required(true).and().and()
-	 * 				.attributeExchange(&quot;.*yahoo.com.*&quot;).attribute(&quot;email&quot;)
-	 * 				.type(&quot;https://schema.openid.net/contact/email&quot;).required(true).and()
-	 * 				.attribute(&quot;fullname&quot;).type(&quot;https://axschema.org/namePerson&quot;)
-	 * 				.required(true).and().and().attributeExchange(&quot;.*myopenid.com.*&quot;)
-	 * 				.attribute(&quot;email&quot;).type(&quot;https://schema.openid.net/contact/email&quot;)
-	 * 				.required(true).and().attribute(&quot;fullname&quot;)
-	 * 				.type(&quot;https://schema.openid.net/namePerson&quot;).required(true);
-	 * 	}
-	 * }
-	 *
-	 * public class AutoProvisioningUserDetailsService implements
-	 * 		AuthenticationUserDetailsService&lt;OpenIDAuthenticationToken&gt; {
-	 * 	public UserDetails loadUserDetails(OpenIDAuthenticationToken token)
-	 * 			throws UsernameNotFoundException {
-	 * 		return new User(token.getName(), &quot;NOTUSED&quot;,
-	 * 				AuthorityUtils.createAuthorityList(&quot;ROLE_USER&quot;));
-	 * 	}
-	 * }
-	 * </pre>
-	 * @return the {@link OpenIDLoginConfigurer} for further customizations.
-	 * @throws Exception
-	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
-	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
-	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
-	 * supported by <code>spring-security-oauth2</code>.
-	 * @see OpenIDLoginConfigurer
-	 */
-	@Deprecated
-	public OpenIDLoginConfigurer<HttpSecurity> openidLogin() throws Exception {
-		return getOrApply(new OpenIDLoginConfigurer<>());
-	}
-
-	/**
-	 * Allows configuring OpenID based authentication.
-	 *
-	 * <h2>Example Configurations</h2>
-	 *
-	 * A basic example accepting the defaults and not using attribute exchange:
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) {
-	 * 		http
-	 * 			.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
-	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.openidLogin((openidLogin) -&gt;
-	 * 				openidLogin
-	 * 					.permitAll()
-	 * 			);
-	 * 	}
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication()
-	 * 				// the username must match the OpenID of the user you are
-	 * 				// logging in with
-	 * 				.withUser(
-	 * 						&quot;https://www.google.com/accounts/o8/id?id=lmkCn9xzPdsxVwG7pjYMuDgNNdASFmobNkcRPaWU&quot;)
-	 * 				.password(&quot;password&quot;).roles(&quot;USER&quot;);
-	 * 	}
-	 * }
-	 * </pre>
-	 *
-	 * A more advanced example demonstrating using attribute exchange and providing a
-	 * custom AuthenticationUserDetailsService that will make any user that authenticates
-	 * a valid user.
-	 *
-	 * <pre>
-	 * &#064;Configuration
-	 * &#064;EnableWebSecurity
-	 * public class OpenIDLoginConfig extends WebSecurityConfigurerAdapter {
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
-	 * 		http.authorizeRequests((authorizeRequests) -&gt;
-	 * 				authorizeRequests
-	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
-	 * 			)
-	 * 			.openidLogin((openidLogin) -&gt;
-	 * 				openidLogin
-	 * 					.loginPage(&quot;/login&quot;)
-	 * 					.permitAll()
-	 * 					.authenticationUserDetailsService(
-	 * 						new AutoProvisioningUserDetailsService())
-	 * 					.attributeExchange((googleExchange) -&gt;
-	 * 						googleExchange
-	 * 							.identifierPattern(&quot;https://www.google.com/.*&quot;)
-	 * 							.attribute((emailAttribute) -&gt;
-	 * 								emailAttribute
-	 * 									.name(&quot;email&quot;)
-	 * 									.type(&quot;https://axschema.org/contact/email&quot;)
-	 * 									.required(true)
-	 * 							)
-	 * 							.attribute((firstnameAttribute) -&gt;
-	 * 								firstnameAttribute
-	 * 									.name(&quot;firstname&quot;)
-	 * 									.type(&quot;https://axschema.org/namePerson/first&quot;)
-	 * 									.required(true)
-	 * 							)
-	 * 							.attribute((lastnameAttribute) -&gt;
-	 * 								lastnameAttribute
-	 * 									.name(&quot;lastname&quot;)
-	 * 									.type(&quot;https://axschema.org/namePerson/last&quot;)
-	 * 									.required(true)
-	 * 							)
-	 * 					)
-	 * 					.attributeExchange((yahooExchange) -&gt;
-	 * 						yahooExchange
-	 * 							.identifierPattern(&quot;.*yahoo.com.*&quot;)
-	 * 							.attribute((emailAttribute) -&gt;
-	 * 								emailAttribute
-	 * 									.name(&quot;email&quot;)
-	 * 									.type(&quot;https://schema.openid.net/contact/email&quot;)
-	 * 									.required(true)
-	 * 							)
-	 * 							.attribute((fullnameAttribute) -&gt;
-	 * 								fullnameAttribute
-	 * 									.name(&quot;fullname&quot;)
-	 * 									.type(&quot;https://axschema.org/namePerson&quot;)
-	 * 									.required(true)
-	 * 							)
-	 * 					)
-	 * 			);
-	 * 	}
-	 * }
-	 *
-	 * public class AutoProvisioningUserDetailsService implements
-	 * 		AuthenticationUserDetailsService&lt;OpenIDAuthenticationToken&gt; {
-	 * 	public UserDetails loadUserDetails(OpenIDAuthenticationToken token)
-	 * 			throws UsernameNotFoundException {
-	 * 		return new User(token.getName(), &quot;NOTUSED&quot;,
-	 * 				AuthorityUtils.createAuthorityList(&quot;ROLE_USER&quot;));
-	 * 	}
-	 * }
-	 * </pre>
-	 * @param openidLoginCustomizer the {@link Customizer} to provide more options for the
-	 * {@link OpenIDLoginConfigurer}
-	 * @return the {@link HttpSecurity} for further customizations
-	 * @throws Exception
-	 * @deprecated The OpenID 1.0 and 2.0 protocols have been deprecated and users are
-	 * <a href="https://openid.net/specs/openid-connect-migration-1_0.html">encouraged to
-	 * migrate</a> to <a href="https://openid.net/connect/">OpenID Connect</a>, which is
-	 * supported by <code>spring-security-oauth2</code>.
-	 * @see OpenIDLoginConfigurer
-	 */
-	@Deprecated
-	public HttpSecurity openidLogin(Customizer<OpenIDLoginConfigurer<HttpSecurity>> openidLoginCustomizer)
-			throws Exception {
-		openidLoginCustomizer.customize(getOrApply(new OpenIDLoginConfigurer<>()));
-		return HttpSecurity.this;
-	}
-
-	/**
 	 * Adds the Security headers to the response. This is activated by default when using
-	 * {@link WebSecurityConfigurerAdapter}'s default constructor. Accepting the default
-	 * provided by {@link WebSecurityConfigurerAdapter} or only invoking
-	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
+	 * {@link EnableWebSecurity}. Accepting the default provided by
+	 * {@link EnableWebSecurity} or only invoking {@link #headers()} without invoking
+	 * additional methods on it, is the equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                 .contentTypeOptions()
-	 *                 .and()
-	 *                 .xssProtection()
-	 *                 .and()
-	 *                 .cacheControl()
-	 *                 .and()
-	 *                 .httpStrictTransportSecurity()
-	 *                 .and()
-	 *                 .frameOptions()
-	 *                 .and()
-	 *             ...;
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				.contentTypeOptions()
+	 * 				.and()
+	 * 				.xssProtection()
+	 * 				.and()
+	 * 				.cacheControl()
+	 * 				.and()
+	 * 				.httpStrictTransportSecurity()
+	 * 				.and()
+	 * 				.frameOptions()
+	 * 				.and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -419,14 +211,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers().disable()
-	 *             ...;
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers().disable()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -439,19 +232,20 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                  .defaultsDisabled()
-	 *                  .cacheControl()
-	 *                  .and()
-	 *                  .frameOptions()
-	 *                  .and()
-	 *             ...;
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				.defaultsDisabled()
+	 * 				.cacheControl()
+	 * 				.and()
+	 * 				.frameOptions()
+	 * 				.and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -462,17 +256,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .headers()
-	 *                  .frameOptions()
-	 *                  	.disable()
-	 *                  .and()
-	 *             ...;
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.headers()
+	 * 				 .frameOptions()
+	 * 				 	.disable()
+	 * 				 .and()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @return the {@link HeadersConfigurer} for further customizations
@@ -485,21 +280,20 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Adds the Security headers to the response. This is activated by default when using
-	 * {@link WebSecurityConfigurerAdapter}'s default constructor.
+	 * {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Configurations</h2>
 	 *
-	 * Accepting the default provided by {@link WebSecurityConfigurerAdapter} or only
-	 * invoking {@link #headers()} without invoking additional methods on it, is the
-	 * equivalent of:
+	 * Accepting the default provided by {@link EnableWebSecurity} or only invoking
+	 * {@link #headers()} without invoking additional methods on it, is the equivalent of:
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 *	&#064;Override
-	 *	protected void configure(HttpSecurity http) throws Exception {
+	 *	&#064;Bean
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 *		http
 	 *			.headers((headers) -&gt;
 	 *				headers
@@ -509,6 +303,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *					.httpStrictTransportSecurity(withDefaults())
 	 *					.frameOptions(withDefaults()
 	 *			);
+	 *		return http.build();
 	 *	}
 	 * }
 	 * </pre>
@@ -518,12 +313,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 *	&#064;Override
-	 *	protected void configure(HttpSecurity http) throws Exception {
+	 *	&#064;Bean
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.headers((headers) -&gt; headers.disable());
+	 *		return http.build();
 	 *	}
 	 * }
 	 * </pre>
@@ -537,10 +333,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 *	&#064;Override
-	 *	protected void configure(HttpSecurity http) throws Exception {
+	 *	&#064;Bean
+	 *	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 *		http
 	 *			.headers((headers) -&gt;
 	 *				headers
@@ -548,6 +344,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *			 		.cacheControl(withDefaults())
 	 *			 		.frameOptions(withDefaults())
 	 *			);
+	 *		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -559,15 +356,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *  protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 *  	http
 	 *  		.headers((headers) -&gt;
 	 *  			headers
 	 *  				.frameOptions((frameOptions) -&gt; frameOptions.disable())
 	 *  		);
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param headersCustomizer the {@link Customizer} to provide more options for the
@@ -602,13 +401,14 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CorsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CorsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .cors(withDefaults());
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.cors(withDefaults());
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param corsCustomizer the {@link Customizer} to provide more options for the
@@ -634,18 +434,24 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class SessionManagementSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class SessionManagementSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().anyRequest().hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.permitAll().and().sessionManagement().maximumSessions(1)
 	 * 				.expiredUrl(&quot;/login?expired&quot;);
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -685,10 +491,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class SessionManagementSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class SessionManagementSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -706,6 +512,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 							.expiredUrl(&quot;/login?expired&quot;)
 	 * 					)
 	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -754,19 +571,25 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class PortMapperSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class PortMapperSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.permitAll().and()
 	 * 				// Example portMapper() configuration
 	 * 				.portMapper().http(9090).mapsTo(9443).http(80).mapsTo(443);
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -796,10 +619,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class PortMapperSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class PortMapperSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requiresChannel((requiresChannel) -&gt;
 	 * 				requiresChannel
@@ -810,6 +633,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.http(9090).mapsTo(9443)
 	 * 					.http(80).mapsTo(443)
 	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -838,13 +672,14 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class JeeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class JeeSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
 	 * 		// Example jee() configuration
 	 * 				.jee().mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -909,10 +744,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class JeeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class JeeSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -922,6 +757,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				jee
 	 * 					.mappableRoles(&quot;USER&quot;, &quot;ADMIN&quot;)
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -988,13 +824,14 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class X509SecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class X509SecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and()
 	 * 		// Example x509() configuration
 	 * 				.x509();
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1017,16 +854,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class X509SecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class X509SecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.x509(withDefaults());
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1053,19 +891,25 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RememberMeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RememberMeSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
-	 * 	}
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.permitAll().and()
 	 * 				// Example Remember Me Configuration
 	 * 				.rememberMe();
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1089,10 +933,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RememberMeSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RememberMeSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1100,6 +944,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 			)
 	 * 			.formLogin(withDefaults())
 	 * 			.rememberMe(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1127,17 +982,27 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1149,18 +1014,28 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
-	 * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;ADMIN&quot;, &quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1170,8 +1045,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * mapping:
 	 *
 	 * <pre>
-	 * http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).antMatchers(&quot;/admin/**&quot;)
-	 * 		.hasRole(&quot;ADMIN&quot;)
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class AuthorizeUrlsSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).antMatchers(&quot;/admin/**&quot;)
+	 * 			.hasRole(&quot;ADMIN&quot;)
+	 * 		return http.build();
+	 * 	}
+	 * }
 	 * </pre>
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
@@ -1196,16 +1080,32 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1217,10 +1117,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1228,6 +1128,22 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1239,16 +1155,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		 http
 	 * 		 	.authorizeRequests((authorizeRequests) -&gt;
 	 * 		 		authorizeRequests
 	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 		 	);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1280,15 +1197,31 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeHttpRequests()
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
 	 * 			.formLogin();
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1300,16 +1233,32 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeHttpRequests()
 	 * 				.antMatchers(&quot;/admin&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
 	 * 			.formLogin();
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1321,16 +1270,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeHttpRequests()
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 				.and()
 	 * 			.formLogin();
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1358,16 +1308,32 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1379,10 +1345,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 				authorizeHttpRequests
@@ -1390,6 +1356,22 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		UserDetails admin = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;admin&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user, admin);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1401,16 +1383,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AuthorizeUrlsSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AuthorizeUrlsSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 		 	.authorizeHttpRequests((authorizeHttpRequests) -&gt;
 	 * 		 		authorizeHttpRequests
 	 * 			 		.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			 		.antMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
 	 * 		 	);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1435,7 +1418,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * may be requested prior to authentication. The application will redirect the user to
 	 * a login page. After authentication, Spring Security will redirect the user to the
 	 * originally requested protected page (/protected). This is automatically applied
-	 * when using {@link WebSecurityConfigurerAdapter}.
+	 * when using {@link EnableWebSecurity}.
 	 * @return the {@link RequestCacheConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1448,7 +1431,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * may be requested prior to authentication. The application will redirect the user to
 	 * a login page. After authentication, Spring Security will redirect the user to the
 	 * originally requested protected page (/protected). This is automatically applied
-	 * when using {@link WebSecurityConfigurerAdapter}.
+	 * when using {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
@@ -1457,10 +1440,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestCacheDisabledSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestCacheDisabledSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1469,6 +1452,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 			.requestCache((requestCache) -&gt;
 	 * 				requestCache.disable()
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1485,7 +1469,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring exception handling. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}.
+	 * {@link EnableWebSecurity}.
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1495,7 +1479,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring exception handling. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}.
+	 * {@link EnableWebSecurity}.
 	 *
 	 * <h2>Example Custom Configuration</h2>
 	 *
@@ -1505,10 +1489,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class ExceptionHandlingSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class ExceptionHandlingSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1519,6 +1503,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				exceptionHandling
 	 * 					.accessDeniedPage(&quot;/errors/access-denied&quot;)
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1536,7 +1521,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Sets up management of the {@link SecurityContext} on the
 	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
-	 * automatically applied when using {@link WebSecurityConfigurerAdapter}.
+	 * automatically applied when using {@link EnableWebSecurity}.
 	 * @return the {@link SecurityContextConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1547,22 +1532,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Sets up management of the {@link SecurityContext} on the
 	 * {@link SecurityContextHolder} between {@link HttpServletRequest}'s. This is
-	 * automatically applied when using {@link WebSecurityConfigurerAdapter}.
+	 * automatically applied when using {@link EnableWebSecurity}.
 	 *
 	 * The following customization specifies the shared {@link SecurityContextRepository}
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class SecurityContextSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class SecurityContextSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.securityContext((securityContext) -&gt;
 	 * 				securityContext
 	 * 					.securityContextRepository(SCR)
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1580,7 +1566,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Integrates the {@link HttpServletRequest} methods with the values found on the
 	 * {@link SecurityContext}. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}.
+	 * {@link EnableWebSecurity}.
 	 * @return the {@link ServletApiConfigurer} for further customizations
 	 * @throws Exception
 	 */
@@ -1591,19 +1577,20 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	/**
 	 * Integrates the {@link HttpServletRequest} methods with the values found on the
 	 * {@link SecurityContext}. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}. You can disable it using:
+	 * {@link EnableWebSecurity}. You can disable it using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class ServletApiSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class ServletApiSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.servletApi((servletApi) -&gt;
 	 * 				servletApi.disable()
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 * }
 	 * </pre>
@@ -1620,20 +1607,20 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Enables CSRF protection. This is activated by default when using
-	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
-	 * using:
+	 * {@link EnableWebSecurity}'s default constructor. You can disable it using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .csrf().disable()
-	 *             ...;
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.csrf().disable()
+	 * 			...;
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @return the {@link CsrfConfigurer} for further customizations
@@ -1646,19 +1633,19 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Enables CSRF protection. This is activated by default when using
-	 * {@link WebSecurityConfigurerAdapter}'s default constructor. You can disable it
-	 * using:
+	 * {@link EnableWebSecurity}. You can disable it using:
 	 *
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class CsrfSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class CsrfSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 *     protected void configure(HttpSecurity http) throws Exception {
-	 *         http
-	 *             .csrf((csrf) -&gt; csrf.disable());
-	 *     }
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.csrf((csrf) -&gt; csrf.disable());
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param csrfCustomizer the {@link Customizer} to provide more options for the
@@ -1674,8 +1661,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Provides logout support. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}. The default is that accessing the URL
-	 * "/logout" will log the user out by invalidating the HTTP Session, cleaning up any
+	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
+	 * the user out by invalidating the HTTP Session, cleaning up any
 	 * {@link #rememberMe()} authentication that was configured, clearing the
 	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
 	 *
@@ -1688,20 +1675,26 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class LogoutSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class LogoutSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.and()
 	 * 				// sample logout customization
 	 * 				.logout().deleteCookies(&quot;remove&quot;).invalidateHttpSession(false)
 	 * 				.logoutUrl(&quot;/custom-logout&quot;).logoutSuccessUrl(&quot;/logout-success&quot;);
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1714,8 +1707,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Provides logout support. This is automatically applied when using
-	 * {@link WebSecurityConfigurerAdapter}. The default is that accessing the URL
-	 * "/logout" will log the user out by invalidating the HTTP Session, cleaning up any
+	 * {@link EnableWebSecurity}. The default is that accessing the URL "/logout" will log
+	 * the user out by invalidating the HTTP Session, cleaning up any
 	 * {@link #rememberMe()} authentication that was configured, clearing the
 	 * {@link SecurityContextHolder}, and then redirect to "/login?success".
 	 *
@@ -1728,10 +1721,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class LogoutSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class LogoutSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1745,6 +1738,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.logoutUrl(&quot;/custom-logout&quot;)
 	 * 					.logoutSuccessUrl(&quot;/logout-success&quot;)
 	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1760,8 +1764,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring how an anonymous user is represented. This is automatically
-	 * applied when used in conjunction with {@link WebSecurityConfigurerAdapter}. By
-	 * default anonymous users will be represented with an
+	 * applied when used in conjunction with {@link EnableWebSecurity}. By default
+	 * anonymous users will be represented with an
 	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}
 	 * and contain the role "ROLE_ANONYMOUS".
 	 *
@@ -1773,10 +1777,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests()
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -1785,11 +1789,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.and()
 	 * 			// sample anonymous customization
 	 * 			.anonymous().authorities(&quot;ROLE_ANON&quot;);
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1801,10 +1811,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests()
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
@@ -1813,11 +1823,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.and()
 	 * 			// sample anonymous customization
 	 * 			.anonymous().disable();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1830,8 +1846,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 	/**
 	 * Allows configuring how an anonymous user is represented. This is automatically
-	 * applied when used in conjunction with {@link WebSecurityConfigurerAdapter}. By
-	 * default anonymous users will be represented with an
+	 * applied when used in conjunction with {@link EnableWebSecurity}. By default
+	 * anonymous users will be represented with an
 	 * {@link org.springframework.security.authentication.AnonymousAuthenticationToken}
 	 * and contain the role "ROLE_ANONYMOUS".
 	 *
@@ -1843,10 +1859,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1857,7 +1873,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 			.anonymous((anonymous) -&gt;
 	 * 				anonymous
 	 * 					.authorities(&quot;ROLE_ANON&quot;)
-	 * 			)
+	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1869,10 +1896,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class AnonymousSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class AnonymousSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -1883,11 +1910,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 			.anonymous((anonymous) -&gt;
 	 * 				anonymous.disable()
 	 * 			);
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1916,16 +1949,22 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class FormLoginSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1935,10 +1974,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class FormLoginSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.usernameParameter(&quot;username&quot;) // default is username
 	 * 				.passwordParameter(&quot;password&quot;) // default is password
@@ -1947,11 +1986,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.loginProcessingUrl(&quot;/authentication/login/process&quot;); // default is /login
 	 * 																		// with an HTTP
 	 * 																		// post
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1978,16 +2023,27 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class FormLoginSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.formLogin(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -1997,10 +2053,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class FormLoginSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class FormLoginSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -2014,6 +2070,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.failureUrl(&quot;/authentication/login?failed&quot;)
 	 * 					.loginProcessingUrl(&quot;/authentication/login/process&quot;)
 	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -2065,19 +2132,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <pre>
 	 * &#064;Configuration
-	 * public class Saml2LoginConfig {
+	 * &#064;EnableWebSecurity
+	 * public class Saml2LoginSecurityConfig {
 	 *
-	 * 	&#064;EnableWebSecurity
-	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 		&#064;Override
-	 * 		protected void configure(HttpSecurity http) throws Exception {
-	 * 			http
-	 * 				.authorizeRequests()
-	 * 					.anyRequest().authenticated()
-	 * 					.and()
-	 * 				  .saml2Login();
-	 *		}
-	 *	}
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.anyRequest().authenticated()
+	 * 				.and()
+	 * 			.saml2Login();
+	 * 		return http.build();
+	 * 	}
 	 *
 	 *	&#064;Bean
 	 *	public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
@@ -2098,13 +2164,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 		//IDP certificate for verification of incoming messages
 	 * 		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
 	 * 		return RelyingPartyRegistration.withRegistrationId(registrationId)
-	 *  * 				.remoteIdpEntityId(idpEntityId)
-	 *  * 				.idpWebSsoUrl(webSsoEndpoint)
-	 *  * 				.credential(signingCredential)
-	 *  * 				.credential(idpVerificationCertificate)
-	 *  * 				.localEntityIdTemplate(localEntityIdTemplate)
-	 *  * 				.build();
-	 *	}
+	 * 				.remoteIdpEntityId(idpEntityId)
+	 * 				.idpWebSsoUrl(webSsoEndpoint)
+	 * 				.credential(signingCredential)
+	 * 				.credential(idpVerificationCertificate)
+	 * 				.localEntityIdTemplate(localEntityIdTemplate)
+	 * 				.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -2154,19 +2220,19 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <pre>
 	 * &#064;Configuration
-	 * public class Saml2LoginConfig {
+	 * &#064;EnableWebSecurity
+	 * public class Saml2LoginSecurityConfig {
 	 *
-	 * 	&#064;EnableWebSecurity
-	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 		&#064;Override
-	 * 		protected void configure(HttpSecurity http) throws Exception {
-	 * 			http
-	 * 				.authorizeRequests()
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
+	 * 				authorizeRequests
 	 * 					.anyRequest().authenticated()
-	 * 					.and()
-	 * 				  .saml2Login(withDefaults());
-	 *		}
-	 *	}
+	 * 			)
+	 * 			.saml2Login(withDefaults());
+	 * 		return http.build();
+	 * 	}
 	 *
 	 *	&#064;Bean
 	 *	public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
@@ -2187,13 +2253,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 		//IDP certificate for verification of incoming messages
 	 * 		Saml2X509Credential idpVerificationCertificate = getVerificationCertificate();
 	 * 		return RelyingPartyRegistration.withRegistrationId(registrationId)
-	 *  * 				.remoteIdpEntityId(idpEntityId)
-	 *  * 				.idpWebSsoUrl(webSsoEndpoint)
-	 *  * 				.credential(signingCredential)
-	 *  * 				.credential(idpVerificationCertificate)
-	 *  * 				.localEntityIdTemplate(localEntityIdTemplate)
-	 *  * 				.build();
-	 *	}
+	 * 				.remoteIdpEntityId(idpEntityId)
+	 * 				.idpWebSsoUrl(webSsoEndpoint)
+	 * 				.credential(signingCredential)
+	 * 				.credential(idpVerificationCertificate)
+	 * 				.localEntityIdTemplate(localEntityIdTemplate)
+	 * 				.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 *
@@ -2390,19 +2456,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <pre>
 	 * &#064;Configuration
-	 * public class OAuth2LoginConfig {
+	 * &#064;EnableWebSecurity
+	 * public class OAuth2LoginSecurityConfig {
 	 *
-	 * 	&#064;EnableWebSecurity
-	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 		&#064;Override
-	 * 		protected void configure(HttpSecurity http) throws Exception {
-	 * 			http
-	 * 				.authorizeRequests()
-	 * 					.anyRequest().authenticated()
-	 * 					.and()
-	 * 				  .oauth2Login();
-	 *		}
-	 *	}
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests()
+	 * 				.anyRequest().authenticated()
+	 * 				.and()
+	 * 			.oauth2Login();
+	 * 		return http.build();
+	 * 	}
 	 *
 	 *	&#064;Bean
 	 *	public ClientRegistrationRepository clientRegistrationRepository() {
@@ -2490,20 +2555,19 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 *
 	 * <pre>
 	 * &#064;Configuration
-	 * public class OAuth2LoginConfig {
+	 * &#064;EnableWebSecurity
+	 * public class OAuth2LoginSecurityConfig {
 	 *
-	 * 	&#064;EnableWebSecurity
-	 * 	public static class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 		&#064;Override
-	 * 		protected void configure(HttpSecurity http) throws Exception {
-	 * 			http
-	 * 				.authorizeRequests((authorizeRequests) -&gt;
-	 * 					authorizeRequests
-	 * 						.anyRequest().authenticated()
-	 * 				)
-	 * 				.oauth2Login(withDefaults());
-	 *		}
-	 *	}
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.authorizeRequests((authorizeRequests) -&gt;
+	 * 				authorizeRequests
+	 * 					.anyRequest().authenticated()
+	 * 			)
+	 * 			.oauth2Login(withDefaults());
+	 * 		return http.build();
+	 * 	}
 	 *
 	 *	&#064;Bean
 	 *	public ClientRegistrationRepository clientRegistrationRepository() {
@@ -2577,16 +2641,18 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * public class OAuth2ClientSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.anyRequest().authenticated()
 	 * 			)
 	 * 			.oauth2Client(withDefaults());
-	 *	}
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param oauth2ClientCustomizer the {@link Customizer} to provide more options for
@@ -2630,13 +2696,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class OAuth2ResourceServerSecurityConfig {
 	 *
-	 * &#064;Value("${spring.security.oauth2.resourceserver.jwt.key-value}")
-	 * RSAPublicKey key;
-	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -2649,7 +2712,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 							.decoder(jwtDecoder())
 	 * 					)
 	 * 			);
-	 *	}
+	 * 		return http.build();
+	 * 	}
 	 *
 	 * 	&#064;Bean
 	 * 	public JwtDecoder jwtDecoder() {
@@ -2689,17 +2753,23 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class ChannelSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class ChannelSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin()
 	 * 				.and().requiresChannel().anyRequest().requiresSecure();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -2726,10 +2796,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class ChannelSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class ChannelSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
@@ -2740,6 +2810,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				requiresChannel
 	 * 					.anyRequest().requiresSecure()
 	 * 			);
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -2768,16 +2849,22 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class HttpBasicSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class HttpBasicSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().httpBasic();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -2800,16 +2887,27 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class HttpBasicSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class HttpBasicSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests((authorizeRequests) -&gt;
 	 * 				authorizeRequests
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -2834,10 +2932,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class PasswordManagementSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class PasswordManagementSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.authorizeRequests(authorizeRequests -&gt;
 	 * 				authorizeRequests
@@ -2847,7 +2945,8 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				passwordManagement
 	 * 					.changePasswordPage(&quot;/custom-change-password-page&quot;)
 	 * 			);
-	 *  }
+	 * 		return http.build();
+	 * 	}
 	 * }
 	 * </pre>
 	 * @param passwordManagementCustomizer the {@link Customizer} to provide more options
@@ -2995,10 +3094,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers()
 	 * 				.antMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
@@ -3007,13 +3106,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
 	 * 			.httpBasic();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth
-	 * 			.inMemoryAuthentication()
-	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3023,10 +3126,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers()
 	 * 				.antMatchers(&quot;/api/**&quot;)
@@ -3036,13 +3139,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
 	 * 			.httpBasic();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth
-	 * 			.inMemoryAuthentication()
-	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3052,10 +3159,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers()
 	 * 				.antMatchers(&quot;/api/**&quot;)
@@ -3067,13 +3174,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 				.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 				.and()
 	 * 			.httpBasic();
+	 * 		return http.build();
 	 * 	}
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-	 * 		auth
-	 * 			.inMemoryAuthentication()
-	 * 				.withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;);
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3106,10 +3217,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
@@ -3120,6 +3231,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3129,10 +3251,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
@@ -3144,6 +3266,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3153,10 +3286,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * <pre>
 	 * &#064;Configuration
 	 * &#064;EnableWebSecurity
-	 * public class RequestMatchersSecurityConfig extends WebSecurityConfigurerAdapter {
+	 * public class RequestMatchersSecurityConfig {
 	 *
-	 * 	&#064;Override
-	 * 	protected void configure(HttpSecurity http) throws Exception {
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 	 * 		http
 	 * 			.requestMatchers((requestMatchers) -&gt;
 	 * 				requestMatchers
@@ -3171,6 +3304,17 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * 					.antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;)
 	 * 			)
 	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
 	 * 	}
 	 * }
 	 * </pre>
@@ -3292,20 +3436,26 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public final class MvcMatchersRequestMatcherConfigurer extends RequestMatcherConfigurer {
 
+		private final List<MvcRequestMatcher> mvcMatchers;
+
 		/**
 		 * Creates a new instance
 		 * @param context the {@link ApplicationContext} to use
-		 * @param matchers the {@link MvcRequestMatcher} instances to set the servlet path
-		 * on if {@link #servletPath(String)} is set.
+		 * @param mvcMatchers the {@link MvcRequestMatcher} instances to set the servlet
+		 * path on if {@link #servletPath(String)} is set.
+		 * @param allMatchers the {@link RequestMatcher} instances to continue the
+		 * configuration
 		 */
-		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context, List<MvcRequestMatcher> matchers) {
+		private MvcMatchersRequestMatcherConfigurer(ApplicationContext context, List<MvcRequestMatcher> mvcMatchers,
+				List<RequestMatcher> allMatchers) {
 			super(context);
-			this.matchers = new ArrayList<>(matchers);
+			this.mvcMatchers = new ArrayList<>(mvcMatchers);
+			this.matchers = allMatchers;
 		}
 
 		public RequestMatcherConfigurer servletPath(String servletPath) {
-			for (RequestMatcher matcher : this.matchers) {
-				((MvcRequestMatcher) matcher).setServletPath(servletPath);
+			for (MvcRequestMatcher matcher : this.mvcMatchers) {
+				matcher.setServletPath(servletPath);
 			}
 			return this;
 		}
@@ -3330,7 +3480,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			setMatchers(mvcMatchers);
-			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers);
+			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers, this.matchers);
 		}
 
 		@Override

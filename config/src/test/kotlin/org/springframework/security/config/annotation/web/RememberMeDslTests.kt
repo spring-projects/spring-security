@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.authentication.RememberMeAuthenticationToken
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.AuthorityUtils
@@ -41,12 +40,15 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.security.web.authentication.NullRememberMeServices
 import org.springframework.security.web.authentication.RememberMeServices
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
 import org.springframework.security.web.authentication.rememberme.AbstractRememberMeServices
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
@@ -217,7 +219,7 @@ internal class RememberMeDslTests {
 
     @Test
     fun `Remember Me when key then remember me works only for matching routes`() {
-        this.spring.register(WithoutKeyConfig::class.java, KeyConfig::class.java).autowire()
+        this.spring.register(WithAndWithoutKeyConfig::class.java).autowire()
         val withoutKeyMvcResult = mockMvc.post("/without-key/login") {
             loginRememberMeRequest()
         }.andReturn()
@@ -381,17 +383,19 @@ internal class RememberMeDslTests {
         }
     }
 
-    abstract class DefaultUserConfig : WebSecurityConfigurerAdapter() {
-        @Autowired
-        open fun configureGlobal(auth: AuthenticationManagerBuilder) {
-            auth.inMemoryAuthentication()
-                    .withUser(PasswordEncodedUser.user())
+    @Configuration
+    open class DefaultUserConfig {
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            return InMemoryUserDetailsManager(PasswordEncodedUser.user())
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, hasRole("USER"))
@@ -399,12 +403,15 @@ internal class RememberMeDslTests {
                 formLogin {}
                 rememberMe {}
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeDomainConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, hasRole("USER"))
@@ -414,9 +421,11 @@ internal class RememberMeDslTests {
                     rememberMeCookieDomain = "spring.io"
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeServicesRefConfig : DefaultUserConfig() {
 
@@ -424,37 +433,44 @@ internal class RememberMeDslTests {
             val REMEMBER_ME_SERVICES: RememberMeServices = NullRememberMeServices()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     rememberMeServices = REMEMBER_ME_SERVICES
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeSuccessHandlerConfig : DefaultUserConfig() {
 
         companion object {
-            val SUCCESS_HANDLER: AuthenticationSuccessHandler = AuthenticationSuccessHandler { _ , _, _ -> }
+            val SUCCESS_HANDLER: AuthenticationSuccessHandler = SimpleUrlAuthenticationSuccessHandler()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     authenticationSuccessHandler = SUCCESS_HANDLER
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    @Order(0)
-    open class WithoutKeyConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+    open class WithAndWithoutKeyConfig : DefaultUserConfig() {
+        @Bean
+        @Order(0)
+        open fun securityFilterChainWithoutKey(http: HttpSecurity): SecurityFilterChain {
             http {
                 securityMatcher(AntPathRequestMatcher("/without-key/**"))
                 formLogin {
@@ -462,12 +478,11 @@ internal class RememberMeDslTests {
                 }
                 rememberMe {}
             }
+            return http.build()
         }
-    }
 
-    @EnableWebSecurity
-    open class KeyConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChainWithKey(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -477,9 +492,11 @@ internal class RememberMeDslTests {
                     key = "RememberMeKey"
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeTokenRepositoryConfig : DefaultUserConfig() {
 
@@ -487,83 +504,101 @@ internal class RememberMeDslTests {
             val TOKEN_REPOSITORY: PersistentTokenRepository = mockk()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     tokenRepository = TOKEN_REPOSITORY
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeTokenValidityConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     tokenValiditySeconds = 42
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeUseSecureCookieConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     useSecureCookie = true
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeParameterConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     rememberMeParameter = "rememberMe"
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeCookieNameConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     rememberMeCookieName = "rememberMe"
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class RememberMeDefaultUserDetailsServiceConfig : DefaultUserConfig() {
+    open class RememberMeDefaultUserDetailsServiceConfig {
 
         companion object {
-            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+            val USER_DETAIL_SERVICE: UserDetailsService = InMemoryUserDetailsManager(
                 User("username", "password", emptyList())
-            }
+            )
             val PASSWORD_ENCODER: PasswordEncoder = BCryptPasswordEncoder()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {}
             }
+            return http.build()
         }
 
-        override fun configure(auth: AuthenticationManagerBuilder) {
-            auth.userDetailsService(USER_DETAIL_SERVICE)
+        @Bean
+        open fun userDetailsService(): UserDetailsService {
+            return USER_DETAIL_SERVICE
         }
 
         @Bean
@@ -571,34 +606,40 @@ internal class RememberMeDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeUserDetailsServiceConfig : DefaultUserConfig() {
 
         companion object {
-            val USER_DETAIL_SERVICE: UserDetailsService = UserDetailsService { _ ->
+            val USER_DETAIL_SERVICE: UserDetailsService = InMemoryUserDetailsManager(
                 User("username", "password", emptyList())
-            }
+            )
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     userDetailsService = USER_DETAIL_SERVICE
                 }
             }
+            return http.build()
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     open class RememberMeAlwaysRememberConfig : DefaultUserConfig() {
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin {}
                 rememberMe {
                     alwaysRemember = true
                 }
             }
+            return http.build()
         }
     }
 

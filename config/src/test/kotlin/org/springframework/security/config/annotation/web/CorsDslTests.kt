@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,12 +22,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.RequestMethod
@@ -57,12 +58,15 @@ class CorsDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class DefaultCorsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DefaultCorsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 cors { }
             }
+            return http.build()
         }
     }
 
@@ -78,13 +82,16 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
-    open class CorsCrossOriginBeanConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CorsCrossOriginBeanConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 cors { }
             }
+            return http.build()
         }
 
         @Bean
@@ -112,16 +119,19 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
-    open class CorsDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CorsDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http.cors()
             http {
                 cors {
                     disable()
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -149,10 +159,12 @@ class CorsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebMvc
     @EnableWebSecurity
-    open class CorsCrossOriginSourceConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CorsCrossOriginSourceConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val source = UrlBasedCorsConfigurationSource()
             val corsConfiguration = CorsConfiguration()
             corsConfiguration.allowedOrigins = listOf("*")
@@ -165,6 +177,7 @@ class CorsDslTests {
                     configurationSource = source
                 }
             }
+            return http.build()
         }
     }
 }

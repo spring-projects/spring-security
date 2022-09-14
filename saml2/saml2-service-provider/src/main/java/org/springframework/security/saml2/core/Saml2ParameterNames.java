@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,17 +27,17 @@ package org.springframework.security.saml2.core;
  * "https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf">SAML 2.0
  * Bindings</a>
  */
-public interface Saml2ParameterNames {
+public final class Saml2ParameterNames {
 
 	/**
 	 * {@code SAMLRequest} - used to request authentication or request logout
 	 */
-	String SAML_REQUEST = "SAMLRequest";
+	public static final String SAML_REQUEST = "SAMLRequest";
 
 	/**
 	 * {@code SAMLResponse} - used to respond to an authentication or logout request
 	 */
-	String SAML_RESPONSE = "SAMLResponse";
+	public static final String SAML_RESPONSE = "SAMLResponse";
 
 	/**
 	 * {@code RelayState} - used to communicate shared state between the relying and
@@ -46,17 +46,20 @@ public interface Saml2ParameterNames {
 	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-bindings-2.0-os.pdf#page=8">3.1.1
 	 * Use of RelayState</a>
 	 */
-	String RELAY_STATE = "RelayState";
+	public static final String RELAY_STATE = "RelayState";
 
 	/**
 	 * {@code SigAlg} - used to communicate which signature algorithm to use to verify
 	 * signature
 	 */
-	String SIG_ALG = "SigAlg";
+	public static final String SIG_ALG = "SigAlg";
 
 	/**
 	 * {@code Signature} - used to supply cryptographic signature on any SAML 2.0 payload
 	 */
-	String SIGNATURE = "Signature";
+	public static final String SIGNATURE = "Signature";
+
+	private Saml2ParameterNames() {
+	}
 
 }

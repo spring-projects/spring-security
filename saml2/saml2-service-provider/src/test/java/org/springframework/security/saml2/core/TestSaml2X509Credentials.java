@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +51,26 @@ public final class TestSaml2X509Credentials {
 		return new Saml2X509Credential(idpCertificate(), Saml2X509CredentialType.VERIFICATION);
 	}
 
+	public static Saml2X509Credential relyingPartyEncryptingCredential() {
+		return new Saml2X509Credential(idpCertificate(), Saml2X509CredentialType.ENCRYPTION);
+	}
+
 	public static Saml2X509Credential relyingPartySigningCredential() {
 		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.SIGNING);
 	}
 
 	public static Saml2X509Credential relyingPartyDecryptingCredential() {
 		return new Saml2X509Credential(spPrivateKey(), spCertificate(), Saml2X509CredentialType.DECRYPTION);
+	}
+
+	public static Saml2X509Credential altPublicCredential() {
+		return new Saml2X509Credential(altCertificate(), Saml2X509CredentialType.VERIFICATION,
+				Saml2X509CredentialType.ENCRYPTION);
+	}
+
+	public static Saml2X509Credential altPrivateCredential() {
+		return new Saml2X509Credential(altPrivateKey(), altCertificate(), Saml2X509CredentialType.SIGNING,
+				Saml2X509CredentialType.DECRYPTION);
 	}
 
 	private static X509Certificate certificate(String cert) {
@@ -167,6 +181,42 @@ public final class TestSaml2X509Credentials {
 						+ "KkfdxR4PUfnKcQCX11YnHjk9uTFj75ECQEFY/gBnxDjzqyF35hAzrYIiMPQVfznt\n"
 						+ "YX/sDTE2AdVBVGaMj1Cb51bPHnNC6Q5kXKQnj/YrLqRQND09Q7ParX0CQQC5NxZr\n"
 						+ "9jKqhHj8yQD6PlXTsY4Occ7DH6/IoDenfdEVD5qlet0zmd50HatN2Jiqm5ubN7CM\n" + "INrtuLp4YHbgk1mi\n"
+						+ "-----END PRIVATE KEY-----");
+	}
+
+	private static X509Certificate altCertificate() {
+		return certificate(
+				"-----BEGIN CERTIFICATE-----\n" + "MIICkDCCAfkCFEstVfmWSFQp/j88GaMUwqVK72adMA0GCSqGSIb3DQEBCwUAMIGG\n"
+						+ "MQswCQYDVQQGEwJVUzETMBEGA1UECAwKV2FzaGluZ3RvbjESMBAGA1UEBwwJVmFu\n"
+						+ "Y291dmVyMR0wGwYDVQQKDBRTcHJpbmcgU2VjdXJpdHkgU0FNTDEMMAoGA1UECwwD\n"
+						+ "YWx0MSEwHwYDVQQDDBhhbHQuc3ByaW5nLnNlY3VyaXR5LnNhbWwwHhcNMjIwMjEw\n"
+						+ "MTY1ODA4WhcNMzIwMjEwMTY1ODA4WjCBhjELMAkGA1UEBhMCVVMxEzARBgNVBAgM\n"
+						+ "Cldhc2hpbmd0b24xEjAQBgNVBAcMCVZhbmNvdXZlcjEdMBsGA1UECgwUU3ByaW5n\n"
+						+ "IFNlY3VyaXR5IFNBTUwxDDAKBgNVBAsMA2FsdDEhMB8GA1UEAwwYYWx0LnNwcmlu\n"
+						+ "Zy5zZWN1cml0eS5zYW1sMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC9ZGWj\n"
+						+ "TPDsymQCJL044py4xLsBI/S9RvzNeR9oD/tHyoxCE+YZzjf0PyBtwqKzkKWqCPf4\n"
+						+ "XGUYHfEpkM5kJYwCW8TsOx5fnwLIQweiPqjYrBr/O0IjHMqYG9HlR/ros7iBt4ab\n"
+						+ "EGUu/B9yYg1YRYPxKQ6TNP3AD+9tBT8TsFFyjwIDAQABMA0GCSqGSIb3DQEBCwUA\n"
+						+ "A4GBAKJf2VHLjkCHRxlbWn63jGiquq3ENYgd1JS0DZ3ggFmuc6zQiqxzRGtArIDZ\n"
+						+ "0jH5nrG0jcvO0fqDqBQh0iT8thfUnkViAQvACZ9a+0x0NzUicJ+Ra51c8Z2enqbg\n"
+						+ "pXy+ga67HcAXrDekm1MCGCgiEb/Cgl41lsideqhC8Efl7PRN\n" + "-----END CERTIFICATE-----");
+	}
+
+	private static PrivateKey altPrivateKey() {
+		return privateKey(
+				"-----BEGIN PRIVATE KEY-----\n" + "MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAL1kZaNM8OzKZAIk\n"
+						+ "vTjinLjEuwEj9L1G/M15H2gP+0fKjEIT5hnON/Q/IG3CorOQpaoI9/hcZRgd8SmQ\n"
+						+ "zmQljAJbxOw7Hl+fAshDB6I+qNisGv87QiMcypgb0eVH+uizuIG3hpsQZS78H3Ji\n"
+						+ "DVhFg/EpDpM0/cAP720FPxOwUXKPAgMBAAECgYEApYKslAZ0cer5dSoYNzNLFOnQ\n"
+						+ "J1H92r/Dw+k6+h0lUvr+keyD5T9jhM76DxHOUDBzpmIKGoDcVDQugk2rILfzXsQA\n"
+						+ "JtwvDRJk32Z02Vt0jb7t/WUOOQhjKCjQuv9/tOx90GCl0VxYG69UOjaMRWrlg/i9\n"
+						+ "6/zcTRIahIn5XxF0psECQQD7ivJCpDbOLJGsc8gNJR4cvjZ1q0mHIOrbKqJC0y1n\n"
+						+ "5DrzGEflPeyCUwnOKNp9HJQP8gmZzXfj0JM9KsjpiUChAkEAwL+FmhDoTiqStIrH\n"
+						+ "h9Kdnsev//imMmRHxjwDhntYvqavUsISRmY3imd8inoYq5dzWQMzBtoTyMRmqeLT\n"
+						+ "DHV1LwJAW4xaV37Eo4z9B7Kr4Hzd1MA1ueW5QQDt+Q4vN/r7z4/1FHyFzh0Xcucd\n"
+						+ "7nZX7qj0CkmgzOVG+Rb0P5LOxJA7gQJBAK1KQ2qNct375qPM9bEGSVGchH6k5X7+\n"
+						+ "q4ztHdpFgTb/EzdbZiTG935GpjC1rwJuinTnrHOnkwv4j7iDRm24GF8CQQDqPvrQ\n"
+						+ "GcItR6UUy0q/B8UxLzlE6t+HiznfiJKfyGgCHU56Y4/ZhzSQz2MZHz9SK4DsUL9s\n" + "bOYrWq8VY2fyjV1t\n"
 						+ "-----END PRIVATE KEY-----");
 	}
 

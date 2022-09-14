@@ -19,7 +19,6 @@ package org.springframework.security.config.http.customconfigurer;
 import java.util.Properties;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +28,7 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -110,6 +110,7 @@ public class CustomHttpSecurityConfigurerTests {
 		context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class Config extends WebSecurityConfigurerAdapter {
 
@@ -134,6 +135,7 @@ public class CustomHttpSecurityConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ConfigCustomize extends WebSecurityConfigurerAdapter {
 

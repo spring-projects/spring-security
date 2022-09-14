@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,14 +64,15 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	}
 
 	@Test
-	public void setTokenResponseConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.messageConverter.setTokenResponseConverter(null));
+	public void setAccessTokenResponseConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.messageConverter.setAccessTokenResponseConverter(null));
 	}
 
 	@Test
-	public void setTokenResponseParametersConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
+	public void setAccessTokenResponseParametersConverterWhenConverterIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.messageConverter.setTokenResponseParametersConverter(null));
+				.isThrownBy(() -> this.messageConverter.setAccessTokenResponseParametersConverter(null));
 	}
 
 	@Test
@@ -159,7 +160,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	public void readInternalWhenConversionFailsThenThrowHttpMessageNotReadableException() {
 		Converter tokenResponseConverter = mock(Converter.class);
 		given(tokenResponseConverter.convert(any())).willThrow(RuntimeException.class);
-		this.messageConverter.setTokenResponseConverter(tokenResponseConverter);
+		this.messageConverter.setAccessTokenResponseConverter(tokenResponseConverter);
 		String tokenResponse = "{}";
 		MockClientHttpResponse response = new MockClientHttpResponse(tokenResponse.getBytes(), HttpStatus.OK);
 		assertThatExceptionOfType(HttpMessageNotReadableException.class)
@@ -199,7 +200,7 @@ public class OAuth2AccessTokenResponseHttpMessageConverterTests {
 	public void writeInternalWhenConversionFailsThenThrowHttpMessageNotWritableException() {
 		Converter tokenResponseParametersConverter = mock(Converter.class);
 		given(tokenResponseParametersConverter.convert(any())).willThrow(RuntimeException.class);
-		this.messageConverter.setTokenResponseParametersConverter(tokenResponseParametersConverter);
+		this.messageConverter.setAccessTokenResponseParametersConverter(tokenResponseParametersConverter);
 		// @formatter:off
 		OAuth2AccessTokenResponse accessTokenResponse = OAuth2AccessTokenResponse
 				.withToken("access-token-1234")

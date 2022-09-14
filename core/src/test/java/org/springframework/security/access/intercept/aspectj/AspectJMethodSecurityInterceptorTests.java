@@ -53,7 +53,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link AspectJMethodSecurityInterceptor}.
@@ -154,7 +154,7 @@ public class AspectJMethodSecurityInterceptorTests {
 		given(this.aspectJCallback.proceedWithObject()).willThrow(new RuntimeException());
 		assertThatExceptionOfType(RuntimeException.class)
 				.isThrownBy(() -> this.interceptor.invoke(this.joinPoint, this.aspectJCallback));
-		verifyZeroInteractions(aim);
+		verifyNoMoreInteractions(aim);
 	}
 
 	// SEC-1967

@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -29,6 +30,7 @@ import org.springframework.security.ldap.userdetails.PersonContextMapper;
  */
 public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
+	@Configuration
 	@EnableWebSecurity
 	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
 
@@ -44,6 +46,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
 
@@ -65,7 +68,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.ldif("classpath:users.xldif") // ldap-server@ldif
 						.managerDn("uid=admin,ou=system") // ldap-server@manager-dn
 						.managerPassword("secret") // ldap-server@manager-password
-						.port(33399) // ldap-server@port
+						.port(0) // ldap-server@port
 						.root("dc=springframework,dc=org"); // ldap-server@root
 						// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
 			// @formatter:on
@@ -73,6 +76,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
 
@@ -90,6 +94,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
 

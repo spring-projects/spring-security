@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.UUID;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.RememberMeAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -148,11 +148,10 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Specifies the {@link UserDetailsService} used to look up the {@link UserDetails}
-	 * when a remember me token is valid. The default is to use the
-	 * {@link UserDetailsService} found by invoking
-	 * {@link HttpSecurity#getSharedObject(Class)} which is set when using
-	 * {@link WebSecurityConfigurerAdapter#configure(AuthenticationManagerBuilder)}.
-	 * Alternatively, one can populate {@link #rememberMeServices(RememberMeServices)}.
+	 * when a remember me token is valid. When using a
+	 * {@link org.springframework.security.web.SecurityFilterChain} bean, the default is
+	 * to look for a {@link UserDetailsService} bean. Alternatively, one can populate
+	 * {@link #rememberMeServices(RememberMeServices)}.
 	 * @param userDetailsService the {@link UserDetailsService} to configure
 	 * @return the {@link RememberMeConfigurer} for further customization
 	 * @see AbstractRememberMeServices
@@ -289,6 +288,7 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 		if (this.authenticationSuccessHandler != null) {
 			rememberMeFilter.setAuthenticationSuccessHandler(this.authenticationSuccessHandler);
 		}
+		rememberMeFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		rememberMeFilter = postProcess(rememberMeFilter);
 		http.addFilter(rememberMeFilter);
 	}
@@ -395,15 +395,16 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	/**
-	 * Gets the {@link UserDetailsService} to use. Either the explicitly configure
-	 * {@link UserDetailsService} from {@link #userDetailsService(UserDetailsService)} or
-	 * a shared object from {@link HttpSecurity#getSharedObject(Class)}.
+	 * Gets the {@link UserDetailsService} to use. Either the explicitly configured
+	 * {@link UserDetailsService} from {@link #userDetailsService(UserDetailsService)}, a
+	 * shared object from {@link HttpSecurity#getSharedObject(Class)} or the
+	 * {@link UserDetailsService} bean.
 	 * @param http {@link HttpSecurity} to get the shared {@link UserDetailsService}
 	 * @return the {@link UserDetailsService} to use
 	 */
 	private UserDetailsService getUserDetailsService(H http) {
 		if (this.userDetailsService == null) {
-			this.userDetailsService = http.getSharedObject(UserDetailsService.class);
+			this.userDetailsService = getSharedOrBean(http, UserDetailsService.class);
 		}
 		Assert.state(this.userDetailsService != null,
 				() -> "userDetailsService cannot be null. Invoke " + RememberMeConfigurer.class.getSimpleName()
@@ -429,6 +430,27 @@ public final class RememberMeConfigurer<H extends HttpSecurityBuilder<H>>
 			}
 		}
 		return this.key;
+	}
+
+	private <C> C getSharedOrBean(H http, Class<C> type) {
+		C shared = http.getSharedObject(type);
+		if (shared != null) {
+			return shared;
+		}
+		return getBeanOrNull(type);
+	}
+
+	private <T> T getBeanOrNull(Class<T> type) {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		if (context == null) {
+			return null;
+		}
+		try {
+			return context.getBean(type);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+			return null;
+		}
 	}
 
 }

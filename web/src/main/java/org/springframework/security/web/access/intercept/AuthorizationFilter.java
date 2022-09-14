@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,16 +17,24 @@
 package org.springframework.security.web.access.intercept;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,7 +47,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class AuthorizationFilter extends OncePerRequestFilter {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
+
+	private boolean shouldFilterAllDispatcherTypes = true;
 
 	/**
 	 * Creates an instance.
@@ -54,17 +69,59 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 
-		this.authorizationManager.verify(this::getAuthentication, request);
+		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
+		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
+		if (decision != null && !decision.isGranted()) {
+			throw new AccessDeniedException("Access Denied");
+		}
 		filterChain.doFilter(request, response);
 	}
 
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	private Authentication getAuthentication() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (authentication == null) {
 			throw new AuthenticationCredentialsNotFoundException(
 					"An Authentication object was not found in the SecurityContext");
 		}
 		return authentication;
+	}
+
+	@Override
+	protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
+			FilterChain filterChain) throws ServletException, IOException {
+		doFilterInternal(request, response, filterChain);
+	}
+
+	@Override
+	protected boolean shouldNotFilterAsyncDispatch() {
+		return !this.shouldFilterAllDispatcherTypes;
+	}
+
+	@Override
+	protected boolean shouldNotFilterErrorDispatch() {
+		return !this.shouldFilterAllDispatcherTypes;
+	}
+
+	/**
+	 * Use this {@link AuthorizationEventPublisher} to publish
+	 * {@link AuthorizationDeniedEvent}s and {@link AuthorizationGrantedEvent}s.
+	 * @param eventPublisher the {@link ApplicationEventPublisher} to use
+	 * @since 5.7
+	 */
+	public void setAuthorizationEventPublisher(AuthorizationEventPublisher eventPublisher) {
+		Assert.notNull(eventPublisher, "eventPublisher cannot be null");
+		this.eventPublisher = eventPublisher;
 	}
 
 	/**
@@ -73,6 +130,21 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	 */
 	public AuthorizationManager<HttpServletRequest> getAuthorizationManager() {
 		return this.authorizationManager;
+	}
+
+	/**
+	 * Sets whether to filter all dispatcher types.
+	 * @param shouldFilterAllDispatcherTypes should filter all dispatcher types. Default
+	 * is {@code true}
+	 * @since 5.7
+	 */
+	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {
+		this.shouldFilterAllDispatcherTypes = shouldFilterAllDispatcherTypes;
+	}
+
+	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
+			AuthorizationDecision decision) {
+
 	}
 
 }

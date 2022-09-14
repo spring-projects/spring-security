@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.session.SessionInformationExpiredStrategy;
 import org.springframework.security.web.session.SessionManagementFilter;
@@ -133,6 +135,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private AuthenticationFailureHandler sessionAuthenticationFailureHandler;
 
+	private boolean requireExplicitAuthenticationStrategy;
+
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#sessionManagement()
@@ -150,6 +154,19 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public SessionManagementConfigurer<H> invalidSessionUrl(String invalidSessionUrl) {
 		this.invalidSessionUrl = invalidSessionUrl;
+		return this;
+	}
+
+	/**
+	 * Setting this means that explicit invocation of
+	 * {@link SessionAuthenticationStrategy} is required.
+	 * @param requireExplicitAuthenticationStrategy require explicit invocation of
+	 * {@link SessionAuthenticationStrategy}
+	 * @return the {@link SessionManagementConfigurer} for further customization
+	 */
+	public SessionManagementConfigurer<H> requireExplicitAuthenticationStrategy(
+			boolean requireExplicitAuthenticationStrategy) {
+		this.requireExplicitAuthenticationStrategy = requireExplicitAuthenticationStrategy;
 		return this;
 	}
 
@@ -349,6 +366,28 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	@Override
 	public void configure(H http) {
+		SessionManagementFilter sessionManagementFilter = createSessionManagementFilter(http);
+		if (sessionManagementFilter != null) {
+			http.addFilter(sessionManagementFilter);
+		}
+		if (isConcurrentSessionControlEnabled()) {
+			ConcurrentSessionFilter concurrentSessionFilter = createConcurrencyFilter(http);
+
+			concurrentSessionFilter = postProcess(concurrentSessionFilter);
+			http.addFilter(concurrentSessionFilter);
+		}
+		if (!this.enableSessionUrlRewriting) {
+			http.addFilter(new DisableEncodeUrlFilter());
+		}
+		if (this.sessionPolicy == SessionCreationPolicy.ALWAYS) {
+			http.addFilter(new ForceEagerSessionCreationFilter());
+		}
+	}
+
+	private SessionManagementFilter createSessionManagementFilter(H http) {
+		if (this.requireExplicitAuthenticationStrategy) {
+			return null;
+		}
 		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(securityContextRepository,
 				getSessionAuthenticationStrategy(http));
@@ -368,14 +407,8 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (trustResolver != null) {
 			sessionManagementFilter.setTrustResolver(trustResolver);
 		}
-		sessionManagementFilter = postProcess(sessionManagementFilter);
-		http.addFilter(sessionManagementFilter);
-		if (isConcurrentSessionControlEnabled()) {
-			ConcurrentSessionFilter concurrentSessionFilter = createConcurrencyFilter(http);
-
-			concurrentSessionFilter = postProcess(concurrentSessionFilter);
-			http.addFilter(concurrentSessionFilter);
-		}
+		sessionManagementFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		return postProcess(sessionManagementFilter);
 	}
 
 	private ConcurrentSessionFilter createConcurrencyFilter(H http) {
@@ -391,6 +424,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				concurrentSessionFilter.setLogoutHandlers(logoutHandlers);
 			}
 		}
+		concurrentSessionFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return concurrentSessionFilter;
 	}
 
@@ -492,7 +526,6 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 			concurrentSessionControlStrategy.setMaximumSessions(this.maximumSessions);
 			concurrentSessionControlStrategy.setExceptionIfMaximumExceeded(this.maxSessionsPreventsLogin);
 			concurrentSessionControlStrategy = postProcess(concurrentSessionControlStrategy);
-
 			RegisterSessionAuthenticationStrategy registerSessionStrategy = new RegisterSessionAuthenticationStrategy(
 					sessionRegistry);
 			registerSessionStrategy = postProcess(registerSessionStrategy);

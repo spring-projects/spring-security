@@ -17,7 +17,6 @@
 package org.springframework.security.web.session;
 
 import jakarta.servlet.http.HttpSessionEvent;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpSession;

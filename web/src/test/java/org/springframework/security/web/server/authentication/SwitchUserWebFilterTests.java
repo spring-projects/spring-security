@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -110,7 +110,7 @@ public class SwitchUserWebFilterTests {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/login/impersonate?username={targetUser}", targetUsername));
 		final WebFilterChain chain = mock(WebFilterChain.class);
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("principal",
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken.unauthenticated("principal",
 				"credentials");
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 		given(this.userDetailsService.findByUsername(targetUsername)).willReturn(Mono.just(switchUserDetails));
@@ -119,8 +119,7 @@ public class SwitchUserWebFilterTests {
 		given(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
 				.willReturn(Mono.empty());
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))).block();
 		verifyNoInteractions(chain);
 		verify(this.userDetailsService).findByUsername(targetUsername);
 		final ArgumentCaptor<SecurityContext> securityContextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
@@ -143,12 +142,12 @@ public class SwitchUserWebFilterTests {
 
 	@Test
 	public void switchUserWhenUserAlreadySwitchedThenExitSwitchAndSwitchAgain() {
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
 				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
-		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
-				"switchCredentials", Collections.singleton(switchAuthority));
+		final Authentication switchUserAuthentication = UsernamePasswordAuthenticationToken
+				.authenticated("switchPrincipal", "switchCredentials", Collections.singleton(switchAuthority));
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 		final String targetUsername = "newSwitchPrincipal";
 		final MockServerWebExchange exchange = MockServerWebExchange
@@ -161,8 +160,7 @@ public class SwitchUserWebFilterTests {
 		given(this.userDetailsService.findByUsername(targetUsername))
 				.willReturn(Mono.just(switchUserDetails(targetUsername, true)));
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))).block();
 		final ArgumentCaptor<Authentication> authenticationCaptor = ArgumentCaptor.forClass(Authentication.class);
 		verify(this.successHandler).onAuthenticationSuccess(any(WebFilterExchange.class),
 				authenticationCaptor.capture());
@@ -183,7 +181,7 @@ public class SwitchUserWebFilterTests {
 		assertThatIllegalArgumentException().isThrownBy(() -> {
 			Context securityContextHolder = ReactiveSecurityContextHolder
 					.withSecurityContext(Mono.just(securityContext));
-			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+			this.switchUserWebFilter.filter(exchange, chain).contextWrite(securityContextHolder).block();
 		}).withMessage("The userName can not be null.");
 		verifyNoInteractions(chain);
 	}
@@ -200,8 +198,7 @@ public class SwitchUserWebFilterTests {
 		given(this.failureHandler.onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class)))
 				.willReturn(Mono.empty());
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))).block();
 		verify(this.failureHandler).onAuthenticationFailure(any(WebFilterExchange.class), any(DisabledException.class));
 		verifyNoInteractions(chain);
 	}
@@ -219,7 +216,7 @@ public class SwitchUserWebFilterTests {
 		assertThatExceptionOfType(DisabledException.class).isThrownBy(() -> {
 			Context securityContextHolder = ReactiveSecurityContextHolder
 					.withSecurityContext(Mono.just(securityContext));
-			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+			this.switchUserWebFilter.filter(exchange, chain).contextWrite(securityContextHolder).block();
 		});
 		verifyNoInteractions(chain);
 	}
@@ -228,12 +225,12 @@ public class SwitchUserWebFilterTests {
 	public void exitSwitchThenReturnToOriginalAuthentication() {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final GrantedAuthority switchAuthority = new SwitchUserGrantedAuthority(
 				SwitchUserWebFilter.ROLE_PREVIOUS_ADMINISTRATOR, originalAuthentication);
-		final Authentication switchUserAuthentication = new UsernamePasswordAuthenticationToken("switchPrincipal",
-				"switchCredentials", Collections.singleton(switchAuthority));
+		final Authentication switchUserAuthentication = UsernamePasswordAuthenticationToken
+				.authenticated("switchPrincipal", "switchCredentials", Collections.singleton(switchAuthority));
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(switchUserAuthentication);
 		given(this.serverSecurityContextRepository.save(eq(exchange), any(SecurityContext.class)))
@@ -241,8 +238,7 @@ public class SwitchUserWebFilterTests {
 		given(this.successHandler.onAuthenticationSuccess(any(WebFilterExchange.class), any(Authentication.class)))
 				.willReturn(Mono.empty());
 		this.switchUserWebFilter.filter(exchange, chain)
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)))
-				.block();
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext))).block();
 		final ArgumentCaptor<SecurityContext> securityContextCaptor = ArgumentCaptor.forClass(SecurityContext.class);
 		verify(this.serverSecurityContextRepository).save(eq(exchange), securityContextCaptor.capture());
 		final SecurityContext savedSecurityContext = securityContextCaptor.getValue();
@@ -259,14 +255,14 @@ public class SwitchUserWebFilterTests {
 	public void exitSwitchWhenUserNotSwitchedThenThrowError() {
 		final MockServerWebExchange exchange = MockServerWebExchange
 				.from(MockServerHttpRequest.post("/logout/impersonate"));
-		final Authentication originalAuthentication = new UsernamePasswordAuthenticationToken("origPrincipal",
-				"origCredentials");
+		final Authentication originalAuthentication = UsernamePasswordAuthenticationToken
+				.unauthenticated("origPrincipal", "origCredentials");
 		final WebFilterChain chain = mock(WebFilterChain.class);
 		final SecurityContextImpl securityContext = new SecurityContextImpl(originalAuthentication);
 		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(() -> {
 			Context securityContextHolder = ReactiveSecurityContextHolder
 					.withSecurityContext(Mono.just(securityContext));
-			this.switchUserWebFilter.filter(exchange, chain).subscriberContext(securityContextHolder).block();
+			this.switchUserWebFilter.filter(exchange, chain).contextWrite(securityContextHolder).block();
 		}).withMessage("Could not find original Authentication object");
 		verifyNoInteractions(chain);
 	}

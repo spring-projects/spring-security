@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import reactor.core.publisher.Mono;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.oauth2.core.AbstractOAuth2Token;
+import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
@@ -30,7 +30,7 @@ import org.springframework.web.reactive.function.client.ExchangeFunction;
 /**
  * An {@link ExchangeFilterFunction} that adds the
  * <a href="https://tools.ietf.org/html/rfc6750#section-1.2" target="_blank">Bearer
- * Token</a> from an existing {@link AbstractOAuth2Token} tied to the current
+ * Token</a> from an existing {@link OAuth2Token} tied to the current
  * {@link Authentication}.
  *
  * Suitable for Reactive applications, applying it to a typical
@@ -60,12 +60,12 @@ public final class ServerBearerExchangeFilterFunction implements ExchangeFilterF
 		// @formatter:on
 	}
 
-	private Mono<AbstractOAuth2Token> oauth2Token() {
+	private Mono<OAuth2Token> oauth2Token() {
 		// @formatter:off
 		return currentAuthentication()
-				.filter((authentication) -> authentication.getCredentials() instanceof AbstractOAuth2Token)
+				.filter((authentication) -> authentication.getCredentials() instanceof OAuth2Token)
 				.map(Authentication::getCredentials)
-				.cast(AbstractOAuth2Token.class);
+				.cast(OAuth2Token.class);
 		// @formatter:on
 	}
 
@@ -76,7 +76,7 @@ public final class ServerBearerExchangeFilterFunction implements ExchangeFilterF
 		// @formatter:on
 	}
 
-	private ClientRequest bearer(ClientRequest request, AbstractOAuth2Token token) {
+	private ClientRequest bearer(ClientRequest request, OAuth2Token token) {
 		// @formatter:off
 		return ClientRequest.from(request)
 				.headers((headers) -> headers.setBearerAuth(token.getTokenValue()))

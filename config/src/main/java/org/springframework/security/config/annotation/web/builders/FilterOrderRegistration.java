@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.ui.DefaultLoginPageGenera
 import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -45,6 +46,8 @@ import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.web.filter.CorsFilter;
 
@@ -67,9 +70,12 @@ final class FilterOrderRegistration {
 
 	FilterOrderRegistration() {
 		Step order = new Step(INITIAL_ORDER, ORDER_STEP);
+		put(DisableEncodeUrlFilter.class, order.next());
+		put(ForceEagerSessionCreationFilter.class, order.next());
 		put(ChannelProcessingFilter.class, order.next());
 		order.next(); // gh-8105
 		put(WebAsyncManagerIntegrationFilter.class, order.next());
+		put(SecurityContextHolderFilter.class, order.next());
 		put(SecurityContextPersistenceFilter.class, order.next());
 		put(HeaderWriterFilter.class, order.next());
 		put(CorsFilter.class, order.next());
@@ -91,7 +97,6 @@ final class FilterOrderRegistration {
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105
-		this.filterToOrder.put("org.springframework.security.openid.OpenIDAuthenticationFilter", order.next());
 		put(DefaultLoginPageGeneratingFilter.class, order.next());
 		put(DefaultLogoutPageGeneratingFilter.class, order.next());
 		put(ConcurrentSessionFilter.class, order.next());

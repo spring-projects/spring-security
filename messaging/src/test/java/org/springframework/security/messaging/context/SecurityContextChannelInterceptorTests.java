@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,9 +34,13 @@ import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 public class SecurityContextChannelInterceptorTests {
@@ -69,6 +73,7 @@ public class SecurityContextChannelInterceptorTests {
 
 	@AfterEach
 	public void cleanup() {
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 		SecurityContextHolder.clearContext();
 	}
 
@@ -91,6 +96,17 @@ public class SecurityContextChannelInterceptorTests {
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
 		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
+	}
+
+	@Test
+	public void preSendWhenCustomSecurityContextHolderStrategyThenUserSet() {
+		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());
+		strategy.setContext(new SecurityContextImpl(this.authentication));
+		this.interceptor.setSecurityContextHolderStrategy(strategy);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
+		this.interceptor.preSend(this.messageBuilder.build(), this.channel);
+		verify(strategy).getContext();
+		assertThat(strategy.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
 	@Test
@@ -143,10 +159,31 @@ public class SecurityContextChannelInterceptorTests {
 	}
 
 	@Test
+	public void afterSendCompletionWhenCustomSecurityContextHolderStrategyThenNullAuthentication() {
+		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());
+		strategy.setContext(new SecurityContextImpl(this.authentication));
+		this.interceptor.setSecurityContextHolderStrategy(strategy);
+		this.interceptor.afterSendCompletion(this.messageBuilder.build(), this.channel, true, null);
+		verify(strategy).clearContext();
+		assertThat(strategy.getContext().getAuthentication()).isNull();
+	}
+
+	@Test
 	public void beforeHandleUserSet() {
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
 		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
+	}
+
+	@Test
+	public void beforeHandleWhenCustomSecurityContextHolderStrategyThenUserSet() {
+		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());
+		strategy.setContext(new SecurityContextImpl(this.authentication));
+		this.interceptor.setSecurityContextHolderStrategy(strategy);
+		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
+		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
+		verify(strategy).getContext();
+		assertThat(strategy.getContext().getAuthentication()).isSameAs(this.authentication);
 	}
 
 	// SEC-2845
@@ -175,6 +212,15 @@ public class SecurityContextChannelInterceptorTests {
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+	}
+
+	@Test
+	public void afterMessageHandledWhenCustomSecurityContextHolderStrategyThenUses() {
+		SecurityContextHolderStrategy strategy = spy(SecurityContextHolder.getContextHolderStrategy());
+		strategy.setContext(new SecurityContextImpl(this.authentication));
+		this.interceptor.setSecurityContextHolderStrategy(strategy);
+		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
+		verify(strategy).clearContext();
 	}
 
 	// SEC-2829

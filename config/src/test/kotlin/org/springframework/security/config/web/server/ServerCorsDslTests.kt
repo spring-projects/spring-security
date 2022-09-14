@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -63,6 +64,7 @@ class ServerCorsDslTests {
                 .expectHeader().valueEquals("Access-Control-Allow-Origin", "*")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CorsBeanConfig {
@@ -94,6 +96,7 @@ class ServerCorsDslTests {
                 .expectHeader().valueEquals("Access-Control-Allow-Origin", "*")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CorsSourceConfig {
@@ -122,6 +125,7 @@ class ServerCorsDslTests {
                 .expectHeader().doesNotExist("Access-Control-Allow-Origin")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CorsDisabledConfig {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -126,8 +125,10 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		if (!isCorrectBinding(request, registration)) {
-			this.logger.trace("Did not process logout request since used incorrect binding");
+
+		Saml2MessageBinding saml2MessageBinding = Saml2MessageBindingUtils.resolveBinding(request);
+		if (!registration.getSingleLogoutServiceBindings().contains(saml2MessageBinding)) {
+			this.logger.trace("Did not process logout response since used incorrect binding");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
@@ -135,13 +136,12 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_RESPONSE);
 		Saml2LogoutResponse logoutResponse = Saml2LogoutResponse.withRelyingPartyRegistration(registration)
 				.samlResponse(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-				.binding(registration.getSingleLogoutServiceBinding())
-				.location(registration.getSingleLogoutServiceResponseLocation())
+				.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceResponseLocation())
 				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 						request.getParameter(Saml2ParameterNames.SIG_ALG)))
 				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
 						request.getParameter(Saml2ParameterNames.SIGNATURE)))
-				.build();
+				.parametersQuery((params) -> request.getQueryString()).build();
 		Saml2LogoutResponseValidatorParameters parameters = new Saml2LogoutResponseValidatorParameters(logoutResponse,
 				logoutRequest, registration);
 		Saml2LogoutValidatorResult result = this.logoutResponseValidator.validate(parameters);
@@ -166,14 +166,6 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 	public void setLogoutRequestRepository(Saml2LogoutRequestRepository logoutRequestRepository) {
 		Assert.notNull(logoutRequestRepository, "logoutRequestRepository cannot be null");
 		this.logoutRequestRepository = logoutRequestRepository;
-	}
-
-	private boolean isCorrectBinding(HttpServletRequest request, RelyingPartyRegistration registration) {
-		Saml2MessageBinding requiredBinding = registration.getSingleLogoutServiceBinding();
-		if (requiredBinding == Saml2MessageBinding.POST) {
-			return "POST".equals(request.getMethod());
-		}
-		return "GET".equals(request.getMethod());
 	}
 
 }

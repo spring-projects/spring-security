@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,32 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Base64;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -123,6 +132,35 @@ public class UrlAuthorizationConfigurerTests {
 	@Test
 	public void anonymousUrlAuthorization() {
 		loadConfig(AnonymousUrlAuthorizationConfig.class);
+	}
+
+	// gh-10956
+	@Test
+	public void multiMvcMatchersConfig() throws Exception {
+		loadConfig(MultiMvcMatcherConfig.class);
+		this.request.addHeader("Authorization",
+				"Basic " + new String(Base64.getEncoder().encode("user:password".getBytes())));
+		this.request.setRequestURI("/test-1");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		setup();
+		this.request.addHeader("Authorization",
+				"Basic " + new String(Base64.getEncoder().encode("user:password".getBytes())));
+		this.request.setRequestURI("/test-2");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		setup();
+		this.request.addHeader("Authorization",
+				"Basic " + new String(Base64.getEncoder().encode("user:password".getBytes())));
+		this.request.setRequestURI("/test-3");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_FORBIDDEN);
+		setup();
+		this.request.addHeader("Authorization",
+				"Basic " + new String(Base64.getEncoder().encode("user:password".getBytes())));
+		this.request.setRequestURI("/test-x");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_OK);
 	}
 
 	public void loadConfig(Class<?>... configs) {
@@ -224,6 +262,45 @@ public class UrlAuthorizationConfigurerTests {
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
+			configurer.setUseTrailingSlashMatch(true);
+		}
+
+	}
+
+	@EnableWebSecurity
+	@Configuration
+	@EnableWebMvc
+	static class MultiMvcMatcherConfig {
+
+		@Bean
+		SecurityFilterChain security(HttpSecurity http, ApplicationContext context) throws Exception {
+			// @formatter:off
+			http
+					.httpBasic(Customizer.withDefaults())
+					.apply(new UrlAuthorizationConfigurer<>(context)).getRegistry()
+						.mvcMatchers("/test-1").hasRole("ADMIN")
+						.mvcMatchers("/test-2").hasRole("ADMIN")
+						.mvcMatchers("/test-3").hasRole("ADMIN")
+						.anyRequest().hasRole("USER");
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			UserDetails user = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
+					.build();
+			return new InMemoryUserDetailsManager(user);
+		}
+
+		@RestController
+		static class PathController {
+
+			@RequestMapping({ "/test-1", "/test-2", "/test-3", "/test-x" })
+			String path() {
+				return "path";
+			}
+
 		}
 
 	}

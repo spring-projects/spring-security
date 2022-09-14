@@ -33,13 +33,8 @@ import org.gradle.api.artifacts.component.ModuleComponentIdentifier;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.nio.file.Files;
 import java.time.Duration;
 import java.util.*;
-import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -168,7 +163,7 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 			Integer issueNumber = gitHubApi.createIssue(createIssueResult.getRepositoryId(), title, createIssueResult.getLabelIds(), createIssueResult.getMilestoneId(), createIssueResult.getAssigneeId()).delayElement(Duration.ofSeconds(1)).block();
 			commitMessage += "\n\nCloses gh-" + issueNumber;
 		}
-		runCommand(rootDir, "git", "commit", "-am", commitMessage);
+		CommandLineUtils.runCommand(rootDir, "git", "commit", "-am", commitMessage);
 	}
 
 	private Mono<GitHubApi.FindCreateIssueResult> createIssueResultMono(UpdateDependenciesExtension updateDependenciesExtension) {
@@ -187,7 +182,7 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 		if (current.compareTo(running) > 0) {
 			String title = "Update Gradle to " + current.getVersion();
 			System.out.println(title);
-			runCommand(project.getRootDir(), "./gradlew", "wrapper", "--gradle-version", current.getVersion(), "--no-daemon");
+			CommandLineUtils.runCommand(project.getRootDir(), "./gradlew", "wrapper", "--gradle-version", current.getVersion(), "--no-daemon");
 			afterGroup(updateDependenciesSettings, project.getRootDir(), title, createIssueResultMono(updateDependenciesSettings));
 		}
 	}
@@ -204,30 +199,6 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 		};
 	}
 
-	static void runCommand(File dir, String... args) {
-		try {
-			Process process = new ProcessBuilder()
-					.directory(dir)
-					.command(args)
-					.start();
-			writeLinesTo(process.getInputStream(), System.out);
-			writeLinesTo(process.getErrorStream(), System.out);
-			if (process.waitFor() != 0) {
-				new RuntimeException("Failed to run " + Arrays.toString(args));
-			}
-		} catch (IOException | InterruptedException e) {
-			throw new RuntimeException("Failed to run " + Arrays.toString(args), e);
-		}
-	}
-
-	static void writeLinesTo(InputStream input, PrintStream out) {
-		Scanner scanner = new Scanner(input);
-		while(scanner.hasNextLine()) {
-			out.println(scanner.nextLine());
-		}
-	}
-
-
 	static Action<ComponentSelectionWithCurrent> excludeWithRegex(String regex, String reason) {
 		Pattern pattern = Pattern.compile(regex);
 		return (selection) -> {
@@ -242,40 +213,17 @@ public class UpdateDependenciesPlugin implements Plugin<Project> {
 		String ga = dependency.getGroup() + ":" + dependency.getName() + ":";
 		String originalDependency = ga + dependency.getVersion();
 		String replacementDependency = ga + updatedVersion(dependency);
-		replaceFileText(buildFile, buildFileText -> buildFileText.replace(originalDependency, replacementDependency));
-	}
-
-	static void replaceFileText(File file, Function<String, String> replaceText) {
-		String buildFileText = readString(file);
-		String updatedBuildFileText = replaceText.apply(buildFileText);
-		writeString(file, updatedBuildFileText);
-	}
-
-	private static String readString(File file) {
-		try {
-			byte[] bytes = Files.readAllBytes(file.toPath());
-			return new String(bytes);
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static void writeString(File file, String text) {
-		try {
-			Files.write(file.toPath(), text.getBytes());
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		FileUtils.replaceFileText(buildFile, buildFileText -> buildFileText.replace(originalDependency, replacementDependency));
 	}
 
 	static void updateDependencyWithVersionVariable(File scanFile, File gradlePropertiesFile, DependencyOutdated dependency) {
 		if (!gradlePropertiesFile.exists()) {
 			return;
 		}
-		replaceFileText(gradlePropertiesFile, (gradlePropertiesText) -> {
+		FileUtils.replaceFileText(gradlePropertiesFile, (gradlePropertiesText) -> {
 			String ga = dependency.getGroup() + ":" + dependency.getName() + ":";
 			Pattern pattern = Pattern.compile("\"" + ga + "\\$\\{?([^'\"]+?)\\}?\"");
-			String buildFileText = readString(scanFile);
+			String buildFileText = FileUtils.readString(scanFile);
 			Matcher matcher = pattern.matcher(buildFileText);
 			while (matcher.find()) {
 				String versionVariable = matcher.group(1);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,11 @@
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,7 +50,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 /**
  * A filter for handling logout requests in the form of a &lt;saml2:LogoutRequest&gt; sent
@@ -126,7 +122,9 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
 		}
-		if (!isCorrectBinding(request, registration)) {
+
+		Saml2MessageBinding saml2MessageBinding = Saml2MessageBindingUtils.resolveBinding(request);
+		if (!registration.getSingleLogoutServiceBindings().contains(saml2MessageBinding)) {
 			this.logger.trace("Did not process logout request since used incorrect binding");
 			response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
@@ -135,13 +133,12 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		String serialized = request.getParameter(Saml2ParameterNames.SAML_REQUEST);
 		Saml2LogoutRequest logoutRequest = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 				.samlRequest(serialized).relayState(request.getParameter(Saml2ParameterNames.RELAY_STATE))
-				.binding(registration.getSingleLogoutServiceBinding())
-				.location(registration.getSingleLogoutServiceLocation())
+				.binding(saml2MessageBinding).location(registration.getSingleLogoutServiceLocation())
 				.parameters((params) -> params.put(Saml2ParameterNames.SIG_ALG,
 						request.getParameter(Saml2ParameterNames.SIG_ALG)))
 				.parameters((params) -> params.put(Saml2ParameterNames.SIGNATURE,
 						request.getParameter(Saml2ParameterNames.SIGNATURE)))
-				.build();
+				.parametersQuery((params) -> request.getQueryString()).build();
 		Saml2LogoutRequestValidatorParameters parameters = new Saml2LogoutRequestValidatorParameters(logoutRequest,
 				registration, authentication);
 		Saml2LogoutValidatorResult result = this.logoutRequestValidator.validate(parameters);
@@ -181,31 +178,12 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		return null;
 	}
 
-	private boolean isCorrectBinding(HttpServletRequest request, RelyingPartyRegistration registration) {
-		Saml2MessageBinding requiredBinding = registration.getSingleLogoutServiceBinding();
-		if (requiredBinding == Saml2MessageBinding.POST) {
-			return "POST".equals(request.getMethod());
-		}
-		return "GET".equals(request.getMethod());
-	}
-
 	private void doRedirect(HttpServletRequest request, HttpServletResponse response,
 			Saml2LogoutResponse logoutResponse) throws IOException {
 		String location = logoutResponse.getResponseLocation();
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location);
-		addParameter(Saml2ParameterNames.SAML_RESPONSE, logoutResponse::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.RELAY_STATE, logoutResponse::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.SIG_ALG, logoutResponse::getParameter, uriBuilder);
-		addParameter(Saml2ParameterNames.SIGNATURE, logoutResponse::getParameter, uriBuilder);
+		UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUriString(location)
+				.query(logoutResponse.getParametersQuery());
 		this.redirectStrategy.sendRedirect(request, response, uriBuilder.build(true).toUriString());
-	}
-
-	private void addParameter(String name, Function<String, String> parameters, UriComponentsBuilder builder) {
-		Assert.hasText(name, "name cannot be empty or null");
-		if (StringUtils.hasText(parameters.apply(name))) {
-			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
-					UriUtils.encode(parameters.apply(name), StandardCharsets.ISO_8859_1));
-		}
 	}
 
 	private void doPost(HttpServletResponse response, Saml2LogoutResponse logoutResponse) throws IOException {
@@ -221,6 +199,8 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		StringBuilder html = new StringBuilder();
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
+		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
+				.append("content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
 		html.append("    <body onload=\"document.forms[0].submit()\">\n");
@@ -252,6 +232,7 @@ public final class Saml2LogoutRequestFilter extends OncePerRequestFilter {
 		html.append("        </form>\n");
 		html.append("        \n");
 		html.append("    </body>\n");
+		html.append("    <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("</html>");
 		return html.toString();
 	}

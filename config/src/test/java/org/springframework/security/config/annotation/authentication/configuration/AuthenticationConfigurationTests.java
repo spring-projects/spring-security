@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,8 +34,10 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,6 +53,7 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.config.users.AuthenticationTestConfiguration;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -62,6 +65,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -129,7 +133,8 @@ public class AuthenticationConfigurationTests {
 
 	@Test
 	public void getAuthenticationWhenGlobalAuthenticationConfigurerAdapterThenAuthenticates() throws Exception {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				UserGlobalAuthenticationConfigurerAdapter.class).autowire();
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
@@ -139,7 +144,8 @@ public class AuthenticationConfigurationTests {
 
 	@Test
 	public void getAuthenticationWhenAuthenticationManagerBeanThenAuthenticates() throws Exception {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("user", "password");
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.unauthenticated("user",
+				"password");
 		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
 				AuthenticationManagerBeanConfig.class).autowire();
 		AuthenticationManager authentication = this.spring.getContext().getBean(AuthenticationConfiguration.class)
@@ -165,9 +171,9 @@ public class AuthenticationConfigurationTests {
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new ConfiguresInMemoryConfigurerAdapter(),
 				new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
-				() -> authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password")));
+		authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(() -> authenticationManager
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("boot", "password")));
 	}
 
 	@Test
@@ -176,7 +182,7 @@ public class AuthenticationConfigurationTests {
 		AuthenticationConfiguration config = this.spring.getContext().getBean(AuthenticationConfiguration.class);
 		config.setGlobalAuthenticationConfigurers(Arrays.asList(new BootGlobalAuthenticationConfigurerAdapter()));
 		AuthenticationManager authenticationManager = config.getAuthenticationManager();
-		authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("boot", "password"));
+		authenticationManager.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("boot", "password"));
 	}
 
 	// gh-2531
@@ -206,9 +212,9 @@ public class AuthenticationConfigurationTests {
 		AuthenticationManager am = this.spring.getContext().getBean(AuthenticationConfiguration.class)
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(PasswordEncodedUser.user(), PasswordEncodedUser.user());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "invalid")));
 	}
 
 	@Test
@@ -221,9 +227,9 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(uds.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
-		assertThatExceptionOfType(AuthenticationException.class)
-				.isThrownBy(() -> am.authenticate(new UsernamePasswordAuthenticationToken("user", "invalid")));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(
+				() -> am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "invalid")));
 	}
 
 	@Test
@@ -237,7 +243,7 @@ public class AuthenticationConfigurationTests {
 		given(manager.loadUserByUsername("user")).willReturn(User.withUserDetails(user).build(),
 				User.withUserDetails(user).build());
 		given(manager.updatePassword(any(), any())).willReturn(user);
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		verify(manager).updatePassword(eq(user), startsWith("{bcrypt}"));
 	}
 
@@ -250,7 +256,7 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 	}
 
 	// gh-3091
@@ -262,7 +268,7 @@ public class AuthenticationConfigurationTests {
 				.getAuthenticationManager();
 		given(ap.supports(any())).willReturn(true);
 		given(ap.authenticate(any())).willReturn(TestAuthentication.authenticatedUser());
-		am.authenticate(new UsernamePasswordAuthenticationToken("user", "password"));
+		am.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 	}
 
 	@Test
@@ -294,16 +300,41 @@ public class AuthenticationConfigurationTests {
 		assertThatExceptionOfType(AlreadyBuiltException.class).isThrownBy(ap::build);
 	}
 
+	@Test
+	public void configureWhenDefaultsThenDefaultAuthenticationEventPublisher() {
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class).autowire();
+		AuthenticationManagerBuilder authenticationManagerBuilder = this.spring.getContext()
+				.getBean(AuthenticationManagerBuilder.class);
+		AuthenticationEventPublisher eventPublisher = (AuthenticationEventPublisher) ReflectionTestUtils
+				.getField(authenticationManagerBuilder, "eventPublisher");
+		assertThat(eventPublisher).isInstanceOf(DefaultAuthenticationEventPublisher.class);
+	}
+
+	@Test
+	public void configureWhenCustomAuthenticationEventPublisherThenCustomAuthenticationEventPublisher() {
+		this.spring.register(AuthenticationConfiguration.class, ObjectPostProcessorConfiguration.class,
+				CustomAuthenticationEventPublisherConfig.class).autowire();
+		AuthenticationManagerBuilder authenticationManagerBuilder = this.spring.getContext()
+				.getBean(AuthenticationManagerBuilder.class);
+		AuthenticationEventPublisher eventPublisher = (AuthenticationEventPublisher) ReflectionTestUtils
+				.getField(authenticationManagerBuilder, "eventPublisher");
+		assertThat(eventPublisher)
+				.isInstanceOf(CustomAuthenticationEventPublisherConfig.MyAuthenticationEventPublisher.class);
+	}
+
+	@Configuration
 	@EnableGlobalMethodSecurity(securedEnabled = true)
 	static class GlobalMethodSecurityAutowiredConfig {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfig {
 
 	}
 
+	@Configuration
 	@EnableWebMvcSecurity
 	static class WebMvcSecurityConfig {
 
@@ -342,6 +373,30 @@ public class AuthenticationConfigurationTests {
 		@Bean
 		Service service() {
 			return new ServiceImpl();
+		}
+
+	}
+
+	@Configuration
+	static class CustomAuthenticationEventPublisherConfig {
+
+		@Bean
+		AuthenticationEventPublisher eventPublisher() {
+			return new MyAuthenticationEventPublisher();
+		}
+
+		static class MyAuthenticationEventPublisher implements AuthenticationEventPublisher {
+
+			@Override
+			public void publishAuthenticationSuccess(Authentication authentication) {
+
+			}
+
+			@Override
+			public void publishAuthenticationFailure(AuthenticationException exception, Authentication authentication) {
+
+			}
+
 		}
 
 	}

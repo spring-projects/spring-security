@@ -20,17 +20,12 @@ import java.util.Collections;
 import java.util.Locale;
 
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
@@ -131,12 +126,6 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).isEmpty();
 	}
 
-	@Test
-	public void generatingPageWithOpenIdFilterOnlyIsSuccessFul() throws Exception {
-		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(new MockProcessingFilter());
-		filter.doFilter(new MockHttpServletRequest("GET", "/login"), new MockHttpServletResponse(), this.chain);
-	}
-
 	/* SEC-1111 */
 	@Test
 	public void handlesNonIso8859CharsInErrorMessage() throws Exception {
@@ -178,25 +167,6 @@ public class DefaultLoginPageGeneratingFilterTests {
 		assertThat(response.getContentAsString()).contains("Login with SAML 2.0");
 		assertThat(response.getContentAsString())
 				.contains("<a href=\"/saml/sso/google\">Google &lt; &gt; &quot; &#39; &amp;</a>");
-	} // Fake OpenID filter (since it's not in this module
-
-	@SuppressWarnings("unused")
-	private static class MockProcessingFilter extends AbstractAuthenticationProcessingFilter {
-
-		MockProcessingFilter() {
-			super("/someurl");
-		}
-
-		@Override
-		public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
-				throws AuthenticationException {
-			return null;
-		}
-
-		String getClaimedIdentityFieldName() {
-			return "unused";
-		}
-
 	}
 
 }

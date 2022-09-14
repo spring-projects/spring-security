@@ -2,7 +2,7 @@ buildscript {
 	dependencies {
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.10'
-		classpath "io.freefair.gradle:aspectj-plugin:6.3.0"
+		classpath "io.freefair.gradle:aspectj-plugin:6.5.0.3"
 		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
 		classpath "com.netflix.nebula:nebula-project-plugin:8.2.0"
 	}
@@ -19,6 +19,7 @@ apply plugin: 'io.spring.convention.root'
 apply plugin: 'io.spring.convention.include-check-remote'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
+apply plugin: 'org.springframework.security.update-version'
 apply plugin: 'org.springframework.security.sagan'
 apply plugin: 'org.springframework.github.milestone'
 apply plugin: 'org.springframework.github.changelog'
@@ -36,7 +37,7 @@ repositories {
 }
 
 tasks.named("saganCreateRelease") {
-	referenceDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/reference/html5/"
+	referenceDocUrl = "https://docs.spring.io/spring-security/reference/{version}/index.html"
 	apiDocUrl = "https://docs.spring.io/spring-security/site/docs/{version}/api/"
 }
 
@@ -47,7 +48,37 @@ tasks.named("gitHubCheckMilestoneHasNoOpenIssues") {
 	}
 }
 
+tasks.named("gitHubNextReleaseMilestone") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("gitHubCheckNextVersionDueToday") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("scheduleNextRelease") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+	weekOfMonth = 3
+	dayOfWeek = 1
+}
+
 tasks.named("createGitHubRelease") {
+	repository {
+		owner = "spring-projects"
+		name = "spring-security"
+	}
+}
+
+tasks.named("dispatchGitHubWorkflow") {
 	repository {
 		owner = "spring-projects"
 		name = "spring-security"
@@ -72,16 +103,8 @@ updateDependenciesSettings {
 	dependencyExcludes {
 		majorVersionBump()
 		alphaBetaVersions()
-		releaseCandidatesVersions()
-		milestoneVersions()
 		snapshotVersions()
 		addRule { components ->
-			components.withModule("commons-codec:commons-codec") { selection ->
-				ModuleComponentIdentifier candidate = selection.getCandidate();
-				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
-					selection.reject("commons-codec updates break saml tests");
-				}
-			}
 			components.withModule("org.python:jython") { selection ->
 				ModuleComponentIdentifier candidate = selection.getCandidate();
 				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
@@ -141,6 +164,12 @@ allprojects {
 			}
 		}
 	}
+
+	tasks.withType(JavaCompile).configureEach {
+		javaCompiler = javaToolchains.compilerFor {
+			languageVersion = JavaLanguageVersion.of(17)
+		}
+	}
 }
 
 if (hasProperty('buildScan')) {
@@ -160,6 +189,11 @@ tasks.register('checkSamples') {
 	includeCheckRemote {
 		repository = 'spring-projects/spring-security-samples'
 		ref = samplesBranch
+		buildScan = true
+		if (project.hasProperty("samplesInitScript")) {
+			initScripts = [samplesInitScript]
+			projectProperties = ["localRepositoryPath": localRepositoryPath, "springSecurityVersion": project.version]
+		}
 	}
 	dependsOn checkRemote
 }

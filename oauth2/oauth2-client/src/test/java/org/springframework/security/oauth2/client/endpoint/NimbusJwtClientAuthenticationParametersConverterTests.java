@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -81,6 +81,12 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 	public void convertWhenAuthorizationGrantRequestNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.convert(null))
 				.withMessage("authorizationGrantRequest cannot be null");
+	}
+
+	@Test
+	public void setJwtClientAssertionCustomizerWhenNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setJwtClientAssertionCustomizer(null))
+				.withMessage("jwtClientAssertionCustomizer cannot be null");
 	}
 
 	@Test
@@ -177,6 +183,51 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		assertThat(jws.getId()).isNotNull();
 		assertThat(jws.getIssuedAt()).isNotNull();
 		assertThat(jws.getExpiresAt()).isNotNull();
+	}
+
+	@Test
+	public void convertWhenJwtClientAssertionCustomizerSetThenUsed() {
+		OctetSequenceKey secretJwk = TestJwks.DEFAULT_SECRET_JWK;
+		given(this.jwkResolver.apply(any())).willReturn(secretJwk);
+
+		String headerName = "custom-header";
+		String headerValue = "header-value";
+		String claimName = "custom-claim";
+		String claimValue = "claim-value";
+		this.converter.setJwtClientAssertionCustomizer((context) -> {
+			context.getHeaders().header(headerName, headerValue);
+			context.getClaims().claim(claimName, claimValue);
+		});
+
+		// @formatter:off
+		ClientRegistration clientRegistration = TestClientRegistrations.clientCredentials()
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT)
+				.build();
+		// @formatter:on
+
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		MultiValueMap<String, String> parameters = this.converter.convert(clientCredentialsGrantRequest);
+
+		assertThat(parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION_TYPE))
+				.isEqualTo("urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+		String encodedJws = parameters.getFirst(OAuth2ParameterNames.CLIENT_ASSERTION);
+		assertThat(encodedJws).isNotNull();
+
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(secretJwk.toSecretKey()).build();
+		Jwt jws = jwtDecoder.decode(encodedJws);
+
+		assertThat(jws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(MacAlgorithm.HS256.getName());
+		assertThat(jws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(secretJwk.getKeyID());
+		assertThat(jws.getHeaders().get(headerName)).isEqualTo(headerValue);
+		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
+		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
+		assertThat(jws.getAudience())
+				.isEqualTo(Collections.singletonList(clientRegistration.getProviderDetails().getTokenUri()));
+		assertThat(jws.getId()).isNotNull();
+		assertThat(jws.getIssuedAt()).isNotNull();
+		assertThat(jws.getExpiresAt()).isNotNull();
+		assertThat(jws.getClaimAsString(claimName)).isEqualTo(claimValue);
 	}
 
 	// gh-9814

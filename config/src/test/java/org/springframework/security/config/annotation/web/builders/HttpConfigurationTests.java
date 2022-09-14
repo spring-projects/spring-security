@@ -22,12 +22,12 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -73,6 +73,7 @@ public class HttpConfigurationTests {
 		this.mockMvc.perform(get("/api/b")).andExpect(status().isUnauthorized());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UnregisteredFilterConfig extends WebSecurityConfigurerAdapter {
 
@@ -105,6 +106,7 @@ public class HttpConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequestMatcherRegistryConfigs extends WebSecurityConfigurerAdapter {
 

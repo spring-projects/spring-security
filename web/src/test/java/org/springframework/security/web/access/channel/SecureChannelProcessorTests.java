@@ -17,7 +17,6 @@
 package org.springframework.security.web.access.channel;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;

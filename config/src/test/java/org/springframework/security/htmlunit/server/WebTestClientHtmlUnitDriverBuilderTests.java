@@ -74,7 +74,7 @@ public class WebTestClientHtmlUnitDriverBuilderTests {
 	class HelloWorldController {
 
 		@ResponseBody
-		@GetMapping(produces = MediaType.TEXT_HTML_VALUE)
+		@GetMapping(path = "/", produces = MediaType.TEXT_HTML_VALUE)
 		String index() {
 			// @formatter:off
 			return "<html>\n"

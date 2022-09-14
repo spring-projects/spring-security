@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package org.springframework.security.web.csrf;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -41,6 +40,8 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final CsrfTokenRepository csrfTokenRepository;
 
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestProcessor();
+
 	/**
 	 * Creates a new instance
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
@@ -48,6 +49,16 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	public CsrfAuthenticationStrategy(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.csrfTokenRepository = csrfTokenRepository;
+	}
+
+	/**
+	 * Specify a {@link CsrfTokenRequestAttributeHandler} to use for making the
+	 * {@code CsrfToken} available as a request attribute.
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 */
+	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
+		this.requestAttributeHandler = requestAttributeHandler;
 	}
 
 	@Override
@@ -58,8 +69,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 			this.csrfTokenRepository.saveToken(null, request, response);
 			CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
 			this.csrfTokenRepository.saveToken(newToken, request, response);
-			request.setAttribute(CsrfToken.class.getName(), newToken);
-			request.setAttribute(newToken.getParameterName(), newToken);
+			this.requestAttributeHandler.handle(request, response, () -> newToken);
 			this.logger.debug("Replaced CSRF Token");
 		}
 	}

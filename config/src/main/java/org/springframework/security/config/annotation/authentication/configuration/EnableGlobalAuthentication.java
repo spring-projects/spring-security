@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -39,10 +38,19 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * &#064;EnableGlobalAuthentication
  * public class MyGlobalAuthenticationConfiguration {
  *
- * 	&#064;Autowired
- * 	public void configureGlobal(AuthenticationManagerBuilder auth) {
- * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
- * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;user&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		UserDetails admin = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;admin&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user, admin);
  * 	}
  * }
  * </pre>
@@ -54,15 +62,24 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
  * <pre class="code">
  * &#064;Configuration
  * &#064;EnableWebSecurity
- * public class MyWebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+ * public class MyWebSecurityConfiguration {
  *
- * 	&#064;Autowired
- * 	public void configureGlobal(AuthenticationManagerBuilder auth) {
- * 		auth.inMemoryAuthentication().withUser(&quot;user&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;)
- * 				.and().withUser(&quot;admin&quot;).password(&quot;password&quot;).roles(&quot;USER&quot;, &quot;ADMIN&quot;);
+ * 	&#064;Bean
+ * 	public UserDetailsService userDetailsService() {
+ * 		UserDetails user = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;user&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;USER&quot;)
+ * 			.build();
+ * 		UserDetails admin = User.withDefaultPasswordEncoder()
+ * 			.username(&quot;admin&quot;)
+ * 			.password(&quot;password&quot;)
+ * 			.roles(&quot;ADMIN&quot;, &quot;USER&quot;)
+ * 			.build();
+ * 		return new InMemoryUserDetailsManager(user, admin);
  * 	}
  *
- * 	// Possibly overridden methods ...
+ * 	// Possibly more bean methods ...
  * }
  * </pre>
  *
@@ -88,7 +105,6 @@ import org.springframework.security.config.annotation.web.servlet.configuration.
 @Target(ElementType.TYPE)
 @Documented
 @Import(AuthenticationConfiguration.class)
-@Configuration
 public @interface EnableGlobalAuthentication {
 
 }

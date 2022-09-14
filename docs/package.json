@@ -1,0 +1,8 @@
+{
+  "name": "spring-security-docs-antora",
+  "private": true,
+  "dependencies": {
+    "@antora/cli": "^3.1.0",
+    "@antora/site-generator-default": "^3.1.0"
+  }
+}

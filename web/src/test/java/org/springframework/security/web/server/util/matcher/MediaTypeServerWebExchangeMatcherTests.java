@@ -44,6 +44,11 @@ public class MediaTypeServerWebExchangeMatcherTests {
 	}
 
 	@Test
+	public void constructorListOfDoesNotThrowNullPointerException() {
+		new MediaTypeServerWebExchangeMatcher(List.of(MediaType.ALL));
+	}
+
+	@Test
 	public void constructorMediaTypeArrayWhenContainsNullThenThrowsIllegalArgumentException() {
 		MediaType[] types = { null };
 		assertThatIllegalArgumentException().isThrownBy(() -> new MediaTypeServerWebExchangeMatcher(types));

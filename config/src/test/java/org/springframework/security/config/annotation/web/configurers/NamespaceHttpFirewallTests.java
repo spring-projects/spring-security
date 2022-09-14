@@ -17,12 +17,12 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -34,8 +34,8 @@ import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Tests to verify that all the functionality of &lt;http-firewall&gt; attributes is
@@ -53,31 +53,30 @@ public class NamespaceHttpFirewallTests {
 	MockMvc mvc;
 
 	@Test
-	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() {
+	public void requestWhenPathContainsDoubleDotsThenBehaviorMatchesNamespace() throws Exception {
 		this.rule.register(HttpFirewallConfig.class).autowire();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/public/../private/")));
+		this.mvc.perform(get("/public/../private/")).andExpect(status().isBadRequest());
 	}
 
 	@Test
-	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() {
+	public void requestWithCustomFirewallThenBehaviorMatchesNamespace() throws Exception {
 		this.rule.register(CustomHttpFirewallConfig.class).autowire();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
+		this.mvc.perform(get("/").param("deny", "true")).andExpect(status().isBadRequest());
 	}
 
 	@Test
-	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() {
+	public void requestWithCustomFirewallBeanThenBehaviorMatchesNamespace() throws Exception {
 		this.rule.register(CustomHttpFirewallBeanConfig.class).autowire();
-		assertThatExceptionOfType(RequestRejectedException.class)
-				.isThrownBy(() -> this.mvc.perform(get("/").param("deny", "true")));
+		this.mvc.perform(get("/").param("deny", "true")).andExpect(status().isBadRequest());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpFirewallConfig {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
 
@@ -88,6 +87,7 @@ public class NamespaceHttpFirewallTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomHttpFirewallBeanConfig {
 

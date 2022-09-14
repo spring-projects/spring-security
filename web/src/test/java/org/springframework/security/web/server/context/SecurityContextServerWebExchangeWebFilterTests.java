@@ -49,11 +49,11 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 		Mono<Void> result = this.filter
 				.filter(this.exchange, new DefaultWebFilterChain((e) -> e.getPrincipal()
 						.doOnSuccess((contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
-						.flatMap((contextPrincipal) -> Mono.subscriberContext())
+						.flatMap((contextPrincipal) -> Mono.deferContextual(Mono::just))
 						.doOnSuccess((context) -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then(),
 						Collections.emptyList()))
-				.subscriberContext((context) -> context.put("foo", "bar"))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+				.contextWrite((context) -> context.put("foo", "bar"))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
 	}
 
@@ -65,7 +65,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 								.doOnSuccess(
 										(contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
 								.then(), Collections.emptyList()))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
 	}
 

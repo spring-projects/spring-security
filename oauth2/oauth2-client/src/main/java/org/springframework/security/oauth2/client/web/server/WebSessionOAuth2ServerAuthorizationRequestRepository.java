@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package org.springframework.security.oauth2.client.web.server;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import reactor.core.publisher.Mono;
@@ -47,8 +46,6 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 
 	private final String sessionAttributeName = DEFAULT_AUTHORIZATION_REQUEST_ATTR_NAME;
 
-	private boolean allowMultipleAuthorizationRequests;
-
 	@Override
 	public Mono<OAuth2AuthorizationRequest> loadAuthorizationRequest(ServerWebExchange exchange) {
 		String state = getStateParameter(exchange);
@@ -56,11 +53,10 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 			return Mono.empty();
 		}
 		// @formatter:off
-		return this.getSessionAttributes(exchange)
+		return getSessionAttributes(exchange)
 				.filter((sessionAttrs) -> sessionAttrs.containsKey(this.sessionAttributeName))
-				.map(this::getAuthorizationRequests)
-				.filter((stateToAuthorizationRequest) -> stateToAuthorizationRequest.containsKey(state))
-				.map((stateToAuthorizationRequest) -> stateToAuthorizationRequest.get(state));
+				.map(this::getAuthorizationRequest)
+				.filter((authorizationRequest) -> state.equals(authorizationRequest.getState()));
 		// @formatter:on
 	}
 
@@ -72,15 +68,8 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		// @formatter:off
 		return getSessionAttributes(exchange)
 				.doOnNext((sessionAttrs) -> {
-					if (this.allowMultipleAuthorizationRequests) {
-						Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(
-								sessionAttrs);
-						authorizationRequests.put(authorizationRequest.getState(), authorizationRequest);
-						sessionAttrs.put(this.sessionAttributeName, authorizationRequests);
-					}
-					else {
-						sessionAttrs.put(this.sessionAttributeName, authorizationRequest);
-					}
+					Assert.hasText(authorizationRequest.getState(), "authorizationRequest.state cannot be empty");
+					sessionAttrs.put(this.sessionAttributeName, authorizationRequest);
 				})
 				.then();
 		// @formatter:on
@@ -94,20 +83,14 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		}
 		// @formatter:off
 		return getSessionAttributes(exchange)
+				.filter((sessionAttrs) -> sessionAttrs.containsKey(this.sessionAttributeName))
 				.flatMap((sessionAttrs) -> {
-					Map<String, OAuth2AuthorizationRequest> authorizationRequests = this.getAuthorizationRequests(
-							sessionAttrs);
-					OAuth2AuthorizationRequest originalRequest = authorizationRequests.remove(state);
-					if (authorizationRequests.isEmpty()) {
+					OAuth2AuthorizationRequest authorizationRequest = (OAuth2AuthorizationRequest) sessionAttrs.get(this.sessionAttributeName);
+					if (state.equals(authorizationRequest.getState())) {
 						sessionAttrs.remove(this.sessionAttributeName);
+						return Mono.just(authorizationRequest);
 					}
-					else if (authorizationRequests.size() == 1) {
-						sessionAttrs.put(this.sessionAttributeName, authorizationRequests.values().iterator().next());
-					}
-					else {
-						sessionAttrs.put(this.sessionAttributeName, authorizationRequests);
-					}
-					return Mono.justOrEmpty(originalRequest);
+					return Mono.empty();
 				});
 		// @formatter:on
 	}
@@ -126,41 +109,8 @@ public final class WebSessionOAuth2ServerAuthorizationRequestRepository
 		return exchange.getSession().map(WebSession::getAttributes);
 	}
 
-	private Map<String, OAuth2AuthorizationRequest> getAuthorizationRequests(Map<String, Object> sessionAttrs) {
-		Object sessionAttributeValue = sessionAttrs.get(this.sessionAttributeName);
-		if (sessionAttributeValue == null) {
-			return new HashMap<>();
-		}
-		else if (sessionAttributeValue instanceof OAuth2AuthorizationRequest) {
-			OAuth2AuthorizationRequest oauth2AuthorizationRequest = (OAuth2AuthorizationRequest) sessionAttributeValue;
-			Map<String, OAuth2AuthorizationRequest> authorizationRequests = new HashMap<>(1);
-			authorizationRequests.put(oauth2AuthorizationRequest.getState(), oauth2AuthorizationRequest);
-			return authorizationRequests;
-		}
-		else if (sessionAttributeValue instanceof Map) {
-			@SuppressWarnings("unchecked")
-			Map<String, OAuth2AuthorizationRequest> authorizationRequests = (Map<String, OAuth2AuthorizationRequest>) sessionAttrs
-					.get(this.sessionAttributeName);
-			return authorizationRequests;
-		}
-		else {
-			throw new IllegalStateException(
-					"authorizationRequests is supposed to be a Map or OAuth2AuthorizationRequest but actually is a "
-							+ sessionAttributeValue.getClass());
-		}
-	}
-
-	/**
-	 * Configure if multiple {@link OAuth2AuthorizationRequest}s should be stored per
-	 * session. Default is false (not allow multiple {@link OAuth2AuthorizationRequest}
-	 * per session).
-	 * @param allowMultipleAuthorizationRequests true allows more than one
-	 * {@link OAuth2AuthorizationRequest} to be stored per session.
-	 * @since 5.5
-	 */
-	@Deprecated
-	public void setAllowMultipleAuthorizationRequests(boolean allowMultipleAuthorizationRequests) {
-		this.allowMultipleAuthorizationRequests = allowMultipleAuthorizationRequests;
+	private OAuth2AuthorizationRequest getAuthorizationRequest(Map<String, Object> sessionAttrs) {
+		return (OAuth2AuthorizationRequest) sessionAttrs.get(this.sessionAttributeName);
 	}
 
 }

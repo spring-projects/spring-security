@@ -111,6 +111,9 @@ public class Saml2LogoutRequestFilterTests {
 		String content = response.getContentAsString();
 		assertThat(content).contains(Saml2ParameterNames.SAML_RESPONSE);
 		assertThat(content).contains(registration.getAssertingPartyDetails().getSingleLogoutServiceResponseLocation());
+		assertThat(content).contains(
+				"<meta http-equiv=\"Content-Security-Policy\" content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">");
+		assertThat(content).contains("<script>window.onload = () => document.forms[0].submit();</script>");
 	}
 
 	@Test

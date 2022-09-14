@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,28 +20,31 @@ import java.util.Collections;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
@@ -55,6 +58,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -100,7 +104,8 @@ public class RememberMeConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenInvokedOnRememberMeAuthenticationFilter() {
 		this.spring.register(ObjectPostProcessorConfig.class).autowire();
-		verify(ObjectPostProcessorConfig.objectPostProcessor).postProcess(any(RememberMeAuthenticationFilter.class));
+		verify(this.spring.getContext().getBean(ObjectPostProcessor.class))
+				.postProcess(any(RememberMeAuthenticationFilter.class));
 	}
 
 	@Test
@@ -115,6 +120,35 @@ public class RememberMeConfigurerTests {
 		// @formatter:on
 		this.mvc.perform(request);
 		verify(DuplicateDoesNotOverrideConfig.userDetailsService).loadUserByUsername("user");
+	}
+
+	@Test
+	public void rememberMeWhenUserDetailsServiceNotConfiguredThenUsesBean() throws Exception {
+		this.spring.register(UserDetailsServiceBeanConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
+		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(remembermeAuthentication);
+	}
+
+	@Test
+	public void rememberMeWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(UserDetailsServiceBeanConfig.class, SecurityContextChangedListenerConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
+		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(remembermeAuthentication);
+		verify(this.spring.getContext().getBean(SecurityContextHolderStrategy.class), atLeastOnce()).getContext();
 	}
 
 	@Test
@@ -269,6 +303,7 @@ public class RememberMeConfigurerTests {
 		this.mvc.perform(requestWithRememberme).andExpect(remembermeAuthentication);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
 
@@ -298,17 +333,18 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
-		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
+		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
-					.userDetailsService(new AuthenticationManagerBuilder(objectPostProcessor).getDefaultUserDetailsService());
+					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService());
 			// @formatter:on
 		}
 
@@ -321,8 +357,8 @@ public class RememberMeConfigurerTests {
 		}
 
 		@Bean
-		static ObjectPostProcessor<Object> objectPostProcessor() {
-			return objectPostProcessor;
+		ObjectPostProcessor<Object> objectPostProcessor() {
+			return this.objectPostProcessor;
 		}
 
 	}
@@ -336,6 +372,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -370,6 +407,28 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
+	@EnableWebSecurity
+	static class UserDetailsServiceBeanConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService customUserDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+	}
+
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
 
@@ -397,6 +456,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -424,6 +484,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
 
@@ -452,6 +513,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -482,6 +544,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RememberMeCookieNameAndRememberMeServicesConfig extends WebSecurityConfigurerAdapter {
 
@@ -514,6 +577,7 @@ public class RememberMeConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FallbackRememberMeKeyConfig extends RememberMeConfig {
 

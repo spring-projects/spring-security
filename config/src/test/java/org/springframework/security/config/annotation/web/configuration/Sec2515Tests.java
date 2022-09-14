@@ -24,6 +24,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.FatalBeanException;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.test.SpringTestContext;
@@ -72,6 +73,7 @@ public class Sec2515Tests {
 		this.spring.register(SecurityConfig.class).autowire();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class StackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -83,6 +85,7 @@ public class Sec2515Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomBeanNameStackOverflowSecurityConfig extends WebSecurityConfigurerAdapter {
 
@@ -94,6 +97,7 @@ public class Sec2515Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CanLoadWithChildConfig extends WebSecurityConfigurerAdapter {
 
@@ -107,6 +111,7 @@ public class Sec2515Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SecurityConfig extends WebSecurityConfigurerAdapter {
 

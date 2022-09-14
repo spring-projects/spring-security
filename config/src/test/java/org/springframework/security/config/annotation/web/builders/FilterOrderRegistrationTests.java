@@ -23,7 +23,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -53,7 +52,7 @@ public class FilterOrderRegistrationTests {
 
 	@Test
 	public void putWhenPredefinedFilterThenDoesNotOverride() {
-		int position = 100;
+		int position = 300;
 		Integer predefinedFilterOrderBefore = this.filterOrderRegistration.getOrder(ChannelProcessingFilter.class);
 		this.filterOrderRegistration.put(MyFilter.class, position);
 		Integer myFilterOrder = this.filterOrderRegistration.getOrder(MyFilter.class);

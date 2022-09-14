@@ -74,7 +74,7 @@ public class LogoutWebFilter implements WebFilter {
 		logger.debug(LogMessage.format("Logging out user '%s' and transferring to logout destination", authentication));
 		return this.logoutHandler.logout(webFilterExchange, authentication)
 				.then(this.logoutSuccessHandler.onLogoutSuccess(webFilterExchange, authentication))
-				.subscriberContext(ReactiveSecurityContextHolder.clearContext());
+				.contextWrite(ReactiveSecurityContextHolder.clearContext());
 	}
 
 	/**

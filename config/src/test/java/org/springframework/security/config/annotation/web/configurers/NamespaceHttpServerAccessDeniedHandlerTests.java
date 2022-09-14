@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,12 +18,12 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -97,13 +97,14 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 	}
 
 	private static Authentication user() {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.NO_AUTHORITIES);
+		return UsernamePasswordAuthenticationToken.authenticated("user", null, AuthorityUtils.NO_AUTHORITIES);
 	}
 
 	private <T> T verifyBean(Class<T> beanClass) {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedPageConfig extends WebSecurityConfigurerAdapter {
 
@@ -121,6 +122,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedPageInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -140,6 +142,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -162,6 +165,7 @@ public class NamespaceHttpServerAccessDeniedHandlerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerRefInLambdaConfig extends WebSecurityConfigurerAdapter {
 

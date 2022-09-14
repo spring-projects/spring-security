@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.web.util.matcher;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -94,10 +93,10 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**/{id}");
 		assertThat(matcher.matches(createRequest("/blah/1234"))).isTrue();
 		assertThat(matcher.matches(createRequest("/bleh/4567"))).isTrue();
-		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/blah/"))).isFalse();
 		assertThat(matcher.matches(createRequest("/12345/blah/xxx"))).isTrue();
 		assertThat(matcher.matches(createRequest("/12345/blaha"))).isTrue();
-		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isTrue();
+		assertThat(matcher.matches(createRequest("/paskos/bleh/"))).isFalse();
 	}
 
 	@Test

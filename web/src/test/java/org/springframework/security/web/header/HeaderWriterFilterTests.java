@@ -23,7 +23,6 @@ import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -38,7 +37,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 /**
  * Tests for the {@code HeadersFilter}
@@ -92,7 +90,7 @@ public class HeaderWriterFilterTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, (request1, response1) -> {
-			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
+			verifyNoMoreInteractions(HeaderWriterFilterTests.this.writer1);
 			response1.flushBuffer();
 			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(any(HttpServletRequest.class),
 					any(HttpServletResponse.class));
@@ -107,7 +105,7 @@ public class HeaderWriterFilterTests {
 		MockHttpServletRequest mockRequest = new MockHttpServletRequest();
 		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
 		filter.doFilter(mockRequest, mockResponse, (request, response) -> {
-			verifyZeroInteractions(HeaderWriterFilterTests.this.writer1);
+			verifyNoMoreInteractions(HeaderWriterFilterTests.this.writer1);
 			request.getRequestDispatcher("/").include(request, response);
 			verify(HeaderWriterFilterTests.this.writer1).writeHeaders(any(HttpServletRequest.class),
 					any(HttpServletResponse.class));

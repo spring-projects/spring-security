@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ final class MockWebResponseBuilder {
 
 	private WebResponseData webResponseData() {
 		List<NameValuePair> responseHeaders = responseHeaders();
-		HttpStatus status = this.exchangeResult.getStatus();
+		HttpStatus status = HttpStatus.resolve(this.exchangeResult.getStatus().value());
 		return new WebResponseData(this.exchangeResult.getResponseBodyContent(), status.value(),
 				status.getReasonPhrase(), responseHeaders);
 	}

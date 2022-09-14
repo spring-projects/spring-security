@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.List;
 
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -49,6 +50,9 @@ public interface MethodSecurityService {
 	@PermitAll
 	String jsr250PermitAll();
 
+	@RolesAllowed("ADMIN")
+	String jsr250RolesAllowed();
+
 	@Secured({ "ROLE_USER", "RUN_AS_SUPER" })
 	Authentication runAs();
 
@@ -72,6 +76,12 @@ public interface MethodSecurityService {
 
 	@PostAuthorize("#o?.contains('grant')")
 	String postAnnotation(@P("o") String object);
+
+	@PreFilter("filterObject == authentication.name")
+	List<String> preFilterByUsername(List<String> array);
+
+	@PostFilter("filterObject == authentication.name")
+	List<String> postFilterByUsername(List<String> array);
 
 	@PreFilter("filterObject.length > 3")
 	@PreAuthorize("hasRole('ADMIN')")

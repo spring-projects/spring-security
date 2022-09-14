@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import java.io.Serializable;
 import java.nio.charset.Charset;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
 
@@ -31,16 +34,22 @@ import org.springframework.util.Assert;
  * (line 2031)
  *
  * @since 5.3
- * @see Saml2AuthenticationRequestFactory#createPostAuthenticationRequest(Saml2AuthenticationRequestContext)
- * @see Saml2AuthenticationRequestFactory#createRedirectAuthenticationRequest(Saml2AuthenticationRequestContext)
+ * @see Saml2PostAuthenticationRequest
+ * @see Saml2RedirectAuthenticationRequest
  */
-public abstract class AbstractSaml2AuthenticationRequest {
+public abstract class AbstractSaml2AuthenticationRequest implements Serializable {
+
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final String samlRequest;
 
 	private final String relayState;
 
 	private final String authenticationRequestUri;
+
+	private final String relyingPartyRegistrationId;
+
+	private final String id;
 
 	/**
 	 * Mandatory constructor for the {@link AbstractSaml2AuthenticationRequest}
@@ -49,13 +58,20 @@ public abstract class AbstractSaml2AuthenticationRequest {
 	 * @param relayState - RelayState value that accompanies the request, may be null
 	 * @param authenticationRequestUri - The authenticationRequestUri, a URL, where to
 	 * send the XML message, cannot be empty or null
+	 * @param relyingPartyRegistrationId the registration id of the relying party, may be
+	 * null
+	 * @param id This is the unique id used in the {@link #samlRequest}, cannot be empty
+	 * or null
 	 */
-	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri) {
+	AbstractSaml2AuthenticationRequest(String samlRequest, String relayState, String authenticationRequestUri,
+			String relyingPartyRegistrationId, String id) {
 		Assert.hasText(samlRequest, "samlRequest cannot be null or empty");
 		Assert.hasText(authenticationRequestUri, "authenticationRequestUri cannot be null or empty");
 		this.authenticationRequestUri = authenticationRequestUri;
 		this.samlRequest = samlRequest;
 		this.relayState = relayState;
+		this.relyingPartyRegistrationId = relyingPartyRegistrationId;
+		this.id = id;
 	}
 
 	/**
@@ -86,6 +102,25 @@ public abstract class AbstractSaml2AuthenticationRequest {
 	}
 
 	/**
+	 * The identifier for the {@link RelyingPartyRegistration} associated with this
+	 * request
+	 * @return the {@link RelyingPartyRegistration} id
+	 * @since 5.8
+	 */
+	public String getRelyingPartyRegistrationId() {
+		return this.relyingPartyRegistrationId;
+	}
+
+	/**
+	 * The unique identifier for this Authentication Request
+	 * @return the Authentication Request identifier
+	 * @since 5.8
+	 */
+	public String getId() {
+		return this.id;
+	}
+
+	/**
 	 * Returns the binding this AuthNRequest will be sent and encoded with. If
 	 * {@link Saml2MessageBinding#REDIRECT} is used, the DEFLATE encoding will be
 	 * automatically applied.
@@ -104,7 +139,24 @@ public abstract class AbstractSaml2AuthenticationRequest {
 
 		String relayState;
 
+		String relyingPartyRegistrationId;
+
+		String id;
+
+		/**
+		 * @deprecated Use {@link #Builder(RelyingPartyRegistration)} instead
+		 */
+		@Deprecated
 		protected Builder() {
+		}
+
+		/**
+		 * Creates a new Builder with relying party registration
+		 * @param registration the registration of the relying party.
+		 * @sine 5.8
+		 */
+		protected Builder(RelyingPartyRegistration registration) {
+			this.relyingPartyRegistrationId = registration.getRegistrationId();
 		}
 
 		/**
@@ -145,6 +197,19 @@ public abstract class AbstractSaml2AuthenticationRequest {
 		 */
 		public T authenticationRequestUri(String authenticationRequestUri) {
 			this.authenticationRequestUri = authenticationRequestUri;
+			return _this();
+		}
+
+		/**
+		 * This is the unique id used in the {@link #samlRequest}
+		 * @param id the SAML2 request id
+		 * @return the {@link AbstractSaml2AuthenticationRequest.Builder} for further
+		 * configurations
+		 * @since 5.8
+		 */
+		public T id(String id) {
+			Assert.notNull(id, "id cannot be null");
+			this.id = id;
 			return _this();
 		}
 

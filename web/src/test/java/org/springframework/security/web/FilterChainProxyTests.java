@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,6 +35,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedException;
@@ -49,9 +49,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Luke Taylor
@@ -107,7 +108,7 @@ public class FilterChainProxyTests {
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		assertThat(this.fcp.getFilterChains()).hasSize(1);
 		assertThat(this.fcp.getFilterChains().get(0).getFilters().get(0)).isSameAs(this.filter);
-		verifyZeroInteractions(this.filter);
+		verifyNoMoreInteractions(this.filter);
 		// The actual filter chain should be invoked though
 		verify(this.chain).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
@@ -145,7 +146,7 @@ public class FilterChainProxyTests {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(false);
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(this.matcher).matches(any(FirewalledRequest.class));
-		verifyZeroInteractions(this.filter);
+		verifyNoMoreInteractions(this.filter);
 		verify(this.chain).doFilter(any(FirewalledRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -199,6 +200,15 @@ public class FilterChainProxyTests {
 	}
 
 	@Test
+	public void doFilterWhenCustomSecurityContextHolderStrategyClearsSecurityContext() throws Exception {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		this.fcp.setSecurityContextHolderStrategy(strategy);
+		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(strategy).clearContext();
+	}
+
+	@Test
 	public void doFilterClearsSecurityContextHolderWithException() throws Exception {
 		given(this.matcher.matches(any(HttpServletRequest.class))).willReturn(true);
 		willAnswer((Answer<Object>) (inv) -> {
@@ -248,6 +258,20 @@ public class FilterChainProxyTests {
 		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
 		given(fw.getFirewalledRequest(this.request)).willThrow(requestRejectedException);
+		this.fcp.doFilter(this.request, this.response, this.chain);
+		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
+	}
+
+	@Test
+	public void requestRejectedHandlerIsCalledIfFirewallThrowsWrappedRequestRejectedException() throws Exception {
+		HttpFirewall fw = mock(HttpFirewall.class);
+		RequestRejectedHandler rjh = mock(RequestRejectedHandler.class);
+		this.fcp.setFirewall(fw);
+		this.fcp.setRequestRejectedHandler(rjh);
+		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
+		ServletException servletException = new ServletException(requestRejectedException);
+		given(fw.getFirewalledRequest(this.request)).willReturn(mock(FirewalledRequest.class));
+		willThrow(servletException).given(this.chain).doFilter(any(), any());
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
 	}

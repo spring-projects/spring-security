@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.nimbusds.jose.jwk.JWK;
@@ -62,6 +63,7 @@ import org.springframework.util.MultiValueMap;
  *
  * @param <T> the type of {@link AbstractOAuth2AuthorizationGrantRequest}
  * @author Joe Grandja
+ * @author Steve Riesenberg
  * @since 5.5
  * @see Converter
  * @see com.nimbusds.jose.jwk.JWK
@@ -86,6 +88,9 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 	private final Function<ClientRegistration, JWK> jwkResolver;
 
 	private final Map<String, JwsEncoderHolder> jwsEncoders = new ConcurrentHashMap<>();
+
+	private Consumer<JwtClientAuthenticationContext<T>> jwtClientAssertionCustomizer = (context) -> {
+	};
 
 	/**
 	 * Constructs a {@code NimbusJwtClientAuthenticationParametersConverter} using the
@@ -142,6 +147,10 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 				.expiresAt(expiresAt);
 		// @formatter:on
 
+		JwtClientAuthenticationContext<T> jwtClientAssertionContext = new JwtClientAuthenticationContext<>(
+				authorizationGrantRequest, headersBuilder, claimsBuilder);
+		this.jwtClientAssertionCustomizer.accept(jwtClientAssertionContext);
+
 		JwsHeader jwsHeader = headersBuilder.build();
 		JwtClaimsSet jwtClaimsSet = claimsBuilder.build();
 
@@ -189,6 +198,21 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 		return jwsAlgorithm;
 	}
 
+	/**
+	 * Sets the {@link Consumer} to be provided the
+	 * {@link JwtClientAuthenticationContext}, which contains the
+	 * {@link JwsHeader.Builder} and {@link JwtClaimsSet.Builder} for further
+	 * customization.
+	 * @param jwtClientAssertionCustomizer the {@link Consumer} to be provided the
+	 * {@link JwtClientAuthenticationContext}
+	 * @since 5.7
+	 */
+	public void setJwtClientAssertionCustomizer(
+			Consumer<JwtClientAuthenticationContext<T>> jwtClientAssertionCustomizer) {
+		Assert.notNull(jwtClientAssertionCustomizer, "jwtClientAssertionCustomizer cannot be null");
+		this.jwtClientAssertionCustomizer = jwtClientAssertionCustomizer;
+	}
+
 	private static final class JwsEncoderHolder {
 
 		private final JwtEncoder jwsEncoder;
@@ -206,6 +230,61 @@ public final class NimbusJwtClientAuthenticationParametersConverter<T extends Ab
 
 		private JWK getJwk() {
 			return this.jwk;
+		}
+
+	}
+
+	/**
+	 * A context that holds client authentication-specific state and is used by
+	 * {@link NimbusJwtClientAuthenticationParametersConverter} when attempting to
+	 * customize the JSON Web Token (JWS) client assertion.
+	 *
+	 * @param <T> the type of {@link AbstractOAuth2AuthorizationGrantRequest}
+	 * @since 5.7
+	 */
+	public static final class JwtClientAuthenticationContext<T extends AbstractOAuth2AuthorizationGrantRequest> {
+
+		private final T authorizationGrantRequest;
+
+		private final JwsHeader.Builder headers;
+
+		private final JwtClaimsSet.Builder claims;
+
+		private JwtClientAuthenticationContext(T authorizationGrantRequest, JwsHeader.Builder headers,
+				JwtClaimsSet.Builder claims) {
+			this.authorizationGrantRequest = authorizationGrantRequest;
+			this.headers = headers;
+			this.claims = claims;
+		}
+
+		/**
+		 * Returns the {@link AbstractOAuth2AuthorizationGrantRequest authorization grant
+		 * request}.
+		 * @return the {@link AbstractOAuth2AuthorizationGrantRequest authorization grant
+		 * request}
+		 */
+		public T getAuthorizationGrantRequest() {
+			return this.authorizationGrantRequest;
+		}
+
+		/**
+		 * Returns the {@link JwsHeader.Builder} to be used to customize headers of the
+		 * JSON Web Token (JWS).
+		 * @return the {@link JwsHeader.Builder} to be used to customize headers of the
+		 * JSON Web Token (JWS)
+		 */
+		public JwsHeader.Builder getHeaders() {
+			return this.headers;
+		}
+
+		/**
+		 * Returns the {@link JwtClaimsSet.Builder} to be used to customize claims of the
+		 * JSON Web Token (JWS).
+		 * @return the {@link JwtClaimsSet.Builder} to be used to customize claims of the
+		 * JSON Web Token (JWS)
+		 */
+		public JwtClaimsSet.Builder getClaims() {
+			return this.claims;
 		}
 
 	}

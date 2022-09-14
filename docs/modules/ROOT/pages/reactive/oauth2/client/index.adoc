@@ -28,6 +28,7 @@ The following code shows the complete configuration options provided by the `Ser
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -50,6 +51,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2ClientSecurityConfig {
 

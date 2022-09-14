@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,22 +26,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.BeanCreationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.ProviderManager
 import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.saml2.credentials.Saml2X509Credential
-import org.springframework.security.saml2.credentials.Saml2X509Credential.Saml2X509CredentialType.VERIFICATION
+import org.springframework.security.saml2.core.Saml2X509Credential
 import org.springframework.security.saml2.provider.service.registration.InMemoryRelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations
 import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
@@ -70,12 +70,15 @@ class Saml2DslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class Saml2LoginNoRelyingPArtyRegistrationRepoConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class Saml2LoginNoRelyingPArtyRegistrationRepoConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 saml2Login { }
             }
+            return http.build()
         }
     }
 
@@ -89,23 +92,30 @@ class Saml2DslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class Saml2LoginConfig : WebSecurityConfigurerAdapter() {
+    open class Saml2LoginConfig {
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 saml2Login {
                     relyingPartyRegistrationRepository =
                             InMemoryRelyingPartyRegistrationRepository(
                                     RelyingPartyRegistration.withRegistrationId("samlId")
-                                            .assertionConsumerServiceUrlTemplate("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
-                                            .credentials { c -> c.add(Saml2X509Credential(loadCert("rod.cer"), VERIFICATION)) }
-                                            .providerDetails { c -> c.webSsoUrl("ssoUrl") }
-                                            .providerDetails { c -> c.entityId("entityId") }
+                                            .assertionConsumerServiceLocation("{baseUrl}" + Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI)
+                                            .assertingPartyDetails { a -> a
+                                                .verificationX509Credentials { c -> c
+                                                    .add(Saml2X509Credential(loadCert("rod.cer"), Saml2X509Credential.Saml2X509CredentialType.VERIFICATION))
+                                                }
+                                            }
+                                            .assertingPartyDetails { c -> c.singleSignOnServiceLocation("ssoUrl") }
+                                            .assertingPartyDetails { c -> c.entityId("entityId") }
                                             .build()
                             )
                 }
             }
+            return http.build()
         }
 
         private fun <T : Certificate> loadCert(location: String): T {
@@ -126,18 +136,21 @@ class Saml2DslTests {
         verify(exactly = 1) { Saml2LoginCustomAuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class Saml2LoginCustomAuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+    open class Saml2LoginCustomAuthenticationManagerConfig {
         companion object {
             val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 saml2Login {
                     authenticationManager = AUTHENTICATION_MANAGER
                 }
             }
+            return http.build()
         }
 
         @Bean

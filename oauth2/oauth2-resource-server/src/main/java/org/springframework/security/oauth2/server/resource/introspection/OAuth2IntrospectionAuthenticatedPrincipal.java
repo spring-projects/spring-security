@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Map;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.DefaultOAuth2AuthenticatedPrincipal;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
+import org.springframework.security.oauth2.core.OAuth2TokenIntrospectionClaimAccessor;
 
 /**
  * A domain object that wraps the attributes of OAuth 2.0 Token Introspection.
@@ -33,7 +34,7 @@ import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;
  * "https://tools.ietf.org/html/rfc7662#section-2.2">Introspection Response</a>
  */
 public final class OAuth2IntrospectionAuthenticatedPrincipal
-		implements OAuth2IntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal, Serializable {
+		implements OAuth2TokenIntrospectionClaimAccessor, OAuth2AuthenticatedPrincipal, Serializable {
 
 	private final OAuth2AuthenticatedPrincipal delegate;
 

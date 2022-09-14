@@ -34,13 +34,13 @@ public class AuthorizedEventTests {
 	@Test
 	public void testRejectsNulls() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new AuthorizedEvent(null,
-				SecurityConfig.createList("TEST"), new UsernamePasswordAuthenticationToken("foo", "bar")));
+				SecurityConfig.createList("TEST"), UsernamePasswordAuthenticationToken.unauthenticated("foo", "bar")));
 	}
 
 	@Test
 	public void testRejectsNulls2() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new AuthorizedEvent(new SimpleMethodInvocation(), null,
-				new UsernamePasswordAuthenticationToken("foo", "bar")));
+				UsernamePasswordAuthenticationToken.unauthenticated("foo", "bar")));
 	}
 
 	@Test

@@ -33,9 +33,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -91,6 +94,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  */
 public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private AuthenticationEntryPoint authenticationEntryPoint;
 
 	private AuthenticationManager authenticationManager;
@@ -102,6 +108,8 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private String credentialsCharset = "UTF-8";
 
 	private BasicAuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	/**
 	 * Creates an instance which will authenticate against the supplied
@@ -131,6 +139,18 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
+
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.authenticationManager, "An AuthenticationManager is required");
@@ -154,18 +174,19 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 			this.logger.trace(LogMessage.format("Found username '%s' in Basic Authorization header", username));
 			if (authenticationIsRequired(username)) {
 				Authentication authResult = this.authenticationManager.authenticate(authRequest);
-				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(authResult);
-				SecurityContextHolder.setContext(context);
+				this.securityContextHolderStrategy.setContext(context);
 				if (this.logger.isDebugEnabled()) {
 					this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", authResult));
 				}
 				this.rememberMeServices.loginSuccess(request, response, authResult);
+				this.securityContextRepository.saveContext(context, request, response);
 				onSuccessfulAuthentication(request, response, authResult);
 			}
 		}
 		catch (AuthenticationException ex) {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			this.logger.debug("Failed to process authentication request", ex);
 			this.rememberMeServices.loginFail(request, response);
 			onUnsuccessfulAuthentication(request, response, ex);
@@ -184,7 +205,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 	private boolean authenticationIsRequired(String username) {
 		// Only reauthenticate if username doesn't match SecurityContextHolder and user
 		// isn't authenticated (see SEC-53)
-		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+		Authentication existingAuth = this.securityContextHolderStrategy.getContext().getAuthentication();
 		if (existingAuth == null || !existingAuth.isAuthenticated()) {
 			return true;
 		}
@@ -223,6 +244,17 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	protected boolean isIgnoreFailure() {
 		return this.ignoreFailure;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	public void setAuthenticationDetailsSource(

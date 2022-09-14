@@ -23,7 +23,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import org.springframework.context.annotation.AdviceMode;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.access.prepost.PostAuthorize;
@@ -41,7 +40,6 @@ import org.springframework.security.access.prepost.PreFilter;
 @Target(ElementType.TYPE)
 @Documented
 @Import(MethodSecuritySelector.class)
-@Configuration
 public @interface EnableMethodSecurity {
 
 	/**

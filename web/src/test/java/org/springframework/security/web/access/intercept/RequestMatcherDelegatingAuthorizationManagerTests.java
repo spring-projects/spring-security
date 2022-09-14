@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -35,6 +36,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
  *
  * @author Evgeniy Cheban
+ * @author Parikshit Dutta
  */
 public class RequestMatcherDelegatingAuthorizationManagerTests {
 
@@ -89,21 +91,20 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 	public void checkWhenMultipleMappingsConfiguredWithConsumerThenDelegatesMatchingManager() {
 		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
 				.mappings((m) -> {
-					m.put(new MvcRequestMatcher(null, "/grant"), (a, o) -> new AuthorizationDecision(true));
-					m.put(AnyRequestMatcher.INSTANCE, AuthorityAuthorizationManager.hasRole("ADMIN"));
-					m.put(new MvcRequestMatcher(null, "/deny"), (a, o) -> new AuthorizationDecision(false));
-					m.put(new MvcRequestMatcher(null, "/afterAny"), (a, o) -> new AuthorizationDecision(true));
+					m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/grant"),
+							(a, o) -> new AuthorizationDecision(true)));
+					m.add(new RequestMatcherEntry<>(AnyRequestMatcher.INSTANCE,
+							AuthorityAuthorizationManager.hasRole("ADMIN")));
+					m.add(new RequestMatcherEntry<>(new MvcRequestMatcher(null, "/afterAny"),
+							(a, o) -> new AuthorizationDecision(true)));
 				}).build();
 
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password", "ROLE_USER");
 
 		AuthorizationDecision grant = manager.check(authentication, new MockHttpServletRequest(null, "/grant"));
+
 		assertThat(grant).isNotNull();
 		assertThat(grant.isGranted()).isTrue();
-
-		AuthorizationDecision deny = manager.check(authentication, new MockHttpServletRequest(null, "/deny"));
-		assertThat(deny).isNotNull();
-		assertThat(deny.isGranted()).isFalse();
 
 		AuthorizationDecision afterAny = manager.check(authentication, new MockHttpServletRequest(null, "/afterAny"));
 		assertThat(afterAny).isNotNull();

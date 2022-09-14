@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.io.ClassPathResource
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -36,6 +36,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor
 import org.springframework.test.web.servlet.MockMvc
@@ -64,16 +65,19 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class X509Config : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class X509Config {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 x509 { }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("rod")
                     .password("password")
@@ -93,18 +97,21 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class X509RegexConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class X509RegexConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 x509 {
                     subjectPrincipalRegex = "CN=(.*?)@example.com(?:,|$)"
                 }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("rod")
                     .password("password")
@@ -124,9 +131,11 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class UserDetailsServiceConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class UserDetailsServiceConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("rod")
                     .password("password")
@@ -138,10 +147,11 @@ class X509DslTests {
                     userDetailsService = customUserDetailsService
                 }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService = mockk()
+        open fun userDetailsService(): UserDetailsService = mockk()
     }
 
     @Test
@@ -154,9 +164,11 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class AuthenticationUserDetailsServiceConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthenticationUserDetailsServiceConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("rod")
                     .password("password")
@@ -170,10 +182,11 @@ class X509DslTests {
                     authenticationUserDetailsService = customSource
                 }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService = mockk()
+        open fun userDetailsService(): UserDetailsService = mockk()
     }
 
     @Test
@@ -186,9 +199,11 @@ class X509DslTests {
                 .andExpect(authenticated().withUsername("rod"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class X509PrincipalExtractorConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class X509PrincipalExtractorConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             val principalExtractor = SubjectDnX509PrincipalExtractor()
             principalExtractor.setSubjectDnRegex("CN=(.*?)@example.com(?:,|$)")
             http {
@@ -196,10 +211,11 @@ class X509DslTests {
                     x509PrincipalExtractor = principalExtractor
                 }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("rod")
                     .password("password")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 import jakarta.annotation.PreDestroy;
-
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -29,9 +28,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.TestBearerTokenAuthentications;
 import org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction;
@@ -41,6 +42,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -86,11 +89,28 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 		// @formatter:on
 	}
 
+	@Test
+	public void requestWhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		BearerTokenAuthentication authentication = TestBearerTokenAuthentications.bearer();
+		this.spring.register(BearerFilterConfig.class, WebServerConfig.class, Controller.class,
+				SecurityContextChangedListenerConfig.class).autowire();
+		MockHttpServletRequestBuilder authenticatedRequest = get("/token").with(authentication(authentication));
+		// @formatter:off
+		this.mockMvc.perform(authenticatedRequest)
+				.andExpect(status().isOk())
+				.andExpect(content().string("Bearer token"));
+		// @formatter:on
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
+	}
+
+	@Configuration
 	@EnableWebSecurity
 	static class BearerFilterConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
 		protected void configure(HttpSecurity http) throws Exception {
+			http.securityContext().requireExplicitSave(false);
 		}
 
 		@Bean
@@ -101,6 +121,7 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BearerFilterlessConfig extends WebSecurityConfigurerAdapter {
 

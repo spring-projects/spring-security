@@ -62,11 +62,25 @@ Doing so connects our `PayloadSocketAcceptorInterceptor` with the RSocket infras
 In a Spring Boot application, you can do this automatically by using `RSocketSecurityAutoConfiguration` with the following code:
 
 ====
-[source,java]
+.Java
+[source,java,role="primary"]
 ----
 @Bean
 RSocketServerCustomizer springSecurityRSocketSecurity(SecuritySocketAcceptorInterceptor interceptor) {
     return (server) -> server.interceptors((registry) -> registry.forSocketAcceptor(interceptor));
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityRSocketSecurity(interceptor: SecuritySocketAcceptorInterceptor): RSocketServerCustomizer {
+    return RSocketServerCustomizer { server ->
+        server.interceptors { registry ->
+            registry.forSocketAcceptor(interceptor)
+        }
+    }
 }
 ----
 ====

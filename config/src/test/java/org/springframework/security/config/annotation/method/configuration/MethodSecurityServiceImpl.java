@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,11 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	}
 
 	@Override
+	public String jsr250RolesAllowed() {
+		return null;
+	}
+
+	@Override
 	public Authentication runAs() {
 		return SecurityContextHolder.getContext().getAuthentication();
 	}
@@ -86,6 +91,16 @@ public class MethodSecurityServiceImpl implements MethodSecurityService {
 	@Override
 	public String postAnnotation(String object) {
 		return null;
+	}
+
+	@Override
+	public List<String> preFilterByUsername(List<String> array) {
+		return array;
+	}
+
+	@Override
+	public List<String> postFilterByUsername(List<String> array) {
+		return array;
 	}
 
 	@Override

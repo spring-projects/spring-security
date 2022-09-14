@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client.oidc.web.server.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import reactor.core.publisher.Mono;
 
@@ -85,13 +86,13 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 						return Mono.empty();
 					}
 					String idToken = idToken(authentication);
-					URI postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest());
+					String postLogoutRedirectUri = postLogoutRedirectUri(exchange.getExchange().getRequest(), clientRegistration);
 					return Mono.just(endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri));
 				})
 				.switchIfEmpty(
 						this.serverLogoutSuccessHandler.onLogoutSuccess(exchange, authentication).then(Mono.empty())
 				)
-				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), endpointUri));
+				.flatMap((endpointUri) -> this.redirectStrategy.sendRedirect(exchange.getExchange(), URI.create(endpointUri)));
 		// @formatter:on
 	}
 
@@ -106,20 +107,20 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 		return null;
 	}
 
-	private URI endpointUri(URI endSessionEndpoint, String idToken, URI postLogoutRedirectUri) {
+	private String endpointUri(URI endSessionEndpoint, String idToken, String postLogoutRedirectUri) {
 		UriComponentsBuilder builder = UriComponentsBuilder.fromUri(endSessionEndpoint);
 		builder.queryParam("id_token_hint", idToken);
 		if (postLogoutRedirectUri != null) {
 			builder.queryParam("post_logout_redirect_uri", postLogoutRedirectUri);
 		}
-		return builder.encode(StandardCharsets.UTF_8).build().toUri();
+		return builder.encode(StandardCharsets.UTF_8).build().toUriString();
 	}
 
 	private String idToken(Authentication authentication) {
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private URI postLogoutRedirectUri(ServerHttpRequest request) {
+	private String postLogoutRedirectUri(ServerHttpRequest request, ClientRegistration clientRegistration) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -129,27 +130,39 @@ public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", (host != null) ? host : "");
+
+		String path = uriComponents.getPath();
+		uriVariables.put("basePath", (path != null) ? path : "");
+
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
-				.toUri();
+				.buildAndExpand(uriVariables)
+				.toUriString();
 		// @formatter:on
 	}
 
 	/**
-	 * Set the post logout redirect uri to use
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
-	 * logging out the user
-	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
-	 */
-	@Deprecated
-	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
-		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be empty");
-		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
-	}
-
-	/**
-	 * Set the post logout redirect uri template to use. Supports the {@code "{baseUrl}"}
-	 * placeholder, for example:
+	 * Set the post logout redirect uri template.
+	 *
+	 * <br />
+	 * The supported uri template variables are: {@code {baseScheme}}, {@code {baseHost}},
+	 * {@code {basePort}} and {@code {basePath}}.
+	 *
+	 * <br />
+	 * <b>NOTE:</b> {@code {baseUrl}} is also supported, which is the same as
+	 * {@code "{baseScheme}://{baseHost}{basePort}{basePath}"}
 	 *
 	 * <pre>
 	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");

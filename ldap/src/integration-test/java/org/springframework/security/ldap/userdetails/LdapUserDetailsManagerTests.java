@@ -31,6 +31,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.ldap.ApacheDsContainerConfig;
 import org.springframework.security.ldap.DefaultLdapUsernameToDnMapper;
@@ -40,6 +42,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -192,13 +197,37 @@ public class LdapUserDetailsManagerTests {
 
 		this.mgr.createUser(p.createUserDetails());
 
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
+				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 
 		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
 
 		assertThat(this.template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
 				.isTrue();
+	}
+
+	@Test
+	public void testPasswordChangeUsesCustomSecurityContextHolderStrategy() {
+		InetOrgPerson.Essence p = new InetOrgPerson.Essence();
+		p.setDn("whocares");
+		p.setCn(new String[] { "John Yossarian" });
+		p.setSn("Yossarian");
+		p.setUid("johnyossarian");
+		p.setPassword("yossarianspassword");
+		p.setAuthorities(TEST_AUTHORITIES);
+
+		this.mgr.createUser(p.createUserDetails());
+
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(UsernamePasswordAuthenticationToken
+				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES)));
+		this.mgr.setSecurityContextHolderStrategy(strategy);
+
+		this.mgr.changePassword("yossarianspassword", "yossariansnewpassword");
+
+		assertThat(this.template.compare("uid=johnyossarian,ou=test people", "userPassword", "yossariansnewpassword"))
+				.isTrue();
+		verify(strategy).getContext();
 	}
 
 	@Test
@@ -211,8 +240,8 @@ public class LdapUserDetailsManagerTests {
 		p.setPassword("yossarianspassword");
 		p.setAuthorities(TEST_AUTHORITIES);
 		this.mgr.createUser(p.createUserDetails());
-		SecurityContextHolder.getContext().setAuthentication(
-				new UsernamePasswordAuthenticationToken("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
+		SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
+				.authenticated("johnyossarian", "yossarianspassword", TEST_AUTHORITIES));
 		assertThatExceptionOfType(BadCredentialsException.class)
 				.isThrownBy(() -> this.mgr.changePassword("wrongpassword", "yossariansnewpassword"));
 	}

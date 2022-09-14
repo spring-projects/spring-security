@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -90,11 +89,14 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 
 	protected final Log logger = LogFactory.getLog(this.getClass());
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	/**
 	 * SecurityContext instance used to check for equality with default (unauthenticated)
 	 * content
 	 */
-	private final Object contextObject = SecurityContextHolder.createEmptyContext();
+	private Object contextObject = this.securityContextHolderStrategy.createEmptyContext();
 
 	private boolean allowSessionCreation = true;
 
@@ -123,10 +125,13 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				this.logger.trace(LogMessage.format("Created %s", context));
 			}
 		}
-		SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request,
-				httpSession != null, context);
-		requestResponseHolder.setResponse(wrappedResponse);
-		requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(request, wrappedResponse));
+		if (response != null) {
+			SaveToSessionResponseWrapper wrappedResponse = new SaveToSessionResponseWrapper(response, request,
+					httpSession != null, context);
+			wrappedResponse.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+			requestResponseHolder.setResponse(wrappedResponse);
+			requestResponseHolder.setRequest(new SaveToSessionRequestWrapper(request, wrappedResponse));
+		}
 		return context;
 	}
 
@@ -134,8 +139,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
 		SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = WebUtils.getNativeResponse(response,
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
-		Assert.state(responseWrapper != null, () -> "Cannot invoke saveContext on response " + response
-				+ ". You must use the HttpRequestResponseHolder.response after invoking loadContext");
+		if (responseWrapper == null) {
+			boolean httpSessionExists = request.getSession(false) != null;
+			SecurityContext initialContext = SecurityContextHolder.createEmptyContext();
+			responseWrapper = new SaveToSessionResponseWrapper(response, request, httpSessionExists, initialContext);
+		}
 		responseWrapper.saveContext(context);
 	}
 
@@ -196,7 +204,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 	 * @return a new SecurityContext instance. Never null.
 	 */
 	protected SecurityContext generateNewContext() {
-		return SecurityContextHolder.createEmptyContext();
+		return this.securityContextHolderStrategy.createEmptyContext();
 	}
 
 	/**
@@ -232,11 +240,22 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		this.springSecurityContextKey = springSecurityContextKey;
 	}
 
-	private boolean isTransientAuthentication(Authentication authentication) {
-		if (authentication == null) {
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy strategy) {
+		this.securityContextHolderStrategy = strategy;
+		this.contextObject = this.securityContextHolderStrategy.createEmptyContext();
+	}
+
+	private boolean isTransient(Object object) {
+		if (object == null) {
 			return false;
 		}
-		return AnnotationUtils.getAnnotation(authentication.getClass(), Transient.class) != null;
+		return AnnotationUtils.getAnnotation(object.getClass(), Transient.class) != null;
 	}
 
 	/**
@@ -329,8 +348,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		 */
 		@Override
 		protected void saveContext(SecurityContext context) {
+			if (isTransient(context)) {
+				return;
+			}
 			final Authentication authentication = context.getAuthentication();
-			if (isTransientAuthentication(authentication)) {
+			if (isTransient(authentication)) {
 				return;
 			}
 			HttpSession httpSession = this.request.getSession(false);

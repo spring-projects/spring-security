@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.ServletRequest;
-
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -40,7 +40,10 @@ import org.springframework.security.access.vote.AuthenticatedVoter;
 import org.springframework.security.access.vote.RoleVoter;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.http.GrantedAuthorityDefaultsParserUtils.AbstractGrantedAuthorityDefaultsBeanFactory;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.session.SessionRegistryImpl;
+import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -59,6 +62,7 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
@@ -67,6 +71,8 @@ import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
+import org.springframework.security.web.session.DisableEncodeUrlFilter;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.session.SimpleRedirectInvalidSessionStrategy;
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy;
@@ -96,17 +102,27 @@ class HttpConfigurationBuilder {
 
 	private static final String OPT_CHANGE_SESSION_ID = "changeSessionId";
 
+	private static final String ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION = "authentication-strategy-explicit-invocation";
+
 	private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
 
 	private static final String ATT_SESSION_AUTH_ERROR_URL = "session-authentication-error-url";
 
+	private static final String ATT_SECURITY_CONTEXT_HOLDER_STRATEGY = "security-context-holder-strategy-ref";
+
 	private static final String ATT_SECURITY_CONTEXT_REPOSITORY = "security-context-repository-ref";
+
+	private static final String ATT_SECURITY_CONTEXT_EXPLICIT_SAVE = "security-context-explicit-save";
 
 	private static final String ATT_INVALID_SESSION_STRATEGY_REF = "invalid-session-strategy-ref";
 
 	private static final String ATT_DISABLE_URL_REWRITING = "disable-url-rewriting";
+
+	private static final String ATT_USE_AUTHORIZATION_MGR = "use-authorization-manager";
+
+	private static final String ATT_AUTHORIZATION_MGR = "authorization-manager-ref";
 
 	private static final String ATT_ACCESS_MGR = "access-decision-manager-ref";
 
@@ -144,6 +160,10 @@ class HttpConfigurationBuilder {
 
 	private BeanDefinition securityContextPersistenceFilter;
 
+	private BeanDefinition forceEagerSessionCreationFilter;
+
+	private BeanMetadataElement holderStrategyRef;
+
 	private BeanReference contextRepoRef;
 
 	private BeanReference sessionRegistryRef;
@@ -176,6 +196,8 @@ class HttpConfigurationBuilder {
 
 	private BeanDefinition csrfFilter;
 
+	private BeanDefinition disableUrlRewriteFilter;
+
 	private BeanDefinition wellKnownChangePasswordRedirectFilter;
 
 	private BeanMetadataElement csrfLogoutHandler;
@@ -201,15 +223,18 @@ class HttpConfigurationBuilder {
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
 		this.sessionPolicy = !StringUtils.hasText(createSession) ? SessionCreationPolicy.IF_REQUIRED
 				: createPolicy(createSession);
+		createSecurityContextHolderStrategy();
+		createForceEagerSessionCreationFilter();
+		createDisableEncodeUrlFilter();
 		createCsrfFilter();
-		createSecurityContextPersistenceFilter();
+		createSecurityPersistence();
 		createSessionManagementFilters();
 		createWebAsyncManagerFilter();
 		createRequestCacheFilter();
 		createServletApiFilter(authenticationManager);
 		createJaasApiFilter();
 		createChannelProcessingFilter();
-		createFilterSecurityInterceptor(authenticationManager);
+		createFilterSecurity(authenticationManager);
 		createAddHeadersFilter();
 		createCorsFilter();
 		createWellKnownChangePasswordRedirectFilter();
@@ -278,19 +303,66 @@ class HttpConfigurationBuilder {
 		return lowerCase ? path.toLowerCase() : path;
 	}
 
-	private void createSecurityContextPersistenceFilter() {
-		BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
-		String repoRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
-		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
-		if (!StringUtils.hasText(disableUrlRewriting)) {
-			disableUrlRewriting = "true";
-		}
-		if (StringUtils.hasText(repoRef)) {
-			if (this.sessionPolicy == SessionCreationPolicy.ALWAYS) {
-				scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
-			}
+	BeanMetadataElement getSecurityContextHolderStrategyForAuthenticationFilters() {
+		return this.holderStrategyRef;
+	}
+
+	BeanReference getSecurityContextRepositoryForAuthenticationFilters() {
+		return (isExplicitSave()) ? this.contextRepoRef : null;
+	}
+
+	private void createSecurityPersistence() {
+		createSecurityContextRepository();
+		if (isExplicitSave()) {
+			createSecurityContextHolderFilter();
 		}
 		else {
+			createSecurityContextPersistenceFilter();
+		}
+	}
+
+	private boolean isExplicitSave() {
+		String explicitSaveAttr = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_EXPLICIT_SAVE);
+		return !StringUtils.hasText(explicitSaveAttr) || Boolean.parseBoolean(explicitSaveAttr);
+	}
+
+	private void createForceEagerSessionCreationFilter() {
+		if (this.sessionPolicy == SessionCreationPolicy.ALWAYS) {
+			this.forceEagerSessionCreationFilter = new RootBeanDefinition(ForceEagerSessionCreationFilter.class);
+		}
+	}
+
+	private void createSecurityContextPersistenceFilter() {
+		BeanDefinitionBuilder scpf = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextPersistenceFilter.class);
+		switch (this.sessionPolicy) {
+		case ALWAYS:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
+			break;
+		case NEVER:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+			break;
+		default:
+			scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
+		}
+		scpf.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
+		scpf.addConstructorArgValue(this.contextRepoRef);
+
+		this.securityContextPersistenceFilter = scpf.getBeanDefinition();
+	}
+
+	private void createSecurityContextHolderStrategy() {
+		String holderStrategyRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_HOLDER_STRATEGY);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			this.holderStrategyRef = new RuntimeBeanReference(holderStrategyRef);
+			return;
+		}
+		this.holderStrategyRef = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextHolderStrategyFactory.class)
+				.getBeanDefinition();
+	}
+
+	private void createSecurityContextRepository() {
+		String repoRef = this.httpElt.getAttribute(ATT_SECURITY_CONTEXT_REPOSITORY);
+		if (!StringUtils.hasText(repoRef)) {
 			BeanDefinitionBuilder contextRepo;
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
 				contextRepo = BeanDefinitionBuilder.rootBeanDefinition(NullSecurityContextRepository.class);
@@ -300,29 +372,36 @@ class HttpConfigurationBuilder {
 				switch (this.sessionPolicy) {
 				case ALWAYS:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.TRUE);
 					break;
 				case NEVER:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.FALSE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
 					break;
 				default:
 					contextRepo.addPropertyValue("allowSessionCreation", Boolean.TRUE);
-					scpf.addPropertyValue("forceEagerSessionCreation", Boolean.FALSE);
 				}
-				if ("true".equals(disableUrlRewriting)) {
+				if (isDisableUrlRewriting()) {
 					contextRepo.addPropertyValue("disableUrlRewriting", Boolean.TRUE);
 				}
 			}
+			contextRepo.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 			BeanDefinition repoBean = contextRepo.getBeanDefinition();
 			repoRef = this.pc.getReaderContext().generateBeanName(repoBean);
 			this.pc.registerBeanComponent(new BeanComponentDefinition(repoBean, repoRef));
 		}
 
 		this.contextRepoRef = new RuntimeBeanReference(repoRef);
-		scpf.addConstructorArgValue(this.contextRepoRef);
+	}
 
-		this.securityContextPersistenceFilter = scpf.getBeanDefinition();
+	private boolean isDisableUrlRewriting() {
+		String disableUrlRewriting = this.httpElt.getAttribute(ATT_DISABLE_URL_REWRITING);
+		return !"false".equals(disableUrlRewriting);
+	}
+
+	private void createSecurityContextHolderFilter() {
+		BeanDefinitionBuilder filter = BeanDefinitionBuilder.rootBeanDefinition(SecurityContextHolderFilter.class);
+		filter.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
+		filter.addConstructorArgValue(this.contextRepoRef);
+		this.securityContextPersistenceFilter = filter.getBeanDefinition();
 	}
 
 	private void createSessionManagementFilters() {
@@ -432,6 +511,7 @@ class HttpConfigurationBuilder {
 		if (StringUtils.hasText(errorUrl)) {
 			failureHandler.getPropertyValues().addPropertyValue("defaultFailureUrl", errorUrl);
 		}
+		sessionMgmtFilter.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		sessionMgmtFilter.addPropertyValue("authenticationFailureHandler", failureHandler);
 		sessionMgmtFilter.addConstructorArgValue(this.contextRepoRef);
 		if (!StringUtils.hasText(sessionAuthStratRef) && sessionFixationStrategy != null && !useChangeSessionId) {
@@ -459,7 +539,11 @@ class HttpConfigurationBuilder {
 			sessionMgmtFilter.addPropertyReference("invalidSessionStrategy", invalidSessionStrategyRef);
 		}
 		sessionMgmtFilter.addConstructorArgReference(sessionAuthStratRef);
-		this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
+		boolean registerSessionMgmtFilter = (sessionMgmtElt == null
+				|| !"true".equals(sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION)));
+		if (registerSessionMgmtFilter) {
+			this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
+		}
 		this.sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);
 	}
 
@@ -509,6 +593,7 @@ class HttpConfigurationBuilder {
 		boolean asyncSupported = ClassUtils.hasMethod(ServletRequest.class, "startAsync");
 		if (asyncSupported) {
 			this.webAsyncManagerFilter = new RootBeanDefinition(WebAsyncManagerIntegrationFilter.class);
+			this.webAsyncManagerFilter.getPropertyValues().add("securityContextHolderStrategy", this.holderStrategyRef);
 		}
 	}
 
@@ -522,6 +607,7 @@ class HttpConfigurationBuilder {
 			this.servApiFilter = GrantedAuthorityDefaultsParserUtils.registerWithDefaultRolePrefix(this.pc,
 					SecurityContextHolderAwareRequestFilterBeanFactory.class);
 			this.servApiFilter.getPropertyValues().add("authenticationManager", authenticationManager);
+			this.servApiFilter.getPropertyValues().add("securityContextHolderStrategy", this.holderStrategyRef);
 		}
 	}
 
@@ -532,7 +618,8 @@ class HttpConfigurationBuilder {
 			provideJaasApi = DEF_JAAS_API_PROVISION;
 		}
 		if ("true".equals(provideJaasApi)) {
-			this.jaasApiFilter = new RootBeanDefinition(JaasApiIntegrationFilter.class);
+			this.jaasApiFilter = BeanDefinitionBuilder.rootBeanDefinition(JaasApiIntegrationFilter.class)
+					.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef).getBeanDefinition();
 		}
 	}
 
@@ -627,6 +714,35 @@ class HttpConfigurationBuilder {
 		this.requestCacheAwareFilter.getConstructorArgumentValues().addGenericArgumentValue(this.requestCache);
 	}
 
+	private void createFilterSecurity(BeanReference authManager) {
+		boolean useAuthorizationManager = Boolean.parseBoolean(this.httpElt.getAttribute(ATT_USE_AUTHORIZATION_MGR));
+		if (useAuthorizationManager) {
+			createAuthorizationFilter();
+			return;
+		}
+		if (StringUtils.hasText(this.httpElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
+			createAuthorizationFilter();
+			return;
+		}
+		createFilterSecurityInterceptor(authManager);
+	}
+
+	private void createAuthorizationFilter() {
+		AuthorizationFilterParser authorizationFilterParser = new AuthorizationFilterParser();
+		BeanDefinition fsiBean = authorizationFilterParser.parse(this.httpElt, this.pc);
+		String fsiId = this.pc.getReaderContext().generateBeanName(fsiBean);
+		this.pc.registerBeanComponent(new BeanComponentDefinition(fsiBean, fsiId));
+		// Create and register a AuthorizationManagerWebInvocationPrivilegeEvaluator for
+		// use with
+		// taglibs etc.
+		BeanDefinition wipe = BeanDefinitionBuilder
+				.rootBeanDefinition(AuthorizationManagerWebInvocationPrivilegeEvaluator.class)
+				.addConstructorArgReference(authorizationFilterParser.getAuthorizationManagerRef()).getBeanDefinition();
+		this.pc.registerBeanComponent(
+				new BeanComponentDefinition(wipe, this.pc.getReaderContext().generateBeanName(wipe)));
+		this.fsi = new RuntimeBeanReference(fsiId);
+	}
+
 	private void createFilterSecurityInterceptor(BeanReference authManager) {
 		boolean useExpressions = FilterInvocationSecurityMetadataSourceParser.isUseExpressions(this.httpElt);
 		RootBeanDefinition securityMds = FilterInvocationSecurityMetadataSourceParser
@@ -662,6 +778,7 @@ class HttpConfigurationBuilder {
 			builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
 		}
 		builder.addPropertyValue("securityMetadataSource", securityMds);
+		builder.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
 		BeanDefinition fsiBean = builder.getBeanDefinition();
 		String fsiId = this.pc.getReaderContext().generateBeanName(fsiBean);
 		this.pc.registerBeanComponent(new BeanComponentDefinition(fsiBean, fsiId));
@@ -683,6 +800,12 @@ class HttpConfigurationBuilder {
 		Element elmt = DomUtils.getChildElementByTagName(this.httpElt, Elements.CORS);
 		this.corsFilter = new CorsBeanDefinitionParser().parse(elmt, this.pc);
 
+	}
+
+	private void createDisableEncodeUrlFilter() {
+		if (isDisableUrlRewriting()) {
+			this.disableUrlRewriteFilter = new RootBeanDefinition(DisableEncodeUrlFilter.class);
+		}
 	}
 
 	private void createCsrfFilter() {
@@ -724,6 +847,13 @@ class HttpConfigurationBuilder {
 
 	List<OrderDecorator> getFilters() {
 		List<OrderDecorator> filters = new ArrayList<>();
+		if (this.forceEagerSessionCreationFilter != null) {
+			filters.add(new OrderDecorator(this.forceEagerSessionCreationFilter,
+					SecurityFilters.FORCE_EAGER_SESSION_FILTER));
+		}
+		if (this.disableUrlRewriteFilter != null) {
+			filters.add(new OrderDecorator(this.disableUrlRewriteFilter, SecurityFilters.DISABLE_ENCODE_URL_FILTER));
+		}
 		if (this.cpf != null) {
 			filters.add(new OrderDecorator(this.cpf, SecurityFilters.CHANNEL_FILTER));
 		}
@@ -780,10 +910,32 @@ class HttpConfigurationBuilder {
 
 		private SecurityContextHolderAwareRequestFilter filter = new SecurityContextHolderAwareRequestFilter();
 
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+				.getContextHolderStrategy();
+
 		@Override
 		public SecurityContextHolderAwareRequestFilter getBean() {
+			this.filter.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			this.filter.setRolePrefix(this.rolePrefix);
 			return this.filter;
+		}
+
+		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+		}
+
+	}
+
+	static class SecurityContextHolderStrategyFactory implements FactoryBean<SecurityContextHolderStrategy> {
+
+		@Override
+		public SecurityContextHolderStrategy getObject() throws Exception {
+			return SecurityContextHolder.getContextHolderStrategy();
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return SecurityContextHolderStrategy.class;
 		}
 
 	}

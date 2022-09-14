@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,10 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.BeanFactoryUtils;
@@ -47,9 +46,7 @@ import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.CustomUserTypesOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.DelegatingOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
@@ -67,18 +64,21 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * An {@link AbstractHttpConfigurer} for OAuth 2.0 Login, which leverages the OAuth 2.0
@@ -364,6 +364,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			authorizationRequestFilter
 					.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
+		if (this.authorizationEndpointConfig.authorizationRedirectStrategy != null) {
+			authorizationRequestFilter
+					.setAuthorizationRedirectStrategy(this.authorizationEndpointConfig.authorizationRedirectStrategy);
+		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache != null) {
 			authorizationRequestFilter.setRequestCache(requestCache);
@@ -435,16 +439,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		ResolvableType type = ResolvableType.forClassWithGenerics(OAuth2UserService.class, OAuth2UserRequest.class,
 				OAuth2User.class);
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> bean = getBeanOrNull(type);
-		if (bean != null) {
-			return bean;
-		}
-		if (this.userInfoEndpointConfig.customUserTypes.isEmpty()) {
-			return new DefaultOAuth2UserService();
-		}
-		List<OAuth2UserService<OAuth2UserRequest, OAuth2User>> userServices = new ArrayList<>();
-		userServices.add(new CustomUserTypesOAuth2UserService(this.userInfoEndpointConfig.customUserTypes));
-		userServices.add(new DefaultOAuth2UserService());
-		return new DelegatingOAuth2UserService<>(userServices);
+		return (bean != null) ? bean : new DefaultOAuth2UserService();
 	}
 
 	private <T> T getBeanOrNull(ResolvableType type) {
@@ -503,12 +498,26 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				new OrRequestMatcher(loginPageMatcher, faviconMatcher), defaultEntryPointMatcher);
 		RequestMatcher notXRequestedWith = new NegatedRequestMatcher(
 				new RequestHeaderRequestMatcher("X-Requested-With", "XMLHttpRequest"));
+		RequestMatcher formLoginNotEnabled = getFormLoginNotEnabledRequestMatcher(http);
 		LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> entryPoints = new LinkedHashMap<>();
-		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher)),
-				new LoginUrlAuthenticationEntryPoint(providerLoginPage));
+		entryPoints.put(new AndRequestMatcher(notXRequestedWith, new NegatedRequestMatcher(defaultLoginPageMatcher),
+				formLoginNotEnabled), new LoginUrlAuthenticationEntryPoint(providerLoginPage));
 		DelegatingAuthenticationEntryPoint loginEntryPoint = new DelegatingAuthenticationEntryPoint(entryPoints);
 		loginEntryPoint.setDefaultEntryPoint(this.getAuthenticationEntryPoint());
 		return loginEntryPoint;
+	}
+
+	private RequestMatcher getFormLoginNotEnabledRequestMatcher(B http) {
+		DefaultLoginPageGeneratingFilter defaultLoginPageGeneratingFilter = http
+				.getSharedObject(DefaultLoginPageGeneratingFilter.class);
+		Field formLoginEnabledField = (defaultLoginPageGeneratingFilter != null)
+				? ReflectionUtils.findField(DefaultLoginPageGeneratingFilter.class, "formLoginEnabled") : null;
+		if (formLoginEnabledField != null) {
+			ReflectionUtils.makeAccessible(formLoginEnabledField);
+			return (request) -> Boolean.FALSE
+					.equals(ReflectionUtils.getField(formLoginEnabledField, defaultLoginPageGeneratingFilter));
+		}
+		return AnyRequestMatcher.INSTANCE;
 	}
 
 	/**
@@ -521,6 +530,8 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		private OAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
 		private AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
+
+		private RedirectStrategy authorizationRedirectStrategy;
 
 		private AuthorizationEndpointConfig() {
 		}
@@ -561,6 +572,17 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository) {
 			Assert.notNull(authorizationRequestRepository, "authorizationRequestRepository cannot be null");
 			this.authorizationRequestRepository = authorizationRequestRepository;
+			return this;
+		}
+
+		/**
+		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+		 * @param authorizationRedirectStrategy the redirect strategy
+		 * @return the {@link AuthorizationEndpointConfig} for further configuration
+		 */
+		public AuthorizationEndpointConfig authorizationRedirectStrategy(
+				RedirectStrategy authorizationRedirectStrategy) {
+			this.authorizationRedirectStrategy = authorizationRedirectStrategy;
 			return this;
 		}
 
@@ -649,8 +671,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService;
 
-		private Map<String, Class<? extends OAuth2User>> customUserTypes = new HashMap<>();
-
 		private UserInfoEndpointConfig() {
 		}
 
@@ -677,23 +697,6 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		public UserInfoEndpointConfig oidcUserService(OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService) {
 			Assert.notNull(oidcUserService, "oidcUserService cannot be null");
 			this.oidcUserService = oidcUserService;
-			return this;
-		}
-
-		/**
-		 * Sets a custom {@link OAuth2User} type and associates it to the provided client
-		 * {@link ClientRegistration#getRegistrationId() registration identifier}.
-		 * @param customUserType a custom {@link OAuth2User} type
-		 * @param clientRegistrationId the client registration identifier
-		 * @return the {@link UserInfoEndpointConfig} for further configuration
-		 * @deprecated See {@link CustomUserTypesOAuth2UserService} for alternative usage.
-		 */
-		@Deprecated
-		public UserInfoEndpointConfig customUserType(Class<? extends OAuth2User> customUserType,
-				String clientRegistrationId) {
-			Assert.notNull(customUserType, "customUserType cannot be null");
-			Assert.hasText(clientRegistrationId, "clientRegistrationId cannot be empty");
-			this.customUserTypes.put(clientRegistrationId, customUserType);
 			return this;
 		}
 

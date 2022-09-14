@@ -71,10 +71,10 @@ The following example shows a minimal, explicit Java configuration:
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) {
+public SecurityFilterChain filterChain(HttpSecurity http) {
 	http
-		// ...
 		.formLogin(withDefaults());
+	// ...
 }
 ----
 
@@ -90,11 +90,11 @@ protected void configure(HttpSecurity http) {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	http {
-		// ...
 		formLogin { }
 	}
+	// ...
 }
 ----
 ====
@@ -110,13 +110,13 @@ The following configuration demonstrates how to provide a custom login form.
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) throws Exception {
+public SecurityFilterChain filterChain(HttpSecurity http) {
 	http
-		// ...
 		.formLogin(form -> form
 			.loginPage("/login")
 			.permitAll()
 		);
+	// ...
 }
 ----
 
@@ -133,14 +133,14 @@ protected void configure(HttpSecurity http) throws Exception {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	http {
-		// ...
 		formLogin {
 			loginPage = "/login"
 			permitAll()
 		}
 	}
+	// ...
 }
 ----
 ====

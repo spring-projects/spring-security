@@ -28,18 +28,19 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.firewall.DefaultRequestRejectedHandler;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.firewall.FirewalledRequest;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedException;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.util.ThrowableAnalyzer;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -146,13 +147,18 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private static final String FILTER_APPLIED = FilterChainProxy.class.getName().concat(".APPLIED");
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private List<SecurityFilterChain> filterChains;
 
 	private FilterChainValidator filterChainValidator = new NullFilterChainValidator();
 
 	private HttpFirewall firewall = new StrictHttpFirewall();
 
-	private RequestRejectedHandler requestRejectedHandler = new DefaultRequestRejectedHandler();
+	private RequestRejectedHandler requestRejectedHandler = new HttpStatusRequestRejectedHandler();
+
+	private ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 
 	public FilterChainProxy() {
 	}
@@ -182,11 +188,18 @@ public class FilterChainProxy extends GenericFilterBean {
 			request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 			doFilterInternal(request, response, chain);
 		}
-		catch (RequestRejectedException ex) {
-			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response, ex);
+		catch (Exception ex) {
+			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+			Throwable requestRejectedException = this.throwableAnalyzer
+					.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
+			if (!(requestRejectedException instanceof RequestRejectedException)) {
+				throw ex;
+			}
+			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
+					(RequestRejectedException) requestRejectedException);
 		}
 		finally {
-			SecurityContextHolder.clearContext();
+			this.securityContextHolderStrategy.clearContext();
 			request.removeAttribute(FILTER_APPLIED);
 		}
 	}
@@ -245,6 +258,17 @@ public class FilterChainProxy extends GenericFilterBean {
 	 */
 	public List<SecurityFilterChain> getFilterChains() {
 		return Collections.unmodifiableList(this.filterChains);
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	/**

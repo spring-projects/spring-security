@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,13 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 
 /**
  * A utility class for constructing instances of {@link RelyingPartyRegistration}
@@ -33,7 +36,7 @@ import org.springframework.security.saml2.Saml2Exception;
  */
 public final class RelyingPartyRegistrations {
 
-	private static final OpenSamlAssertingPartyMetadataConverter assertingPartyMetadataConverter = new OpenSamlAssertingPartyMetadataConverter();
+	private static final OpenSamlMetadataAssertingPartyDetailsConverter assertingPartyMetadataConverter = new OpenSamlMetadataAssertingPartyDetailsConverter();
 
 	private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -122,7 +125,101 @@ public final class RelyingPartyRegistrations {
 	 * @since 5.6
 	 */
 	public static RelyingPartyRegistration.Builder fromMetadata(InputStream source) {
-		return assertingPartyMetadataConverter.convert(source);
+		return collectionFromMetadata(source).iterator().next();
+	}
+
+	/**
+	 * Return a {@link Collection} of {@link RelyingPartyRegistration.Builder}s based off
+	 * of the given SAML 2.0 Asserting Party (IDP) metadata location.
+	 *
+	 * Valid locations can be classpath- or file-based or they can be HTTP endpoints. Some
+	 * valid endpoints might include:
+	 *
+	 * <pre>
+	 *   metadataLocation = "classpath:asserting-party-metadata.xml";
+	 *   metadataLocation = "file:asserting-party-metadata.xml";
+	 *   metadataLocation = "https://ap.example.org/metadata";
+	 * </pre>
+	 *
+	 * Note that by default the registrationId is set to be the given metadata location,
+	 * but this will most often not be sufficient. To complete the configuration, most
+	 * applications will also need to provide a registrationId, like so:
+	 *
+	 * <pre>
+	 *	Iterable&lt;RelyingPartyRegistration&gt; registrations = RelyingPartyRegistrations
+	 * 			.collectionFromMetadataLocation(location).iterator();
+	 * 	RelyingPartyRegistration one = registrations.next().registrationId("one").build();
+	 * 	RelyingPartyRegistration two = registrations.next().registrationId("two").build();
+	 * 	return new InMemoryRelyingPartyRegistrationRepository(one, two);
+	 * </pre>
+	 *
+	 * Also note that an {@code IDPSSODescriptor} typically only contains information
+	 * about the asserting party. Thus, you will need to remember to still populate
+	 * anything about the relying party, like any private keys the relying party will use
+	 * for signing AuthnRequests.
+	 * @param location The classpath- or file-based locations or HTTP endpoints of the
+	 * asserting party metadata file
+	 * @return the {@link Collection} of {@link RelyingPartyRegistration.Builder}s for
+	 * further configuration
+	 * @since 5.7
+	 */
+	public static Collection<RelyingPartyRegistration.Builder> collectionFromMetadataLocation(String location) {
+		try (InputStream source = resourceLoader.getResource(location).getInputStream()) {
+			return collectionFromMetadata(source);
+		}
+		catch (IOException ex) {
+			if (ex.getCause() instanceof Saml2Exception) {
+				throw (Saml2Exception) ex.getCause();
+			}
+			throw new Saml2Exception(ex);
+		}
+	}
+
+	/**
+	 * Return a {@link Collection} of {@link RelyingPartyRegistration.Builder}s based off
+	 * of the given SAML 2.0 Asserting Party (IDP) metadata.
+	 *
+	 * <p>
+	 * This method is intended for scenarios when the metadata is looked up by a separate
+	 * mechanism. One such example is when the metadata is stored in a database.
+	 * </p>
+	 *
+	 * <p>
+	 * <strong>The callers of this method are accountable for closing the
+	 * {@code InputStream} source.</strong>
+	 * </p>
+	 *
+	 * Note that by default the registrationId is set to be the given metadata location,
+	 * but this will most often not be sufficient. To complete the configuration, most
+	 * applications will also need to provide a registrationId, like so:
+	 *
+	 * <pre>
+	 *	String xml = fromDatabase();
+	 *	try (InputStream source = new ByteArrayInputStream(xml.getBytes())) {
+	 *		Iterator&lt;RelyingPartyRegistration&gt; registrations = RelyingPartyRegistrations
+	 * 				.collectionFromMetadata(source).iterator();
+	 * 		RelyingPartyRegistration one = registrations.next().registrationId("one").build();
+	 * 		RelyingPartyRegistration two = registrations.next().registrationId("two").build();
+	 * 		return new InMemoryRelyingPartyRegistrationRepository(one, two);
+	 * 	}
+	 * </pre>
+	 *
+	 * Also note that an {@code IDPSSODescriptor} typically only contains information
+	 * about the asserting party. Thus, you will need to remember to still populate
+	 * anything about the relying party, like any private keys the relying party will use
+	 * for signing AuthnRequests.
+	 * @param source the {@link InputStream} source containing the asserting party
+	 * metadata
+	 * @return the {@link Collection} of {@link RelyingPartyRegistration.Builder}s for
+	 * further configuration
+	 * @since 5.7
+	 */
+	public static Collection<RelyingPartyRegistration.Builder> collectionFromMetadata(InputStream source) {
+		Collection<RelyingPartyRegistration.Builder> builders = new ArrayList<>();
+		for (AssertingPartyDetails.Builder builder : assertingPartyMetadataConverter.convert(source)) {
+			builders.add(RelyingPartyRegistration.withAssertingPartyDetails(builder.build()));
+		}
+		return builders;
 	}
 
 }

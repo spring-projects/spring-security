@@ -19,7 +19,6 @@ package org.springframework.security.web.savedrequest;
 import java.io.Serializable;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

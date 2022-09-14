@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,21 +26,33 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.context.SecurityContextChangedListener;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.setAuthentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.x509;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -86,9 +98,44 @@ public class X509ConfigurerTests {
 	}
 
 	@Test
+	public void x509WhenCustomSecurityContextHolderStrategyThenUses() throws Exception {
+		this.spring.register(DefaultsInLambdaConfig.class, SecurityContextChangedListenerConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
+		SecurityContextChangedListener listener = this.spring.getContext()
+				.getBean(SecurityContextChangedListener.class);
+		verify(listener).securityContextChanged(setAuthentication(PreAuthenticatedAuthenticationToken.class));
+	}
+
+	@Test
 	public void x509WhenSubjectPrincipalRegexInLambdaThenUsesRegexToExtractPrincipal() throws Exception {
 		this.spring.register(SubjectPrincipalRegexInLambdaConfig.class).autowire();
 		X509Certificate certificate = loadCert("rodatexampledotcom.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+	}
+
+	@Test
+	public void x509WhenUserDetailsServiceNotConfiguredThenUsesBean() throws Exception {
+		this.spring.register(UserDetailsServiceBeanConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
+		// @formatter:off
+		this.mvc.perform(get("/").with(x509(certificate)))
+				.andExpect(authenticated().withUsername("rod"));
+		// @formatter:on
+	}
+
+	@Test
+	public void x509WhenUserDetailsServiceAndBeanConfiguredThenDoesNotUseBean() throws Exception {
+		this.spring.register(UserDetailsServiceAndBeanConfig.class).autowire();
+		X509Certificate certificate = loadCert("rod.cer");
 		// @formatter:off
 		this.mvc.perform(get("/").with(x509(certificate)))
 				.andExpect(authenticated().withUsername("rod"));
@@ -105,6 +152,7 @@ public class X509ConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -134,6 +182,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -159,6 +208,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -181,6 +231,7 @@ public class X509ConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SubjectPrincipalRegexInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -202,6 +253,63 @@ public class X509ConfigurerTests {
 				.inMemoryAuthentication()
 					.withUser("rod").password("password").roles("USER", "ADMIN");
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class UserDetailsServiceBeanConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.x509(withDefaults());
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			// @formatter:off
+			return new InMemoryUserDetailsManager(
+					User.withDefaultPasswordEncoder()
+							.username("rod")
+							.password("password")
+							.roles("USER", "ADMIN")
+							.build()
+			);
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class UserDetailsServiceAndBeanConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			UserDetailsService customUserDetailsService = new InMemoryUserDetailsManager(
+					User.withDefaultPasswordEncoder()
+							.username("rod")
+							.password("password")
+							.roles("USER", "ADMIN")
+							.build());
+			http
+				.x509((x509) -> x509
+					.userDetailsService(customUserDetailsService)
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			// @formatter:off
+			return mock(UserDetailsService.class);
 		}
 
 	}

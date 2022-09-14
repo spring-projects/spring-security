@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.support.AopUtils;
 import org.springframework.core.MethodClassKey;
 import org.springframework.lang.NonNull;
 
@@ -43,7 +42,7 @@ abstract class AbstractExpressionAttributeRegistry<T extends ExpressionAttribute
 	final T getAttribute(MethodInvocation mi) {
 		Method method = mi.getMethod();
 		Object target = mi.getThis();
-		Class<?> targetClass = (target != null) ? AopUtils.getTargetClass(target) : null;
+		Class<?> targetClass = (target != null) ? target.getClass() : null;
 		return getAttribute(method, targetClass);
 	}
 

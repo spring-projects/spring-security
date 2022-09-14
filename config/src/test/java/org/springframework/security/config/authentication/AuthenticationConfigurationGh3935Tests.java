@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,11 +72,12 @@ public class AuthenticationConfigurationGh3935Tests {
 		AuthenticationManager authenticationManager = this.adapter.authenticationManager;
 		assertThat(authenticationManager).isNotNull();
 		Authentication auth = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated(username, password));
 		verify(this.uds).loadUserByUsername(username);
 		assertThat(auth.getPrincipal()).isEqualTo(PasswordEncodedUser.user());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurity extends WebSecurityConfigurerAdapter {
 

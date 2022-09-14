@@ -46,6 +46,8 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 
 	private String springSecurityContextAttrName = DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
+	private boolean cacheSecurityContext;
+
 	/**
 	 * Sets the session attribute name used to save and load the {@link SecurityContext}
 	 * @param springSecurityContextAttrName the session attribute name to use to save and
@@ -54,6 +56,16 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 	public void setSpringSecurityContextAttrName(String springSecurityContextAttrName) {
 		Assert.hasText(springSecurityContextAttrName, "springSecurityContextAttrName cannot be null or empty");
 		this.springSecurityContextAttrName = springSecurityContextAttrName;
+	}
+
+	/**
+	 * If set to true the result of {@link #load(ServerWebExchange)} will use
+	 * {@link Mono#cache()} to prevent multiple lookups.
+	 * @param cacheSecurityContext true if {@link Mono#cache()} should be used, else
+	 * false.
+	 */
+	public void setCacheSecurityContext(boolean cacheSecurityContext) {
+		this.cacheSecurityContext = cacheSecurityContext;
 	}
 
 	@Override
@@ -72,13 +84,14 @@ public class WebSessionServerSecurityContextRepository implements ServerSecurity
 
 	@Override
 	public Mono<SecurityContext> load(ServerWebExchange exchange) {
-		return exchange.getSession().flatMap((session) -> {
+		Mono<SecurityContext> result = exchange.getSession().flatMap((session) -> {
 			SecurityContext context = (SecurityContext) session.getAttribute(this.springSecurityContextAttrName);
 			logger.debug((context != null)
 					? LogMessage.format("Found SecurityContext '%s' in WebSession: '%s'", context, session)
 					: LogMessage.format("No SecurityContext found in WebSession: '%s'", session));
 			return Mono.justOrEmpty(context);
 		});
+		return (this.cacheSecurityContext) ? result.cache() : result;
 	}
 
 }

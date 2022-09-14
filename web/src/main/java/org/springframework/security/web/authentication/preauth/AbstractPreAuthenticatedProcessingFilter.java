@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,10 +36,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -86,6 +89,9 @@ import org.springframework.web.filter.GenericFilterBean;
 public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFilterBean
 		implements ApplicationEventPublisherAware {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private ApplicationEventPublisher eventPublisher = null;
 
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
@@ -103,6 +109,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private AuthenticationFailureHandler authenticationFailureHandler = null;
 
 	private RequestMatcher requiresAuthenticationRequestMatcher = new PreAuthenticatedProcessingRequestMatcher();
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	/**
 	 * Check whether all required properties have been set.
@@ -128,8 +136,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			throws IOException, ServletException {
 		if (this.requiresAuthenticationRequestMatcher.matches((HttpServletRequest) request)) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(LogMessage
-						.of(() -> "Authenticating " + SecurityContextHolder.getContext().getAuthentication()));
+				logger.debug(LogMessage.of(
+						() -> "Authenticating " + this.securityContextHolderStrategy.getContext().getAuthentication()));
 			}
 			doAuthenticate((HttpServletRequest) request, (HttpServletResponse) response);
 		}
@@ -207,9 +215,10 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			Authentication authResult) throws IOException, ServletException {
 		this.logger.debug(LogMessage.format("Authentication success: %s", authResult));
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authResult);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
+		this.securityContextRepository.saveContext(context, request, response);
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
@@ -226,7 +235,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 */
 	protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException failed) throws IOException, ServletException {
-		SecurityContextHolder.clearContext();
+		this.securityContextHolderStrategy.clearContext();
 		this.logger.debug("Cleared security context due to exception", failed);
 		request.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, failed);
 		if (this.authenticationFailureHandler != null) {
@@ -240,6 +249,18 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher anApplicationEventPublisher) {
 		this.eventPublisher = anApplicationEventPublisher;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	/**
@@ -319,6 +340,17 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	/**
 	 * Override to extract the principal information from the current request
 	 */
 	protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
@@ -337,7 +369,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			Authentication currentUser = SecurityContextHolder.getContext().getAuthentication();
+			Authentication currentUser = AbstractPreAuthenticatedProcessingFilter.this.securityContextHolderStrategy
+					.getContext().getAuthentication();
 			if (currentUser == null) {
 				return true;
 			}
@@ -350,7 +383,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 			AbstractPreAuthenticatedProcessingFilter.this.logger
 					.debug("Pre-authenticated principal has changed and will be reauthenticated");
 			if (AbstractPreAuthenticatedProcessingFilter.this.invalidateSessionOnPrincipalChange) {
-				SecurityContextHolder.clearContext();
+				AbstractPreAuthenticatedProcessingFilter.this.securityContextHolderStrategy.clearContext();
 				HttpSession session = request.getSession(false);
 				if (session != null) {
 					AbstractPreAuthenticatedProcessingFilter.this.logger.debug("Invalidating existing session");

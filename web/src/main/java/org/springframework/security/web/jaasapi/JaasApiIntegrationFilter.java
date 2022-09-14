@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2021 the original author or authors.
+ * Copyright 2010-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.jaas.JaasAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
 /**
@@ -51,6 +53,9 @@ import org.springframework.web.filter.GenericFilterBean;
  * @see #obtainSubject(ServletRequest)
  */
 public class JaasApiIntegrationFilter extends GenericFilterBean {
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	private boolean createEmptySubject;
 
@@ -114,7 +119,7 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 * available.
 	 */
 	protected Subject obtainSubject(ServletRequest request) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 		this.logger.debug(LogMessage.format("Attempting to obtainSubject using authentication : %s", authentication));
 		if (authentication == null) {
 			return null;
@@ -142,6 +147,17 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 	 */
 	public final void setCreateEmptySubject(boolean createEmptySubject) {
 		this.createEmptySubject = createEmptySubject;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

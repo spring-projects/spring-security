@@ -26,7 +26,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,12 +42,15 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
@@ -92,6 +94,9 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	private static final Log logger = LogFactory.getLog(DigestAuthenticationFilter.class);
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource = new WebAuthenticationDetailsSource();
 
 	private DigestAuthenticationEntryPoint authenticationEntryPoint;
@@ -105,6 +110,8 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	private boolean passwordAlreadyEncoded = false;
 
 	private boolean createAuthenticatedToken = false;
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	@Override
 	public void afterPropertiesSet() {
@@ -189,9 +196,10 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 		logger.debug(LogMessage.format("Authentication success for user: '%s' with response: '%s'",
 				digestAuth.getUsername(), digestAuth.getResponse()));
 		Authentication authentication = createSuccessfulAuthentication(request, user);
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authentication);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
+		this.securityContextRepository.saveContext(context, request, response);
 		chain.doFilter(request, response);
 	}
 
@@ -203,15 +211,15 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	private UsernamePasswordAuthenticationToken getAuthRequest(UserDetails user) {
 		if (this.createAuthenticatedToken) {
-			return new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities());
+			return UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities());
 		}
-		return new UsernamePasswordAuthenticationToken(user, user.getPassword());
+		return UsernamePasswordAuthenticationToken.unauthenticated(user, user.getPassword());
 	}
 
 	private void fail(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed)
 			throws IOException, ServletException {
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		SecurityContextHolder.setContext(context);
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+		this.securityContextHolderStrategy.setContext(context);
 		logger.debug(failed);
 		this.authenticationEntryPoint.commence(request, response, failed);
 	}
@@ -269,6 +277,29 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 	 */
 	public void setCreateAuthenticatedToken(boolean createAuthenticatedToken) {
 		this.createAuthenticatedToken = createAuthenticatedToken;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	private class DigestData {

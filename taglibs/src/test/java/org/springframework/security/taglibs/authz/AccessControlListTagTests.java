@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.Map;
 
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.jsp.tagext.Tag;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,10 @@ import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
@@ -68,6 +70,7 @@ public class AccessControlListTagTests {
 		Map beanMap = new HashMap();
 		beanMap.put("pe", this.pe);
 		given(ctx.getBeansOfType(PermissionEvaluator.class)).willReturn(beanMap);
+		given(ctx.getBeanNamesForType(SecurityContextHolderStrategy.class)).willReturn(new String[0]);
 		MockServletContext servletCtx = new MockServletContext();
 		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, ctx);
 		this.pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
@@ -90,6 +93,30 @@ public class AccessControlListTagTests {
 		assertThat(this.tag.getHasPermission()).isEqualTo("READ");
 		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
 		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
+	}
+
+	@Test
+	public void securityContextHolderStrategyIsUsedIfConfigured() throws Exception {
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(this.bob));
+		GenericWebApplicationContext context = new GenericWebApplicationContext();
+		context.registerBean(SecurityContextHolderStrategy.class, () -> strategy);
+		context.registerBean(PermissionEvaluator.class, () -> this.pe);
+		context.refresh();
+		MockServletContext servletCtx = new MockServletContext();
+		servletCtx.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, context);
+		this.pageContext = new MockPageContext(servletCtx, new MockHttpServletRequest(), new MockHttpServletResponse());
+		this.tag.setPageContext(this.pageContext);
+		Object domainObject = new Object();
+		given(this.pe.hasPermission(this.bob, domainObject, "READ")).willReturn(true);
+		this.tag.setDomainObject(domainObject);
+		this.tag.setHasPermission("READ");
+		this.tag.setVar("allowed");
+		assertThat(this.tag.getDomainObject()).isSameAs(domainObject);
+		assertThat(this.tag.getHasPermission()).isEqualTo("READ");
+		assertThat(this.tag.doStartTag()).isEqualTo(Tag.EVAL_BODY_INCLUDE);
+		assertThat((Boolean) this.pageContext.getAttribute("allowed")).isTrue();
+		verify(strategy).getContext();
 	}
 
 	@Test

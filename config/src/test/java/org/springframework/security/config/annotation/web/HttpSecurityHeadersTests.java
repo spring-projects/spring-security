@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web;
 
 import jakarta.servlet.Filter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,6 +86,7 @@ public class HttpSecurityHeadersTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 

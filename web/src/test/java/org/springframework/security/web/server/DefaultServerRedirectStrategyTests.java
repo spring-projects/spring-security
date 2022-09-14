@@ -30,7 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -59,7 +59,7 @@ public class DefaultServerRedirectStrategyTests {
 	@Test
 	public void sendRedirectWhenNoSubscribersThenNoActions() {
 		this.strategy.sendRedirect(this.exchange, this.location);
-		verifyZeroInteractions(this.exchange);
+		verifyNoMoreInteractions(this.exchange);
 	}
 
 	@Test

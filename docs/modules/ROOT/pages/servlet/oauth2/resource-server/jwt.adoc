@@ -137,26 +137,29 @@ This property can also be supplied directly on the <<oauth2resourceserver-jwt-jw
 
 There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 
-The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
+The first is a `SecurityFilterChain` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `SecurityFilterChain` looks like:
 
 .Default JWT Configuration
 ====
 .Java
 [source,java,role="primary"]
 ----
-protected void configure(HttpSecurity http) {
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests(authorize -> authorize
             .anyRequest().authenticated()
         )
         .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+    return http.build();
 }
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-fun configure(http: HttpSecurity) {
+@Bean
+open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         authorizeRequests {
             authorize(anyRequest, authenticated)
@@ -165,11 +168,12 @@ fun configure(http: HttpSecurity) {
             jwt { }
         }
     }
+    return http.build()
 }
 ----
 ====
 
-If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
+If the application doesn't expose a `SecurityFilterChain` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
@@ -178,9 +182,11 @@ Replacing this is as simple as exposing the bean within the application:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class MyCustomSecurityConfiguration {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
@@ -191,6 +197,7 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
                     .jwtAuthenticationConverter(myConverter())
                 )
             );
+        return http.build();
     }
 }
 ----
@@ -198,9 +205,11 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class MyCustomSecurityConfiguration {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize("/messages/**", hasAuthority("SCOPE_message:read"))
@@ -212,6 +221,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -295,9 +305,11 @@ An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-j
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class DirectlyConfiguredJwkSetUri {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
@@ -307,6 +319,7 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
                     .jwkSetUri("https://idp.example.com/.well-known/jwks.json")
                 )
             );
+        return http.build();
     }
 }
 ----
@@ -314,9 +327,11 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class DirectlyConfiguredJwkSetUri {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -327,6 +342,7 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -355,9 +371,11 @@ More powerful than `jwkSetUri()` is `decoder()`, which will completely replace a
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class DirectlyConfiguredJwtDecoder {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
@@ -367,6 +385,7 @@ public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
                     .decoder(myCustomDecoder())
                 )
             );
+        return http.build();
     }
 }
 ----
@@ -374,9 +393,11 @@ public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class DirectlyConfiguredJwtDecoder {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -387,6 +408,7 @@ class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -715,9 +737,11 @@ This means that to protect an endpoint or method with a scope derived from a JWT
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class DirectlyConfiguredJwkSetUri {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
@@ -725,6 +749,7 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+        return http.build();
     }
 }
 ----
@@ -732,9 +757,11 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class DirectlyConfiguredJwkSetUri {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize("/contacts/**", hasAuthority("SCOPE_contacts"))
@@ -745,6 +772,7 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
                 jwt { }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -922,9 +950,11 @@ static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAut
 
 // ...
 
+@Configuration
 @EnableWebSecurity
-public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
-    protected void configure(HttpSecurity http) {
+public class CustomAuthenticationConverterConfig {
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().authenticated()
@@ -934,6 +964,7 @@ public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAd
                     .jwtAuthenticationConverter(new CustomAuthenticationConverter())
                 )
             );
+        return http.build();
     }
 }
 ----
@@ -949,9 +980,11 @@ internal class CustomAuthenticationConverter : Converter<Jwt, AbstractAuthentica
 
 // ...
 
+@Configuration
 @EnableWebSecurity
-class CustomAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
-    override fun configure(http: HttpSecurity) {
+class CustomAuthenticationConverterConfig {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
        http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -962,6 +995,7 @@ class CustomAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
                }
            }
         }
+        return http.build()
     }
 }
 ----

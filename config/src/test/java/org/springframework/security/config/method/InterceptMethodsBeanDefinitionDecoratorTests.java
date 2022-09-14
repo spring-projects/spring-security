@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.method;
 
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -32,6 +33,8 @@ import org.springframework.security.authentication.AuthenticationCredentialsNotF
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.TestBusinessBean;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -41,6 +44,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -57,6 +63,21 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 	@Qualifier("transactionalTarget")
 	private TestBusinessBean transactionalTarget;
 
+	@Autowired
+	@Qualifier("targetAuthorizationManager")
+	private TestBusinessBean targetAuthorizationManager;
+
+	@Autowired
+	@Qualifier("transactionalTargetAuthorizationManager")
+	private TestBusinessBean transactionalTargetAuthorizationManager;
+
+	@Autowired
+	@Qualifier("targetCustomAuthorizationManager")
+	private TestBusinessBean targetCustomAuthorizationManager;
+
+	@Autowired
+	private AuthorizationManager<MethodInvocation> mockAuthorizationManager;
+
 	private ApplicationContext appContext;
 
 	@BeforeAll
@@ -72,10 +93,12 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 
 	@Test
 	public void targetDoesntLoseApplicationListenerInterface() {
-		assertThat(this.appContext.getBeansOfType(ApplicationListener.class)).hasSize(1);
-		assertThat(this.appContext.getBeanNamesForType(ApplicationListener.class)).hasSize(1);
+		assertThat(this.appContext.getBeansOfType(ApplicationListener.class)).isNotEmpty();
+		assertThat(this.appContext.getBeanNamesForType(ApplicationListener.class)).isNotEmpty();
 		this.appContext.publishEvent(new AuthenticationSuccessEvent(new TestingAuthenticationToken("user", "")));
 		assertThat(this.target).isInstanceOf(ApplicationListener.class);
+		assertThat(this.targetAuthorizationManager).isInstanceOf(ApplicationListener.class);
+		assertThat(this.targetCustomAuthorizationManager).isInstanceOf(ApplicationListener.class);
 	}
 
 	@Test
@@ -91,16 +114,16 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 
 	@Test
 	public void targetShouldAllowProtectedMethodInvocationWithCorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 		this.target.doSomething();
 	}
 
 	@Test
 	public void targetShouldPreventProtectedMethodInvocationWithIncorrectRole() {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
 		SecurityContextHolder.getContext().setAuthentication(token);
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.target::doSomething);
 	}
@@ -108,6 +131,46 @@ public class InterceptMethodsBeanDefinitionDecoratorTests implements Application
 	@Test
 	public void transactionalMethodsShouldBeSecured() {
 		assertThatExceptionOfType(AuthenticationException.class).isThrownBy(this.transactionalTarget::doSomething);
+	}
+
+	@Test
+	public void targetAuthorizationManagerShouldAllowUnprotectedMethodInvocationWithNoContext() {
+		this.targetAuthorizationManager.unprotected();
+	}
+
+	@Test
+	public void targetAuthorizationManagerShouldPreventProtectedMethodInvocationWithNoContext() {
+		assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class)
+				.isThrownBy(this.targetAuthorizationManager::doSomething);
+	}
+
+	@Test
+	public void targetAuthorizationManagerShouldAllowProtectedMethodInvocationWithCorrectRole() {
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_USER"));
+		SecurityContextHolder.getContext().setAuthentication(token);
+		this.targetAuthorizationManager.doSomething();
+	}
+
+	@Test
+	public void targetAuthorizationManagerShouldPreventProtectedMethodInvocationWithIncorrectRole() {
+		UsernamePasswordAuthenticationToken token = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_SOMEOTHERROLE"));
+		SecurityContextHolder.getContext().setAuthentication(token);
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.targetAuthorizationManager::doSomething);
+	}
+
+	@Test
+	public void transactionalAuthorizationManagerMethodsShouldBeSecured() {
+		assertThatExceptionOfType(AuthenticationException.class)
+				.isThrownBy(this.transactionalTargetAuthorizationManager::doSomething);
+	}
+
+	@Test
+	public void targetCustomAuthorizationManagerUsed() {
+		given(this.mockAuthorizationManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
+		this.targetCustomAuthorizationManager.doSomething();
+		verify(this.mockAuthorizationManager).check(any(), any());
 	}
 
 	@Override

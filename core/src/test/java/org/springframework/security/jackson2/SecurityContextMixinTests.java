@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class SecurityContextMixinTests extends AbstractMixinTests {
 	@Test
 	public void securityContextSerializeTest() throws JsonProcessingException, JSONException {
 		SecurityContext context = new SecurityContextImpl();
-		context.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "1234",
+		context.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("admin", "1234",
 				Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"))));
 		String actualJson = this.mapper.writeValueAsString(context);
 		JSONAssert.assertEquals(SECURITY_CONTEXT_JSON, actualJson, true);

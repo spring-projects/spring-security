@@ -28,11 +28,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerReactiveAuthenticationManagerResolver
 import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
@@ -75,6 +77,7 @@ class ServerOAuth2ResourceServerDslTests {
                 .expectStatus().isSeeOther
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AccessDeniedHandlerConfig {
@@ -105,6 +108,7 @@ class ServerOAuth2ResourceServerDslTests {
                 .expectStatus().isSeeOther
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationEntryPointConfig {
@@ -141,6 +145,7 @@ class ServerOAuth2ResourceServerDslTests {
         verify(exactly = 1) { BearerTokenConverterConfig.CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class BearerTokenConverterConfig {
@@ -181,12 +186,13 @@ class ServerOAuth2ResourceServerDslTests {
         verify(exactly = 1) { AuthenticationManagerResolverConfig.RESOLVER.resolve(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationManagerResolverConfig {
 
         companion object {
-            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = ReactiveAuthenticationManagerResolver { Mono.empty() }
+            val RESOLVER: ReactiveAuthenticationManagerResolver<ServerWebExchange> = JwtIssuerReactiveAuthenticationManagerResolver("issuer")
         }
 
         @Bean

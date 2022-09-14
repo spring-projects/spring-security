@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -24,7 +25,6 @@ import jakarta.servlet.FilterConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,12 +34,18 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests {@link AnonymousAuthenticationFilter}.
@@ -74,16 +80,16 @@ public class AnonymousAuthenticationFilterTests {
 	public void testOperationWhenAuthenticationExistsInContextHolder() throws Exception {
 		// Put an Authentication object into the SecurityContextHolder
 		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
-		SecurityContextHolder.getContext().setAuthentication(originalAuth);
+		SecurityContext originalContext = new SecurityContextImpl(originalAuth);
+		SecurityContextHolder.setContext(originalContext);
 		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
 				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
-		// Test
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setRequestURI("x");
 		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, request, new MockHttpServletResponse(),
 				new MockFilterChain(true));
-		// Ensure filter didn't change our original object
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isEqualTo(originalAuth);
+		// Ensure getDeferredContext still
+		assertThat(SecurityContextHolder.getContext()).isEqualTo(originalContext);
 	}
 
 	@Test
@@ -100,6 +106,25 @@ public class AnonymousAuthenticationFilterTests {
 		assertThat(AuthorityUtils.authorityListToSet(auth.getAuthorities())).contains("ROLE_ANONYMOUS");
 		SecurityContextHolder.getContext().setAuthentication(null); // so anonymous fires
 																	// again
+	}
+
+	@Test
+	public void doFilterDoesNotGetContext() throws Exception {
+		Supplier<SecurityContext> originalSupplier = mock(Supplier.class);
+		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
+		SecurityContext originalContext = new SecurityContextImpl(originalAuth);
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getDeferredContext()).willReturn(originalSupplier);
+		given(strategy.getContext()).willReturn(originalContext);
+		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		filter.setSecurityContextHolderStrategy(strategy);
+		filter.afterPropertiesSet();
+
+		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, new MockHttpServletRequest(),
+				new MockHttpServletResponse(), new MockFilterChain(true));
+		verify(strategy, never()).getContext();
+		verify(originalSupplier, never()).get();
 	}
 
 	private class MockFilterChain implements FilterChain {

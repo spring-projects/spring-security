@@ -32,6 +32,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.http.HttpHeaders
 import org.springframework.security.authentication.AbstractAuthenticationToken
@@ -106,6 +107,7 @@ class ServerJwtDslTests {
                 .expectStatus().isUnauthorized
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class PublicKeyConfig {
@@ -141,12 +143,13 @@ class ServerJwtDslTests {
         verify(exactly = 1) { CustomDecoderConfig.JWT_DECODER.decode("token") }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomDecoderConfig {
 
         companion object {
-            val JWT_DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
+            val JWT_DECODER: ReactiveJwtDecoder = NullReactiveJwtDecoder()
         }
 
         @Bean
@@ -161,6 +164,12 @@ class ServerJwtDslTests {
                     }
                 }
             }
+        }
+    }
+
+    class NullReactiveJwtDecoder: ReactiveJwtDecoder {
+        override fun decode(token: String?): Mono<Jwt> {
+            return Mono.empty()
         }
     }
 
@@ -179,6 +188,7 @@ class ServerJwtDslTests {
         assertThat(recordedRequest.path).isEqualTo("/.well-known/jwks.json")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomJwkSetUriConfig {
@@ -236,13 +246,14 @@ class ServerJwtDslTests {
         verify(exactly = 1) { CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CustomJwtAuthenticationConverterConfig {
 
         companion object {
-            val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = Converter { Mono.empty() }
-            val DECODER: ReactiveJwtDecoder = ReactiveJwtDecoder { Mono.empty() }
+            val CONVERTER: Converter<Jwt, out Mono<AbstractAuthenticationToken>> = NullConverter()
+            val DECODER: ReactiveJwtDecoder = NullReactiveJwtDecoder()
         }
 
         @Bean
@@ -263,9 +274,16 @@ class ServerJwtDslTests {
         open fun jwtDecoder(): ReactiveJwtDecoder = DECODER
     }
 
+    class NullConverter: Converter<Jwt, Mono<AbstractAuthenticationToken>> {
+        override fun convert(source: Jwt): Mono<AbstractAuthenticationToken>? {
+            return Mono.empty()
+        }
+
+    }
+
     @RestController
     internal class BaseController {
-        @GetMapping
+        @GetMapping("/")
         fun index() {
         }
     }

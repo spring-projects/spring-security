@@ -44,8 +44,8 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testDoesNotReturnAdditionalAuthoritiesIfCalledWithoutARunAsSetting() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		UsernamePasswordAuthenticationToken inputToken = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
 		Authentication resultingToken = runAs.buildRunAs(inputToken, new Object(),
@@ -55,8 +55,8 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testRespectsRolePrefix() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ONE", "TWO"));
+		UsernamePasswordAuthenticationToken inputToken = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ONE", "TWO"));
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
 		runAs.setRolePrefix("FOOBAR_");
@@ -75,8 +75,8 @@ public class RunAsManagerImplTests {
 
 	@Test
 	public void testReturnsAdditionalGrantedAuthorities() {
-		UsernamePasswordAuthenticationToken inputToken = new UsernamePasswordAuthenticationToken("Test", "Password",
-				AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		UsernamePasswordAuthenticationToken inputToken = UsernamePasswordAuthenticationToken.authenticated("Test",
+				"Password", AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
 		RunAsManagerImpl runAs = new RunAsManagerImpl();
 		runAs.setKey("my_password");
 		Authentication result = runAs.buildRunAs(inputToken, new Object(),

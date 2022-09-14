@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.servlet.http.Cookie;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -108,7 +107,7 @@ public class PersistentTokenBasedRememberMeServicesTests {
 		this.services.setSeriesLength(12);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		this.services.loginSuccess(new MockHttpServletRequest(), response,
-				new UsernamePasswordAuthenticationToken("joe", "password"));
+				UsernamePasswordAuthenticationToken.unauthenticated("joe", "password"));
 		assertThat(this.repo.getStoredToken().getSeries().length()).isEqualTo(16);
 		assertThat(this.repo.getStoredToken().getTokenValue().length()).isEqualTo(16);
 		String[] cookie = this.services.decodeCookie(response.getCookie("mycookiename").getValue());

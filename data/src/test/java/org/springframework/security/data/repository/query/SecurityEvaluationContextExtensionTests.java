@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,23 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.access.expression.DenyAllPermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SecurityEvaluationContextExtensionTests {
 
@@ -54,6 +65,16 @@ public class SecurityEvaluationContextExtensionTests {
 	}
 
 	@Test
+	public void getRootObjectUseSecurityContextHolderStrategy() {
+		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		this.securityExtension.setSecurityContextHolderStrategy(strategy);
+		assertThat(getRoot().getAuthentication()).isSameAs(authentication);
+		verify(strategy).getContext();
+	}
+
+	@Test
 	public void getRootObjectExplicitAuthenticationOverridesSecurityContextHolder() {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
@@ -67,6 +88,77 @@ public class SecurityEvaluationContextExtensionTests {
 		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
 		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
 		assertThat(getRoot().getAuthentication()).isSameAs(explicit);
+	}
+
+	@Test
+	public void setTrustResolverWhenNullThenIllegalArgumentException() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setTrustResolver(null))
+				.withMessage("trustResolver cannot be null");
+	}
+
+	@Test
+	public void setTrustResolverWhenNotNullThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		AuthenticationTrustResolver trustResolver = new AuthenticationTrustResolverImpl();
+		this.securityExtension.setTrustResolver(trustResolver);
+		assertThat(getRoot()).extracting("trustResolver").isEqualTo(trustResolver);
+	}
+
+	@Test
+	public void setRoleHierarchyWhenNullThenIllegalArgumentException() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setRoleHierarchy(null))
+				.withMessage("roleHierarchy cannot be null");
+	}
+
+	@Test
+	public void setRoleHierarchyWhenNotNullThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		RoleHierarchy roleHierarchy = new NullRoleHierarchy();
+		this.securityExtension.setRoleHierarchy(roleHierarchy);
+		assertThat(getRoot()).extracting("roleHierarchy").isEqualTo(roleHierarchy);
+	}
+
+	@Test
+	public void setPermissionEvaluatorWhenNullThenIllegalArgumentException() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		assertThatIllegalArgumentException().isThrownBy(() -> this.securityExtension.setPermissionEvaluator(null))
+				.withMessage("permissionEvaluator cannot be null");
+	}
+
+	@Test
+	public void setPermissionEvaluatorWhenNotNullThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		PermissionEvaluator permissionEvaluator = new DenyAllPermissionEvaluator();
+		this.securityExtension.setPermissionEvaluator(permissionEvaluator);
+		assertThat(getRoot()).extracting("permissionEvaluator").isEqualTo(permissionEvaluator);
+	}
+
+	@Test
+	public void setDefaultRolePrefixWhenCustomThenVerifyRootObject() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		String defaultRolePrefix = "CUSTOM_";
+		this.securityExtension.setDefaultRolePrefix(defaultRolePrefix);
+		assertThat(getRoot()).extracting("defaultRolePrefix").isEqualTo(defaultRolePrefix);
+	}
+
+	@Test
+	public void getRootObjectWhenAdditionalFieldsNotSetThenVerifyDefaults() {
+		TestingAuthenticationToken explicit = new TestingAuthenticationToken("explicit", "password", "ROLE_EXPLICIT");
+		this.securityExtension = new SecurityEvaluationContextExtension(explicit);
+		SecurityExpressionRoot root = getRoot();
+		assertThat(root).extracting("trustResolver").isInstanceOf(AuthenticationTrustResolverImpl.class);
+		assertThat(root).extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
+		assertThat(root).extracting("permissionEvaluator").isInstanceOf(DenyAllPermissionEvaluator.class);
+		assertThat(root).extracting("defaultRolePrefix").isEqualTo("ROLE_");
 	}
 
 	private SecurityExpressionRoot getRoot() {

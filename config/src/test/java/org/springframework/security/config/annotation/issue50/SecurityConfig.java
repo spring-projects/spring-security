@@ -39,9 +39,9 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  *
  */
+@Configuration
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-@Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 	@Autowired

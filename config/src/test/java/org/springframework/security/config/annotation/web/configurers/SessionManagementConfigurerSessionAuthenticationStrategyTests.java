@@ -18,11 +18,11 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -59,6 +59,7 @@ public class SessionManagementConfigurerSessionAuthenticationStrategyTests {
 				any(Authentication.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomSessionAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
 

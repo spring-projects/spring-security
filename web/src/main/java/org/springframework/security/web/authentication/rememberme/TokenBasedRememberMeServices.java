@@ -54,9 +54,19 @@ import org.springframework.util.StringUtils;
  * The cookie encoded by this implementation adopts the following form:
  *
  * <pre>
- * username + &quot;:&quot; + expiryTime + &quot;:&quot;
- * 		+ Md5Hex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
+ * username + &quot;:&quot; + expiryTime + &quot;:&quot; + algorithmName + &quot;:&quot;
+ * 		+ algorithmHex(username + &quot;:&quot; + expiryTime + &quot;:&quot; + password + &quot;:&quot; + key)
  * </pre>
+ *
+ * <p>
+ * This implementation uses the algorithm configured in {@link #encodingAlgorithm} to
+ * encode the signature. It will try to use the algorithm retrieved from the
+ * {@code algorithmName} to validate the signature. However, if the {@code algorithmName}
+ * is not present in the cookie value, the algorithm configured in
+ * {@link #matchingAlgorithm} will be used to validate the signature. This allows users to
+ * safely upgrade to a different encoding algorithm while still able to verify old ones if
+ * there is no {@code algorithmName} present.
+ * </p>
  *
  * <p>
  * As such, if the user changes their password, any remember-me token will be invalidated.
@@ -80,19 +90,43 @@ import org.springframework.util.StringUtils;
  * not be stored when the browser is closed.
  *
  * @author Ben Alex
+ * @author Marcus Da Coregio
  */
 public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
+	private static final RememberMeTokenAlgorithm DEFAULT_MATCHING_ALGORITHM = RememberMeTokenAlgorithm.SHA256;
+
+	private static final RememberMeTokenAlgorithm DEFAULT_ENCODING_ALGORITHM = RememberMeTokenAlgorithm.SHA256;
+
+	private final RememberMeTokenAlgorithm encodingAlgorithm;
+
+	private RememberMeTokenAlgorithm matchingAlgorithm = DEFAULT_MATCHING_ALGORITHM;
+
 	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService) {
+		this(key, userDetailsService, DEFAULT_ENCODING_ALGORITHM);
+	}
+
+	/**
+	 * Construct the instance with the parameters provided
+	 * @param key the signature key
+	 * @param userDetailsService the {@link UserDetailsService}
+	 * @param encodingAlgorithm the {@link RememberMeTokenAlgorithm} used to encode the
+	 * signature
+	 * @since 5.8
+	 */
+	public TokenBasedRememberMeServices(String key, UserDetailsService userDetailsService,
+			RememberMeTokenAlgorithm encodingAlgorithm) {
 		super(key, userDetailsService);
+		Assert.notNull(encodingAlgorithm, "encodingAlgorithm cannot be null");
+		this.encodingAlgorithm = encodingAlgorithm;
 	}
 
 	@Override
 	protected UserDetails processAutoLoginCookie(String[] cookieTokens, HttpServletRequest request,
 			HttpServletResponse response) {
-		if (cookieTokens.length != 3) {
+		if (!isValidCookieTokensLength(cookieTokens)) {
 			throw new InvalidCookieException(
-					"Cookie token did not contain 3" + " tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
+					"Cookie token did not contain 3 or 4 tokens, but contained '" + Arrays.asList(cookieTokens) + "'");
 		}
 		long tokenExpiryTime = getTokenExpiryTime(cookieTokens);
 		if (isTokenExpired(tokenExpiryTime)) {
@@ -110,13 +144,25 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		// only called once per HttpSession - if the token is valid, it will cause
 		// SecurityContextHolder population, whilst if invalid, will cause the cookie to
 		// be cancelled.
+		String actualTokenSignature = cookieTokens[2];
+		RememberMeTokenAlgorithm actualAlgorithm = this.matchingAlgorithm;
+		// If the cookie value contains the algorithm, we use that algorithm to check the
+		// signature
+		if (cookieTokens.length == 4) {
+			actualTokenSignature = cookieTokens[3];
+			actualAlgorithm = RememberMeTokenAlgorithm.valueOf(cookieTokens[2]);
+		}
 		String expectedTokenSignature = makeTokenSignature(tokenExpiryTime, userDetails.getUsername(),
-				userDetails.getPassword());
-		if (!equals(expectedTokenSignature, cookieTokens[2])) {
-			throw new InvalidCookieException("Cookie token[2] contained signature '" + cookieTokens[2]
-					+ "' but expected '" + expectedTokenSignature + "'");
+				userDetails.getPassword(), actualAlgorithm);
+		if (!equals(expectedTokenSignature, actualTokenSignature)) {
+			throw new InvalidCookieException("Cookie contained signature '" + actualTokenSignature + "' but expected '"
+					+ expectedTokenSignature + "'");
 		}
 		return userDetails;
+	}
+
+	private boolean isValidCookieTokensLength(String[] cookieTokens) {
+		return cookieTokens.length == 3 || cookieTokens.length == 4;
 	}
 
 	private long getTokenExpiryTime(String[] cookieTokens) {
@@ -130,17 +176,33 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	}
 
 	/**
-	 * Calculates the digital signature to be put in the cookie. Default value is MD5
-	 * ("username:tokenExpiryTime:password:key")
+	 * Calculates the digital signature to be put in the cookie. Default value is
+	 * {@link #encodingAlgorithm} applied to ("username:tokenExpiryTime:password:key")
 	 */
 	protected String makeTokenSignature(long tokenExpiryTime, String username, String password) {
 		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
 		try {
-			MessageDigest digest = MessageDigest.getInstance("MD5");
+			MessageDigest digest = MessageDigest.getInstance(this.encodingAlgorithm.getDigestAlgorithm());
 			return new String(Hex.encode(digest.digest(data.getBytes())));
 		}
 		catch (NoSuchAlgorithmException ex) {
-			throw new IllegalStateException("No MD5 algorithm available!");
+			throw new IllegalStateException("No " + this.encodingAlgorithm.name() + " algorithm available!");
+		}
+	}
+
+	/**
+	 * Calculates the digital signature to be put in the cookie.
+	 * @since 5.8
+	 */
+	protected String makeTokenSignature(long tokenExpiryTime, String username, String password,
+			RememberMeTokenAlgorithm algorithm) {
+		String data = username + ":" + tokenExpiryTime + ":" + password + ":" + getKey();
+		try {
+			MessageDigest digest = MessageDigest.getInstance(algorithm.getDigestAlgorithm());
+			return new String(Hex.encode(digest.digest(data.getBytes())));
+		}
+		catch (NoSuchAlgorithmException ex) {
+			throw new IllegalStateException("No " + algorithm.name() + " algorithm available!");
 		}
 	}
 
@@ -172,13 +234,23 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 		long expiryTime = System.currentTimeMillis();
 		// SEC-949
 		expiryTime += 1000L * ((tokenLifetime < 0) ? TWO_WEEKS_S : tokenLifetime);
-		String signatureValue = makeTokenSignature(expiryTime, username, password);
-		setCookie(new String[] { username, Long.toString(expiryTime), signatureValue }, tokenLifetime, request,
-				response);
+		String signatureValue = makeTokenSignature(expiryTime, username, password, this.encodingAlgorithm);
+		setCookie(new String[] { username, Long.toString(expiryTime), this.encodingAlgorithm.name(), signatureValue },
+				tokenLifetime, request, response);
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(
 					"Added remember-me cookie for user '" + username + "', expiry: '" + new Date(expiryTime) + "'");
 		}
+	}
+
+	/**
+	 * Sets the algorithm to be used to match the token signature
+	 * @param matchingAlgorithm the matching algorithm
+	 * @since 5.8
+	 */
+	public void setMatchingAlgorithm(RememberMeTokenAlgorithm matchingAlgorithm) {
+		Assert.notNull(matchingAlgorithm, "matchingAlgorithm cannot be null");
+		this.matchingAlgorithm = matchingAlgorithm;
 	}
 
 	/**
@@ -190,7 +262,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 	 * <p>
 	 * The returned value will be used to work out the expiry time of the token and will
 	 * also be used to set the <tt>maxAge</tt> property of the cookie.
-	 *
+	 * <p>
 	 * See SEC-485.
 	 * @param request the request passed to onLoginSuccess
 	 * @param authentication the successful authentication object.
@@ -232,6 +304,22 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	private static byte[] bytesUtf8(String s) {
 		return (s != null) ? Utf8.encode(s) : null;
+	}
+
+	public enum RememberMeTokenAlgorithm {
+
+		MD5("MD5"), SHA256("SHA-256");
+
+		private final String digestAlgorithm;
+
+		RememberMeTokenAlgorithm(String digestAlgorithm) {
+			this.digestAlgorithm = digestAlgorithm;
+		}
+
+		public String getDigestAlgorithm() {
+			return this.digestAlgorithm;
+		}
+
 	}
 
 }

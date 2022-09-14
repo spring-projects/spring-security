@@ -72,6 +72,9 @@ If the client is running in an untrusted environment (eg. native application or 
 . `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to "none" (`ClientAuthenticationMethod.NONE`)
 
+[TIP]
+If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultServerOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
+
 [[oauth2Client-auth-code-redirect-uri]]
 The `DefaultServerOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` using `UriComponentsBuilder`.
 
@@ -112,6 +115,7 @@ The following example shows how to configure the `DefaultServerOAuth2Authorizati
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2LoginSecurityConfig {
 
@@ -154,6 +158,7 @@ public class OAuth2LoginSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class SecurityConfig {
 
@@ -259,6 +264,7 @@ If you have a custom implementation of `ServerAuthorizationRequestRepository`, y
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -277,6 +283,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2ClientSecurityConfig {
 
@@ -332,6 +339,7 @@ Whether you customize `WebClientReactiveAuthorizationCodeTokenResponseClient` or
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 public class OAuth2ClientSecurityConfig {
 
@@ -358,6 +366,7 @@ public class OAuth2ClientSecurityConfig {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebFluxSecurity
 class OAuth2ClientSecurityConfig {
 
@@ -1098,3 +1107,9 @@ class OAuth2ResourceServerController {
 }
 ----
 ====
+
+[NOTE]
+`JwtBearerReactiveOAuth2AuthorizedClientProvider` resolves the `Jwt` assertion via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.
+
+[TIP]
+If you need to resolve the `Jwt` assertion from a different source, you can provide `JwtBearerReactiveOAuth2AuthorizedClientProvider.setJwtAssertionResolver()` with a custom `Function<OAuth2AuthorizationContext, Mono<Jwt>>`.

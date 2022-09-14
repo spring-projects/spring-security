@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,19 +19,24 @@ package org.springframework.security.config.annotation.web
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
+import jakarta.servlet.http.HttpServletRequest
+import jakarta.servlet.http.HttpServletResponse
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.logout.LogoutHandler
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository
@@ -64,14 +69,17 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomLogoutUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomLogoutUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     logoutUrl = "/custom/logout"
                 }
             }
+            return http.build()
         }
     }
 
@@ -87,14 +95,17 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomLogoutRequestMatcherConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomLogoutRequestMatcherConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     logoutRequestMatcher = AntPathRequestMatcher("/custom/logout")
                 }
             }
+            return http.build()
         }
     }
 
@@ -110,14 +121,17 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class SuccessUrlConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SuccessUrlConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     logoutSuccessUrl = "/login"
                 }
             }
+            return http.build()
         }
     }
 
@@ -133,14 +147,17 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class SuccessHandlerConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class SuccessHandlerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     logoutSuccessHandler = SimpleUrlLogoutSuccessHandler()
                 }
             }
+            return http.build()
         }
     }
 
@@ -156,9 +173,11 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class PermitAllConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class PermitAllConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -168,6 +187,7 @@ class LogoutDslTests {
                     permitAll()
                 }
             }
+            return http.build()
         }
     }
 
@@ -190,14 +210,17 @@ class LogoutDslTests {
         assertThat(currentContext.authentication).isNotNull
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ClearAuthenticationFalseConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ClearAuthenticationFalseConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     clearAuthentication = false
                 }
             }
+            return http.build()
         }
     }
 
@@ -217,14 +240,17 @@ class LogoutDslTests {
         assertThat(currentSession.isInvalid).isFalse()
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class InvalidateHttpSessionFalseConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class InvalidateHttpSessionFalseConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     invalidateHttpSession = false
                 }
             }
+            return http.build()
         }
     }
 
@@ -241,14 +267,17 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class DeleteCookiesConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DeleteCookiesConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     deleteCookies("remove")
                 }
             }
+            return http.build()
         }
     }
 
@@ -271,15 +300,18 @@ class LogoutDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class DefaultLogoutSuccessHandlerForConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DefaultLogoutSuccessHandlerForConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     logoutRequestMatcher = AntPathRequestMatcher("/logout/**")
                     defaultLogoutSuccessHandlerFor(SimpleUrlLogoutSuccessHandler(), AntPathRequestMatcher("/logout/custom"))
                 }
             }
+            return http.build()
         }
     }
 
@@ -296,19 +328,31 @@ class LogoutDslTests {
         verify(exactly = 1) { CustomLogoutHandlerConfig.HANDLER.logout(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomLogoutHandlerConfig : WebSecurityConfigurerAdapter() {
+    open class CustomLogoutHandlerConfig {
 
         companion object {
-            val HANDLER: LogoutHandler = LogoutHandler { _, _, _ -> }
+            val HANDLER: LogoutHandler = NoopLogoutHandler()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 logout {
                     addLogoutHandler(HANDLER)
                 }
             }
+            return http.build()
         }
+    }
+
+    class NoopLogoutHandler: LogoutHandler {
+        override fun logout(
+            request: HttpServletRequest?,
+            response: HttpServletResponse?,
+            authentication: Authentication?
+        ) { }
+
     }
 }

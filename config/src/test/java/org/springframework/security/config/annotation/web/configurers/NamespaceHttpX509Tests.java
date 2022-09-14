@@ -24,7 +24,6 @@ import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -132,6 +132,7 @@ public class NamespaceHttpX509Tests {
 		return verify(this.spring.getContext().getBean(beanClass));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	public static class X509Config extends WebSecurityConfigurerAdapter {
@@ -158,6 +159,7 @@ public class NamespaceHttpX509Tests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class AuthenticationDetailsSourceRefConfig extends WebSecurityConfigurerAdapter {
@@ -191,6 +193,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class SubjectPrincipalRegexConfig extends WebSecurityConfigurerAdapter {
 
@@ -218,6 +221,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class CustomPrincipalExtractorConfig extends WebSecurityConfigurerAdapter {
 
@@ -250,6 +254,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class UserDetailsServiceRefConfig extends WebSecurityConfigurerAdapter {
 
@@ -277,6 +282,7 @@ public class NamespaceHttpX509Tests {
 	}
 
 	@EnableWebMvc
+	@Configuration
 	@EnableWebSecurity
 	public static class AuthenticationUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
 

@@ -19,7 +19,6 @@ package org.springframework.security.config.annotation.web;
 import java.util.Base64;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -214,6 +213,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class HelloWorldWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
@@ -261,6 +261,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class SampleWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
@@ -334,6 +335,7 @@ public class SampleWebSecurityConfigurerAdapterTests {
 	 *
 	 * @author Rob Winch
 	 */
+	@Configuration
 	@EnableWebSecurity
 	public static class SampleMultiHttpSecurityConfig {
 

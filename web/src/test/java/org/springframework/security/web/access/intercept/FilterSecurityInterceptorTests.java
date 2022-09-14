@@ -19,7 +19,6 @@ package org.springframework.security.web.access.intercept;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,9 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link FilterSecurityInterceptor}.
@@ -137,7 +137,7 @@ public class FilterSecurityInterceptorTests {
 		AfterInvocationManager aim = mock(AfterInvocationManager.class);
 		this.interceptor.setAfterInvocationManager(aim);
 		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> this.interceptor.invoke(fi));
-		verifyZeroInteractions(aim);
+		verifyNoMoreInteractions(aim);
 	}
 
 	// SEC-1967
@@ -173,6 +173,17 @@ public class FilterSecurityInterceptorTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		this.interceptor.doFilter(request, response, new MockFilterChain());
 		assertThat(request.getAttributeNames().hasMoreElements()).isFalse();
+	}
+
+	@Test
+	public void doFilterWhenObserveOncePerRequestFalseAndInvokedTwiceThenObserveTwice() throws Throwable {
+		Authentication token = new TestingAuthenticationToken("Test", "Password", "NOT_USED");
+		SecurityContextHolder.getContext().setAuthentication(token);
+		FilterInvocation fi = createinvocation();
+		given(this.ods.getAttributes(fi)).willReturn(SecurityConfig.createList("MOCK_OK"));
+		this.interceptor.invoke(fi);
+		this.interceptor.invoke(fi);
+		verify(this.adm, times(2)).decide(any(), any(), any());
 	}
 
 	private FilterInvocation createinvocation() {

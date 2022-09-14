@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,14 +23,12 @@ import org.springframework.util.Assert;
 
 /**
  * The {@code response_type} parameter is consumed by the authorization endpoint which is
- * used by the authorization code grant type and implicit grant type. The client sets the
- * {@code response_type} parameter with the desired grant type before initiating the
- * authorization request.
+ * used by the authorization code grant type. The client sets the {@code response_type}
+ * parameter with the desired grant type before initiating the authorization request.
  *
  * <p>
- * The {@code response_type} parameter value may be one of &quot;code&quot; for requesting
- * an authorization code or &quot;token&quot; for requesting an access token (implicit
- * grant).
+ * The {@code response_type} parameter value may be &quot;code&quot; for requesting an
+ * authorization code.
  *
  * @author Joe Grandja
  * @since 5.0
@@ -42,17 +40,6 @@ public final class OAuth2AuthorizationResponseType implements Serializable {
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	public static final OAuth2AuthorizationResponseType CODE = new OAuth2AuthorizationResponseType("code");
-
-	/**
-	 * It is not recommended to use the implicit flow due to the inherent risks of
-	 * returning access tokens in an HTTP redirect without any confirmation that it has
-	 * been received by the client.
-	 *
-	 * @see <a target="_blank" href="https://oauth.net/2/grant-types/implicit/">OAuth 2.0
-	 * Implicit Grant</a>
-	 */
-	@Deprecated
-	public static final OAuth2AuthorizationResponseType TOKEN = new OAuth2AuthorizationResponseType("token");
 
 	private final String value;
 

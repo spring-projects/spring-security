@@ -3,9 +3,15 @@ on:
   schedule:
     - cron: '0 10 * * *' # Once per day at 10am UTC
 
+permissions:
+  contents: read
+
 jobs:
   main:
     runs-on: ubuntu-latest
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
+    permissions:
+      contents: none
     steps:
       - name: Delete artifacts in cron job
         env:

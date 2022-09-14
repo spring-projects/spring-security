@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.authentication;
 
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 
 /**
@@ -25,7 +26,7 @@ import org.springframework.security.saml2.provider.service.registration.Saml2Mes
  * (line 2031)
  *
  * @since 5.3
- * @see Saml2AuthenticationRequestFactory
+ * @see org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver
  */
 public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2AuthenticationRequest {
 
@@ -34,8 +35,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	private final String signature;
 
 	private Saml2RedirectAuthenticationRequest(String samlRequest, String sigAlg, String signature, String relayState,
-			String authenticationRequestUri) {
-		super(samlRequest, relayState, authenticationRequestUri);
+			String authenticationRequestUri, String relyingPartyRegistrationId, String id) {
+		super(samlRequest, relayState, authenticationRequestUri, relyingPartyRegistrationId, id);
 		this.sigAlg = sigAlg;
 		this.signature = signature;
 	}
@@ -65,16 +66,15 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 	}
 
 	/**
-	 * Constructs a {@link Saml2RedirectAuthenticationRequest.Builder} from a
-	 * {@link Saml2AuthenticationRequestContext} object. By default the
-	 * {@link Saml2RedirectAuthenticationRequest#getAuthenticationRequestUri()} will be
-	 * set to the {@link Saml2AuthenticationRequestContext#getDestination()} value.
-	 * @param context input providing {@code Destination}, {@code RelayState}, and
-	 * {@code Issuer} objects.
+	 * Constructs a {@link Saml2PostAuthenticationRequest.Builder} from a
+	 * {@link RelyingPartyRegistration} object.
+	 * @param registration a relying party registration
 	 * @return a modifiable builder object
+	 * @since 5.7
 	 */
-	public static Builder withAuthenticationRequestContext(Saml2AuthenticationRequestContext context) {
-		return new Builder().authenticationRequestUri(context.getDestination()).relayState(context.getRelayState());
+	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
+		String location = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+		return new Builder(registration).authenticationRequestUri(location);
 	}
 
 	/**
@@ -86,7 +86,8 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 
 		private String signature;
 
-		private Builder() {
+		private Builder(RelyingPartyRegistration registration) {
+			super(registration);
 		}
 
 		/**
@@ -115,7 +116,7 @@ public final class Saml2RedirectAuthenticationRequest extends AbstractSaml2Authe
 		 */
 		public Saml2RedirectAuthenticationRequest build() {
 			return new Saml2RedirectAuthenticationRequest(this.samlRequest, this.sigAlg, this.signature,
-					this.relayState, this.authenticationRequestUri);
+					this.relayState, this.authenticationRequestUri, this.relyingPartyRegistrationId, this.id);
 		}
 
 	}

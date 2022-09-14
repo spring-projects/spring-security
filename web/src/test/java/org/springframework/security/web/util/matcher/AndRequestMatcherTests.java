@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -53,6 +52,11 @@ public class AndRequestMatcherTests {
 	@Test
 	public void constructorNullArray() {
 		assertThatNullPointerException().isThrownBy(() -> new AndRequestMatcher((RequestMatcher[]) null));
+	}
+
+	@Test
+	public void constructorListOfDoesNotThrowNullPointer() {
+		new AndRequestMatcher(List.of(new AntPathRequestMatcher("/test")));
 	}
 
 	@Test

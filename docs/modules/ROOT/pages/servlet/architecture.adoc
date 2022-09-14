@@ -167,6 +167,7 @@ However, there are times that it is beneficial to know the ordering.
 
 The following is a comprehensive list of Spring Security Filter ordering:
 
+* xref:servlet/authentication/session-management.adoc#session-mgmt-force-session-creation[`ForceEagerSessionCreationFilter`]
 * `ChannelProcessingFilter`
 * `WebAsyncManagerIntegrationFilter`
 * `SecurityContextPersistenceFilter`
@@ -182,7 +183,6 @@ The following is a comprehensive list of Spring Security Filter ordering:
 * `OAuth2LoginAuthenticationFilter`
 * `Saml2WebSsoAuthenticationFilter`
 * xref:servlet/authentication/passwords/form.adoc#servlet-authentication-usernamepasswordauthenticationfilter[`UsernamePasswordAuthenticationFilter`]
-* `OpenIDAuthenticationFilter`
 * `DefaultLoginPageGeneratingFilter`
 * `DefaultLogoutPageGeneratingFilter`
 * `ConcurrentSessionFilter`

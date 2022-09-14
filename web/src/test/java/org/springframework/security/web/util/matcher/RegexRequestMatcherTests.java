@@ -17,7 +17,6 @@
 package org.springframework.security.web.util.matcher;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -99,6 +98,22 @@ public class RegexRequestMatcherTests {
 		MockHttpServletRequest request = new MockHttpServletRequest("INVALID", "/blah");
 		request.setMethod("INVALID");
 		assertThat(matcher.matches(request)).isFalse();
+	}
+
+	@Test
+	public void matchesWithCarriageReturn() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", null);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/blah%0a");
+		request.setServletPath("/blah\n");
+		assertThat(matcher.matches(request)).isTrue();
+	}
+
+	@Test
+	public void matchesWithLineFeed() {
+		RegexRequestMatcher matcher = new RegexRequestMatcher(".*", null);
+		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/blah%0d");
+		request.setServletPath("/blah\r");
+		assertThat(matcher.matches(request)).isTrue();
 	}
 
 	@Test

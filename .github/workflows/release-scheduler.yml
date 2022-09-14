@@ -1,0 +1,32 @@
+name: Release Scheduler
+
+on:
+  schedule:
+    - cron: '15 15 * * MON' # Every Monday at 3:15pm UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dispatch_scheduled_releases:
+    name: Dispatch scheduled releases
+    if: ${{ github.repository == 'spring-projects/spring-security' }}
+    strategy:
+      matrix:
+        #
+        # List of active maintenance branches.
+        #
+        branch:
+          - 'main'
+          - '5.8.x'
+          - '5.7.x'
+          - '5.6.x'
+    runs-on: ubuntu-latest
+    env:
+      TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: spring-io/spring-gradle-build-action@v1
+      - name: Trigger release workflow
+        run: ./gradlew dispatchGitHubWorkflow -Pbranch=${{ matrix.branch }} -PworkflowId=update-scheduled-release-version.yml -PgitHubAccessToken=$TOKEN

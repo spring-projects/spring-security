@@ -23,15 +23,25 @@ Defaults to "false".
 Enables JSR-250 authorization annotations (@RolesAllowed, @PermitAll, @DenyAll) for this application context.
 Defaults to "false".
 
+[[nsa-method-security-mode]]
+* **mode**
+If set to "aspectj", then uses AspectJ to intercept method invocations.
+
 [[nsa-method-security-proxy-target-class]]
 * **proxy-target-class**
 If true, class based proxying will be used instead of interface based proxying.
 Defaults to "false".
 
+[[nsa-method-security-security-context-holder-strategy-ref]]
+* **security-context-holder-strategy-ref**
+Specifies a SecurityContextHolderStrategy to use when retrieving the SecurityContext.
+Defaults to the value returned by SecurityContextHolder.getContextHolderStrategy().
+
 [[nsa-method-security-children]]
 === Child Elements of <method-security>
 
 * xref:servlet/appendix/namespace/http.adoc#nsa-expression-handler[expression-handler]
+* <<nsa-protect-pointcut,protect-pointcut>>
 
 [[nsa-global-method-security]]
 == <global-method-security>
@@ -239,6 +249,7 @@ You can find an example in the xref:servlet/authorization/method-security.adoc#n
 
 
 * <<nsa-global-method-security,global-method-security>>
+* <<nsa-method-security,method-security>>
 
 
 
@@ -266,6 +277,13 @@ Can be used inside a bean definition to add a security interceptor to the bean a
 [[nsa-intercept-methods-attributes]]
 === <intercept-methods> Attributes
 
+[[nsa-intercept-methods-use-authorization-manager]]
+* **use-authorization-manager**
+Use AuthorizationManager API instead of AccessDecisionManager
+
+[[nsa-intercept-methods-authorization-manager-ref]]
+* **authorization-manager-ref**
+Optional AuthorizationManager bean ID to be used instead of the default (supercedes use-authorization-manager)
 
 [[nsa-intercept-methods-access-decision-manager-ref]]
 * **access-decision-manager-ref**

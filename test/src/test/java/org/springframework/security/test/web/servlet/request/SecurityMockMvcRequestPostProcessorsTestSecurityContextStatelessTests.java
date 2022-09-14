@@ -17,12 +17,12 @@
 package org.springframework.security.test.web.servlet.request;
 
 import jakarta.servlet.Filter;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -68,6 +68,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTes
 		this.mvc.perform(get("/")).andExpect(status().is2xxSuccessful());
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config extends WebSecurityConfigurerAdapter {
@@ -90,7 +91,7 @@ public class SecurityMockMvcRequestPostProcessorsTestSecurityContextStatelessTes
 		@RestController
 		static class Controller {
 
-			@RequestMapping
+			@RequestMapping("/")
 			String hello() {
 				return "Hello";
 			}

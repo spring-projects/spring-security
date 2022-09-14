@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService
@@ -70,6 +71,7 @@ class ServerExceptionHandlingDslTests {
         }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class EntryPointConfig {
@@ -98,6 +100,7 @@ class ServerExceptionHandlingDslTests {
                 .expectStatus().isSeeOther
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AccessDeniedHandlerConfig {

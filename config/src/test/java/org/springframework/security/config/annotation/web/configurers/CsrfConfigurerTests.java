@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.net.URI;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -30,6 +29,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,11 +38,16 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,12 +60,16 @@ import org.springframework.web.servlet.support.RequestDataValueProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.hamcrest.Matchers.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -74,6 +83,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.request;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -84,6 +94,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Eleftheria Stein
  * @author Michael Vitz
  * @author Sam Simmons
+ * @author Steve Riesenberg
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class CsrfConfigurerTests {
@@ -188,9 +199,11 @@ public class CsrfConfigurerTests {
 	public void loginWhenCsrfDisabledThenRedirectsToPreviousPostRequest() throws Exception {
 		this.spring.register(DisableCsrfEnablesRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(post("/to-save")).andReturn();
+		RequestCache requestCache = new HttpSessionRequestCache();
+		String redirectUrl = requestCache.getRequest(mvcResult.getRequest(), mvcResult.getResponse()).getRedirectUrl();
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password")
 				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/to-save"));
+				.andExpect(redirectedUrl(redirectUrl));
 	}
 
 	@Test
@@ -216,9 +229,11 @@ public class CsrfConfigurerTests {
 		given(CsrfDisablesPostRequestFromRequestCacheConfig.REPO.generateToken(any())).willReturn(csrfToken);
 		this.spring.register(CsrfDisablesPostRequestFromRequestCacheConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/some-url")).andReturn();
+		RequestCache requestCache = new HttpSessionRequestCache();
+		String redirectUrl = requestCache.getRequest(mvcResult.getRequest(), mvcResult.getResponse()).getRedirectUrl();
 		this.mvc.perform(post("/login").param("username", "user").param("password", "password").with(csrf())
 				.session((MockHttpSession) mvcResult.getRequest().getSession())).andExpect(status().isFound())
-				.andExpect(redirectedUrl("http://localhost/some-url"));
+				.andExpect(redirectedUrl(redirectUrl));
 		verify(CsrfDisablesPostRequestFromRequestCacheConfig.REPO, atLeastOnce())
 				.loadToken(any(HttpServletRequest.class));
 	}
@@ -407,6 +422,47 @@ public class CsrfConfigurerTests {
 				any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
+	@Test
+	public void getLoginWhenCsrfTokenRequestProcessorSetThenRespondsWithNormalCsrfToken() throws Exception {
+		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
+		given(csrfTokenRepository.generateToken(any(HttpServletRequest.class))).willReturn(csrfToken);
+		CsrfTokenRequestProcessorConfig.REPO = csrfTokenRepository;
+		CsrfTokenRequestProcessorConfig.PROCESSOR = new CsrfTokenRequestProcessor();
+		this.spring.register(CsrfTokenRequestProcessorConfig.class, BasicController.class).autowire();
+		this.mvc.perform(get("/login")).andExpect(status().isOk())
+				.andExpect(content().string(containsString(csrfToken.getToken())));
+		verify(csrfTokenRepository).loadToken(any(HttpServletRequest.class));
+		verify(csrfTokenRepository).generateToken(any(HttpServletRequest.class));
+		verify(csrfTokenRepository).saveToken(eq(csrfToken), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+		verifyNoMoreInteractions(csrfTokenRepository);
+	}
+
+	@Test
+	public void loginWhenCsrfTokenRequestProcessorSetAndNormalCsrfTokenThenSuccess() throws Exception {
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
+		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
+		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(csrfToken);
+		given(csrfTokenRepository.generateToken(any(HttpServletRequest.class))).willReturn(csrfToken);
+		CsrfTokenRequestProcessorConfig.REPO = csrfTokenRepository;
+		CsrfTokenRequestProcessorConfig.PROCESSOR = new CsrfTokenRequestProcessor();
+		this.spring.register(CsrfTokenRequestProcessorConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.header(csrfToken.getHeaderName(), csrfToken.getToken())
+				.param("username", "user")
+				.param("password", "password");
+		// @formatter:on
+		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+		verify(csrfTokenRepository, times(2)).loadToken(any(HttpServletRequest.class));
+		verify(csrfTokenRepository).saveToken(isNull(), any(HttpServletRequest.class), any(HttpServletResponse.class));
+		verify(csrfTokenRepository).generateToken(any(HttpServletRequest.class));
+		verify(csrfTokenRepository).saveToken(eq(csrfToken), any(HttpServletRequest.class),
+				any(HttpServletResponse.class));
+		verifyNoMoreInteractions(csrfTokenRepository);
+	}
+
 	@Configuration
 	static class AllowHttpMethodsFirewallConfig {
 
@@ -419,6 +475,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -428,6 +485,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
 
@@ -442,6 +500,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -455,6 +514,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -483,6 +543,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
 
@@ -513,6 +574,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
 
@@ -529,6 +591,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -545,6 +608,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -560,6 +624,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryConfig extends WebSecurityConfigurerAdapter {
 
@@ -587,6 +652,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfTokenRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -603,6 +669,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -619,6 +686,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultAccessDeniedHandlerForConfig extends WebSecurityConfigurerAdapter {
 
@@ -637,6 +705,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
 
@@ -650,6 +719,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class LogoutAllowsGetConfig extends WebSecurityConfigurerAdapter {
 
@@ -666,6 +736,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullRequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
 
@@ -680,6 +751,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultDoesNotCreateSession extends WebSecurityConfigurerAdapter {
 
@@ -707,6 +779,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullAuthenticationStrategy extends WebSecurityConfigurerAdapter {
 
@@ -721,6 +794,7 @@ public class CsrfConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
 
@@ -739,6 +813,43 @@ public class CsrfConfigurerTests {
 
 		@Override
 		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+					.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CsrfTokenRequestProcessorConfig {
+
+		static CsrfTokenRepository REPO;
+
+		static CsrfTokenRequestProcessor PROCESSOR;
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.formLogin(Customizer.withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO)
+					.csrfTokenRequestAttributeHandler(PROCESSOR)
+					.csrfTokenRequestResolver(PROCESSOR)
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 					.inMemoryAuthentication()

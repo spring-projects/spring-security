@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -32,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.util.matcher.RegexRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -95,9 +95,11 @@ class AuthorizeRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class AuthorizeRequestsByRegexConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthorizeRequestsByRegexConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(RegexRequestMatcher("/path", null), permitAll)
@@ -106,6 +108,7 @@ class AuthorizeRequestsDslTests {
                     authorize(RegexRequestMatcher(".*", null), authenticated)
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -150,16 +153,19 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AuthorizeRequestsByMvcConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthorizeRequestsByMvcConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/path", permitAll)
                     authorize("/**", authenticated)
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -174,6 +180,7 @@ class AuthorizeRequestsDslTests {
     open class LegacyMvcMatchingConfig : WebMvcConfigurer {
         override fun configurePathMatch(configurer: PathMatchConfigurer) {
             configurer.setUseSuffixPatternMatch(true)
+            configurer.setUseTrailingSlashMatch(true)
         }
     }
 
@@ -192,15 +199,18 @@ class AuthorizeRequestsDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class MvcMatcherPathVariablesConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MvcMatcherPathVariablesConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/user/{userName}", "#userName == 'user'")
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -233,16 +243,19 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class HasRoleConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HasRoleConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/**", hasRole("ADMIN"))
                 }
                 httpBasic { }
             }
+            return http.build()
         }
 
         @RestController
@@ -253,7 +266,7 @@ class AuthorizeRequestsDslTests {
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("user")
                     .password("password")
@@ -296,16 +309,19 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class HasAnyRoleConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HasAnyRoleConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/**", hasAnyRole("ADMIN", "USER"))
                 }
                 httpBasic { }
             }
+            return http.build()
         }
 
         @RestController
@@ -316,7 +332,7 @@ class AuthorizeRequestsDslTests {
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("user")
                     .password("password")
@@ -364,16 +380,19 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class HasAnyAuthorityConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HasAnyAuthorityConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/**", hasAnyAuthority("ROLE_ADMIN", "ROLE_USER"))
                 }
                 httpBasic { }
             }
+            return http.build()
         }
 
         @RestController
@@ -384,7 +403,7 @@ class AuthorizeRequestsDslTests {
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("user")
                     .password("password")
@@ -423,10 +442,12 @@ class AuthorizeRequestsDslTests {
                 .andExpect(status().isOk)
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class MvcMatcherServletPathConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MvcMatcherServletPathConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize("/path",
@@ -434,6 +455,7 @@ class AuthorizeRequestsDslTests {
                             denyAll)
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -444,16 +466,19 @@ class AuthorizeRequestsDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class AuthorizeRequestsByMvcConfigWithHttpMethod : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class AuthorizeRequestsByMvcConfigWithHttpMethod{
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(HttpMethod.GET, "/path", permitAll)
                     authorize(HttpMethod.PUT, "/path", denyAll)
                 }
             }
+            return http.build()
         }
 
         @RestController
@@ -479,16 +504,19 @@ class AuthorizeRequestsDslTests {
             }
     }
 
+    @Configuration
     @EnableWebSecurity
     @EnableWebMvc
-    open class MvcMatcherServletPathHttpMethodConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MvcMatcherServletPathHttpMethodConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(HttpMethod.GET, "/path", "/spring", denyAll)
                     authorize(HttpMethod.PUT, "/path", "/spring", denyAll)
                 }
             }
+            return http.build()
         }
 
         @RestController

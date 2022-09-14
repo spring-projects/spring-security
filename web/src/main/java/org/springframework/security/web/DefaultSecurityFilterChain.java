@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.List;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,7 +47,12 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
-		logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+		if (filters.isEmpty()) {
+			logger.info(LogMessage.format("Will not secure %s", requestMatcher));
+		}
+		else {
+			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
+		}
 		this.requestMatcher = requestMatcher;
 		this.filters = new ArrayList<>(filters);
 	}

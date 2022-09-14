@@ -69,7 +69,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 		.authorizeHttpRequests(authorize -> authorize                                  // <1>
 			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
 			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
-			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			.mvcMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))   // <4>
 			.anyRequest().denyAll()                                                // <5>
 		);
 
@@ -161,11 +161,118 @@ Or you can provide it for all requests as seen below:
 SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .anyRequest.access(new CustomAuthorizationManager());
+            .anyRequest().access(new CustomAuthorizationManager());
         )
         // ...
 
     return http.build();
+}
+----
+====
+
+By default, the `AuthorizationFilter` applies to all dispatcher types.
+We can configure Spring Security to not apply the authorization rules to all dispatcher types by using the `shouldFilterAllDispatcherTypes` method:
+
+.Set shouldFilterAllDispatcherTypes to false
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .shouldFilterAllDispatcherTypes(false)
+            .anyRequest().authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            shouldFilterAllDispatcherTypes = false
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
+}
+----
+====
+
+Instead of setting `shouldFilterAllDispatcherTypes` to `false`, the recommended approach is to customize authorization on the dispatcher types.
+For example, you may want to grant all access on requests with dispatcher type `ASYNC` or `FORWARD`.
+
+.Permit ASYNC and FORWARD dispatcher type
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .dispatcherTypeMatchers(DispatcherType.ASYNC, DispatcherType.FORWARD).permitAll()
+            .anyRequest().authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            authorize(DispatcherTypeRequestMatcher(DispatcherType.ASYNC, DispatcherType.FORWARD), permitAll)
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
+}
+----
+====
+
+You can also customize it to require a specific role for a dispatcher type:
+
+.Require ADMIN for Dispatcher Type ERROR
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain web(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .dispatcherTypeMatchers(DispatcherType.ERROR).hasRole("ADMIN")
+            .anyRequest().authenticated()
+        )
+        // ...
+
+    return http.build();
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun web(http: HttpSecurity): SecurityFilterChain {
+    http {
+        authorizeHttpRequests {
+            authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), hasRole("ADMIN"))
+            authorize(anyRequest, authenticated)
+        }
+    }
+    return http.build()
 }
 ----
 ====

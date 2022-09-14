@@ -17,5 +17,5 @@ This process is similar to the one started in 2017 for xref:servlet/oauth2/index
 
 [NOTE]
 ====
-A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2-login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security Samples repository].
+A working sample for {gh-samples-url}/servlet/spring-boot/java/saml2/login[SAML 2.0 Login] is available in the {gh-samples-url}[Spring Security Samples repository].
 ====

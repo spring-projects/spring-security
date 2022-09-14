@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -63,6 +64,7 @@ public class PortMapperConfigurerTests {
 		this.mockMvc.perform(get("http://localhost:543")).andExpect(redirectedUrl("https://localhost:123"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
 
@@ -82,6 +84,7 @@ public class PortMapperConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpMapsToInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -102,6 +105,7 @@ public class PortMapperConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomPortMapperInLambdaConfig extends WebSecurityConfigurerAdapter {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,8 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * This {@code WebFilter} initiates the authorization code grant or implicit grant flow by
- * redirecting the End-User's user-agent to the Authorization Server's Authorization
- * Endpoint.
+ * This {@code WebFilter} initiates the authorization code grant flow by redirecting the
+ * End-User's user-agent to the Authorization Server's Authorization Endpoint.
  *
  * <p>
  * It builds the OAuth 2.0 Authorization Request, which is used as the redirect
@@ -67,15 +66,10 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @see <a target="_blank" href=
  * "https://tools.ietf.org/html/rfc6749#section-4.1.1">Section 4.1.1 Authorization Request
  * (Authorization Code)</a>
- * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-4.2">Section
- * 4.2 Implicit Grant</a>
- * @see <a target="_blank" href=
- * "https://tools.ietf.org/html/rfc6749#section-4.2.1">Section 4.2.1 Authorization Request
- * (Implicit)</a>
  */
 public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 
-	private final ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
+	private ServerRedirectStrategy authorizationRedirectStrategy = new DefaultServerRedirectStrategy();
 
 	private final ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
@@ -103,6 +97,15 @@ public class OAuth2AuthorizationRequestRedirectWebFilter implements WebFilter {
 			ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
 		Assert.notNull(authorizationRequestResolver, "authorizationRequestResolver cannot be null");
 		this.authorizationRequestResolver = authorizationRequestResolver;
+	}
+
+	/**
+	 * Sets the redirect strategy for Authorization Endpoint redirect URI.
+	 * @param authorizationRedirectStrategy the redirect strategy
+	 */
+	public void setAuthorizationRedirectStrategy(ServerRedirectStrategy authorizationRedirectStrategy) {
+		Assert.notNull(authorizationRedirectStrategy, "authorizationRedirectStrategy cannot be null");
+		this.authorizationRedirectStrategy = authorizationRedirectStrategy;
 	}
 
 	/**

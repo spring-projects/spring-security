@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Eric Deandrea
  * @author Thomas Vitale
+ * @author Alonso Araya
  * @since 5.1
  */
 public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRepository {
@@ -56,6 +57,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	private boolean cookieHttpOnly = true;
 
 	private Boolean secure;
+
+	private int cookieMaxAge = -1;
 
 	/**
 	 * Factory method to conveniently create an instance that has
@@ -83,7 +86,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 					.from(this.cookieName, tokenValue)
 					.domain(this.cookieDomain)
 					.httpOnly(this.cookieHttpOnly)
-					.maxAge(!tokenValue.isEmpty() ? -1 : 0)
+					.maxAge(!tokenValue.isEmpty() ? this.cookieMaxAge : 0)
 					.path((this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest()))
 					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null))
 					.build();
@@ -162,6 +165,32 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public void setSecure(boolean secure) {
 		this.secure = secure;
+	}
+
+	/**
+	 * Sets maximum age in seconds for the cookie that the expected CSRF token is saved to
+	 * and read from. By default maximum age value is -1.
+	 *
+	 * <p>
+	 * A positive value indicates that the cookie will expire after that many seconds have
+	 * passed. Note that the value is the <i>maximum</i> age when the cookie will expire,
+	 * not the cookie's current age.
+	 *
+	 * <p>
+	 * A negative value means that the cookie is not stored persistently and will be
+	 * deleted when the Web browser exits.
+	 *
+	 * <p>
+	 * A zero value causes the cookie to be deleted immediately therefore it is not a
+	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
+	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
+	 * if negative, means the cookie is not stored; if zero, the method throws an
+	 * {@link IllegalArgumentException}
+	 * @since 5.8
+	 */
+	public void setCookieMaxAge(int cookieMaxAge) {
+		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
+		this.cookieMaxAge = cookieMaxAge;
 	}
 
 	private CsrfToken createCsrfToken() {

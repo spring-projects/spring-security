@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.mock.web.MockHttpSession
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.annotation.web.invoke
@@ -38,6 +37,7 @@ import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.session.SimpleRedirectSessionInformationExpiredStrategy
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -75,9 +75,11 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/login?error"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class MaximumSessionsConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class MaximumSessionsConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
                     sessionConcurrency {
@@ -87,6 +89,7 @@ class SessionConcurrencyDslTests {
                 }
                 formLogin { }
             }
+            return http.build()
         }
     }
 
@@ -104,14 +107,16 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/expired-session"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ExpiredUrlConfig : WebSecurityConfigurerAdapter() {
+    open class ExpiredUrlConfig {
 
         companion object {
             val SESSION_REGISTRY: SessionRegistry = SessionRegistryImpl()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
                     sessionConcurrency {
@@ -121,6 +126,7 @@ class SessionConcurrencyDslTests {
                     }
                 }
             }
+            return http.build()
         }
 
         @Bean
@@ -141,14 +147,16 @@ class SessionConcurrencyDslTests {
                 .andExpect(redirectedUrl("/expired-session"))
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ExpiredSessionStrategyConfig : WebSecurityConfigurerAdapter() {
+    open class ExpiredSessionStrategyConfig {
 
         companion object {
             val SESSION_REGISTRY: SessionRegistry = SessionRegistryImpl()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
                     sessionConcurrency {
@@ -158,6 +166,7 @@ class SessionConcurrencyDslTests {
                     }
                 }
             }
+            return http.build()
         }
 
         @Bean

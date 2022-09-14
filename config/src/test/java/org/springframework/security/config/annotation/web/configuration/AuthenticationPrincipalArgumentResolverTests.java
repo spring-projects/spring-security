@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -65,7 +66,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		User user = new User("user", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(
-				new UsernamePasswordAuthenticationToken(user, user.getPassword(), user.getAuthorities()));
+				UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(), user.getAuthorities()));
 		SecurityContextHolder.setContext(context);
 		MockMvc mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
 		// @formatter:off
@@ -75,6 +76,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:on
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
 	static class Config {

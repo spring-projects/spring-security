@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.aopalliance.intercept.MethodInvocation;
@@ -50,6 +51,7 @@ import org.springframework.util.Assert;
  * support.
  *
  * @author Luke Taylor
+ * @author Evgeniy Cheban
  * @since 3.0
  */
 public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation>
@@ -77,11 +79,25 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 		return new MethodSecurityEvaluationContext(auth, mi, getParameterNameDiscoverer());
 	}
 
+	@Override
+	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, MethodInvocation mi) {
+		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
+		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
+				getParameterNameDiscoverer());
+		ctx.setBeanResolver(getBeanResolver());
+		return ctx;
+	}
+
 	/**
 	 * Creates the root object for expression evaluation.
 	 */
 	@Override
 	protected MethodSecurityExpressionOperations createSecurityExpressionRoot(Authentication authentication,
+			MethodInvocation invocation) {
+		return createSecurityExpressionRoot(() -> authentication, invocation);
+	}
+
+	private MethodSecurityExpressionOperations createSecurityExpressionRoot(Supplier<Authentication> authentication,
 			MethodInvocation invocation) {
 		MethodSecurityExpressionRoot root = new MethodSecurityExpressionRoot(authentication);
 		root.setThis(invocation.getThis());

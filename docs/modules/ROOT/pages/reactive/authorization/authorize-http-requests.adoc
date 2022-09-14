@@ -1,0 +1,104 @@
+[[servlet-authorization-authorizationfilter]]
+= Authorize ServerHttpRequest
+
+Spring Security provides support for authorizing the incoming HTTP requests.
+By default, Spring Security’s authorization will require all requests to be authenticated.
+The explicit configuration looks like:
+
+.All Requests Require Authenticated User
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+    http
+        .authorizeExchange(exchanges -> exchanges
+            .anyExchange().authenticated()
+        )
+        .httpBasic(withDefaults())
+        .formLogin(withDefaults());
+    return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {
+            authorize(anyExchange, authenticated)
+        }
+        formLogin { }
+        httpBasic { }
+    }
+}
+----
+====
+
+
+We can configure Spring Security to have different rules by adding more rules in order of precedence.
+
+.Multiple Authorize Requests Rules
+====
+.Java
+[source,java,role="primary"]
+----
+import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
+// ...
+@Bean
+SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) {
+	// @formatter:off
+	http
+		// ...
+		.authorizeExchange((authorize) -> authorize                          // <1>
+			.pathMatchers("/resources/**", "/signup", "/about").permitAll()  // <2>
+			.pathMatchers("/admin/**").hasRole("ADMIN")                      // <3>
+			.pathMatchers("/db/**").access((authentication, context) ->      // <4>
+				hasRole("ADMIN").check(authentication, context)
+					.filter(decision -> !decision.isGranted())
+					.switchIfEmpty(hasRole("DBA").check(authentication, context))
+			)
+			.anyExchange().denyAll()                                         // <5>
+		);
+	// @formatter:on
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+    return http {
+        authorizeExchange {                                                           // <1>
+            authorize(pathMatchers("/resources/**", "/signup", "/about"), permitAll)  // <2>
+            authorize("/admin/**", hasRole("ADMIN"))                                  // <3>
+            authorize("/db/**", { authentication, context ->                          // <4>
+                hasRole("ADMIN").check(authentication, context)
+                    .filter({ decision -> !decision.isGranted() })
+                    .switchIfEmpty(hasRole("DBA").check(authentication, context))
+            })
+            authorize(anyExchange, denyAll)                                           // <5>
+        }
+        // ...
+    }
+}
+----
+====
+
+<1> There are multiple authorization rules specified.
+Each rule is considered in the order they were declared.
+<2> We specified multiple URL patterns that any user can access.
+Specifically, any user can access a request if the URL starts with "/resources/", equals "/signup", or equals "/about".
+<3> Any URL that starts with "/admin/" will be restricted to users who have the authority "ROLE_ADMIN".
+You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
+This demonstrates the flexibility of providing a custom `ReactiveAuthorizationManager` allowing us to implement arbitrary authorization logic.
+For simplicity, the sample uses a lambda and delegate to the existing `AuthorityReactiveAuthorizationManager.hasRole` implementation.
+However, in a real world situation applications would likely implement the logic in a proper class implementing `ReactiveAuthorizationManager`.
+<5> Any URL that has not already been matched on is denied access.
+This is a good strategy if you do not want to accidentally forget to update your authorization rules.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,16 +18,14 @@ package org.springframework.security.saml2.provider.service.web;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.function.Function;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.apache.commons.codec.CodecPolicy;
-import org.apache.commons.codec.binary.Base64;
-
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -49,9 +47,13 @@ import org.springframework.util.Assert;
  */
 public final class Saml2AuthenticationTokenConverter implements AuthenticationConverter {
 
-	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' }, false, CodecPolicy.STRICT);
+	// MimeDecoder allows extra line-breaks as well as other non-alphabet values.
+	// This matches the behaviour of the commons-codec decoder.
+	private static final Base64.Decoder BASE64 = Base64.getMimeDecoder();
 
-	private final Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver;
+	private static final Base64Checker BASE_64_CHECKER = new Base64Checker();
+
+	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
 	private Function<HttpServletRequest, AbstractSaml2AuthenticationRequest> loader;
 
@@ -60,31 +62,20 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	 * resolving {@link RelyingPartyRegistration}s
 	 * @param relyingPartyRegistrationResolver the strategy for resolving
 	 * {@link RelyingPartyRegistration}s
-	 * @deprecated Use
-	 * {@link Saml2AuthenticationTokenConverter#Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver)}
-	 * instead
 	 */
-	@Deprecated
-	public Saml2AuthenticationTokenConverter(
-			Converter<HttpServletRequest, RelyingPartyRegistration> relyingPartyRegistrationResolver) {
+	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
 		this.loader = new HttpSessionSaml2AuthenticationRequestRepository()::loadAuthenticationRequest;
 	}
 
-	public Saml2AuthenticationTokenConverter(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this(adaptToConverter(relyingPartyRegistrationResolver));
-	}
-
-	private static Converter<HttpServletRequest, RelyingPartyRegistration> adaptToConverter(
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		Assert.notNull(relyingPartyRegistrationResolver, "relyingPartyRegistrationResolver cannot be null");
-		return (request) -> relyingPartyRegistrationResolver.resolve(request, null);
-	}
-
 	@Override
 	public Saml2AuthenticationToken convert(HttpServletRequest request) {
-		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.convert(request);
+		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
+		String relyingPartyRegistrationId = (authenticationRequest != null)
+				? authenticationRequest.getRelyingPartyRegistrationId() : null;
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationResolver.resolve(request,
+				relyingPartyRegistrationId);
 		if (relyingPartyRegistration == null) {
 			return null;
 		}
@@ -94,7 +85,6 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 		}
 		byte[] b = samlDecode(saml2Response);
 		saml2Response = inflateIfRequired(request, b);
-		AbstractSaml2AuthenticationRequest authenticationRequest = loadAuthenticationRequest(request);
 		return new Saml2AuthenticationToken(relyingPartyRegistration, saml2Response, authenticationRequest);
 	}
 
@@ -124,6 +114,7 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 
 	private byte[] samlDecode(String base64EncodedPayload) {
 		try {
+			BASE_64_CHECKER.checkAcceptable(base64EncodedPayload);
 			return BASE64.decode(base64EncodedPayload);
 		}
 		catch (Exception ex) {
@@ -144,6 +135,60 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 			throw new Saml2AuthenticationException(
 					new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, "Unable to inflate string"), ex);
 		}
+	}
+
+	static class Base64Checker {
+
+		private static final int[] values = genValueMapping();
+
+		Base64Checker() {
+
+		}
+
+		private static int[] genValueMapping() {
+			byte[] alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+					.getBytes(StandardCharsets.ISO_8859_1);
+
+			int[] values = new int[256];
+			Arrays.fill(values, -1);
+			for (int i = 0; i < alphabet.length; i++) {
+				values[alphabet[i] & 0xff] = i;
+			}
+			return values;
+		}
+
+		boolean isAcceptable(String s) {
+			int goodChars = 0;
+			int lastGoodCharVal = -1;
+
+			// count number of characters from Base64 alphabet
+			for (int i = 0; i < s.length(); i++) {
+				int val = values[0xff & s.charAt(i)];
+				if (val != -1) {
+					lastGoodCharVal = val;
+					goodChars++;
+				}
+			}
+
+			// in cases of an incomplete final chunk, ensure the unused bits are zero
+			switch (goodChars % 4) {
+			case 0:
+				return true;
+			case 2:
+				return (lastGoodCharVal & 0b1111) == 0;
+			case 3:
+				return (lastGoodCharVal & 0b11) == 0;
+			default:
+				return false;
+			}
+		}
+
+		void checkAcceptable(String ins) {
+			if (!isAcceptable(ins)) {
+				throw new IllegalArgumentException("Unaccepted Encoding");
+			}
+		}
+
 	}
 
 }

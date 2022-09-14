@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,6 @@ import java.util.List;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -42,7 +41,6 @@ import org.springframework.security.config.annotation.web.AbstractRequestMatcher
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
@@ -77,8 +75,7 @@ import org.springframework.web.filter.DelegatingFilterProxy;
  *
  * <p>
  * Customizations to the {@link WebSecurity} can be made by creating a
- * {@link WebSecurityConfigurer}, overriding {@link WebSecurityConfigurerAdapter} or
- * exposing a {@link WebSecurityCustomizer} bean.
+ * {@link WebSecurityConfigurer} or exposing a {@link WebSecurityCustomizer} bean.
  * </p>
  *
  * @author Rob Winch
@@ -97,8 +94,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private final List<SecurityBuilder<? extends SecurityFilterChain>> securityFilterChainBuilders = new ArrayList<>();
 
 	private IgnoredRequestConfigurer ignoredRequestRegistry;
-
-	private FilterSecurityInterceptor filterSecurityInterceptor;
 
 	private HttpFirewall httpFirewall;
 
@@ -200,7 +195,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 *
 	 * <p>
 	 * Typically this method is invoked automatically within the framework from
-	 * {@link WebSecurityConfigurerAdapter#init(WebSecurity)}
+	 * {@link WebSecurityConfiguration#springSecurityFilterChain()}
 	 * </p>
 	 * @param securityFilterChainBuilder the builder to use to create the
 	 * {@link SecurityFilterChain} instances
@@ -214,8 +209,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 	/**
 	 * Set the {@link WebInvocationPrivilegeEvaluator} to be used. If this is not
-	 * specified, then a {@link DefaultWebInvocationPrivilegeEvaluator} will be created
-	 * when {@link #securityInterceptor(FilterSecurityInterceptor)} is non null.
+	 * specified, then a {@link RequestMatcherDelegatingWebInvocationPrivilegeEvaluator}
+	 * will be created based on the list of {@link SecurityFilterChain}.
 	 * @param privilegeEvaluator the {@link WebInvocationPrivilegeEvaluator} to use
 	 * @return the {@link WebSecurity} for further customizations
 	 */
@@ -249,24 +244,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * @return the {@link WebInvocationPrivilegeEvaluator} for further customizations
 	 */
 	public WebInvocationPrivilegeEvaluator getPrivilegeEvaluator() {
-		if (this.privilegeEvaluator != null) {
-			return this.privilegeEvaluator;
-		}
-		return (this.filterSecurityInterceptor != null)
-				? new DefaultWebInvocationPrivilegeEvaluator(this.filterSecurityInterceptor) : null;
-	}
-
-	/**
-	 * Sets the {@link FilterSecurityInterceptor}. This is typically invoked by
-	 * {@link WebSecurityConfigurerAdapter}.
-	 * @param securityInterceptor the {@link FilterSecurityInterceptor} to use
-	 * @return the {@link WebSecurity} for further customizations
-	 * @deprecated Use {@link #privilegeEvaluator(WebInvocationPrivilegeEvaluator)}
-	 * instead
-	 */
-	public WebSecurity securityInterceptor(FilterSecurityInterceptor securityInterceptor) {
-		this.filterSecurityInterceptor = securityInterceptor;
-		return this;
+		return this.privilegeEvaluator;
 	}
 
 	/**
@@ -279,18 +257,32 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		return this;
 	}
 
+	/**
+	 * Sets the handler to handle
+	 * {@link org.springframework.security.web.firewall.RequestRejectedException}
+	 * @param requestRejectedHandler
+	 * @return the {@link WebSecurity} for further customizations
+	 * @since 5.7
+	 */
+	public WebSecurity requestRejectedHandler(RequestRejectedHandler requestRejectedHandler) {
+		Assert.notNull(requestRejectedHandler, "requestRejectedHandler cannot be null");
+		this.requestRejectedHandler = requestRejectedHandler;
+		return this;
+	}
+
 	@Override
 	protected Filter performBuild() throws Exception {
 		Assert.state(!this.securityFilterChainBuilders.isEmpty(),
 				() -> "At least one SecurityBuilder<? extends SecurityFilterChain> needs to be specified. "
-						+ "Typically this is done by exposing a SecurityFilterChain bean "
-						+ "or by adding a @Configuration that extends WebSecurityConfigurerAdapter. "
+						+ "Typically this is done by exposing a SecurityFilterChain bean. "
 						+ "More advanced users can invoke " + WebSecurity.class.getSimpleName()
 						+ ".addSecurityFilterChainBuilder directly");
 		int chainSize = this.ignoredRequests.size() + this.securityFilterChainBuilders.size();
 		List<SecurityFilterChain> securityFilterChains = new ArrayList<>(chainSize);
 		List<RequestMatcherEntry<List<WebInvocationPrivilegeEvaluator>>> requestMatcherPrivilegeEvaluatorsEntries = new ArrayList<>();
 		for (RequestMatcher ignoredRequest : this.ignoredRequests) {
+			WebSecurity.this.logger.warn("You are asking Spring Security to ignore " + ignoredRequest
+					+ ". This is not recommended -- please use permitAll via HttpSecurity#authorizeHttpRequests instead.");
 			SecurityFilterChain securityFilterChain = new DefaultSecurityFilterChain(ignoredRequest);
 			securityFilterChains.add(securityFilterChain);
 			requestMatcherPrivilegeEvaluatorsEntries
@@ -342,7 +334,10 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			if (filter instanceof AuthorizationFilter) {
 				AuthorizationManager<HttpServletRequest> authorizationManager = ((AuthorizationFilter) filter)
 						.getAuthorizationManager();
-				privilegeEvaluators.add(new AuthorizationManagerWebInvocationPrivilegeEvaluator(authorizationManager));
+				AuthorizationManagerWebInvocationPrivilegeEvaluator evaluator = new AuthorizationManagerWebInvocationPrivilegeEvaluator(
+						authorizationManager);
+				evaluator.setServletContext(this.servletContext);
+				privilegeEvaluators.add(evaluator);
 			}
 		}
 		return new RequestMatcherEntry<>(securityFilterChain::matches, privilegeEvaluators);

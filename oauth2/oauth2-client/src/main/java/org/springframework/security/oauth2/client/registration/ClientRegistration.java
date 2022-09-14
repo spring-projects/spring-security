@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,16 +108,6 @@ public final class ClientRegistration implements Serializable {
 	 */
 	public AuthorizationGrantType getAuthorizationGrantType() {
 		return this.authorizationGrantType;
-	}
-
-	/**
-	 * Returns the uri (or uri template) for the redirection endpoint.
-	 * @return the uri (or uri template) for the redirection endpoint
-	 * @deprecated Use {@link #getRedirectUri()} instead
-	 */
-	@Deprecated
-	public String getRedirectUriTemplate() {
-		return getRedirectUri();
 	}
 
 	/**
@@ -445,18 +435,6 @@ public final class ClientRegistration implements Serializable {
 
 		/**
 		 * Sets the uri (or uri template) for the redirection endpoint.
-		 * @param redirectUriTemplate the uri (or uri template) for the redirection
-		 * endpoint
-		 * @return the {@link Builder}
-		 * @deprecated Use {@link #redirectUri(String)} instead
-		 */
-		@Deprecated
-		public Builder redirectUriTemplate(String redirectUriTemplate) {
-			return redirectUri(redirectUriTemplate);
-		}
-
-		/**
-		 * Sets the uri (or uri template) for the redirection endpoint.
 		 *
 		 * <br />
 		 * The supported uri template variables are: {baseScheme}, {baseHost}, {basePort},
@@ -616,9 +594,6 @@ public final class ClientRegistration implements Serializable {
 			else if (AuthorizationGrantType.PASSWORD.equals(this.authorizationGrantType)) {
 				this.validatePasswordGrantType();
 			}
-			else if (AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType)) {
-				this.validateImplicitGrantType();
-			}
 			else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
@@ -671,15 +646,6 @@ public final class ClientRegistration implements Serializable {
 			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
 			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
-		}
-
-		private void validateImplicitGrantType() {
-			Assert.isTrue(AuthorizationGrantType.IMPLICIT.equals(this.authorizationGrantType),
-					() -> "authorizationGrantType must be " + AuthorizationGrantType.IMPLICIT.getValue());
-			Assert.hasText(this.registrationId, "registrationId cannot be empty");
-			Assert.hasText(this.clientId, "clientId cannot be empty");
-			Assert.hasText(this.redirectUri, "redirectUri cannot be empty");
-			Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
 		}
 
 		private void validateClientCredentialsGrantType() {

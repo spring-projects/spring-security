@@ -16,10 +16,13 @@
 
 package org.springframework.security.web.context;
 
+import java.util.function.Supplier;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Strategy used for persisting a {@link SecurityContext} between requests.
@@ -48,15 +51,34 @@ public interface SecurityContextRepository {
 	 * to return wrapped versions of the request or response (or both), allowing them to
 	 * access implementation-specific state for the request. The values obtained from the
 	 * holder will be passed on to the filter chain and also to the <tt>saveContext</tt>
-	 * method when it is finally called. Implementations may wish to return a subclass of
+	 * method when it is finally called to allow implicit saves of the
+	 * <tt>SecurityContext</tt>. Implementations may wish to return a subclass of
 	 * {@link SaveContextOnUpdateOrErrorResponseWrapper} as the response object, which
 	 * guarantees that the context is persisted when an error or redirect occurs.
+	 * Implementations may allow passing in the original request response to allow
+	 * explicit saves.
 	 * @param requestResponseHolder holder for the current request and response for which
 	 * the context should be loaded.
 	 * @return The security context which should be used for the current request, never
 	 * null.
+	 * @deprecated Use {@link #loadContext(HttpServletRequest)} instead.
 	 */
+	@Deprecated
 	SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
+
+	/**
+	 * Obtains the security context for the supplied request. For an unauthenticated user,
+	 * an empty context implementation should be returned. This method should not return
+	 * null.
+	 * @param request the {@link HttpServletRequest} to load the {@link SecurityContext}
+	 * from
+	 * @return a {@link Supplier} that returns the {@link SecurityContext} which cannot be
+	 * null.
+	 * @since 5.7
+	 */
+	default Supplier<SecurityContext> loadContext(HttpServletRequest request) {
+		return SingletonSupplier.of(() -> loadContext(new HttpRequestResponseHolder(request, null)));
+	}
 
 	/**
 	 * Stores the security context on completion of a request.

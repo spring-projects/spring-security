@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,16 @@ import java.io.Serializable;
 
 import jakarta.servlet.http.Cookie;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
+
 /**
  * Stores off the values of a cookie in a serializable holder
  *
  * @author Ray Krueger
  */
 public class SavedCookie implements Serializable {
+
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	private final java.lang.String name;
 

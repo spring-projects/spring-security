@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import org.springframework.aop.TargetClassAware;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
@@ -48,7 +49,7 @@ public class PreAuthorizeAuthorizationManagerTests {
 		MethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(expressionHandler);
-		assertThat(manager).extracting("expressionHandler").isEqualTo(expressionHandler);
+		assertThat(manager).extracting("registry").extracting("expressionHandler").isEqualTo(expressionHandler);
 	}
 
 	@Test
@@ -133,6 +134,19 @@ public class PreAuthorizeAuthorizationManagerTests {
 				.isThrownBy(() -> manager.check(authentication, methodInvocation));
 	}
 
+	@Test
+	public void checkTargetClassAwareWhenInterfaceLevelAnnotationsThenApplies() throws Exception {
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestTargetClassAware(),
+				TestTargetClassAware.class, "doSomething");
+		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
+		AuthorizationDecision decision = manager.check(TestAuthentication::authenticatedUser, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isFalse();
+		decision = manager.check(TestAuthentication::authenticatedAdmin, methodInvocation);
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isTrue();
+	}
+
 	public static class TestClass implements InterfaceAnnotationsOne, InterfaceAnnotationsTwo {
 
 		public void doSomething() {
@@ -195,6 +209,35 @@ public class PreAuthorizeAuthorizationManagerTests {
 	@Retention(RetentionPolicy.RUNTIME)
 	@PreAuthorize("hasRole('USER')")
 	public @interface MyPreAuthorize {
+
+	}
+
+	@PreAuthorize("hasRole('ADMIN')")
+	public interface InterfaceLevelAnnotations {
+
+	}
+
+	public static class TestTargetClassAware extends TestClass implements TargetClassAware, InterfaceLevelAnnotations {
+
+		@Override
+		public Class<?> getTargetClass() {
+			return TestClass.class;
+		}
+
+		@Override
+		public void doSomething() {
+			super.doSomething();
+		}
+
+		@Override
+		public String doSomethingString(String s) {
+			return super.doSomethingString(s);
+		}
+
+		@Override
+		public void inheritedAnnotations() {
+			super.inheritedAnnotations();
+		}
 
 	}
 

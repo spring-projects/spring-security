@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -58,6 +57,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * </p>
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 3.2
  */
 public final class CsrfFilter extends OncePerRequestFilter {
@@ -87,9 +87,16 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
+	private CsrfTokenRequestAttributeHandler requestAttributeHandler;
+
+	private CsrfTokenRequestResolver requestResolver;
+
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
 		this.tokenRepository = csrfTokenRepository;
+		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
+		this.requestAttributeHandler = csrfTokenRequestProcessor;
+		this.requestResolver = csrfTokenRequestProcessor;
 	}
 
 	@Override
@@ -107,8 +114,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			csrfToken = this.tokenRepository.generateToken(request);
 			this.tokenRepository.saveToken(csrfToken, request, response);
 		}
-		request.setAttribute(CsrfToken.class.getName(), csrfToken);
-		request.setAttribute(csrfToken.getParameterName(), csrfToken);
+		final CsrfToken finalCsrfToken = csrfToken;
+		this.requestAttributeHandler.handle(request, response, () -> finalCsrfToken);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
@@ -117,10 +124,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		String actualToken = request.getHeader(csrfToken.getHeaderName());
-		if (actualToken == null) {
-			actualToken = request.getParameter(csrfToken.getParameterName());
-		}
+		String actualToken = this.requestResolver.resolveCsrfTokenValue(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
@@ -165,6 +169,36 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
+	}
+
+	/**
+	 * Specifies a {@link CsrfTokenRequestAttributeHandler} that is used to make the
+	 * {@link CsrfToken} available as a request attribute.
+	 *
+	 * <p>
+	 * The default is {@link CsrfTokenRequestProcessor}.
+	 * </p>
+	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 * @since 5.8
+	 */
+	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
+		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
+		this.requestAttributeHandler = requestAttributeHandler;
+	}
+
+	/**
+	 * Specifies a {@link CsrfTokenRequestResolver} that is used to resolve the token
+	 * value from the request.
+	 *
+	 * <p>
+	 * The default is {@link CsrfTokenRequestProcessor}.
+	 * </p>
+	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
+	 * @since 5.8
+	 */
+	public void setRequestResolver(CsrfTokenRequestResolver requestResolver) {
+		Assert.notNull(requestResolver, "requestResolver cannot be null");
+		this.requestResolver = requestResolver;
 	}
 
 	/**

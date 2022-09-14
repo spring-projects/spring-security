@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,8 +94,8 @@ public class BasicAuthenticationConverter implements AuthenticationConverter {
 		if (delim == -1) {
 			throw new BadCredentialsException("Invalid basic authentication token");
 		}
-		UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(token.substring(0, delim),
-				token.substring(delim + 1));
+		UsernamePasswordAuthenticationToken result = UsernamePasswordAuthenticationToken
+				.unauthenticated(token.substring(0, delim), token.substring(delim + 1));
 		result.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return result;
 	}

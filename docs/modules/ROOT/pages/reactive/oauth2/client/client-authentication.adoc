@@ -149,3 +149,35 @@ tokenResponseClient.addParametersConverter(
 )
 ----
 ====
+
+=== Customizing the JWT assertion
+
+The JWT produced by `NimbusJwtClientAuthenticationParametersConverter` contains the `iss`, `sub`, `aud`, `jti`, `iat` and `exp` claims by default. You can customize the headers and/or claims by providing a `Consumer<NimbusJwtClientAuthenticationParametersConverter.JwtClientAuthenticationContext<T>>` to `setJwtClientAssertionCustomizer()`. The following example shows how to customize claims of the JWT:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Function<ClientRegistration, JWK> jwkResolver = ...
+
+NimbusJwtClientAuthenticationParametersConverter<OAuth2ClientCredentialsGrantRequest> converter =
+		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver);
+converter.setJwtClientAssertionCustomizer((context) -> {
+	context.getHeaders().header("custom-header", "header-value");
+	context.getClaims().claim("custom-claim", "claim-value");
+});
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val jwkResolver = ...
+
+val converter: NimbusJwtClientAuthenticationParametersConverter<OAuth2ClientCredentialsGrantRequest> =
+    NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
+converter.setJwtClientAssertionCustomizer { context ->
+    context.headers.header("custom-header", "header-value")
+    context.claims.claim("custom-claim", "claim-value")
+}
+----
+====

@@ -19,7 +19,6 @@ package org.springframework.security.web.util.matcher;
 import java.util.regex.Pattern;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -43,7 +42,9 @@ import org.springframework.util.StringUtils;
  */
 public final class RegexRequestMatcher implements RequestMatcher {
 
-	private static final int DEFAULT = 0;
+	private static final int DEFAULT = Pattern.DOTALL;
+
+	private static final int CASE_INSENSITIVE = DEFAULT | Pattern.CASE_INSENSITIVE;
 
 	private static final Log logger = LogFactory.getLog(RegexRequestMatcher.class);
 
@@ -68,7 +69,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	 * {@link Pattern#CASE_INSENSITIVE} flag set.
 	 */
 	public RegexRequestMatcher(String pattern, String httpMethod, boolean caseInsensitive) {
-		this.pattern = Pattern.compile(pattern, caseInsensitive ? Pattern.CASE_INSENSITIVE : DEFAULT);
+		this.pattern = Pattern.compile(pattern, caseInsensitive ? CASE_INSENSITIVE : DEFAULT);
 		this.httpMethod = StringUtils.hasText(httpMethod) ? HttpMethod.valueOf(httpMethod) : null;
 	}
 

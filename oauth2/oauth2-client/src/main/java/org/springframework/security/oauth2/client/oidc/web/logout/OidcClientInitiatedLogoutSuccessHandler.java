@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,8 @@ package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -67,7 +68,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 			URI endSessionEndpoint = this.endSessionEndpoint(clientRegistration);
 			if (endSessionEndpoint != null) {
 				String idToken = idToken(authentication);
-				String postLogoutRedirectUri = postLogoutRedirectUri(request);
+				String postLogoutRedirectUri = postLogoutRedirectUri(request, clientRegistration);
 				targetUrl = endpointUri(endSessionEndpoint, idToken, postLogoutRedirectUri);
 			}
 		}
@@ -89,7 +90,7 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 		return ((OidcUser) authentication.getPrincipal()).getIdToken().getTokenValue();
 	}
 
-	private String postLogoutRedirectUri(HttpServletRequest request) {
+	private String postLogoutRedirectUri(HttpServletRequest request, ClientRegistration clientRegistration) {
 		if (this.postLogoutRedirectUri == null) {
 			return null;
 		}
@@ -100,8 +101,25 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 				.replaceQuery(null)
 				.fragment(null)
 				.build();
+
+		Map<String, String> uriVariables = new HashMap<>();
+		String scheme = uriComponents.getScheme();
+		uriVariables.put("baseScheme", (scheme != null) ? scheme : "");
+		uriVariables.put("baseUrl", uriComponents.toUriString());
+
+		String host = uriComponents.getHost();
+		uriVariables.put("baseHost", (host != null) ? host : "");
+
+		String path = uriComponents.getPath();
+		uriVariables.put("basePath", (path != null) ? path : "");
+
+		int port = uriComponents.getPort();
+		uriVariables.put("basePort", (port == -1) ? "" : ":" + port);
+
+		uriVariables.put("registrationId", clientRegistration.getRegistrationId());
+
 		return UriComponentsBuilder.fromUriString(this.postLogoutRedirectUri)
-				.buildAndExpand(Collections.singletonMap("baseUrl", uriComponents.toUriString()))
+				.buildAndExpand(uriVariables)
 				.toUriString();
 		// @formatter:on
 	}
@@ -120,20 +138,15 @@ public final class OidcClientInitiatedLogoutSuccessHandler extends SimpleUrlLogo
 	}
 
 	/**
-	 * Set the post logout redirect uri to use
-	 * @param postLogoutRedirectUri - A valid URL to which the OP should redirect after
-	 * logging out the user
-	 * @deprecated {@link #setPostLogoutRedirectUri(String)}
-	 */
-	@Deprecated
-	public void setPostLogoutRedirectUri(URI postLogoutRedirectUri) {
-		Assert.notNull(postLogoutRedirectUri, "postLogoutRedirectUri cannot be null");
-		this.postLogoutRedirectUri = postLogoutRedirectUri.toASCIIString();
-	}
-
-	/**
-	 * Set the post logout redirect uri template to use. Supports the {@code "{baseUrl}"}
-	 * placeholder, for example:
+	 * Set the post logout redirect uri template.
+	 *
+	 * <br />
+	 * The supported uri template variables are: {@code {baseScheme}}, {@code {baseHost}},
+	 * {@code {basePort}} and {@code {basePath}}.
+	 *
+	 * <br />
+	 * <b>NOTE:</b> {@code "{baseUrl}"} is also supported, which is the same as
+	 * {@code "{baseScheme}://{baseHost}{basePort}{basePath}"}
 	 *
 	 * <pre>
 	 * 	handler.setPostLogoutRedirectUri("{baseUrl}");

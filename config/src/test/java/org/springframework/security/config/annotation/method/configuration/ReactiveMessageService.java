@@ -32,6 +32,8 @@ public interface ReactiveMessageService {
 
 	Mono<String> monoPreAuthorizeBeanFindById(long id);
 
+	Mono<String> monoPreAuthorizeBeanFindByIdReactiveExpression(long id);
+
 	Mono<String> monoPostAuthorizeBeanFindById(long id);
 
 	Flux<String> fluxFindById(long id);
@@ -43,6 +45,10 @@ public interface ReactiveMessageService {
 	Flux<String> fluxPreAuthorizeBeanFindById(long id);
 
 	Flux<String> fluxPostAuthorizeBeanFindById(long id);
+
+	Flux<String> fluxManyAnnotations(Flux<String> flux);
+
+	Flux<String> fluxPostFilter(Flux<String> flux);
 
 	Publisher<String> publisherFindById(long id);
 

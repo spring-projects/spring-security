@@ -3,3 +3,8 @@
 
 Spring Security 6.0 provides a number of new features.
 Below are the highlights of the release.
+
+== Breaking Changes
+
+* https://github.com/spring-projects/spring-security/issues/8980[gh-8980] - Remove unsafe/deprecated `Encryptors.querableText(CharSequence,CharSequence)`.
+Instead use data storage to encrypt values.

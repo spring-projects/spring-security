@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserCache;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -48,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link JdbcUserDetailsManager}
@@ -206,6 +209,18 @@ public class JdbcUserDetailsManagerTests {
 	}
 
 	@Test
+	public void changePasswordWhenCustomSecurityContextHolderStrategyThenUses() {
+		insertJoe();
+		Authentication authentication = authenticateJoe();
+		SecurityContextHolderStrategy strategy = mock(SecurityContextHolderStrategy.class);
+		given(strategy.getContext()).willReturn(new SecurityContextImpl(authentication));
+		given(strategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		this.manager.setSecurityContextHolderStrategy(strategy);
+		this.manager.changePassword("wrongpassword", "newPassword");
+		verify(strategy).getContext();
+	}
+
+	@Test
 	public void changePasswordSucceedsWithIfReAuthenticationSucceeds() {
 		insertJoe();
 		Authentication currentAuth = authenticateJoe();
@@ -344,14 +359,14 @@ public class JdbcUserDetailsManagerTests {
 	@Test
 	public void createNewAuthenticationUsesNullPasswordToKeepPassordsSave() {
 		insertJoe();
-		UsernamePasswordAuthenticationToken currentAuth = new UsernamePasswordAuthenticationToken("joe", null,
+		UsernamePasswordAuthenticationToken currentAuth = UsernamePasswordAuthenticationToken.authenticated("joe", null,
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		Authentication updatedAuth = this.manager.createNewAuthentication(currentAuth, "new");
 		assertThat(updatedAuth.getCredentials()).isNull();
 	}
 
 	private Authentication authenticateJoe() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("joe", "password",
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.authenticated("joe", "password",
 				joe.getAuthorities());
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		return auth;

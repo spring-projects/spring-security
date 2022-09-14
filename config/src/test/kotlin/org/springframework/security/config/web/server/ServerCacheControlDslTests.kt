@@ -21,6 +21,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
@@ -61,6 +62,7 @@ class ServerCacheControlDslTests {
                 .expectHeader().valueEquals(HttpHeaders.PRAGMA, "no-cache")
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CacheControlConfig {
@@ -86,6 +88,7 @@ class ServerCacheControlDslTests {
                 .expectHeader().doesNotExist(HttpHeaders.PRAGMA)
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class CacheControlDisabledConfig {

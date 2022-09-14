@@ -16,6 +16,9 @@
 
 package org.springframework.security.scheduling;
 
+import java.time.Clock;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Date;
 import java.util.concurrent.ScheduledFuture;
 
@@ -94,6 +97,36 @@ public class DelegatingSecurityContextTaskScheduler implements TaskScheduler {
 	@Override
 	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long delay) {
 		return this.delegate.scheduleWithFixedDelay(wrap(task), delay);
+	}
+
+	@Override
+	public ScheduledFuture<?> schedule(Runnable task, Instant startTime) {
+		return this.delegate.schedule(wrap(task), startTime);
+	}
+
+	@Override
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Instant startTime, Duration period) {
+		return this.delegate.scheduleAtFixedRate(wrap(task), startTime, period);
+	}
+
+	@Override
+	public ScheduledFuture<?> scheduleAtFixedRate(Runnable task, Duration period) {
+		return this.delegate.scheduleAtFixedRate(wrap(task), period);
+	}
+
+	@Override
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Instant startTime, Duration delay) {
+		return this.delegate.scheduleWithFixedDelay(wrap(task), startTime, delay);
+	}
+
+	@Override
+	public ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, Duration delay) {
+		return this.delegate.scheduleWithFixedDelay(wrap(task), delay);
+	}
+
+	@Override
+	public Clock getClock() {
+		return this.delegate.getClock();
 	}
 
 	private Runnable wrap(Runnable delegate) {

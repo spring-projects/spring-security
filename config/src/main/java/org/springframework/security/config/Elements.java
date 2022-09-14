@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,12 +72,6 @@ public abstract class Elements {
 
 	public static final String FORM_LOGIN = "form-login";
 
-	public static final String OPENID_LOGIN = "openid-login";
-
-	public static final String OPENID_ATTRIBUTE_EXCHANGE = "attribute-exchange";
-
-	public static final String OPENID_ATTRIBUTE = "openid-attribute";
-
 	public static final String BASIC_AUTH = "http-basic";
 
 	public static final String REMEMBER_ME = "remember-me";
@@ -137,5 +131,11 @@ public abstract class Elements {
 	public static final String CLIENT_REGISTRATIONS = "client-registrations";
 
 	public static final String PASSWORD_MANAGEMENT = "password-management";
+
+	public static final String RELYING_PARTY_REGISTRATIONS = "relying-party-registrations";
+
+	public static final String SAML2_LOGIN = "saml2-login";
+
+	public static final String SAML2_LOGOUT = "saml2-logout";
 
 }

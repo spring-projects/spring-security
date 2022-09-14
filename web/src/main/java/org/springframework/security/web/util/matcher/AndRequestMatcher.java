@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,7 +44,7 @@ public final class AndRequestMatcher implements RequestMatcher {
 	 */
 	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
-		Assert.isTrue(!requestMatchers.contains(null), "requestMatchers cannot contain null values");
+		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
 		this.requestMatchers = requestMatchers;
 	}
 

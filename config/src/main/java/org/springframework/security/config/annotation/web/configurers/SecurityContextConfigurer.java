@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
 
 /**
  * Allows persisting and restoring of the {@link SecurityContext} found on the
@@ -62,6 +64,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<SecurityContextConfigurer<H>, H> {
 
+	private boolean requireExplicitSave = true;
+
 	/**
 	 * Creates a new instance
 	 * @see HttpSecurity#securityContext()
@@ -79,23 +83,48 @@ public final class SecurityContextConfigurer<H extends HttpSecurityBuilder<H>>
 		return this;
 	}
 
-	@Override
-	@SuppressWarnings("unchecked")
-	public void configure(H http) {
-		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+	public SecurityContextConfigurer<H> requireExplicitSave(boolean requireExplicitSave) {
+		this.requireExplicitSave = requireExplicitSave;
+		return this;
+	}
+
+	boolean isRequireExplicitSave() {
+		return this.requireExplicitSave;
+	}
+
+	SecurityContextRepository getSecurityContextRepository() {
+		SecurityContextRepository securityContextRepository = getBuilder()
+				.getSharedObject(SecurityContextRepository.class);
 		if (securityContextRepository == null) {
 			securityContextRepository = new HttpSessionSecurityContextRepository();
 		}
-		SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
-				securityContextRepository);
-		SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
-		SessionCreationPolicy sessionCreationPolicy = (sessionManagement != null)
-				? sessionManagement.getSessionCreationPolicy() : null;
-		if (SessionCreationPolicy.ALWAYS == sessionCreationPolicy) {
-			securityContextFilter.setForceEagerSessionCreation(true);
+		return securityContextRepository;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void configure(H http) {
+		SecurityContextRepository securityContextRepository = getSecurityContextRepository();
+		if (this.requireExplicitSave) {
+			SecurityContextHolderFilter securityContextHolderFilter = postProcess(
+					new SecurityContextHolderFilter(securityContextRepository));
+			securityContextHolderFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+			http.addFilter(securityContextHolderFilter);
 		}
-		securityContextFilter = postProcess(securityContextFilter);
-		http.addFilter(securityContextFilter);
+		else {
+			SecurityContextPersistenceFilter securityContextFilter = new SecurityContextPersistenceFilter(
+					securityContextRepository);
+			securityContextFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+			SessionManagementConfigurer<?> sessionManagement = http.getConfigurer(SessionManagementConfigurer.class);
+			SessionCreationPolicy sessionCreationPolicy = (sessionManagement != null)
+					? sessionManagement.getSessionCreationPolicy() : null;
+			if (SessionCreationPolicy.ALWAYS == sessionCreationPolicy) {
+				securityContextFilter.setForceEagerSessionCreation(true);
+				http.addFilter(postProcess(new ForceEagerSessionCreationFilter()));
+			}
+			securityContextFilter = postProcess(securityContextFilter);
+			http.addFilter(securityContextFilter);
+		}
 	}
 
 }

@@ -22,7 +22,11 @@ package org.springframework.security.access.intercept.aspectj;
  * simple <code>return proceed();</code> statement.
  *
  * @author Ben Alex
+ * @deprecated This class will be removed from the public API. Please either use
+ * `spring-security-aspects`, Spring Security's method security support or create your own
+ * class that uses Spring AOP annotations.
  */
+@Deprecated
 public interface AspectJCallback {
 
 	Object proceedWithObject();

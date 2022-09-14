@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import java.util.List;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -153,7 +152,7 @@ public class WebSecurityConfigurationTests {
 	@Test
 	public void loadConfigWhenWebSecurityConfigurersHaveSameOrderThenThrowBeanCreationException() {
 		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(DuplicateOrderConfig.class).autowire())
+				.isThrownBy(() -> this.spring.register(DuplicateOrderConfig.class).autowire()).havingRootCause()
 				.withMessageContaining("@Order on WebSecurityConfigurers must be unique")
 				.withMessageContaining(DuplicateOrderConfig.WebConfigurer1.class.getName())
 				.withMessageContaining(DuplicateOrderConfig.WebConfigurer2.class.getName());
@@ -440,6 +439,7 @@ public class WebSecurityConfigurationTests {
 		assertThat(privilegeEvaluator.isAllowed("/another", user)).isTrue();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class SortedWebSecurityConfigurerAdaptersConfig {
@@ -513,6 +513,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class SortedSecurityFilterChainConfig {
@@ -569,6 +570,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class OrderOnBeanDefinitionsSecurityFilterChainConfig {
@@ -608,6 +610,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class DuplicateOrderConfig {
@@ -644,6 +647,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class PrivilegeEvaluatorConfigurerAdapterConfig extends WebSecurityConfigurerAdapter {
 
@@ -656,6 +660,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -678,6 +683,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NullWebSecurityExpressionHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -688,6 +694,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityExpressionHandlerDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -702,6 +709,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityExpressionHandlerRoleHierarchyBeanConfig extends WebSecurityConfigurerAdapter {
 
@@ -714,6 +722,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebSecurityExpressionHandlerPermissionEvaluatorBeanConfig extends WebSecurityConfigurerAdapter {
 
@@ -737,6 +746,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WebInvocationPrivilegeEvaluatorDefaultsConfig extends WebSecurityConfigurerAdapter {
 
@@ -751,6 +761,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthorizeRequestsFilterChainConfig {
 
@@ -767,6 +778,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultExpressionHandlerSetsBeanResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -808,6 +820,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ParentConfig extends WebSecurityConfigurerAdapter {
 
@@ -818,6 +831,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ChildConfig extends WebSecurityConfigurerAdapter {
 
@@ -828,6 +842,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@Import(AuthenticationTestConfiguration.class)
 	@EnableGlobalAuthentication
 	static class GlobalAuthenticationWebSecurityConfigurerAdaptersConfig {
@@ -869,6 +884,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class AdapterAndFilterChainConfig {
@@ -905,6 +921,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class WebSecurityCustomizerConfig {
@@ -916,6 +933,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class CustomizerAndFilterChainConfig {
@@ -939,6 +957,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class CustomizerAndAdapterConfig {
@@ -966,6 +985,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class CustomizerAndAdapterIgnoringConfig {
@@ -987,6 +1007,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class OrderedCustomizerConfig {
@@ -1005,6 +1026,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultipleAuthenticationManagersConfig {
 
@@ -1013,7 +1035,7 @@ public class WebSecurityConfigurationTests {
 			return new ProviderManager(new AuthenticationProvider() {
 				@Override
 				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-					return new UsernamePasswordAuthenticationToken("user", "credentials");
+					return UsernamePasswordAuthenticationToken.unauthenticated("user", "credentials");
 				}
 
 				@Override
@@ -1028,7 +1050,7 @@ public class WebSecurityConfigurationTests {
 			return new ProviderManager(new AuthenticationProvider() {
 				@Override
 				public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-					return new UsernamePasswordAuthenticationToken("subuser", "credentials");
+					return UsernamePasswordAuthenticationToken.unauthenticated("subuser", "credentials");
 				}
 
 				@Override
@@ -1073,6 +1095,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class TwoSecurityFilterChainConfig {
 
@@ -1096,6 +1119,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity(debug = true)
 	static class TwoSecurityFilterChainDebugConfig {
 
@@ -1119,6 +1143,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class MultipleSecurityFilterChainConfig {
@@ -1154,6 +1179,7 @@ public class WebSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(AuthenticationTestConfiguration.class)
 	static class MultipleSecurityFilterChainIgnoringConfig {

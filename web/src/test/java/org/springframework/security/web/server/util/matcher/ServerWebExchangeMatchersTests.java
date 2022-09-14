@@ -25,7 +25,7 @@ import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -69,7 +69,7 @@ public class ServerWebExchangeMatchersTests {
 	public void anyExchangeWhenMockThenMatches() {
 		ServerWebExchange mockExchange = mock(ServerWebExchange.class);
 		assertThat(ServerWebExchangeMatchers.anyExchange().matches(mockExchange).block().isMatch()).isTrue();
-		verifyZeroInteractions(mockExchange);
+		verifyNoMoreInteractions(mockExchange);
 	}
 
 	/**

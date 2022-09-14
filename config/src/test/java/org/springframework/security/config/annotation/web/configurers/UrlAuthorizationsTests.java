@@ -19,12 +19,12 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.List;
 
 import jakarta.servlet.Filter;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -130,6 +130,7 @@ public class UrlAuthorizationsTests {
 		return null;
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RoleConfig extends WebSecurityConfigurerAdapter {
 
@@ -149,6 +150,7 @@ public class UrlAuthorizationsTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
 

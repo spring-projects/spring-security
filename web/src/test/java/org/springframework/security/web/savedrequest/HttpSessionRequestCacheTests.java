@@ -24,7 +24,6 @@ import java.util.Map;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -32,6 +31,10 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.web.PortResolverImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Luke Taylor
@@ -91,6 +94,45 @@ public class HttpSessionRequestCacheTests {
 		cache.saveRequest(request, response);
 		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 		assertThat(request.getSession().getAttribute("CUSTOM_SAVED_REQUEST")).isNotNull();
+	}
+
+	@Test
+	public void getMatchingRequestWhenMatchingRequestParameterNameSetThenSessionNotAccessed() {
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.setMatchingRequestParameterName("success");
+		HttpServletRequest request = mock(HttpServletRequest.class);
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(request, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNull();
+		verify(request, never()).getSession();
+		verify(request, never()).getSession(anyBoolean());
+	}
+
+	@Test
+	public void getMatchingRequestWhenMatchingRequestParameterNameSetAndParameterExistThenLookedUp() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.setMatchingRequestParameterName("success");
+		cache.saveRequest(request, new MockHttpServletResponse());
+		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setParameter("success", "");
+		requestToMatch.setSession(request.getSession());
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNotNull();
+	}
+
+	@Test
+	public void getMatchingRequestWhenMatchesThenRemoved() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.setMatchingRequestParameterName("success");
+		cache.saveRequest(request, new MockHttpServletResponse());
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
+		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setParameter("success", "");
+		requestToMatch.setSession(request.getSession());
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNotNull();
+		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNull();
 	}
 
 	private static final class CustomSavedRequest implements SavedRequest {

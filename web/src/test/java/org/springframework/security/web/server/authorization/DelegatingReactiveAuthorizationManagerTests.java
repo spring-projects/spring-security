@@ -35,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -81,7 +81,7 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.delegate1.check(eq(this.authentication), any(AuthorizationContext.class)))
 				.willReturn(Mono.just(this.decision));
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
-		verifyZeroInteractions(this.match2, this.delegate2);
+		verifyNoMoreInteractions(this.match2, this.delegate2);
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class DelegatingReactiveAuthorizationManagerTests {
 		given(this.delegate2.check(eq(this.authentication), any(AuthorizationContext.class)))
 				.willReturn(Mono.just(this.decision));
 		assertThat(this.manager.check(this.authentication, this.exchange).block()).isEqualTo(this.decision);
-		verifyZeroInteractions(this.delegate1);
+		verifyNoMoreInteractions(this.delegate1);
 	}
 
 }

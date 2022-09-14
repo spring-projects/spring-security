@@ -34,8 +34,10 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher.MatchResult;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebSession;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * An implementation of {@link ServerRequestCache} that saves the
@@ -56,6 +58,8 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	private String sessionAttrName = DEFAULT_SAVED_REQUEST_ATTR;
 
 	private ServerWebExchangeMatcher saveRequestMatcher = createDefaultRequestMacher();
+
+	private String matchingRequestParameterName;
 
 	/**
 	 * Sets the matcher to determine if the request should be saved. The default is to
@@ -81,25 +85,71 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 	public Mono<URI> getRedirectUri(ServerWebExchange exchange) {
 		return exchange.getSession()
 				.flatMap((session) -> Mono.justOrEmpty(session.<String>getAttribute(this.sessionAttrName)))
-				.map(URI::create);
+				.map(this::createRedirectUri);
 	}
 
 	@Override
 	public Mono<ServerHttpRequest> removeMatchingRequest(ServerWebExchange exchange) {
+		MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+		if (this.matchingRequestParameterName != null && !queryParams.containsKey(this.matchingRequestParameterName)) {
+			this.logger.trace(
+					"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
+			return Mono.empty();
+		}
+		ServerHttpRequest request = stripMatchingRequestParameterName(exchange.getRequest());
 		return exchange.getSession().map(WebSession::getAttributes).filter((attributes) -> {
-			String requestPath = pathInApplication(exchange.getRequest());
+			String requestPath = pathInApplication(request);
 			boolean removed = attributes.remove(this.sessionAttrName, requestPath);
 			if (removed) {
 				logger.debug(LogMessage.format("Request removed from WebSession: '%s'", requestPath));
 			}
 			return removed;
-		}).map((attributes) -> exchange.getRequest());
+		}).map((attributes) -> request);
+	}
+
+	/**
+	 * Specify the name of a query parameter that is added to the URL in
+	 * {@link #getRedirectUri(ServerWebExchange)} and is required for
+	 * {@link #removeMatchingRequest(ServerWebExchange)} to look up the
+	 * {@link ServerHttpRequest}.
+	 * @param matchingRequestParameterName the parameter name that must be in the request
+	 * for {@link #removeMatchingRequest(ServerWebExchange)} to check the session.
+	 */
+	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
+		this.matchingRequestParameterName = matchingRequestParameterName;
+	}
+
+	private ServerHttpRequest stripMatchingRequestParameterName(ServerHttpRequest request) {
+		if (this.matchingRequestParameterName == null) {
+			return request;
+		}
+		// @formatter:off
+		URI uri = UriComponentsBuilder.fromUri(request.getURI())
+				.replaceQueryParam(this.matchingRequestParameterName)
+				.build()
+				.toUri();
+		return request.mutate()
+				.uri(uri)
+				.build();
+		// @formatter:on
 	}
 
 	private static String pathInApplication(ServerHttpRequest request) {
 		String path = request.getPath().pathWithinApplication().value();
 		String query = request.getURI().getRawQuery();
 		return path + ((query != null) ? "?" + query : "");
+	}
+
+	private URI createRedirectUri(String uri) {
+		if (this.matchingRequestParameterName == null) {
+			return URI.create(uri);
+		}
+		// @formatter:off
+		return UriComponentsBuilder.fromUriString(uri)
+				.queryParam(this.matchingRequestParameterName)
+				.build()
+				.toUri();
+		// @formatter:on
 	}
 
 	private static ServerWebExchangeMatcher createDefaultRequestMacher() {
@@ -109,6 +159,19 @@ public class WebSessionServerRequestCache implements ServerRequestCache {
 		MediaTypeServerWebExchangeMatcher html = new MediaTypeServerWebExchangeMatcher(MediaType.TEXT_HTML);
 		html.setIgnoredMediaTypes(Collections.singleton(MediaType.ALL));
 		return new AndServerWebExchangeMatcher(get, notFavicon, html);
+	}
+
+	private static String createQueryString(String queryString, String matchingRequestParameterName) {
+		if (matchingRequestParameterName == null) {
+			return queryString;
+		}
+		if (queryString == null || queryString.length() == 0) {
+			return matchingRequestParameterName;
+		}
+		if (queryString.endsWith("&")) {
+			return queryString + matchingRequestParameterName;
+		}
+		return queryString + "&" + matchingRequestParameterName;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -31,7 +32,9 @@ import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.JdkRegexpMethodPointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -43,21 +46,31 @@ import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationInterceptorsOrder;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
+import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.test.SpringTestParentApplicationContextExecutionListener;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithSecurityContextTestExecutionListener;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link PrePostMethodSecurityConfiguration}.
@@ -66,7 +79,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Josh Cummings
  */
 @ExtendWith({ SpringExtension.class, SpringTestContextExtension.class })
-@SecurityTestExecutionListeners
+@ContextConfiguration(classes = SecurityContextChangedListenerConfig.class)
+@TestExecutionListeners(listeners = { WithSecurityContextTestExecutionListener.class,
+		SpringTestParentApplicationContextExecutionListener.class })
 public class PrePostMethodSecurityConfigurationTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
@@ -130,6 +145,8 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.spring.register(MethodSecurityServiceEnabledConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::securedUser)
 				.withMessage("Access Denied");
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
 	}
 
 	@WithMockUser
@@ -153,6 +170,15 @@ public class PrePostMethodSecurityConfigurationTests {
 	public void preAuthorizeAdminWhenRoleAdminThenPasses() {
 		this.spring.register(MethodSecurityServiceConfig.class).autowire();
 		this.methodSecurityService.preAuthorizeAdmin();
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void preAuthorizeAdminWhenSecurityContextHolderStrategyThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeAdmin();
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
 	}
 
 	@WithMockUser(authorities = "PREFIX_ADMIN")
@@ -278,6 +304,8 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.spring.register(BusinessServiceConfig.class).autowire();
 		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.businessService::rolesAllowedUser)
 				.withMessage("Access Denied");
+		SecurityContextHolderStrategy strategy = this.spring.getContext().getBean(SecurityContextHolderStrategy.class);
+		verify(strategy, atLeastOnce()).getContext();
 	}
 
 	@WithMockUser
@@ -350,6 +378,27 @@ public class PrePostMethodSecurityConfigurationTests {
 				.isThrownBy(() -> this.businessService.repeatedAnnotations());
 	}
 
+	@WithMockUser
+	@Test
+	public void preAuthorizeWhenAuthorizationEventPublisherThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class, AuthorizationEventPublisherConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class)
+				.isThrownBy(() -> this.methodSecurityService.preAuthorize());
+		AuthorizationEventPublisher publisher = this.spring.getContext().getBean(AuthorizationEventPublisher.class);
+		verify(publisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocation.class),
+				any(AuthorizationDecision.class));
+	}
+
+	@WithMockUser
+	@Test
+	public void postAuthorizeWhenAuthorizationEventPublisherThenUses() {
+		this.spring.register(MethodSecurityServiceConfig.class, AuthorizationEventPublisherConfig.class).autowire();
+		this.methodSecurityService.postAnnotation("grant");
+		AuthorizationEventPublisher publisher = this.spring.getContext().getBean(AuthorizationEventPublisher.class);
+		verify(publisher).publishAuthorizationEvent(any(Supplier.class), any(MethodInvocationResult.class),
+				any(AuthorizationDecision.class));
+	}
+
 	// gh-10305
 	@WithMockUser
 	@Test
@@ -358,6 +407,18 @@ public class PrePostMethodSecurityConfigurationTests {
 		this.methodSecurityService.preAuthorizeBean(true);
 	}
 
+	@Test
+	public void configureWhenAspectJThenRegistersAspects() {
+		this.spring.register(AspectJMethodSecurityServiceConfig.class).autowire();
+		assertThat(this.spring.getContext().containsBean("preFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postFilterAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("preAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
+		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
+	}
+
+	@Configuration
 	@EnableMethodSecurity
 	static class MethodSecurityServiceConfig {
 
@@ -373,6 +434,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(jsr250Enabled = true)
 	static class BusinessServiceConfig {
 
@@ -383,6 +445,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(prePostEnabled = false, securedEnabled = true)
 	static class SecuredConfig {
 
@@ -393,6 +456,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(prePostEnabled = false, jsr250Enabled = true)
 	static class Jsr250Config {
 
@@ -403,6 +467,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 	static class MethodSecurityServiceEnabledConfig {
 
@@ -413,6 +478,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomPermissionEvaluatorConfig {
 
@@ -437,6 +503,7 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomGrantedAuthorityDefaultsConfig {
 
@@ -447,31 +514,36 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomAuthorizationManagerBeforeAdviceConfig {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		Advisor customBeforeAdvice() {
+		Advisor customBeforeAdvice(SecurityContextHolderStrategy strategy) {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
 			AuthorizationManager<MethodInvocation> authorizationManager = (a,
 					o) -> new AuthorizationDecision("bob".equals(a.get().getName()));
-			return new AuthorizationManagerBeforeMethodInterceptor(pointcut, authorizationManager);
+			AuthorizationManagerBeforeMethodInterceptor before = new AuthorizationManagerBeforeMethodInterceptor(
+					pointcut, authorizationManager);
+			before.setSecurityContextHolderStrategy(strategy);
+			return before;
 		}
 
 	}
 
+	@Configuration
 	@EnableMethodSecurity
 	static class CustomAuthorizationManagerAfterAdviceConfig {
 
 		@Bean
 		@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-		Advisor customAfterAdvice() {
+		Advisor customAfterAdvice(SecurityContextHolderStrategy strategy) {
 			JdkRegexpMethodPointcut pointcut = new JdkRegexpMethodPointcut();
 			pointcut.setPattern(".*MethodSecurityServiceImpl.*securedUser");
 			MethodInterceptor interceptor = (mi) -> {
-				Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+				Authentication auth = strategy.getContext().getAuthentication();
 				if ("bob".equals(auth.getName())) {
 					return "granted";
 				}
@@ -480,6 +552,33 @@ public class PrePostMethodSecurityConfigurationTests {
 			DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, interceptor);
 			advisor.setOrder(AuthorizationInterceptorsOrder.POST_FILTER.getOrder() + 1);
 			return advisor;
+		}
+
+	}
+
+	@Configuration
+	static class AuthorizationEventPublisherConfig {
+
+		private final AuthorizationEventPublisher publisher = mock(AuthorizationEventPublisher.class);
+
+		@Bean
+		AuthorizationEventPublisher authorizationEventPublisher() {
+			return this.publisher;
+		}
+
+	}
+
+	@EnableMethodSecurity(mode = AdviceMode.ASPECTJ, securedEnabled = true)
+	static class AspectJMethodSecurityServiceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
+		@Bean
+		Authz authz() {
+			return new Authz();
 		}
 
 	}

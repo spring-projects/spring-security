@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -63,6 +64,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 		assertThat(result.getRequest().getSession(false)).isNotNull();
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class WithTransientAuthenticationConfig extends WebSecurityConfigurerAdapter {
 
@@ -85,6 +87,7 @@ public class SessionManagementConfigurerTransientAuthenticationTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AlwaysCreateSessionConfig extends WithTransientAuthenticationConfig {
 

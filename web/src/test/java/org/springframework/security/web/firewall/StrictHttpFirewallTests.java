@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
@@ -344,6 +343,12 @@ public class StrictHttpFirewallTests {
 	}
 
 	@Test
+	public void getFirewalledRequestWhenJapaneseCharacterThenNoException() {
+		this.request.setServletPath("/\u3042");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
 	public void getFirewalledRequestWhenExceedsUpperboundAsciiThenException() {
 		this.request.setRequestURI("/\u007f");
 		assertThatExceptionOfType(RequestRejectedException.class)
@@ -362,6 +367,152 @@ public class StrictHttpFirewallTests {
 		this.request.setRequestURI("/something%00/");
 		assertThatExceptionOfType(RequestRejectedException.class)
 				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLowercaseEncodedLineFeedThenException() {
+		this.request.setRequestURI("/something%0a/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsUppercaseEncodedLineFeedThenException() {
+		this.request.setRequestURI("/something%0A/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLineFeedThenException() {
+		this.request.setRequestURI("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineFeedThenException() {
+		this.request.setServletPath("/something\n/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLowercaseEncodedCarriageReturnThenException() {
+		this.request.setRequestURI("/something%0d/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsUppercaseEncodedCarriageReturnThenException() {
+		this.request.setRequestURI("/something%0D/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsCarriageReturnThenException() {
+		this.request.setRequestURI("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsCarriageReturnThenException() {
+		this.request.setServletPath("/something\r/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineSeparatorThenException() {
+		this.request.setServletPath("/something\u2028/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsParagraphSeparatorThenException() {
+		this.request.setServletPath("/something\u2029/");
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLowercaseEncodedLineFeedAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedLineFeed(true);
+		this.request.setRequestURI("/something%0a/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsUppercaseEncodedLineFeedAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedLineFeed(true);
+		this.request.setRequestURI("/something%0A/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLineFeedAndAllowedThenException() {
+		this.firewall.setAllowUrlEncodedLineFeed(true);
+		this.request.setRequestURI("/something\n/");
+		// Expected an error because the line feed is decoded in an encoded part of the
+		// URL
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineFeedAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedLineFeed(true);
+		this.request.setServletPath("/something\n/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsLowercaseEncodedCarriageReturnAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedCarriageReturn(true);
+		this.request.setRequestURI("/something%0d/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsUppercaseEncodedCarriageReturnAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedCarriageReturn(true);
+		this.request.setRequestURI("/something%0D/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenContainsCarriageReturnAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedCarriageReturn(true);
+		this.request.setRequestURI("/something\r/");
+		// Expected an error because the carriage return is decoded in an encoded part of
+		// the URL
+		assertThatExceptionOfType(RequestRejectedException.class)
+				.isThrownBy(() -> this.firewall.getFirewalledRequest(this.request));
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsCarriageReturnAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedCarriageReturn(true);
+		this.request.setServletPath("/something\r/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsLineSeparatorAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedLineSeparator(true);
+		this.request.setServletPath("/something\u2028/");
+		this.firewall.getFirewalledRequest(this.request);
+	}
+
+	@Test
+	public void getFirewalledRequestWhenServletPathContainsParagraphSeparatorAndAllowedThenNoException() {
+		this.firewall.setAllowUrlEncodedParagraphSeparator(true);
+		this.request.setServletPath("/something\u2029/");
+		this.firewall.getFirewalledRequest(this.request);
 	}
 
 	/**

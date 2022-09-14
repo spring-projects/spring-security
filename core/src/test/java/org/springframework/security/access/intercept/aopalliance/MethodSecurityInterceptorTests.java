@@ -57,7 +57,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link MethodSecurityInterceptor}.
@@ -318,7 +318,7 @@ public class MethodSecurityInterceptorTests {
 		this.interceptor.setAfterInvocationManager(aim);
 		given(mi.proceed()).willThrow(new Throwable());
 		assertThatExceptionOfType(Throwable.class).isThrownBy(() -> this.interceptor.invoke(mi));
-		verifyZeroInteractions(aim);
+		verifyNoMoreInteractions(aim);
 	}
 
 	void mdsReturnsNull() {

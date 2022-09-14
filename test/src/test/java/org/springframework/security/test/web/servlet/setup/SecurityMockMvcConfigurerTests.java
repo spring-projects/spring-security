@@ -18,7 +18,6 @@ package org.springframework.security.test.web.servlet.setup;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.security.core.parameters.DefaultSecurityParameterName
  *
  * @author Luke Taylor
  * @author Daniel Bustamante
+ * @author Evgeniy Cheban
  * @since 3.0
  */
 class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
@@ -50,6 +51,11 @@ class MethodSecurityEvaluationContext extends MethodBasedEvaluationContext {
 	MethodSecurityEvaluationContext(Authentication user, MethodInvocation mi,
 			ParameterNameDiscoverer parameterNameDiscoverer) {
 		super(mi.getThis(), getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
+	}
+
+	MethodSecurityEvaluationContext(MethodSecurityExpressionOperations root, MethodInvocation mi,
+			ParameterNameDiscoverer parameterNameDiscoverer) {
+		super(root, getSpecificMethod(mi), mi.getArguments(), parameterNameDiscoverer);
 	}
 
 	private static Method getSpecificMethod(MethodInvocation mi) {

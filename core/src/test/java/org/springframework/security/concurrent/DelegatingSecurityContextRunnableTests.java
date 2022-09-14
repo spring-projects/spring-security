@@ -30,12 +30,16 @@ import org.mockito.stubbing.Answer;
 
 import org.springframework.core.task.SyncTaskExecutor;
 import org.springframework.core.task.support.ExecutorServiceAdapter;
+import org.springframework.security.core.context.MockSecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.willAnswer;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -69,6 +73,13 @@ public class DelegatingSecurityContextRunnableTests {
 	private void givenDelegateRunWillAnswerWithCurrentSecurityContext() {
 		willAnswer((Answer<Object>) (invocation) -> {
 			assertThat(SecurityContextHolder.getContext()).isEqualTo(this.securityContext);
+			return null;
+		}).given(this.delegate).run();
+	}
+
+	private void givenDelegateRunWillAnswerWithCurrentSecurityContext(SecurityContextHolderStrategy strategy) {
+		willAnswer((Answer<Object>) (invocation) -> {
+			assertThat(strategy.getContext()).isEqualTo(this.securityContext);
 			return null;
 		}).given(this.delegate).run();
 	}
@@ -115,6 +126,20 @@ public class DelegatingSecurityContextRunnableTests {
 		SecurityContextHolder.clearContext(); // ensure runnable is what sets up the
 												// SecurityContextHolder
 		assertWrapped(this.runnable);
+	}
+
+	@Test
+	public void callDefaultSecurityContextWithCustomSecurityContextHolderStrategy() throws Exception {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new MockSecurityContextHolderStrategy());
+		givenDelegateRunWillAnswerWithCurrentSecurityContext(securityContextHolderStrategy);
+		securityContextHolderStrategy.setContext(this.securityContext);
+		DelegatingSecurityContextRunnable runnable = new DelegatingSecurityContextRunnable(this.delegate);
+		runnable.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		this.runnable = runnable;
+		// ensure callable is what sets up the SecurityContextHolder
+		securityContextHolderStrategy.clearContext();
+		assertWrapped(this.runnable);
+		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
 	}
 
 	// SEC-3031

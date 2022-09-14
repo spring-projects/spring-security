@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,6 +87,7 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.TestJwts;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
@@ -98,7 +99,9 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -357,6 +360,32 @@ public class OAuth2LoginConfigurerTests {
 				"https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=clientId&scope=openid+profile+email&state=state&redirect_uri=http%3A%2F%2Flocalhost%2Flogin%2Foauth2%2Fcode%2Fgoogle&custom-param1=custom-value1");
 	}
 
+	@Test
+	public void oauth2LoginWithAuthorizationRedirectStrategyThenCustomAuthorizationRedirectStrategyUsed()
+			throws Exception {
+		loadConfig(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class);
+		RedirectStrategy redirectStrategy = this.context
+				.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategy.class).redirectStrategy;
+		String requestUri = "/oauth2/authorization/google";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		then(redirectStrategy).should().sendRedirect(any(), any(), anyString());
+	}
+
+	@Test
+	public void requestWhenOauth2LoginWithCustomAuthorizationRedirectStrategyThenCustomAuthorizationRedirectStrategyUsed()
+			throws Exception {
+		loadConfig(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class);
+		RedirectStrategy redirectStrategy = this.context
+				.getBean(OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda.class).redirectStrategy;
+		String requestUri = "/oauth2/authorization/google";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		then(redirectStrategy).should().sendRedirect(any(), any(), anyString());
+	}
+
 	// gh-5347
 	@Test
 	public void oauth2LoginWithOneClientConfiguredThenRedirectForAuthorization() throws Exception {
@@ -366,6 +395,17 @@ public class OAuth2LoginConfigurerTests {
 		this.request.setServletPath(requestUri);
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
 		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/oauth2/authorization/google");
+	}
+
+	// gh-6802
+	@Test
+	public void oauth2LoginWithOneClientConfiguredAndFormLoginThenRedirectDefaultLoginPage() throws Exception {
+		loadConfig(OAuth2LoginConfigFormLogin.class);
+		String requestUri = "/";
+		this.request = new MockHttpServletRequest("GET", requestUri);
+		this.request.setServletPath(requestUri);
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.filterChain);
+		assertThat(this.response.getRedirectedUrl()).matches("http://localhost/login");
 	}
 
 	// gh-5347
@@ -618,6 +658,7 @@ public class OAuth2LoginConfigurerTests {
 		};
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfig extends CommonWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -642,6 +683,28 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigFormLogin extends CommonWebSecurityConfigurerAdapter {
+
+		private final InMemoryClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login()
+					.clientRegistrationRepository(this.clientRegistrationRepository)
+					.and()
+				.formLogin();
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginInLambdaConfig extends CommonLambdaWebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -668,6 +731,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithConfigurer extends CommonWebSecurityConfigurerAdapter {
 
@@ -686,6 +750,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomWithBeanRegistration extends CommonWebSecurityConfigurerAdapter {
 
@@ -710,6 +775,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomUserServiceBeanRegistration extends WebSecurityConfigurerAdapter {
 
@@ -761,6 +827,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigLoginProcessingUrl extends CommonWebSecurityConfigurerAdapter {
 
@@ -778,6 +845,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRequestResolver extends CommonWebSecurityConfigurerAdapter {
 
@@ -800,6 +868,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomAuthorizationRequestResolverInLambda
 			extends CommonLambdaWebSecurityConfigurerAdapter {
@@ -827,6 +896,60 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomAuthorizationRedirectStrategy extends CommonWebSecurityConfigurerAdapter {
+
+		private final ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		RedirectStrategy redirectStrategy = mock(RedirectStrategy.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.oauth2Login((oauth2Login) ->
+					oauth2Login
+						.clientRegistrationRepository(this.clientRegistrationRepository)
+						.authorizationEndpoint((authorizationEndpoint) ->
+							authorizationEndpoint
+								.authorizationRedirectStrategy(this.redirectStrategy)
+						)
+				);
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class OAuth2LoginConfigCustomAuthorizationRedirectStrategyInLambda
+			extends CommonLambdaWebSecurityConfigurerAdapter {
+
+		private final ClientRegistrationRepository clientRegistrationRepository = new InMemoryClientRegistrationRepository(
+				GOOGLE_CLIENT_REGISTRATION);
+
+		RedirectStrategy redirectStrategy = mock(RedirectStrategy.class);
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.oauth2Login((oauth2Login) ->
+							oauth2Login
+									.clientRegistrationRepository(this.clientRegistrationRepository)
+									.authorizationEndpoint((authorizationEndpoint) ->
+											authorizationEndpoint
+													.authorizationRedirectStrategy(this.redirectStrategy)
+									)
+					);
+			// @formatter:on
+			super.configure(http);
+		}
+
+	}
+
 	@EnableWebSecurity
 	static class OAuth2LoginConfigMultipleClients extends CommonWebSecurityConfigurerAdapter {
 
@@ -844,6 +967,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigAuthorizationCodeClientAndOtherClients extends CommonWebSecurityConfigurerAdapter {
 
@@ -861,6 +985,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPage extends CommonWebSecurityConfigurerAdapter {
 
@@ -878,6 +1003,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigCustomLoginPageInLambda extends CommonLambdaWebSecurityConfigurerAdapter {
 
@@ -897,6 +1023,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginConfigWithOidcLogoutSuccessHandler extends CommonWebSecurityConfigurerAdapter {
 
@@ -924,6 +1051,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginWithHttpBasicConfig extends CommonWebSecurityConfigurerAdapter {
 
@@ -942,6 +1070,7 @@ public class OAuth2LoginConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginWithXHREntryPointConfig extends CommonWebSecurityConfigurerAdapter {
 

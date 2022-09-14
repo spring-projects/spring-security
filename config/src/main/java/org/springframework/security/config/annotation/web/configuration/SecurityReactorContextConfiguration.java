@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.reactivestreams.Publisher;
 import org.reactivestreams.Subscription;
 import reactor.core.CoreSubscriber;
@@ -37,10 +36,13 @@ import reactor.util.context.Context;
 
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -62,24 +64,37 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Configuration(proxyBeanMethods = false)
 class SecurityReactorContextConfiguration {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	@Bean
 	SecurityReactorContextSubscriberRegistrar securityReactorContextSubscriberRegistrar() {
-		return new SecurityReactorContextSubscriberRegistrar();
+		SecurityReactorContextSubscriberRegistrar registrar = new SecurityReactorContextSubscriberRegistrar();
+		registrar.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		return registrar;
+	}
+
+	@Autowired(required = false)
+	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 	static class SecurityReactorContextSubscriberRegistrar implements InitializingBean, DisposableBean {
 
 		private static final String SECURITY_REACTOR_CONTEXT_OPERATOR_KEY = "org.springframework.security.SECURITY_REACTOR_CONTEXT_OPERATOR";
 
-		private static final Map<Object, Supplier<Object>> CONTEXT_ATTRIBUTE_VALUE_LOADERS = new HashMap<>();
+		private final Map<Object, Supplier<Object>> CONTEXT_ATTRIBUTE_VALUE_LOADERS = new HashMap<>();
 
-		static {
-			CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(HttpServletRequest.class,
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+				.getContextHolderStrategy();
+
+		SecurityReactorContextSubscriberRegistrar() {
+			this.CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(HttpServletRequest.class,
 					SecurityReactorContextSubscriberRegistrar::getRequest);
-			CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(HttpServletResponse.class,
+			this.CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(HttpServletResponse.class,
 					SecurityReactorContextSubscriberRegistrar::getResponse);
-			CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(Authentication.class,
-					SecurityReactorContextSubscriberRegistrar::getAuthentication);
+			this.CONTEXT_ATTRIBUTE_VALUE_LOADERS.put(Authentication.class, this::getAuthentication);
 		}
 
 		@Override
@@ -94,6 +109,11 @@ class SecurityReactorContextConfiguration {
 			Hooks.resetOnLastOperator(SECURITY_REACTOR_CONTEXT_OPERATOR_KEY);
 		}
 
+		void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+		}
+
 		<T> CoreSubscriber<T> createSubscriberIfNecessary(CoreSubscriber<T> delegate) {
 			if (delegate.currentContext().hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES)) {
 				// Already enriched. No need to create Subscriber so return original
@@ -102,8 +122,8 @@ class SecurityReactorContextConfiguration {
 			return new SecurityReactorContextSubscriber<>(delegate, getContextAttributes());
 		}
 
-		private static Map<Object, Object> getContextAttributes() {
-			return new LoadingMap<>(CONTEXT_ATTRIBUTE_VALUE_LOADERS);
+		private Map<Object, Object> getContextAttributes() {
+			return new LoadingMap<>(this.CONTEXT_ATTRIBUTE_VALUE_LOADERS);
 		}
 
 		private static HttpServletRequest getRequest() {
@@ -124,8 +144,8 @@ class SecurityReactorContextConfiguration {
 			return null;
 		}
 
-		private static Authentication getAuthentication() {
-			return SecurityContextHolder.getContext().getAuthentication();
+		private Authentication getAuthentication() {
+			return this.securityContextHolderStrategy.getContext().getAuthentication();
 		}
 
 	}

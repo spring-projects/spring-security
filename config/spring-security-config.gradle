@@ -23,7 +23,6 @@ dependencies {
 	optional project(':spring-security-oauth2-client')
 	optional project(':spring-security-oauth2-jose')
 	optional project(':spring-security-oauth2-resource-server')
-	optional project(':spring-security-openid')
 	optional project(':spring-security-rsocket')
 	optional project(':spring-security-web')
 	optional 'io.projectreactor:reactor-core'
@@ -50,6 +49,7 @@ dependencies {
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'tests')
 	testImplementation project(path : ':spring-security-saml2-service-provider', configuration : 'opensaml4MainImplementation')
 	testImplementation project(path : ':spring-security-web', configuration : 'tests')
+	testImplementation "jakarta.inject:jakarta.inject-api"
 	testImplementation "org.assertj:assertj-core"
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
@@ -73,14 +73,12 @@ dependencies {
 	testImplementation "org.apache.directory.server:apacheds-protocol-ldap"
 	testImplementation "org.apache.directory.server:apacheds-server-jndi"
 	testImplementation 'org.apache.directory.shared:shared-ldap'
+	testImplementation "com.unboundid:unboundid-ldapsdk"
 	testImplementation 'jakarta.persistence:jakarta.persistence-api'
-	testImplementation 'org.hibernate:hibernate-core-jakarta'
+	testImplementation "org.hibernate.orm:hibernate-core"
 	testImplementation 'org.hsqldb:hsqldb'
 	testImplementation 'org.mockito:mockito-core'
 	testImplementation "org.mockito:mockito-inline"
-	testImplementation ('org.openid4java:openid4java-nodeps') {
-		exclude group: 'com.google.code.guice', module: 'guice'
-	}
 	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
 	}
@@ -88,7 +86,6 @@ dependencies {
 		exclude group: 'commons-logging', module: 'commons-logging'
 		exclude group: 'io.netty', module: 'netty'
 	}
-	testImplementation 'org.slf4j:jcl-over-slf4j'
 	testImplementation 'org.springframework.ldap:spring-ldap-core'
 	testImplementation 'org.springframework:spring-expression'
 	testImplementation 'org.springframework:spring-jdbc'
@@ -113,10 +110,10 @@ rncToXsd {
 
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
-		languageVersion = "1.3"
-		apiVersion = "1.3"
+		languageVersion = "1.7"
+		apiVersion = "1.7"
 		freeCompilerArgs = ["-Xjsr305=strict", "-Xsuppress-version-warnings"]
-		jvmTarget = "11"
+		jvmTarget = "17"
 	}
 }
 

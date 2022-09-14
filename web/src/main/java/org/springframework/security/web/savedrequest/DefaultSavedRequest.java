@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,14 +25,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
@@ -60,6 +60,8 @@ import org.springframework.util.ObjectUtils;
  * @author Luke Taylor
  */
 public class DefaultSavedRequest implements SavedRequest {
+
+	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
 	protected static final Log logger = LogFactory.getLog(DefaultSavedRequest.class);
 
@@ -95,8 +97,15 @@ public class DefaultSavedRequest implements SavedRequest {
 
 	private final int serverPort;
 
-	@SuppressWarnings("unchecked")
+	private final String matchingRequestParameterName;
+
 	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver) {
+		this(request, portResolver, null);
+	}
+
+	@SuppressWarnings("unchecked")
+	public DefaultSavedRequest(HttpServletRequest request, PortResolver portResolver,
+			String matchingRequestParameterName) {
 		Assert.notNull(request, "Request required");
 		Assert.notNull(portResolver, "PortResolver required");
 		// Cookies
@@ -129,6 +138,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.serverName = request.getServerName();
 		this.contextPath = request.getContextPath();
 		this.servletPath = request.getServletPath();
+		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
 	/**
@@ -145,6 +155,7 @@ public class DefaultSavedRequest implements SavedRequest {
 		this.serverName = builder.serverName;
 		this.servletPath = builder.servletPath;
 		this.serverPort = builder.serverPort;
+		this.matchingRequestParameterName = builder.matchingRequestParameterName;
 	}
 
 	/**
@@ -262,8 +273,9 @@ public class DefaultSavedRequest implements SavedRequest {
 	 */
 	@Override
 	public String getRedirectUrl() {
+		String queryString = createQueryString(this.queryString, this.matchingRequestParameterName);
 		return UrlUtils.buildFullRequestUrl(this.scheme, this.serverName, this.serverPort, this.requestURI,
-				this.queryString);
+				queryString);
 	}
 
 	@Override
@@ -351,6 +363,19 @@ public class DefaultSavedRequest implements SavedRequest {
 		return "DefaultSavedRequest [" + getRedirectUrl() + "]";
 	}
 
+	private static String createQueryString(String queryString, String matchingRequestParameterName) {
+		if (matchingRequestParameterName == null) {
+			return queryString;
+		}
+		if (queryString == null || queryString.length() == 0) {
+			return matchingRequestParameterName;
+		}
+		if (queryString.endsWith("&")) {
+			return queryString + matchingRequestParameterName;
+		}
+		return queryString + "&" + matchingRequestParameterName;
+	}
+
 	/**
 	 * @since 4.2
 	 */
@@ -385,6 +410,8 @@ public class DefaultSavedRequest implements SavedRequest {
 		private String servletPath;
 
 		private int serverPort = 80;
+
+		private String matchingRequestParameterName;
 
 		public Builder setCookies(List<SavedCookie> cookies) {
 			this.cookies = cookies;
@@ -453,6 +480,11 @@ public class DefaultSavedRequest implements SavedRequest {
 
 		public Builder setServerPort(int serverPort) {
 			this.serverPort = serverPort;
+			return this;
+		}
+
+		public Builder setMatchingRequestParameterName(String matchingRequestParameterName) {
+			this.matchingRequestParameterName = matchingRequestParameterName;
 			return this;
 		}
 

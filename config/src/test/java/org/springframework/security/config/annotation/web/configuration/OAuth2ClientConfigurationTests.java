@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configuration;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -26,6 +25,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestContext;
@@ -56,7 +56,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -102,7 +102,7 @@ public class OAuth2ClientConfigurationTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("resolved"));
 		// @formatter:on
-		verifyZeroInteractions(accessTokenResponseClient);
+		verifyNoMoreInteractions(accessTokenResponseClient);
 	}
 
 	@Test
@@ -213,6 +213,7 @@ public class OAuth2ClientConfigurationTests {
 		verifyNoInteractions(authorizedClientRepository);
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
@@ -253,6 +254,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -290,6 +292,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ClientRegistrationRepositoryNotRegisteredConfig extends WebSecurityConfigurerAdapter {
@@ -307,6 +310,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class ClientRegistrationRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -344,6 +348,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class AccessTokenResponseClientRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
@@ -381,6 +386,7 @@ public class OAuth2ClientConfigurationTests {
 
 	}
 
+	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
 	static class OAuth2AuthorizedClientManagerRegisteredConfig extends WebSecurityConfigurerAdapter {

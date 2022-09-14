@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,45 +26,48 @@ package org.springframework.security.oauth2.jwt;
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc7519#section-4">JWT
  * Claims</a>
  */
-public interface JwtClaimNames {
+public final class JwtClaimNames {
 
 	/**
 	 * {@code iss} - the Issuer claim identifies the principal that issued the JWT
 	 */
-	String ISS = "iss";
+	public static final String ISS = "iss";
 
 	/**
 	 * {@code sub} - the Subject claim identifies the principal that is the subject of the
 	 * JWT
 	 */
-	String SUB = "sub";
+	public static final String SUB = "sub";
 
 	/**
 	 * {@code aud} - the Audience claim identifies the recipient(s) that the JWT is
 	 * intended for
 	 */
-	String AUD = "aud";
+	public static final String AUD = "aud";
 
 	/**
 	 * {@code exp} - the Expiration time claim identifies the expiration time on or after
 	 * which the JWT MUST NOT be accepted for processing
 	 */
-	String EXP = "exp";
+	public static final String EXP = "exp";
 
 	/**
 	 * {@code nbf} - the Not Before claim identifies the time before which the JWT MUST
 	 * NOT be accepted for processing
 	 */
-	String NBF = "nbf";
+	public static final String NBF = "nbf";
 
 	/**
 	 * {@code iat} - The Issued at claim identifies the time at which the JWT was issued
 	 */
-	String IAT = "iat";
+	public static final String IAT = "iat";
 
 	/**
 	 * {@code jti} - The JWT ID claim provides a unique identifier for the JWT
 	 */
-	String JTI = "jti";
+	public static final String JTI = "jti";
+
+	private JwtClaimNames() {
+	}
 
 }

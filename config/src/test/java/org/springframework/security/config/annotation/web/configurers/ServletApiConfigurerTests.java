@@ -22,7 +22,6 @@ import jakarta.servlet.Filter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -212,6 +211,7 @@ public class ServletApiConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
 
@@ -241,6 +241,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
 
@@ -260,6 +261,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
 
@@ -290,6 +292,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
 
@@ -306,6 +309,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -321,6 +325,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -334,6 +339,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RolePrefixInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -362,6 +368,7 @@ public class ServletApiConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
 

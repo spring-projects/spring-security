@@ -34,8 +34,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 
@@ -65,6 +68,9 @@ import org.springframework.web.filter.GenericFilterBean;
  */
 public class RememberMeAuthenticationFilter extends GenericFilterBean implements ApplicationEventPublisherAware {
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	private ApplicationEventPublisher eventPublisher;
 
 	private AuthenticationSuccessHandler successHandler;
@@ -72,6 +78,8 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	private AuthenticationManager authenticationManager;
 
 	private RememberMeServices rememberMeServices;
+
+	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
 
 	public RememberMeAuthenticationFilter(AuthenticationManager authenticationManager,
 			RememberMeServices rememberMeServices) {
@@ -95,10 +103,10 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
 	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws IOException, ServletException {
-		if (SecurityContextHolder.getContext().getAuthentication() != null) {
+		if (this.securityContextHolderStrategy.getContext().getAuthentication() != null) {
 			this.logger.debug(LogMessage
 					.of(() -> "SecurityContextHolder not populated with remember-me token, as it already contained: '"
-							+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+							+ this.securityContextHolderStrategy.getContext().getAuthentication() + "'"));
 			chain.doFilter(request, response);
 			return;
 		}
@@ -108,15 +116,16 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 			try {
 				rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
 				// Store to SecurityContextHolder
-				SecurityContext context = SecurityContextHolder.createEmptyContext();
+				SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 				context.setAuthentication(rememberMeAuth);
-				SecurityContextHolder.setContext(context);
+				this.securityContextHolderStrategy.setContext(context);
 				onSuccessfulAuthentication(request, response, rememberMeAuth);
 				this.logger.debug(LogMessage.of(() -> "SecurityContextHolder populated with remember-me token: '"
-						+ SecurityContextHolder.getContext().getAuthentication() + "'"));
+						+ this.securityContextHolderStrategy.getContext().getAuthentication() + "'"));
+				this.securityContextRepository.saveContext(context, request, response);
 				if (this.eventPublisher != null) {
 					this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(
-							SecurityContextHolder.getContext().getAuthentication(), this.getClass()));
+							this.securityContextHolderStrategy.getContext().getAuthentication(), this.getClass()));
 				}
 				if (this.successHandler != null) {
 					this.successHandler.onAuthenticationSuccess(request, response, rememberMeAuth);
@@ -177,6 +186,29 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 	public void setAuthenticationSuccessHandler(AuthenticationSuccessHandler successHandler) {
 		Assert.notNull(successHandler, "successHandler cannot be null");
 		this.successHandler = successHandler;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * authentication success. The default action is not to save the
+	 * {@link SecurityContext}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 *
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

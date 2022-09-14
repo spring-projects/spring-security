@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,10 +30,12 @@ import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.SessionIndex;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.w3c.dom.Element;
 
 import org.springframework.security.core.Authentication;
@@ -67,6 +68,8 @@ final class OpenSamlLogoutRequestResolver {
 
 	private final NameIDBuilder nameIdBuilder;
 
+	private final SessionIndexBuilder sessionIndexBuilder;
+
 	private final LogoutRequestBuilder logoutRequestBuilder;
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
@@ -87,6 +90,9 @@ final class OpenSamlLogoutRequestResolver {
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
 		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
+		this.sessionIndexBuilder = (SessionIndexBuilder) registry.getBuilderFactory()
+				.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
+		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
 	}
 
 	/**
@@ -122,6 +128,14 @@ final class OpenSamlLogoutRequestResolver {
 		NameID nameId = this.nameIdBuilder.buildObject();
 		nameId.setValue(authentication.getName());
 		logoutRequest.setNameID(nameId);
+		if (authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal) {
+			Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
+			for (String index : principal.getSessionIndexes()) {
+				SessionIndex sessionIndex = this.sessionIndexBuilder.buildObject();
+				sessionIndex.setSessionIndex(index);
+				logoutRequest.getSessionIndexes().add(sessionIndex);
+			}
+		}
 		logoutRequestConsumer.accept(registration, logoutRequest);
 		if (logoutRequest.getID() == null) {
 			logoutRequest.setID("LR" + UUID.randomUUID());

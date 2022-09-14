@@ -13,11 +13,12 @@ The following code shows an example:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .authorizationEndpoint(authorization -> authorization
@@ -33,6 +34,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			            ...
 			    )
 			);
+		return http.build();
 	}
 }
 ----
@@ -40,10 +42,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 authorizationEndpoint {
@@ -60,6 +64,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -91,11 +96,12 @@ The following code shows the complete configuration options available for the `o
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .clientRegistrationRepository(this.clientRegistrationRepository())
@@ -119,6 +125,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        .oidcUserService(this.oidcUserService())
 			    )
 			);
+		return http.build();
 	}
 }
 ----
@@ -126,10 +133,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 clientRegistrationRepository = clientRegistrationRepository()
@@ -154,6 +163,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -229,11 +239,12 @@ The following listing shows an example:
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .loginPage("/login/oauth2")
@@ -243,6 +254,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        ...
 			    )
 			);
+		return http.build();
 	}
 }
 ----
@@ -250,10 +262,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 loginPage = "/login/oauth2"
@@ -262,6 +276,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -317,11 +332,12 @@ If you would like to customize the Authorization Response `baseUri`, configure i
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .redirectionEndpoint(redirection -> redirection
@@ -329,6 +345,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        ...
 			    )
 			);
+		return http.build();
 	}
 }
 ----
@@ -336,10 +353,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 redirectionEndpoint {
@@ -347,6 +366,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -426,11 +446,12 @@ Provide an implementation of `GrantedAuthoritiesMapper` and configure it, as fol
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+    @Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .userInfoEndpoint(userInfo -> userInfo
@@ -438,6 +459,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        ...
 			    )
 			);
+		return http.build();
 	}
 
 	private GrantedAuthoritiesMapper userAuthoritiesMapper() {
@@ -474,10 +496,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 userInfoEndpoint {
@@ -485,6 +509,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     private fun userAuthoritiesMapper(): GrantedAuthoritiesMapper = GrantedAuthoritiesMapper { authorities: Collection<GrantedAuthority> ->
@@ -526,13 +551,15 @@ Alternatively, you can register a `GrantedAuthoritiesMapper` `@Bean` to have it 
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 		    .oauth2Login(withDefaults());
+		return http.build();
 	}
 
 	@Bean
@@ -545,13 +572,16 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login { }
         }
+        return http.build()
     }
 
     @Bean
@@ -576,11 +606,12 @@ The following example shows how to implement and configure a delegation-based st
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .userInfoEndpoint(userInfo -> userInfo
@@ -588,6 +619,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        ...
 			    )
 			);
+		return http.build();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
@@ -616,10 +648,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig  {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 userInfoEndpoint {
@@ -627,6 +661,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     @Bean
@@ -699,11 +734,12 @@ Whether you customize `DefaultOAuth2UserService` or provide your own implementat
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 			    .userInfoEndpoint(userInfo -> userInfo
@@ -711,6 +747,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			        ...
 			    )
 			);
+		return http.build();
 	}
 
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
@@ -722,10 +759,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 userInfoEndpoint {
@@ -734,6 +773,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     private fun oauth2UserService(): OAuth2UserService<OAuth2UserRequest, OAuth2User> {
@@ -759,11 +799,12 @@ Whether you customize `OidcUserService` or provide your own implementation of `O
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Login(oauth2 -> oauth2
 				.userInfoEndpoint(userInfo -> userInfo
@@ -771,6 +812,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 				    ...
 			    )
 			);
+		return http.build();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
@@ -782,10 +824,12 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Login {
                 userInfoEndpoint {
@@ -794,6 +838,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     private fun oidcUserService(): OAuth2UserService<OidcUserRequest, OidcUser> {
@@ -886,14 +931,15 @@ Also, you can configure `OidcClientInitiatedLogoutSuccessHandler`, which impleme
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().authenticated()
@@ -902,6 +948,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 			.logout(logout -> logout
 				.logoutSuccessHandler(oidcLogoutSuccessHandler())
 			);
+		return http.build();
 	}
 
 	private LogoutSuccessHandler oidcLogoutSuccessHandler() {
@@ -920,12 +967,14 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2LoginSecurityConfig {
     @Autowired
     private lateinit var clientRegistrationRepository: ClientRegistrationRepository
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -935,6 +984,7 @@ class OAuth2LoginSecurityConfig : WebSecurityConfigurerAdapter() {
                 logoutSuccessHandler = oidcLogoutSuccessHandler()
             }
         }
+        return http.build()
     }
 
     private fun oidcLogoutSuccessHandler(): LogoutSuccessHandler {

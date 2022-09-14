@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,18 +95,21 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2Login {
-     *              authorizationEndpoint {
-     *                  baseUri = "/auth"
-     *              }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login {
+     *                 authorizationEndpoint {
+     *                     baseUri = "/auth"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -124,18 +127,21 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2Login {
-     *              tokenEndpoint {
-     *                  accessTokenResponseClient = getAccessTokenResponseClient()
-     *              }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login {
+     *                 tokenEndpoint {
+     *                     accessTokenResponseClient = getAccessTokenResponseClient()
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -153,18 +159,21 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2Login {
-     *              redirectionEndpoint {
-     *                  baseUri = "/home"
-     *              }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login {
+     *                 redirectionEndpoint {
+     *                     baseUri = "/home"
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *
@@ -182,18 +191,21 @@ class OAuth2LoginDsl {
      * Example:
      *
      * ```
+     * @Configuration
      * @EnableWebSecurity
-     * class SecurityConfig : WebSecurityConfigurerAdapter() {
+     * class SecurityConfig {
      *
-     *  override fun configure(http: HttpSecurity) {
-     *      httpSecurity(http) {
-     *          oauth2Login {
-     *              userInfoEndpoint {
-     *                  userService = getUserService()
-     *              }
-     *          }
-     *      }
-     *  }
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login {
+     *                 userInfoEndpoint {
+     *                     userService = getUserService()
+     *                 }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
      * }
      * ```
      *

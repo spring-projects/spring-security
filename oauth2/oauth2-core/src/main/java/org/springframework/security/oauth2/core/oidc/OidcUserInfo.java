@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -248,8 +248,9 @@ public class OidcUserInfo implements StandardClaimAccessor, Serializable {
 		 * Use this verified-phone-number indicator in the resulting {@link OidcUserInfo}
 		 * @param phoneNumberVerified The verified-phone-number indicator to use
 		 * @return the {@link Builder} for further configurations
+		 * @since 5.8
 		 */
-		public Builder phoneNumberVerified(String phoneNumberVerified) {
+		public Builder phoneNumberVerified(Boolean phoneNumberVerified) {
 			return this.claim(StandardClaimNames.PHONE_NUMBER_VERIFIED, phoneNumberVerified);
 		}
 

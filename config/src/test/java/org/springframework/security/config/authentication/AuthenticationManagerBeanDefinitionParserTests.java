@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.authentication.ProviderManager;
@@ -33,6 +34,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -90,6 +92,16 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 	}
 
 	@Test
+	// gh-8767
+	public void multipleAuthenticationManagersAndDisableBeanDefinitionOverridingThenNoException() {
+		InMemoryXmlWebApplicationContext xmlContext = new InMemoryXmlWebApplicationContext(
+				CONTEXT + '\n' + CONTEXT_MULTI);
+		xmlContext.setAllowBeanDefinitionOverriding(false);
+		ConfigurableApplicationContext context = this.spring.context(xmlContext).getContext();
+		assertThat(context.getBeansOfType(AuthenticationManager.class)).hasSize(2);
+	}
+
+	@Test
 	public void eventsArePublishedByDefault() throws Exception {
 		ConfigurableApplicationContext appContext = this.spring.context(CONTEXT).getContext();
 		AuthListener listener = new AuthListener();
@@ -98,7 +110,7 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 		Object eventPublisher = FieldUtils.getFieldValue(pm, "eventPublisher");
 		assertThat(eventPublisher).isNotNull();
 		assertThat(eventPublisher instanceof DefaultAuthenticationEventPublisher).isTrue();
-		pm.authenticate(new UsernamePasswordAuthenticationToken("bob", "bobspassword"));
+		pm.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bob", "bobspassword"));
 		assertThat(listener.events).hasSize(1);
 	}
 

@@ -43,19 +43,23 @@ public class WebAuthenticationDetails implements Serializable {
 	 * @param request that the authentication request was received from
 	 */
 	public WebAuthenticationDetails(HttpServletRequest request) {
-		this.remoteAddress = request.getRemoteAddr();
-		HttpSession session = request.getSession(false);
-		this.sessionId = (session != null) ? session.getId() : null;
+		this(request.getRemoteAddr(), extractSessionId(request));
 	}
 
 	/**
 	 * Constructor to add Jackson2 serialize/deserialize support
 	 * @param remoteAddress remote address of current request
 	 * @param sessionId session id
+	 * @since 5.7
 	 */
-	private WebAuthenticationDetails(final String remoteAddress, final String sessionId) {
+	public WebAuthenticationDetails(String remoteAddress, String sessionId) {
 		this.remoteAddress = remoteAddress;
 		this.sessionId = sessionId;
+	}
+
+	private static String extractSessionId(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		return (session != null) ? session.getId() : null;
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +57,7 @@ public class FilterChainPerformanceTests {
 
 	private static StopWatch sw = new StopWatch("Filter Chain Performance Tests");
 
-	private final UsernamePasswordAuthenticationToken user = new UsernamePasswordAuthenticationToken("bob",
+	private final UsernamePasswordAuthenticationToken user = UsernamePasswordAuthenticationToken.authenticated("bob",
 			"bobspassword", createRoles(N_AUTHORITIES));
 
 	private HttpSession session;
@@ -129,8 +128,8 @@ public class FilterChainPerformanceTests {
 		StopWatch sw = new StopWatch("Scaling with nAuthorities");
 		for (int user = 0; user < N_AUTHORITIES / 10; user++) {
 			int nAuthorities = (user != 0) ? user * 10 : 1;
-			SecurityContextHolder.getContext().setAuthentication(
-					new UsernamePasswordAuthenticationToken("bob", "bobspassword", createRoles(nAuthorities)));
+			SecurityContextHolder.getContext().setAuthentication(UsernamePasswordAuthenticationToken
+					.authenticated("bob", "bobspassword", createRoles(nAuthorities)));
 			this.session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 					SecurityContextHolder.getContext());
 			SecurityContextHolder.clearContext();

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ import java.util.Map;
  * @author Rob Winch
  * @author Michael Simons
  * @author heowc
+ * @author Jihoon Cha
  * @since 5.0
  * @see org.springframework.security.crypto.factory.PasswordEncoderFactories
  */
@@ -172,6 +173,9 @@ public class DelegatingPasswordEncoder implements PasswordEncoder {
 		}
 		if (idSuffix == null || idSuffix.isEmpty()) {
 			throw new IllegalArgumentException("suffix cannot be empty");
+		}
+		if (idPrefix.contains(idSuffix)) {
+			throw new IllegalArgumentException("idPrefix " + idPrefix + " cannot contain idSuffix " + idSuffix);
 		}
 
 		if (!idToPasswordEncoder.containsKey(idForEncode)) {

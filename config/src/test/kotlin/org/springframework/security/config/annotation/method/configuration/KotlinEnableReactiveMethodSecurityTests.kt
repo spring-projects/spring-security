@@ -210,8 +210,8 @@ class KotlinEnableReactiveMethodSecurityTests {
         verify { delegate wasNot Called }
     }
 
-    @EnableReactiveMethodSecurity
     @Configuration
+    @EnableReactiveMethodSecurity
     open class Config {
         var delegate = mockk<KotlinReactiveMessageService>()
 

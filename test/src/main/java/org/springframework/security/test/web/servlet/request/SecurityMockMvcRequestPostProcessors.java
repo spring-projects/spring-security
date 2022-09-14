@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,8 +41,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.nimbusds.oauth2.sdk.util.StringUtils;
-
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.Resource;
@@ -57,6 +55,7 @@ import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
@@ -87,6 +86,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.oauth2.server.resource.introspection.OAuth2IntrospectionAuthenticatedPrincipal;
 import org.springframework.security.test.context.TestSecurityContextHolder;
+import org.springframework.security.test.context.TestSecurityContextHolderStrategyAdapter;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
 import org.springframework.security.test.web.support.WebTestUtils;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
@@ -102,6 +102,7 @@ import org.springframework.test.web.servlet.request.RequestPostProcessor;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.DigestUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -115,6 +116,8 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
  * @since 4.0
  */
 public final class SecurityMockMvcRequestPostProcessors {
+
+	private static final SecurityContextHolderStrategy DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY = new TestSecurityContextHolderStrategyAdapter();
 
 	private SecurityMockMvcRequestPostProcessors() {
 	}
@@ -177,7 +180,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	/**
 	 * Creates a {@link RequestPostProcessor} that can be used to ensure that the
 	 * resulting request is ran with the user in the {@link TestSecurityContextHolder}.
-	 * @return the {@link RequestPostProcessor} to sue
+	 * @return the {@link RequestPostProcessor} to use
 	 */
 	public static RequestPostProcessor testSecurityContext() {
 		return new TestSecurityContextHolderPostProcessor();
@@ -456,6 +459,18 @@ public final class SecurityMockMvcRequestPostProcessors {
 		return new OAuth2ClientRequestPostProcessor(registrationId);
 	}
 
+	private static SecurityContextHolderStrategy getSecurityContextHolderStrategy(HttpServletRequest request) {
+		WebApplicationContext context = WebApplicationContextUtils
+				.findWebApplicationContext(request.getServletContext());
+		if (context == null) {
+			return DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY;
+		}
+		if (context.getBeanNamesForType(SecurityContextHolderStrategy.class).length == 0) {
+			return DEFAULT_SECURITY_CONTEXT_HOLDER_STRATEGY;
+		}
+		return context.getBean(SecurityContextHolderStrategy.class);
+	}
+
 	/**
 	 * Populates the X509Certificate instances onto the request
 	 */
@@ -711,7 +726,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * @param request the {@link HttpServletRequest} to use
 		 */
 		final void save(Authentication authentication, HttpServletRequest request) {
-			SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+			SecurityContext securityContext = getSecurityContextHolderStrategy(request).createEmptyContext();
 			securityContext.setAuthentication(authentication);
 			save(securityContext, request);
 		}
@@ -791,8 +806,6 @@ public final class SecurityMockMvcRequestPostProcessors {
 	private static final class TestSecurityContextHolderPostProcessor extends SecurityContextRequestPostProcessorSupport
 			implements RequestPostProcessor {
 
-		private SecurityContext EMPTY = SecurityContextHolder.createEmptyContext();
-
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			// TestSecurityContextHolder is only a default value
@@ -800,8 +813,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 			if (existingContext != null) {
 				return request;
 			}
-			SecurityContext context = TestSecurityContextHolder.getContext();
-			if (!this.EMPTY.equals(context)) {
+			SecurityContextHolderStrategy strategy = getSecurityContextHolderStrategy(request);
+			SecurityContext empty = strategy.createEmptyContext();
+			SecurityContext context = strategy.getContext();
+			if (!empty.equals(context)) {
 				save(context, request);
 			}
 			return request;
@@ -852,7 +867,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			SecurityContext context = SecurityContextHolder.createEmptyContext();
+			SecurityContext context = getSecurityContextHolderStrategy(request).createEmptyContext();
 			context.setAuthentication(this.authentication);
 			save(this.authentication, request);
 			return request;
@@ -870,10 +885,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	private static final class UserDetailsRequestPostProcessor implements RequestPostProcessor {
 
-		private final RequestPostProcessor delegate;
+		private final AuthenticationRequestPostProcessor delegate;
 
 		UserDetailsRequestPostProcessor(UserDetails user) {
-			Authentication token = new UsernamePasswordAuthenticationToken(user, user.getPassword(),
+			Authentication token = UsernamePasswordAuthenticationToken.authenticated(user, user.getPassword(),
 					user.getAuthorities());
 			this.delegate = new AuthenticationRequestPostProcessor(token);
 		}
@@ -1206,7 +1221,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 				return getAuthorities((Collection) scope);
 			}
 			String scopes = scope.toString();
-			if (StringUtils.isBlank(scopes)) {
+			if (!StringUtils.hasText(scopes)) {
 				return Collections.emptyList();
 			}
 			return getAuthorities(Arrays.asList(scopes.split(" ")));

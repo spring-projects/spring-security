@@ -24,7 +24,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -99,6 +98,7 @@ public class NamespaceHttpCustomFilterTests {
 		return assertThat(filters);
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterBeforeConfig extends WebSecurityConfigurerAdapter {
 
@@ -113,6 +113,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterAfterConfig extends WebSecurityConfigurerAdapter {
 
@@ -127,6 +128,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterPositionConfig extends WebSecurityConfigurerAdapter {
 
@@ -147,6 +149,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomFilterPositionAtConfig extends WebSecurityConfigurerAdapter {
 
@@ -165,6 +168,7 @@ public class NamespaceHttpCustomFilterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class NoAuthenticationManagerInHttpConfigurationConfig extends WebSecurityConfigurerAdapter {
 

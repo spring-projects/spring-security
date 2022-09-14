@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,17 @@
 package org.springframework.security.config.annotation.web
 
 import io.mockk.every
+import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
-import jakarta.servlet.http.HttpServletRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationDetailsSource
+import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -36,6 +35,9 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.web.AuthenticationEntryPoint
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.HttpStatusEntryPoint
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
@@ -85,15 +87,18 @@ class HttpBasicDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class HttpBasicConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class HttpBasicConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 httpBasic {}
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -107,9 +112,11 @@ class HttpBasicDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomRealmConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomRealmConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 httpBasic {
                     realmName = "Custom Realm"
@@ -118,6 +125,7 @@ class HttpBasicDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -132,14 +140,16 @@ class HttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationEntryPointConfig.ENTRY_POINT.commence(any(), any(), any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomAuthenticationEntryPointConfig : WebSecurityConfigurerAdapter() {
+    open class CustomAuthenticationEntryPointConfig {
 
         companion object {
-            val ENTRY_POINT: AuthenticationEntryPoint = AuthenticationEntryPoint { _, _, _ ->  }
+            val ENTRY_POINT: AuthenticationEntryPoint = HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 httpBasic {
                     authenticationEntryPoint = ENTRY_POINT
@@ -148,6 +158,7 @@ class HttpBasicDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 
@@ -159,7 +170,7 @@ class HttpBasicDslTests {
         mockkObject(CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE)
         every {
             CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any())
-        } returns Any()
+        } returns mockk()
 
         this.mockMvc.get("/") {
             with(httpBasic("username", "password"))
@@ -168,15 +179,16 @@ class HttpBasicDslTests {
         verify(exactly = 1) { CustomAuthenticationDetailsSourceConfig.AUTHENTICATION_DETAILS_SOURCE.buildDetails(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomAuthenticationDetailsSourceConfig : WebSecurityConfigurerAdapter() {
+    open class CustomAuthenticationDetailsSourceConfig {
 
         companion object {
-            val AUTHENTICATION_DETAILS_SOURCE: AuthenticationDetailsSource<HttpServletRequest, *> =
-                AuthenticationDetailsSource<HttpServletRequest, Any> { Any() }
+            val AUTHENTICATION_DETAILS_SOURCE = WebAuthenticationDetailsSource()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 httpBasic {
                     authenticationDetailsSource = AUTHENTICATION_DETAILS_SOURCE
@@ -185,6 +197,7 @@ class HttpBasicDslTests {
                     authorize(anyRequest, authenticated)
                 }
             }
+            return http.build()
         }
     }
 

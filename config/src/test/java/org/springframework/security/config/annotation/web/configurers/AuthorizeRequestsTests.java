@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -150,7 +149,7 @@ public class AuthorizeRequestsTests {
 	public void roleHiearchy() throws Exception {
 		loadConfig(RoleHiearchyConfig.class);
 		SecurityContext securityContext = new SecurityContextImpl();
-		securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("test", "notused",
+		securityContext.setAuthentication(UsernamePasswordAuthenticationToken.authenticated("test", "notused",
 				AuthorityUtils.createAuthorityList("ROLE_USER")));
 		this.request.getSession().setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
 				securityContext);
@@ -663,6 +662,7 @@ public class AuthorizeRequestsTests {
 		@Override
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
+			configurer.setUseTrailingSlashMatch(true);
 		}
 
 	}

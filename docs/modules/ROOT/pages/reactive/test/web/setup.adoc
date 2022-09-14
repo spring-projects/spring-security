@@ -2,9 +2,11 @@
 
 The basic setup looks like this:
 
-[source,java]
+====
+.Java
+[source,java,role="primary"]
 ----
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = HelloWebfluxMethodApplication.class)
 public class HelloWebfluxMethodApplicationTests {
 	@Autowired
@@ -12,16 +14,42 @@ public class HelloWebfluxMethodApplicationTests {
 
 	WebTestClient rest;
 
-	@Before
+	@BeforeEach
 	public void setup() {
 		this.rest = WebTestClient
 			.bindToApplicationContext(this.context)
 			// add Spring Security test Support
 			.apply(springSecurity())
 			.configureClient()
-			.filter(basicAuthentication())
+			.filter(basicAuthentication("user", "password"))
 			.build();
 	}
 	// ...
 }
 ----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [HelloWebfluxMethodApplication::class])
+class HelloWebfluxMethodApplicationTests {
+    @Autowired
+    lateinit var context: ApplicationContext
+
+    lateinit var rest: WebTestClient
+
+    @BeforeEach
+    fun setup() {
+        this.rest = WebTestClient
+            .bindToApplicationContext(this.context)
+            // add Spring Security test Support
+            .apply(springSecurity())
+            .configureClient()
+            .filter(basicAuthentication("user", "password"))
+            .build()
+    }
+    // ...
+}
+----
+====

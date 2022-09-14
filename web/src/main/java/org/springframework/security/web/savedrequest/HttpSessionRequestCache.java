@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.web.savedrequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -53,6 +52,8 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	private String sessionAttrName = SAVED_REQUEST;
 
+	private String matchingRequestParameterName = "continue";
+
 	/**
 	 * Stores the current request, provided the configuration properties allow it.
 	 */
@@ -65,11 +66,13 @@ public class HttpSessionRequestCache implements RequestCache {
 			}
 			return;
 		}
-		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver);
+
 		if (this.createSessionAllowed || request.getSession(false) != null) {
 			// Store the HTTP request itself. Used by
 			// AbstractAuthenticationProcessingFilter
 			// for redirection after successful authentication (SEC-29)
+			DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, this.portResolver,
+					this.matchingRequestParameterName);
 			request.getSession().setAttribute(this.sessionAttrName, savedRequest);
 			if (this.logger.isDebugEnabled()) {
 				this.logger.debug(LogMessage.format("Saved request %s to session", savedRequest.getRedirectUrl()));
@@ -97,6 +100,12 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
+		if (this.matchingRequestParameterName != null
+				&& request.getParameter(this.matchingRequestParameterName) == null) {
+			this.logger.trace(
+					"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
+			return null;
+		}
 		SavedRequest saved = getRequest(request, response);
 		if (saved == null) {
 			this.logger.trace("No saved request");
@@ -160,6 +169,18 @@ public class HttpSessionRequestCache implements RequestCache {
 	 */
 	public void setSessionAttrName(String sessionAttrName) {
 		this.sessionAttrName = sessionAttrName;
+	}
+
+	/**
+	 * Specify the name of a query parameter that is added to the URL that specifies the
+	 * request cache should be checked in
+	 * {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)}
+	 * @param matchingRequestParameterName the parameter name that must be in the request
+	 * for {@link #getMatchingRequest(HttpServletRequest, HttpServletResponse)} to check
+	 * the session. Default is "continue".
+	 */
+	public void setMatchingRequestParameterName(String matchingRequestParameterName) {
+		this.matchingRequestParameterName = matchingRequestParameterName;
 	}
 
 }

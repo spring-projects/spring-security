@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ package org.springframework.security.config.annotation.web.headers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.server.header.ContentSecurityPolicyServerHttpHeadersWriter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -53,15 +55,18 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ContentSecurityPolicyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ContentSecurityPolicyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
                     contentSecurityPolicy { }
                 }
             }
+            return http.build()
         }
     }
 
@@ -76,9 +81,11 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomPolicyDirectivesConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomPolicyDirectivesConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -87,6 +94,7 @@ class ContentSecurityPolicyDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -101,9 +109,11 @@ class ContentSecurityPolicyDslTests {
         }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class ReportOnlyConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class ReportOnlyConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
@@ -112,6 +122,7 @@ class ContentSecurityPolicyDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 }

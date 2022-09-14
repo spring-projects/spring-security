@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -100,9 +101,11 @@ public class NamespaceHttpInterceptUrlTests {
 	}
 
 	private static Authentication user(String role) {
-		return new UsernamePasswordAuthenticationToken("user", null, AuthorityUtils.createAuthorityList(role));
+		return UsernamePasswordAuthenticationToken.authenticated("user", null,
+				AuthorityUtils.createAuthorityList(role));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HttpInterceptUrlConfig extends WebSecurityConfigurerAdapter {
 

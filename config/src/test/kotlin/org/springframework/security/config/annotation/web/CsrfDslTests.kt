@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -33,6 +33,8 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.DefaultCsrfToken
@@ -79,12 +81,15 @@ class CsrfDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class DefaultCsrfConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class DefaultCsrfConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf { }
             }
+            return http.build()
         }
     }
 
@@ -98,14 +103,17 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CsrfDisabledConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CsrfDisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
                     disable()
                 }
             }
+            return http.build()
         }
     }
 
@@ -122,19 +130,22 @@ class CsrfDslTests {
         verify(exactly = 1) { CustomRepositoryConfig.REPO.loadToken(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomRepositoryConfig : WebSecurityConfigurerAdapter() {
+    open class CustomRepositoryConfig {
 
         companion object {
             val REPO: CsrfTokenRepository = HttpSessionCsrfTokenRepository()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
                     csrfTokenRepository = REPO
                 }
             }
+            return http.build()
         }
     }
 
@@ -153,14 +164,17 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class RequireCsrfProtectionMatcherConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class RequireCsrfProtectionMatcherConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
                     requireCsrfProtectionMatcher = AntPathRequestMatcher("/test1")
                 }
             }
+            return http.build()
         }
     }
 
@@ -176,24 +190,27 @@ class CsrfDslTests {
 
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomStrategyConfig : WebSecurityConfigurerAdapter() {
+    open class CustomStrategyConfig {
 
         companion object {
-            val STRATEGY: SessionAuthenticationStrategy = SessionAuthenticationStrategy { _, _, _ -> }
+            var STRATEGY: SessionAuthenticationStrategy = NullAuthenticatedSessionStrategy()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 formLogin { }
                 csrf {
                     sessionAuthenticationStrategy = STRATEGY
                 }
             }
+            return http.build()
         }
 
         @Bean
-        override fun userDetailsService(): UserDetailsService {
+        open fun userDetailsService(): UserDetailsService {
             val userDetails = User.withDefaultPasswordEncoder()
                     .username("user")
                     .password("password")
@@ -218,15 +235,18 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class IgnoringRequestMatchersConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class IgnoringRequestMatchersConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
                     requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
                     ignoringRequestMatchers(AntPathRequestMatcher("/test2"))
                 }
             }
+            return http.build()
         }
     }
 
@@ -245,15 +265,18 @@ class CsrfDslTests {
                 }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class IgnoringAntMatchersConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class IgnoringAntMatchersConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 csrf {
                     requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
                     ignoringAntMatchers("/test2")
                 }
             }
+            return http.build()
         }
     }
 

@@ -23,7 +23,6 @@ import java.util.Locale;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -56,22 +55,42 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 	// @formatter:on
 	// @formatter:off
 	private static final String REQUEST_JSON = "{" +
-		"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
-		+ "\"cookies\": " + COOKIES_JSON + ","
-		+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
-		+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
-		+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
-		+ "\"contextPath\": \"\", "
-		+ "\"method\": \"\", "
-		+ "\"pathInfo\": null, "
-		+ "\"queryString\": null, "
-		+ "\"requestURI\": \"\", "
-		+ "\"requestURL\": \"http://localhost\", "
-		+ "\"scheme\": \"http\", "
-		+ "\"serverName\": \"localhost\", "
-		+ "\"servletPath\": \"\", "
-		+ "\"serverPort\": 80"
-	+ "}";
+			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
+			+ "\"cookies\": " + COOKIES_JSON + ","
+			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
+			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
+			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"contextPath\": \"\", "
+			+ "\"method\": \"\", "
+			+ "\"pathInfo\": null, "
+			+ "\"queryString\": null, "
+			+ "\"requestURI\": \"\", "
+			+ "\"requestURL\": \"http://localhost\", "
+			+ "\"scheme\": \"http\", "
+			+ "\"serverName\": \"localhost\", "
+			+ "\"servletPath\": \"\", "
+			+ "\"serverPort\": 80"
+			+ "}";
+	// @formatter:on
+	// @formatter:off
+	private static final String REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON = "{" +
+			"\"@class\": \"org.springframework.security.web.savedrequest.DefaultSavedRequest\", "
+			+ "\"cookies\": " + COOKIES_JSON + ","
+			+ "\"locales\": [\"java.util.ArrayList\", [\"en\"]], "
+			+ "\"headers\": {\"@class\": \"java.util.TreeMap\", \"x-auth-token\": [\"java.util.ArrayList\", [\"12\"]]}, "
+			+ "\"parameters\": {\"@class\": \"java.util.TreeMap\"},"
+			+ "\"contextPath\": \"\", "
+			+ "\"method\": \"\", "
+			+ "\"pathInfo\": null, "
+			+ "\"queryString\": null, "
+			+ "\"requestURI\": \"\", "
+			+ "\"requestURL\": \"http://localhost\", "
+			+ "\"scheme\": \"http\", "
+			+ "\"serverName\": \"localhost\", "
+			+ "\"servletPath\": \"\", "
+			+ "\"serverPort\": 80, "
+			+ "\"matchingRequestParameterName\": \"success\""
+			+ "}";
 	// @formatter:on
 	@Test
 	public void matchRequestBuildWithConstructorAndBuilder() {
@@ -124,6 +143,19 @@ public class DefaultSavedRequestMixinTests extends AbstractMixinTests {
 		assertThat(request.getLocales()).hasSize(1).contains(new Locale("en"));
 		assertThat(request.getHeaderNames()).hasSize(1).contains("x-auth-token");
 		assertThat(request.getHeaderValues("x-auth-token")).hasSize(1).contains("12");
+	}
+
+	@Test
+	public void deserializeWhenMatchingRequestParameterNameThenRedirectUrlContainsParam() throws IOException {
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper
+				.readValue(REQUEST_WITH_MATCHING_REQUEST_PARAM_NAME_JSON, Object.class);
+		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost?success");
+	}
+
+	@Test
+	public void deserializeWhenNullMatchingRequestParameterNameThenRedirectUrlDoesNotContainParam() throws IOException {
+		DefaultSavedRequest request = (DefaultSavedRequest) this.mapper.readValue(REQUEST_JSON, Object.class);
+		assertThat(request.getRedirectUrl()).isEqualTo("http://localhost");
 	}
 
 }

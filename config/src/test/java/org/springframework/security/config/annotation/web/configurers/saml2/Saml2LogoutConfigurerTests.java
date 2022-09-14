@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +36,7 @@ import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -72,6 +77,9 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.RequestPostProcessor;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.util.UriUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -254,10 +262,36 @@ public class Saml2LogoutConfigurerTests {
 		principal.setRelyingPartyRegistrationId("get");
 		Saml2Authentication user = new Saml2Authentication(principal, "response",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MvcResult result = this.mvc.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
+				.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
+				.param("Signature", this.apLogoutRequestSignature).with(samlQueryString()).with(authentication(user)))
+				.andExpect(status().isFound()).andReturn();
+		String location = result.getResponse().getHeader("Location");
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
+		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
+	}
+
+	// gh-11235
+	@Test
+	public void saml2LogoutRequestWhenLowercaseEncodingThenLogsOutAndSendsLogoutResponse() throws Exception {
+		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
+		String apLogoutRequest = "nZFNa4QwEIb/iuQeP6K7dYO6FKQg2B622x56G3WwgiY2E8v239fqCksPPfSWIXmfNw+THC9D73yi\r\n"
+				+ "oU6rlAWuzxxUtW461abs5fzAY3bMEoKhF6Msdasne8KPCck6c1KRXK9SNhklNVBHUsGAJG0tn+8f\r\n"
+				+ "SylcX45GW13rnjn5HOwU2KXt3dqRpOeZ0cULDGOPrjat1y8t3gL2zFrGnCJPWXkKcR8KCHY8xmrP\r\n"
+				+ "Iz868OpOVLwO4wohggagmd8STVgosqBsyoQvBPd3XITnIJaRL8PYjcThjTmvm/f8SXa1lEvY3Nr9\r\n"
+				+ "LQdEaH6EWAYjR2U7+8W7JvFucRv8aY4X+b/g03zaoCsmu46/FpN9Aw==";
+		String apLogoutRequestRelayState = "d118dbd5-3853-4268-b3e5-c40fc033fa2f";
+		String apLogoutRequestSignature = "VZ7rWa5u3hIX60fAQs/gBQZWDP2BAIlCMMrNrTHafoKKj0uXWnuITYLuL8NdsWmyQN0+fqWW4X05+BqiLpL80jHLmQR5RVqqL1EtVv1SpPUna938lgz2sOliuYmfQNj4Bmd+Z5G1K6QhbVrtfb7TQHURjUafzfRm8+jGz3dPjVBrn/rD/umfGoSn6RuWngugcMNL4U0A+JcEh1NSfSYNVz7y+MqlW1UhX2kF86rm97ERCrxay7Gh/bI2f3fJPJ1r+EyLjzrDUkqw5cva3rVlFgEQouMVu35lUJn7SFompW8oTxkI23oc/t+AGZqaBupNITNdjyGCBpfukZ69EZrj8g==";
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
+				Collections.emptyMap());
+		principal.setRelyingPartyRegistrationId("get");
+		Saml2Authentication user = new Saml2Authentication(principal, "response",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
 		MvcResult result = this.mvc
-				.perform(get("/logout/saml2/slo").param("SAMLRequest", this.apLogoutRequest)
-						.param("RelayState", this.apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
-						.param("Signature", this.apLogoutRequestSignature).with(authentication(user)))
+				.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
+						.param("RelayState", apLogoutRequestRelayState).param("SigAlg", this.apLogoutRequestSigAlg)
+						.param("Signature", apLogoutRequestSignature)
+						.with(new SamlQueryStringRequestPostProcessor(true)).with(authentication(user)))
 				.andExpect(status().isFound()).andReturn();
 		String location = result.getResponse().getHeader("Location");
 		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
@@ -316,8 +350,8 @@ public class Saml2LogoutConfigurerTests {
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNotNull();
 		this.mvc.perform(get("/logout/saml2/slo").session(((MockHttpSession) this.request.getSession()))
 				.param("SAMLResponse", this.apLogoutResponse).param("RelayState", this.apLogoutResponseRelayState)
-				.param("SigAlg", this.apLogoutResponseSigAlg).param("Signature", this.apLogoutResponseSignature))
-				.andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
+				.param("SigAlg", this.apLogoutResponseSigAlg).param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString())).andExpect(status().isFound()).andExpect(redirectedUrl("/login?logout"));
 		verifyNoInteractions(getBean(LogoutHandler.class));
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(this.request)).isNull();
 	}
@@ -334,8 +368,9 @@ public class Saml2LogoutConfigurerTests {
 				Saml2Utils.samlInflate(Saml2Utils.samlDecode(this.apLogoutResponse)).getBytes(StandardCharsets.UTF_8));
 		this.mvc.perform(post("/logout/saml2/slo").session((MockHttpSession) this.request.getSession())
 				.param("SAMLResponse", deflatedApLogoutResponse).param("RelayState", this.rpLogoutRequestRelayState)
-				.param("SigAlg", this.apLogoutRequestSigAlg).param("Signature", this.apLogoutResponseSignature))
-				.andExpect(status().reason(containsString("invalid_signature"))).andExpect(status().isUnauthorized());
+				.param("SigAlg", this.apLogoutRequestSigAlg).param("Signature", this.apLogoutResponseSignature)
+				.with(samlQueryString())).andExpect(status().reason(containsString("invalid_signature")))
+				.andExpect(status().isUnauthorized());
 		verifyNoInteractions(getBean(LogoutHandler.class));
 	}
 
@@ -398,6 +433,11 @@ public class Saml2LogoutConfigurerTests {
 		return this.spring.getContext().getBean(clazz);
 	}
 
+	private SamlQueryStringRequestPostProcessor samlQueryString() {
+		return new SamlQueryStringRequestPostProcessor();
+	}
+
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutDefaultsConfig {
@@ -423,6 +463,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutCsrfDisabledConfig {
@@ -449,6 +490,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutWithHttpGet {
@@ -480,6 +522,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2DefaultsWithObjectPostProcessorConfig {
@@ -504,6 +547,7 @@ public class Saml2LogoutConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
 	static class Saml2LogoutComponentsConfig {
@@ -598,6 +642,42 @@ public class Saml2LogoutConfigurerTests {
 		@Override
 		public <O> O postProcess(O object) {
 			return object;
+		}
+
+	}
+
+	static class SamlQueryStringRequestPostProcessor implements RequestPostProcessor {
+
+		private Function<String, String> urlEncodingPostProcessor = Function.identity();
+
+		SamlQueryStringRequestPostProcessor() {
+			this(false);
+		}
+
+		SamlQueryStringRequestPostProcessor(boolean lowercased) {
+			if (lowercased) {
+				Pattern encoding = Pattern.compile("%\\d[A-Fa-f]");
+				this.urlEncodingPostProcessor = (encoded) -> {
+					Matcher m = encoding.matcher(encoded);
+					while (m.find()) {
+						String found = m.group(0);
+						encoded = encoded.replace(found, found.toLowerCase());
+					}
+					return encoded;
+				};
+			}
+		}
+
+		@Override
+		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
+			UriComponentsBuilder builder = UriComponentsBuilder.newInstance();
+			for (Map.Entry<String, String[]> entries : request.getParameterMap().entrySet()) {
+				builder.queryParam(entries.getKey(),
+						UriUtils.encode(entries.getValue()[0], StandardCharsets.ISO_8859_1));
+			}
+			String queryString = this.urlEncodingPostProcessor.apply(builder.build(true).toUriString().substring(1));
+			request.setQueryString(queryString);
+			return request;
 		}
 
 	}

@@ -129,7 +129,7 @@ public class AccessDecisionManagerAuthorizationManagerAdapter implements Authori
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, Object object) {
         try {
-            Collection<ConfigAttributes> attributes = this.securityMetadataSource.getAttributes(object);
+            Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(object);
             this.accessDecisionManager.decide(authentication.get(), object, attributes);
             return new AuthorizationDecision(true);
         } catch (AccessDeniedException ex) {
@@ -139,7 +139,7 @@ public class AccessDecisionManagerAuthorizationManagerAdapter implements Authori
 
     @Override
     public void verify(Supplier<Authentication> authentication, Object object) {
-        Collection<ConfigAttributes> attributes = this.securityMetadataSource.getAttributes(object);
+        Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(object);
         this.accessDecisionManager.decide(authentication.get(), object, attributes);
     }
 }
@@ -162,7 +162,7 @@ public class AccessDecisionVoterAuthorizationManagerAdapter implements Authoriza
 
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, Object object) {
-        Collection<ConfigAttributes> attributes = this.securityMetadataSource.getAttributes(object);
+        Collection<ConfigAttribute> attributes = this.securityMetadataSource.getAttributes(object);
         int decision = this.accessDecisionVoter.vote(authentication.get(), object, attributes);
         switch (decision) {
         case ACCESS_GRANTED:
@@ -201,7 +201,7 @@ AccessDecisionVoter hierarchyVoter() {
     hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
             "ROLE_STAFF > ROLE_USER\n" +
             "ROLE_USER > ROLE_GUEST");
-    return new RoleHierarcyVoter(hierarchy);
+    return new RoleHierarchyVoter(hierarchy);
 }
 ----
 

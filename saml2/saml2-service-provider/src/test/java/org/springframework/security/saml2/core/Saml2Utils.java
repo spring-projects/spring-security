@@ -19,28 +19,25 @@ package org.springframework.security.saml2.core;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterOutputStream;
 
-import org.apache.commons.codec.binary.Base64;
-
 import org.springframework.security.saml2.Saml2Exception;
 
 public final class Saml2Utils {
-
-	private static Base64 BASE64 = new Base64(0, new byte[] { '\n' });
 
 	private Saml2Utils() {
 	}
 
 	public static String samlEncode(byte[] b) {
-		return BASE64.encodeAsString(b);
+		return Base64.getEncoder().encodeToString(b);
 	}
 
 	public static byte[] samlDecode(String s) {
-		return BASE64.decode(s);
+		return Base64.getMimeDecoder().decode(s);
 	}
 
 	public static byte[] samlDeflate(String s) {

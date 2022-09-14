@@ -19,13 +19,14 @@ In essence, a cookie is sent to the browser upon successful interactive authenti
 ====
 [source,txt]
 ----
-base64(username + ":" + expirationTime + ":" +
-md5Hex(username + ":" + expirationTime + ":" password + ":" + key))
+base64(username + ":" + expirationTime + ":" + algorithmName + ":"
+algorithmHex(username + ":" + expirationTime + ":" password + ":" + key))
 
 username:          As identifiable to the UserDetailsService
 password:          That matches the one in the retrieved UserDetails
 expirationTime:    The date and time when the remember-me token expires, expressed in milliseconds
 key:               A private key to prevent modification of the remember-me token
+algorithmName:     The algorithm used to generate and to verify the remember-me token signature
 ----
 ====
 
@@ -112,6 +113,53 @@ This implementation supports the simpler approach described in <<remember-me-has
 A `key` is shared between this authentication provider and the `TokenBasedRememberMeServices`.
 In addition, `TokenBasedRememberMeServices` requires a `UserDetailsService`, from which it can retrieve the username and password for signature comparison purposes and generate the `RememberMeAuthenticationToken` to contain the correct `GrantedAuthority` instances.
 `TokenBasedRememberMeServices` also implements Spring Security's `LogoutHandler` interface so that it can be used with `LogoutFilter` to have the cookie cleared automatically.
+
+By default, this implementation uses the SHA-256 algorithm to encode the token signature.
+To verify the token signature, the algorithm retrieved from `algorithmName` is parsed and used.
+If no `algorithmName` is present, the default matching algorithm will be used, which is SHA-256.
+You can specify different algorithms for signature encoding and for signature matching, this allows users to safely upgrade to a different encoding algorithm while still able to verify old ones if there is no `algorithmName` present.
+To do that you can specify your customized `TokenBasedRememberMeServices` as a Bean and use it in the configuration.
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
+	http
+			.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+			)
+			.rememberMe((remember) -> remember
+				.rememberMeServices(rememberMeServices)
+			);
+	return http.build();
+}
+
+@Bean
+RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+	RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
+	TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
+	rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
+	return rememberMe;
+}
+----
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+  <remember-me services-ref="rememberMeServices"/>
+</http>
+
+<bean id="rememberMeServices" class=
+"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+    <property name="userDetailsService" ref="myUserDetailsService"/>
+    <property name="key" value="springRocks"/>
+    <property name="matchingAlgorithm" value="MD5"/>
+    <property name="encodingAlgorithm" value="SHA256"/>
+</bean>
+----
+====
 
 The following beans are required in an application context to enable remember-me services:
 

@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.FilterChain;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,8 +51,10 @@ import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -66,7 +70,8 @@ public class SwitchUserFilterTests {
 
 	@BeforeEach
 	public void authenticateCurrentUser() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 	}
 
@@ -278,14 +283,14 @@ public class SwitchUserFilterTests {
 	@Test
 	public void exitUserJackLordToDanoSucceeds() throws Exception {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("dano", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("dano",
+				"hawaii50", ROLES_12);
 		// set current user (Admin)
 		List<GrantedAuthority> adminAuths = new ArrayList<>();
 		adminAuths.addAll(ROLES_12);
 		adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
-		UsernamePasswordAuthenticationToken admin = new UsernamePasswordAuthenticationToken("jacklord", "hawaii50",
-				adminAuths);
+		UsernamePasswordAuthenticationToken admin = UsernamePasswordAuthenticationToken.authenticated("jacklord",
+				"hawaii50", adminAuths);
 		SecurityContextHolder.getContext().setAuthentication(admin);
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setRequestURI("/logout/impersonate");
@@ -343,7 +348,8 @@ public class SwitchUserFilterTests {
 	@Test
 	public void redirectOmitsContextPathIfUseRelativeContextSet() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MockHttpServletRequest request = createMockSwitchRequest();
 		request.setContextPath("/webapp");
@@ -368,7 +374,8 @@ public class SwitchUserFilterTests {
 	@Test
 	public void testSwitchRequestFromDanoToJackLord() throws Exception {
 		// set current user
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		// http request
 		MockHttpServletRequest request = new MockHttpServletRequest();
@@ -395,7 +402,8 @@ public class SwitchUserFilterTests {
 
 	@Test
 	public void modificationOfAuthoritiesWorks() {
-		UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("dano", "hawaii50");
+		UsernamePasswordAuthenticationToken auth = UsernamePasswordAuthenticationToken.unauthenticated("dano",
+				"hawaii50");
 		SecurityContextHolder.getContext().setAuthentication(auth);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
@@ -412,12 +420,27 @@ public class SwitchUserFilterTests {
 		assertThat(AuthorityUtils.authorityListToSet(result.getAuthorities())).contains("ROLE_NEW");
 	}
 
+	@Test
+	public void doFilterWhenCustomSecurityContextRepositoryThenUses() {
+		SecurityContextHolderStrategy securityContextHolderStrategy = spy(new MockSecurityContextHolderStrategy(
+				UsernamePasswordAuthenticationToken.unauthenticated("dano", "hawaii50")));
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.addParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+		filter.setUserDetailsService(new MockUserDetailsService());
+		Authentication result = filter.attemptSwitchUser(request);
+		assertThat(result).isNotNull();
+		assertThat(result.getName()).isEqualTo("jacklord");
+		verify(securityContextHolderStrategy, atLeastOnce()).getContext();
+	}
+
 	// SEC-1763
 	@Test
 	public void nestedSwitchesAreNotAllowed() {
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("orig",
+				"hawaii50", ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUser("dano");
@@ -444,8 +467,8 @@ public class SwitchUserFilterTests {
 	public void switchAuthorityRoleCanBeChanged() {
 		String switchAuthorityRole = "PREVIOUS_ADMINISTRATOR";
 		// original user
-		UsernamePasswordAuthenticationToken source = new UsernamePasswordAuthenticationToken("orig", "hawaii50",
-				ROLES_12);
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("orig",
+				"hawaii50", ROLES_12);
 		SecurityContextHolder.getContext().setAuthentication(source);
 		SecurityContextHolder.getContext().setAuthentication(switchToUser("jacklord"));
 		Authentication switched = switchToUserWithAuthorityRole("dano", switchAuthorityRole);
@@ -504,6 +527,36 @@ public class SwitchUserFilterTests {
 			else {
 				throw new UsernameNotFoundException("Could not find: " + username);
 			}
+		}
+
+	}
+
+	static final class MockSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
+
+		private SecurityContext mock;
+
+		private MockSecurityContextHolderStrategy(Authentication authentication) {
+			this.mock = new SecurityContextImpl(authentication);
+		}
+
+		@Override
+		public void clearContext() {
+			this.mock = null;
+		}
+
+		@Override
+		public SecurityContext getContext() {
+			return this.mock;
+		}
+
+		@Override
+		public void setContext(SecurityContext context) {
+			this.mock = context;
+		}
+
+		@Override
+		public SecurityContext createEmptyContext() {
+			return new SecurityContextImpl();
 		}
 
 	}

@@ -34,8 +34,12 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
+import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
+import org.springframework.security.web.server.DefaultServerRedirectStrategy
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.ServerRedirectStrategy
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.security.web.server.util.matcher.IpAddressServerWebExchangeMatcher
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
@@ -66,6 +70,7 @@ class ServerOAuth2LoginDslTests {
         this.spring.register(ClientRepoConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class ClientRepoConfig {
@@ -96,6 +101,7 @@ class ServerOAuth2LoginDslTests {
                 .expectStatus().isOk
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class OAuth2LoginConfig {
@@ -121,6 +127,7 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthorizationRequestRepositoryConfig.AUTHORIZATION_REQUEST_REPOSITORY.removeAuthorizationRequest(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthorizationRequestRepositoryConfig {
@@ -134,6 +141,38 @@ class ServerOAuth2LoginDslTests {
             return http {
                 oauth2Login {
                     authorizationRequestRepository = AUTHORIZATION_REQUEST_REPOSITORY
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `OAuth2 login when authorization redirect strategy configured then custom redirect strategy used`() {
+        this.spring.register(AuthorizationRedirectStrategyConfig::class.java, ClientConfig::class.java).autowire()
+        mockkObject(AuthorizationRedirectStrategyConfig.AUTHORIZATION_REDIRECT_STRATEGY)
+        every {
+            AuthorizationRedirectStrategyConfig.AUTHORIZATION_REDIRECT_STRATEGY.sendRedirect(any(), any())
+        } returns Mono.empty()
+        this.client.get()
+            .uri("/oauth2/authorization/google")
+            .exchange()
+
+        verify(exactly = 1) { AuthorizationRedirectStrategyConfig.AUTHORIZATION_REDIRECT_STRATEGY.sendRedirect(any(), any()) }
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class AuthorizationRedirectStrategyConfig {
+
+        companion object {
+            val AUTHORIZATION_REDIRECT_STRATEGY : ServerRedirectStrategy = DefaultServerRedirectStrategy()
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                oauth2Login {
+                    authorizationRedirectStrategy = AUTHORIZATION_REDIRECT_STRATEGY
                 }
             }
         }
@@ -154,12 +193,13 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthenticationMatcherConfig.AUTHENTICATION_MATCHER.matches(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationMatcherConfig {
 
         companion object {
-            val AUTHENTICATION_MATCHER: ServerWebExchangeMatcher = ServerWebExchangeMatcher { Mono.empty() }
+            val AUTHENTICATION_MATCHER: ServerWebExchangeMatcher = IpAddressServerWebExchangeMatcher("127.0.0.1")
         }
 
         @Bean
@@ -187,12 +227,13 @@ class ServerOAuth2LoginDslTests {
         verify(exactly = 1) { AuthenticationConverterConfig.AUTHENTICATION_CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebFluxSecurity
     @EnableWebFlux
     open class AuthenticationConverterConfig {
 
         companion object {
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerAuthenticationConverter { Mono.empty() }
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean

@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.annotation.PreDestroy;
-
 import okhttp3.mockwebserver.Dispatcher;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -46,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -617,6 +617,7 @@ public class OAuth2ResourceServerSpecTests {
 		return (GenericWebApplicationContext) this.spring.getContext();
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PublicKeyConfig {
@@ -637,6 +638,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PublicKeyInLambdaConfig {
@@ -662,6 +664,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class PlaceholderConfig {
@@ -685,6 +688,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class JwkSetUriConfig {
@@ -715,6 +719,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class JwkSetUriInLambdaConfig {
@@ -749,6 +754,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomDecoderConfig {
@@ -772,6 +778,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class DenyAllConfig {
@@ -792,6 +799,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomAuthenticationManagerConfig {
@@ -814,6 +822,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomAuthenticationManagerInLambdaConfig {
@@ -840,6 +849,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomAuthenticationManagerResolverConfig {
@@ -869,6 +879,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomBearerTokenServerAuthenticationConverter {
@@ -896,6 +907,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomJwtAuthenticationConverterConfig {
@@ -927,6 +939,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomErrorHandlingConfig {
@@ -950,6 +963,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class IntrospectionConfig {
@@ -981,6 +995,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class IntrospectionInLambdaConfig {
@@ -1016,6 +1031,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class AuthenticationManagerResolverPlusOtherConfig {

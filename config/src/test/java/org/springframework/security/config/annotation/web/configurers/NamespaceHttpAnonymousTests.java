@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -86,6 +87,7 @@ public class NamespaceHttpAnonymousTests {
 		this.mvc.perform(get("/principal")).andExpect(content().string("AnonymousUsernameConfig"));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
 
@@ -101,6 +103,7 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -127,6 +130,7 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousGrantedAuthorityConfig extends WebSecurityConfigurerAdapter {
 
@@ -145,6 +149,7 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousKeyConfig extends WebSecurityConfigurerAdapter {
 
@@ -162,6 +167,7 @@ public class NamespaceHttpAnonymousTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousUsernameConfig extends WebSecurityConfigurerAdapter {
 

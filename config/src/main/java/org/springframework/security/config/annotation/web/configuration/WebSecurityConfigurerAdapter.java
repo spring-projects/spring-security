@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
 import org.springframework.util.Assert;
 import org.springframework.util.ReflectionUtils;
@@ -89,8 +88,12 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  *
  * @author Rob Winch
  * @see EnableWebSecurity
+ * @deprecated Use a {@link org.springframework.security.web.SecurityFilterChain} Bean to
+ * configure {@link HttpSecurity} or a {@link WebSecurityCustomizer} Bean to configure
+ * {@link WebSecurity}
  */
 @Order(100)
+@Deprecated
 public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigurer<WebSecurity> {
 
 	private final Log logger = LogFactory.getLog(WebSecurityConfigurerAdapter.class);
@@ -313,10 +316,7 @@ public abstract class WebSecurityConfigurerAdapter implements WebSecurityConfigu
 	@Override
 	public void init(WebSecurity web) throws Exception {
 		HttpSecurity http = getHttp();
-		web.addSecurityFilterChainBuilder(http).postBuildAction(() -> {
-			FilterSecurityInterceptor securityInterceptor = http.getSharedObject(FilterSecurityInterceptor.class);
-			web.securityInterceptor(securityInterceptor);
-		});
+		web.addSecurityFilterChainBuilder(http);
 	}
 
 	/**

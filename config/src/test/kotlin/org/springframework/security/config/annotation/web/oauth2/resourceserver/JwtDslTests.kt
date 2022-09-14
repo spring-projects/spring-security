@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter
 import org.springframework.security.authentication.AbstractAuthenticationToken
 import org.springframework.security.authentication.AuthenticationManager
@@ -32,7 +33,6 @@ import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.config.annotation.web.invoke
@@ -41,6 +41,7 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.web.bind.annotation.GetMapping
@@ -74,9 +75,11 @@ class JwtDslTests {
         this.spring.register(CustomJwtDecoderConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomJwtDecoderConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomJwtDecoderConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2ResourceServer {
                     jwt {
@@ -84,6 +87,7 @@ class JwtDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -92,9 +96,11 @@ class JwtDslTests {
         this.spring.register(CustomJwkSetUriConfig::class.java).autowire()
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomJwkSetUriConfig : WebSecurityConfigurerAdapter() {
-        override fun configure(http: HttpSecurity) {
+    open class CustomJwkSetUriConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 oauth2ResourceServer {
                     jwt {
@@ -102,6 +108,7 @@ class JwtDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 
@@ -126,17 +133,17 @@ class JwtDslTests {
         verify(exactly = 1) { CustomJwtAuthenticationConverterConfig.CONVERTER.convert(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class CustomJwtAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
+    open class CustomJwtAuthenticationConverterConfig {
 
         companion object {
-            val CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = Converter { _ ->
-                TestingAuthenticationToken("a", "b",  "c")
-            }
-            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
+            val CONVERTER: Converter<Jwt, out AbstractAuthenticationToken> = MockConverter()
+            val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -147,10 +154,17 @@ class JwtDslTests {
                     }
                 }
             }
+            return http.build()
         }
 
         @Bean
         open fun jwtDecoder(): JwtDecoder = DECODER
+    }
+
+    class MockConverter: Converter<Jwt, AbstractAuthenticationToken> {
+        override fun convert(source: Jwt): AbstractAuthenticationToken {
+            return TestingAuthenticationToken("a", "b",  "c")
+        }
     }
 
     @Test
@@ -171,14 +185,16 @@ class JwtDslTests {
         verify(exactly = 1) { JwtDecoderAfterJwkSetUriConfig.DECODER.decode(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class JwtDecoderAfterJwkSetUriConfig : WebSecurityConfigurerAdapter() {
+    open class JwtDecoderAfterJwkSetUriConfig {
 
         companion object {
-            val DECODER: JwtDecoder = JwtDecoder { Jwt.withTokenValue("some tokenValue").build() }
+            val DECODER: JwtDecoder = MockJwtDecoder()
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -190,6 +206,13 @@ class JwtDslTests {
                     }
                 }
             }
+            return http.build()
+        }
+    }
+
+    class MockJwtDecoder: JwtDecoder {
+        override fun decode(token: String?): Jwt {
+            return Jwt.withTokenValue("some tokenValue").build()
         }
     }
 
@@ -211,14 +234,16 @@ class JwtDslTests {
         verify(exactly = 1) { AuthenticationManagerConfig.AUTHENTICATION_MANAGER.authenticate(any()) }
     }
 
+    @Configuration
     @EnableWebSecurity
-    open class AuthenticationManagerConfig : WebSecurityConfigurerAdapter() {
+    open class AuthenticationManagerConfig {
 
         companion object {
             val AUTHENTICATION_MANAGER: AuthenticationManager = ProviderManager(TestingAuthenticationProvider())
         }
 
-        override fun configure(http: HttpSecurity) {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 authorizeRequests {
                     authorize(anyRequest, authenticated)
@@ -229,6 +254,7 @@ class JwtDslTests {
                     }
                 }
             }
+            return http.build()
         }
     }
 

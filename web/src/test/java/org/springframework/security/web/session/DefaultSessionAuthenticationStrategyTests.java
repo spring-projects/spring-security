@@ -18,7 +18,6 @@ package org.springframework.security.web.session;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 

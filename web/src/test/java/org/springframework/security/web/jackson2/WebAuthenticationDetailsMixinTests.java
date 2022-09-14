@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,13 @@ public class WebAuthenticationDetailsMixinTests extends AbstractMixinTests {
 		request.setRemoteAddr("/localhost");
 		request.setSession(new MockHttpSession(null, "1"));
 		WebAuthenticationDetails details = new WebAuthenticationDetails(request);
+		String actualJson = this.mapper.writeValueAsString(details);
+		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
+	}
+
+	@Test
+	public void webAuthenticationDetailsJackson2SerializeTest() throws JsonProcessingException, JSONException {
+		WebAuthenticationDetails details = new WebAuthenticationDetails("/localhost", "1");
 		String actualJson = this.mapper.writeValueAsString(details);
 		JSONAssert.assertEquals(AUTHENTICATION_DETAILS_JSON, actualJson, true);
 	}

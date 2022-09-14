@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,22 +52,6 @@ public class OAuth2ClientCredentialsGrantRequestTests {
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(null));
-	}
-
-	@Test
-	public void constructorWhenClientRegistrationInvalidGrantTypeThenThrowIllegalArgumentException() {
-		// @formatter:off
-		ClientRegistration clientRegistration = ClientRegistration.withRegistrationId("registration-1")
-				.clientId("client-1")
-				.authorizationGrantType(AuthorizationGrantType.IMPLICIT)
-				.redirectUri("https://localhost:8080/redirect-uri")
-				.authorizationUri("https://provider.com/oauth2/auth")
-				.clientName("Client 1")
-				.build();
-		// @formatter:on
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new OAuth2ClientCredentialsGrantRequest(clientRegistration)).withMessage(
-						"clientRegistration.authorizationGrantType must be AuthorizationGrantType.CLIENT_CREDENTIALS");
 	}
 
 	@Test

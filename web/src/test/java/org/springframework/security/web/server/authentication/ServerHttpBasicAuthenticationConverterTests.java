@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.server.authentication;
 
+import java.nio.charset.StandardCharsets;
+
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 
@@ -26,6 +28,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -36,6 +39,12 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	ServerHttpBasicAuthenticationConverter converter = new ServerHttpBasicAuthenticationConverter();
 
 	MockServerHttpRequest.BaseBuilder<?> request = MockServerHttpRequest.get("/");
+
+	@Test
+	public void setCredentialsCharsetWhenNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.converter.setCredentialsCharset(null))
+				.withMessage("credentialsCharset cannot be null");
+	}
 
 	@Test
 	public void applyWhenNoAuthorizationHeaderThenEmpty() {
@@ -62,7 +71,7 @@ public class ServerHttpBasicAuthenticationConverterTests {
 	}
 
 	@Test
-	public void applyWhenNoSemicolonThenEmpty() {
+	public void applyWhenNoColonThenEmpty() {
 		Mono<Authentication> result = apply(this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcg=="));
 		assertThat(result.block()).isNull();
 	}
@@ -102,6 +111,38 @@ public class ServerHttpBasicAuthenticationConverterTests {
 		Mono<Authentication> result = apply(
 				this.request.header(HttpHeaders.AUTHORIZATION, "token dXNlcjpwYXNzd29yZA=="));
 		assertThat(result.block()).isNull();
+	}
+
+	@Test
+	public void applyWhenNonAsciiThenAuthentication() {
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic w7xzZXI6cGFzc3fDtnJk"));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("üser");
+		assertThat(authentication.getCredentials()).isEqualTo("passwörd");
+	}
+
+	@Test
+	public void applyWhenIsoOnlyAsciiThenAuthentication() {
+		this.converter.setCredentialsCharset(StandardCharsets.ISO_8859_1);
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic dXNlcjpwYXNzd29yZA=="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("user");
+		assertThat(authentication.getCredentials()).isEqualTo("password");
+	}
+
+	@Test
+	public void applyWhenIsoNonAsciiThenAuthentication() {
+		this.converter.setCredentialsCharset(StandardCharsets.ISO_8859_1);
+		Mono<Authentication> result = apply(
+				this.request.header(HttpHeaders.AUTHORIZATION, "Basic /HNlcjpwYXNzd/ZyZA=="));
+		UsernamePasswordAuthenticationToken authentication = result.cast(UsernamePasswordAuthenticationToken.class)
+				.block();
+		assertThat(authentication.getPrincipal()).isEqualTo("üser");
+		assertThat(authentication.getCredentials()).isEqualTo("passwörd");
 	}
 
 	private Mono<Authentication> apply(MockServerHttpRequest.BaseBuilder<?> request) {

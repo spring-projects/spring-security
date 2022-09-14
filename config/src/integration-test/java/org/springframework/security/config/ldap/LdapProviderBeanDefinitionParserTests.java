@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
 		UserDetails ben = (UserDetails) auth.getPrincipal();
 		assertThat(ben.getAuthorities()).hasSize(3);
 	}
@@ -89,7 +89,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("ben", "benspassword"));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "benspassword"));
 
 		assertThat(auth).isNotNull();
 	}
@@ -104,7 +104,8 @@ public class LdapProviderBeanDefinitionParserTests {
 
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
-		Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken("ben", "ben"));
+		Authentication auth = authenticationManager
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("ben", "ben"));
 
 		assertThat(auth).isNotNull();
 	}
@@ -121,7 +122,7 @@ public class LdapProviderBeanDefinitionParserTests {
 		AuthenticationManager authenticationManager = this.appCtx.getBean(BeanIds.AUTHENTICATION_MANAGER,
 				AuthenticationManager.class);
 		Authentication auth = authenticationManager
-				.authenticate(new UsernamePasswordAuthenticationToken("bcrypt", "password"));
+				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("bcrypt", "password"));
 
 		assertThat(auth).isNotNull();
 	}

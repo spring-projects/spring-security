@@ -24,7 +24,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
@@ -200,6 +199,7 @@ public class WebSecurityConfigurerAdapterTests {
 				any(Authentication.class));
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class HeadersArePopulatedByDefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -218,6 +218,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InMemoryAuthWithWebSecurityConfigurerAdapter extends WebSecurityConfigurerAdapter
 			implements ApplicationListener<AuthenticationSuccessEvent> {
@@ -240,6 +241,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InMemoryConfigureProtectedConfig extends WebSecurityConfigurerAdapter {
 
@@ -260,6 +262,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class InMemoryConfigureGlobalConfig extends WebSecurityConfigurerAdapter {
 
@@ -280,6 +283,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -300,6 +304,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ContentNegotiationStrategyDefaultSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -323,6 +328,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
 
@@ -367,6 +373,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ApplicationContextSharedObjectConfig extends WebSecurityConfigurerAdapter {
 
@@ -380,6 +387,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomTrustResolverConfig extends WebSecurityConfigurerAdapter {
 
@@ -409,6 +417,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthenticationEventPublisherBean extends WebSecurityConfigurerAdapter {
 
@@ -425,6 +434,7 @@ public class WebSecurityConfigurerAdapterTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthenticationEventPublisherDsl extends WebSecurityConfigurerAdapter {
 

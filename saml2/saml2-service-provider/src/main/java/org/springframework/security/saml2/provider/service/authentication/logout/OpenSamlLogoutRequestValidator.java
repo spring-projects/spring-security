@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@ import net.shibboleth.utilities.java.support.xml.ParserPool;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.saml.common.SAMLObject;
+import org.opensaml.saml.saml2.core.EncryptedID;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.NameID;
 import org.opensaml.saml.saml2.core.impl.LogoutRequestUnmarshaller;
@@ -118,7 +120,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		return (errors) -> {
 			validateIssuer(request, registration).accept(errors);
 			validateDestination(request, registration).accept(errors);
-			validateName(request, authentication).accept(errors);
+			validateSubject(request, registration, authentication).accept(errors);
 		};
 	}
 
@@ -153,23 +155,49 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		};
 	}
 
-	private Consumer<Collection<Saml2Error>> validateName(LogoutRequest request, Authentication authentication) {
+	private Consumer<Collection<Saml2Error>> validateSubject(LogoutRequest request,
+			RelyingPartyRegistration registration, Authentication authentication) {
 		return (errors) -> {
 			if (authentication == null) {
 				return;
 			}
-			NameID nameId = request.getNameID();
+			NameID nameId = getNameId(request, registration);
 			if (nameId == null) {
 				errors.add(
 						new Saml2Error(Saml2ErrorCodes.SUBJECT_NOT_FOUND, "Failed to find subject in LogoutRequest"));
 				return;
 			}
-			String name = nameId.getValue();
-			if (!name.equals(authentication.getName())) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
-						"Failed to match subject in LogoutRequest with currently logged in user"));
-			}
+
+			validateNameId(nameId, authentication, errors);
 		};
+	}
+
+	private NameID getNameId(LogoutRequest request, RelyingPartyRegistration registration) {
+		NameID nameId = request.getNameID();
+		if (nameId != null) {
+			return nameId;
+		}
+		EncryptedID encryptedId = request.getEncryptedID();
+		if (encryptedId == null) {
+			return null;
+		}
+		return decryptNameId(encryptedId, registration);
+	}
+
+	private void validateNameId(NameID nameId, Authentication authentication, Collection<Saml2Error> errors) {
+		String name = nameId.getValue();
+		if (!name.equals(authentication.getName())) {
+			errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_REQUEST,
+					"Failed to match subject in LogoutRequest with currently logged in user"));
+		}
+	}
+
+	private NameID decryptNameId(EncryptedID encryptedId, RelyingPartyRegistration registration) {
+		final SAMLObject decryptedId = LogoutRequestEncryptedIdUtils.decryptEncryptedId(encryptedId, registration);
+		if (decryptedId instanceof NameID) {
+			return ((NameID) decryptedId);
+		}
+		return null;
 	}
 
 }

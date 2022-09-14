@@ -83,6 +83,9 @@ If the client is running in an untrusted environment (such as a native applicati
 . `client-secret` is omitted (or empty)
 . `client-authentication-method` is set to `none` (`ClientAuthenticationMethod.NONE`)
 
+[TIP]
+If the OAuth 2.0 Provider supports PKCE for https://tools.ietf.org/html/rfc6749#section-2.1[Confidential Clients], you may (optionally) configure it using `DefaultOAuth2AuthorizationRequestResolver.setAuthorizationRequestCustomizer(OAuth2AuthorizationRequestCustomizers.withPkce())`.
+
 [[oauth2Client-auth-code-redirect-uri]]
 The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template variables for the `redirect-uri` by using `UriComponentsBuilder`.
 
@@ -129,14 +132,15 @@ The following example shows how to configure the `DefaultOAuth2AuthorizationRequ
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2LoginSecurityConfig {
 
 	@Autowired
 	private ClientRegistrationRepository clientRegistrationRepository;
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.anyRequest().authenticated()
@@ -148,6 +152,7 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 					)
 				)
 			);
+		return http.build();
 	}
 
 	private OAuth2AuthorizationRequestResolver authorizationRequestResolver(
@@ -172,13 +177,15 @@ public class OAuth2LoginSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class SecurityConfig : WebSecurityConfigurerAdapter() {
+class SecurityConfig {
 
     @Autowired
     private lateinit var customClientRegistrationRepository: ClientRegistrationRepository
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             authorizeRequests {
                 authorize(anyRequest, authenticated)
@@ -189,6 +196,7 @@ class SecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 
     private fun authorizationRequestResolver(
@@ -282,11 +290,12 @@ If you have a custom implementation of `AuthorizationRequestRepository`, you can
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authorizationCodeGrant(codeGrant -> codeGrant
@@ -294,6 +303,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 					...
 				)
 			);
+		return http.build();
 	}
 }
 ----
@@ -301,10 +311,12 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Client {
                 authorizationCodeGrant {
@@ -312,6 +324,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -402,11 +415,12 @@ Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide y
 .Java
 [source,java,role="primary"]
 ----
+@Configuration
 @EnableWebSecurity
-public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
+public class OAuth2ClientSecurityConfig {
 
-	@Override
-	protected void configure(HttpSecurity http) throws Exception {
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
 			.oauth2Client(oauth2 -> oauth2
 				.authorizationCodeGrant(codeGrant -> codeGrant
@@ -414,6 +428,7 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 					...
 				)
 			);
+		return http.build();
 	}
 }
 ----
@@ -421,10 +436,12 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
+@Configuration
 @EnableWebSecurity
-class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
+class OAuth2ClientSecurityConfig {
 
-    override fun configure(http: HttpSecurity) {
+    @Bean
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             oauth2Client {
                 authorizationCodeGrant {
@@ -432,6 +449,7 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
                 }
             }
         }
+        return http.build()
     }
 }
 ----
@@ -1352,3 +1370,9 @@ class OAuth2ResourceServerController {
 }
 ----
 ====
+
+[NOTE]
+`JwtBearerOAuth2AuthorizedClientProvider` resolves the `Jwt` assertion via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.
+
+[TIP]
+If you need to resolve the `Jwt` assertion from a different source, you can provide `JwtBearerOAuth2AuthorizedClientProvider.setJwtAssertionResolver()` with a custom `Function<OAuth2AuthorizationContext, Jwt>`.

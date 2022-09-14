@@ -32,9 +32,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import jakarta.annotation.PreDestroy;
-import jakarta.servlet.http.HttpServletRequest;
-
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSObject;
@@ -42,6 +39,8 @@ import com.nimbusds.jose.Payload;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
 import net.minidev.json.JSONObject;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -1438,6 +1437,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultConfig extends WebSecurityConfigurerAdapter {
 
@@ -1456,6 +1456,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -1477,6 +1478,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwkSetUriConfig extends WebSecurityConfigurerAdapter {
 
@@ -1499,6 +1501,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwkSetUriInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -1526,6 +1529,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -1549,6 +1553,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AnonymousDisabledConfig extends WebSecurityConfigurerAdapter {
 
@@ -1567,6 +1572,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
 	static class MethodSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -1585,6 +1591,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwtlessConfig extends WebSecurityConfigurerAdapter {
 
@@ -1601,6 +1608,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RealmNameConfiguredOnEntryPoint extends WebSecurityConfigurerAdapter {
 
@@ -1625,6 +1633,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class RealmNameConfiguredOnAccessDeniedHandler extends WebSecurityConfigurerAdapter {
 
@@ -1649,6 +1658,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ExceptionHandlingAndResourceServerWithAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
 
@@ -1684,6 +1694,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwtAuthenticationConverterConfiguredOnDsl extends WebSecurityConfigurerAdapter {
 
@@ -1708,6 +1719,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthorityMappingConfig extends WebSecurityConfigurerAdapter {
 
@@ -1733,6 +1745,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class BasicAndResourceServerConfig extends WebSecurityConfigurerAdapter {
 
@@ -1765,6 +1778,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class FormAndResourceServerConfig extends WebSecurityConfigurerAdapter {
 
@@ -1784,6 +1798,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OAuth2LoginAndResourceServerConfig extends WebSecurityConfigurerAdapter {
 
@@ -1809,6 +1824,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwtHalfConfiguredConfig extends WebSecurityConfigurerAdapter {
 
@@ -1826,6 +1842,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AlwaysSessionCreationConfig extends WebSecurityConfigurerAdapter {
 
@@ -1843,6 +1860,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AllowBearerTokenInRequestBodyConfig extends WebSecurityConfigurerAdapter {
 
@@ -1867,6 +1885,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AllowBearerTokenAsQueryParameterConfig extends WebSecurityConfigurerAdapter {
 
@@ -1891,6 +1910,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultipleBearerTokenResolverBeansConfig extends WebSecurityConfigurerAdapter {
 
@@ -1922,6 +1942,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthenticationDetailsSource {
 
@@ -1954,6 +1975,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		}
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomJwtDecoderOnDsl extends WebSecurityConfigurerAdapter {
 
@@ -1978,6 +2000,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomJwtDecoderInLambdaOnDsl extends WebSecurityConfigurerAdapter {
 
@@ -2007,6 +2030,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomJwtDecoderAsBean extends WebSecurityConfigurerAdapter {
 
@@ -2029,6 +2053,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class JwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
 
@@ -2052,6 +2077,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultAndJwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
 
@@ -2085,6 +2111,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomJwtValidatorConfig extends WebSecurityConfigurerAdapter {
 
@@ -2109,6 +2136,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class UnexpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
 
@@ -2131,6 +2159,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class ExpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
 
@@ -2150,6 +2179,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.jwt();
 		}
 	}
+	@Configuration
 	@EnableWebSecurity
 	static class SingleKeyConfig extends WebSecurityConfigurerAdapter {
 		byte[] spec = Base64.getDecoder().decode(
@@ -2181,6 +2211,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class CustomAuthenticationEventPublisher extends WebSecurityConfigurerAdapter {
 
@@ -2208,6 +2239,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenConfig extends WebSecurityConfigurerAdapter {
 
@@ -2226,6 +2258,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -2247,6 +2280,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
 
@@ -2270,6 +2304,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenAuthenticationManagerInLambdaConfig extends WebSecurityConfigurerAdapter {
 
@@ -2298,6 +2333,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class DefaultAndOpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
 
@@ -2331,6 +2367,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueAndJwtConfig extends WebSecurityConfigurerAdapter {
 
@@ -2347,6 +2384,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenHalfConfiguredConfig extends WebSecurityConfigurerAdapter {
 
@@ -2365,6 +2403,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class MultipleIssuersConfig extends WebSecurityConfigurerAdapter {
 
@@ -2386,6 +2425,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class AuthenticationManagerResolverPlusOtherConfig extends WebSecurityConfigurerAdapter {
 

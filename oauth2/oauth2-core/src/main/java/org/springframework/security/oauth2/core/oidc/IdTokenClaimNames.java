@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,68 +27,71 @@ package org.springframework.security.oauth2.core.oidc;
  * "https://openid.net/specs/openid-connect-core-1_0.html#IDToken">ID Token</a>
  */
 
-public interface IdTokenClaimNames {
+public final class IdTokenClaimNames {
 
 	/**
 	 * {@code iss} - the Issuer identifier
 	 */
-	String ISS = "iss";
+	public static final String ISS = "iss";
 
 	/**
 	 * {@code sub} - the Subject identifier
 	 */
-	String SUB = "sub";
+	public static final String SUB = "sub";
 
 	/**
 	 * {@code aud} - the Audience(s) that the ID Token is intended for
 	 */
-	String AUD = "aud";
+	public static final String AUD = "aud";
 
 	/**
 	 * {@code exp} - the Expiration time on or after which the ID Token MUST NOT be
 	 * accepted
 	 */
-	String EXP = "exp";
+	public static final String EXP = "exp";
 
 	/**
 	 * {@code iat} - the time at which the ID Token was issued
 	 */
-	String IAT = "iat";
+	public static final String IAT = "iat";
 
 	/**
 	 * {@code auth_time} - the time when the End-User authentication occurred
 	 */
-	String AUTH_TIME = "auth_time";
+	public static final String AUTH_TIME = "auth_time";
 
 	/**
 	 * {@code nonce} - a {@code String} value used to associate a Client session with an
 	 * ID Token, and to mitigate replay attacks.
 	 */
-	String NONCE = "nonce";
+	public static final String NONCE = "nonce";
 
 	/**
 	 * {@code acr} - the Authentication Context Class Reference
 	 */
-	String ACR = "acr";
+	public static final String ACR = "acr";
 
 	/**
 	 * {@code amr} - the Authentication Methods References
 	 */
-	String AMR = "amr";
+	public static final String AMR = "amr";
 
 	/**
 	 * {@code azp} - the Authorized party to which the ID Token was issued
 	 */
-	String AZP = "azp";
+	public static final String AZP = "azp";
 
 	/**
 	 * {@code at_hash} - the Access Token hash value
 	 */
-	String AT_HASH = "at_hash";
+	public static final String AT_HASH = "at_hash";
 
 	/**
 	 * {@code c_hash} - the Authorization Code hash value
 	 */
-	String C_HASH = "c_hash";
+	public static final String C_HASH = "c_hash";
+
+	private IdTokenClaimNames() {
+	}
 
 }

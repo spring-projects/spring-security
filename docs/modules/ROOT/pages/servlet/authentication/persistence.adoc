@@ -1,0 +1,172 @@
+[[persistant]]
+= Persisting Authentication
+:figures: servlet/authentication
+
+The first time a user requests a protected resource, they are xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[prompted for credentials].
+One of the most common ways to prompt for credentials is to redirect the user to a xref:servlet/authentication/passwords/form.adoc[log in page].
+A summarized HTTP exchange for an unauthenticated user requesting a protected resource might look like this:
+
+.Unauthenticated User Requests Protected Resource
+====
+[source,http]
+----
+GET / HTTP/1.1
+Host: example.com
+Cookie: SESSION=91470ce0-3f3c-455b-b7ad-079b02290f7b
+----
+
+[source,http]
+----
+HTTP/1.1 302 Found
+Location: /login
+----
+====
+
+The user submits their username and password.
+
+.Username and Password Submitted
+====
+[source,http]
+----
+POST /login HTTP/1.1
+Host: example.com
+Cookie: SESSION=91470ce0-3f3c-455b-b7ad-079b02290f7b
+
+username=user&password=password&_csrf=35942e65-a172-4cd4-a1d4-d16a51147b3e
+----
+====
+
+Upon authenticating the user, the user is associated to a new session id to prevent xref:servlet/authentication/session-management.adoc#ns-session-fixation[session fixation attacks].
+
+.Authenticated User is Associated to New Session
+====
+[source,http]
+----
+HTTP/1.1 302 Found
+Location: /
+Set-Cookie: SESSION=4c66e474-3f5a-43ed-8e48-cc1d8cb1d1c8; Path=/; HttpOnly; SameSite=Lax
+----
+====
+
+Subsequent requests include the session cookie which is used to authenticate the user for the remainder of the session.
+
+.Authenticated Session Provided as Credentials
+====
+[source,http]
+----
+GET / HTTP/1.1
+Host: example.com
+Cookie: SESSION=4c66e474-3f5a-43ed-8e48-cc1d8cb1d1c8
+----
+====
+
+
+[[securitycontextrepository]]
+== SecurityContextRepository
+
+// FIXME: api documentation
+In Spring Security the association of the user to future requests is made using  {security-api-url}org/springframework/security/web/context/SecurityContextRepository.html[`SecurityContextRepository`].
+
+[[httpsecuritycontextrepository]]
+=== HttpSecurityContextRepository
+
+The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] which associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
+Users can replace `HttpSessionSecurityContextRepository` with another implementation of `SecurityContextRepository` if they wish to associate the user with subsequent requests in another way or not at all.
+
+[[nullsecuritycontextrepository]]
+=== NullSecurityContextRepository
+
+If it is not desirable to associate the `SecurityContext` to an `HttpSession` (i.e. when authenticating with OAuth) the {security-api-url}org/springframework/security/web/context/NullSecurityContextRepository.html[`NullSecurityContextRepository`] is an implementation of `SecurityContextRepository` that does nothing.
+
+[[requestattributesecuritycontextrepository]]
+=== RequestAttributeSecurityContextRepository
+
+The {security-api-url}org/springframework/security/web/context/RequestAttributeSecurityContextRepository.html[`RequestAttributeSecurityContextRepository`] saves the `SecurityContext` as a request attribute to make sure the `SecurityContext` is avaible for a single request that occurs across dispatch types that may clear out the `SecurityContext`.
+
+For example, assume that a client makes a request, is authenticated, and then an error occurs.
+Depending on the servlet container implementation, the error means that any `SecurityContext` that was established is cleared out and then the error dispatch is made.
+When the error dispatch is made, there is no `SecurityContext` established.
+This means that the error page cannot use the `SecurityContext` for authorization or displaying the current user unless the `SecurityContext` is persisted somehow.
+
+.Use RequestAttributeSecurityContextRepository
+====
+.Java
+[source,java,role="primary"]
+----
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.securityContextRepository(new RequestAttributeSecurityContextRepository())
+		);
+	return http.build();
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-repository-ref="contextRepository">
+	<!-- ... -->
+</http>
+<b:bean name="contextRepository"
+	class="org.springframework.security.web.context.RequestAttributeSecurityContextRepository" />
+----
+====
+
+
+[[securitycontextpersistencefilter]]
+== SecurityContextPersistenceFilter
+
+The {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] is responsible for persisting the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
+
+image::{figures}/securitycontextpersistencefilter.png[]
+
+<1> Before running the rest of the application, `SecurityContextPersistenceFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
+<2> Next, the application is ran.
+<3> Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextPersistenceRepository`.
+This means that when using `SecurityContextPersistenceFilter`, just setting the `SecurityContextHolder` will ensure that the `SecurityContext` is persisted using `SecurityContextRepository`.
+
+In some cases a response is committed and written to the client before the `SecurityContextPersisteneFilter` method completes.
+For example, if a redirect is sent to the client the response is immediately written back to the client.
+This means that establishing an `HttpSession` would not be possible in step 3 because the session id could not be included in the already written response.
+Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes the wrong authentication could be present in the second request.
+
+To avoid these problems, the `SecurityContextPersistenceFilter` wraps both the `HttpServletRequest` and the `HttpServletResponse` to detect if the `SecurityContext` has changed and if so save the `SecurityContext` just before the response is committed.
+
+[[securitycontextholderfilter]]
+== SecurityContextHolderFilter
+
+The {security-api-url}org/springframework/security/web/context/SecurityContextHolderFilter.html[`SecurityContextHolderFilter`] is responsible for loading the `SecurityContext` between requests using the xref::servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`].
+
+image::{figures}/securitycontextholderfilter.png[]
+
+<1> Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
+<2> Next, the application is ran.
+
+Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersisteneFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
+This means that when using `SecurityContextHolderFilter`, it is required that the `SecurityContext` is explicitly saved.
+
+.Explicit Saving of SecurityContext
+====
+.Java
+[source,java,role="primary"]
+----
+public SecurityFilterChain filterChain(HttpSecurity http) {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.requireExplicitSave(true)
+		);
+	return http.build();
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-explicit-save="true">
+	<!-- ... -->
+</http>
+----
+====

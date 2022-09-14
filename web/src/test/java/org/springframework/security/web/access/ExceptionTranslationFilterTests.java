@@ -24,7 +24,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +44,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * Tests {@link ExceptionTranslationFilter}.
@@ -105,7 +105,6 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -127,12 +126,13 @@ public class ExceptionTranslationFilterTests {
 		securityContext.setAuthentication(
 				new RememberMeAuthenticationToken("ignored", "ignored", AuthorityUtils.createAuthorityList("IGNORED")));
 		SecurityContextHolder.setContext(securityContext);
+		RequestCache requestCache = new HttpSessionRequestCache();
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint, requestCache);
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo(requestCache.getRequest(request, response).getRedirectUrl());
 	}
 
 	@Test
@@ -200,12 +200,13 @@ public class ExceptionTranslationFilterTests {
 		willThrow(new BadCredentialsException("")).given(fc).doFilter(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 		// Test
-		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
+		RequestCache requestCache = new HttpSessionRequestCache();
+		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint, requestCache);
 		filter.afterPropertiesSet();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost/mycontext/secure/page.html");
+		assertThat(getSavedRequestUrl(request)).isEqualTo(requestCache.getRequest(request, response).getRedirectUrl());
 	}
 
 	@Test
@@ -231,7 +232,6 @@ public class ExceptionTranslationFilterTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/mycontext/login.jsp");
-		assertThat(getSavedRequestUrl(request)).isEqualTo("http://localhost:8080/mycontext/secure/page.html");
 	}
 
 	@Test
@@ -284,7 +284,7 @@ public class ExceptionTranslationFilterTests {
 		ExceptionTranslationFilter filter = new ExceptionTranslationFilter(this.mockEntryPoint);
 		assertThatExceptionOfType(ServletException.class).isThrownBy(() -> filter.doFilter(request, response, chain))
 				.withCauseInstanceOf(AccessDeniedException.class);
-		verifyZeroInteractions(this.mockEntryPoint);
+		verifyNoMoreInteractions(this.mockEntryPoint);
 	}
 
 	@Test

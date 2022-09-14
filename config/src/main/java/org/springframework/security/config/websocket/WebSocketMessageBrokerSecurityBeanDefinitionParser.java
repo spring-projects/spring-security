@@ -19,11 +19,13 @@ package org.springframework.security.config.websocket;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.PropertyValue;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -37,20 +39,36 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.simp.annotation.support.SimpAnnotationMethodMessageHandler;
+import org.springframework.security.access.expression.ExpressionUtils;
+import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.vote.ConsensusBased;
+import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.config.Elements;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.messaging.access.expression.ExpressionBasedMessageSecurityMetadataSourceFactory;
+import org.springframework.security.messaging.access.expression.MessageAuthorizationContextSecurityExpressionHandler;
 import org.springframework.security.messaging.access.expression.MessageExpressionVoter;
+import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
 import org.springframework.security.messaging.access.intercept.ChannelSecurityInterceptor;
+import org.springframework.security.messaging.access.intercept.MessageAuthorizationContext;
+import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
+import org.springframework.security.messaging.util.matcher.MessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpDestinationMessageMatcher;
 import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatcher;
 import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -99,6 +117,12 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 	private static final String DISABLED_ATTR = "same-origin-disabled";
 
+	private static final String USE_AUTHORIZATION_MANAGER_ATTR = "use-authorization-manager";
+
+	private static final String AUTHORIZATION_MANAGER_REF_ATTR = "authorization-manager-ref";
+
+	private static final String SECURITY_CONTEXT_HOLDER_STRATEGY_REF_ATTR = "security-context-holder-strategy-ref";
+
 	private static final String PATTERN_ATTR = "pattern";
 
 	private static final String ACCESS_ATTR = "access";
@@ -114,14 +138,93 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	 */
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
+		String id = element.getAttribute(ID_ATTR);
+		String inSecurityInterceptorName = parseAuthorization(element, parserContext);
+		BeanDefinitionRegistry registry = parserContext.getRegistry();
+		if (StringUtils.hasText(id)) {
+			registry.registerAlias(inSecurityInterceptorName, id);
+			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
+				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
+			}
+		}
+		else {
+			boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
+			XmlReaderContext context = parserContext.getReaderContext();
+			BeanDefinitionBuilder mspp = BeanDefinitionBuilder.rootBeanDefinition(MessageSecurityPostProcessor.class);
+			mspp.addConstructorArgValue(inSecurityInterceptorName);
+			mspp.addConstructorArgValue(sameOriginDisabled);
+			context.registerWithGeneratedName(mspp.getBeanDefinition());
+		}
+		return null;
+	}
+
+	private String parseAuthorization(Element element, ParserContext parserContext) {
+		boolean useAuthorizationManager = Boolean.parseBoolean(element.getAttribute(USE_AUTHORIZATION_MANAGER_ATTR));
+		if (useAuthorizationManager) {
+			return parseAuthorizationManager(element, parserContext);
+		}
+		if (StringUtils.hasText(element.getAttribute(AUTHORIZATION_MANAGER_REF_ATTR))) {
+			return parseAuthorizationManager(element, parserContext);
+		}
+		return parseSecurityMetadataSource(element, parserContext);
+	}
+
+	private String parseAuthorizationManager(Element element, ParserContext parserContext) {
+		XmlReaderContext context = parserContext.getReaderContext();
+		String mdsId = createAuthorizationManager(element, parserContext);
+		BeanDefinitionBuilder inboundChannelSecurityInterceptor = BeanDefinitionBuilder
+				.rootBeanDefinition(AuthorizationChannelInterceptor.class);
+		inboundChannelSecurityInterceptor.addConstructorArgReference(mdsId);
+		String holderStrategyRef = element.getAttribute(SECURITY_CONTEXT_HOLDER_STRATEGY_REF_ATTR);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			inboundChannelSecurityInterceptor.addPropertyValue("securityContextHolderStrategy",
+					new RuntimeBeanReference(holderStrategyRef));
+		}
+		else {
+			inboundChannelSecurityInterceptor.addPropertyValue("securityContextHolderStrategy", BeanDefinitionBuilder
+					.rootBeanDefinition(SecurityContextHolderStrategyFactory.class).getBeanDefinition());
+		}
+
+		return context.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
+	}
+
+	private String createAuthorizationManager(Element element, ParserContext parserContext) {
+		XmlReaderContext context = parserContext.getReaderContext();
+		String authorizationManagerRef = element.getAttribute(AUTHORIZATION_MANAGER_REF_ATTR);
+		if (StringUtils.hasText(authorizationManagerRef)) {
+			return authorizationManagerRef;
+		}
+		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
+		String expressionHandlerRef = (expressionHandlerElt != null) ? expressionHandlerElt.getAttribute("ref") : null;
+		ManagedMap<BeanDefinition, BeanDefinition> matcherToExpression = new ManagedMap<>();
+		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_MESSAGE);
+		for (Element interceptMessage : interceptMessages) {
+			String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
+			String accessExpression = interceptMessage.getAttribute(ACCESS_ATTR);
+			String messageType = interceptMessage.getAttribute(TYPE_ATTR);
+			BeanDefinition matcher = createMatcher(matcherPattern, messageType, parserContext, interceptMessage);
+			BeanDefinitionBuilder authorizationManager = BeanDefinitionBuilder
+					.rootBeanDefinition(ExpressionBasedAuthorizationManager.class);
+			if (StringUtils.hasText(expressionHandlerRef)) {
+				authorizationManager.addConstructorArgReference(expressionHandlerRef);
+			}
+			authorizationManager.addConstructorArgValue(accessExpression);
+			matcherToExpression.put(matcher, authorizationManager.getBeanDefinition());
+		}
+		BeanDefinitionBuilder mds = BeanDefinitionBuilder
+				.rootBeanDefinition(MessageMatcherDelegatingAuthorizationManagerFactory.class);
+		mds.setFactoryMethod("createMessageMatcherDelegatingAuthorizationManager");
+		mds.addConstructorArgValue(matcherToExpression);
+		return context.registerWithGeneratedName(mds.getBeanDefinition());
+	}
+
+	private String parseSecurityMetadataSource(Element element, ParserContext parserContext) {
 		BeanDefinitionRegistry registry = parserContext.getRegistry();
 		XmlReaderContext context = parserContext.getReaderContext();
 		ManagedMap<BeanDefinition, String> matcherToExpression = new ManagedMap<>();
-		String id = element.getAttribute(ID_ATTR);
 		Element expressionHandlerElt = DomUtils.getChildElementByTagName(element, Elements.EXPRESSION_HANDLER);
 		String expressionHandlerRef = (expressionHandlerElt != null) ? expressionHandlerElt.getAttribute("ref") : null;
 		boolean expressionHandlerDefined = StringUtils.hasText(expressionHandlerRef);
-		boolean sameOriginDisabled = Boolean.parseBoolean(element.getAttribute(DISABLED_ATTR));
 		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_MESSAGE);
 		for (Element interceptMessage : interceptMessages) {
 			String matcherPattern = interceptMessage.getAttribute(PATTERN_ATTR);
@@ -151,21 +254,7 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 				.rootBeanDefinition(ChannelSecurityInterceptor.class);
 		inboundChannelSecurityInterceptor.addConstructorArgValue(registry.getBeanDefinition(mdsId));
 		inboundChannelSecurityInterceptor.addPropertyValue("accessDecisionManager", adm.getBeanDefinition());
-		String inSecurityInterceptorName = context
-				.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
-		if (StringUtils.hasText(id)) {
-			registry.registerAlias(inSecurityInterceptorName, id);
-			if (!registry.containsBeanDefinition(PATH_MATCHER_BEAN_NAME)) {
-				registry.registerBeanDefinition(PATH_MATCHER_BEAN_NAME, new RootBeanDefinition(AntPathMatcher.class));
-			}
-		}
-		else {
-			BeanDefinitionBuilder mspp = BeanDefinitionBuilder.rootBeanDefinition(MessageSecurityPostProcessor.class);
-			mspp.addConstructorArgValue(inSecurityInterceptorName);
-			mspp.addConstructorArgValue(sameOriginDisabled);
-			context.registerWithGeneratedName(mspp.getBeanDefinition());
-		}
-		return null;
+		return context.registerWithGeneratedName(inboundChannelSecurityInterceptor.getBeanDefinition());
 	}
 
 	private BeanDefinition createMatcher(String matcherPattern, String messageType, ParserContext parserContext,
@@ -337,6 +426,64 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 
 		void setPathMatcher(PathMatcher pathMatcher) {
 			this.delegate = pathMatcher;
+		}
+
+	}
+
+	private static final class ExpressionBasedAuthorizationManager
+			implements AuthorizationManager<MessageAuthorizationContext<?>> {
+
+		private final SecurityExpressionHandler<MessageAuthorizationContext<?>> expressionHandler;
+
+		private final Expression expression;
+
+		private ExpressionBasedAuthorizationManager(String expression) {
+			this(new MessageAuthorizationContextSecurityExpressionHandler(), expression);
+		}
+
+		private ExpressionBasedAuthorizationManager(
+				SecurityExpressionHandler<MessageAuthorizationContext<?>> expressionHandler, String expression) {
+			Assert.notNull(expressionHandler, "expressionHandler cannot be null");
+			Assert.notNull(expression, "expression cannot be null");
+			this.expressionHandler = expressionHandler;
+			this.expression = this.expressionHandler.getExpressionParser().parseExpression(expression);
+		}
+
+		@Override
+		public AuthorizationDecision check(Supplier<Authentication> authentication,
+				MessageAuthorizationContext<?> object) {
+			EvaluationContext context = this.expressionHandler.createEvaluationContext(authentication, object);
+			boolean granted = ExpressionUtils.evaluateAsBoolean(this.expression, context);
+			return new AuthorizationDecision(granted);
+		}
+
+	}
+
+	private static class MessageMatcherDelegatingAuthorizationManagerFactory {
+
+		private static AuthorizationManager<Message<?>> createMessageMatcherDelegatingAuthorizationManager(
+				Map<MessageMatcher<?>, AuthorizationManager<MessageAuthorizationContext<?>>> beans) {
+			MessageMatcherDelegatingAuthorizationManager.Builder builder = MessageMatcherDelegatingAuthorizationManager
+					.builder();
+			for (Map.Entry<MessageMatcher<?>, AuthorizationManager<MessageAuthorizationContext<?>>> entry : beans
+					.entrySet()) {
+				builder.matchers(entry.getKey()).access(entry.getValue());
+			}
+			return builder.anyMessage().permitAll().build();
+		}
+
+	}
+
+	static class SecurityContextHolderStrategyFactory implements FactoryBean<SecurityContextHolderStrategy> {
+
+		@Override
+		public SecurityContextHolderStrategy getObject() throws Exception {
+			return SecurityContextHolder.getContextHolderStrategy();
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return SecurityContextHolderStrategy.class;
 		}
 
 	}
