@@ -30,6 +30,7 @@ import net.minidev.json.JSONObject;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
@@ -57,6 +58,13 @@ public final class ClientRegistrations {
 	private static final String OAUTH_METADATA_PATH = "/.well-known/oauth-authorization-server";
 
 	private static final RestTemplate rest = new RestTemplate();
+
+	static {
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(30_000);
+		requestFactory.setReadTimeout(30_000);
+		rest.setRequestFactory(requestFactory);
+	}
 
 	private static final ParameterizedTypeReference<Map<String, Object>> typeReference = new ParameterizedTypeReference<Map<String, Object>>() {
 	};
