@@ -19,18 +19,22 @@ package org.springframework.security.saml2;
 import org.opensaml.core.Version;
 
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.StringUtils;
 
 /**
  * A Utils class that allows checking the version of the OpenSAML library in the
  * classpath.
  *
  * @author Igor Pelesić
- * @since 5.7
+ * @since 5.8
  */
 
 public final class Saml2VersionUtils {
 
 	private static final String DELIMITER = "\\.";
+
+	private static final String OPEN_SAML_4_VERSION = "4";
 
 	private Saml2VersionUtils() {
 	}
@@ -80,11 +84,19 @@ public final class Saml2VersionUtils {
 
 	private static String getVersion() {
 		String version = Version.getVersion();
-		if (version != null) {
+		if (StringUtils.hasText(version)) {
 			return version;
 		}
-		return Version.class.getModule().getDescriptor().version().map(Object::toString)
-				.orElseThrow(() -> new IllegalStateException("cannot determine OpenSAML version"));
+
+		boolean openSaml4ClassPresent = ClassUtils
+				.isPresent("org.opensaml.core.xml.persist.impl.PassthroughSourceStrategy", null);
+
+		if (openSaml4ClassPresent) {
+			return OPEN_SAML_4_VERSION;
+		}
+
+		throw new IllegalStateException("cannot determine OpenSAML version");
+
 	}
 
 	private static Integer getVersionNumber(String versionStr) {
