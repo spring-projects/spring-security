@@ -22,6 +22,8 @@ import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -32,6 +34,7 @@ import org.springframework.security.authentication.TestingAuthenticationProvider
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
@@ -39,6 +42,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic
 import org.springframework.security.web.FilterChainProxy
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter
 import org.springframework.security.web.server.header.ContentTypeOptionsServerHttpHeadersWriter
@@ -52,9 +56,6 @@ import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
 import jakarta.servlet.Filter
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
-import org.springframework.security.web.SecurityFilterChain
 
 /**
  * Tests for [HttpSecurityDsl]
@@ -516,4 +517,42 @@ class HttpSecurityDslTests {
     }
 
     class CustomFilter : UsernamePasswordAuthenticationFilter()
+
+    @Test
+    fun `HTTP security when apply custom security configurer then custom filter added to filter chain`() {
+        this.spring.register(CustomSecurityConfigurerConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).contains(
+            CustomFilter::class.java
+        )
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomSecurityConfigurerConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                apply(CustomSecurityConfigurer<HttpSecurity>()) {
+                    filter = CustomFilter()
+                }
+            }
+            return http.build()
+        }
+    }
+
+    class CustomSecurityConfigurer<H : HttpSecurityBuilder<H>> : AbstractHttpConfigurer<CustomSecurityConfigurer<H>, H>() {
+        var filter: Filter? = null
+        override fun init(builder: H) {
+            filter = filter ?: UsernamePasswordAuthenticationFilter()
+        }
+
+        override fun configure(builder: H) {
+            builder.addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        }
+    }
 }
