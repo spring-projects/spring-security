@@ -530,6 +530,7 @@ class HttpSecurityDslTests {
             CustomFilter::class.java
         )
     }
+
     @Configuration
     @EnableWebSecurity
     @EnableWebMvc
@@ -537,7 +538,8 @@ class HttpSecurityDslTests {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
-                apply(CustomSecurityConfigurer<HttpSecurity>()).custom {
+                apply(CustomSecurityConfigurer<HttpSecurity>()) {
+                    filter = CustomFilter()
                 }
             }
             return http.build()
@@ -545,13 +547,13 @@ class HttpSecurityDslTests {
     }
 
     class CustomSecurityConfigurer<H : HttpSecurityBuilder<H>> : AbstractHttpConfigurer<CustomSecurityConfigurer<H>, H>() {
-        override fun configure(builder: H) {
-            builder.addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
+        var filter: Filter? = null
+        override fun init(builder: H) {
+            filter = filter ?: UsernamePasswordAuthenticationFilter()
         }
 
-        fun custom(configurer: Customizer<CustomSecurityConfigurer<H>>): CustomSecurityConfigurer<H> {
-            configurer.customize(CustomSecurityConfigurer())
-            return this
+        override fun configure(builder: H) {
+            builder.addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
         }
     }
 }

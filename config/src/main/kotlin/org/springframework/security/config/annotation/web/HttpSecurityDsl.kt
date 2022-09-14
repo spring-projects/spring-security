@@ -91,7 +91,9 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      *     @Bean
      *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
      *         http {
-     *             apply(CustomSecurityConfigurer<HttpSecurity>())
+     *             apply(CustomSecurityConfigurer<HttpSecurity>()) {
+     *                 customProperty = "..."
+     *             }
      *         }
      *         return http.build()
      *     }
@@ -101,8 +103,8 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * @param configurer
      * the [SecurityConfigurerAdapter] for further customizations
      */
-    fun <C : SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> apply(configurer: C): C {
-        return this.http.apply(configurer)
+    fun <C : SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity>> apply(configurer: C, configuration: C.() -> Unit = { }): C {
+        return this.http.apply(configurer).apply(configuration)
     }
 
     /**
