@@ -2463,6 +2463,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	}
 
+	@Configuration
 	@EnableWebSecurity
 	static class OpaqueTokenAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
 

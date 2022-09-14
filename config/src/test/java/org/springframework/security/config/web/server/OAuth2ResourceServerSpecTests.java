@@ -1075,6 +1075,7 @@ public class OAuth2ResourceServerSpecTests {
 
 	}
 
+	@Configuration
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class ReactiveOpaqueTokenAuthenticationConverterConfig {

@@ -667,6 +667,9 @@ opaque-token.attlist &=
 opaque-token.attlist &=
     ## Reference to an OpaqueTokenIntrospector
     attribute introspector-ref {xsd:token}?
+opaque-token.attlist &=
+    ## Reference to an OpaqueTokenAuthenticationConverter responsible for converting successful introspection result into an Authentication.
+    attribute authentication-converter-ref {xsd:token}?
 
 saml2-login =
 	## Configures authentication support for SAML 2.0 Login
