@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -154,7 +154,7 @@ public class DefaultOAuth2UserServiceTests {
 		assertThat(user.getAuthorities().size()).isEqualTo(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
-		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
+		assertThat(userAuthority.getAuthority()).isEqualTo("OAUTH2_USER");
 		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 	}
 

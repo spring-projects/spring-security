@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,9 @@ public class OidcReactiveOAuth2UserServiceTests {
 		assertThat(user.getAuthorities()).hasSize(1);
 		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
 		assertThat(authorities.next()).isInstanceOf(OAuth2UserAuthority.class);
+		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
+		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
+		assertThat(userAuthority.getAttributes()).isEqualTo(user.getAttributes());
 	}
 
 	private OidcUserRequest userRequest() {

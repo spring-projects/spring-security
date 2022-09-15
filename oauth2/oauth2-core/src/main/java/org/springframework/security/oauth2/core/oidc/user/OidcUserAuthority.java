@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,13 +48,13 @@ public class OidcUserAuthority extends OAuth2UserAuthority {
 
 	/**
 	 * Constructs a {@code OidcUserAuthority} using the provided parameters and defaults
-	 * {@link #getAuthority()} to {@code ROLE_USER}.
+	 * {@link #getAuthority()} to {@code OIDC_USER}.
 	 * @param idToken the {@link OidcIdToken ID Token} containing claims about the user
 	 * @param userInfo the {@link OidcUserInfo UserInfo} containing claims about the user,
 	 * may be {@code null}
 	 */
 	public OidcUserAuthority(OidcIdToken idToken, OidcUserInfo userInfo) {
-		this("ROLE_USER", idToken, userInfo);
+		this("OIDC_USER", idToken, userInfo);
 	}
 
 	/**

@@ -425,7 +425,8 @@ The UserInfo Endpoint includes a number of configuration options, as described i
 [[oauth2login-advanced-map-authorities]]
 === Mapping User Authorities
 
-After the user successfully authenticates with the OAuth 2.0 Provider, the `OAuth2User.getAuthorities()` (or `OidcUser.getAuthorities()`) can be mapped to a new set of `GrantedAuthority` instances, which are supplied to `OAuth2AuthenticationToken` when completing the authentication.
+After the user successfully authenticates with the OAuth 2.0 Provider, the `OAuth2User.getAuthorities()` (or `OidcUser.getAuthorities()`) contains a list of granted authorities populated from `OAuth2UserRequest.getAccessToken().getScopes()` and prefixed with `SCOPE_`.
+These granted authorities can be mapped to a new set of `GrantedAuthority` instances, which are supplied to `OAuth2AuthenticationToken` when completing the authentication.
 
 [TIP]
 `OAuth2AuthenticationToken.getAuthorities()` is used for authorizing requests, such as in `hasRole('USER')` or `hasRole('ADMIN')`.
@@ -438,6 +439,8 @@ There are a couple of options to choose from when mapping user authorities:
 
 [[oauth2login-advanced-map-authorities-grantedauthoritiesmapper]]
 ==== Using a GrantedAuthoritiesMapper
+
+The `GrantedAuthoritiesMapper` is given a list of granted authorities which contains a special authority of type `OAuth2UserAuthority` and the authority string `OAUTH2_USER` (or `OidcUserAuthority` and the authority string `OIDC_USER`).
 
 Provide an implementation of `GrantedAuthoritiesMapper` and configure it, as follows:
 

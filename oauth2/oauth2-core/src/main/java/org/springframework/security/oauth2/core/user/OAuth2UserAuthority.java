@@ -43,11 +43,11 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 
 	/**
 	 * Constructs a {@code OAuth2UserAuthority} using the provided parameters and defaults
-	 * {@link #getAuthority()} to {@code ROLE_USER}.
+	 * {@link #getAuthority()} to {@code OAUTH2_USER}.
 	 * @param attributes the attributes about the user
 	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
-		this("ROLE_USER", attributes);
+		this("OAUTH2_USER", attributes);
 	}
 
 	/**

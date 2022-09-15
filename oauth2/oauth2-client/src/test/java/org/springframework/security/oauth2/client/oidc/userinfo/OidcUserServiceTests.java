@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -246,7 +246,7 @@ public class OidcUserServiceTests {
 		assertThat(user.getAuthorities().size()).isEqualTo(3);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OidcUserAuthority.class);
 		OidcUserAuthority userAuthority = (OidcUserAuthority) user.getAuthorities().iterator().next();
-		assertThat(userAuthority.getAuthority()).isEqualTo("ROLE_USER");
+		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");
 		assertThat(userAuthority.getIdToken()).isEqualTo(user.getIdToken());
 		assertThat(userAuthority.getUserInfo()).isEqualTo(user.getUserInfo());
 	}
