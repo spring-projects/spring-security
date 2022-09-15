@@ -193,7 +193,7 @@ public class OAuth2LoginConfigurerTests {
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+				.hasToString("OAUTH2_USER");
 	}
 
 	@Test
@@ -208,7 +208,7 @@ public class OAuth2LoginConfigurerTests {
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+				.hasToString("OAUTH2_USER");
 	}
 
 	// gh-6009
@@ -246,7 +246,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
 
@@ -266,7 +266,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
 
@@ -286,7 +286,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().hasToString("OAUTH2_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OAUTH2_USER");
 	}
 
@@ -309,7 +309,7 @@ public class OAuth2LoginConfigurerTests {
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(OAuth2UserAuthority.class)
-				.hasToString("ROLE_USER");
+				.hasToString("OAUTH2_USER");
 	}
 
 	// gh-5521
@@ -518,7 +518,7 @@ public class OAuth2LoginConfigurerTests {
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
-				.hasToString("ROLE_USER");
+				.hasToString("OIDC_USER");
 	}
 
 	@Test
@@ -538,7 +538,7 @@ public class OAuth2LoginConfigurerTests {
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(OidcUserAuthority.class)
-				.hasToString("ROLE_USER");
+				.hasToString("OIDC_USER");
 	}
 
 	@Test
@@ -557,7 +557,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().hasToString("OIDC_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
 	}
 
@@ -577,7 +577,7 @@ public class OAuth2LoginConfigurerTests {
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
 		assertThat(authentication.getAuthorities()).hasSize(2);
-		assertThat(authentication.getAuthorities()).first().hasToString("ROLE_USER");
+		assertThat(authentication.getAuthorities()).first().hasToString("OIDC_USER");
 		assertThat(authentication.getAuthorities()).last().hasToString("ROLE_OIDC_USER");
 	}
 

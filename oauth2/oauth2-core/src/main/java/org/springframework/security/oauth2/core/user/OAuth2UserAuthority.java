@@ -47,7 +47,7 @@ public class OAuth2UserAuthority implements GrantedAuthority {
 	 * @param attributes the attributes about the user
 	 */
 	public OAuth2UserAuthority(Map<String, Object> attributes) {
-		this("ROLE_USER", attributes);
+		this("OAUTH2_USER", attributes);
 	}
 
 	/**
