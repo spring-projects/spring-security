@@ -52,6 +52,16 @@ git clone git@github.com:spring-projects/spring-security.git
 ./gradlew build
 ----
 
+The reference docs are not currently included in the distribution zip.
+You can build the reference docs for this branch by running the following command:
+
+----
+./gradlew :spring-security-docs:antora
+----
+
+That command publishes the docs site to the _docs/build/site_ directory.
+The https://github.com/spring-projects/spring-security/tree/docs-build[playbook branch] describes how to build the reference docs in detail.
+
 Discover more commands with `./gradlew tasks`.
 See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle build and release FAQ].
 
