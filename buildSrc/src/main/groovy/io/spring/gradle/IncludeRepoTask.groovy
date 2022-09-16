@@ -54,7 +54,7 @@ abstract class IncludeRepoTask extends DefaultTask {
 	 * Directory where the project template should be copied.
 	 */
 	@OutputDirectory
-	final File outputDirectory = project.file("$project.buildDir/$name")
+	File outputDirectory = project.file("$project.buildDir/$name")
 
 	@TaskAction
 	void checkoutAndCopy() {

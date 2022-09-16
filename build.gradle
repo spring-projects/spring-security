@@ -1,3 +1,5 @@
+import io.spring.gradle.IncludeRepoTask
+
 buildscript {
 	dependencies {
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
@@ -15,7 +17,6 @@ apply plugin: 'io.spring.nohttp'
 apply plugin: 'locks'
 apply plugin: 's101'
 apply plugin: 'io.spring.convention.root'
-apply plugin: 'io.spring.convention.include-check-remote'
 apply plugin: 'org.jetbrains.kotlin.jvm'
 apply plugin: 'org.springframework.security.update-dependencies'
 apply plugin: 'org.springframework.security.update-version'
@@ -200,17 +201,13 @@ nohttp {
 
 }
 
-tasks.register('checkSamples') {
-	includeCheckRemote {
-		repository = 'spring-projects/spring-security-samples'
-		ref = samplesBranch
-		buildScan = true
-		if (project.hasProperty("samplesInitScript")) {
-			initScripts = [samplesInitScript]
-			projectProperties = ["localRepositoryPath": localRepositoryPath, "springSecurityVersion": project.version]
-		}
+tasks.register('cloneSamples', IncludeRepoTask) {
+	if (!project.hasProperty("cloneOutputDirectory")) {
+		throw new GradleException("Required parameter 'cloneOutputDirectory' not found")
 	}
-	dependsOn checkRemote
+	repository = 'spring-projects/spring-security-samples'
+	ref = samplesBranch
+	outputDirectory = project.file("$cloneOutputDirectory")
 }
 
 s101 {
