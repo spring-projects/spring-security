@@ -17,7 +17,7 @@ dependencies {
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4")
 	api platform("com.fasterxml.jackson:jackson-bom:2.13.3")
 	constraints {
-		api "ch.qos.logback:logback-classic:1.2.11"
+		api "ch.qos.logback:logback-classic:1.4.1"
 		api "com.google.inject:guice:3.0"
 		api "com.nimbusds:nimbus-jose-jwt:9.23"
 		api "com.nimbusds:oauth2-oidc-sdk:9.38.1"
