@@ -35,6 +35,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.Authentication
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames.SUB
 import org.springframework.security.oauth2.jwt.Jwt
 import org.springframework.security.oauth2.jwt.JwtDecoder
@@ -207,9 +208,7 @@ class OAuth2ResourceServerDslTests {
         mockkObject(AuthenticationManagerResolverConfig.RESOLVER)
         every {
             AuthenticationManagerResolverConfig.RESOLVER.resolve(any())
-        } returns AuthenticationManager {
-            JwtAuthenticationToken(JWT)
-        }
+        } returns MockAuthenticationManager(JwtAuthenticationToken(JWT))
 
         this.mockMvc.get("/") {
             header("Authorization", "Bearer token")
@@ -239,6 +238,14 @@ class OAuth2ResourceServerDslTests {
             }
             return http.build()
         }
+    }
+
+    class MockAuthenticationManager(var authentication: Authentication) : AuthenticationManager {
+
+        override fun authenticate(authentication: Authentication?): Authentication {
+            return this.authentication
+        }
+
     }
 
     @Test
