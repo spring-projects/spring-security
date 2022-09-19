@@ -268,8 +268,8 @@ public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter
 		html.append("            </noscript>\n");
 		html.append("        </form>\n");
 		html.append("        \n");
+		html.append("        <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("    </body>\n");
-		html.append("    <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("</html>");
 		return html.toString();
 	}

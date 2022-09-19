@@ -123,7 +123,7 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 				.append("content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
-		html.append("    <body onload=\"document.forms[0].submit()\">\n");
+		html.append("    <body>\n");
 		html.append("        <noscript>\n");
 		html.append("            <p>\n");
 		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
@@ -151,8 +151,8 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 		html.append("            </noscript>\n");
 		html.append("        </form>\n");
 		html.append("        \n");
+		html.append("        <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("    </body>\n");
-		html.append("    <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("</html>");
 		return html.toString();
 	}
