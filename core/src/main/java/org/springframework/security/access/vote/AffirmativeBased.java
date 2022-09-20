@@ -22,13 +22,17 @@ import java.util.List;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
  * Simple concrete implementation of
  * {@link org.springframework.security.access.AccessDecisionManager} that grants access if
  * any <code>AccessDecisionVoter</code> returns an affirmative response.
+ *
+ * @deprecated Use {@link AuthorizationManager} instead
  */
+@Deprecated
 public class AffirmativeBased extends AbstractAccessDecisionManager {
 
 	public AffirmativeBased(List<AccessDecisionVoter<?>> decisionVoters) {

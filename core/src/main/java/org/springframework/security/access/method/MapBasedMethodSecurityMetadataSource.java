@@ -28,6 +28,7 @@ import java.util.Set;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
@@ -42,7 +43,11 @@ import org.springframework.util.ClassUtils;
  *
  * @author Ben Alex
  * @since 2.0
+ * @deprecated Use the {@code use-authorization-manager} attribute for
+ * {@code <method-security>} and {@code <intercept-methods>} instead or use
+ * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@Deprecated
 public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource
 		implements BeanClassLoaderAware {
 

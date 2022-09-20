@@ -1059,8 +1059,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated Use {@link #authorizeHttpRequests()} instead
 	 * @see #requestMatcher(RequestMatcher)
 	 */
+	@Deprecated
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
@@ -1173,8 +1175,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
+	 * @deprecated Use {@link #authorizeHttpRequests} instead
 	 * @see #requestMatcher(RequestMatcher)
 	 */
+	@Deprecated
 	public HttpSecurity authorizeRequests(
 			Customizer<ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry> authorizeRequestsCustomizer)
 			throws Exception {

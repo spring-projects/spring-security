@@ -36,7 +36,13 @@ import org.springframework.security.access.method.MethodSecurityMetadataSource;
  *
  * @author Ben Alex
  * @author Rob Winch
+ * @deprecated Please use
+ * {@link org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor}
+ * and
+ * {@link org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor}
+ * instead
  */
+@Deprecated
 public class MethodSecurityInterceptor extends AbstractSecurityInterceptor implements MethodInterceptor {
 
 	private MethodSecurityMetadataSource securityMetadataSource;

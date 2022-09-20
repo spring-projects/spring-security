@@ -35,7 +35,11 @@ import org.springframework.security.access.method.AbstractFallbackMethodSecurity
  *
  * @author Ben Alex
  * @since 2.0
+ * @deprecated Use
+ * {@link org.springframework.security.authorization.method.Jsr250AuthorizationManager}
+ * instead
  */
+@Deprecated
 public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSecurityMetadataSource {
 
 	private String defaultRolePrefix = "ROLE_";

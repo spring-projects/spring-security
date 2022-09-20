@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,13 +20,16 @@ import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 
 /**
  * Security config applicable as a JSR 250 annotation attribute.
  *
  * @author Ryan Heaton
  * @since 2.0
+ * @deprecated Use {@link AuthorizationManagerBeforeMethodInterceptor#jsr250()} instead
  */
+@Deprecated
 public class Jsr250SecurityConfig extends SecurityConfig {
 
 	public static final Jsr250SecurityConfig PERMIT_ALL_ATTRIBUTE = new Jsr250SecurityConfig(PermitAll.class.getName());

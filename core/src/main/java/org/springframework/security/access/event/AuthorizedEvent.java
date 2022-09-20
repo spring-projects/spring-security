@@ -29,7 +29,11 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated Use
+ * {@link org.springframework.security.authorization.event.AuthorizationGrantedEvent}
+ * instead
  */
+@Deprecated
 public class AuthorizedEvent extends AbstractAuthorizationEvent {
 
 	private final Authentication authentication;

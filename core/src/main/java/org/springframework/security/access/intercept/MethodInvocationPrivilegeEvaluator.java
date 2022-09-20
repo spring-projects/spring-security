@@ -43,7 +43,10 @@ import org.springframework.util.Assert;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated Use {@link org.springframework.security.authorization.AuthorizationManager}
+ * instead
  */
+@Deprecated
 public class MethodInvocationPrivilegeEvaluator implements InitializingBean {
 
 	protected static final Log logger = LogFactory.getLog(MethodInvocationPrivilegeEvaluator.class);

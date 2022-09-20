@@ -48,7 +48,11 @@ import org.springframework.security.core.GrantedAuthority;
  *
  * @author Ben Alex
  * @author colin sampaleanu
+ * @deprecated Use
+ * {@link org.springframework.security.authorization.AuthorityAuthorizationManager}
+ * instead
  */
+@Deprecated
 public class RoleVoter implements AccessDecisionVoter<Object> {
 
 	private String rolePrefix = "ROLE_";

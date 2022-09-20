@@ -39,7 +39,12 @@ import org.springframework.util.Assert;
  * <P>
  * If the key does not match, a <code>BadCredentialsException</code> is thrown.
  * </p>
+ *
+ * @deprecated Authentication is now separated from authorization in Spring Security. This
+ * class is only used by now-deprecated components. There is not yet an equivalent
+ * replacement in Spring Security.
  */
+@Deprecated
 public class RunAsImplAuthenticationProvider implements InitializingBean, AuthenticationProvider, MessageSourceAware {
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();

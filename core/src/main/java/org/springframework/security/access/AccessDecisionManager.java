@@ -19,13 +19,16 @@ package org.springframework.security.access;
 import java.util.Collection;
 
 import org.springframework.security.authentication.InsufficientAuthenticationException;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
  * Makes a final access control (authorization) decision.
  *
  * @author Ben Alex
+ * @deprecated Use {@link AuthorizationManager} instead
  */
+@Deprecated
 public interface AccessDecisionManager {
 
 	/**

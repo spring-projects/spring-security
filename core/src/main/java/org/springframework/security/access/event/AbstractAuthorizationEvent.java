@@ -22,7 +22,11 @@ import org.springframework.context.ApplicationEvent;
  * Abstract superclass for all security interception related events.
  *
  * @author Ben Alex
+ * @deprecated Authorization events have moved. Consider
+ * {@link org.springframework.security.authorization.event.AuthorizationGrantedEvent} and
+ * {@link org.springframework.security.authorization.event.AuthorizationDeniedEvent}
  */
+@Deprecated
 public abstract class AbstractAuthorizationEvent extends ApplicationEvent {
 
 	/**

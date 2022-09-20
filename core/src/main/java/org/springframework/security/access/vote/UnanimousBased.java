@@ -23,13 +23,17 @@ import java.util.List;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
  * Simple concrete implementation of
  * {@link org.springframework.security.access.AccessDecisionManager} that requires all
  * voters to abstain or grant access.
+ *
+ * @deprecated Use {@link AuthorizationManager} instead
  */
+@Deprecated
 public class UnanimousBased extends AbstractAccessDecisionManager {
 
 	public UnanimousBased(List<AccessDecisionVoter<?>> decisionVoters) {

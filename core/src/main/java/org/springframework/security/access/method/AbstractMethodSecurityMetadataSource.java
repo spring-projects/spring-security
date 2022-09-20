@@ -24,6 +24,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 
 /**
  * Abstract implementation of <tt>MethodSecurityMetadataSource</tt> which resolves the
@@ -31,7 +32,11 @@ import org.springframework.security.access.ConfigAttribute;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @deprecated Use the {@code use-authorization-manager} attribute for
+ * {@code <method-security>} and {@code <intercept-methods>} instead or use
+ * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@Deprecated
 public abstract class AbstractMethodSecurityMetadataSource implements MethodSecurityMetadataSource {
 
 	protected final Log logger = LogFactory.getLog(getClass());

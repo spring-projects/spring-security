@@ -125,7 +125,11 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 	/**
 	 * This is the real class which does the work. We need access to the ParserContext in
 	 * order to do bean registration.
+	 *
+	 * @deprecated Use
+	 * {@link InternalAuthorizationManagerInterceptMethodsBeanDefinitionDecorator}
 	 */
+	@Deprecated
 	static class InternalInterceptMethodsBeanDefinitionDecorator
 			extends AbstractInterceptorDrivenBeanDefinitionDecorator {
 

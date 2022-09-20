@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
 
@@ -37,7 +38,11 @@ import org.springframework.util.ObjectUtils;
  *
  * @author Ben Alex
  * @author Luke Taylor
+ * @deprecated Use the {@code use-authorization-manager} attribute for
+ * {@code <method-security>} and {@code <intercept-methods>} instead or use
+ * annotation-based or {@link AuthorizationManager}-based authorization
  */
+@Deprecated
 public final class DelegatingMethodSecurityMetadataSource extends AbstractMethodSecurityMetadataSource {
 
 	private static final List<ConfigAttribute> NULL_CONFIG_ATTRIBUTE = Collections.emptyList();

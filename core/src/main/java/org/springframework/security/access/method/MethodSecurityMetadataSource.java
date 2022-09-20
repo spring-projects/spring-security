@@ -21,12 +21,18 @@ import java.util.Collection;
 
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityMetadataSource;
+import org.springframework.security.authorization.AuthorizationManager;
 
 /**
  * Interface for <code>SecurityMetadataSource</code> implementations that are designed to
  * perform lookups keyed on <code>Method</code>s.
  *
  * @author Ben Alex
+ * @see org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager
+ * @see org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager
+ * @deprecated Use the {@code use-authorization-manager} attribute for
+ * {@code <method-security>} and {@code <intercept-methods>} instead or use
+ * annotation-based or {@link AuthorizationManager}-based authorization
  */
 public interface MethodSecurityMetadataSource extends SecurityMetadataSource {
 

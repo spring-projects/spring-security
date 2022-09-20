@@ -28,6 +28,7 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.AfterInvocationProvider;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -47,7 +48,11 @@ import org.springframework.util.CollectionUtils;
  * given provider is configured to respond to).
  *
  * @author Ben Alex
+ * @see org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor
+ * @see org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor
+ * @deprecated Use delegation with {@link AuthorizationManager}
  */
+@Deprecated
 public class AfterInvocationProviderManager implements AfterInvocationManager, InitializingBean {
 
 	protected static final Log logger = LogFactory.getLog(AfterInvocationProviderManager.class);

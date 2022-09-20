@@ -16,6 +16,8 @@
 
 package org.springframework.security.access.event;
 
+import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
+
 /**
  * Event that is generated whenever a public secure object is invoked.
  * <p>
@@ -28,7 +30,10 @@ package org.springframework.security.access.event;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated Only used by now-deprecated classes. Consider
+ * {@link AuthorizationGrantedEvent#getSource()} to deduce public invocations.
  */
+@Deprecated
 public class PublicInvocationEvent extends AbstractAuthorizationEvent {
 
 	/**

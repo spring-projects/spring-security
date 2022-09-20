@@ -27,7 +27,11 @@ import org.springframework.util.Assert;
  * could not be obtained from the <code>SecurityContextHolder</code>.
  *
  * @author Ben Alex
+ * @deprecated Authentication is now separated from authorization. Consider
+ * {@link org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent}
+ * instead.
  */
+@Deprecated
 public class AuthenticationCredentialsNotFoundEvent extends AbstractAuthorizationEvent {
 
 	private final AuthenticationCredentialsNotFoundException credentialsNotFoundException;

@@ -60,7 +60,9 @@ import org.springframework.security.web.access.intercept.FilterSecurityIntercept
  * @since 3.2
  * @see ExpressionUrlAuthorizationConfigurer
  * @see UrlAuthorizationConfigurer
+ * @deprecated Use {@link AuthorizeHttpRequestsConfigurer} instead
  */
+@Deprecated
 public abstract class AbstractInterceptUrlConfigurer<C extends AbstractInterceptUrlConfigurer<C, H>, H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<C, H> {
 

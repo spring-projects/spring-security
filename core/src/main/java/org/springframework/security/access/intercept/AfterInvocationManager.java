@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -41,7 +42,11 @@ import org.springframework.security.core.Authentication;
  * </p>
  *
  * @author Ben Alex
+ * @see org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor
+ * @see org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor
+ * @deprecated Use delegation with {@link AuthorizationManager}
  */
+@Deprecated
 public interface AfterInvocationManager {
 
 	/**

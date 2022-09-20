@@ -30,7 +30,10 @@ import org.springframework.core.log.LogMessage;
  * </p>
  *
  * @author Ben Alex
+ * @deprecated Logging is now embedded in Spring Security components. If you need further
+ * logging, please consider using your own {@link ApplicationListener}
  */
+@Deprecated
 public class LoggerListener implements ApplicationListener<AbstractAuthorizationEvent> {
 
 	private static final Log logger = LogFactory.getLog(LoggerListener.class);

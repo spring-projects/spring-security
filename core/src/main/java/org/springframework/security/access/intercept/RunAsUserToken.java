@@ -28,7 +28,11 @@ import org.springframework.security.core.SpringSecurityCoreVersion;
  * that supports {@link RunAsManagerImpl}.
  *
  * @author Ben Alex
+ * @deprecated Authentication is now separated from authorization in Spring Security. This
+ * class is only used by now-deprecated components. There is not yet an equivalent
+ * replacement in Spring Security.
  */
+@Deprecated
 public class RunAsUserToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;

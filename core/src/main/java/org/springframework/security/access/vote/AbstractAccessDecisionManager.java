@@ -29,6 +29,7 @@ import org.springframework.security.access.AccessDecisionManager;
 import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.ConfigAttribute;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.util.Assert;
 
@@ -39,7 +40,10 @@ import org.springframework.util.Assert;
  * Handles configuration of a bean context defined list of {@link AccessDecisionVoter}s
  * and the access control behaviour if all voters abstain from voting (defaults to deny
  * access).
+ *
+ * @deprecated Use {@link AuthorizationManager} instead
  */
+@Deprecated
 public abstract class AbstractAccessDecisionManager
 		implements AccessDecisionManager, InitializingBean, MessageSourceAware {
 
