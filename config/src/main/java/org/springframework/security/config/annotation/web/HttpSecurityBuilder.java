@@ -23,6 +23,7 @@ import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
@@ -139,7 +140,7 @@ public interface HttpSecurityBuilder<H extends HttpSecurityBuilder<H>>
 	 * <li>{@link org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter}</li>
 	 * <li>{@link ConcurrentSessionFilter}</li>
 	 * <li>{@link DigestAuthenticationFilter}</li>
-	 * <li>{@link org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter}</li>
+	 * <li>{@link BearerTokenAuthenticationFilter}</li>
 	 * <li>{@link BasicAuthenticationFilter}</li>
 	 * <li>{@link RequestCacheAwareFilter}</li>
 	 * <li>{@link SecurityContextHolderAwareRequestFilter}</li>

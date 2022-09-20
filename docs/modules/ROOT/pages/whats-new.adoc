@@ -13,3 +13,5 @@ Instead use data storage to encrypt values.
 * https://github.com/spring-projects/spring-security/issues/11520[gh-11520] - Remember Me uses SHA256 by default
 * https://github.com/spring-projects/spring-security/issues/8819 - Move filters to web package
 Reorganize imports
+* https://github.com/spring-projects/spring-security/issues/7349 - Move filter and token to appropriate packages
+Reorganize imports

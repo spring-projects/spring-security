@@ -38,7 +38,7 @@ import org.springframework.security.oauth2.client.web.server.ServerAuthorization
 import org.springframework.security.oauth2.client.web.server.WebSessionOAuth2ServerAuthorizationRequestRepository
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames
-import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.DefaultServerRedirectStrategy
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.ServerRedirectStrategy
@@ -204,7 +204,8 @@ class ServerOAuth2ClientDslTests {
 
         companion object {
             val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter =
+				ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean
@@ -257,7 +258,8 @@ class ServerOAuth2ClientDslTests {
 
         companion object {
             val AUTHORIZATION_REQUEST_REPOSITORY: ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> = WebSessionOAuth2ServerAuthorizationRequestRepository()
-            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
+            val AUTHENTICATION_CONVERTER: ServerAuthenticationConverter =
+				ServerBearerTokenAuthenticationConverter()
             val AUTHENTICATION_MANAGER: ReactiveAuthenticationManager = NoopReactiveAuthenticationManager()
         }
 
