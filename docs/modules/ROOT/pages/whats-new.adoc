@@ -9,3 +9,4 @@ Below are the highlights of the release.
 * https://github.com/spring-projects/spring-security/issues/11661[gh-11661] - Configurable authentication converter for resource-servers with token introspection
 * https://github.com/spring-projects/spring-security/pull/11771[gh-11771] - `HttpSecurityDsl` should support `apply` method
 * https://github.com/spring-projects/spring-security/pull/11232[gh-11232] - `ClientRegistrations#rest` defines 30s connect and read timeouts
+* https://github.com/spring-projects/spring-security/pull/11464[gh-11464] - Remember Me supports SHA256 algorithm
