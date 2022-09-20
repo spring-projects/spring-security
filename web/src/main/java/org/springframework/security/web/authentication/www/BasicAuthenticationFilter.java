@@ -206,12 +206,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 		// Only reauthenticate if username doesn't match SecurityContextHolder and user
 		// isn't authenticated (see SEC-53)
 		Authentication existingAuth = this.securityContextHolderStrategy.getContext().getAuthentication();
-		if (existingAuth == null || !existingAuth.isAuthenticated()) {
-			return true;
-		}
-		// Limit username comparison to providers which use usernames (ie
-		// UsernamePasswordAuthenticationToken) (see SEC-348)
-		if (existingAuth instanceof UsernamePasswordAuthenticationToken && !existingAuth.getName().equals(username)) {
+		if (existingAuth == null || !existingAuth.getName().equals(username) || !existingAuth.isAuthenticated()) {
 			return true;
 		}
 		// Handle unusual condition where an AnonymousAuthenticationToken is already
