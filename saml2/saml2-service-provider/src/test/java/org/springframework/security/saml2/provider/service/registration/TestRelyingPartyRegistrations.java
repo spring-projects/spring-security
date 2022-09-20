@@ -18,7 +18,7 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.security.saml2.credentials.TestSaml2X509Credentials;
-import org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter;
+import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 
 /**
  * Preconfigured test data for {@link RelyingPartyRegistration} objects

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.saml2.provider.service.servlet.filter;
+package org.springframework.security.saml2.provider.service.web.authentication;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Assertions;

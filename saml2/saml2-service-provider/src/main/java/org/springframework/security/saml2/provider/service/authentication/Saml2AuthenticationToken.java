@@ -20,6 +20,7 @@ import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter;
 import org.springframework.util.Assert;
 
 /**
@@ -42,9 +43,8 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * Creates a {@link Saml2AuthenticationToken} with the provided parameters.
 	 *
 	 * Note that the given {@link RelyingPartyRegistration} should have all its templates
-	 * resolved at this point. See
-	 * {@link org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter}
-	 * for an example of performing that resolution.
+	 * resolved at this point. See {@link Saml2WebSsoAuthenticationFilter} for an example
+	 * of performing that resolution.
 	 * @param relyingPartyRegistration the resolved {@link RelyingPartyRegistration} to
 	 * use
 	 * @param saml2Response the SAML 2.0 response to authenticate
@@ -66,9 +66,8 @@ public class Saml2AuthenticationToken extends AbstractAuthenticationToken {
 	 * Creates a {@link Saml2AuthenticationToken} with the provided parameters
 	 *
 	 * Note that the given {@link RelyingPartyRegistration} should have all its templates
-	 * resolved at this point. See
-	 * {@link org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter}
-	 * for an example of performing that resolution.
+	 * resolved at this point. See {@link Saml2WebSsoAuthenticationFilter} for an example
+	 * of performing that resolution.
 	 * @param relyingPartyRegistration the resolved {@link RelyingPartyRegistration} to
 	 * use
 	 * @param saml2Response the SAML 2.0 response to authenticate
