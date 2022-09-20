@@ -85,7 +85,7 @@ final class FilterOrderRegistration {
 				"org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
 				order.next());
 		this.filterToOrder.put(
-				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationRequestFilter",
+				"org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter",
 				order.next());
 		put(X509AuthenticationFilter.class, order.next());
 		put(AbstractPreAuthenticatedProcessingFilter.class, order.next());
@@ -93,7 +93,7 @@ final class FilterOrderRegistration {
 		this.filterToOrder.put("org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
 				order.next());
 		this.filterToOrder.put(
-				"org.springframework.security.saml2.provider.service.servlet.filter.Saml2WebSsoAuthenticationFilter",
+				"org.springframework.security.saml2.provider.service.web.authentication.Saml2WebSsoAuthenticationFilter",
 				order.next());
 		put(UsernamePasswordAuthenticationFilter.class, order.next());
 		order.next(); // gh-8105

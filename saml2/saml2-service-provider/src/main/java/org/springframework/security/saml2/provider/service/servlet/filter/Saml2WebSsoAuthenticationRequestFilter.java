@@ -16,43 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.servlet.filter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.opensaml.core.Version;
-
-import org.springframework.http.MediaType;
-import org.springframework.security.saml2.core.Saml2ParameterNames;
-import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestContext;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationRequestFactory;
-import org.springframework.security.saml2.provider.service.authentication.Saml2PostAuthenticationRequest;
-import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
-import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.DefaultSaml2AuthenticationRequestContextResolver;
-import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestContextResolver;
-import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher;
-import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
-import org.springframework.util.Assert;
-import org.springframework.util.ClassUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.HtmlUtils;
-import org.springframework.web.util.UriComponentsBuilder;
-import org.springframework.web.util.UriUtils;
 
 /**
  * This {@code Filter} formulates a
@@ -76,239 +44,27 @@ import org.springframework.web.util.UriUtils;
  * @author Filip Hanik
  * @author Josh Cummings
  * @since 5.2
+ * @deprecated Use
+ * {@link org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter}
+ * instead
  */
-public class Saml2WebSsoAuthenticationRequestFilter extends OncePerRequestFilter {
+@Deprecated
+public class Saml2WebSsoAuthenticationRequestFilter
+		extends org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter {
 
-	private final Saml2AuthenticationRequestResolver authenticationRequestResolver;
-
-	private Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository = new HttpSessionSaml2AuthenticationRequestRepository();
-
-	/**
-	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided
-	 * parameters
-	 * @param relyingPartyRegistrationRepository a repository for relying party
-	 * configurations
-	 * @deprecated use the constructor that takes a
-	 * {@link Saml2AuthenticationRequestFactory}
-	 */
-	@Deprecated
 	public Saml2WebSsoAuthenticationRequestFilter(
 			RelyingPartyRegistrationRepository relyingPartyRegistrationRepository) {
-		this(new DefaultSaml2AuthenticationRequestContextResolver(
-				(RelyingPartyRegistrationResolver) new DefaultRelyingPartyRegistrationResolver(
-						relyingPartyRegistrationRepository)),
-				requestFactory());
+		super(relyingPartyRegistrationRepository);
 	}
 
-	private static Saml2AuthenticationRequestFactory requestFactory() {
-		String opensamlClassName = "org.springframework.security.saml2.provider.service.authentication.OpenSamlAuthenticationRequestFactory";
-		if (Version.getVersion().startsWith("4")) {
-			opensamlClassName = "org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationRequestFactory";
-		}
-		try {
-			return (Saml2AuthenticationRequestFactory) ClassUtils.forName(opensamlClassName, null)
-					.getDeclaredConstructor().newInstance();
-		}
-		catch (Exception ex) {
-			throw new IllegalStateException(ex);
-		}
-	}
-
-	/**
-	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the provided
-	 * parameters
-	 * @param authenticationRequestContextResolver a strategy for formulating a
-	 * {@link Saml2AuthenticationRequestContext}
-	 * @param authenticationRequestFactory strategy for formulating a
-	 * &lt;saml2:AuthnRequest&gt;
-	 * @since 5.4
-	 */
 	public Saml2WebSsoAuthenticationRequestFilter(
 			Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver,
 			Saml2AuthenticationRequestFactory authenticationRequestFactory) {
-		this(new FactorySaml2AuthenticationRequestResolver(authenticationRequestContextResolver,
-				authenticationRequestFactory));
+		super(authenticationRequestContextResolver, authenticationRequestFactory);
 	}
 
-	/**
-	 * Construct a {@link Saml2WebSsoAuthenticationRequestFilter} with the strategy for
-	 * resolving the {@code AuthnRequest}
-	 * @param authenticationRequestResolver the strategy for resolving the
-	 * {@code AuthnRequest}
-	 * @since 5.7
-	 */
 	public Saml2WebSsoAuthenticationRequestFilter(Saml2AuthenticationRequestResolver authenticationRequestResolver) {
-		Assert.notNull(authenticationRequestResolver, "authenticationRequestResolver cannot be null");
-		this.authenticationRequestResolver = authenticationRequestResolver;
-	}
-
-	/**
-	 * Use the given {@link Saml2AuthenticationRequestFactory} for formulating the SAML
-	 * 2.0 AuthnRequest
-	 * @param authenticationRequestFactory the {@link Saml2AuthenticationRequestFactory}
-	 * to use
-	 * @deprecated use the constructor instead
-	 */
-	@Deprecated
-	public void setAuthenticationRequestFactory(Saml2AuthenticationRequestFactory authenticationRequestFactory) {
-		Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
-		Assert.isInstanceOf(FactorySaml2AuthenticationRequestResolver.class, this.authenticationRequestResolver,
-				"You cannot supply both a Saml2AuthenticationRequestResolver and a Saml2AuthenticationRequestFactory");
-		((FactorySaml2AuthenticationRequestResolver) this.authenticationRequestResolver).authenticationRequestFactory = authenticationRequestFactory;
-	}
-
-	/**
-	 * Use the given {@link RequestMatcher} that activates this filter for a given request
-	 * @param redirectMatcher the {@link RequestMatcher} to use
-	 * @deprecated Configure the request matcher in an implementation of
-	 * {@link Saml2AuthenticationRequestResolver} instead
-	 */
-	@Deprecated
-	public void setRedirectMatcher(RequestMatcher redirectMatcher) {
-		Assert.notNull(redirectMatcher, "redirectMatcher cannot be null");
-		Assert.isInstanceOf(FactorySaml2AuthenticationRequestResolver.class, this.authenticationRequestResolver,
-				"You cannot supply a Saml2AuthenticationRequestResolver and a redirect matcher");
-		((FactorySaml2AuthenticationRequestResolver) this.authenticationRequestResolver).redirectMatcher = redirectMatcher;
-	}
-
-	/**
-	 * Use the given {@link Saml2AuthenticationRequestRepository} to save the
-	 * authentication request
-	 * @param authenticationRequestRepository the
-	 * {@link Saml2AuthenticationRequestRepository} to use
-	 * @since 5.6
-	 */
-	public void setAuthenticationRequestRepository(
-			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
-		Assert.notNull(authenticationRequestRepository, "authenticationRequestRepository cannot be null");
-		this.authenticationRequestRepository = authenticationRequestRepository;
-	}
-
-	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-			throws ServletException, IOException {
-		AbstractSaml2AuthenticationRequest authenticationRequest = this.authenticationRequestResolver.resolve(request);
-		if (authenticationRequest == null) {
-			filterChain.doFilter(request, response);
-			return;
-		}
-		if (authenticationRequest instanceof Saml2RedirectAuthenticationRequest) {
-			sendRedirect(request, response, (Saml2RedirectAuthenticationRequest) authenticationRequest);
-		}
-		else {
-			sendPost(request, response, (Saml2PostAuthenticationRequest) authenticationRequest);
-		}
-	}
-
-	private void sendRedirect(HttpServletRequest request, HttpServletResponse response,
-			Saml2RedirectAuthenticationRequest authenticationRequest) throws IOException {
-		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
-		UriComponentsBuilder uriBuilder = UriComponentsBuilder
-				.fromUriString(authenticationRequest.getAuthenticationRequestUri());
-		addParameter(Saml2ParameterNames.SAML_REQUEST, authenticationRequest.getSamlRequest(), uriBuilder);
-		addParameter(Saml2ParameterNames.RELAY_STATE, authenticationRequest.getRelayState(), uriBuilder);
-		addParameter(Saml2ParameterNames.SIG_ALG, authenticationRequest.getSigAlg(), uriBuilder);
-		addParameter(Saml2ParameterNames.SIGNATURE, authenticationRequest.getSignature(), uriBuilder);
-		String redirectUrl = uriBuilder.build(true).toUriString();
-		response.sendRedirect(redirectUrl);
-	}
-
-	private void addParameter(String name, String value, UriComponentsBuilder builder) {
-		Assert.hasText(name, "name cannot be empty or null");
-		if (StringUtils.hasText(value)) {
-			builder.queryParam(UriUtils.encode(name, StandardCharsets.ISO_8859_1),
-					UriUtils.encode(value, StandardCharsets.ISO_8859_1));
-		}
-	}
-
-	private void sendPost(HttpServletRequest request, HttpServletResponse response,
-			Saml2PostAuthenticationRequest authenticationRequest) throws IOException {
-		this.authenticationRequestRepository.saveAuthenticationRequest(authenticationRequest, request, response);
-		String html = createSamlPostRequestFormData(authenticationRequest);
-		response.setContentType(MediaType.TEXT_HTML_VALUE);
-		response.getWriter().write(html);
-	}
-
-	private String createSamlPostRequestFormData(Saml2PostAuthenticationRequest authenticationRequest) {
-		String authenticationRequestUri = authenticationRequest.getAuthenticationRequestUri();
-		String relayState = authenticationRequest.getRelayState();
-		String samlRequest = authenticationRequest.getSamlRequest();
-		StringBuilder html = new StringBuilder();
-		html.append("<!DOCTYPE html>\n");
-		html.append("<html>\n").append("    <head>\n");
-		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">\n");
-		html.append("        <meta charset=\"utf-8\" />\n");
-		html.append("    </head>\n");
-		html.append("    <body>\n");
-		html.append("        <noscript>\n");
-		html.append("            <p>\n");
-		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
-		html.append("                you must press the Continue button once to proceed.\n");
-		html.append("            </p>\n");
-		html.append("        </noscript>\n");
-		html.append("        \n");
-		html.append("        <form action=\"");
-		html.append(authenticationRequestUri);
-		html.append("\" method=\"post\">\n");
-		html.append("            <div>\n");
-		html.append("                <input type=\"hidden\" name=\"SAMLRequest\" value=\"");
-		html.append(HtmlUtils.htmlEscape(samlRequest));
-		html.append("\"/>\n");
-		if (StringUtils.hasText(relayState)) {
-			html.append("                <input type=\"hidden\" name=\"RelayState\" value=\"");
-			html.append(HtmlUtils.htmlEscape(relayState));
-			html.append("\"/>\n");
-		}
-		html.append("            </div>\n");
-		html.append("            <noscript>\n");
-		html.append("                <div>\n");
-		html.append("                    <input type=\"submit\" value=\"Continue\"/>\n");
-		html.append("                </div>\n");
-		html.append("            </noscript>\n");
-		html.append("        </form>\n");
-		html.append("        \n");
-		html.append("        <script>window.onload = () => document.forms[0].submit();</script>\n");
-		html.append("    </body>\n");
-		html.append("</html>");
-		return html.toString();
-	}
-
-	private static class FactorySaml2AuthenticationRequestResolver implements Saml2AuthenticationRequestResolver {
-
-		private final Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver;
-
-		private RequestMatcher redirectMatcher = new AntPathRequestMatcher("/saml2/authenticate/{registrationId}");
-
-		private Saml2AuthenticationRequestFactory authenticationRequestFactory;
-
-		FactorySaml2AuthenticationRequestResolver(
-				Saml2AuthenticationRequestContextResolver authenticationRequestContextResolver,
-				Saml2AuthenticationRequestFactory authenticationRequestFactory) {
-			Assert.notNull(authenticationRequestContextResolver, "authenticationRequestContextResolver cannot be null");
-			Assert.notNull(authenticationRequestFactory, "authenticationRequestFactory cannot be null");
-			this.authenticationRequestContextResolver = authenticationRequestContextResolver;
-			this.authenticationRequestFactory = authenticationRequestFactory;
-		}
-
-		@Override
-		public AbstractSaml2AuthenticationRequest resolve(HttpServletRequest request) {
-			MatchResult matcher = this.redirectMatcher.matcher(request);
-			if (!matcher.isMatch()) {
-				return null;
-			}
-			Saml2AuthenticationRequestContext context = this.authenticationRequestContextResolver.resolve(request);
-			if (context == null) {
-				return null;
-			}
-			Saml2MessageBinding binding = context.getRelyingPartyRegistration().getAssertingPartyDetails()
-					.getSingleSignOnServiceBinding();
-			if (binding == Saml2MessageBinding.REDIRECT) {
-				return this.authenticationRequestFactory.createRedirectAuthenticationRequest(context);
-			}
-			return this.authenticationRequestFactory.createPostAuthenticationRequest(context);
-		}
-
+		super(authenticationRequestResolver);
 	}
 
 }
