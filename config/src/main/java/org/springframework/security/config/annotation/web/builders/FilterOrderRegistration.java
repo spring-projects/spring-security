@@ -103,7 +103,7 @@ final class FilterOrderRegistration {
 		put(ConcurrentSessionFilter.class, order.next());
 		put(DigestAuthenticationFilter.class, order.next());
 		this.filterToOrder.put(
-				"org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter",
+				"org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter",
 				order.next());
 		put(BasicAuthenticationFilter.class, order.next());
 		put(RequestCacheAwareFilter.class, order.next());

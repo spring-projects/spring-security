@@ -33,7 +33,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
-import org.springframework.security.oauth2.server.resource.web.server.ServerBearerTokenAuthenticationConverter
+import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
@@ -146,7 +146,8 @@ class ServerOAuth2ResourceServerDslTests {
     open class BearerTokenConverterConfig {
 
         companion object {
-            val CONVERTER: ServerBearerTokenAuthenticationConverter = ServerBearerTokenAuthenticationConverter()
+            val CONVERTER: ServerBearerTokenAuthenticationConverter =
+				ServerBearerTokenAuthenticationConverter()
         }
 
         @Bean

@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource;
+package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.util.Collections;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.SpringSecurityCoreVersion;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationProvider;
-import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthenticationFilter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.util.Assert;
 
 /**

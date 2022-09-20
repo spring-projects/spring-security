@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource;
+package org.springframework.security.oauth2.server.resource.authentication;
 
 import org.junit.jupiter.api.Test;
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.server.resource.web.server;
+package org.springframework.security.oauth2.server.resource.web.server.authentication;
 
 import java.util.List;
 import java.util.regex.Matcher;
@@ -27,9 +27,9 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.server.resource.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrors;
+import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
