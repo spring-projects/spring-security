@@ -17,6 +17,7 @@
 package org.springframework.security.web.authentication;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -62,37 +63,6 @@ public class WebAuthenticationDetails implements Serializable {
 		return (session != null) ? session.getId() : null;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof WebAuthenticationDetails) {
-			WebAuthenticationDetails other = (WebAuthenticationDetails) obj;
-			if ((this.remoteAddress == null) && (other.getRemoteAddress() != null)) {
-				return false;
-			}
-			if ((this.remoteAddress != null) && (other.getRemoteAddress() == null)) {
-				return false;
-			}
-			if (this.remoteAddress != null) {
-				if (!this.remoteAddress.equals(other.getRemoteAddress())) {
-					return false;
-				}
-			}
-			if ((this.sessionId == null) && (other.getSessionId() != null)) {
-				return false;
-			}
-			if ((this.sessionId != null) && (other.getSessionId() == null)) {
-				return false;
-			}
-			if (this.sessionId != null) {
-				if (!this.sessionId.equals(other.getSessionId())) {
-					return false;
-				}
-			}
-			return true;
-		}
-		return false;
-	}
-
 	/**
 	 * Indicates the TCP/IP address the authentication request was received from.
 	 * @return the address
@@ -111,15 +81,20 @@ public class WebAuthenticationDetails implements Serializable {
 	}
 
 	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		WebAuthenticationDetails that = (WebAuthenticationDetails) o;
+		return Objects.equals(this.remoteAddress, that.remoteAddress) && Objects.equals(this.sessionId, that.sessionId);
+	}
+
+	@Override
 	public int hashCode() {
-		int code = 7654;
-		if (this.remoteAddress != null) {
-			code = code * (this.remoteAddress.hashCode() % 7);
-		}
-		if (this.sessionId != null) {
-			code = code * (this.sessionId.hashCode() % 7);
-		}
-		return code;
+		return Objects.hash(this.remoteAddress, this.sessionId);
 	}
 
 	@Override
