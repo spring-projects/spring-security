@@ -18,6 +18,7 @@ package org.springframework.security.authentication.event;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.event.FailureEvent;
 import org.springframework.util.Assert;
 
 /**
@@ -25,7 +26,8 @@ import org.springframework.util.Assert;
  *
  * @author Ben Alex
  */
-public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent {
+public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthenticationEvent
+		implements FailureEvent<AuthenticationException> {
 
 	private final AuthenticationException exception;
 
@@ -41,6 +43,11 @@ public abstract class AbstractAuthenticationFailureEvent extends AbstractAuthent
 
 	public AuthenticationException getException() {
 		return this.exception;
+	}
+
+	@Override
+	public AuthenticationException getError() {
+		return getException();
 	}
 
 }

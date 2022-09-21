@@ -19,8 +19,10 @@ package org.springframework.security.authorization.event;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEvent;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.event.FailureEvent;
 import org.springframework.security.event.SecurityEvent;
 
 /**
@@ -30,11 +32,13 @@ import org.springframework.security.event.SecurityEvent;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationDeniedEvent<T> extends SecurityEvent {
+public class AuthorizationDeniedEvent<T> extends SecurityEvent implements FailureEvent<AccessDeniedException> {
 
 	private final Supplier<Authentication> authentication;
 
 	private final AuthorizationDecision decision;
+
+	private AccessDeniedException error;
 
 	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationDecision decision) {
 		super(object);
@@ -48,6 +52,15 @@ public class AuthorizationDeniedEvent<T> extends SecurityEvent {
 
 	public AuthorizationDecision getAuthorizationDecision() {
 		return this.decision;
+	}
+
+	@Override
+	public AccessDeniedException getError() {
+		return this.error;
+	}
+
+	public void setError(AccessDeniedException exception) {
+		this.error = exception;
 	}
 
 }

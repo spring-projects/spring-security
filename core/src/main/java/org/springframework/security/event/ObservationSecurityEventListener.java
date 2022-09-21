@@ -64,6 +64,12 @@ public final class ObservationSecurityEventListener<T extends SecurityEvent> imp
 			return;
 		}
 		observation.event(observationEvent);
+		if (event instanceof FailureEvent<?> failure) {
+			Throwable ex = failure.getError();
+			if (ex != null) {
+				observation.error(failure.getError());
+			}
+		}
 	}
 
 }

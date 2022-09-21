@@ -166,7 +166,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
-	private FilterChainObservationConvention observationConvention = new FilterChainObservationConvention();
+	private final FilterChainObservationConvention observationConvention = new FilterChainObservationConvention();
 
 	private ThrowableAnalyzer throwableAnalyzer = new ThrowableAnalyzer();
 
@@ -196,29 +196,44 @@ public class FilterChainProxy extends GenericFilterBean {
 		}
 		FilterChainObservationContext context = new FilterChainObservationContext(request);
 		Observation observation = Observation.createNotStarted(OBSERVATION_NAME, context, this.observationRegistry)
-				.observationConvention(this.observationConvention).start();
-		try (Observation.Scope scope = observation.openScope()) {
-			request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
-			doFilterInternal(request, response, (req, res) -> {
-				observation.event(Observation.Event.of("request.secured"));
-				chain.doFilter(req, res);
-			});
-		}
-		catch (Exception ex) {
-			observation.error(ex);
-			Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
-			Throwable requestRejectedException = this.throwableAnalyzer
-					.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
-			if (!(requestRejectedException instanceof RequestRejectedException)) {
-				throw ex;
+				.observationConvention(this.observationConvention);
+		observeFilter(observation, () -> {
+			try {
+				request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
+				doFilterInternal(request, response, (req, res) -> {
+					observation.event(Observation.Event.of("request.secured"));
+					chain.doFilter(req, res);
+				});
 			}
-			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
-					(RequestRejectedException) requestRejectedException);
+			catch (Exception ex) {
+				Throwable[] causeChain = this.throwableAnalyzer.determineCauseChain(ex);
+				Throwable requestRejectedException = this.throwableAnalyzer
+						.getFirstThrowableOfType(RequestRejectedException.class, causeChain);
+				if (!(requestRejectedException instanceof RequestRejectedException)) {
+					throw ex;
+				}
+				this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
+						(RequestRejectedException) requestRejectedException);
+			}
+			finally {
+				this.securityContextHolderStrategy.clearContext();
+				request.removeAttribute(FILTER_APPLIED);
+			}
+		});
+	}
+
+	private void observeFilter(Observation observation, FilterCheckedRunnable consumer)
+			throws ServletException, IOException {
+		observation.start();
+		try (Observation.Scope scope = observation.openScope()) {
+			consumer.run();
+		}
+		catch (Throwable ex) {
+			observation.error(ex);
+			throw ex;
 		}
 		finally {
-			this.securityContextHolderStrategy.clearContext();
 			observation.stop();
-			request.removeAttribute(FILTER_APPLIED);
 		}
 	}
 
@@ -402,6 +417,12 @@ public class FilterChainProxy extends GenericFilterBean {
 		@Override
 		public void validate(FilterChainProxy filterChainProxy) {
 		}
+
+	}
+
+	private interface FilterCheckedRunnable {
+
+		void run() throws ServletException, IOException;
 
 	}
 

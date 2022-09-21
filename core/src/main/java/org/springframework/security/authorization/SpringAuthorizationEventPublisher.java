@@ -19,6 +19,7 @@ package org.springframework.security.authorization;
 import java.util.function.Supplier;
 
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.event.AuthorizationDeniedEvent;
 import org.springframework.security.authorization.event.AuthorizationGrantedEvent;
 import org.springframework.security.core.Authentication;
@@ -59,6 +60,7 @@ public final class SpringAuthorizationEventPublisher implements AuthorizationEve
 			return;
 		}
 		AuthorizationDeniedEvent<T> failure = new AuthorizationDeniedEvent<>(authentication, object, decision);
+		failure.setError(new AccessDeniedException("access denied"));
 		this.eventPublisher.publishEvent(failure);
 	}
 

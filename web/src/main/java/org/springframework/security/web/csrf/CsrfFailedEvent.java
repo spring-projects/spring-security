@@ -19,9 +19,10 @@ package org.springframework.security.web.csrf;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.event.FailureEvent;
 import org.springframework.security.event.SecurityEvent;
 
-public class CsrfFailedEvent extends SecurityEvent {
+public class CsrfFailedEvent extends SecurityEvent implements FailureEvent<AccessDeniedException> {
 
 	private final AccessDeniedException exception;
 
@@ -30,7 +31,7 @@ public class CsrfFailedEvent extends SecurityEvent {
 		this.exception = exception;
 	}
 
-	public AccessDeniedException getException() {
+	public AccessDeniedException getError() {
 		return this.exception;
 	}
 

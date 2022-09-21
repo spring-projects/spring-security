@@ -14,24 +14,10 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.firewall;
+package org.springframework.security.event;
 
-import jakarta.servlet.http.HttpServletRequest;
+public interface FailureEvent<T extends Throwable> {
 
-import org.springframework.security.event.FailureEvent;
-import org.springframework.security.event.SecurityEvent;
-
-public class RequestRejectedEvent extends SecurityEvent implements FailureEvent<RequestRejectedException> {
-
-	private final RequestRejectedException exception;
-
-	public RequestRejectedEvent(HttpServletRequest request, RequestRejectedException exception) {
-		super(request);
-		this.exception = exception;
-	}
-
-	public RequestRejectedException getError() {
-		return this.exception;
-	}
+	T getError();
 
 }

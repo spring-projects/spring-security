@@ -238,9 +238,8 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 		}
 		AccessDeniedHandler accessDeniedHandler = createAccessDeniedHandler(http);
-		if (accessDeniedHandler != null) {
-			filter.setAccessDeniedHandler(accessDeniedHandler);
-		}
+		AccessDeniedHandler eventPublishing = postProcess(new CsrfFailedEventPublishingAccessDeniedHandler());
+		filter.setAccessDeniedHandler(new CompositeAccessDeniedHandler(eventPublishing, accessDeniedHandler));
 		LogoutConfigurer<H> logoutConfigurer = http.getConfigurer(LogoutConfigurer.class);
 		if (logoutConfigurer != null) {
 			logoutConfigurer.addLogoutHandler(new CsrfLogoutHandler(this.csrfTokenRepository));
@@ -330,9 +329,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 				invalidSessionStrategy);
 		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<>();
 		handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
-		AccessDeniedHandler handler = new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
-		AccessDeniedHandler eventPublishing = postProcess(new CsrfFailedEventPublishingAccessDeniedHandler());
-		return new CompositeAccessDeniedHandler(eventPublishing, handler);
+		return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
 	}
 
 	/**
