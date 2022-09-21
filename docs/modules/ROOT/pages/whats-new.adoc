@@ -11,3 +11,5 @@ Below are the highlights of the release.
 * https://github.com/spring-projects/spring-security/pull/11232[gh-11232] - `ClientRegistrations#rest` defines 30s connect and read timeouts
 * https://github.com/spring-projects/spring-security/pull/11464[gh-11464] - Remember Me supports SHA256 algorithm
 * https://github.com/spring-projects/spring-security/pull/11908[gh-11908] - Make X-Xss-Protection header value configurable in ServerHttpSecurity
+* https://github.com/spring-projects/spring-security/issues/11347[gh-11347] - Simplify Java Configuration `RequestMatcher` Usage
+* https://github.com/spring-projects/spring-security/issues/9159[gh-9159] - Add `securityMatcher` as an alias on `requestMatcher` in `HttpSecurity`

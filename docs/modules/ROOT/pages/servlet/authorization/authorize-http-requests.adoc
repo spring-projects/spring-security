@@ -109,13 +109,14 @@ SecurityFilterChain web(HttpSecurity http, AuthorizationManager<RequestAuthoriza
 
 @Bean
 AuthorizationManager<RequestAuthorizationContext> requestMatcherAuthorizationManager(HandlerMappingIntrospector introspector) {
+    MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
     RequestMatcher permitAll =
             new AndRequestMatcher(
-                    new MvcRequestMatcher(introspector, "/resources/**"),
-                    new MvcRequestMatcher(introspector, "/signup"),
-                    new MvcRequestMatcher(introspector, "/about"));
-    RequestMatcher admin = new MvcRequestMatcher(introspector, "/admin/**");
-    RequestMatcher db = new MvcRequestMatcher(introspector, "/db/**");
+                    mvcMatcherBuilder.pattern("/resources/**"),
+                    mvcMatcherBuilder.pattern("/signup"),
+                    mvcMatcherBuilder.pattern("/about"));
+    RequestMatcher admin = mvcMatcherBuilder.pattern("/admin/**");
+    RequestMatcher db = mvcMatcherBuilder.pattern("/db/**");
     RequestMatcher any = AnyRequestMatcher.INSTANCE;
     AuthorizationManager<HttpRequestServlet> manager = RequestMatcherDelegatingAuthorizationManager.builder()
             .add(permitAll, (context) -> new AuthorizationDecision(true))
