@@ -130,6 +130,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
 			AccessDeniedException exception = (!missingToken) ? new InvalidCsrfTokenException(csrfToken, actualToken)
 					: new MissingCsrfTokenException(actualToken);
+			this.defenseEventPublisher.publishCsrfFailed(request, exception);
 			this.accessDeniedHandler.handle(request, response, exception);
 			return;
 		}

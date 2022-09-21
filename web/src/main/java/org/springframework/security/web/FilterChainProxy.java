@@ -213,6 +213,7 @@ public class FilterChainProxy extends GenericFilterBean {
 			if (!(requestRejectedException instanceof RequestRejectedException)) {
 				throw ex;
 			}
+			this.defenseEventPublisher.publishRejectedRequest(request, requestRejectedException);
 			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
 					(RequestRejectedException) requestRejectedException);
 		}
