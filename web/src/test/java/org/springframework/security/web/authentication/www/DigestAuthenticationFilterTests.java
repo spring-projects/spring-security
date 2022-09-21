@@ -41,6 +41,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.test.web.CodecTestUtils;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.StringUtils;
 
@@ -258,6 +259,8 @@ public class DigestAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
 				.isEqualTo(USERNAME);
+		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test
@@ -271,6 +274,8 @@ public class DigestAuthenticationFilterTests {
 		assertThat(((UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername())
 				.isEqualTo(USERNAME);
 		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isFalse();
+		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test
@@ -287,6 +292,8 @@ public class DigestAuthenticationFilterTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication().isAuthenticated()).isTrue();
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getAuthorities())
 				.isEqualTo(AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO"));
+		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test

@@ -49,7 +49,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.cache.NullUserCache;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
@@ -111,7 +111,7 @@ public class DigestAuthenticationFilter extends GenericFilterBean implements Mes
 
 	private boolean createAuthenticatedToken = false;
 
-	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
 	@Override
 	public void afterPropertiesSet() {

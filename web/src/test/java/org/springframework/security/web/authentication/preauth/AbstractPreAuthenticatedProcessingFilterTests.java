@@ -40,6 +40,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.ForwardAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.ForwardAuthenticationSuccessHandler;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
@@ -211,6 +212,8 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		filter.doFilter(request, response, chain);
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
 		assertThat(response.getForwardedUrl()).isEqualTo("/forwardUrl");
+		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test

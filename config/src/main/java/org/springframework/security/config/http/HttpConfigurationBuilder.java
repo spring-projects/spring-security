@@ -61,7 +61,7 @@ import org.springframework.security.web.authentication.session.ConcurrentSession
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
@@ -365,7 +365,7 @@ class HttpConfigurationBuilder {
 		if (!StringUtils.hasText(repoRef)) {
 			BeanDefinitionBuilder contextRepo;
 			if (this.sessionPolicy == SessionCreationPolicy.STATELESS) {
-				contextRepo = BeanDefinitionBuilder.rootBeanDefinition(NullSecurityContextRepository.class);
+				contextRepo = BeanDefinitionBuilder.rootBeanDefinition(RequestAttributeSecurityContextRepository.class);
 			}
 			else {
 				contextRepo = BeanDefinitionBuilder.rootBeanDefinition(HttpSessionSecurityContextRepository.class);

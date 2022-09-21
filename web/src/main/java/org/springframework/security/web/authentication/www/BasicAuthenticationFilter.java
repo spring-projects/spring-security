@@ -37,7 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -109,7 +109,7 @@ public class BasicAuthenticationFilter extends OncePerRequestFilter {
 
 	private BasicAuthenticationConverter authenticationConverter = new BasicAuthenticationConverter();
 
-	private SecurityContextRepository securityContextRepository = new NullSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
 	/**
 	 * Creates an instance which will authenticate against the supplied

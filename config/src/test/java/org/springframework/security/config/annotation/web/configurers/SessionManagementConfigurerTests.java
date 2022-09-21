@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,6 +43,7 @@ import org.springframework.security.web.authentication.session.ChangeSessionIdAu
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.session.ConcurrentSessionFilter;
@@ -338,6 +339,22 @@ public class SessionManagementConfigurerTests {
 		// @formatter:on
 
 		this.mvc.perform(get("/")).andExpect(content().string("encoded"));
+	}
+
+	@Test
+	public void loginWhenSessionCreationPolicyStatelessThenSecurityContextIsAvailableInRequestAttributes()
+			throws Exception {
+		this.spring.register(HttpBasicSessionCreationPolicyStatelessConfig.class).autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/").with(httpBasic("user", "password")))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
+		HttpSession session = mvcResult.getRequest().getSession(false);
+		assertThat(session).isNull();
+		SecurityContext securityContext = (SecurityContext) mvcResult.getRequest()
+				.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME);
+		assertThat(securityContext).isNotNull();
 	}
 
 	@Configuration
@@ -650,6 +667,38 @@ public class SessionManagementConfigurerTests {
 		DefaultSecurityFilterChain configure(HttpSecurity http) throws Exception {
 			http.sessionManagement((sessions) -> sessions.enableSessionUrlRewriting(true));
 			return http.build();
+		}
+
+		@Bean
+		EncodesUrls encodesUrls() {
+			return new EncodesUrls();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class HttpBasicSessionCreationPolicyStatelessConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.sessionManagement((sessionManagement) ->
+					sessionManagement
+						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+				)
+				.httpBasic(withDefaults());
+			// @formatter:on
+		}
+
+		@Override
+		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
 		}
 
 		@Bean

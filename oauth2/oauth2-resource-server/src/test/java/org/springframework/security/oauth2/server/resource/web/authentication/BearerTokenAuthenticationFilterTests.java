@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,7 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,6 +106,8 @@ public class BearerTokenAuthenticationFilterTests {
 				.forClass(BearerTokenAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(captor.capture());
 		assertThat(captor.getValue().getPrincipal()).isEqualTo("token");
+		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test
@@ -138,6 +141,8 @@ public class BearerTokenAuthenticationFilterTests {
 				.forClass(BearerTokenAuthenticationToken.class);
 		verify(this.authenticationManager).authenticate(captor.capture());
 		assertThat(captor.getValue().getPrincipal()).isEqualTo("token");
+		assertThat(this.request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test

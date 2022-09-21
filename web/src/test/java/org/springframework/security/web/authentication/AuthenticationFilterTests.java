@@ -42,6 +42,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
@@ -128,6 +129,8 @@ public class AuthenticationFilterTests {
 		verify(this.authenticationManager).authenticate(any(Authentication.class));
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test
@@ -165,6 +168,8 @@ public class AuthenticationFilterTests {
 		verify(this.authenticationManager).authenticate(any(Authentication.class));
 		verify(chain).doFilter(any(ServletRequest.class), any(ServletResponse.class));
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test
@@ -228,6 +233,8 @@ public class AuthenticationFilterTests {
 		verify(this.successHandler).onAuthenticationSuccess(any(), any(), any(), eq(authentication));
 		verifyNoMoreInteractions(this.failureHandler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isNotNull();
+		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
+				.isNotNull();
 	}
 
 	@Test

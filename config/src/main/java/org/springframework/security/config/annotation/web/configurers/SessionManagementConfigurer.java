@@ -47,7 +47,7 @@ import org.springframework.security.web.authentication.session.RegisterSessionAu
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
-import org.springframework.security.web.context.NullSecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
@@ -341,7 +341,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		boolean stateless = isStateless();
 		if (securityContextRepository == null) {
 			if (stateless) {
-				http.setSharedObject(SecurityContextRepository.class, new NullSecurityContextRepository());
+				http.setSharedObject(SecurityContextRepository.class, new RequestAttributeSecurityContextRepository());
 			}
 			else {
 				HttpSessionSecurityContextRepository httpSecurityRepository = new HttpSessionSecurityContextRepository();
