@@ -30,9 +30,11 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
+import org.springframework.security.web.csrf.CsrfFailedEventPublishingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
@@ -328,7 +330,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 				invalidSessionStrategy);
 		LinkedHashMap<Class<? extends AccessDeniedException>, AccessDeniedHandler> handlers = new LinkedHashMap<>();
 		handlers.put(MissingCsrfTokenException.class, invalidSessionDeniedHandler);
-		return new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
+		AccessDeniedHandler handler = new DelegatingAccessDeniedHandler(handlers, defaultAccessDeniedHandler);
+		AccessDeniedHandler eventPublishing = postProcess(new CsrfFailedEventPublishingAccessDeniedHandler());
+		return new CompositeAccessDeniedHandler(eventPublishing, handler);
 	}
 
 	/**

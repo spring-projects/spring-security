@@ -18,9 +18,8 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import io.micrometer.observation.ObservationRegistry;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;

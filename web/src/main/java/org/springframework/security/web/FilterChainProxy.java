@@ -21,6 +21,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import io.micrometer.common.KeyValues;
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,11 +32,6 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import io.micrometer.common.KeyValues;
-import io.micrometer.observation.Observation;
-import io.micrometer.observation.ObservationConvention;
-import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -213,7 +212,6 @@ public class FilterChainProxy extends GenericFilterBean {
 			if (!(requestRejectedException instanceof RequestRejectedException)) {
 				throw ex;
 			}
-			this.defenseEventPublisher.publishRejectedRequest(request, requestRejectedException);
 			this.requestRejectedHandler.handle((HttpServletRequest) request, (HttpServletResponse) response,
 					(RequestRejectedException) requestRejectedException);
 		}
@@ -407,7 +405,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	}
 
-	private static class FilterChainObservationContext extends Observation.Context {
+	private static final class FilterChainObservationContext extends Observation.Context {
 
 		private final ServletRequest request;
 
@@ -421,7 +419,7 @@ public class FilterChainProxy extends GenericFilterBean {
 
 	}
 
-	private static class FilterChainObservationConvention
+	private static final class FilterChainObservationConvention
 			implements ObservationConvention<FilterChainObservationContext> {
 
 		@Override

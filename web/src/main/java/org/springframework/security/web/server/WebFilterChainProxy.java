@@ -82,7 +82,7 @@ public class WebFilterChainProxy implements WebFilter {
 		}
 	}
 
-	private final class ObservationWebFilterChain implements WebFilterChain {
+	private static final class ObservationWebFilterChain implements WebFilterChain {
 
 		private static final String OBSERVATION_NAME = "spring.security.filter.chain";
 
@@ -90,9 +90,9 @@ public class WebFilterChainProxy implements WebFilter {
 
 		private final WebFilterChain delegate;
 
-		private FilterChainObservationConvention observationConvention = new FilterChainObservationConvention();
+		private final FilterChainObservationConvention observationConvention = new FilterChainObservationConvention();
 
-		public ObservationWebFilterChain(ObservationRegistry registry, WebFilterChain delegate) {
+		ObservationWebFilterChain(ObservationRegistry registry, WebFilterChain delegate) {
 			this.registry = registry;
 			this.delegate = delegate;
 		}
@@ -109,7 +109,7 @@ public class WebFilterChainProxy implements WebFilter {
 					});
 		}
 
-		private static class FilterChainObservationContext extends Observation.Context {
+		private static final class FilterChainObservationContext extends Observation.Context {
 
 			private final ServerWebExchange exchange;
 
@@ -123,7 +123,7 @@ public class WebFilterChainProxy implements WebFilter {
 
 		}
 
-		private static class FilterChainObservationConvention
+		private static final class FilterChainObservationConvention
 				implements ObservationConvention<FilterChainObservationContext> {
 
 			@Override

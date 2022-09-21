@@ -21,14 +21,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-
-import io.micrometer.observation.ObservationRegistry;
 
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
@@ -3438,6 +3437,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return apply(configurer);
 	}
 
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getContext();
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return (ObservationRegistry) context.getBean(names[0]);
+		}
+		return ObservationRegistry.NOOP;
+	}
+
 	/**
 	 * An extension to {@link RequestMatcherConfigurer} that allows optionally configuring
 	 * the servlet path.
@@ -3517,15 +3525,6 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			return HttpSecurity.this;
 		}
 
-	}
-
-	private ObservationRegistry getObservationRegistry() {
-		ApplicationContext context = getContext();
-		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
-		if (names.length == 1) {
-			return (ObservationRegistry) context.getBean(names[0]);
-		}
-		return ObservationRegistry.NOOP;
 	}
 
 	/**

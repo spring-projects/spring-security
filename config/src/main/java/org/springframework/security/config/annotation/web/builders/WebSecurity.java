@@ -19,11 +19,10 @@ package org.springframework.security.config.annotation.web.builders;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
-
-import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -57,7 +56,10 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.debug.DebugFilter;
+import org.springframework.security.web.firewall.CompositeRequestRejectedHandler;
+import org.springframework.security.web.firewall.EventPublishingRequestRejectedHandler;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
@@ -378,6 +380,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			this.requestRejectedHandler = applicationContext.getBean(RequestRejectedHandler.class);
 		}
 		catch (NoSuchBeanDefinitionException ex) {
+			this.requestRejectedHandler = new CompositeRequestRejectedHandler(
+					postProcess(new EventPublishingRequestRejectedHandler()), new HttpStatusRequestRejectedHandler());
 		}
 		try {
 			this.observationRegistry = applicationContext.getBean(ObservationRegistry.class);
