@@ -37,6 +37,7 @@ public class ObservationSecurityContextChangedEventListener implements SecurityC
 		}
 		if (event.isContextCleared()) {
 			observation.event(Observation.Event.of("security.context.cleared"));
+			return;
 		}
 		Authentication oldAuthentication = getAuthentication(event.getOldContext());
 		Authentication newAuthentication = getAuthentication(event.getNewContext());
