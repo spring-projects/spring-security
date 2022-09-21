@@ -16,7 +16,7 @@
 
 package org.springframework.security.core.session;
 
-import org.springframework.context.ApplicationEvent;
+import org.springframework.security.event.SecurityEvent;
 
 /**
  * Abstract superclass for all session related events.
@@ -24,7 +24,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Eleftheria Stein
  * @since 5.4
  */
-public class AbstractSessionEvent extends ApplicationEvent {
+public class AbstractSessionEvent extends SecurityEvent {
 
 	public AbstractSessionEvent(Object source) {
 		super(source);
