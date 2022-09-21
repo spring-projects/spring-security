@@ -24,21 +24,34 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.security.web.event.RequestRejectedEvent;
 
+/**
+ * A {@link RequestRejectedHandler} that publishes a firewall {@link RequestRejectedEvent}
+ *
+ * @author Josh Cummings
+ * @since 6.0
+ */
 public final class EventPublishingRequestRejectedHandler
 		implements RequestRejectedHandler, ApplicationEventPublisherAware {
 
 	private ApplicationEventPublisher eventPublisher;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, RequestRejectedException exception)
 			throws IOException, ServletException {
 		if (this.eventPublisher == null) {
 			return;
 		}
-		this.eventPublisher.publishEvent(new RequestRejectedEvent(request, exception));
+		this.eventPublisher.publishEvent(new RequestRejectedEvent<>(request, exception));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.eventPublisher = applicationEventPublisher;

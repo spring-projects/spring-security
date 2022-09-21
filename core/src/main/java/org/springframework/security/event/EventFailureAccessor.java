@@ -14,24 +14,21 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.firewall;
+package org.springframework.security.event;
 
-import jakarta.servlet.http.HttpServletRequest;
+/**
+ * An interface for accessing any underlying exception related to an event.
+ *
+ * @param <T> the type of exception
+ * @author Josh Cummings
+ * @since 6.0
+ */
+public interface EventFailureAccessor<T extends Throwable> {
 
-import org.springframework.security.event.FailureEvent;
-import org.springframework.security.event.SecurityEvent;
-
-public class RequestRejectedEvent extends SecurityEvent implements FailureEvent<RequestRejectedException> {
-
-	private final RequestRejectedException exception;
-
-	public RequestRejectedEvent(HttpServletRequest request, RequestRejectedException exception) {
-		super(request);
-		this.exception = exception;
-	}
-
-	public RequestRejectedException getError() {
-		return this.exception;
-	}
+	/**
+	 * Get the underlying exception related to the event. May be {@code null}.
+	 * @return the underlying exception, if any
+	 */
+	T getError();
 
 }

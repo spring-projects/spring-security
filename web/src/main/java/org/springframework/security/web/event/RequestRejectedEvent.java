@@ -14,25 +14,36 @@
  * limitations under the License.
  */
 
-package org.springframework.security.web.csrf;
+package org.springframework.security.web.event;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.event.FailureEvent;
+import org.springframework.security.event.EventFailureAccessor;
 import org.springframework.security.event.SecurityEvent;
 
-public class CsrfFailedEvent extends SecurityEvent implements FailureEvent<AccessDeniedException> {
+/**
+ * An event representing a rejected request and its corresponding exception
+ *
+ * @param <T> the type of exception
+ * @author Josh Cummings
+ * @since 6.0
+ */
+public class RequestRejectedEvent<T extends Throwable> extends SecurityEvent implements EventFailureAccessor<T> {
 
-	private final AccessDeniedException exception;
+	private final T error;
 
-	public CsrfFailedEvent(HttpServletRequest request, AccessDeniedException exception) {
+	public RequestRejectedEvent(HttpServletRequest request, T error) {
 		super(request);
-		this.exception = exception;
+		this.error = error;
 	}
 
-	public AccessDeniedException getError() {
-		return this.exception;
+	/**
+	 * Get the error associated with this rejected request
+	 * @return the error
+	 */
+	@Override
+	public T getError() {
+		return this.error;
 	}
 
 }

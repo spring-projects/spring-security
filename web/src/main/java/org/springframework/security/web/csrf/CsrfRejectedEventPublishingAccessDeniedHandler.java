@@ -26,21 +26,42 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.event.RequestRejectedEvent;
 
-public final class CsrfFailedEventPublishingAccessDeniedHandler
+/**
+ * An {@link AccessDeniedHandler} that publishes a CSRF {@link RequestRejectedEvent}
+ *
+ * @author Josh Cummings
+ * @since 6.0
+ */
+public final class CsrfRejectedEventPublishingAccessDeniedHandler
 		implements AccessDeniedHandler, ApplicationEventPublisherAware {
 
 	private ApplicationEventPublisher eventPublisher;
 
+	/**
+	 * Handles a CSRF-based access denied failure. Note that while the contract accepts an
+	 * {@link AccessDeniedException}, only {@link CsrfException}s are published.
+	 * @param request that resulted in an {@link AccessDeniedException}
+	 * @param response so that the user agent can be advised of the failure
+	 * @param exception that caused the invocation
+	 * @throws IOException
+	 * @throws ServletException
+	 */
 	@Override
 	public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException exception)
 			throws IOException, ServletException {
 		if (this.eventPublisher == null) {
 			return;
 		}
-		this.eventPublisher.publishEvent(new CsrfFailedEvent(request, exception));
+		if (exception instanceof CsrfException) {
+			this.eventPublisher.publishEvent(new RequestRejectedEvent<>(request, (CsrfException) exception));
+		}
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
 		this.eventPublisher = applicationEventPublisher;

@@ -22,7 +22,7 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.event.FailureEvent;
+import org.springframework.security.event.EventFailureAccessor;
 import org.springframework.security.event.SecurityEvent;
 
 /**
@@ -32,7 +32,7 @@ import org.springframework.security.event.SecurityEvent;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationDeniedEvent<T> extends SecurityEvent implements FailureEvent<AccessDeniedException> {
+public class AuthorizationDeniedEvent<T> extends SecurityEvent implements EventFailureAccessor<AccessDeniedException> {
 
 	private final Supplier<Authentication> authentication;
 
