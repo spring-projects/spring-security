@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ class CsrfDsl {
 
     private var ignoringAntMatchers: Array<out String>? = null
     private var ignoringRequestMatchers: Array<out RequestMatcher>? = null
+    private var ignoringRequestMatchersPatterns: Array<out String>? = null
     private var disabled = false
 
     /**
@@ -67,6 +68,16 @@ class CsrfDsl {
     }
 
     /**
+     * Allows specifying [HttpServletRequest]s that should not use CSRF Protection
+     * even if they match the [requireCsrfProtectionMatcher].
+     *
+     * @param patterns the patterns that should not use CSRF protection
+     */
+    fun ignoringRequestMatchers(vararg patterns: String) {
+        ignoringRequestMatchersPatterns = patterns
+    }
+
+    /**
      * Disable CSRF protection
      */
     fun disable() {
@@ -80,6 +91,7 @@ class CsrfDsl {
             sessionAuthenticationStrategy?.also { csrf.sessionAuthenticationStrategy(sessionAuthenticationStrategy) }
             ignoringAntMatchers?.also { csrf.ignoringAntMatchers(*ignoringAntMatchers!!) }
             ignoringRequestMatchers?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchers!!) }
+            ignoringRequestMatchersPatterns?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchersPatterns!!) }
             if (disabled) {
                 csrf.disable()
             }

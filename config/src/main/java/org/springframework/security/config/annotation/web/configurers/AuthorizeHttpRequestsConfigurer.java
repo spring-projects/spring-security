@@ -146,12 +146,20 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			return postProcess(this.managerBuilder.build());
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersAuthorizedUrl mvcMatchers(String... mvcPatterns) {
 			return mvcMatchers(null, mvcPatterns);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
 		}
@@ -203,7 +211,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 	 * configuring the {@link MvcRequestMatcher#setServletPath(String)}.
 	 *
 	 * @author Evgeniy Cheban
+	 * @deprecated use {@link MvcRequestMatcher.Builder} instead
 	 */
+	@Deprecated
 	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
 
 		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> matchers) {

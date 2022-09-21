@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
@@ -33,6 +34,7 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.provisioning.InMemoryUserDetailsManager
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.DefaultCsrfToken
@@ -43,6 +45,7 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 /**
  * Tests for [CsrfDsl]
@@ -254,6 +257,38 @@ class CsrfDslTests {
                     ignoringAntMatchers("/test2")
                 }
             }
+        }
+    }
+
+    @Test
+    fun `CSRF when ignoring request matchers pattern then CSRF disabled on matching requests`() {
+        this.spring.register(IgnoringRequestMatchersPatternConfig::class.java, BasicController::class.java).autowire()
+
+        this.mockMvc.post("/test1")
+            .andExpect {
+                status { isForbidden() }
+            }
+
+        this.mockMvc.post("/test2")
+            .andExpect {
+                status { isOk() }
+            }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class IgnoringRequestMatchersPatternConfig {
+
+        @Bean
+        open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                csrf {
+                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
+                    ignoringRequestMatchers("/test2")
+                }
+            }
+            return http.build()
         }
     }
 
