@@ -18,12 +18,17 @@ package org.springframework.security.web.csrf;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 /**
  * Tests for {@link CsrfTokenRequestProcessor}.
@@ -31,7 +36,11 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * @author Steve Riesenberg
  * @since 5.8
  */
+@ExtendWith(MockitoExtension.class)
 public class CsrfTokenRequestProcessorTests {
+
+	@Mock
+	CsrfTokenRepository tokenRepository;
 
 	private MockHttpServletRequest request;
 
@@ -47,48 +56,36 @@ public class CsrfTokenRequestProcessorTests {
 		this.response = new MockHttpServletResponse();
 		this.token = new DefaultCsrfToken("headerName", "paramName", "csrfTokenValue");
 		this.processor = new CsrfTokenRequestProcessor();
+		this.processor.setTokenRepository(this.tokenRepository);
 	}
 
 	@Test
 	public void handleWhenRequestIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.processor.handle(null, this.response, () -> this.token))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.processor.handle(null, this.response))
 				.withMessage("request cannot be null");
 	}
 
 	@Test
 	public void handleWhenResponseIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.processor.handle(this.request, null, () -> this.token))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.processor.handle(this.request, null))
 				.withMessage("response cannot be null");
 	}
 
 	@Test
-	public void handleWhenCsrfTokenSupplierIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.processor.handle(this.request, this.response, null))
-				.withMessage("csrfToken supplier cannot be null");
-	}
-
-	@Test
-	public void handleWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.processor.handle(this.request, this.response, () -> null))
-				.withMessage("csrfToken cannot be null");
-	}
-
-	@Test
 	public void handleWhenCsrfRequestAttributeSetThenUsed() {
+		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 		this.processor.setCsrfRequestAttributeName("_csrf");
-		this.processor.handle(this.request, this.response, () -> this.token);
-		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(this.request.getAttribute("_csrf")).isEqualTo(this.token);
+		this.processor.handle(this.request, this.response);
+		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
+		assertThatCsrfToken(this.request.getAttribute("_csrf")).isEqualTo(this.token);
 	}
 
 	@Test
 	public void handleWhenValidParametersThenRequestAttributesSet() {
-		this.processor.handle(this.request, this.response, () -> this.token);
-		assertThat(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
+		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
+		this.processor.handle(this.request, this.response);
+		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
+		assertThatCsrfToken(this.request.getAttribute(this.token.getParameterName())).isEqualTo(this.token);
 	}
 
 	@Test

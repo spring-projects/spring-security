@@ -85,8 +85,8 @@ public class DeferHttpSessionJavaConfigTests {
 			csrfRepository.setDeferLoadToken(true);
 			HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
 			requestCache.setMatchingRequestParameterName("continue");
-			CsrfTokenRequestProcessor requestAttributeHandler = new CsrfTokenRequestProcessor();
-			requestAttributeHandler.setCsrfRequestAttributeName("_csrf");
+			CsrfTokenRequestProcessor requestHandler = new CsrfTokenRequestProcessor();
+			requestHandler.setCsrfRequestAttributeName("_csrf");
 			// @formatter:off
 			http
 				.requestCache((cache) -> cache
@@ -102,7 +102,7 @@ public class DeferHttpSessionJavaConfigTests {
 					.requireExplicitAuthenticationStrategy(true)
 				)
 				.csrf((csrf) -> csrf
-					.csrfTokenRequestAttributeHandler(requestAttributeHandler)
+					.csrfTokenRequestHandler(requestHandler)
 					.csrfTokenRepository(csrfRepository)
 				);
 			// @formatter:on

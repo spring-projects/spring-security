@@ -71,7 +71,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
-	private static final String ATT_REQUEST_ATTRIBUTE_HANDLER = "request-attribute-handler-ref";
+	private static final String ATT_REQUEST_HANDLER = "request-handler-ref";
 
 	private static final String ATT_REQUEST_RESOLVER = "request-resolver-ref";
 
@@ -81,7 +81,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private String requestMatcherRef;
 
-	private String requestAttributeHandlerRef;
+	private String requestHandlerRef;
 
 	private String requestResolverRef;
 
@@ -103,7 +103,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (element != null) {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
-			this.requestAttributeHandlerRef = element.getAttribute(ATT_REQUEST_ATTRIBUTE_HANDLER);
+			this.requestHandlerRef = element.getAttribute(ATT_REQUEST_HANDLER);
 			this.requestResolverRef = element.getAttribute(ATT_REQUEST_RESOLVER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
@@ -120,8 +120,8 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
 		}
-		if (StringUtils.hasText(this.requestAttributeHandlerRef)) {
-			builder.addPropertyReference("requestAttributeHandler", this.requestAttributeHandlerRef);
+		if (StringUtils.hasText(this.requestHandlerRef)) {
+			builder.addPropertyReference("requestHandler", this.requestHandlerRef);
 		}
 		if (StringUtils.hasText(this.requestResolverRef)) {
 			builder.addPropertyReference("requestResolver", this.requestResolverRef);

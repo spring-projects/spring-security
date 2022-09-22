@@ -17,6 +17,7 @@
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.test.web.servlet.response.SecurityMockMvcResultHandlers.*" />
 		<property name="avoidStaticImportExcludes" value="org.springframework.security.config.annotation.SecurityContextChangedListenerArgumentMatchers.*" />
+		<property name="avoidStaticImportExcludes" value="org.springframework.security.web.csrf.CsrfTokenAssert.*" />
 	</module>
 	<module name="com.puppycrawl.tools.checkstyle.TreeWalker">
  		<module name="com.puppycrawl.tools.checkstyle.checks.regexp.RegexpSinglelineJavaCheck">

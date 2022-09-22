@@ -75,27 +75,24 @@ public class CsrfAuthenticationStrategyTests {
 	}
 
 	@Test
-	public void setRequestAttributeHandlerWhenNullThenIllegalStateException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setRequestAttributeHandler(null))
-				.withMessage("requestAttributeHandler cannot be null");
+	public void setRequestHandlerWhenNullThenIllegalStateException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.strategy.setRequestHandler(null))
+				.withMessage("requestHandler cannot be null");
 	}
 
 	@Test
-	public void onAuthenticationWhenCustomRequestAttributeHandlerThenUsed() {
-		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
-		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
-
-		CsrfTokenRequestAttributeHandler requestAttributeHandler = mock(CsrfTokenRequestAttributeHandler.class);
-		this.strategy.setRequestAttributeHandler(requestAttributeHandler);
+	public void onAuthenticationWhenCustomRequestHandlerThenUsed() {
+		CsrfTokenRequestHandler requestHandler = mock(CsrfTokenRequestHandler.class);
+		this.strategy.setRequestHandler(requestHandler);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
-		verify(requestAttributeHandler).handle(eq(this.request), eq(this.response), any());
-		verifyNoMoreInteractions(requestAttributeHandler);
+		verify(requestHandler).handle(eq(this.request), eq(this.response));
+		verifyNoMoreInteractions(requestHandler);
 	}
 
 	@Test
 	public void logoutRemovesCsrfTokenAndSavesNew() {
-		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(null, this.existingToken);
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
@@ -114,7 +111,6 @@ public class CsrfAuthenticationStrategyTests {
 	@Test
 	public void delaySavingCsrf() {
 		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
-		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
@@ -128,10 +124,11 @@ public class CsrfAuthenticationStrategyTests {
 	}
 
 	@Test
-	public void logoutRemovesNoActionIfNullToken() {
+	public void logoutWhenNoCsrfToken() {
+		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
-		verify(this.csrfTokenRepository, never()).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
+		verify(this.csrfTokenRepository).saveToken(any(CsrfToken.class), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
 

@@ -16,14 +16,12 @@
 
 package org.springframework.security.web.csrf;
 
-import java.util.function.Supplier;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * A callback interface that is used to make the {@link CsrfToken} created by the
- * {@link CsrfTokenRepository} available as a request attribute. Implementations of this
+ * A callback interface that is used to determine the {@link CsrfToken} to use and make
+ * the {@link CsrfToken} available as a request attribute. Implementations of this
  * interface may choose to perform additional tasks or customize how the token is made
  * available to the application through request attributes.
  *
@@ -32,14 +30,13 @@ import javax.servlet.http.HttpServletResponse;
  * @see CsrfTokenRequestProcessor
  */
 @FunctionalInterface
-public interface CsrfTokenRequestAttributeHandler {
+public interface CsrfTokenRequestHandler {
 
 	/**
 	 * Handles a request using a {@link CsrfToken}.
 	 * @param request the {@code HttpServletRequest} being handled
 	 * @param response the {@code HttpServletResponse} being handled
-	 * @param csrfToken the {@link CsrfToken} created by the {@link CsrfTokenRepository}
 	 */
-	void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken);
+	DeferredCsrfToken handle(HttpServletRequest request, HttpServletResponse response);
 
 }

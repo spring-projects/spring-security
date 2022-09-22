@@ -41,7 +41,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final CsrfTokenRepository csrfTokenRepository;
 
-	private CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestProcessor();
+	private CsrfTokenRequestHandler requestHandler;
 
 	/**
 	 * Creates a new instance
@@ -49,30 +49,28 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	 */
 	public CsrfAuthenticationStrategy(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
+		CsrfTokenRequestProcessor processor = new CsrfTokenRequestProcessor();
+		processor.setTokenRepository(csrfTokenRepository);
+		this.requestHandler = processor;
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 
 	/**
-	 * Specify a {@link CsrfTokenRequestAttributeHandler} to use for making the
-	 * {@code CsrfToken} available as a request attribute.
-	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 * Specify a {@link CsrfTokenRequestHandler} to use for making the {@code CsrfToken}
+	 * available as a request attribute.
+	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
 	 */
-	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
-		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
-		this.requestAttributeHandler = requestAttributeHandler;
+	public void setRequestHandler(CsrfTokenRequestHandler requestHandler) {
+		Assert.notNull(requestHandler, "requestHandler cannot be null");
+		this.requestHandler = requestHandler;
 	}
 
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
-		boolean containsToken = this.csrfTokenRepository.loadToken(request) != null;
-		if (containsToken) {
-			this.csrfTokenRepository.saveToken(null, request, response);
-			CsrfToken newToken = this.csrfTokenRepository.generateToken(request);
-			this.csrfTokenRepository.saveToken(newToken, request, response);
-			this.requestAttributeHandler.handle(request, response, () -> newToken);
-			this.logger.debug("Replaced CSRF Token");
-		}
+		this.csrfTokenRepository.saveToken(null, request, response);
+		this.requestHandler.handle(request, response);
+		this.logger.debug("Replaced CSRF Token");
 	}
 
 }

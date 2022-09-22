@@ -82,21 +82,19 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final CsrfTokenRepository tokenRepository;
-
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
-	private CsrfTokenRequestAttributeHandler requestAttributeHandler;
+	private CsrfTokenRequestHandler requestHandler;
 
 	private CsrfTokenRequestResolver requestResolver;
 
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
 		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
-		this.tokenRepository = csrfTokenRepository;
 		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
-		this.requestAttributeHandler = csrfTokenRequestProcessor;
+		csrfTokenRequestProcessor.setTokenRepository(csrfTokenRepository);
+		this.requestHandler = csrfTokenRequestProcessor;
 		this.requestResolver = csrfTokenRequestProcessor;
 	}
 
@@ -108,15 +106,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		request.setAttribute(HttpServletResponse.class.getName(), response);
-		CsrfToken csrfToken = this.tokenRepository.loadToken(request);
-		boolean missingToken = (csrfToken == null);
-		if (missingToken) {
-			csrfToken = this.tokenRepository.generateToken(request);
-			this.tokenRepository.saveToken(csrfToken, request, response);
-		}
-		final CsrfToken finalCsrfToken = csrfToken;
-		this.requestAttributeHandler.handle(request, response, () -> finalCsrfToken);
+		DeferredCsrfToken deferredCsrfToken = this.requestHandler.handle(request, response);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
@@ -125,8 +115,10 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
+		CsrfToken csrfToken = deferredCsrfToken.get();
 		String actualToken = this.requestResolver.resolveCsrfTokenValue(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
+			boolean missingToken = deferredCsrfToken.isGenerated();
 			this.logger.debug(
 					LogMessage.of(() -> "Invalid CSRF token found for " + UrlUtils.buildFullRequestUrl(request)));
 			AccessDeniedException exception = (!missingToken) ? new InvalidCsrfTokenException(csrfToken, actualToken)
@@ -173,18 +165,18 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * Specifies a {@link CsrfTokenRequestAttributeHandler} that is used to make the
+	 * Specifies a {@link CsrfTokenRequestHandler} that is used to make the
 	 * {@link CsrfToken} available as a request attribute.
 	 *
 	 * <p>
 	 * The default is {@link CsrfTokenRequestProcessor}.
 	 * </p>
-	 * @param requestAttributeHandler the {@link CsrfTokenRequestAttributeHandler} to use
+	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
 	 * @since 5.8
 	 */
-	public void setRequestAttributeHandler(CsrfTokenRequestAttributeHandler requestAttributeHandler) {
-		Assert.notNull(requestAttributeHandler, "requestAttributeHandler cannot be null");
-		this.requestAttributeHandler = requestAttributeHandler;
+	public void setRequestHandler(CsrfTokenRequestHandler requestHandler) {
+		Assert.notNull(requestHandler, "requestHandler cannot be null");
+		this.requestHandler = requestHandler;
 	}
 
 	/**

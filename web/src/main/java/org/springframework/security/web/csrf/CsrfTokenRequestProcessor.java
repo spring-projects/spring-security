@@ -24,7 +24,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.util.Assert;
 
 /**
- * An implementation of the {@link CsrfTokenRequestAttributeHandler} and
+ * An implementation of the {@link CsrfTokenRequestHandler} and
  * {@link CsrfTokenRequestResolver} interfaces that is capable of making the
  * {@link CsrfToken} available as a request attribute and resolving the token value as
  * either a header or parameter value of the request.
@@ -32,9 +32,21 @@ import org.springframework.util.Assert;
  * @author Steve Riesenberg
  * @since 5.8
  */
-public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandler, CsrfTokenRequestResolver {
+public class CsrfTokenRequestProcessor implements CsrfTokenRequestHandler, CsrfTokenRequestResolver {
 
 	private String csrfRequestAttributeName;
+
+	private CsrfTokenRepository tokenRepository = new HttpSessionCsrfTokenRepository();
+
+	/**
+	 * Sets the {@link CsrfTokenRepository} to use.
+	 * @param tokenRepository the {@link CsrfTokenRepository} to use. Default
+	 * {@link HttpSessionCsrfTokenRepository}
+	 */
+	public void setTokenRepository(CsrfTokenRepository tokenRepository) {
+		Assert.notNull(tokenRepository, "tokenRepository cannot be null");
+		this.tokenRepository = tokenRepository;
+	}
 
 	/**
 	 * The {@link CsrfToken} is available as a request attribute named
@@ -49,16 +61,18 @@ public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandl
 	}
 
 	@Override
-	public void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken) {
+	public DeferredCsrfToken handle(HttpServletRequest request, HttpServletResponse response) {
 		Assert.notNull(request, "request cannot be null");
 		Assert.notNull(response, "response cannot be null");
-		Assert.notNull(csrfToken, "csrfToken supplier cannot be null");
-		CsrfToken actualCsrfToken = csrfToken.get();
-		Assert.notNull(actualCsrfToken, "csrfToken cannot be null");
-		request.setAttribute(CsrfToken.class.getName(), actualCsrfToken);
+
+		request.setAttribute(HttpServletResponse.class.getName(), response);
+		DeferredCsrfToken deferredCsrfToken = new RepositoryDeferredCsrfToken(request, response);
+		CsrfToken csrfToken = new SupplierCsrfToken(deferredCsrfToken::get);
+		request.setAttribute(CsrfToken.class.getName(), csrfToken);
 		String csrfAttrName = (this.csrfRequestAttributeName != null) ? this.csrfRequestAttributeName
-				: actualCsrfToken.getParameterName();
-		request.setAttribute(csrfAttrName, actualCsrfToken);
+				: csrfToken.getParameterName();
+		request.setAttribute(csrfAttrName, csrfToken);
+		return deferredCsrfToken;
 	}
 
 	@Override
@@ -70,6 +84,80 @@ public class CsrfTokenRequestProcessor implements CsrfTokenRequestAttributeHandl
 			actualToken = request.getParameter(csrfToken.getParameterName());
 		}
 		return actualToken;
+	}
+
+	private static final class SupplierCsrfToken implements CsrfToken {
+
+		private final Supplier<CsrfToken> csrfTokenSupplier;
+
+		private SupplierCsrfToken(Supplier<CsrfToken> csrfTokenSupplier) {
+			this.csrfTokenSupplier = csrfTokenSupplier;
+		}
+
+		@Override
+		public String getHeaderName() {
+			return getDelegate().getHeaderName();
+		}
+
+		@Override
+		public String getParameterName() {
+			return getDelegate().getParameterName();
+		}
+
+		@Override
+		public String getToken() {
+			return getDelegate().getToken();
+		}
+
+		private CsrfToken getDelegate() {
+			CsrfToken delegate = this.csrfTokenSupplier.get();
+			if (delegate == null) {
+				throw new IllegalStateException("csrfTokenSupplier returned null delegate");
+			}
+			return delegate;
+		}
+
+	}
+
+	private final class RepositoryDeferredCsrfToken implements DeferredCsrfToken {
+
+		private final HttpServletRequest request;
+
+		private final HttpServletResponse response;
+
+		private CsrfToken csrfToken;
+
+		private Boolean missingToken;
+
+		RepositoryDeferredCsrfToken(HttpServletRequest request, HttpServletResponse response) {
+			this.request = request;
+			this.response = response;
+		}
+
+		@Override
+		public CsrfToken get() {
+			init();
+			return this.csrfToken;
+		}
+
+		@Override
+		public boolean isGenerated() {
+			init();
+			return this.missingToken;
+		}
+
+		private void init() {
+			if (this.csrfToken != null) {
+				return;
+			}
+			this.csrfToken = CsrfTokenRequestProcessor.this.tokenRepository.loadToken(this.request);
+			this.missingToken = (this.csrfToken == null);
+			if (this.missingToken) {
+				this.csrfToken = CsrfTokenRequestProcessor.this.tokenRepository.generateToken(this.request);
+				CsrfTokenRequestProcessor.this.tokenRepository.saveToken(this.csrfToken, this.request, this.response);
+			}
+		}
+
 	}
 
 }
