@@ -29,18 +29,11 @@
 	<http auto-config="true"
 			use-authorization-manager="true">
 		<intercept-url  pattern="/**" access="permitAll"/>
-		<csrf token-repository-ref="csrfRepository"/>
 		<request-cache ref="requestCache"/>
 		<session-management authentication-strategy-explicit-invocation="true"/>
 	</http>
 
 	<b:bean id="requestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache"
 		p:matchingRequestParameterName="continue"/>
-	<b:bean id="httpSessionCsrfRepository" class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository"/>
-	<b:bean id="csrfRepository" class="org.springframework.security.web.csrf.LazyCsrfTokenRepository"
-		c:delegate-ref="httpSessionCsrfRepository"
-	 	p:deferLoadToken="true"/>
-	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler"
-		p:csrfRequestAttributeName="_csrf"/>
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
 </b:beans>
