@@ -56,6 +56,7 @@ import org.springframework.security.config.Elements;
 import org.springframework.security.config.authentication.AuthenticationManagerFactoryBean;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
@@ -363,6 +364,10 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		fcpBldr.getRawBeanDefinition().setSource(source);
 		fcpBldr.addConstructorArgReference(BeanIds.FILTER_CHAINS);
 		fcpBldr.addPropertyValue("filterChainValidator", new RootBeanDefinition(DefaultFilterChainValidator.class));
+		BeanDefinition filterChainDecorator = BeanDefinitionBuilder
+				.rootBeanDefinition(FilterChainDecoratorFactory.class)
+				.addPropertyValue("observationRegistry", getObservationRegistry(element)).getBeanDefinition();
+		fcpBldr.addPropertyValue("filterChainDecorator", filterChainDecorator);
 		BeanDefinition fcpBean = fcpBldr.getBeanDefinition();
 		pc.registerBeanComponent(new BeanComponentDefinition(fcpBean, BeanIds.FILTER_CHAIN_PROXY));
 		registry.registerAlias(BeanIds.FILTER_CHAIN_PROXY, BeanIds.SPRING_SECURITY_FILTER_CHAIN);
@@ -505,6 +510,30 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		@Override
 		public Class<?> getObjectType() {
 			return ObservationRegistry.class;
+		}
+
+	}
+
+	public static final class FilterChainDecoratorFactory
+			implements FactoryBean<FilterChainProxy.FilterChainDecorator> {
+
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+		@Override
+		public FilterChainProxy.FilterChainDecorator getObject() throws Exception {
+			if (this.observationRegistry.isNoop()) {
+				return new FilterChainProxy.VirtualFilterChainDecorator();
+			}
+			return new ObservationFilterChainDecorator(this.observationRegistry);
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return FilterChainProxy.FilterChainDecorator.class;
+		}
+
+		public void setObservationRegistry(ObservationRegistry registry) {
+			this.observationRegistry = registry;
 		}
 
 	}

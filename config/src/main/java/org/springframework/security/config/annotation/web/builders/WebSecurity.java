@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.builders;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
@@ -100,6 +102,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private boolean debugEnabled;
 
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
 	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
@@ -303,6 +307,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.requestRejectedHandler != null) {
 			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
+		filterChainProxy.setFilterChainDecorator(getFilterChainDecorator());
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
@@ -366,11 +371,23 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
+		try {
+			this.observationRegistry = applicationContext.getBean(ObservationRegistry.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+		}
 	}
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	FilterChainProxy.FilterChainDecorator getFilterChainDecorator() {
+		if (this.observationRegistry.isNoop()) {
+			return new FilterChainProxy.VirtualFilterChainDecorator();
+		}
+		return new ObservationFilterChainDecorator(this.observationRegistry);
 	}
 
 	/**
