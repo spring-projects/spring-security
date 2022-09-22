@@ -10,6 +10,7 @@ dependencies {
 	api 'org.springframework:spring-context'
 	api 'org.springframework:spring-core'
 	api 'org.springframework:spring-expression'
+	api 'io.micrometer:micrometer-observation'
 
 	optional 'com.fasterxml.jackson.core:jackson-databind'
 	optional 'io.projectreactor:reactor-core'
