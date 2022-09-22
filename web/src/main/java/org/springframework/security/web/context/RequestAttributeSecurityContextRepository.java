@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.Assert;
 
 /**
  * Stores the {@link SecurityContext} on a
@@ -47,6 +49,9 @@ public final class RequestAttributeSecurityContextRepository implements Security
 			.concat(".SPRING_SECURITY_CONTEXT");
 
 	private final String requestAttributeName;
+
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
 
 	/**
 	 * Creates a new instance using {@link #DEFAULT_REQUEST_ATTR_NAME}.
@@ -81,7 +86,7 @@ public final class RequestAttributeSecurityContextRepository implements Security
 
 	private SecurityContext getContextOrEmpty(HttpServletRequest request) {
 		SecurityContext context = getContext(request);
-		return (context != null) ? context : SecurityContextHolder.createEmptyContext();
+		return (context != null) ? context : this.securityContextHolderStrategy.createEmptyContext();
 	}
 
 	private SecurityContext getContext(HttpServletRequest request) {
@@ -91,6 +96,16 @@ public final class RequestAttributeSecurityContextRepository implements Security
 	@Override
 	public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
 		request.setAttribute(this.requestAttributeName, context);
+	}
+
+	/**
+	 * Sets the {@link SecurityContextHolderStrategy} to use. The default action is to use
+	 * the {@link SecurityContextHolderStrategy} stored in {@link SecurityContextHolder}.
+	 * @since 5.8
+	 */
+	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

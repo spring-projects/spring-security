@@ -25,9 +25,15 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 /**
  * @author Rob Winch
@@ -41,6 +47,15 @@ class RequestAttributeSecurityContextRepositoryTests {
 	private RequestAttributeSecurityContextRepository repository = new RequestAttributeSecurityContextRepository();
 
 	private SecurityContext expectedSecurityContext = new SecurityContextImpl(TestAuthentication.authenticatedUser());
+
+	@Test
+	void setSecurityContextHolderStrategyWhenNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.repository.setSecurityContextHolderStrategy(null))
+				.withMessage("securityContextHolderStrategy cannot be null");
+		// @formatter:on
+	}
 
 	@Test
 	void saveContextAndLoadContextThenFound() {
@@ -80,6 +95,18 @@ class RequestAttributeSecurityContextRepositoryTests {
 		SecurityContext context = this.repository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response));
 		assertThat(context).isEqualTo(SecurityContextHolder.createEmptyContext());
+	}
+
+	@Test
+	void loadContextWhenCustomSecurityContextHolderStrategySetThenUsed() {
+		SecurityContextHolderStrategy securityContextHolderStrategy = mock(SecurityContextHolderStrategy.class);
+		given(securityContextHolderStrategy.createEmptyContext()).willReturn(new SecurityContextImpl());
+		this.repository.setSecurityContextHolderStrategy(securityContextHolderStrategy);
+
+		Supplier<SecurityContext> deferredContext = this.repository.loadContext(this.request);
+		assertThat(deferredContext.get()).isNotNull();
+		verify(securityContextHolderStrategy).createEmptyContext();
+		verifyNoMoreInteractions(securityContextHolderStrategy);
 	}
 
 }
