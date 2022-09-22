@@ -3256,9 +3256,9 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="request-attribute-handler-ref" type="xs:token">
+      <xs:attribute name="request-handler-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The CsrfTokenRequestAttributeHandler to use. The default is CsrfTokenRequestProcessor.
+            <xs:documentation>The CsrfTokenRequestHandler to use. The default is CsrfTokenRequestProcessor.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

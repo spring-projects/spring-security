@@ -774,9 +774,9 @@ It is highly recommended to leave CSRF protection enabled.
 The CsrfTokenRepository to use.
 The default is `HttpSessionCsrfTokenRepository`.
 
-[[nsa-csrf-request-attribute-handler-ref]]
-* **request-attribute-handler-ref**
-The optional `CsrfTokenRequestAttributeHandler` to use. The default is `CsrfTokenRequestProcessor`.
+[[nsa-csrf-request-handler-ref]]
+* **request-handler-ref**
+The optional `CsrfTokenRequestHandler` to use. The default is `CsrfTokenRequestProcessor`.
 
 [[nsa-csrf-request-resolver-ref]]
 * **request-resolver-ref**

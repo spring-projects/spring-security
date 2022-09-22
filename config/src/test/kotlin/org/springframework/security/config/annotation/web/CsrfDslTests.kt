@@ -41,7 +41,6 @@ import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
-import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
@@ -125,9 +124,9 @@ class CsrfDslTests {
             CustomRepositoryConfig.REPO.loadToken(any())
         } returns DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token")
 
-        this.mockMvc.get("/test1")
+		this.mockMvc.post("/test1")
 
-        verify(exactly = 1) { CustomRepositoryConfig.REPO.loadToken(any()) }
+		verify(exactly = 1) { CustomRepositoryConfig.REPO.loadToken(any()) }
     }
 
     @Configuration

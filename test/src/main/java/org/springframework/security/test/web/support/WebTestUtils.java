@@ -31,6 +31,8 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.WebApplicationContext;
@@ -46,7 +48,7 @@ public abstract class WebTestUtils {
 
 	private static final SecurityContextRepository DEFAULT_CONTEXT_REPO = new HttpSessionSecurityContextRepository();
 
-	private static final CsrfTokenRepository DEFAULT_TOKEN_REPO = new HttpSessionCsrfTokenRepository();
+	private static final CsrfTokenRequestProcessor DEFAULT_CSRF_PROCESSOR = new CsrfTokenRequestProcessor();
 
 	private WebTestUtils() {
 	}
@@ -99,24 +101,24 @@ public abstract class WebTestUtils {
 	 * @return the {@link CsrfTokenRepository} for the specified
 	 * {@link HttpServletRequest}
 	 */
-	public static CsrfTokenRepository getCsrfTokenRepository(HttpServletRequest request) {
+	public static CsrfTokenRequestHandler getCsrfTokenRequestHandler(HttpServletRequest request) {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter == null) {
-			return DEFAULT_TOKEN_REPO;
+			return DEFAULT_CSRF_PROCESSOR;
 		}
-		return (CsrfTokenRepository) ReflectionTestUtils.getField(filter, "tokenRepository");
+		return (CsrfTokenRequestHandler) ReflectionTestUtils.getField(filter, "requestHandler");
 	}
 
 	/**
 	 * Sets the {@link CsrfTokenRepository} for the specified {@link HttpServletRequest}.
 	 * @param request the {@link HttpServletRequest} to obtain the
 	 * {@link CsrfTokenRepository}
-	 * @param repository the {@link CsrfTokenRepository} to set
+	 * @param handler the {@link CsrfTokenRepository} to set
 	 */
-	public static void setCsrfTokenRepository(HttpServletRequest request, CsrfTokenRepository repository) {
+	public static void setCsrfTokenRequestHandler(HttpServletRequest request, CsrfTokenRequestHandler handler) {
 		CsrfFilter filter = findFilter(request, CsrfFilter.class);
 		if (filter != null) {
-			ReflectionTestUtils.setField(filter, "tokenRepository", repository);
+			ReflectionTestUtils.setField(filter, "requestHandler", handler);
 		}
 	}
 

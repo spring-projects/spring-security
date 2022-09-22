@@ -27,7 +27,10 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @since 4.1
+ * @deprecated Use org.springframework.security.web.csrf.CsrfTokenRequestHandler which
+ * returns a {@link DeferredCsrfToken}
  */
+@Deprecated
 public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 
 	/**
