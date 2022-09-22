@@ -16,12 +16,17 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.Advisor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -40,28 +45,28 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class Jsr250MethodSecurityConfiguration {
 
-	private final Jsr250AuthorizationManager jsr250AuthorizationManager = new Jsr250AuthorizationManager();
-
-	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
-
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor jsr250AuthorizationMethodInterceptor() {
+	static Advisor jsr250AuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ObjectProvider<ObservationRegistry> registryProvider) {
+		Jsr250AuthorizationManager jsr250 = new Jsr250AuthorizationManager();
+		defaultsProvider.ifAvailable((d) -> jsr250.setRolePrefix(d.getRolePrefix()));
+		SecurityContextHolderStrategy strategy = strategyProvider
+				.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
+		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
+		AuthorizationManager<MethodInvocation> manager = manager(jsr250, registry);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
-				.jsr250(this.jsr250AuthorizationManager);
-		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+				.jsr250(manager);
+		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
 	}
 
-	@Autowired(required = false)
-	void setGrantedAuthorityDefaults(GrantedAuthorityDefaults grantedAuthorityDefaults) {
-		this.jsr250AuthorizationManager.setRolePrefix(grantedAuthorityDefaults.getRolePrefix());
-	}
-
-	@Autowired(required = false)
-	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> jsr250, ObservationRegistry registry) {
+		if (registry.isNoop()) {
+			return jsr250;
+		}
+		return new ObservationAuthorizationManager<>(registry, jsr250);
 	}
 
 }

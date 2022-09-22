@@ -16,6 +16,10 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
+
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -24,8 +28,11 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
+import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeReactiveAuthorizationManager;
@@ -43,45 +50,54 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor(
+	static PreFilterAuthorizationReactiveMethodInterceptor preFilterInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
 		return new PreFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		PreAuthorizeReactiveAuthorizationManager authorizationManager = new PreAuthorizeReactiveAuthorizationManager(
-				expressionHandler);
+	static AuthorizationManagerBeforeReactiveMethodInterceptor preAuthorizeInterceptor(
+			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
+		ReactiveAuthorizationManager<MethodInvocation> authorizationManager = manager(
+				new PreAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
 		return AuthorizationManagerBeforeReactiveMethodInterceptor.preAuthorize(authorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor(
+	static PostFilterAuthorizationReactiveMethodInterceptor postFilterInterceptor(
 			MethodSecurityExpressionHandler expressionHandler) {
 		return new PostFilterAuthorizationReactiveMethodInterceptor(expressionHandler);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
-			MethodSecurityExpressionHandler expressionHandler) {
-		PostAuthorizeReactiveAuthorizationManager authorizationManager = new PostAuthorizeReactiveAuthorizationManager(
-				expressionHandler);
+	static AuthorizationManagerAfterReactiveMethodInterceptor postAuthorizeInterceptor(
+			MethodSecurityExpressionHandler expressionHandler, ObjectProvider<ObservationRegistry> registryProvider) {
+		ReactiveAuthorizationManager<MethodInvocationResult> authorizationManager = manager(
+				new PostAuthorizeReactiveAuthorizationManager(expressionHandler), registryProvider);
 		return AuthorizationManagerAfterReactiveMethodInterceptor.postAuthorize(authorizationManager);
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
+	static DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler(
 			@Autowired(required = false) GrantedAuthorityDefaults grantedAuthorityDefaults) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
 		if (grantedAuthorityDefaults != null) {
 			handler.setDefaultRolePrefix(grantedAuthorityDefaults.getRolePrefix());
 		}
 		return handler;
+	}
+
+	static <T> ReactiveAuthorizationManager<T> manager(ReactiveAuthorizationManager<T> delegate,
+			ObjectProvider<ObservationRegistry> registryProvider) {
+		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
+		if (registry.isNoop()) {
+			return delegate;
+		}
+		return new ObservationReactiveAuthorizationManager<>(registry, delegate);
 	}
 
 }

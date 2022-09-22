@@ -20,12 +20,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
 
 import org.springframework.beans.BeanMetadataElement;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanReference;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -43,8 +45,11 @@ import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.core.OrderComparator;
+import org.springframework.security.authentication.AuthenticationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.Elements;
@@ -69,6 +74,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	private static final Log logger = LogFactory.getLog(HttpSecurityBeanDefinitionParser.class);
 
 	private static final String ATT_AUTHENTICATION_MANAGER_REF = "authentication-manager-ref";
+
+	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
 
 	static final String ATT_REQUEST_MATCHER_REF = "request-matcher-ref";
 
@@ -246,7 +253,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanReference createAuthenticationManager(Element element, ParserContext pc,
 			ManagedList<BeanReference> authenticationProviders) {
 		String parentMgrRef = element.getAttribute(ATT_AUTHENTICATION_MANAGER_REF);
-		BeanDefinitionBuilder authManager = BeanDefinitionBuilder.rootBeanDefinition(ProviderManager.class);
+		BeanDefinitionBuilder authManager = BeanDefinitionBuilder
+				.rootBeanDefinition(ChildAuthenticationManagerFactoryBean.class);
 		authManager.addConstructorArgValue(authenticationProviders);
 		if (StringUtils.hasText(parentMgrRef)) {
 			RuntimeBeanReference parentAuthManager = new RuntimeBeanReference(parentMgrRef);
@@ -273,6 +281,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		// gh-6009
 		authManager.addPropertyValue("authenticationEventPublisher",
 				new RootBeanDefinition(DefaultAuthenticationEventPublisher.class));
+		authManager.addPropertyValue("observationRegistry", getObservationRegistry(element));
 		authManager.getRawBeanDefinition().setSource(pc.extractSource(element));
 		BeanDefinition authMgrBean = authManager.getBeanDefinition();
 		String id = pc.getReaderContext().generateBeanName(authMgrBean);
@@ -368,6 +377,14 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		registry.registerBeanDefinition(requestRejectedPostProcessorName, requestRejectedBean);
 	}
 
+	private static BeanMetadataElement getObservationRegistry(Element methodSecurityElmt) {
+		String holderStrategyRef = methodSecurityElmt.getAttribute(ATT_OBSERVATION_REGISTRY_REF);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			return new RuntimeBeanReference(holderStrategyRef);
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
+	}
+
 	static class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
 		private final String beanName;
@@ -430,6 +447,64 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		 */
 		boolean isEraseCredentialsAfterAuthentication() {
 			return false;
+		}
+
+	}
+
+	public static final class ChildAuthenticationManagerFactoryBean implements FactoryBean<AuthenticationManager> {
+
+		private final ProviderManager delegate;
+
+		private AuthenticationEventPublisher authenticationEventPublisher = new DefaultAuthenticationEventPublisher();
+
+		private boolean eraseCredentialsAfterAuthentication = true;
+
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+		public ChildAuthenticationManagerFactoryBean(List<AuthenticationProvider> providers,
+				AuthenticationManager parent) {
+			this.delegate = new ProviderManager(providers, parent);
+		}
+
+		@Override
+		public AuthenticationManager getObject() throws Exception {
+			this.delegate.setAuthenticationEventPublisher(this.authenticationEventPublisher);
+			this.delegate.setEraseCredentialsAfterAuthentication(this.eraseCredentialsAfterAuthentication);
+			if (!this.observationRegistry.isNoop()) {
+				return new ObservationAuthenticationManager(this.observationRegistry, this.delegate);
+			}
+			return this.delegate;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return AuthenticationManager.class;
+		}
+
+		public void setEraseCredentialsAfterAuthentication(boolean eraseCredentialsAfterAuthentication) {
+			this.eraseCredentialsAfterAuthentication = eraseCredentialsAfterAuthentication;
+		}
+
+		public void setAuthenticationEventPublisher(AuthenticationEventPublisher authenticationEventPublisher) {
+			this.authenticationEventPublisher = authenticationEventPublisher;
+		}
+
+		public void setObservationRegistry(ObservationRegistry observationRegistry) {
+			this.observationRegistry = observationRegistry;
+		}
+
+	}
+
+	static class ObservationRegistryFactory implements FactoryBean<ObservationRegistry> {
+
+		@Override
+		public ObservationRegistry getObject() throws Exception {
+			return ObservationRegistry.NOOP;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return ObservationRegistry.class;
 		}
 
 	}

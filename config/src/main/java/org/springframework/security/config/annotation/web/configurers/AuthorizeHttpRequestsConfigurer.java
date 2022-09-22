@@ -18,6 +18,7 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
@@ -26,6 +27,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
@@ -102,6 +104,17 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		return this.registry;
 	}
 
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return context.getBean(ObservationRegistry.class);
+		}
+		else {
+			return ObservationRegistry.NOOP;
+		}
+	}
+
 	/**
 	 * Registry for mapping a {@link RequestMatcher} to an {@link AuthorizationManager}.
 	 *
@@ -141,7 +154,12 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
-			return postProcess(this.managerBuilder.build());
+			ObservationRegistry registry = getObservationRegistry();
+			RequestMatcherDelegatingAuthorizationManager manager = postProcess(this.managerBuilder.build());
+			if (registry.isNoop()) {
+				return manager;
+			}
+			return new ObservationAuthorizationManager<>(registry, manager);
 		}
 
 		@Override

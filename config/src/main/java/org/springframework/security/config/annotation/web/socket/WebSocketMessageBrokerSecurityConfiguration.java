@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -31,6 +33,7 @@ import org.springframework.messaging.handler.invocation.HandlerMethodArgumentRes
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -68,8 +71,9 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	private final ChannelInterceptor csrfChannelInterceptor = new CsrfChannelInterceptor();
 
-	private AuthorizationChannelInterceptor authorizationChannelInterceptor = new AuthorizationChannelInterceptor(
-			ANY_MESSAGE_AUTHENTICATED);
+	private AuthorizationManager<Message<?>> authorizationManager = ANY_MESSAGE_AUTHENTICATED;
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
 	private ApplicationContext context;
 
@@ -86,12 +90,15 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration) {
-		this.authorizationChannelInterceptor
-				.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
-		this.authorizationChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+		AuthorizationManager<Message<?>> manager = this.authorizationManager;
+		if (!this.observationRegistry.isNoop()) {
+			manager = new ObservationAuthorizationManager<>(this.observationRegistry, manager);
+		}
+		AuthorizationChannelInterceptor interceptor = new AuthorizationChannelInterceptor(manager);
+		interceptor.setAuthorizationEventPublisher(new SpringAuthorizationEventPublisher(this.context));
+		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 		this.securityContextChannelInterceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
-		registration.interceptors(this.securityContextChannelInterceptor, this.csrfChannelInterceptor,
-				this.authorizationChannelInterceptor);
+		registration.interceptors(this.securityContextChannelInterceptor, this.csrfChannelInterceptor, interceptor);
 	}
 
 	@Autowired(required = false)
@@ -102,7 +109,12 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	@Autowired(required = false)
 	void setAuthorizationManager(AuthorizationManager<Message<?>> authorizationManager) {
-		this.authorizationChannelInterceptor = new AuthorizationChannelInterceptor(authorizationManager);
+		this.authorizationManager = authorizationManager;
+	}
+
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.observationRegistry = observationRegistry;
 	}
 
 	@Override

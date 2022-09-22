@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.reactive;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.ObjectProvider;
@@ -27,6 +29,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.expression.BeanFactoryResolver;
 import org.springframework.core.ReactiveAdapterRegistry;
+import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
@@ -60,6 +63,8 @@ class ServerHttpSecurityConfiguration {
 
 	private ReactiveUserDetailsPasswordService userDetailsPasswordService;
 
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 	@Autowired(required = false)
 	private BeanFactory beanFactory;
 
@@ -86,6 +91,11 @@ class ServerHttpSecurityConfiguration {
 	@Autowired(required = false)
 	void setUserDetailsPasswordService(ReactiveUserDetailsPasswordService userDetailsPasswordService) {
 		this.userDetailsPasswordService = userDetailsPasswordService;
+	}
+
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.observationRegistry = observationRegistry;
 	}
 
 	@Bean
@@ -143,6 +153,9 @@ class ServerHttpSecurityConfiguration {
 				manager.setPasswordEncoder(this.passwordEncoder);
 			}
 			manager.setUserDetailsPasswordService(this.userDetailsPasswordService);
+			if (!this.observationRegistry.isNoop()) {
+				return new ObservationReactiveAuthenticationManager(this.observationRegistry, manager);
+			}
 			return manager;
 		}
 		return null;

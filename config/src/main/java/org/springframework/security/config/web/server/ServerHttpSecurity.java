@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.micrometer.observation.ObservationRegistry;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -50,6 +51,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
@@ -1549,6 +1551,14 @@ public class ServerHttpSecurity {
 		return this.context.getBean(beanClass);
 	}
 
+	private <T> T getBeanOrDefault(Class<T> beanClass, T defaultInstance) {
+		T bean = getBeanOrNull(beanClass);
+		if (bean == null) {
+			return defaultInstance;
+		}
+		return bean;
+	}
+
 	private <T> T getBeanOrNull(Class<T> beanClass) {
 		return getBeanOrNull(ResolvableType.forClass(beanClass));
 	}
@@ -1623,7 +1633,12 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			Assert.state(this.matcher == null,
 					() -> "The matcher " + this.matcher + " does not have an access rule defined");
-			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
+			ReactiveAuthorizationManager<ServerWebExchange> manager = this.managerBldr.build();
+			ObservationRegistry registry = getBeanOrDefault(ObservationRegistry.class, ObservationRegistry.NOOP);
+			if (!registry.isNoop()) {
+				manager = new ObservationReactiveAuthorizationManager<>(registry, manager);
+			}
+			AuthorizationWebFilter result = new AuthorizationWebFilter(manager);
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
 

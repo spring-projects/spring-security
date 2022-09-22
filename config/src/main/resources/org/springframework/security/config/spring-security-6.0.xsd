@@ -695,6 +695,12 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="observation-registry-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Use this ObservationRegistry to collect metrics on various parts of the filter chain
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="global-method-security">
       <xs:annotation>
@@ -1386,6 +1392,12 @@
       <xs:attribute name="authentication-manager-ref" type="xs:token">
          <xs:annotation>
             <xs:documentation>A reference to an AuthenticationManager bean
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="observation-registry-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Use this ObservationRegistry to collect metrics on various parts of the filter chain
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -2987,6 +2999,12 @@
          <xs:annotation>
             <xs:documentation>If set to true, the AuthenticationManger will attempt to clear any credentials data in the
                 returned Authentication object, once the user has been authenticated.
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="observation-registry-ref" type="xs:token">
+         <xs:annotation>
+            <xs:documentation>Use this ObservationRegistry to collect metrics on various parts of the filter chain
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
