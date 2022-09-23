@@ -1126,9 +1126,6 @@ csrf-options.attlist &=
 csrf-options.attlist &=
 	## The CsrfTokenRequestHandler to use. The default is CsrfTokenRequestProcessor.
 	attribute request-handler-ref { xsd:token }?
-csrf-options.attlist &=
-	## The CsrfTokenRequestResolver to use. The default is CsrfTokenRequestProcessor.
-	attribute request-resolver-ref { xsd:token }?
 
 headers =
 ## Element for configuration of the HeaderWritersFilter. Enables easy setting for the X-Frame-Options, X-XSS-Protection and X-Content-Type-Options headers.

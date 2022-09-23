@@ -3168,13 +3168,7 @@
       </xs:attribute>
       <xs:attribute name="request-handler-ref" type="xs:token">
          <xs:annotation>
-            <xs:documentation>The CsrfTokenRequestHandler to use. The default is CsrfTokenRequestProcessor.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="request-resolver-ref" type="xs:token">
-         <xs:annotation>
-            <xs:documentation>The CsrfTokenRequestResolver to use. The default is CsrfTokenRequestProcessor.
+            <xs:documentation>The CsrfTokenRequestHandler to use. The default is CsrfTokenRepositoryRequestHandler.
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
