@@ -36,8 +36,8 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
-import org.springframework.security.web.csrf.CsrfTokenRequestResolver;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -93,8 +93,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	private CsrfTokenRequestHandler requestHandler;
 
-	private CsrfTokenRequestResolver requestResolver;
-
 	private final ApplicationContext context;
 
 	/**
@@ -135,20 +133,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * available as a request attribute.
 	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
+	 * @since 5.8
 	 */
 	public CsrfConfigurer<H> csrfTokenRequestHandler(CsrfTokenRequestHandler requestHandler) {
 		this.requestHandler = requestHandler;
-		return this;
-	}
-
-	/**
-	 * Specify a {@link CsrfTokenRequestResolver} to use for resolving the token value
-	 * from the request.
-	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
-	 * @return the {@link CsrfConfigurer} for further customizations
-	 */
-	public CsrfConfigurer<H> csrfTokenRequestResolver(CsrfTokenRequestResolver requestResolver) {
-		this.requestResolver = requestResolver;
 		return this;
 	}
 
@@ -229,7 +217,13 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(H http) {
-		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
+		CsrfFilter filter;
+		if (this.requestHandler != null) {
+			filter = new CsrfFilter(this.requestHandler);
+		}
+		else {
+			filter = new CsrfFilter(new CsrfTokenRepositoryRequestHandler(this.csrfTokenRepository));
+		}
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
@@ -245,12 +239,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
 			sessionConfigurer.addSessionAuthenticationStrategy(getSessionAuthenticationStrategy());
-		}
-		if (this.requestHandler != null) {
-			filter.setRequestHandler(this.requestHandler);
-		}
-		if (this.requestResolver != null) {
-			filter.setRequestResolver(this.requestResolver);
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);

@@ -19,18 +19,20 @@ package org.springframework.security.web.csrf;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.util.Assert;
+
 /**
- * A callback interface that is used to determine the {@link CsrfToken} to use and make
- * the {@link CsrfToken} available as a request attribute. Implementations of this
- * interface may choose to perform additional tasks or customize how the token is made
- * available to the application through request attributes.
+ * An interface that is used to determine the {@link CsrfToken} to use and make the
+ * {@link CsrfToken} available as a request attribute. Implementations of this interface
+ * may choose to perform additional tasks or customize how the token is made available to
+ * the application through request attributes.
  *
  * @author Steve Riesenberg
  * @since 5.8
- * @see CsrfTokenRequestProcessor
+ * @see CsrfTokenRepositoryRequestHandler
  */
 @FunctionalInterface
-public interface CsrfTokenRequestHandler {
+public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 
 	/**
 	 * Handles a request using a {@link CsrfToken}.
@@ -38,5 +40,16 @@ public interface CsrfTokenRequestHandler {
 	 * @param response the {@code HttpServletResponse} being handled
 	 */
 	DeferredCsrfToken handle(HttpServletRequest request, HttpServletResponse response);
+
+	@Override
+	default String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
+		Assert.notNull(request, "request cannot be null");
+		Assert.notNull(csrfToken, "csrfToken cannot be null");
+		String actualToken = request.getHeader(csrfToken.getHeaderName());
+		if (actualToken == null) {
+			actualToken = request.getParameter(csrfToken.getParameterName());
+		}
+		return actualToken;
+	}
 
 }

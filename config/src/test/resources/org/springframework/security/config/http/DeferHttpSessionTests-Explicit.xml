@@ -42,7 +42,7 @@
 	<b:bean id="csrfRepository" class="org.springframework.security.web.csrf.LazyCsrfTokenRepository"
 		c:delegate-ref="httpSessionCsrfRepository"
 	 	p:deferLoadToken="true"/>
-	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.CsrfTokenRequestProcessor"
+	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler"
 		p:csrfRequestAttributeName="_csrf"/>
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
 </b:beans>

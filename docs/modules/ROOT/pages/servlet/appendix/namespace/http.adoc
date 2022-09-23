@@ -777,11 +777,7 @@ The default is `HttpSessionCsrfTokenRepository`.
 
 [[nsa-csrf-request-handler-ref]]
 * **request-handler-ref**
-The optional `CsrfTokenRequestHandler` to use. The default is `CsrfTokenRequestProcessor`.
-
-[[nsa-csrf-request-resolver-ref]]
-* **request-resolver-ref**
-The optional `CsrfTokenRequestResolver` to use. The default is `CsrfTokenRequestProcessor`.
+The optional `CsrfTokenRequestHandler` to use. The default is `CsrfTokenRepositoryRequestHandler`.
 
 [[nsa-csrf-request-matcher-ref]]
 * **request-matcher-ref**
