@@ -40,6 +40,7 @@ import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
+import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -72,8 +73,6 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_REQUEST_HANDLER = "request-handler-ref";
 
-	private static final String ATT_REQUEST_RESOLVER = "request-resolver-ref";
-
 	private String csrfRepositoryRef;
 
 	private BeanDefinition csrfFilter;
@@ -81,8 +80,6 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 	private String requestMatcherRef;
 
 	private String requestHandlerRef;
-
-	private String requestResolverRef;
 
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
@@ -103,7 +100,6 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			this.csrfRepositoryRef = element.getAttribute(ATT_REPOSITORY);
 			this.requestMatcherRef = element.getAttribute(ATT_MATCHER);
 			this.requestHandlerRef = element.getAttribute(ATT_REQUEST_HANDLER);
-			this.requestResolverRef = element.getAttribute(ATT_REQUEST_RESOLVER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
 			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
@@ -115,15 +111,17 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 					new BeanComponentDefinition(lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
 		}
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
-		builder.addConstructorArgReference(this.csrfRepositoryRef);
+		if (!StringUtils.hasText(this.requestHandlerRef)) {
+			BeanDefinition csrfTokenRequestHandler = BeanDefinitionBuilder
+					.rootBeanDefinition(CsrfTokenRepositoryRequestHandler.class)
+					.addConstructorArgReference(this.csrfRepositoryRef).getBeanDefinition();
+			builder.addConstructorArgValue(csrfTokenRequestHandler);
+		}
+		else {
+			builder.addConstructorArgReference(this.requestHandlerRef);
+		}
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
-		}
-		if (StringUtils.hasText(this.requestHandlerRef)) {
-			builder.addPropertyReference("requestHandler", this.requestHandlerRef);
-		}
-		if (StringUtils.hasText(this.requestResolverRef)) {
-			builder.addPropertyReference("requestResolver", this.requestResolverRef);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;

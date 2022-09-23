@@ -81,20 +81,30 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private final CsrfTokenRequestHandler requestHandler;
+
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
-	private CsrfTokenRequestHandler requestHandler;
-
-	private CsrfTokenRequestResolver requestResolver;
-
+	/**
+	 * Creates a new instance.
+	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
+	 * @deprecated Use {@link CsrfFilter#CsrfFilter(CsrfTokenRequestHandler)} instead
+	 */
+	@Deprecated
 	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
-		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
-		CsrfTokenRequestProcessor csrfTokenRequestProcessor = new CsrfTokenRequestProcessor();
-		csrfTokenRequestProcessor.setTokenRepository(csrfTokenRepository);
-		this.requestHandler = csrfTokenRequestProcessor;
-		this.requestResolver = csrfTokenRequestProcessor;
+		this(new CsrfTokenRepositoryRequestHandler(csrfTokenRepository));
+	}
+
+	/**
+	 * Creates a new instance.
+	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use. Default is
+	 * {@link CsrfTokenRepositoryRequestHandler}.
+	 */
+	public CsrfFilter(CsrfTokenRequestHandler requestHandler) {
+		Assert.notNull(requestHandler, "requestHandler cannot be null");
+		this.requestHandler = requestHandler;
 	}
 
 	@Override
@@ -115,7 +125,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 			return;
 		}
 		CsrfToken csrfToken = deferredCsrfToken.get();
-		String actualToken = this.requestResolver.resolveCsrfTokenValue(request, csrfToken);
+		String actualToken = this.requestHandler.resolveCsrfTokenValue(request, csrfToken);
 		if (!equalsConstantTime(csrfToken.getToken(), actualToken)) {
 			boolean missingToken = deferredCsrfToken.isGenerated();
 			this.logger.debug(
@@ -161,36 +171,6 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
-	}
-
-	/**
-	 * Specifies a {@link CsrfTokenRequestHandler} that is used to make the
-	 * {@link CsrfToken} available as a request attribute.
-	 *
-	 * <p>
-	 * The default is {@link CsrfTokenRequestProcessor}.
-	 * </p>
-	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
-	 * @since 5.8
-	 */
-	public void setRequestHandler(CsrfTokenRequestHandler requestHandler) {
-		Assert.notNull(requestHandler, "requestHandler cannot be null");
-		this.requestHandler = requestHandler;
-	}
-
-	/**
-	 * Specifies a {@link CsrfTokenRequestResolver} that is used to resolve the token
-	 * value from the request.
-	 *
-	 * <p>
-	 * The default is {@link CsrfTokenRequestProcessor}.
-	 * </p>
-	 * @param requestResolver the {@link CsrfTokenRequestResolver} to use
-	 * @since 5.8
-	 */
-	public void setRequestResolver(CsrfTokenRequestResolver requestResolver) {
-		Assert.notNull(requestResolver, "requestResolver cannot be null");
-		this.requestResolver = requestResolver;
 	}
 
 	/**

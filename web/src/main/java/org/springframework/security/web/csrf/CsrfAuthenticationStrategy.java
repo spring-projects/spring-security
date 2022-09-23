@@ -47,10 +47,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
 	 */
 	public CsrfAuthenticationStrategy(CsrfTokenRepository csrfTokenRepository) {
-		Assert.notNull(csrfTokenRepository, "csrfTokenRepository cannot be null");
-		CsrfTokenRequestProcessor processor = new CsrfTokenRequestProcessor();
-		processor.setTokenRepository(csrfTokenRepository);
-		this.requestHandler = processor;
+		this.requestHandler = new CsrfTokenRepositoryRequestHandler(csrfTokenRepository);
 		this.csrfTokenRepository = csrfTokenRepository;
 	}
 

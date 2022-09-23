@@ -43,7 +43,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRequestProcessor;
+import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -424,8 +424,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		given(csrfTokenRepository.generateToken(any(HttpServletRequest.class))).willReturn(csrfToken);
-		CsrfTokenRequestProcessorConfig.PROCESSOR = new CsrfTokenRequestProcessor();
-		CsrfTokenRequestProcessorConfig.PROCESSOR.setTokenRepository(csrfTokenRepository);
+		CsrfTokenRequestProcessorConfig.HANDLER = new CsrfTokenRepositoryRequestHandler(csrfTokenRepository);
 		this.spring.register(CsrfTokenRequestProcessorConfig.class, BasicController.class).autowire();
 		this.mvc.perform(get("/login")).andExpect(status().isOk())
 				.andExpect(content().string(containsString(csrfToken.getToken())));
@@ -442,8 +441,7 @@ public class CsrfConfigurerTests {
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
 		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(null, csrfToken);
 		given(csrfTokenRepository.generateToken(any(HttpServletRequest.class))).willReturn(csrfToken);
-		CsrfTokenRequestProcessorConfig.PROCESSOR = new CsrfTokenRequestProcessor();
-		CsrfTokenRequestProcessorConfig.PROCESSOR.setTokenRepository(csrfTokenRepository);
+		CsrfTokenRequestProcessorConfig.HANDLER = new CsrfTokenRepositoryRequestHandler(csrfTokenRepository);
 
 		this.spring.register(CsrfTokenRequestProcessorConfig.class, BasicController.class).autowire();
 		// @formatter:off
@@ -823,7 +821,7 @@ public class CsrfConfigurerTests {
 	@EnableWebSecurity
 	static class CsrfTokenRequestProcessorConfig {
 
-		static CsrfTokenRequestProcessor PROCESSOR;
+		static CsrfTokenRepositoryRequestHandler HANDLER;
 
 		@Bean
 		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -833,10 +831,7 @@ public class CsrfConfigurerTests {
 					.anyRequest().authenticated()
 				)
 				.formLogin(Customizer.withDefaults())
-				.csrf((csrf) -> csrf
-					.csrfTokenRequestHandler(PROCESSOR)
-					.csrfTokenRequestResolver(PROCESSOR)
-				);
+				.csrf((csrf) -> csrf.csrfTokenRequestHandler(HANDLER));
 			// @formatter:on
 
 			return http.build();

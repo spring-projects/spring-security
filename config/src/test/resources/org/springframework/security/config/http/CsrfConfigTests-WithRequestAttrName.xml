@@ -26,7 +26,7 @@
 		<csrf request-handler-ref="requestHandler"/>
 	</http>
 
-	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.CsrfTokenRequestProcessor"
+	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler"
 		p:csrfRequestAttributeName="csrf-attribute-name"/>
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
 </b:beans>
