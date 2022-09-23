@@ -63,7 +63,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * Authorization Framework: Bearer Token Usage</a>
  * @see JwtAuthenticationProvider
  */
-public final class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
 	private final AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver;
 
