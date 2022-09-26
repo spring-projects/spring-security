@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,10 @@ public class Argon2PasswordEncoderTests {
 	@Mock
 	private BytesKeyGenerator keyGeneratorMock;
 
-	private Argon2PasswordEncoder encoder = new Argon2PasswordEncoder();
+	// Restore the original settings for Argon2.
+	// The default configuration has been updated to the recommended minimums.
+	// See gh-10506 Update PasswordEncoder Minimums
+	private Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(16, 32, 1, 1 << 12, 3);
 
 	@Test
 	public void encodeDoesNotEqualPassword() {
@@ -128,6 +131,15 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
+	public void encodeWhenUsingPredictableSaltWithDefaultParamsThenEqualTestHash() throws Exception {
+		this.encoder = new Argon2PasswordEncoder();
+		injectPredictableSaltGen();
+		String hash = this.encoder.encode("sometestpassword");
+		assertThat(hash).isEqualTo(
+				"$argon2id$v=19$m=16384,t=2,p=1$QUFBQUFBQUFBQUFBQUFBQQ$zGt5MiNPSUOo4/7jBcJMayCPfcsLJ4c0WUxhwGDIYPw");
+	}
+
+	@Test
 	public void upgradeEncodingWhenSameEncodingThenFalse() {
 		String hash = this.encoder.encode("password");
 		assertThat(this.encoder.upgradeEncoding(hash)).isFalse();
@@ -135,7 +147,7 @@ public class Argon2PasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenSameStandardParamsThenFalse() {
-		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
+		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder(16, 32, 1, 1 << 12, 3);
 		String hash = this.encoder.encode("password");
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}

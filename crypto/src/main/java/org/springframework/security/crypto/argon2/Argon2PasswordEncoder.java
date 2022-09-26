@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,9 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	private static final int DEFAULT_PARALLELISM = 1;
 
-	private static final int DEFAULT_MEMORY = 1 << 12;
+	private static final int DEFAULT_MEMORY = 1 << 14;
 
-	private static final int DEFAULT_ITERATIONS = 3;
+	private static final int DEFAULT_ITERATIONS = 2;
 
 	private final Log logger = LogFactory.getLog(getClass());
 
