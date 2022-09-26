@@ -1,3 +1,5 @@
-name: 'ROOT'
-version: '5.6.8'
-prerelease: '-SNAPSHOT'
+name: ROOT
+version: true
+title: Documentation
+nav:
+- modules/ROOT/nav.adoc
