@@ -53,7 +53,9 @@ public final class PasswordEncoderFactories {
 	 * <li>noop -
 	 * {@link org.springframework.security.crypto.password.NoOpPasswordEncoder}</li>
 	 * <li>pbkdf2 - {@link Pbkdf2PasswordEncoder}</li>
-	 * <li>scrypt - {@link SCryptPasswordEncoder}</li>
+	 * <li>scrypt - {@link SCryptPasswordEncoder#defaultsForSpringSecurity_v4_1()}</li>
+	 * <li>scrypt@SpringSecurity_v5_8 -
+	 * {@link SCryptPasswordEncoder#defaultsForSpringSecurity_v5_8()}</li>
 	 * <li>SHA-1 - {@code new MessageDigestPasswordEncoder("SHA-1")}</li>
 	 * <li>SHA-256 - {@code new MessageDigestPasswordEncoder("SHA-256")}</li>
 	 * <li>sha256 -
@@ -74,7 +76,8 @@ public final class PasswordEncoderFactories {
 		encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
 		encoders.put("noop", org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
 		encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
-		encoders.put("scrypt", new SCryptPasswordEncoder());
+		encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1());
+		encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
 		encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
 		encoders.put("SHA-256",
 				new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));

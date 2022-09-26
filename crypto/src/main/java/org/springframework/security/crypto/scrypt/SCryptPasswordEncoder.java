@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,6 +58,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
  */
 public class SCryptPasswordEncoder implements PasswordEncoder {
 
+	private static final int DEFAULT_CPU_COST = 65536;
+
+	private static final int DEFAULT_MEMORY_COST = 8;
+
+	private static final int DEFAULT_PARALLELISM = 1;
+
+	private static final int DEFAULT_KEY_LENGTH = 32;
+
+	private static final int DEFAULT_SALT_LENGTH = 16;
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final int cpuCost;
@@ -70,14 +80,20 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 
 	private final BytesKeyGenerator saltGenerator;
 
+	/**
+	 * Constructs a SCrypt password encoder with cpu cost of 16,384, memory cost of 8,
+	 * parallelization of 1, a key length of 32 and a salt length of 64 bytes.
+	 * @deprecated Use {@link #defaultsForSpringSecurity_v4_1()} instead
+	 */
+	@Deprecated
 	public SCryptPasswordEncoder() {
 		this(16384, 8, 1, 32, 64);
 	}
 
 	/**
-	 * Creates a new instance
+	 * Constructs a SCrypt password encoder with the provided parameters.
 	 * @param cpuCost cpu cost of the algorithm (as defined in scrypt this is N). must be
-	 * power of 2 greater than 1. Default is currently 16,384 or 2^14)
+	 * power of 2 greater than 1. Default is currently 65,536 or 2^16)
 	 * @param memoryCost memory cost of the algorithm (as defined in scrypt this is r)
 	 * Default is currently 8.
 	 * @param parallelization the parallelization of the algorithm (as defined in scrypt
@@ -86,7 +102,7 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	 * @param keyLength key length for the algorithm (as defined in scrypt this is dkLen).
 	 * The default is currently 32.
 	 * @param saltLength salt length (as defined in scrypt this is the length of S). The
-	 * default is currently 64.
+	 * default is currently 16.
 	 */
 	public SCryptPasswordEncoder(int cpuCost, int memoryCost, int parallelization, int keyLength, int saltLength) {
 		if (cpuCost <= 1) {
@@ -114,6 +130,29 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 		this.parallelization = parallelization;
 		this.keyLength = keyLength;
 		this.saltGenerator = KeyGenerators.secureRandom(saltLength);
+	}
+
+	/**
+	 * Constructs a SCrypt password encoder with cpu cost of 16,384, memory cost of 8,
+	 * parallelization of 1, a key length of 32 and a salt length of 64 bytes.
+	 * @return the {@link SCryptPasswordEncoder}
+	 * @since 5.8
+	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_8()} instead
+	 */
+	@Deprecated
+	public static SCryptPasswordEncoder defaultsForSpringSecurity_v4_1() {
+		return new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
+	}
+
+	/**
+	 * Constructs a SCrypt password encoder with cpu cost of 65,536, memory cost of 8,
+	 * parallelization of 1, a key length of 32 and a salt length of 16 bytes.
+	 * @return the {@link SCryptPasswordEncoder}
+	 * @since 5.8
+	 */
+	public static SCryptPasswordEncoder defaultsForSpringSecurity_v5_8() {
+		return new SCryptPasswordEncoder(DEFAULT_CPU_COST, DEFAULT_MEMORY_COST, DEFAULT_PARALLELISM, DEFAULT_KEY_LENGTH,
+				DEFAULT_SALT_LENGTH);
 	}
 
 	@Override

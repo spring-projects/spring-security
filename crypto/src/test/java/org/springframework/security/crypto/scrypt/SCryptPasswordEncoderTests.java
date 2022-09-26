@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void matches() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		String result = encoder.encode("password");
 		assertThat(result).isNotEqualTo("password");
 		assertThat(encoder.matches("password", result)).isTrue();
@@ -37,7 +37,7 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void unicode() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		String result = encoder.encode("passw\u9292rd");
 		assertThat(encoder.matches("pass\u9292\u9292rd", result)).isFalse();
 		assertThat(encoder.matches("passw\u9292rd", result)).isTrue();
@@ -45,7 +45,7 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void notMatches() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		String result = encoder.encode("password");
 		assertThat(encoder.matches("bogus", result)).isFalse();
 	}
@@ -60,15 +60,15 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void differentPasswordHashes() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		String password = "secret";
 		assertThat(encoder.encode(password)).isNotEqualTo(encoder.encode(password));
 	}
 
 	@Test
 	public void samePasswordWithDifferentParams() {
-		SCryptPasswordEncoder oldEncoder = new SCryptPasswordEncoder(16384, 8, 1, 32, 64);
-		SCryptPasswordEncoder newEncoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder oldEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
+		SCryptPasswordEncoder newEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();
@@ -76,19 +76,19 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void doesntMatchNullEncodedValue() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		assertThat(encoder.matches("password", null)).isFalse();
 	}
 
 	@Test
 	public void doesntMatchEmptyEncodedValue() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		assertThat(encoder.matches("password", "")).isFalse();
 	}
 
 	@Test
 	public void doesntMatchBogusEncodedValue() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		assertThat(encoder.matches("password", "012345678901234567890123456789")).isFalse();
 	}
 
@@ -122,19 +122,19 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenNullThenFalse() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		assertThat(encoder.upgradeEncoding(null)).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenEmptyThenFalse() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		assertThat(encoder.upgradeEncoding("")).isFalse();
 	}
 
 	@Test
 	public void upgradeEncodingWhenSameEncoderThenFalse() {
-		SCryptPasswordEncoder encoder = new SCryptPasswordEncoder();
+		SCryptPasswordEncoder encoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
 		String encoded = encoder.encode("password");
 		assertThat(encoder.upgradeEncoding(encoded)).isFalse();
 	}
@@ -159,8 +159,8 @@ public class SCryptPasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenInvalidInputThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new SCryptPasswordEncoder().upgradeEncoding("not-a-scrypt-password"));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1().upgradeEncoding("not-a-scrypt-password"));
 	}
 
 }
