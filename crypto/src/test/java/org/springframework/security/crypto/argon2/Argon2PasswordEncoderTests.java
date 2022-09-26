@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class Argon2PasswordEncoderTests {
 	@Mock
 	private BytesKeyGenerator keyGeneratorMock;
 
-	private Argon2PasswordEncoder encoder = new Argon2PasswordEncoder();
+	private Argon2PasswordEncoder encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
 
 	@Test
 	public void encodeDoesNotEqualPassword() {
@@ -128,6 +128,15 @@ public class Argon2PasswordEncoderTests {
 	}
 
 	@Test
+	public void encodeWhenUsingPredictableSaltWithDefaultsForSpringSecurity_v5_8ThenEqualTestHash() throws Exception {
+		this.encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+		injectPredictableSaltGen();
+		String hash = this.encoder.encode("sometestpassword");
+		assertThat(hash).isEqualTo(
+				"$argon2id$v=19$m=16384,t=2,p=1$QUFBQUFBQUFBQUFBQUFBQQ$zGt5MiNPSUOo4/7jBcJMayCPfcsLJ4c0WUxhwGDIYPw");
+	}
+
+	@Test
 	public void upgradeEncodingWhenSameEncodingThenFalse() {
 		String hash = this.encoder.encode("password");
 		assertThat(this.encoder.upgradeEncoding(hash)).isFalse();
@@ -135,7 +144,7 @@ public class Argon2PasswordEncoderTests {
 
 	@Test
 	public void upgradeEncodingWhenSameStandardParamsThenFalse() {
-		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
+		Argon2PasswordEncoder newEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
 		String hash = this.encoder.encode("password");
 		assertThat(newEncoder.upgradeEncoding(hash)).isFalse();
 	}

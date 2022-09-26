@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,6 +102,12 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void matchesWhenArgon2ThenWorks() {
 		String encodedPassword = "{argon2}$argon2d$v=19$m=1024,t=1,p=1$c29tZXNhbHQ$Li5eBf5XrCz0cuzQRe9oflYqmA/VAzmzichw4ZYrvEU";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchesWhenArgon2SpringSecurity_v5_8ThenWorks() {
+		String encodedPassword = "{argon2@SpringSecurity_v5_8}$argon2id$v=19$m=16384,t=2,p=1$v7fN5p91BQbdbA2HfdSPRg$MULpa02CO/6FKfqwuerCFvS7OhMxGFCKUOoWfzt86Rc";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 

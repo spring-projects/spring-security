@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,9 @@ public final class PasswordEncoderFactories {
 	 * <li>SHA-256 - {@code new MessageDigestPasswordEncoder("SHA-256")}</li>
 	 * <li>sha256 -
 	 * {@link org.springframework.security.crypto.password.StandardPasswordEncoder}</li>
-	 * <li>argon2 - {@link Argon2PasswordEncoder}</li>
+	 * <li>argon2 - {@link Argon2PasswordEncoder#defaultsForSpringSecurity_v5_2()}</li>
+	 * <li>argon2@SpringSecurity_v5_8 -
+	 * {@link Argon2PasswordEncoder#defaultsForSpringSecurity_v5_8()}</li>
 	 * </ul>
 	 * @return the {@link PasswordEncoder} to use
 	 */
@@ -77,7 +79,8 @@ public final class PasswordEncoderFactories {
 		encoders.put("SHA-256",
 				new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
 		encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
-		encoders.put("argon2", new Argon2PasswordEncoder());
+		encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
+		encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
 		return new DelegatingPasswordEncoder(encodingId, encoders);
 	}
 
