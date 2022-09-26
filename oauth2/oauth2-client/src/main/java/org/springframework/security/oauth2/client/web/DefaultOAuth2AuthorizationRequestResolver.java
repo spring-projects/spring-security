@@ -149,7 +149,7 @@ public final class DefaultOAuth2AuthorizationRequestResolver implements OAuth2Au
 		}
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (clientRegistration == null) {
-			throw new IllegalArgumentException("Invalid Client Registration with Id: " + registrationId);
+			throw new InvalidClientRegistrationIdException("Invalid Client Registration with Id: " + registrationId);
 		}
 		OAuth2AuthorizationRequest.Builder builder = getBuilder(clientRegistration);
 
