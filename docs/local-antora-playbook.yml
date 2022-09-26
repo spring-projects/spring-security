@@ -2,9 +2,6 @@
 antora:
   extensions:
   - ./antora-linked-worktree-patch.js
-runtime:
-  log:
-    format: pretty
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
