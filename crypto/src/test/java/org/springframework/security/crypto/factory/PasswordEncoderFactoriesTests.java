@@ -76,6 +76,12 @@ public class PasswordEncoderFactoriesTests {
 	}
 
 	@Test
+	public void matchesWhenPbkdf2SpringSecurity_v5_8ThenWorks() {
+		String encodedPassword = "{pbkdf2@SpringSecurity_v5_8}fefe5120467e5d4ccff442dbb2fa86d276262d97435c0c54e5eebced51ffd144fcb05eb53fea2677216c4f3250010006";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
 	public void matchesWhenSCryptThenWorks() {
 		String encodedPassword = "{scrypt}$e0801$8bWJaSu2IKSn9Z9kM+TPXfOc/9bdYSrN1oD9qfVThWEwdRTnO7re7Ei+fUZRJ68k9lTyuTeUp4of4g24hHnazw==$OAOec05+bXxvuu/1qZ6NUR+xQYvYv7BeL1QxwRpY5Pc=";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
