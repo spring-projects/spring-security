@@ -5,9 +5,6 @@ antora:
   - '@antora/collector-extension'
   - ./lib/antora/extensions/version-fix.js
   - ./lib/antora/extensions/major-minor-segment.js
-runtime:
-  log:
-    format: pretty
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
