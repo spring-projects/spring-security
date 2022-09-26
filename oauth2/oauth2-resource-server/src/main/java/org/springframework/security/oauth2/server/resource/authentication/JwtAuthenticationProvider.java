@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,7 @@ import org.springframework.util.Assert;
  *
  * @author Josh Cummings
  * @author Joe Grandja
+ * @author Jerome Wacongne ch4mp&#64;c4-soft.com
  * @since 5.1
  * @see AuthenticationProvider
  * @see JwtDecoder
@@ -86,7 +87,9 @@ public final class JwtAuthenticationProvider implements AuthenticationProvider {
 		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		Jwt jwt = getJwt(bearer);
 		AbstractAuthenticationToken token = this.jwtAuthenticationConverter.convert(jwt);
-		token.setDetails(bearer.getDetails());
+		if (token.getDetails() == null) {
+			token.setDetails(bearer.getDetails());
+		}
 		this.logger.debug("Authenticated token");
 		return token;
 	}
