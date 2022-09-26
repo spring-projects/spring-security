@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,11 +50,11 @@ import org.springframework.security.crypto.util.EncodingUtils;
  */
 public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
-	private static final int DEFAULT_SALT_LENGTH = 8;
+	private static final int DEFAULT_SALT_LENGTH = 16;
 
 	private static final int DEFAULT_HASH_WIDTH = 256;
 
-	private static final int DEFAULT_ITERATIONS = 185000;
+	private static final int DEFAULT_ITERATIONS = 310000;
 
 	private final BytesKeyGenerator saltGenerator;
 
@@ -64,7 +64,7 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private final int iterations;
 
-	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.name();
+	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256.name();
 
 	private boolean encodeHashAsBase64;
 

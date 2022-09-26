@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,14 @@ public final class PasswordEncoderFactories {
 		encoders.put("MD4", new org.springframework.security.crypto.password.Md4PasswordEncoder());
 		encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
 		encoders.put("noop", org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
-		encoders.put("pbkdf2", new Pbkdf2PasswordEncoder());
+
+		// Preserve the original settings for PBKDF2 for backwards compatibility.
+		// The default configuration has been updated to the recommended minimums.
+		// See gh-10506 Update PasswordEncoder Minimums
+		Pbkdf2PasswordEncoder pbkdf2PasswordEncoder = new Pbkdf2PasswordEncoder("", 8, 185000, 256);
+		pbkdf2PasswordEncoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1);
+		encoders.put("pbkdf2", pbkdf2PasswordEncoder);
+
 		encoders.put("scrypt", new SCryptPasswordEncoder());
 		encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
 		encoders.put("SHA-256",

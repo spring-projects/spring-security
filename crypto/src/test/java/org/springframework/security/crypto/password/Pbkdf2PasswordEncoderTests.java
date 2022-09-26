@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.crypto.password;
 
 import java.util.Arrays;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
@@ -28,11 +29,23 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class Pbkdf2PasswordEncoderTests {
 
-	private Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("secret");
+	private Pbkdf2PasswordEncoder encoder;
 
-	private Pbkdf2PasswordEncoder encoderSalt16 = new Pbkdf2PasswordEncoder("", 16);
+	private Pbkdf2PasswordEncoder encoderSalt16;
 
-	private Pbkdf2PasswordEncoder[] encoders = new Pbkdf2PasswordEncoder[] { this.encoder, this.encoderSalt16 };
+	private Pbkdf2PasswordEncoder[] encoders;
+
+	@BeforeEach
+	public void setup() {
+		// Restore the original settings for PBKDF2 for backwards compatibility.
+		// The default configuration has been updated to the recommended minimums.
+		// See gh-10506 Update PasswordEncoder Minimums
+		this.encoder = new Pbkdf2PasswordEncoder("secret", 8, 185000, 256);
+		this.encoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1);
+		this.encoderSalt16 = new Pbkdf2PasswordEncoder("", 16, 185000, 256);
+		this.encoderSalt16.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1);
+		this.encoders = new Pbkdf2PasswordEncoder[] { this.encoder, this.encoderSalt16 };
+	}
 
 	@Test
 	public void encodedLengthSuccess() {
