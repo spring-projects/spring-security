@@ -102,6 +102,22 @@ public class IpAddressServerWebExchangeMatcherTests {
 	}
 
 	@Test
+	public void matchesWhenIpv4UnresolvedThenTrue() throws UnknownHostException {
+		ServerWebExchange ipv4Exchange = exchange("192.168.1.104", true);
+		ServerWebExchangeMatcher.MatchResult matches = new IpAddressServerWebExchangeMatcher("192.168.1.104")
+				.matches(ipv4Exchange).block();
+		assertThat(matches.isMatch()).isTrue();
+	}
+
+	@Test
+	public void matchesWhenIpv6UnresolvedThenTrue() throws UnknownHostException {
+		ServerWebExchange ipv6Exchange = exchange("fe80::21f:5bff:fe33:bd68", true);
+		ServerWebExchangeMatcher.MatchResult matches = new IpAddressServerWebExchangeMatcher("fe80::21f:5bff:fe33:bd68")
+				.matches(ipv6Exchange).block();
+		assertThat(matches.isMatch()).isTrue();
+	}
+
+	@Test
 	public void constructorWhenIpv4AddressMaskTooLongThenIllegalArgumentException() {
 		String ipv4AddressWithTooLongMask = "192.168.1.104/33";
 		assertThatIllegalArgumentException()
@@ -119,8 +135,14 @@ public class IpAddressServerWebExchangeMatcherTests {
 	}
 
 	private static ServerWebExchange exchange(String ipAddress) throws UnknownHostException {
+		return exchange(ipAddress, false);
+	}
+
+	private static ServerWebExchange exchange(String ipAddress, boolean unresolved) throws UnknownHostException {
 		return MockServerWebExchange.builder(MockServerHttpRequest.get("/")
-				.remoteAddress(new InetSocketAddress(InetAddress.getByName(ipAddress), 8080))).build();
+				.remoteAddress(unresolved
+						? InetSocketAddress.createUnresolved(ipAddress, 8080)
+						: new InetSocketAddress(InetAddress.getByName(ipAddress), 8080))).build();
 	}
 
 }
