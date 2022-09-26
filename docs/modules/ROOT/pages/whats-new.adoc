@@ -15,3 +15,4 @@ Instead use data storage to encrypt values.
 Reorganize imports
 * https://github.com/spring-projects/spring-security/issues/7349 - Move filter and token to appropriate packages
 Reorganize imports
+* https://github.com/spring-projects/spring-security/issues/11026[gh-11026] - Use `RequestAttributeSecurityContextRepository` instead of `NullSecurityContextRepository`
