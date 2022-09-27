@@ -729,7 +729,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * If false, will not specify the mode as blocked. In this instance, any content
 		 * will be attempted to be fixed. If true, the content will be replaced with "#".
 		 * @param enabled the new value
+		 * @deprecated use
+		 * {@link XXssConfig#headerValue(XXssProtectionHeaderWriter.HeaderValue)} instead
 		 */
+		@Deprecated
 		public XXssConfig block(boolean enabled) {
 			this.writer.setBlock(enabled);
 			return this;
@@ -757,9 +760,46 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * X-XSS-Protection: 0
 		 * </pre>
 		 * @param enabled the new value
+		 * @deprecated use
+		 * {@link XXssConfig#headerValue(XXssProtectionHeaderWriter.HeaderValue)} instead
 		 */
+		@Deprecated
 		public XXssConfig xssProtectionEnabled(boolean enabled) {
 			this.writer.setEnabled(enabled);
+			return this;
+		}
+
+		/**
+		 * Sets the value of the X-XSS-PROTECTION header. OWASP recommends using
+		 * {@link XXssProtectionHeaderWriter.HeaderValue#DISABLED}.
+		 *
+		 * If {@link XXssProtectionHeaderWriter.HeaderValue#DISABLED}, will specify that
+		 * X-XSS-Protection is disabled. For example:
+		 *
+		 * <pre>
+		 * X-XSS-Protection: 0
+		 * </pre>
+		 *
+		 * If {@link XXssProtectionHeaderWriter.HeaderValue#ENABLED}, will contain a value
+		 * of 1, but will not specify the mode as blocked. In this instance, any content
+		 * will be attempted to be fixed. For example:
+		 *
+		 * <pre>
+		 * X-XSS-Protection: 1
+		 * </pre>
+		 *
+		 * If {@link XXssProtectionHeaderWriter.HeaderValue#ENABLED_MODE_BLOCK}, will
+		 * contain a value of 1 and will specify mode as blocked. The content will be
+		 * replaced with "#". For example:
+		 *
+		 * <pre>
+		 * X-XSS-Protection: 1 ; mode=block
+		 * </pre>
+		 * @param headerValue the new header value
+		 * @since 5.8
+		 */
+		public XXssConfig headerValue(XXssProtectionHeaderWriter.HeaderValue headerValue) {
+			this.writer.setHeaderValue(headerValue);
 			return this;
 		}
 

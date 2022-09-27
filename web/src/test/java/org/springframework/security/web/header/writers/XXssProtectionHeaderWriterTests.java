@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -92,6 +92,36 @@ public class XXssProtectionHeaderWriterTests {
 		this.response.setHeader(XSS_PROTECTION_HEADER, value);
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeader(XSS_PROTECTION_HEADER)).isSameAs(value);
+	}
+
+	@Test
+	void writeHeaderWhenDisabled() {
+		this.writer.setHeaderValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
+	}
+
+	@Test
+	void writeHeaderWhenEnabled() {
+		this.writer.setHeaderValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
+	}
+
+	@Test
+	void writeHeaderWhenEnabledModeBlock() {
+		this.writer.setHeaderValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK);
+		this.writer.writeHeaders(this.request, this.response);
+		assertThat(this.response.getHeaderNames()).hasSize(1);
+		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
+	}
+
+	@Test
+	public void setHeaderValueNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setHeaderValue(null))
+				.withMessage("headerValue cannot be null");
 	}
 
 }
