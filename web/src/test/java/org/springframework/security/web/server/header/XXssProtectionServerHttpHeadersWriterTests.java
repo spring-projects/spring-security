@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.web.server.ServerWebExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 /**
  * @author Rob Winch
@@ -36,6 +37,12 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	XXssProtectionServerHttpHeadersWriter writer = new XXssProtectionServerHttpHeadersWriter();
+
+	@Test
+	void setHeaderValueNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setHeaderValue(null))
+				.withMessage("headerValue cannot be null");
+	}
 
 	@Test
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
@@ -68,6 +75,31 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly(headerValue);
+	}
+
+	@Test
+	void writeHeadersWhenDisabledThenWriteHeaders() {
+		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
+	}
+
+	@Test
+	void writeHeadersWhenEnabledThenWriteHeaders() {
+		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.ENABLED);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
+	}
+
+	@Test
+	void writeHeadersWhenEnabledModeBlockThenWriteHeaders() {
+		this.writer.setHeaderValue(XXssProtectionServerHttpHeadersWriter.HeaderValue.ENABLED_MODE_BLOCK);
+		this.writer.writeHttpHeaders(this.exchange);
+		assertThat(this.headers).hasSize(1);
+		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION))
+				.containsOnly("1 ; mode=block");
 	}
 
 }

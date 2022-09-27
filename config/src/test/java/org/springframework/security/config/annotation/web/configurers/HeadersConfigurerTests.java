@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,6 +37,7 @@ import org.springframework.security.web.header.writers.CrossOriginEmbedderPolicy
 import org.springframework.security.web.header.writers.CrossOriginOpenerPolicyHeaderWriter;
 import org.springframework.security.web.header.writers.CrossOriginResourcePolicyHeaderWriter;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter.ReferrerPolicy;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter.XFrameOptionsMode;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -58,6 +59,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Vedran Pavic
  * @author Eleftheria Stein
  * @author Marcus Da Coregio
+ * @author Daniel Garnier-Moiroux
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HeadersConfigurerTests {
@@ -172,10 +174,28 @@ public class HeadersConfigurerTests {
 	}
 
 	@Test
+	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredValueDisabledThenOnlyXssProtectionHeaderInResponse()
+			throws Exception {
+		this.spring.register(XssProtectionValueDisabledConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
 	public void getWhenOnlyXssProtectionConfiguredInLambdaThenOnlyXssProtectionHeaderInResponse() throws Exception {
 		this.spring.register(XssProtectionInLambdaConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
 				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
+	}
+
+	@Test
+	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredValueDisabledInLambdaThenOnlyXssProtectionHeaderInResponse()
+			throws Exception {
+		this.spring.register(XssProtectionValueDisabledInLambdaConfig.class).autowire();
+		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
@@ -680,6 +700,22 @@ public class HeadersConfigurerTests {
 	}
 
 	@EnableWebSecurity
+	static class XssProtectionValueDisabledConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers()
+					.defaultsDisabled()
+					.xssProtection()
+					.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
 	static class XssProtectionInLambdaConfig extends WebSecurityConfigurerAdapter {
 
 		@Override
@@ -690,6 +726,25 @@ public class HeadersConfigurerTests {
 					headers
 						.defaultsDisabled()
 						.xssProtection(withDefaults())
+				);
+			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class XssProtectionValueDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.headers((headers) ->
+					headers
+						.defaultsDisabled()
+						.xssProtection((xXssConfig) ->
+							xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED)
+						)
 				);
 			// @formatter:on
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,13 @@
 
 package org.springframework.security.config.web.server
 
+import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter.HeaderValue
+
 /**
  * A Kotlin DSL to configure the [ServerHttpSecurity] XSS protection header using
  * idiomatic Kotlin code.
+ *
+ * @property headerValue the value of the X-XSS-Protection header. OWASP recommends [HeaderValue.DISABLED].
  *
  * @author Eleftheria Stein
  * @since 5.4
@@ -26,6 +30,7 @@ package org.springframework.security.config.web.server
 @ServerSecurityMarker
 class ServerXssProtectionDsl {
     private var disabled = false
+    var headerValue: HeaderValue? = null
 
     /**
      * Disables cache control response headers
@@ -36,6 +41,7 @@ class ServerXssProtectionDsl {
 
     internal fun get(): (ServerHttpSecurity.HeaderSpec.XssProtectionSpec) -> Unit {
         return { xss ->
+            headerValue?.also { xss.headerValue(headerValue) }
             if (disabled) {
                 xss.disable()
             }

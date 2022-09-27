@@ -2859,6 +2859,18 @@ public class ServerHttpSecurity {
 				return HeaderSpec.this;
 			}
 
+			/**
+			 * Sets the value of x-xss-protection header. OWASP recommends using
+			 * {@link XXssProtectionServerHttpHeadersWriter.HeaderValue#DISABLED}.
+			 * @param headerValue the headerValue
+			 * @return the {@link HeaderSpec} to continue configuring
+			 * @since 5.8
+			 */
+			public HeaderSpec headerValue(XXssProtectionServerHttpHeadersWriter.HeaderValue headerValue) {
+				HeaderSpec.this.xss.setHeaderValue(headerValue);
+				return HeaderSpec.this;
+			}
+
 		}
 
 		/**

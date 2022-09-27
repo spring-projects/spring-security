@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,16 @@ package org.springframework.security.config.web.servlet.headers
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter
 import org.springframework.security.config.web.servlet.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -136,6 +140,34 @@ class XssProtectionConfigDslTests {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    fun `headers when XSS protection header value disabled then X-XSS-Protection header is 0`() {
+        this.spring.register(XssProtectionHeaderValueDisabledFunctionConfig::class.java).autowire()
+
+        this.mockMvc.get("/") {
+            secure = true
+        }.andExpect {
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class XssProtectionHeaderValueDisabledFunctionConfig () {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                headers {
+                    defaultsDisabled = true
+                    xssProtection {
+                        headerValue = XXssProtectionHeaderWriter.HeaderValue.DISABLED
+                    }
+                }
+            }
+            return http.build()
         }
     }
 }
