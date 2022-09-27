@@ -26,6 +26,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 /**
  * @author Rob Winch
@@ -244,6 +245,33 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(loadToken.getHeaderName()).isEqualTo(headerName);
 		assertThat(loadToken.getParameterName()).isEqualTo(parameterName);
 		assertThat(loadToken.getToken()).isEqualTo(value);
+	}
+
+	@Test
+	public void loadDeferredTokenWhenDoesNotExistThenGeneratedAndSaved() {
+		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
+		CsrfToken csrfToken = deferredCsrfToken.get();
+		assertThat(csrfToken).isNotNull();
+		assertThat(deferredCsrfToken.isGenerated()).isTrue();
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie).isNotNull();
+		assertThat(tokenCookie.getMaxAge()).isEqualTo(-1);
+		assertThat(tokenCookie.getName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
+		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
+		assertThat(tokenCookie.getValue()).isEqualTo(csrfToken.getToken());
+		assertThat(tokenCookie.isHttpOnly()).isEqualTo(true);
+	}
+
+	@Test
+	public void loadDeferredTokenWhenExistsThenLoaded() {
+		CsrfToken generatedToken = this.repository.generateToken(this.request);
+		this.request
+				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
+		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
+		CsrfToken csrfToken = deferredCsrfToken.get();
+		assertThatCsrfToken(csrfToken).isEqualTo(generatedToken);
+		assertThat(deferredCsrfToken.isGenerated()).isFalse();
 	}
 
 	@Test

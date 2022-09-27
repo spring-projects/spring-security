@@ -33,7 +33,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
-import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
@@ -85,7 +85,7 @@ public class DeferHttpSessionJavaConfigTests {
 			csrfRepository.setDeferLoadToken(true);
 			HttpSessionRequestCache requestCache = new HttpSessionRequestCache();
 			requestCache.setMatchingRequestParameterName("continue");
-			CsrfTokenRepositoryRequestHandler requestHandler = new CsrfTokenRepositoryRequestHandler();
+			CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
 			requestHandler.setCsrfRequestAttributeName("_csrf");
 			// @formatter:off
 			http

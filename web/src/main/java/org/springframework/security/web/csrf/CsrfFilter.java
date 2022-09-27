@@ -82,30 +82,21 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final CsrfTokenRequestHandler requestHandler;
+	private final CsrfTokenRepository tokenRepository;
 
 	private RequestMatcher requireCsrfProtectionMatcher = DEFAULT_CSRF_MATCHER;
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
-	/**
-	 * Creates a new instance.
-	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
-	 * @deprecated Use {@link CsrfFilter#CsrfFilter(CsrfTokenRequestHandler)} instead
-	 */
-	@Deprecated
-	public CsrfFilter(CsrfTokenRepository csrfTokenRepository) {
-		this(new CsrfTokenRepositoryRequestHandler(csrfTokenRepository));
-	}
+	private CsrfTokenRequestHandler requestHandler = new CsrfTokenRequestAttributeHandler();
 
 	/**
 	 * Creates a new instance.
-	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use. Default is
-	 * {@link CsrfTokenRepositoryRequestHandler}.
+	 * @param tokenRepository the {@link CsrfTokenRepository} to use
 	 */
-	public CsrfFilter(CsrfTokenRequestHandler requestHandler) {
-		Assert.notNull(requestHandler, "requestHandler cannot be null");
-		this.requestHandler = requestHandler;
+	public CsrfFilter(CsrfTokenRepository tokenRepository) {
+		Assert.notNull(tokenRepository, "tokenRepository cannot be null");
+		this.tokenRepository = tokenRepository;
 	}
 
 	@Override
@@ -116,7 +107,8 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		DeferredCsrfToken deferredCsrfToken = this.requestHandler.handle(request, response);
+		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
+		this.requestHandler.handle(request, response, deferredCsrfToken::get);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
 				this.logger.trace("Did not protect against CSRF since request did not match "
@@ -172,6 +164,21 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	public void setAccessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
 		this.accessDeniedHandler = accessDeniedHandler;
+	}
+
+	/**
+	 * Specifies a {@link CsrfTokenRequestHandler} that is used to make the
+	 * {@link CsrfToken} available as a request attribute.
+	 *
+	 * <p>
+	 * The default is {@link CsrfTokenRequestAttributeHandler}.
+	 * </p>
+	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
+	 * @since 5.8
+	 */
+	public void setRequestHandler(CsrfTokenRequestHandler requestHandler) {
+		Assert.notNull(requestHandler, "requestHandler cannot be null");
+		this.requestHandler = requestHandler;
 	}
 
 	/**

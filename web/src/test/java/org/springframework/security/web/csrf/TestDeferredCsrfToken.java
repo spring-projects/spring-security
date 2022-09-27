@@ -16,27 +16,25 @@
 
 package org.springframework.security.web.csrf;
 
-/**
- * An interface that allows delayed access to a {@link CsrfToken} that may be generated.
- *
- * @author Rob Winch
- * @author Steve Riesenberg
- * @since 5.8
- */
-public interface DeferredCsrfToken {
+final class TestDeferredCsrfToken implements DeferredCsrfToken {
 
-	/**
-	 * Gets the {@link CsrfToken}
-	 * @return a non-null {@link CsrfToken}
-	 */
-	CsrfToken get();
+	private final CsrfToken csrfToken;
 
-	/**
-	 * Returns true if {@link #get()} refers to a generated {@link CsrfToken} or false if
-	 * it already existed.
-	 * @return true if {@link #get()} refers to a generated {@link CsrfToken} or false if
-	 * it already existed.
-	 */
-	boolean isGenerated();
+	private final boolean isGenerated;
+
+	TestDeferredCsrfToken(CsrfToken csrfToken, boolean isGenerated) {
+		this.csrfToken = csrfToken;
+		this.isGenerated = isGenerated;
+	}
+
+	@Override
+	public CsrfToken get() {
+		return this.csrfToken;
+	}
+
+	@Override
+	public boolean isGenerated() {
+		return this.isGenerated;
+	}
 
 }

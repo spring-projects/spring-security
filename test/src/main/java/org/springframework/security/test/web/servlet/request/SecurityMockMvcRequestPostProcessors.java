@@ -94,8 +94,7 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
-import org.springframework.security.web.csrf.DeferredCsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -509,13 +508,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
-			CsrfTokenRequestHandler handler = WebTestUtils.getCsrfTokenRequestHandler(request);
-			if (!(handler instanceof TestCsrfTokenRequestHandler)) {
-				handler = new TestCsrfTokenRequestHandler(handler);
-				WebTestUtils.setCsrfTokenRequestHandler(request, handler);
+			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+			if (!(repository instanceof TestCsrfTokenRepository)) {
+				repository = new TestCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+				WebTestUtils.setCsrfTokenRepository(request, repository);
 			}
-			TestCsrfTokenRequestHandler testHandler = (TestCsrfTokenRequestHandler) handler;
-			CsrfToken token = TestCsrfTokenRequestHandler.createTestCsrfToken(request);
+			TestCsrfTokenRepository.enable(request);
+			CsrfToken token = repository.generateToken(request);
+			repository.saveToken(token, request, new MockHttpServletResponse());
 			String tokenValue = this.useInvalidToken ? "invalid" + token.getToken() : token.getToken();
 			if (this.asHeader) {
 				request.addHeader(token.getHeaderName(), tokenValue);
@@ -549,56 +549,49 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Used to wrap the CsrfTokenRepository to provide support for testing when the
 		 * request is wrapped (i.e. Spring Session is in use).
 		 */
-		static class TestCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
+		static class TestCsrfTokenRepository implements CsrfTokenRepository {
 
-			static final String TOKEN_ATTR_NAME = TestCsrfTokenRequestHandler.class.getName().concat(".TOKEN");
+			static final String TOKEN_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".TOKEN");
 
-			static final String ENABLED_ATTR_NAME = TestCsrfTokenRequestHandler.class.getName().concat(".ENABLED");
+			static final String ENABLED_ATTR_NAME = TestCsrfTokenRepository.class.getName().concat(".ENABLED");
 
-			private final CsrfTokenRequestHandler delegate;
+			private final CsrfTokenRepository delegate;
 
-			TestCsrfTokenRequestHandler(CsrfTokenRequestHandler delegate) {
+			TestCsrfTokenRepository(CsrfTokenRepository delegate) {
 				this.delegate = delegate;
 			}
 
-			static CsrfToken createTestCsrfToken(HttpServletRequest request) {
-				CsrfToken existingToken = getExistingToken(request);
-				if (existingToken != null) {
-					return existingToken;
-				}
-				HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-				CsrfToken csrfToken = repository.generateToken(request);
-				request.setAttribute(ENABLED_ATTR_NAME, true);
-				request.setAttribute(TOKEN_ATTR_NAME, csrfToken);
-				return csrfToken;
-			}
-
-			private static CsrfToken getExistingToken(HttpServletRequest request) {
-				Object existingToken = request.getAttribute(TOKEN_ATTR_NAME);
-				return (CsrfToken) existingToken;
-			}
-
-			boolean isEnabled(HttpServletRequest request) {
-				return getExistingToken(request) != null;
+			@Override
+			public CsrfToken generateToken(HttpServletRequest request) {
+				return this.delegate.generateToken(request);
 			}
 
 			@Override
-			public DeferredCsrfToken handle(HttpServletRequest request, HttpServletResponse response) {
-				request.setAttribute(HttpServletResponse.class.getName(), response);
-				if (!isEnabled(request)) {
-					return this.delegate.handle(request, response);
+			public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
+				if (isEnabled(request)) {
+					request.setAttribute(TOKEN_ATTR_NAME, token);
 				}
-				return new DeferredCsrfToken() {
-					@Override
-					public CsrfToken get() {
-						return getExistingToken(request);
-					}
+				else {
+					this.delegate.saveToken(token, request, response);
+				}
+			}
 
-					@Override
-					public boolean isGenerated() {
-						return false;
-					}
-				};
+			@Override
+			public CsrfToken loadToken(HttpServletRequest request) {
+				if (isEnabled(request)) {
+					return (CsrfToken) request.getAttribute(TOKEN_ATTR_NAME);
+				}
+				else {
+					return this.delegate.loadToken(request);
+				}
+			}
+
+			static void enable(HttpServletRequest request) {
+				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
+			}
+
+			boolean isEnabled(HttpServletRequest request) {
+				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
 			}
 
 		}
