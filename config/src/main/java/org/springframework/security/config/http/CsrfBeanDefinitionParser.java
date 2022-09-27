@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,6 @@ import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
-import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
@@ -112,17 +111,12 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 					new BeanComponentDefinition(lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
 		}
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
-		if (!StringUtils.hasText(this.requestHandlerRef)) {
-			BeanDefinition csrfTokenRequestHandler = BeanDefinitionBuilder
-					.rootBeanDefinition(CsrfTokenRepositoryRequestHandler.class)
-					.addConstructorArgReference(this.csrfRepositoryRef).getBeanDefinition();
-			builder.addConstructorArgValue(csrfTokenRequestHandler);
-		}
-		else {
-			builder.addConstructorArgReference(this.requestHandlerRef);
-		}
+		builder.addConstructorArgReference(this.csrfRepositoryRef);
 		if (StringUtils.hasText(this.requestMatcherRef)) {
 			builder.addPropertyReference("requireCsrfProtectionMatcher", this.requestMatcherRef);
+		}
+		if (StringUtils.hasText(this.requestHandlerRef)) {
+			builder.addPropertyReference("requestHandler", this.requestHandlerRef);
 		}
 		this.csrfFilter = builder.getBeanDefinition();
 		return this.csrfFilter;

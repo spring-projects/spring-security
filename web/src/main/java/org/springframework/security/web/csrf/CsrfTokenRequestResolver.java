@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Steve Riesenberg
  * @since 5.8
- * @see CsrfTokenRepositoryRequestHandler
+ * @see CsrfTokenRequestAttributeHandler
  */
 @FunctionalInterface
 public interface CsrfTokenRequestResolver {

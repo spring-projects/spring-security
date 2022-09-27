@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 /**
  * @author Rob Winch
@@ -83,6 +84,26 @@ public class HttpSessionCsrfTokenRepositoryTests {
 	public void loadTokenNullWhenSessionExists() {
 		this.request.getSession();
 		assertThat(this.repo.loadToken(this.request)).isNull();
+	}
+
+	@Test
+	public void loadDeferredTokenWhenDoesNotExistThenGeneratedAndSaved() {
+		DeferredCsrfToken deferredCsrfToken = this.repo.loadDeferredToken(this.request, this.response);
+		CsrfToken csrfToken = deferredCsrfToken.get();
+		assertThat(csrfToken).isNotNull();
+		assertThat(deferredCsrfToken.isGenerated()).isTrue();
+		String attrName = this.request.getSession().getAttributeNames().nextElement();
+		assertThatCsrfToken(this.request.getSession().getAttribute(attrName)).isEqualTo(csrfToken);
+	}
+
+	@Test
+	public void loadDeferredTokenWhenExistsThenLoaded() {
+		CsrfToken tokenToSave = new DefaultCsrfToken("123", "abc", "def");
+		this.repo.saveToken(tokenToSave, this.request, this.response);
+		DeferredCsrfToken deferredCsrfToken = this.repo.loadDeferredToken(this.request, this.response);
+		CsrfToken csrfToken = deferredCsrfToken.get();
+		assertThatCsrfToken(csrfToken).isEqualTo(tokenToSave);
+		assertThat(deferredCsrfToken.isGenerated()).isFalse();
 	}
 
 	@Test

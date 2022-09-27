@@ -30,7 +30,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.test.SpringTestContext;
@@ -42,7 +41,6 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -546,9 +544,8 @@ public class CsrfConfigTests {
 		@Override
 		public void match(MvcResult result) {
 			MockHttpServletRequest request = result.getRequest();
-			MockHttpServletResponse response = result.getResponse();
-			DeferredCsrfToken token = WebTestUtils.getCsrfTokenRequestHandler(request).handle(request, response);
-			assertThat(token.isGenerated()).isFalse();
+			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
+			assertThat(token).isNotNull();
 		}
 
 	}
@@ -564,8 +561,7 @@ public class CsrfConfigTests {
 		@Override
 		public void match(MvcResult result) throws Exception {
 			MockHttpServletRequest request = result.getRequest();
-			MockHttpServletResponse response = result.getResponse();
-			CsrfToken token = WebTestUtils.getCsrfTokenRequestHandler(request).handle(request, response).get();
+			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
 			assertThat(token).isNotNull();
 			assertThat(token.getToken()).isEqualTo(this.token.apply(result));
 		}
