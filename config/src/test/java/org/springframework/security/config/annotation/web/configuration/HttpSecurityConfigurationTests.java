@@ -60,12 +60,16 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.accept.ContentNegotiationStrategy;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.NativeWebRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -311,6 +315,14 @@ public class HttpSecurityConfigurationTests {
 		assertThat(configurer.configure).isTrue();
 	}
 
+	@Test
+	public void getWhenCustomContentNegotiationStrategyThenUses() throws Exception {
+		this.spring.register(CustomContentNegotiationStrategyConfig.class).autowire();
+		this.mockMvc.perform(get("/"));
+		verify(CustomContentNegotiationStrategyConfig.CNS, atLeastOnce())
+				.resolveMediaTypes(any(NativeWebRequest.class));
+	}
+
 	@RestController
 	static class NameController {
 
@@ -485,6 +497,30 @@ public class HttpSecurityConfigurationTests {
 			if (!request.isUserInRole("USER")) {
 				throw new AccessDeniedException("This resource is only available to users");
 			}
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CustomContentNegotiationStrategyConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().authenticated()
+					);
+			// @formatter:on
+			return http.build();
+		}
+
+		static ContentNegotiationStrategy CNS = mock(ContentNegotiationStrategy.class);
+
+		@Bean
+		static ContentNegotiationStrategy cns() {
+			return CNS;
 		}
 
 	}
