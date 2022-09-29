@@ -17,3 +17,4 @@ Reorganize imports
 Reorganize imports
 * https://github.com/spring-projects/spring-security/issues/11026[gh-11026] - Use `RequestAttributeSecurityContextRepository` instead of `NullSecurityContextRepository`
 * https://github.com/spring-projects/spring-security/pull/11887[gh-11827] - Change default authority for `oauth2Login()`
+* https://github.com/spring-projects/spring-security/issues/10347[gh-10347] - Remove `UsernamePasswordAuthenticationToken` check in `BasicAuthenticationFilter`
