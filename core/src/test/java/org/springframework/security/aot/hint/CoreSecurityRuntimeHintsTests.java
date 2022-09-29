@@ -131,4 +131,10 @@ class CoreSecurityRuntimeHintsTests {
 				LockedException.class, UsernameNotFoundException.class, ProviderNotFoundException.class);
 	}
 
+	@Test
+	void defaultJdbcSchemaFileHasHints() {
+		assertThat(RuntimeHintsPredicates.resource()
+				.forResource("org/springframework/security/core/userdetails/jdbc/users.ddl")).accepts(this.hints);
+	}
+
 }

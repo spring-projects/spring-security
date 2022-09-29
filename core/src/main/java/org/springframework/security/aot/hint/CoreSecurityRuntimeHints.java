@@ -42,6 +42,7 @@ import org.springframework.security.authentication.event.AuthenticationFailurePr
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 
 /**
  * {@link RuntimeHintsRegistrar} for core classes
@@ -57,6 +58,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		registerExpressionEvaluationHints(hints);
 		registerMethodSecurityHints(hints);
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
+		registerDefaultJdbcSchemaFileHint(hints);
 	}
 
 	private void registerMethodSecurityHints(RuntimeHints hints) {
@@ -89,6 +91,10 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 				AccountExpiredException.class, BadCredentialsException.class, CredentialsExpiredException.class,
 				DisabledException.class, LockedException.class, UsernameNotFoundException.class,
 				ProviderNotFoundException.class).map(TypeReference::of).toList();
+	}
+
+	private void registerDefaultJdbcSchemaFileHint(RuntimeHints hints) {
+		hints.resources().registerPattern(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION);
 	}
 
 }
