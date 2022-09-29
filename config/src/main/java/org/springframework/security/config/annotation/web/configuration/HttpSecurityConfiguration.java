@@ -38,6 +38,8 @@ import org.springframework.security.config.annotation.web.configurers.DefaultLog
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
+import org.springframework.web.accept.ContentNegotiationStrategy;
+import org.springframework.web.accept.HeaderContentNegotiationStrategy;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -63,6 +65,8 @@ class HttpSecurityConfiguration {
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 			.getContextHolderStrategy();
 
+	private ContentNegotiationStrategy contentNegotiationStrategy = new HeaderContentNegotiationStrategy();
+
 	@Autowired
 	void setObjectPostProcessor(ObjectPostProcessor<Object> objectPostProcessor) {
 		this.objectPostProcessor = objectPostProcessor;
@@ -81,6 +85,11 @@ class HttpSecurityConfiguration {
 	@Autowired(required = false)
 	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	@Autowired(required = false)
+	void setContentNegotiationStrategy(ContentNegotiationStrategy contentNegotiationStrategy) {
+		this.contentNegotiationStrategy = contentNegotiationStrategy;
 	}
 
 	@Bean(HTTPSECURITY_BEAN_NAME)
@@ -136,6 +145,7 @@ class HttpSecurityConfiguration {
 	private Map<Class<?>, Object> createSharedObjects() {
 		Map<Class<?>, Object> sharedObjects = new HashMap<>();
 		sharedObjects.put(ApplicationContext.class, this.context);
+		sharedObjects.put(ContentNegotiationStrategy.class, this.contentNegotiationStrategy);
 		return sharedObjects;
 	}
 
