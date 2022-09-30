@@ -258,6 +258,17 @@ public class NamespaceSessionManagementTests {
 	@EnableWebSecurity
 	static class SessionManagementConfig extends WebSecurityConfigurerAdapter {
 
+		@Override
+		protected void configure(HttpSecurity http) throws Exception {
+			// @formatter:off
+			super.configure(http);
+			http
+				.sessionManagement((sessions) -> sessions
+					.requireExplicitAuthenticationStrategy(false)
+				);
+			// @formatter:on
+		}
+
 	}
 
 	@Configuration
@@ -364,6 +375,7 @@ public class NamespaceSessionManagementTests {
 			// @formatter:off
 			http
 				.sessionManagement()
+					.requireExplicitAuthenticationStrategy(false)
 					.and()
 				.httpBasic();
 			// @formatter:on
@@ -379,8 +391,9 @@ public class NamespaceSessionManagementTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
-					.and()
+				.sessionManagement((sessions) -> sessions
+					.requireExplicitAuthenticationStrategy(false)
+				)
 				.httpBasic();
 			// @formatter:on
 		}
@@ -400,9 +413,10 @@ public class NamespaceSessionManagementTests {
 		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.sessionManagement()
+				.sessionManagement((sessions) -> sessions
 					.sessionFixation().newSession()
-					.and()
+					.requireExplicitAuthenticationStrategy(false)
+				)
 				.httpBasic();
 			// @formatter:on
 		}

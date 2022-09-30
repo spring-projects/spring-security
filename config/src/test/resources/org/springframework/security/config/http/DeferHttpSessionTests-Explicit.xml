@@ -29,7 +29,6 @@
 	<http auto-config="true"
 			use-authorization-manager="true">
 		<intercept-url  pattern="/**" access="permitAll"/>
-		<session-management authentication-strategy-explicit-invocation="true"/>
 	</http>
 
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>

@@ -60,6 +60,8 @@ public class DeferHttpSessionXmlConfigTests {
 
 		this.springSecurityFilterChain.doFilter(mockRequest, response, chain);
 
+		verify(mockRequest, never()).isRequestedSessionIdValid();
+		verify(mockRequest, never()).changeSessionId();
 		verify(mockRequest, never()).getSession(anyBoolean());
 		verify(mockRequest, never()).getSession();
 	}

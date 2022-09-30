@@ -37,7 +37,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.RememberMeServices;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
@@ -79,7 +79,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 
 	private RememberMeServices rememberMeServices;
 
-	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	public RememberMeAuthenticationFilter(AuthenticationManager authenticationManager,
 			RememberMeServices rememberMeServices) {

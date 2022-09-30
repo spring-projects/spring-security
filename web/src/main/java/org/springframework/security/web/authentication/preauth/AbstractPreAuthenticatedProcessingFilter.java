@@ -41,7 +41,7 @@ import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -110,7 +110,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 
 	private RequestMatcher requiresAuthenticationRequestMatcher = new PreAuthenticatedProcessingRequestMatcher();
 
-	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	/**
 	 * Check whether all required properties have been set.

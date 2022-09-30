@@ -35,7 +35,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.NullRememberMeServices;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -110,8 +109,6 @@ public class RememberMeAuthenticationFilterTests {
 		filter.doFilter(request, new MockHttpServletResponse(), fc);
 		// Ensure filter setup with our remembered authentication object
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.remembered);
-		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
 		verify(fc).doFilter(any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
@@ -152,8 +149,6 @@ public class RememberMeAuthenticationFilterTests {
 		request.setRequestURI("x");
 		filter.doFilter(request, response, fc);
 		assertThat(response.getRedirectedUrl()).isEqualTo("/target");
-		assertThat(request.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME))
-				.isNotNull();
 		// Should return after success handler is invoked, so chain should not proceed
 		verifyNoMoreInteractions(fc);
 	}

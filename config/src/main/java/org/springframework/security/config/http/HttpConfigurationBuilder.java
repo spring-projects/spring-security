@@ -539,9 +539,10 @@ class HttpConfigurationBuilder {
 			sessionMgmtFilter.addPropertyReference("invalidSessionStrategy", invalidSessionStrategyRef);
 		}
 		sessionMgmtFilter.addConstructorArgReference(sessionAuthStratRef);
-		boolean registerSessionMgmtFilter = (sessionMgmtElt == null
-				|| !"true".equals(sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION)));
-		if (registerSessionMgmtFilter) {
+		boolean registerSessionMgmtFilter = (sessionMgmtElt != null
+				&& "false".equals(sessionMgmtElt.getAttribute(ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION)));
+		if (registerSessionMgmtFilter || StringUtils.hasText(errorUrl) || StringUtils.hasText(invalidSessionUrl)
+				|| StringUtils.hasText(invalidSessionStrategyRef)) {
 			this.sfpf = (RootBeanDefinition) sessionMgmtFilter.getBeanDefinition();
 		}
 		this.sessionStrategyRef = new RuntimeBeanReference(sessionAuthStratRef);

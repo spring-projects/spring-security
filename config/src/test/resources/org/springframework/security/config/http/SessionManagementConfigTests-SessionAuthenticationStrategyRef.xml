@@ -26,7 +26,9 @@
 
 	<http auto-config="true" use-expressions="true">
 		<intercept-url pattern="/auth/**" access="authenticated"/>
-		<session-management session-authentication-strategy-ref="teapotSessionAuthenticationStrategy"/>
+		<session-management
+			authentication-strategy-explicit-invocation="false"
+			session-authentication-strategy-ref="teapotSessionAuthenticationStrategy"/>
 	</http>
 
 	<b:bean name="basicController"

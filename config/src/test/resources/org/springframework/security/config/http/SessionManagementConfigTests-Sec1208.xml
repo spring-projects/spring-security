@@ -26,7 +26,8 @@
 
 	<http auto-config="true" create-session="ifRequired" use-expressions="true">
 		<intercept-url pattern="/auth/**" access="authenticated"/>
-		<session-management>
+		<session-management
+			authentication-strategy-explicit-invocation="false">
 			<concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/>
 		</session-management>
 		<csrf disabled="true"/>

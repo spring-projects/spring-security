@@ -75,6 +75,7 @@ class SessionFixationDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
+                    requireExplicitAuthenticationStrategy = false
                     sessionFixation {
                         newSession()
                     }
@@ -111,6 +112,7 @@ class SessionFixationDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
+                    requireExplicitAuthenticationStrategy = false
                     sessionFixation {
                         migrateSession()
                     }
@@ -147,6 +149,7 @@ class SessionFixationDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 sessionManagement {
+                    requireExplicitAuthenticationStrategy = false
                     sessionFixation {
                         changeSessionId()
                     }

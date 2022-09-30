@@ -58,7 +58,6 @@ import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -112,7 +111,6 @@ public class DefaultFiltersTests {
 		assertThat(classes.contains(RequestCacheAwareFilter.class)).isTrue();
 		assertThat(classes.contains(SecurityContextHolderAwareRequestFilter.class)).isTrue();
 		assertThat(classes.contains(AnonymousAuthenticationFilter.class)).isTrue();
-		assertThat(classes.contains(SessionManagementFilter.class)).isTrue();
 		assertThat(classes.contains(ExceptionTranslationFilter.class)).isTrue();
 		assertThat(classes.contains(FilterSecurityInterceptor.class)).isTrue();
 	}

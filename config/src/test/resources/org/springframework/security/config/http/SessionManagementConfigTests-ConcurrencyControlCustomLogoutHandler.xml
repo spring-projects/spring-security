@@ -25,7 +25,8 @@
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http auto-config="true">
-		<session-management>
+		<session-management
+			authentication-strategy-explicit-invocation="false">
 			<concurrency-control/>
 		</session-management>
 		<remember-me services-ref="customRememberMeServices"/>

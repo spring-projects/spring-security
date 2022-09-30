@@ -451,6 +451,7 @@ public class SessionManagementConfigurerTests {
 			http
 				.sessionManagement((sessionManagement) ->
 					sessionManagement
+						.requireExplicitAuthenticationStrategy(false)
 						.sessionFixation((sessionFixation) ->
 							sessionFixation.newSession()
 						)
@@ -583,9 +584,12 @@ public class SessionManagementConfigurerTests {
 		static AuthenticationTrustResolver TR;
 
 		@Override
-		protected void configure(HttpSecurity http) {
+		protected void configure(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
+				.sessionManagement((sessions) -> sessions
+					.requireExplicitAuthenticationStrategy(false)
+				)
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
 			// @formatter:on
 		}

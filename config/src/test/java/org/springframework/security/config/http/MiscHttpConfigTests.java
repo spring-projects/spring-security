@@ -106,7 +106,6 @@ import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.session.DisableEncodeUrlFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -479,8 +478,6 @@ public class MiscHttpConfigTests {
 				.andReturn();
 		// @formatter:on
 		assertThat(result.getRequest().getSession(false)).isNotNull();
-		verify(repository, atLeastOnce()).saveContext(any(SecurityContext.class), any(HttpServletRequest.class),
-				any(HttpServletResponse.class));
 	}
 
 	@Test
@@ -851,7 +848,6 @@ public class MiscHttpConfigTests {
 		assertThat(filters.next()).isInstanceOf(RequestCacheAwareFilter.class);
 		assertThat(filters.next()).isInstanceOf(SecurityContextHolderAwareRequestFilter.class);
 		assertThat(filters.next()).isInstanceOf(AnonymousAuthenticationFilter.class);
-		assertThat(filters.next()).isInstanceOf(SessionManagementFilter.class);
 		assertThat(filters.next()).isInstanceOf(ExceptionTranslationFilter.class);
 		assertThat(filters.next()).isInstanceOf(FilterSecurityInterceptor.class)
 				.hasFieldOrPropertyWithValue("observeOncePerRequest", false);
