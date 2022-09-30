@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepo
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -216,14 +217,15 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class OAuth2AuthorizedClientArgumentResolverConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2AuthorizedClientArgumentResolverConfig {
 
 		static ClientRegistrationRepository CLIENT_REGISTRATION_REPOSITORY;
 		static OAuth2AuthorizedClientRepository AUTHORIZED_CLIENT_REPOSITORY;
 		static OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> ACCESS_TOKEN_RESPONSE_CLIENT;
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 		@Bean
@@ -257,16 +259,17 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2AuthorizedClientRepositoryRegisteredTwiceConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -295,16 +298,17 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class ClientRegistrationRepositoryNotRegisteredConfig extends WebSecurityConfigurerAdapter {
+	static class ClientRegistrationRepositoryNotRegisteredConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -313,16 +317,17 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class ClientRegistrationRepositoryRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
+	static class ClientRegistrationRepositoryRegisteredTwiceConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -351,16 +356,17 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class AccessTokenResponseClientRegisteredTwiceConfig extends WebSecurityConfigurerAdapter {
+	static class AccessTokenResponseClientRegisteredTwiceConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2Login();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -389,14 +395,15 @@ public class OAuth2ClientConfigurationTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class OAuth2AuthorizedClientManagerRegisteredConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2AuthorizedClientManagerRegisteredConfig {
 
 		static ClientRegistrationRepository CLIENT_REGISTRATION_REPOSITORY;
 		static OAuth2AuthorizedClientRepository AUTHORIZED_CLIENT_REPOSITORY;
 		static OAuth2AuthorizedClientManager AUTHORIZED_CLIENT_MANAGER;
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 		@Bean

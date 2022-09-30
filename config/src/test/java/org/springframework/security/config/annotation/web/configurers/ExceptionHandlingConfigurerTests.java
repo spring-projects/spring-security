@@ -29,18 +29,19 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.accept.ContentNegotiationStrategy;
@@ -231,15 +232,16 @@ public class ExceptionHandlingConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.exceptionHandling();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -277,15 +279,15 @@ public class ExceptionHandlingConfigurerTests {
 	}
 	@Configuration
 	@EnableWebSecurity
-	static class HttpBasicAndFormLoginEntryPointsConfig extends WebSecurityConfigurerAdapter {
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
+	static class HttpBasicAndFormLoginEntryPointsConfig {
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -295,13 +297,14 @@ public class ExceptionHandlingConfigurerTests {
 					.and()
 				.formLogin();
 			// @formatter:on
+			return http.build();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class OverrideContentNegotiationStrategySharedObjectConfig extends WebSecurityConfigurerAdapter {
+	static class OverrideContentNegotiationStrategySharedObjectConfig {
 
 		static ContentNegotiationStrategy CNS = mock(ContentNegotiationStrategy.class);
 
@@ -314,16 +317,16 @@ public class ExceptionHandlingConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultHttpConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultHttpConfig {
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class BasicAuthenticationEntryPointBeforeFormLoginConfig extends WebSecurityConfigurerAdapter {
+	static class BasicAuthenticationEntryPointBeforeFormLoginConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -332,6 +335,7 @@ public class ExceptionHandlingConfigurerTests {
 				.httpBasic()
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -339,12 +343,12 @@ public class ExceptionHandlingConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class InvokeTwiceDoesNotOverrideConfig {
 
 		static AuthenticationEntryPoint AEP = mock(AuthenticationEntryPoint.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -353,6 +357,7 @@ public class ExceptionHandlingConfigurerTests {
 				.exceptionHandling()
 					.authenticationEntryPoint(AEP).and()
 				.exceptionHandling();
+			return http.build();
 			// @formatter:on
 		}
 

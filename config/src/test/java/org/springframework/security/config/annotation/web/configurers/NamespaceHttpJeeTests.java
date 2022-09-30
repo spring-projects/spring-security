@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -97,10 +97,10 @@ public class NamespaceHttpJeeTests {
 
 	@Configuration
 	@EnableWebSecurity
-	public static class JeeMappableRolesConfig extends WebSecurityConfigurerAdapter {
+	public static class JeeMappableRolesConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -108,6 +108,7 @@ public class NamespaceHttpJeeTests {
 					.and()
 				.jee()
 					.mappableRoles("user", "admin");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -115,13 +116,13 @@ public class NamespaceHttpJeeTests {
 
 	@Configuration
 	@EnableWebSecurity
-	public static class JeeUserServiceRefConfig extends WebSecurityConfigurerAdapter {
+	public static class JeeUserServiceRefConfig {
 
 		private final AuthenticationUserDetailsService authenticationUserDetailsService = mock(
 				AuthenticationUserDetailsService.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -130,6 +131,7 @@ public class NamespaceHttpJeeTests {
 				.jee()
 					.mappableAuthorities("ROLE_user", "ROLE_admin")
 					.authenticatedUserDetailsService(this.authenticationUserDetailsService);
+			return http.build();
 			// @formatter:on
 		}
 

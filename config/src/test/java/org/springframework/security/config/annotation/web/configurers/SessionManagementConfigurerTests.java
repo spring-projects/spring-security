@@ -28,17 +28,18 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.session.ChangeSessionIdAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.ConcurrentSessionControlAuthenticationStrategy;
@@ -359,12 +360,12 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SessionManagementRequestCacheConfig extends WebSecurityConfigurerAdapter {
+	static class SessionManagementRequestCacheConfig {
 
 		static RequestCache REQUEST_CACHE;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestCache()
@@ -372,6 +373,7 @@ public class SessionManagementConfigurerTests {
 					.and()
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -379,12 +381,12 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SessionManagementSecurityContextRepositoryConfig extends WebSecurityConfigurerAdapter {
+	static class SessionManagementSecurityContextRepositoryConfig {
 
 		static SecurityContextRepository SECURITY_CONTEXT_REPO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.securityContext()
@@ -392,6 +394,7 @@ public class SessionManagementConfigurerTests {
 					.and()
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -399,16 +402,17 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+	static class InvokeTwiceDoesNotOverride {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement()
 					.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 					.and()
 				.sessionManagement();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -416,10 +420,10 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DisableSessionFixationEnableConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+	static class DisableSessionFixationEnableConcurrencyControlConfig {
 
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
@@ -428,25 +432,22 @@ public class SessionManagementConfigurerTests {
 					.sessionFixation().none()
 					.maximumSessions(1);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class SFPNewSessionInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class SFPNewSessionInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement((sessionManagement) ->
@@ -458,25 +459,22 @@ public class SessionManagementConfigurerTests {
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class ConcurrencyControlConfig extends WebSecurityConfigurerAdapter {
+	static class ConcurrencyControlConfig {
 
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin()
@@ -485,25 +483,22 @@ public class SessionManagementConfigurerTests {
 					.maximumSessions(1)
 					.maxSessionsPreventsLogin(true);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class ConcurrencyControlInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class ConcurrencyControlInLambdaConfig {
 
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
@@ -516,31 +511,29 @@ public class SessionManagementConfigurerTests {
 						)
 				);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class SessionCreationPolicyStateLessInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class SessionCreationPolicyStateLessInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement((sessionManagement) ->
 					sessionManagement
 						.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -548,16 +541,17 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement()
 					.maximumSessions(1);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -579,18 +573,19 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+	static class SharedTrustResolverConfig {
 
 		static AuthenticationTrustResolver TR;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement((sessions) -> sessions
 					.requireExplicitAuthenticationStrategy(false)
 				)
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -598,16 +593,17 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SessionRegistryOneBeanConfig extends WebSecurityConfigurerAdapter {
+	static class SessionRegistryOneBeanConfig {
 
 		private static SessionRegistry SESSION_REGISTRY;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement()
 				.maximumSessions(1);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -620,18 +616,19 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SessionRegistryTwoBeansConfig extends WebSecurityConfigurerAdapter {
+	static class SessionRegistryTwoBeansConfig {
 
 		private static SessionRegistry SESSION_REGISTRY_ONE;
 
 		private static SessionRegistry SESSION_REGISTRY_TWO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement()
 				.maximumSessions(1);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -682,10 +679,10 @@ public class SessionManagementConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class HttpBasicSessionCreationPolicyStatelessConfig extends WebSecurityConfigurerAdapter {
+	static class HttpBasicSessionCreationPolicyStatelessConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement((sessionManagement) ->
@@ -694,15 +691,12 @@ public class SessionManagementConfigurerTests {
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 		@Bean

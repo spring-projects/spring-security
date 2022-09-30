@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
@@ -78,11 +77,11 @@ public class NamespaceHttpFirewallTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomHttpFirewallConfig extends WebSecurityConfigurerAdapter {
+	static class CustomHttpFirewallConfig {
 
-		@Override
-		public void configure(WebSecurity web) {
-			web.httpFirewall(new CustomHttpFirewall());
+		@Bean
+		WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.httpFirewall(new CustomHttpFirewall());
 		}
 
 	}

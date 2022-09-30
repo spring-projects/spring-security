@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -184,16 +184,17 @@ public class CorsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultCorsConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultCorsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.cors();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -202,16 +203,17 @@ public class CorsConfigurerTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class MvcCorsConfig extends WebSecurityConfigurerAdapter {
+	static class MvcCorsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.cors();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -231,10 +233,10 @@ public class CorsConfigurerTests {
 	@Configuration
 	@EnableWebMvc
 	@EnableWebSecurity
-	static class MvcCorsInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class MvcCorsInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -242,6 +244,7 @@ public class CorsConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -260,16 +263,17 @@ public class CorsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ConfigSourceConfig extends WebSecurityConfigurerAdapter {
+	static class ConfigSourceConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.cors();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -287,10 +291,10 @@ public class CorsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ConfigSourceInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class ConfigSourceInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -298,6 +302,7 @@ public class CorsConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -315,16 +320,17 @@ public class CorsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CorsFilterConfig extends WebSecurityConfigurerAdapter {
+	static class CorsFilterConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.cors();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -342,10 +348,10 @@ public class CorsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CorsFilterInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class CorsFilterInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -353,6 +359,7 @@ public class CorsConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.cors(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 

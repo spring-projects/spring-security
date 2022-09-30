@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
@@ -101,17 +100,18 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class IgnoringRequestMatchers extends WebSecurityConfigurerAdapter {
+	static class IgnoringRequestMatchers {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
 					.ignoringRequestMatchers(this.requestMatcher);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -119,12 +119,12 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class IgnoringRequestInLambdaMatchers extends WebSecurityConfigurerAdapter {
+	static class IgnoringRequestInLambdaMatchers {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf((csrf) ->
@@ -132,6 +132,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 						.requireCsrfProtectionMatcher(new AntPathRequestMatcher("/path"))
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -139,17 +140,18 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class IgnoringPathsAndMatchers extends WebSecurityConfigurerAdapter {
+	static class IgnoringPathsAndMatchers {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.ignoringAntMatchers("/no-csrf")
 					.ignoringRequestMatchers(this.requestMatcher);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -157,12 +159,12 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class IgnoringPathsAndMatchersInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class IgnoringPathsAndMatchersInLambdaConfig {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf((csrf) ->
@@ -170,6 +172,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 						.ignoringAntMatchers("/no-csrf")
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
+			return http.build();
 			// @formatter:on
 		}
 

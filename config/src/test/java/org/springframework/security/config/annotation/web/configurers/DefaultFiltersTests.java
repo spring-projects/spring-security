@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,17 +25,15 @@ import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
+import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -133,13 +131,9 @@ public class DefaultFiltersTests {
 	@EnableWebSecurity
 	static class FilterChainProxyBuilderMissingConfig {
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
@@ -156,38 +150,33 @@ public class DefaultFiltersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullWebInvocationPrivilegeEvaluatorConfig extends WebSecurityConfigurerAdapter {
+	static class NullWebInvocationPrivilegeEvaluatorConfig {
 
-		NullWebInvocationPrivilegeEvaluatorConfig() {
-			super(true);
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			TestHttpSecurity.disableDefaults(http);
 			http.formLogin();
+			return http.build();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class FilterChainProxyBuilderIgnoringConfig extends WebSecurityConfigurerAdapter {
+	static class FilterChainProxyBuilderIgnoringConfig {
 
-		@Override
-		public void configure(WebSecurity web) {
-			// @formatter:off
-			web
-				.ignoring()
-					.antMatchers("/resources/**");
-			// @formatter:on
+		@Bean
+		WebSecurityCustomizer webSecurityCustomizer() {
+			return (web) -> web.ignoring().antMatchers("/resources/**");
 		}
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -195,10 +184,11 @@ public class DefaultFiltersTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultFiltersConfigPermitAll extends WebSecurityConfigurerAdapter {
+	static class DefaultFiltersConfigPermitAll {
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 	}

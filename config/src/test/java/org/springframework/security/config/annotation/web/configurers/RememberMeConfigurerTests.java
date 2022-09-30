@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,7 +36,6 @@ import org.springframework.security.config.annotation.SecurityContextChangedList
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -54,7 +54,6 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -88,17 +87,9 @@ public class RememberMeConfigurerTests {
 
 	@Test
 	public void postWhenNoUserDetailsServiceThenException() {
-		this.spring.register(NullUserDetailsConfig.class).autowire();
-		assertThatIllegalStateException().isThrownBy(() -> {
-			// @formatter:off
-					MockHttpServletRequestBuilder request = post("/login")
-							.param("username", "user")
-							.param("password", "password")
-							.param("remember-me", "true")
-							.with(csrf());
-					// @formatter:on
-			this.mvc.perform(request);
-		}).withMessageContaining("UserDetailsService is required");
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+				.isThrownBy(() -> this.spring.register(NullUserDetailsConfig.class).autowire())
+				.withMessageContaining("userDetailsService cannot be null");
 	}
 
 	@Test
@@ -305,10 +296,10 @@ public class RememberMeConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullUserDetailsConfig extends WebSecurityConfigurerAdapter {
+	static class NullUserDetailsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -318,10 +309,11 @@ public class RememberMeConfigurerTests {
 					.and()
 				.rememberMe();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) {
 			User user = (User) PasswordEncodedUser.user();
 			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
 			provider.setUserDetailsService(new InMemoryUserDetailsManager(Collections.singletonList(user)));
@@ -335,25 +327,23 @@ public class RememberMeConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
 					.userDetailsService(new AuthenticationManagerBuilder(this.objectPostProcessor).getDefaultUserDetailsService());
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 		@Bean
@@ -374,12 +364,12 @@ public class RememberMeConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class DuplicateDoesNotOverrideConfig {
 
 		static UserDetailsService userDetailsService = mock(UserDetailsService.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
@@ -388,12 +378,12 @@ public class RememberMeConfigurerTests {
 					.userDetailsService(userDetailsService)
 					.and()
 				.rememberMe();
+			return http.build();
 			// @formatter:on
 		}
 
-		@Override
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 					User.withDefaultPasswordEncoder()
@@ -430,10 +420,10 @@ public class RememberMeConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -442,26 +432,23 @@ public class RememberMeConfigurerTests {
 				.formLogin()
 					.and()
 				.rememberMe();
+			return http.build();
 			// @formatter:on
 		}
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -470,26 +457,23 @@ public class RememberMeConfigurerTests {
 				)
 				.formLogin(withDefaults())
 				.rememberMe(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeCookieDomainConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeCookieDomainConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -499,26 +483,23 @@ public class RememberMeConfigurerTests {
 					.and()
 				.rememberMe()
 					.rememberMeCookieDomain("spring.io");
+			return http.build();
 			// @formatter:on
 		}
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeCookieDomainInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeCookieDomainInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -530,28 +511,25 @@ public class RememberMeConfigurerTests {
 					rememberMe
 						.rememberMeCookieDomain("spring.io")
 				);
+			return http.build();
 			// @formatter:on
 		}
 
-		@Autowired
-		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeCookieNameAndRememberMeServicesConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeCookieNameAndRememberMeServicesConfig {
 
 		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -563,6 +541,7 @@ public class RememberMeConfigurerTests {
 					.rememberMeCookieName("SPRING_COOKIE_DOMAIN")
 					.rememberMeCookieDomain("spring.io")
 					.rememberMeServices(REMEMBER_ME);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -581,12 +560,18 @@ public class RememberMeConfigurerTests {
 	@EnableWebSecurity
 	static class FallbackRememberMeKeyConfig extends RememberMeConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			super.configure(http);
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			http.rememberMe()
+			http
+				.authorizeRequests()
+					.anyRequest().hasRole("USER")
+					.and()
+				.formLogin()
+					.and()
+				.rememberMe()
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
+			return http.build();
 			// @formatter:on
 		}
 

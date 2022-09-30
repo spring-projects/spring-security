@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,13 +22,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.PortMapperImpl;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -66,10 +67,10 @@ public class PortMapperConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverride extends WebSecurityConfigurerAdapter {
+	static class InvokeTwiceDoesNotOverride {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requiresChannel()
@@ -79,6 +80,7 @@ public class PortMapperConfigurerTests {
 					.http(543).mapsTo(123)
 					.and()
 				.portMapper();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -86,10 +88,10 @@ public class PortMapperConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class HttpMapsToInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class HttpMapsToInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requiresChannel((requiresChannel) ->
@@ -100,6 +102,7 @@ public class PortMapperConfigurerTests {
 					portMapper
 						.http(543).mapsTo(123)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -107,10 +110,10 @@ public class PortMapperConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomPortMapperInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class CustomPortMapperInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			PortMapperImpl customPortMapper = new PortMapperImpl();
 			customPortMapper.setPortMappings(Collections.singletonMap("543", "123"));
 			// @formatter:off
@@ -123,6 +126,7 @@ public class PortMapperConfigurerTests {
 					portMapper
 						.portMapper(customPortMapper)
 				);
+			return http.build();
 			// @formatter:on
 		}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.test.context.annotation.SecurityTestExecutionListeners;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -77,13 +78,13 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestMatcherBasedAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatcherBasedAccessDeniedHandlerConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
 				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -96,6 +97,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 					.defaultAccessDeniedHandlerFor(
 							new AccessDeniedHandlerImpl(),
 							AnyRequestMatcher.INSTANCE);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -103,13 +105,13 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatcherBasedAccessDeniedHandlerInLambdaConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
 				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -127,6 +129,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 								AnyRequestMatcher.INSTANCE
 						)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -134,13 +137,13 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SingleRequestMatcherAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class SingleRequestMatcherAccessDeniedHandlerConfig {
 
 		AccessDeniedHandler teapotDeniedHandler = (request, response, exception) -> response
 				.setStatus(HttpStatus.I_AM_A_TEAPOT.value());
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests()
@@ -150,6 +153,7 @@ public class ExceptionHandlingConfigurerAccessDeniedHandlerTests {
 					.defaultAccessDeniedHandlerFor(
 							this.teapotDeniedHandler,
 							new AntPathRequestMatcher("/hello/**"));
+			return http.build();
 			// @formatter:on
 		}
 

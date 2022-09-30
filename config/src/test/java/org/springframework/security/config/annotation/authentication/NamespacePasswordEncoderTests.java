@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.User;
@@ -71,10 +70,10 @@ public class NamespacePasswordEncoderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordEncoderWithInMemoryConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordEncoderWithInMemoryConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			// @formatter:off
 			auth
@@ -88,10 +87,10 @@ public class NamespacePasswordEncoderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordEncoderWithJdbcConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordEncoderWithJdbcConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			// @formatter:off
 			auth
@@ -113,10 +112,10 @@ public class NamespacePasswordEncoderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordEncoderWithUserDetailsServiceConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordEncoderWithUserDetailsServiceConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 			// @formatter:off
 			UserDetails user = User.withUsername("user")

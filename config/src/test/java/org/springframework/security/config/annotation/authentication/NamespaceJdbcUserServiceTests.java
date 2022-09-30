@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -72,19 +71,16 @@ public class NamespaceJdbcUserServiceTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JdbcUserServiceConfig extends WebSecurityConfigurerAdapter {
+	static class JdbcUserServiceConfig {
 
 		@Autowired
-		private DataSource dataSource;
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		void configure(AuthenticationManagerBuilder auth, DataSource dataSource) throws Exception {
 			// @formatter:off
 			auth
 				.jdbcAuthentication()
 					.withDefaultSchema()
 					.withUser(PasswordEncodedUser.user())
-					.dataSource(this.dataSource); // jdbc-user-service@data-source-ref
+					.dataSource(dataSource); // jdbc-user-service@data-source-ref
 			// @formatter:on
 		}
 
@@ -103,18 +99,15 @@ public class NamespaceJdbcUserServiceTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomJdbcUserServiceSampleConfig extends WebSecurityConfigurerAdapter {
+	static class CustomJdbcUserServiceSampleConfig {
 
 		@Autowired
-		private DataSource dataSource;
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		void configure(AuthenticationManagerBuilder auth, DataSource dataSource) throws Exception {
 			// @formatter:off
 			auth
 				.jdbcAuthentication()
 				// jdbc-user-service@dataSource
-				.dataSource(this.dataSource)
+				.dataSource(dataSource)
 				// jdbc-user-service@cache-ref
 				.userCache(new CustomUserCache())
 				// jdbc-user-service@users-byusername-query

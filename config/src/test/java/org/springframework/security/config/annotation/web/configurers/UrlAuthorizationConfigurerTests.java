@@ -32,10 +32,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -174,24 +173,22 @@ public class UrlAuthorizationConfigurerTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class MvcMatcherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic().and()
-				.apply(new UrlAuthorizationConfigurer(getApplicationContext())).getRegistry()
+				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
 					.mvcMatchers("/path").hasRole("ADMIN");
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 		@RestController
@@ -209,24 +206,22 @@ public class UrlAuthorizationConfigurerTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class MvcMatcherServletPathConfig extends WebSecurityConfigurerAdapter {
+	static class MvcMatcherServletPathConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http, ApplicationContext context) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic().and()
-				.apply(new UrlAuthorizationConfigurer(getApplicationContext())).getRegistry()
+				.apply(new UrlAuthorizationConfigurer(context)).getRegistry()
 					.mvcMatchers("/path").servletPath("/spring").hasRole("ADMIN");
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 		@RestController
@@ -243,14 +238,15 @@ public class UrlAuthorizationConfigurerTests {
 
 	@EnableWebSecurity
 	@Configuration
-	static class AnonymousUrlAuthorizationConfig extends WebSecurityConfigurerAdapter {
+	static class AnonymousUrlAuthorizationConfig {
 
-		@Override
-		public void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.apply(new UrlAuthorizationConfigurer<>(null)).getRegistry()
 					.anyRequest().anonymous();
+			return http.build();
 			// @formatter:on
 		}
 

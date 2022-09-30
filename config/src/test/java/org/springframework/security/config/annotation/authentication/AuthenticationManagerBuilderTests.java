@@ -40,7 +40,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.authentication.configuration.EnableGlobalAuthentication;
 import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -167,10 +166,10 @@ public class AuthenticationManagerBuilderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class MultiAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+	static class MultiAuthenticationProvidersConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()
@@ -185,7 +184,7 @@ public class AuthenticationManagerBuilderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordEncoderGlobalConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordEncoderGlobalConfig {
 
 		@Autowired
 		void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -205,10 +204,10 @@ public class AuthenticationManagerBuilderTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordEncoderConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordEncoderConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.inMemoryAuthentication()

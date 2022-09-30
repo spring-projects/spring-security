@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,12 +21,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
@@ -92,10 +93,10 @@ public class PermitAllSupportTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PermitAllConfig extends WebSecurityConfigurerAdapter {
+	static class PermitAllConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -104,6 +105,7 @@ public class PermitAllSupportTests {
 				.formLogin()
 					.loginPage("/xyz").permitAll()
 					.loginProcessingUrl("/abc?def").permitAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -111,10 +113,10 @@ public class PermitAllSupportTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PermitAllConfigAuthorizeHttpRequests extends WebSecurityConfigurerAdapter {
+	static class PermitAllConfigAuthorizeHttpRequests {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeHttpRequests()
@@ -123,6 +125,7 @@ public class PermitAllSupportTests {
 					.formLogin()
 						.loginPage("/xyz").permitAll()
 						.loginProcessingUrl("/abc?def").permitAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -130,10 +133,10 @@ public class PermitAllSupportTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PermitAllConfigWithBothConfigs extends WebSecurityConfigurerAdapter {
+	static class PermitAllConfigWithBothConfigs {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests()
@@ -145,6 +148,7 @@ public class PermitAllSupportTests {
 					.formLogin()
 						.loginPage("/xyz").permitAll()
 						.loginProcessingUrl("/abc?def").permitAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -152,14 +156,15 @@ public class PermitAllSupportTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NoAuthorizedUrlsConfig extends WebSecurityConfigurerAdapter {
+	static class NoAuthorizedUrlsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin()
 					.permitAll();
+			return http.build();
 			// @formatter:on
 		}
 

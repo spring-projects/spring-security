@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,17 +40,19 @@ import org.springframework.security.access.vote.AffirmativeBased;
 import org.springframework.security.authentication.AuthenticationTrustResolverImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.expression.WebExpressionVoter;
 import org.springframework.security.web.access.expression.WebSecurityExpressionRoot;
@@ -60,9 +64,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
@@ -439,9 +443,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 	@Test
 	public void configureWhenRegisteringObjectPostProcessorThenApplicationListenerInvokedOnAuthorizedEvent()
 			throws Exception {
+		AuthorizedEventApplicationListener.clearEvents();
 		this.spring.register(AuthorizedRequestsWithPostProcessorConfig.class).autowire();
 		this.mvc.perform(get("/"));
-		verify(AuthorizedRequestsWithPostProcessorConfig.AL).onApplicationEvent(any(AuthorizedEvent.class));
+		assertThat(AuthorizedEventApplicationListener.EVENTS).isNotEmpty();
 	}
 
 	@Test
@@ -552,14 +557,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class HasRoleStartingWithRoleConfig extends WebSecurityConfigurerAdapter {
+	static class HasRoleStartingWithRoleConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("ROLE_USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -567,16 +573,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NoSpecificAccessDecisionManagerConfig extends WebSecurityConfigurerAdapter {
+	static class NoSpecificAccessDecisionManagerConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasRole("USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -589,13 +596,14 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NoRequestsConfig extends WebSecurityConfigurerAdapter {
+	static class NoRequestsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -603,15 +611,16 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class IncompleteMappingConfig extends WebSecurityConfigurerAdapter {
+	static class IncompleteMappingConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/a").authenticated()
 					.anyRequest();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -619,16 +628,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserAnyAuthorityConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserAnyAuthorityConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().hasAnyAuthority("ROLE_USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -636,16 +646,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserAuthorityConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserAuthorityConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().hasAuthority("ROLE_USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -653,16 +664,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserOrRoleAdminAuthorityConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserOrRoleAdminAuthorityConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().hasAnyAuthority("ROLE_USER", "ROLE_ADMIN");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -670,14 +682,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -685,14 +698,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserWithTestRolePrefixConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -705,14 +719,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserWithEmptyRolePrefixConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -725,14 +740,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserOrAdminConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserOrAdminConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER", "ADMIN");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -740,14 +756,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserOrAdminWithTestRolePrefixConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserOrAdminWithTestRolePrefixConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER", "ADMIN");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -760,14 +777,15 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleUserOrAdminWithEmptyRolePrefixConfig extends WebSecurityConfigurerAdapter {
+	static class RoleUserOrAdminWithEmptyRolePrefixConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().hasAnyRole("USER", "ADMIN");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -780,16 +798,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class HasIpAddressConfig extends WebSecurityConfigurerAdapter {
+	static class HasIpAddressConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().hasIpAddress("192.168.1.0");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -797,16 +816,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AnonymousConfig extends WebSecurityConfigurerAdapter {
+	static class AnonymousConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().anonymous();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -814,10 +834,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeConfig extends WebSecurityConfigurerAdapter {
+	static class RememberMeConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
@@ -827,31 +847,29 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 				.authorizeRequests()
 					.anyRequest().rememberMe();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DenyAllConfig extends WebSecurityConfigurerAdapter {
+	static class DenyAllConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().denyAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -859,16 +877,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NotDenyAllConfig extends WebSecurityConfigurerAdapter {
+	static class NotDenyAllConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.authorizeRequests()
 					.anyRequest().not().denyAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -876,10 +895,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class FullyAuthenticatedConfig extends WebSecurityConfigurerAdapter {
+	static class FullyAuthenticatedConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
@@ -888,17 +907,23 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.and()
 				.authorizeRequests()
 					.anyRequest().fullyAuthenticated();
+			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class AccessConfig extends WebSecurityConfigurerAdapter {
+	static class AccessConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
@@ -907,17 +932,23 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.and()
 				.authorizeRequests()
 					.anyRequest().access("hasRole('ROLE_USER') or request.method == 'GET'");
+			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvokeTwiceDoesNotResetConfig extends WebSecurityConfigurerAdapter {
+	static class InvokeTwiceDoesNotResetConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
@@ -926,6 +957,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.anyRequest().authenticated()
 					.and()
 				.authorizeRequests();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -933,10 +965,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AllPropertiesWorkConfig extends WebSecurityConfigurerAdapter {
+	static class AllPropertiesWorkConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			SecurityExpressionHandler<FilterInvocation> handler = new DefaultWebSecurityExpressionHandler();
 			WebExpressionVoter expressionVoter = new WebExpressionVoter();
 			AffirmativeBased adm = new AffirmativeBased(Collections.singletonList(expressionVoter));
@@ -950,6 +982,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.anyRequest().permitAll()
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -957,12 +990,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AuthorizedRequestsWithPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class AuthorizedRequestsWithPostProcessorConfig {
 
-		static ApplicationListener<AuthorizedEvent> AL = mock(ApplicationListener.class);
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -975,22 +1006,38 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 							return fsi;
 						}
 					});
+			return http.build();
 			// @formatter:on
 		}
 
 		@Bean
 		ApplicationListener<AuthorizedEvent> applicationListener() {
-			return AL;
+			return new AuthorizedEventApplicationListener();
+		}
+
+	}
+
+	static class AuthorizedEventApplicationListener implements ApplicationListener<AuthorizedEvent> {
+
+		static final List<AuthorizedEvent> EVENTS = new ArrayList<>();
+
+		@Override
+		public void onApplicationEvent(AuthorizedEvent event) {
+			EVENTS.add(event);
+		}
+
+		static void clearEvents() {
+			EVENTS.clear();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class UseBeansInExpressions extends WebSecurityConfigurerAdapter {
+	static class UseBeansInExpressions {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -998,6 +1045,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.antMatchers("/user").hasRole("USER")
 					.antMatchers("/allow").access("@permission.check(authentication,'user')")
 					.anyRequest().access("@permission.check(authentication,'admin')");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1018,10 +1066,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomExpressionRootConfig extends WebSecurityConfigurerAdapter {
+	static class CustomExpressionRootConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1030,6 +1078,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.antMatchers("/user").hasRole("USER")
 					.antMatchers("/allow").access("check('user')")
 					.anyRequest().access("check('admin')");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1067,27 +1116,25 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	}
 
-	@Configuration
+	@Configuration(proxyBeanMethods = false)
 	@EnableWebSecurity
-	static class Sec3011Config extends WebSecurityConfigurerAdapter {
+	static class Sec3011Config {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 				http
 				.authorizeRequests()
 					.anyRequest().authenticated();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 		@Bean
@@ -1099,10 +1146,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PermissionEvaluatorConfig extends WebSecurityConfigurerAdapter {
+	static class PermissionEvaluatorConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1111,6 +1158,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.antMatchers("/deny").access("hasPermission('ID', 'TYPE', 'NO PERMISSION')")
 					.antMatchers("/denyObject").access("hasPermission('TESTOBJ', 'NO PERMISSION')")
 					.anyRequest().permitAll();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1135,16 +1183,17 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RoleHierarchyConfig extends WebSecurityConfigurerAdapter {
+	static class RoleHierarchyConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.antMatchers("/allow").access("hasRole('MEMBER')")
 					.antMatchers("/deny").access("hasRole('ADMIN')")
 					.anyRequest().permitAll();
+			return http.build();
 			// @formatter:on
 		}
 

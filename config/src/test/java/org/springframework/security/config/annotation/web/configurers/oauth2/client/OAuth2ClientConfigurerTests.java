@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
@@ -61,6 +60,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequ
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -284,10 +284,10 @@ public class OAuth2ClientConfigurerTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class OAuth2ClientConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2ClientConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -301,6 +301,7 @@ public class OAuth2ClientConfigurerTests {
 						.authorizationRequestResolver(authorizationRequestResolver)
 						.authorizationRedirectStrategy(authorizationRedirectStrategy)
 						.accessTokenResponseClient(accessTokenResponseClient);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -330,10 +331,10 @@ public class OAuth2ClientConfigurerTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class OAuth2ClientInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2ClientInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -341,6 +342,7 @@ public class OAuth2ClientConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.oauth2Client(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 

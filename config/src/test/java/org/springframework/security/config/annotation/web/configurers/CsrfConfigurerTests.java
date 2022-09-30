@@ -33,11 +33,12 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
@@ -479,24 +480,26 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfAppliedDefaultConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfAppliedDefaultConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DisableCsrfConfig extends WebSecurityConfigurerAdapter {
+	static class DisableCsrfConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.disable();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -504,13 +507,14 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DisableCsrfInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class DisableCsrfInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf(AbstractHttpConfigurer::disable);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -518,10 +522,10 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DisableCsrfEnablesRequestCacheConfig extends WebSecurityConfigurerAdapter {
+	static class DisableCsrfEnablesRequestCacheConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -532,27 +536,24 @@ public class CsrfConfigurerTests {
 				.csrf()
 					.disable();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-				.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisablesPostRequestFromRequestCacheConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisablesPostRequestFromRequestCacheConfig {
 
 		static CsrfTokenRepository REPO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -563,31 +564,29 @@ public class CsrfConfigurerTests {
 				.csrf()
 					.csrfTokenRepository(REPO);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvalidSessionUrlConfig extends WebSecurityConfigurerAdapter {
+	static class InvalidSessionUrlConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.and()
 				.sessionManagement()
 					.invalidSessionUrl("/error/sessionError");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -595,16 +594,17 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class RequireCsrfProtectionMatcherConfig {
 
 		static RequestMatcher MATCHER;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.requireCsrfProtectionMatcher(MATCHER);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -612,15 +612,16 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequireCsrfProtectionMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequireCsrfProtectionMatcherInLambdaConfig {
 
 		static RequestMatcher MATCHER;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf((csrf) -> csrf.requireCsrfProtectionMatcher(MATCHER));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -628,12 +629,12 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfTokenRepositoryConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfTokenRepositoryConfig {
 
 		static CsrfTokenRepository REPO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin()
@@ -641,31 +642,29 @@ public class CsrfConfigurerTests {
 				.csrf()
 					.csrfTokenRepository(REPO);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfTokenRepositoryInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfTokenRepositoryInLambdaConfig {
 
 		static CsrfTokenRepository REPO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin(withDefaults())
 				.csrf((csrf) -> csrf.csrfTokenRepository(REPO));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -673,16 +672,17 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class AccessDeniedHandlerConfig {
 
 		static AccessDeniedHandler DENIED_HANDLER;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.exceptionHandling()
 					.accessDeniedHandler(DENIED_HANDLER);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -690,18 +690,19 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultAccessDeniedHandlerForConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultAccessDeniedHandlerForConfig {
 
 		static AccessDeniedHandler DENIED_HANDLER;
 
 		static RequestMatcher MATCHER;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.exceptionHandling()
 					.defaultAccessDeniedHandlerFor(DENIED_HANDLER, MATCHER);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -709,13 +710,14 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class FormLoginConfig extends WebSecurityConfigurerAdapter {
+	static class FormLoginConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -723,16 +725,17 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class LogoutAllowsGetConfig extends WebSecurityConfigurerAdapter {
+	static class LogoutAllowsGetConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.formLogin()
 					.and()
 				.logout()
 					.logoutRequestMatcher(new AntPathRequestMatcher("/logout"));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -740,14 +743,15 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullRequireCsrfProtectionMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class NullRequireCsrfProtectionMatcherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.requireCsrfProtectionMatcher(null);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -755,10 +759,10 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultDoesNotCreateSession extends WebSecurityConfigurerAdapter {
+	static class DefaultDoesNotCreateSession {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -768,29 +772,27 @@ public class CsrfConfigurerTests {
 					.and()
 				.httpBasic();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullAuthenticationStrategy extends WebSecurityConfigurerAdapter {
+	static class NullAuthenticationStrategy {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.csrf()
 					.sessionAuthenticationStrategy(null);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -798,12 +800,12 @@ public class CsrfConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfAuthenticationStrategyConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfAuthenticationStrategyConfig {
 
 		static SessionAuthenticationStrategy STRATEGY;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.formLogin()
@@ -811,15 +813,12 @@ public class CsrfConfigurerTests {
 					.csrf()
 					.sessionAuthenticationStrategy(STRATEGY);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-					.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}

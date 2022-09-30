@@ -31,7 +31,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.PortMapperImpl;
@@ -131,16 +130,17 @@ public class ChannelSecurityConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requiresChannel()
 					.anyRequest().requiresSecure();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -162,16 +162,17 @@ public class ChannelSecurityConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class DuplicateInvocationsDoesNotOverrideConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requiresChannel()
 					.anyRequest().requiresSecure()
 					.and()
 				.requiresChannel();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -179,16 +180,17 @@ public class ChannelSecurityConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequiresChannelInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequiresChannelInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requiresChannel((requiresChannel) ->
 					requiresChannel
 						.anyRequest().requiresSecure()
 			);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -196,10 +198,10 @@ public class ChannelSecurityConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequiresChannelWithTestUrlRedirectStrategy extends WebSecurityConfigurerAdapter {
+	static class RequiresChannelWithTestUrlRedirectStrategy {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.portMapper()
@@ -209,6 +211,7 @@ public class ChannelSecurityConfigurerTests {
 					.redirectStrategy(new TestUrlRedirectStrategy())
 					.anyRequest()
 					.requiresSecure();
+			return http.build();
 			// @formatter:on
 		}
 

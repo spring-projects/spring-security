@@ -37,9 +37,11 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.web.WebSecurityConfigurer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
 import org.springframework.security.context.DelegatingApplicationListener;
@@ -48,7 +50,6 @@ import org.springframework.security.web.FilterInvocation;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.WebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
-import org.springframework.util.Assert;
 
 /**
  * Uses a {@link WebSecurity} to create the {@link FilterChainProxy} that performs the web
@@ -81,6 +82,9 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	@Autowired(required = false)
 	private ObjectPostProcessor<Object> objectObjectPostProcessor;
 
+	@Autowired(required = false)
+	private HttpSecurity httpSecurity;
+
 	@Bean
 	public static DelegatingApplicationListener delegatingApplicationListener() {
 		return new DelegatingApplicationListener();
@@ -99,15 +103,14 @@ public class WebSecurityConfiguration implements ImportAware, BeanClassLoaderAwa
 	 */
 	@Bean(name = AbstractSecurityWebApplicationInitializer.DEFAULT_FILTER_NAME)
 	public Filter springSecurityFilterChain() throws Exception {
-		boolean hasConfigurers = this.webSecurityConfigurers != null && !this.webSecurityConfigurers.isEmpty();
 		boolean hasFilterChain = !this.securityFilterChains.isEmpty();
-		Assert.state(!(hasConfigurers && hasFilterChain),
-				"Found WebSecurityConfigurerAdapter as well as SecurityFilterChain. Please select just one.");
-		if (!hasConfigurers && !hasFilterChain) {
-			WebSecurityConfigurerAdapter adapter = this.objectObjectPostProcessor
-					.postProcess(new WebSecurityConfigurerAdapter() {
-					});
-			this.webSecurity.apply(adapter);
+		if (!hasFilterChain) {
+			this.webSecurity.addSecurityFilterChainBuilder(() -> {
+				this.httpSecurity.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated());
+				this.httpSecurity.formLogin(Customizer.withDefaults());
+				this.httpSecurity.httpBasic(Customizer.withDefaults());
+				return this.httpSecurity.build();
+			});
 		}
 		for (SecurityFilterChain securityFilterChain : this.securityFilterChains) {
 			this.webSecurity.addSecurityFilterChainBuilder(() -> securityFilterChain);

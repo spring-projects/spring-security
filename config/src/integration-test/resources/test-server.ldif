@@ -28,6 +28,16 @@ sn: Alex
 uid: ben
 userPassword: {SHA}nFCebWjxfaLbHHG1Qk5UU4trbvQ=
 
+dn: uid=otherben,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Other Ben Alex
+sn: Alex
+uid: otherben
+userPassword: otherbenspassword
+
 dn: uid=bcrypt,ou=people,dc=springframework,dc=org
 objectclass: top
 objectclass: person
@@ -75,6 +85,7 @@ cn: developers
 ou: developer
 member: uid=bcrypt,ou=people,dc=springframework,dc=org
 member: uid=ben,ou=people,dc=springframework,dc=org
+member: uid=otherben,ou=people,dc=springframework,dc=org
 member: uid=bob,ou=people,dc=springframework,dc=org
 
 dn: cn=managers,ou=groups,dc=springframework,dc=org
@@ -83,6 +94,7 @@ objectclass: groupOfNames
 cn: managers
 ou: manager
 member: uid=ben,ou=people,dc=springframework,dc=org
+member: uid=otherben,ou=people,dc=springframework,dc=org
 member: cn=mouse\, jerry,ou=people,dc=springframework,dc=org
 
 dn: cn=submanagers,ou=subgroups,ou=groups,dc=springframework,dc=org
@@ -91,3 +103,4 @@ objectclass: groupOfNames
 cn: submanagers
 ou: submanager
 member: uid=ben,ou=people,dc=springframework,dc=org
+member: uid=otherben,ou=people,dc=springframework,dc=org

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.ldap.LdapAuthenticationProviderBuilderSecurityBuilderTests.BaseLdapProviderConfig;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -105,10 +104,10 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 		// @formatter:off
 		SecurityMockMvcRequestBuilders.FormLoginRequestBuilder request = formLogin()
-				.user("ben")
-				.password("benspassword");
+				.user("otherben")
+				.password("otherbenspassword");
 		SecurityMockMvcResultMatchers.AuthenticatedMatcher expectedUser = authenticated()
-				.withUsername("ben")
+				.withUsername("otherben")
 				.withAuthorities(
 						AuthorityUtils.createAuthorityList("ROLE_SUBMANAGERS", "ROLE_MANAGERS", "ROLE_DEVELOPERS"));
 		// @formatter:on
@@ -117,10 +116,10 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class MultiLdapAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+	static class MultiLdapAuthenticationProvidersConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -139,10 +138,10 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig extends WebSecurityConfigurerAdapter {
+	static class MultiLdapWithCustomRolePrefixAuthenticationProvidersConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -163,10 +162,10 @@ public class LdapAuthenticationProviderConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class LdapWithRandomPortConfig extends WebSecurityConfigurerAdapter {
+	static class LdapWithRandomPortConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -174,7 +173,7 @@ public class LdapAuthenticationProviderConfigurerTests {
 					.groupSearchFilter("(member={0})")
 					.userDnPatterns("uid={0},ou=people")
 					.contextSource()
-						.port(0);
+					.port(0);
 			// @formatter:on
 		}
 
@@ -184,8 +183,8 @@ public class LdapAuthenticationProviderConfigurerTests {
 	@EnableWebSecurity
 	static class GroupSubtreeSearchConfig extends BaseLdapProviderConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
