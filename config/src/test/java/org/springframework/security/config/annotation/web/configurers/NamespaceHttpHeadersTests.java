@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.header.writers.frameoptions.StaticAllowFromStrategy;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -282,8 +283,7 @@ public class NamespaceHttpHeadersTests {
 					// xss-protection@enabled and xss-protection@block
 					.defaultsDisabled()
 					.xssProtection()
-						.xssProtectionEnabled(true)
-						.block(false);
+						.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED);
 			// @formatter:on
 		}
 

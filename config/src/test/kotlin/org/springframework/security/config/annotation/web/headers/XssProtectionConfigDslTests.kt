@@ -27,6 +27,7 @@ import org.springframework.security.config.annotation.web.invoke
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter
 import org.springframework.security.web.server.header.XXssProtectionServerHttpHeadersWriter
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -146,6 +147,34 @@ class XssProtectionConfigDslTests {
                 headers {
                     xssProtection {
                         disable()
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `headers when XSS protection header value disabled then X-XSS-Protection header is 0`() {
+        this.spring.register(XssProtectionHeaderValueDisabledFunctionConfig::class.java).autowire()
+
+        this.mockMvc.get("/") {
+            secure = true
+        }.andExpect {
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class XssProtectionHeaderValueDisabledFunctionConfig () {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                headers {
+                    defaultsDisabled = true
+                    xssProtection {
+                        headerValue = XXssProtectionHeaderWriter.HeaderValue.DISABLED
                     }
                 }
             }

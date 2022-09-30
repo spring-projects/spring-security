@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,6 +94,31 @@ class ServerXssProtectionDslTests {
                 headers {
                     xssProtection {
                         disable()
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `request when xss protection value disabled then xss header in response`() {
+        this.spring.register(XssValueDisabledConfig::class.java).autowire()
+
+        this.client.get()
+                .uri("/")
+                .exchange()
+                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0")
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class XssValueDisabledConfig {
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                headers {
+                    xssProtection {
+                        headerValue = XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED
                     }
                 }
             }
