@@ -150,8 +150,9 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		ManagedList<BeanReference> authenticationProviders = new ManagedList<>();
 		BeanReference authenticationManager = createAuthenticationManager(element, pc, authenticationProviders);
 		boolean forceAutoConfig = isDefaultHttpConfig(element);
+		BeanMetadataElement observationRegistry = getObservationRegistry(element);
 		HttpConfigurationBuilder httpBldr = new HttpConfigurationBuilder(element, forceAutoConfig, pc, portMapper,
-				portResolver, authenticationManager);
+				portResolver, authenticationManager, observationRegistry);
 		httpBldr.getSecurityContextRepositoryForAuthenticationFilters();
 		AuthenticationConfigBuilder authBldr = new AuthenticationConfigBuilder(element, forceAutoConfig, pc,
 				httpBldr.getSessionCreationPolicy(), httpBldr.getRequestCache(), authenticationManager,
