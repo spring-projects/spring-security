@@ -64,6 +64,14 @@ public class Pbkdf2PasswordEncoderTests {
 	}
 
 	@Test
+	public void matchesWhenDefaultsThenSuccess() {
+		Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
+		String rawPassword = "password";
+		String encodedPassword = "fefe5120467e5d4ccff442dbb2fa86d276262d97435c0c54e5eebced51ffd144fcb05eb53fea2677216c4f3250010006";
+		assertThat(encoder.matches(rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
 	public void matchesWhenCustomSaltLengthThenSuccess() {
 		String result = this.encoderSalt16.encode("password");
 		assertThat(result.equals("password")).isFalse();

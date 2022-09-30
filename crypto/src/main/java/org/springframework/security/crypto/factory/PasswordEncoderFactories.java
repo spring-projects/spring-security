@@ -79,6 +79,7 @@ public final class PasswordEncoderFactories {
 		pbkdf2PasswordEncoder.setAlgorithm(Pbkdf2PasswordEncoder.SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1);
 		encoders.put("pbkdf2", pbkdf2PasswordEncoder);
 
+		encoders.put("pbkdf2-sha256", new Pbkdf2PasswordEncoder());
 		encoders.put("scrypt", new SCryptPasswordEncoder());
 		encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
 		encoders.put("SHA-256",

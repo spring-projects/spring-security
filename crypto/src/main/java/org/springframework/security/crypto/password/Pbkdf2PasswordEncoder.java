@@ -36,8 +36,6 @@ import org.springframework.security.crypto.util.EncodingUtils;
  * <li>a configurable random salt value length (default is {@value #DEFAULT_SALT_LENGTH}
  * bytes)</li>
  * <li>a configurable number of iterations (default is {@value #DEFAULT_ITERATIONS})</li>
- * <li>a configurable output hash width (default is {@value #DEFAULT_HASH_WIDTH}
- * bits)</li>
  * <li>a configurable key derivation function (see {@link SecretKeyFactoryAlgorithm})</li>
  * <li>a configurable secret appended to the random salt (default is empty)</li>
  * </ul>
@@ -52,28 +50,43 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 
 	private static final int DEFAULT_SALT_LENGTH = 16;
 
-	private static final int DEFAULT_HASH_WIDTH = 256;
-
 	private static final int DEFAULT_ITERATIONS = 310000;
 
 	private final BytesKeyGenerator saltGenerator;
 
 	private final byte[] secret;
 
-	private final int hashWidth;
-
 	private final int iterations;
 
 	private String algorithm = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256.name();
+
+	private int hashWidth = 256; // SHA-256
+
+	// @formatter:off
+	/*
+	The length of the hash should be derived from the hashing algorithm.
+
+	For example:
+		SHA-1 - 160 bits (20 bytes)
+		SHA-256 - 256 bits (32 bytes)
+		SHA-512 - 512 bits (64 bytes)
+
+	However, the original configuration for PBKDF2 was hashWidth=256 and algorithm=SHA-1, which is incorrect.
+	The default configuration has been updated to hashWidth=256 and algorithm=SHA-256 (see gh-10506).
+	In order to preserve backwards compatibility, the variable 'overrideHashWidth' has been introduced
+	to indicate usage of the deprecated constructors that allow (and honor) a hashWidth parameter.
+	 */
+	// @formatter:on
+	private boolean overrideHashWidth = true;
 
 	private boolean encodeHashAsBase64;
 
 	/**
 	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
 	 * a salt length of {@value #DEFAULT_SALT_LENGTH} bytes, {@value #DEFAULT_ITERATIONS}
-	 * iterations and a hash width of {@value #DEFAULT_HASH_WIDTH} bits. The default is
-	 * based upon aiming for .5 seconds to validate the password when this class was
-	 * added. Users should tune password verification to their own systems.
+	 * iterations and SHA-256 algorithm. The default is based upon aiming for .5 seconds
+	 * to validate the password when this class was added. Users should tune password
+	 * verification to their own systems.
 	 */
 	public Pbkdf2PasswordEncoder() {
 		this("");
@@ -82,24 +95,22 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	/**
 	 * Constructs a standard password encoder with a secret value which is also included
 	 * in the password hash. There will be a salt length of {@value #DEFAULT_SALT_LENGTH}
-	 * bytes, {@value #DEFAULT_ITERATIONS} iterations and a hash width of
-	 * {@value #DEFAULT_HASH_WIDTH} bits.
+	 * bytes, {@value #DEFAULT_ITERATIONS} iterations and SHA-256 algorithm.
 	 * @param secret the secret key used in the encoding process (should not be shared)
 	 */
 	public Pbkdf2PasswordEncoder(CharSequence secret) {
-		this(secret, DEFAULT_SALT_LENGTH, DEFAULT_ITERATIONS, DEFAULT_HASH_WIDTH);
+		this(secret, DEFAULT_SALT_LENGTH);
 	}
 
 	/**
 	 * Constructs a standard password encoder with a secret value as well as salt length.
-	 * There will be {@value #DEFAULT_ITERATIONS} iterations and a hash width of
-	 * {@value #DEFAULT_HASH_WIDTH} bits.
+	 * There will be {@value #DEFAULT_ITERATIONS} iterations and SHA-256 algorithm.
 	 * @param secret the secret
 	 * @param saltLength the salt length (in bytes)
 	 * @since 5.5
 	 */
 	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength) {
-		this(secret, saltLength, DEFAULT_ITERATIONS, DEFAULT_HASH_WIDTH);
+		this(secret, saltLength, DEFAULT_ITERATIONS, SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256);
 	}
 
 	/**
@@ -109,7 +120,11 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * @param iterations the number of iterations. Users should aim for taking about .5
 	 * seconds on their own system.
 	 * @param hashWidth the size of the hash (in bits)
+	 * @deprecated Use
+	 * {@link #Pbkdf2PasswordEncoder(CharSequence, int, int, SecretKeyFactoryAlgorithm)}
+	 * instead
 	 */
+	@Deprecated
 	public Pbkdf2PasswordEncoder(CharSequence secret, int iterations, int hashWidth) {
 		this(secret, DEFAULT_SALT_LENGTH, iterations, hashWidth);
 	}
@@ -123,12 +138,36 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	 * seconds on their own system.
 	 * @param hashWidth the size of the hash (in bits)
 	 * @since 5.5
+	 * @deprecated Use
+	 * {@link #Pbkdf2PasswordEncoder(CharSequence, int, int, SecretKeyFactoryAlgorithm)}
+	 * instead
 	 */
+	@Deprecated
 	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength, int iterations, int hashWidth) {
 		this.secret = Utf8.encode(secret);
 		this.saltGenerator = KeyGenerators.secureRandom(saltLength);
 		this.iterations = iterations;
 		this.hashWidth = hashWidth;
+		this.overrideHashWidth = false; // Honor 'hashWidth' to preserve backwards
+										// compatibility
+	}
+
+	/**
+	 * Constructs a standard password encoder with a secret value as well as salt length,
+	 * iterations and algorithm.
+	 * @param secret the secret
+	 * @param saltLength the salt length (in bytes)
+	 * @param iterations the number of iterations. Users should aim for taking about .5
+	 * seconds on their own system.
+	 * @param secretKeyFactoryAlgorithm the algorithm to use
+	 * @since 6.0
+	 */
+	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength, int iterations,
+			SecretKeyFactoryAlgorithm secretKeyFactoryAlgorithm) {
+		this.secret = Utf8.encode(secret);
+		this.saltGenerator = KeyGenerators.secureRandom(saltLength);
+		this.iterations = iterations;
+		setAlgorithm(secretKeyFactoryAlgorithm);
 	}
 
 	/**
@@ -152,6 +191,10 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 		}
 		catch (NoSuchAlgorithmException ex) {
 			throw new IllegalArgumentException("Invalid algorithm '" + algorithmName + "'.", ex);
+		}
+		if (this.overrideHashWidth) {
+			this.hashWidth = SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA1.equals(secretKeyFactoryAlgorithm) ? 160
+					: SecretKeyFactoryAlgorithm.PBKDF2WithHmacSHA256.equals(secretKeyFactoryAlgorithm) ? 256 : 512;
 		}
 	}
 

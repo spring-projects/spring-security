@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,12 @@ public class PasswordEncoderFactoriesTests {
 	@Test
 	public void matchesWhenPbkdf2ThenWorks() {
 		String encodedPassword = "{pbkdf2}5d923b44a6d129f3ddf3e3c8d29412723dcbde72445e8ef6bf3b508fbf17fa4ed4d6b99ca763d8dc";
+		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchesWhenPbkdf2Sha256ThenWorks() {
+		String encodedPassword = "{pbkdf2-sha256}fefe5120467e5d4ccff442dbb2fa86d276262d97435c0c54e5eebced51ffd144fcb05eb53fea2677216c4f3250010006";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
 	}
 
