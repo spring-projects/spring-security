@@ -30,10 +30,10 @@ import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -308,10 +308,10 @@ public class HttpSecurityRequestMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class MvcMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class MvcMatcherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.mvcMatcher("/path")
@@ -319,14 +319,12 @@ public class HttpSecurityRequestMatchersTests {
 				.authorizeRequests()
 					.anyRequest().denyAll();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 		@RestController
@@ -344,10 +342,10 @@ public class HttpSecurityRequestMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class RequestMatchersMvcMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatchersMvcMatcherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestMatchers()
@@ -357,14 +355,12 @@ public class HttpSecurityRequestMatchersTests {
 				.authorizeRequests()
 					.anyRequest().denyAll();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 		@RestController
@@ -382,10 +378,10 @@ public class HttpSecurityRequestMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class RequestMatchersMvcMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatchersMvcMatcherInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestMatchers((requestMatchers) ->
@@ -397,6 +393,7 @@ public class HttpSecurityRequestMatchersTests {
 					authorizeRequests
 						.anyRequest().denyAll()
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -415,10 +412,10 @@ public class HttpSecurityRequestMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class RequestMatchersMvcMatcherServeltPathConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatchersMvcMatcherServeltPathConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestMatchers()
@@ -429,14 +426,12 @@ public class HttpSecurityRequestMatchersTests {
 				.authorizeRequests()
 					.anyRequest().denyAll();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 		@RestController
@@ -454,10 +449,10 @@ public class HttpSecurityRequestMatchersTests {
 	@EnableWebSecurity
 	@Configuration
 	@EnableWebMvc
-	static class RequestMatchersMvcMatcherServletPathInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequestMatchersMvcMatcherServletPathInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestMatchers((requestMatchers) ->
@@ -470,6 +465,7 @@ public class HttpSecurityRequestMatchersTests {
 					authorizeRequests
 						.anyRequest().denyAll()
 				);
+			return http.build();
 			// @formatter:on
 		}
 

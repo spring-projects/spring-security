@@ -28,10 +28,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
@@ -149,15 +147,16 @@ public class HttpBasicConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -179,10 +178,10 @@ public class HttpBasicConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultsLambdaEntryPointConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultsLambdaEntryPointConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -191,24 +190,22 @@ public class HttpBasicConfigurerTests {
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultsEntryPointConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultsEntryPointConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -216,26 +213,24 @@ public class HttpBasicConfigurerTests {
 					.and()
 				.httpBasic();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationEntryPointConfig {
 
 		static AuthenticationEntryPoint ENTRY_POINT = mock(AuthenticationEntryPoint.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -244,26 +239,24 @@ public class HttpBasicConfigurerTests {
 				.httpBasic()
 					.authenticationEntryPoint(ENTRY_POINT);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class DuplicateDoesNotOverrideConfig {
 
 		static AuthenticationEntryPoint ENTRY_POINT = mock(AuthenticationEntryPoint.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -274,35 +267,33 @@ public class HttpBasicConfigurerTests {
 					.and()
 				.httpBasic();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager();
 		}
 
 	}
 
 	@EnableWebSecurity
 	@Configuration
-	static class BasicUsesRememberMeConfig extends WebSecurityConfigurerAdapter {
+	static class BasicUsesRememberMeConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.httpBasic()
 					.and()
 				.rememberMe();
+			return http.build();
 			// @formatter:on
 		}
 
-		@Override
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()

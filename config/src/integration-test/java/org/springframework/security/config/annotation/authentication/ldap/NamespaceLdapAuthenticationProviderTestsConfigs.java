@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@
 
 package org.springframework.security.config.annotation.authentication.ldap;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.PersonContextMapper;
@@ -32,10 +32,10 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	@Configuration
 	@EnableWebSecurity
-	static class LdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+	static class LdapAuthenticationProviderConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -48,10 +48,10 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomLdapAuthenticationProviderConfig extends WebSecurityConfigurerAdapter {
+	static class CustomLdapAuthenticationProviderConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -70,7 +70,7 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 						.managerPassword("secret") // ldap-server@manager-password
 						.port(0) // ldap-server@port
 						.root("dc=springframework,dc=org"); // ldap-server@root
-						// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
+			// .url("ldap://localhost:33389/dc-springframework,dc=org") this overrides root and port and is used for external
 			// @formatter:on
 		}
 
@@ -78,12 +78,12 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomAuthoritiesPopulatorConfig extends WebSecurityConfigurerAdapter {
+	static class CustomAuthoritiesPopulatorConfig {
 
 		static LdapAuthoritiesPopulator LAP;
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()
@@ -96,10 +96,10 @@ public class NamespaceLdapAuthenticationProviderTestsConfigs {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PasswordCompareLdapConfig extends WebSecurityConfigurerAdapter {
+	static class PasswordCompareLdapConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
 			// @formatter:off
 			auth
 				.ldapAuthentication()

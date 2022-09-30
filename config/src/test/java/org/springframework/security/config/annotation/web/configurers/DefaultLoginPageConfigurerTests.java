@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,14 +24,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -313,10 +314,10 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLoginPageConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLoginPageConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -324,25 +325,22 @@ public class DefaultLoginPageConfigurerTests {
 					.and()
 				.formLogin();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLoginPageCustomLogoutSuccessHandlerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -352,6 +350,7 @@ public class DefaultLoginPageConfigurerTests {
 					.logoutSuccessHandler(new SimpleUrlLogoutSuccessHandler())
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -359,10 +358,10 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLoginPageCustomLogoutSuccessUrlConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLoginPageCustomLogoutSuccessUrlConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -372,6 +371,7 @@ public class DefaultLoginPageConfigurerTests {
 					.logoutSuccessUrl("/login?logout")
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -379,10 +379,10 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLoginPageWithRememberMeConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLoginPageWithRememberMeConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -391,17 +391,23 @@ public class DefaultLoginPageConfigurerTests {
 				.formLogin()
 					.and()
 				.rememberMe();
+			return http.build();
 			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLoginWithCustomAuthenticationEntryPointConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLoginWithCustomAuthenticationEntryPointConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.exceptionHandling()
@@ -411,6 +417,7 @@ public class DefaultLoginPageConfigurerTests {
 					.anyRequest().hasRole("USER")
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -418,17 +425,18 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.exceptionHandling()
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -441,16 +449,17 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultLogoutPageConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultLogoutPageConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorize) -> authorize
 					.anyRequest().authenticated()
 				)
 				.formLogin(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -458,10 +467,10 @@ public class DefaultLoginPageConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class LogoutDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests((authorize) -> authorize
@@ -471,6 +480,7 @@ public class DefaultLoginPageConfigurerTests {
 					.logout((logout) -> logout
 							.disable()
 					);
+			return http.build();
 			// @formatter:on
 		}
 

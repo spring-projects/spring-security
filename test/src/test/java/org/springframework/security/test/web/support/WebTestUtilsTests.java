@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,9 +30,9 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.config.BeanIds;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -185,24 +185,25 @@ public class WebTestUtilsTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SecurityNoCsrfConfig extends WebSecurityConfigurerAdapter {
+	static class SecurityNoCsrfConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.csrf().disable();
+			return http.build();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class CustomSecurityConfig {
 
 		static CsrfTokenRepository CSRF_REPO;
 		static SecurityContextRepository CONTEXT_REPO;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
@@ -210,6 +211,7 @@ public class WebTestUtilsTests {
 					.and()
 				.securityContext()
 					.securityContextRepository(CONTEXT_REPO);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -217,13 +219,14 @@ public class WebTestUtilsTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class PartialSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class PartialSecurityConfig {
 
-		@Override
-		public void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.antMatcher("/willnotmatchthis");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -236,7 +239,7 @@ public class WebTestUtilsTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SecurityConfigWithDefaults extends WebSecurityConfigurerAdapter {
+	static class SecurityConfigWithDefaults {
 
 	}
 

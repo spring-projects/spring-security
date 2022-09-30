@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -86,7 +86,6 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -1458,10 +1457,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1470,6 +1469,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1477,10 +1477,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -1492,6 +1492,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					oauth2ResourceServer
 						.jwt(withDefaults())
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1499,13 +1500,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwkSetUriConfig extends WebSecurityConfigurerAdapter {
+	static class JwkSetUriConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
 		String jwkSetUri;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1515,6 +1516,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(this.jwkSetUri);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1522,13 +1524,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwkSetUriInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class JwkSetUriInLambdaConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
 		String jwkSetUri;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -1543,6 +1545,7 @@ public class OAuth2ResourceServerConfigurerTests {
 								.jwkSetUri(this.jwkSetUri)
 						)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1550,13 +1553,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisabledConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
 		String jwkSetUri;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1567,6 +1570,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwkSetUri(this.jwkSetUri);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1574,10 +1578,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AnonymousDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class AnonymousDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1586,6 +1590,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.anonymous().disable()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1594,10 +1599,10 @@ public class OAuth2ResourceServerConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@EnableGlobalMethodSecurity(prePostEnabled = true)
-	static class MethodSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class MethodSecurityConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1605,6 +1610,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1612,16 +1618,17 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwtlessConfig extends WebSecurityConfigurerAdapter {
+	static class JwtlessConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1629,10 +1636,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RealmNameConfiguredOnEntryPoint extends WebSecurityConfigurerAdapter {
+	static class RealmNameConfiguredOnEntryPoint {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1641,6 +1648,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.authenticationEntryPoint(authenticationEntryPoint())
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1654,10 +1662,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RealmNameConfiguredOnAccessDeniedHandler extends WebSecurityConfigurerAdapter {
+	static class RealmNameConfiguredOnAccessDeniedHandler {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1666,6 +1674,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.accessDeniedHandler(accessDeniedHandler())
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1679,10 +1688,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ExceptionHandlingAndResourceServerWithAccessDeniedHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class ExceptionHandlingAndResourceServerWithAccessDeniedHandlerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1695,12 +1704,12 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
-		@Override
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
@@ -1715,12 +1724,12 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwtAuthenticationConverterConfiguredOnDsl extends WebSecurityConfigurerAdapter {
+	static class JwtAuthenticationConverterConfiguredOnDsl {
 
 		private final Converter<Jwt, JwtAuthenticationToken> jwtAuthenticationConverter = mock(Converter.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1729,6 +1738,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1740,10 +1750,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomAuthorityMappingConfig extends WebSecurityConfigurerAdapter {
+	static class CustomAuthorityMappingConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1752,6 +1762,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.jwtAuthenticationConverter(getJwtAuthenticationConverter());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1766,10 +1777,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class BasicAndResourceServerConfig extends WebSecurityConfigurerAdapter {
+	static class BasicAndResourceServerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1779,12 +1790,12 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
-		@Override
 		@Bean
-		public UserDetailsService userDetailsService() {
+		UserDetailsService userDetailsService() {
 			return new InMemoryUserDetailsManager(
 			// @formatter:off
 					org.springframework.security.core.userdetails.User.withDefaultPasswordEncoder()
@@ -1799,10 +1810,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class FormAndResourceServerConfig extends WebSecurityConfigurerAdapter {
+	static class FormAndResourceServerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1812,6 +1823,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1819,10 +1831,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OAuth2LoginAndResourceServerConfig extends WebSecurityConfigurerAdapter {
+	static class OAuth2LoginAndResourceServerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authz) -> authz
@@ -1832,6 +1844,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer((oauth2) -> oauth2
 					.jwt()
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1845,17 +1858,18 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwtHalfConfiguredConfig extends WebSecurityConfigurerAdapter {
+	static class JwtHalfConfiguredConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
-					.jwt(); // missing key configuration, e.g. jwkSetUri
+					.jwt();
+			return http.build(); // missing key configuration, e.g. jwkSetUri
 			// @formatter:on
 		}
 
@@ -1863,10 +1877,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AlwaysSessionCreationConfig extends WebSecurityConfigurerAdapter {
+	static class AlwaysSessionCreationConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.sessionManagement()
@@ -1874,6 +1888,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1881,10 +1896,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AllowBearerTokenInRequestBodyConfig extends WebSecurityConfigurerAdapter {
+	static class AllowBearerTokenInRequestBodyConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1893,6 +1908,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.bearerTokenResolver(allowRequestBody())
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1906,10 +1922,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AllowBearerTokenAsQueryParameterConfig extends WebSecurityConfigurerAdapter {
+	static class AllowBearerTokenAsQueryParameterConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1917,6 +1933,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1931,10 +1948,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class MultipleBearerTokenResolverBeansConfig extends WebSecurityConfigurerAdapter {
+	static class MultipleBearerTokenResolverBeansConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -1942,6 +1959,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -1996,12 +2014,12 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomJwtDecoderOnDsl extends WebSecurityConfigurerAdapter {
+	static class CustomJwtDecoderOnDsl {
 
 		JwtDecoder decoder = mock(JwtDecoder.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2010,6 +2028,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.decoder(decoder());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2021,12 +2040,12 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomJwtDecoderInLambdaOnDsl extends WebSecurityConfigurerAdapter {
+	static class CustomJwtDecoderInLambdaOnDsl {
 
 		JwtDecoder decoder = mock(JwtDecoder.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -2040,6 +2059,7 @@ public class OAuth2ResourceServerConfigurerTests {
 								.decoder(decoder())
 						)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2051,10 +2071,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomJwtDecoderAsBean extends WebSecurityConfigurerAdapter {
+	static class CustomJwtDecoderAsBean {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2062,6 +2082,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2074,10 +2095,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class JwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+	static class JwtAuthenticationManagerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2086,6 +2107,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.jwt()
 						.authenticationManager(authenticationProvider()::authenticate);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2098,14 +2120,14 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultAndJwtAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultAndJwtAuthenticationManagerConfig {
 
 		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
 
 		AuthenticationManager jwtAuthenticationManager = mock(AuthenticationManager.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authenticationManager(this.defaultAuthenticationManager)
@@ -2117,6 +2139,7 @@ public class OAuth2ResourceServerConfigurerTests {
 									.authenticationManager(this.jwtAuthenticationManager)
 							)
 					);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2132,20 +2155,21 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomJwtValidatorConfig extends WebSecurityConfigurerAdapter {
+	static class CustomJwtValidatorConfig {
 
 		@Autowired
 		NimbusJwtDecoder jwtDecoder;
 
 		private final OAuth2TokenValidator<Jwt> jwtValidator = mock(OAuth2TokenValidator.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			this.jwtDecoder.setJwtValidator(this.jwtValidator);
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2157,13 +2181,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class UnexpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
+	static class UnexpiredJwtClockSkewConfig {
 
 		@Autowired
 		NimbusJwtDecoder jwtDecoder;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			Clock nearlyAnHourFromTokenExpiry = Clock.fixed(Instant.ofEpochMilli(4687181540000L),
 					ZoneId.systemDefault());
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
@@ -2173,6 +2197,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2180,13 +2205,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ExpiredJwtClockSkewConfig extends WebSecurityConfigurerAdapter {
+	static class ExpiredJwtClockSkewConfig {
 
 		@Autowired
 		NimbusJwtDecoder jwtDecoder;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			Clock justOverOneHourAfterExpiry = Clock.fixed(Instant.ofEpochMilli(4687181595000L),
 					ZoneId.systemDefault());
 			JwtTimestampValidator jwtValidator = new JwtTimestampValidator(Duration.ofHours(1));
@@ -2196,11 +2221,12 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 		}
 	}
 	@Configuration
 	@EnableWebSecurity
-	static class SingleKeyConfig extends WebSecurityConfigurerAdapter {
+	static class SingleKeyConfig {
 		byte[] spec = Base64.getDecoder().decode(
 				"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoXJ8OyOv/eRnce4akdan" +
 				"R4KYRfnC2zLV4uYNQpcFn6oHL0dj7D6kxQmsXoYgJV8ZVDn71KGmuLvolxsDncc2" +
@@ -2209,8 +2235,9 @@ public class OAuth2ResourceServerConfigurerTests {
 				"iZCtPzL/IffDUcfhLQteGebhW8A6eUHgpD5A1PQ+JCw/G7UOzZAjjDjtNM2eqm8j" +
 				"+Ms/gqnm4MiCZ4E+9pDN77CAAPVN7kuX6ejs9KBXpk01z48i9fORYk9u7rAkh1Hu" +
 				"QwIDAQAB");
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2218,6 +2245,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2232,10 +2260,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomAuthenticationEventPublisher extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationEventPublisher {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2243,6 +2271,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.jwt();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2260,10 +2289,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2272,6 +2301,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.opaqueToken();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2279,10 +2309,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -2294,6 +2324,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					oauth2ResourceServer
 						.opaqueToken(withDefaults())
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2301,10 +2332,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenAuthenticationManagerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2313,6 +2344,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.opaqueToken()
 						.authenticationManager(authenticationProvider()::authenticate);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2325,10 +2357,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenAuthenticationManagerInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenAuthenticationManagerInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -2342,6 +2374,7 @@ public class OAuth2ResourceServerConfigurerTests {
 								.authenticationManager(authenticationProvider()::authenticate)
 						)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2354,14 +2387,14 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DefaultAndOpaqueTokenAuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+	static class DefaultAndOpaqueTokenAuthenticationManagerConfig {
 
 		AuthenticationManager defaultAuthenticationManager = mock(AuthenticationManager.class);
 
 		AuthenticationManager opaqueTokenAuthenticationManager = mock(AuthenticationManager.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authenticationManager(this.defaultAuthenticationManager)
@@ -2373,6 +2406,7 @@ public class OAuth2ResourceServerConfigurerTests {
 									.authenticationManager(this.opaqueTokenAuthenticationManager)
 							)
 					);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2388,16 +2422,17 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueAndJwtConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueAndJwtConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.oauth2ResourceServer()
 					.jwt()
 						.and()
 					.opaqueToken();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2405,10 +2440,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenHalfConfiguredConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenHalfConfiguredConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2416,7 +2451,8 @@ public class OAuth2ResourceServerConfigurerTests {
 					.and()
 				.oauth2ResourceServer()
 					.opaqueToken()
-						.introspectionUri("https://idp.example.com"); // missing credentials
+						.introspectionUri("https://idp.example.com");
+			return http.build(); // missing credentials
 			// @formatter:on
 		}
 
@@ -2424,13 +2460,13 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class MultipleIssuersConfig extends WebSecurityConfigurerAdapter {
+	static class MultipleIssuersConfig {
 
 		@Autowired
 		MockWebServer web;
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			String issuerOne = this.web.url("/issuerOne").toString();
 			String issuerTwo = this.web.url("/issuerTwo").toString();
 			JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver(
@@ -2439,6 +2475,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(authenticationManagerResolver);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2446,10 +2483,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AuthenticationManagerResolverPlusOtherConfig extends WebSecurityConfigurerAdapter {
+	static class AuthenticationManagerResolverPlusOtherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -2458,6 +2495,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.oauth2ResourceServer()
 					.authenticationManagerResolver(mock(AuthenticationManagerResolver.class))
 					.opaqueToken();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -2465,10 +2503,10 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class OpaqueTokenAuthenticationConverterConfig extends WebSecurityConfigurerAdapter {
+	static class OpaqueTokenAuthenticationConverterConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests()
@@ -2478,6 +2516,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.oauth2ResourceServer()
 					.opaqueToken()
 					.authenticationConverter(authenticationConverter());
+			return http.build();
 			// @formatter:on
 		}
 

@@ -22,16 +22,11 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,15 +49,6 @@ public class EnableWebSecurityTests {
 
 	@Autowired
 	private MockMvc mockMvc;
-
-	@Test
-	public void configureWhenOverrideAuthenticationManagerBeanThenAuthenticationManagerBeanRegistered() {
-		this.spring.register(SecurityConfig.class).autowire();
-		AuthenticationManager authenticationManager = this.spring.getContext().getBean(AuthenticationManager.class);
-		Authentication authentication = authenticationManager
-				.authenticate(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
-		assertThat(authentication.isAuthenticated()).isTrue();
-	}
 
 	@Test
 	public void loadConfigWhenChildConfigExtendsSecurityConfigThenSecurityConfigInherited() {
@@ -101,55 +87,24 @@ public class EnableWebSecurityTests {
 	}
 
 	@Configuration
-	@EnableWebSecurity
-	static class SecurityConfig extends WebSecurityConfigurerAdapter {
-
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
-			// @formatter:on
-		}
-
-		@Bean
-		@Override
-		public AuthenticationManager authenticationManagerBean() throws Exception {
-			return super.authenticationManagerBean();
-		}
-
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeRequests()
-					.antMatchers("/*").hasRole("USER")
-					.and()
-				.formLogin();
-			// @formatter:on
-		}
-
-	}
-
-	@Configuration
 	static class ChildSecurityConfig extends DebugSecurityConfig {
 
 	}
 
 	@Configuration
 	@EnableWebSecurity(debug = true)
-	static class DebugSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class DebugSecurityConfig {
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
 	@EnableWebMvc
-	static class AuthenticationPrincipalConfig extends WebSecurityConfigurerAdapter {
+	static class AuthenticationPrincipalConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 		@RestController
@@ -188,7 +143,7 @@ public class EnableWebSecurityTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class BeanProxyEnabledByDefaultConfig extends WebSecurityConfigurerAdapter {
+	static class BeanProxyEnabledByDefaultConfig {
 
 		@Bean
 		Child child() {
@@ -204,7 +159,7 @@ public class EnableWebSecurityTests {
 
 	@Configuration(proxyBeanMethods = false)
 	@EnableWebSecurity
-	static class BeanProxyDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class BeanProxyDisabledConfig {
 
 		@Bean
 		Child child() {

@@ -47,7 +47,6 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -386,12 +385,12 @@ public class Saml2LoginConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class Saml2LoginConfigWithCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
+	static class Saml2LoginConfigWithCustomAuthenticationManager {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.saml2Login().authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"));
-			super.configure(http);
+			return http.build();
 		}
 
 	}
@@ -399,17 +398,17 @@ public class Saml2LoginConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class Saml2LoginConfigWithDefaultAndCustomAuthenticationManager extends WebSecurityConfigurerAdapter {
+	static class Saml2LoginConfigWithDefaultAndCustomAuthenticationManager {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authenticationManager(getAuthenticationManagerMock("DEFAULT_AUTH_MANAGER"))
 				.saml2Login((saml) -> saml
 					.authenticationManager(getAuthenticationManagerMock("ROLE_AUTH_MANAGER"))
 				);
-			super.configure(http);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -418,15 +417,16 @@ public class Saml2LoginConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthenticationFailureHandler extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationFailureHandler {
 
 		static final AuthenticationFailureHandler authenticationFailureHandler = mock(
 				AuthenticationFailureHandler.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.failureHandler(authenticationFailureHandler));
+			return http.build();
 		}
 
 	}
@@ -498,14 +498,15 @@ public class Saml2LoginConfigurerTests {
 	@Configuration
 	@EnableWebSecurity
 	@Import(Saml2LoginConfigBeans.class)
-	static class CustomAuthenticationConverter extends WebSecurityConfigurerAdapter {
+	static class CustomAuthenticationConverter {
 
 		static final AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.authorizeRequests((authz) -> authz.anyRequest().authenticated())
 					.saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter));
+			return http.build();
 		}
 
 	}

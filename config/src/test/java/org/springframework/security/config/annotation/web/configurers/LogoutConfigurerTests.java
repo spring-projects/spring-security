@@ -27,13 +27,15 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -324,14 +326,15 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullLogoutSuccessHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class NullLogoutSuccessHandlerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout()
 					.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -339,15 +342,16 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullLogoutSuccessHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class NullLogoutSuccessHandlerInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(null, mock(RequestMatcher.class))
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -355,14 +359,15 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullMatcherConfig extends WebSecurityConfigurerAdapter {
+	static class NullMatcherConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout()
 					.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -370,15 +375,16 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullMatcherInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class NullMatcherInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout((logout) ->
 					logout.defaultLogoutSuccessHandlerFor(mock(LogoutSuccessHandler.class), null)
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -386,15 +392,16 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -416,10 +423,10 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class DuplicateDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class DuplicateDoesNotOverrideConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout()
@@ -427,29 +434,28 @@ public class LogoutConfigurerTests {
 					.and()
 				.logout();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.disable()
 				.logout();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -457,16 +463,17 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisabledAndCustomLogoutConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisabledAndCustomLogoutConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.disable()
 				.logout()
 					.logoutUrl("/custom/logout");
+			return http.build();
 			// @formatter:on
 		}
 
@@ -474,15 +481,16 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisabledAndCustomLogoutInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisabledAndCustomLogoutInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf()
 					.disable()
 				.logout((logout) -> logout.logoutUrl("/custom/logout"));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -490,14 +498,15 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullLogoutHandlerConfig extends WebSecurityConfigurerAdapter {
+	static class NullLogoutHandlerConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout()
 					.addLogoutHandler(null);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -505,13 +514,14 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class NullLogoutHandlerInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class NullLogoutHandlerInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout((logout) -> logout.addLogoutHandler(null));
+			return http.build();
 			// @formatter:on
 		}
 
@@ -519,16 +529,17 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RememberMeNoLogoutHandler extends WebSecurityConfigurerAdapter {
+	static class RememberMeNoLogoutHandler {
 
 		static RememberMeServices REMEMBER_ME = mock(RememberMeServices.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.rememberMe()
 					.rememberMeServices(REMEMBER_ME);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -536,20 +547,21 @@ public class LogoutConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class BasicSecurityConfig extends WebSecurityConfigurerAdapter {
+	static class BasicSecurityConfig {
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class LogoutDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class LogoutDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.logout()
 					.disable();
+			return http.build();
 			// @formatter:on
 		}
 

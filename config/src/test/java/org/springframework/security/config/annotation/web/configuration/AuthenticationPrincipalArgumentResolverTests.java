@@ -24,12 +24,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -81,28 +83,35 @@ public class AuthenticationPrincipalArgumentResolverTests {
 	@EnableWebMvc
 	static class Config {
 
-		@Autowired
-		public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication();
-			// @formatter:off
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
+
 		@Bean
 		public UsernameExtractor usernameExtractor() {
 			return new UsernameExtractor();
 		}
+
 		@RestController
 		static class UserController {
+
 			@GetMapping("/users/self")
-			public String usersSelf(@AuthenticationPrincipal(expression = "@usernameExtractor.extract(#this)") String userName) {
+			public String usersSelf(
+					@AuthenticationPrincipal(expression = "@usernameExtractor.extract(#this)") String userName) {
 				return userName;
 			}
+
 		}
+
 	}
+
 	static class UsernameExtractor {
+
 		public String extract(User u) {
 			return "extracted-" + u.getUsername();
 		}
+
 	}
+
 }

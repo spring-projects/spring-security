@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,15 +28,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.RequestCacheResultMatcher;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.NullRequestCache;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
@@ -228,8 +229,7 @@ public class RequestCacheConfigurerTests {
 	// gh-6102
 	@Test
 	public void getWhenRequestCacheIsDisabledThenExceptionTranslationFilterDoesNotStoreRequest() throws Exception {
-		this.spring.register(RequestCacheDisabledConfig.class,
-				ExceptionHandlingConfigurerTests.DefaultSecurityConfig.class).autowire();
+		this.spring.register(RequestCacheDisabledConfig.class, DefaultSecurityConfig.class).autowire();
 		// @formatter:off
 		MockHttpSession session = (MockHttpSession) this.mvc.perform(get("/bob"))
 				.andReturn()
@@ -303,15 +303,16 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestCache();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -333,18 +334,19 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class InvokeTwiceDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class InvokeTwiceDoesNotOverrideConfig {
 
 		static RequestCache requestCache = mock(RequestCache.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.requestCache()
 					.requestCache(requestCache)
 					.and()
 				.requestCache();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -352,16 +354,17 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestCacheDefaultsConfig extends WebSecurityConfigurerAdapter {
+	static class RequestCacheDefaultsConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -369,22 +372,29 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestCacheDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class RequestCacheDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
-			super.configure(http);
-			http.requestCache().disable();
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((requests) -> requests
+						.anyRequest().authenticated()
+				)
+				.formLogin(Customizer.withDefaults())
+				.requestCache((cache) -> cache.disable());
+			// @formatter:on
+			return http.build();
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestCacheDisabledInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequestCacheDisabledInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -393,6 +403,7 @@ public class RequestCacheConfigurerTests {
 				)
 				.formLogin(withDefaults())
 				.requestCache(RequestCacheConfigurer::disable);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -400,10 +411,10 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RequestCacheInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -412,6 +423,7 @@ public class RequestCacheConfigurerTests {
 				)
 				.formLogin(withDefaults())
 				.requestCache(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -419,10 +431,10 @@ public class RequestCacheConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomRequestCacheInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class CustomRequestCacheInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests((authorizeRequests) ->
@@ -434,6 +446,7 @@ public class RequestCacheConfigurerTests {
 					requestCache
 						.requestCache(new NullRequestCache())
 				);
+			return http.build();
 			// @formatter:on
 		}
 

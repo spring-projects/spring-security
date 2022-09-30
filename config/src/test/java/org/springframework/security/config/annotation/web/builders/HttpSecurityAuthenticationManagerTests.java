@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -76,12 +76,12 @@ public class HttpSecurityAuthenticationManagerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AuthenticationManagerConfig extends WebSecurityConfigurerAdapter {
+	static class AuthenticationManagerConfig {
 
 		static final AuthenticationManager AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests((authz) -> authz
@@ -89,6 +89,7 @@ public class HttpSecurityAuthenticationManagerTests {
 					)
 					.httpBasic(withDefaults())
 					.authenticationManager(AUTHENTICATION_MANAGER);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -96,13 +97,13 @@ public class HttpSecurityAuthenticationManagerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class AuthenticationManagerBuilderConfig extends WebSecurityConfigurerAdapter {
+	static class AuthenticationManagerBuilderConfig {
 
 		static final AuthenticationManager AUTHENTICATION_MANAGER = mock(AuthenticationManager.class);
 		static final UserDetailsService USER_DETAILS_SERVICE = mock(UserDetailsService.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 					.authorizeRequests((authz) -> authz
@@ -111,11 +112,12 @@ public class HttpSecurityAuthenticationManagerTests {
 					.httpBasic(withDefaults())
 					.authenticationManager(AUTHENTICATION_MANAGER);
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			auth.userDetailsService(USER_DETAILS_SERVICE);
+		@Bean
+		UserDetailsService userDetailsService() {
+			return USER_DETAILS_SERVICE;
 		}
 
 	}

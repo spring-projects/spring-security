@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,20 +32,23 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainProxy;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.CompositeLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -213,15 +216,16 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ObjectPostProcessorConfig extends WebSecurityConfigurerAdapter {
+	static class ObjectPostProcessorConfig {
 
 		static ObjectPostProcessor<Object> objectPostProcessor = spy(ReflectingObjectPostProcessor.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.servletApi();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -243,32 +247,43 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ServletApiConfig extends WebSecurityConfigurerAdapter {
+	static class ServletApiConfig {
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser(PasswordEncodedUser.user());
+			http
+					.authorizeHttpRequests((requests) -> requests
+							.anyRequest().authenticated()
+					)
+					.httpBasic(Customizer.withDefaults())
+					.formLogin(Customizer.withDefaults());
 			// @formatter:on
+			return http.build();
 		}
 
 		@Bean
-		AuthenticationManager customAuthenticationManager() throws Exception {
-			return super.authenticationManagerBean();
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+		@Bean
+		AuthenticationManager customAuthenticationManager(UserDetailsService userDetailsService) {
+			DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+			provider.setUserDetailsService(userDetailsService);
+			return provider::authenticate;
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class CustomEntryPointConfig extends WebSecurityConfigurerAdapter {
+	static class CustomEntryPointConfig {
 
 		static AuthenticationEntryPoint ENTRYPOINT = spy(AuthenticationEntryPoint.class);
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.authorizeRequests()
@@ -279,31 +294,29 @@ public class ServletApiConfigurerTests {
 					.and()
 				.formLogin();
 			// @formatter:on
+			return http.build();
 		}
 
-		@Override
-		protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-			// @formatter:off
-			auth
-				.inMemoryAuthentication()
-					.withUser("user").password("password").roles("USER");
-			// @formatter:on
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
 		}
 
 	}
 
 	@Configuration
 	@EnableWebSecurity
-	static class DuplicateInvocationsDoesNotOverrideConfig extends WebSecurityConfigurerAdapter {
+	static class DuplicateInvocationsDoesNotOverrideConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.servletApi()
 					.rolePrefix("PERMISSION_")
 					.and()
 				.servletApi();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -311,15 +324,16 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class SharedTrustResolverConfig extends WebSecurityConfigurerAdapter {
+	static class SharedTrustResolverConfig {
 
 		static AuthenticationTrustResolver TR = spy(AuthenticationTrustResolver.class);
 
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.setSharedObject(AuthenticationTrustResolver.class, TR);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -327,13 +341,14 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ServletApiWithDefaultsInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class ServletApiWithDefaultsInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.servletApi(withDefaults());
+			return http.build();
 			// @formatter:on
 		}
 
@@ -341,16 +356,17 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class RolePrefixInLambdaConfig extends WebSecurityConfigurerAdapter {
+	static class RolePrefixInLambdaConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.servletApi((servletApi) ->
 					servletApi
 						.rolePrefix("PERMISSION_")
 				);
+			return http.build();
 			// @formatter:on
 		}
 
@@ -370,14 +386,15 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class ServletApiWithLogoutConfig extends WebSecurityConfigurerAdapter {
+	static class ServletApiWithLogoutConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.servletApi().and()
 				.logout();
+			return http.build();
 			// @formatter:on
 		}
 
@@ -385,13 +402,14 @@ public class ServletApiConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class CsrfDisabledConfig extends WebSecurityConfigurerAdapter {
+	static class CsrfDisabledConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
 				.csrf().disable();
+			return http.build();
 			// @formatter:on
 		}
 

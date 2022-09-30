@@ -36,6 +36,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthentication;
 import org.springframework.security.oauth2.server.resource.authentication.TestBearerTokenAuthentications;
 import org.springframework.security.oauth2.server.resource.web.reactive.function.client.ServletBearerExchangeFilterFunction;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -106,11 +107,12 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class BearerFilterConfig extends WebSecurityConfigurerAdapter {
+	static class BearerFilterConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			http.securityContext().requireExplicitSave(false);
+			return http.build();
 		}
 
 		@Bean
@@ -123,10 +125,11 @@ public class SecurityReactorContextConfigurationResourceServerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class BearerFilterlessConfig extends WebSecurityConfigurerAdapter {
+	static class BearerFilterlessConfig {
 
-		@Override
-		protected void configure(HttpSecurity http) throws Exception {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			return http.build();
 		}
 
 		@Bean
