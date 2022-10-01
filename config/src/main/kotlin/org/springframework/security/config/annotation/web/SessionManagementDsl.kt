@@ -39,6 +39,7 @@ class SessionManagementDsl {
     var sessionAuthenticationErrorUrl: String? = null
     var sessionAuthenticationFailureHandler: AuthenticationFailureHandler? = null
     var enableSessionUrlRewriting: Boolean? = null
+    var requireExplicitAuthenticationStrategy: Boolean? = null
     var sessionCreationPolicy: SessionCreationPolicy? = null
     var sessionAuthenticationStrategy: SessionAuthenticationStrategy? = null
     private var sessionFixation: ((SessionManagementConfigurer<HttpSecurity>.SessionFixationConfigurer) -> Unit)? = null
@@ -110,6 +111,7 @@ class SessionManagementDsl {
     internal fun get(): (SessionManagementConfigurer<HttpSecurity>) -> Unit {
         return { sessionManagement ->
             invalidSessionUrl?.also { sessionManagement.invalidSessionUrl(invalidSessionUrl) }
+            requireExplicitAuthenticationStrategy?.also { sessionManagement.requireExplicitAuthenticationStrategy(requireExplicitAuthenticationStrategy!!) }
             invalidSessionStrategy?.also { sessionManagement.invalidSessionStrategy(invalidSessionStrategy) }
             sessionAuthenticationErrorUrl?.also { sessionManagement.sessionAuthenticationErrorUrl(sessionAuthenticationErrorUrl) }
             sessionAuthenticationFailureHandler?.also { sessionManagement.sessionAuthenticationFailureHandler(sessionAuthenticationFailureHandler) }
