@@ -22,31 +22,35 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
 
 /**
- * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}
+ * Adapts a {@link AuthenticationEntryPoint} into a {@link AuthenticationFailureHandler}.
+ * When the failure is an {@link AuthenticationServiceException}, it re-throws, to produce
+ * an HTTP 500 error.
  *
- * @author Sergey Bespalov
- * @since 5.2.0
- * @deprecated Use {@link AuthenticationEntryPointFailureHandlerAdapter} instead
+ * @author Daniel Garnier-Moiroux
+ * @since 5.8
  */
-@Deprecated
-public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
+public final class AuthenticationEntryPointFailureHandlerAdapter implements AuthenticationFailureHandler {
 
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 
-	public AuthenticationEntryPointFailureHandler(AuthenticationEntryPoint authenticationEntryPoint) {
+	public AuthenticationEntryPointFailureHandlerAdapter(AuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
-			AuthenticationException exception) throws IOException, ServletException {
-		this.authenticationEntryPoint.commence(request, response, exception);
+			AuthenticationException failure) throws IOException, ServletException {
+		if (AuthenticationServiceException.class.isAssignableFrom(failure.getClass())) {
+			throw failure;
+		}
+		this.authenticationEntryPoint.commence(request, response, failure);
 	}
 
 }
