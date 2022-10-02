@@ -18,6 +18,7 @@ package org.springframework.security.web.server.authentication;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -25,24 +26,27 @@ import org.springframework.util.Assert;
 
 /**
  * Adapts a {@link ServerAuthenticationEntryPoint} into a
- * {@link ServerAuthenticationFailureHandler}
+ * {@link ServerAuthenticationFailureHandler}. When the failure is an
+ * {@link AuthenticationServiceException}, it re-throws, to produce an HTTP 500 error.
  *
- * @author Rob Winch
- * @since 5.0
- * @deprecated use {@link ServerAuthenticationEntryPointFailureHandlerAdapter} instead.
+ * @author Daniel Garnier-Moiroux
+ * @since 5.8
  */
-@Deprecated
-public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthenticationFailureHandler {
+public class ServerAuthenticationEntryPointFailureHandlerAdapter implements ServerAuthenticationFailureHandler {
 
 	private final ServerAuthenticationEntryPoint authenticationEntryPoint;
 
-	public ServerAuthenticationEntryPointFailureHandler(ServerAuthenticationEntryPoint authenticationEntryPoint) {
+	public ServerAuthenticationEntryPointFailureHandlerAdapter(
+			ServerAuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
 	}
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
+		if (AuthenticationServiceException.class.isAssignableFrom(exception.getClass())) {
+			return Mono.error(exception);
+		}
 		return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
 	}
 
