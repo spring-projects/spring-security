@@ -101,6 +101,8 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String ATT_POLICY_DIRECTIVES = "policy-directives";
 
+	private static final String ATT_HEADER_VALUE = "header-value";
+
 	private static final String CACHE_CONTROL_ELEMENT = "cache-control";
 
 	private static final String HPKP_ELEMENT = "hpkp";
@@ -594,6 +596,14 @@ public class HeadersBeanDefinitionParser implements BeanDefinitionParser {
 					attrNotAllowed(parserContext, ATT_BLOCK, ATT_DISABLED, xssElt);
 				}
 				builder.addPropertyValue("block", block);
+			}
+			XXssProtectionHeaderWriter.HeaderValue headerValue = XXssProtectionHeaderWriter.HeaderValue
+					.from(xssElt.getAttribute(ATT_HEADER_VALUE));
+			if (headerValue != null) {
+				if (disabled) {
+					attrNotAllowed(parserContext, ATT_HEADER_VALUE, ATT_DISABLED, xssElt);
+				}
+				builder.addPropertyValue("headerValue", headerValue);
 			}
 			if (disabled) {
 				return;
