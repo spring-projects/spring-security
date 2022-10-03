@@ -109,7 +109,11 @@ import org.springframework.util.Assert;
  * @author Tim Ysewyn
  * @author Ankur Pathak
  * @since 4.1
+ * @deprecated see <a href=
+ * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
+ * and Public Key Pinning</a> for more context
  */
+@Deprecated
 public final class HpkpHeaderWriter implements HeaderWriter {
 
 	private static final long DEFAULT_MAX_AGE_SECONDS = 5184000;

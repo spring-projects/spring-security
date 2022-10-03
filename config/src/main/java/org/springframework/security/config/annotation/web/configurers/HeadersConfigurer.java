@@ -266,7 +266,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link HpkpConfig} for additional customizations
 	 *
 	 * @since 4.1
+	 * @deprecated see <a href=
+	 * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
+	 * and Public Key Pinning</a> for more context
 	 */
+	@Deprecated
 	public HpkpConfig httpPublicKeyPinning() {
 		return this.hpkp.enable();
 	}
@@ -277,7 +281,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @param hpkpCustomizer the {@link Customizer} to provide more options for the
 	 * {@link HpkpConfig}
 	 * @return the {@link HeadersConfigurer} for additional customizations
+	 * @deprecated see <a href=
+	 * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
+	 * and Public Key Pinning</a> for more context
 	 */
+	@Deprecated
 	public HeadersConfigurer<H> httpPublicKeyPinning(Customizer<HpkpConfig> hpkpCustomizer) {
 		hpkpCustomizer.customize(this.hpkp.enable());
 		return HeadersConfigurer.this;
@@ -1040,6 +1048,12 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 	}
 
+	/**
+	 * @deprecated see <a href=
+	 * "https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate
+	 * and Public Key Pinning</a> for more context
+	 */
+	@Deprecated
 	public final class HpkpConfig {
 
 		private HpkpHeaderWriter writer;

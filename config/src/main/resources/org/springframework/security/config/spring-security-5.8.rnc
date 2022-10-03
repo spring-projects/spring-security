@@ -1193,6 +1193,7 @@ cors-options.attlist &=
 	attribute configuration-source-ref {xsd:token}?
 
 hpkp =
+	## Deprecated. The HPKP header no longer works in modern browsers, see <a href="https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate and Public Key Pinning</a> for more context
 	## Adds support for HTTP Public Key Pinning (HPKP).
 	element hpkp {hpkp.pins,hpkp.attlist}
 hpkp.pins =
