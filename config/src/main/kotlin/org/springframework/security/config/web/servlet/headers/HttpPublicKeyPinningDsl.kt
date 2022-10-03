@@ -33,8 +33,10 @@ import org.springframework.security.config.annotation.web.configurers.HeadersCon
  * @property reportOnly if true, the browser should not terminate the connection with
  * the server.
  * @property reportUri the URI to which the browser should report pin validation failures.
+ * @deprecated see <a href="https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate and Public Key Pinning</a> for more context
  */
 @HeadersSecurityMarker
+@Deprecated(message = "as of 5.8 with no replacement")
 class HttpPublicKeyPinningDsl {
     var pins: Map<String, String>? = null
     var maxAgeInSeconds: Long? = null

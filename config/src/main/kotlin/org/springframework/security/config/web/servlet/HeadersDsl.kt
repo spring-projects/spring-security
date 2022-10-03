@@ -117,7 +117,9 @@ class HeadersDsl {
      * href="https://tools.ietf.org/html/rfc7469">HTTP Public Key Pinning (HPKP)</a>.
      *
      * @param hpkpConfig the customization to apply to the header
+     * @deprecated see <a href="https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning">Certificate and Public Key Pinning</a> for more context
      */
+    @Deprecated(message = "as of 5.8 with no replacement")
     fun httpPublicKeyPinning(hpkpConfig: HttpPublicKeyPinningDsl.() -> Unit) {
         this.hpkp = HttpPublicKeyPinningDsl().apply(hpkpConfig).get()
     }

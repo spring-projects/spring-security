@@ -3373,7 +3373,10 @@
   </xs:attributeGroup>
   <xs:element name="hpkp">
       <xs:annotation>
-         <xs:documentation>Adds support for HTTP Public Key Pinning (HPKP).
+         <xs:documentation>Deprecated. The HPKP header no longer works in modern browsers, see &lt;a
+                href="https://owasp.org/www-community/controls/Certificate_and_Public_Key_Pinning"&gt;Certificate
+                and Public Key Pinning&lt;/a&gt; for more context Adds support for HTTP Public Key Pinning
+                (HPKP).
                 </xs:documentation>
       </xs:annotation>
       <xs:complexType>
