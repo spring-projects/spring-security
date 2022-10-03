@@ -149,6 +149,15 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 			this.value = value;
 		}
 
+		public static HeaderValue from(String headerValue) {
+			for (HeaderValue value : values()) {
+				if (value.toString().equals(headerValue)) {
+					return value;
+				}
+			}
+			return null;
+		}
+
 		@Override
 		public String toString() {
 			return this.value;

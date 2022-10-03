@@ -1299,6 +1299,9 @@ xss-protection.attlist &=
 xss-protection.attlist &=
 	## Add mode=block to the header or not, default is on.
 	attribute block {xsd:boolean}?
+xss-protection.attlist &=
+	## Specify the value for the X-Xss-Protection header. When set, overrides both enabled and block attributes.
+	attribute header-value {"0"|"1"|"1; mode=block"}?
 
 content-type-options =
 	## Add a X-Content-Type-Options header to the resopnse. Value is always 'nosniff'.
