@@ -19,8 +19,7 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import javax.servlet.http.HttpServletResponse;
-
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
