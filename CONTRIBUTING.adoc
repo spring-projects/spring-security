@@ -136,6 +136,10 @@ Search the codebase to find related unit tests and add additional `@Test` method
 
 Update the https://www.relaxng.org[RELAX NG] schema `spring-security-x.y.rnc` instead of `spring-security-x.y.xsd` if you contribute changes to supported XML configuration. The XML schema file can be generated the following Gradle task:
 
+----
+./gradlew :spring-security-config:rncToXsd
+----
+
 Changes to the XML schema will be overwritten by the Gradle build task.
 
 = Squash commits
