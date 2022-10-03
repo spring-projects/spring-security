@@ -3649,6 +3649,20 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="header-value">
+         <xs:annotation>
+            <xs:documentation>Specify the value for the X-Xss-Protection header. When set, overrides both enabled and
+                block attributes.
+                </xs:documentation>
+         </xs:annotation>
+         <xs:simpleType>
+            <xs:restriction base="xs:token">
+               <xs:enumeration value="0"/>
+               <xs:enumeration value="1"/>
+               <xs:enumeration value="1\;mode=block"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
   </xs:attributeGroup>
   <xs:element name="content-type-options">
       <xs:annotation>
