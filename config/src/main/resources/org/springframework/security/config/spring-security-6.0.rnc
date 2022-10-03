@@ -1124,7 +1124,7 @@ csrf-options.attlist &=
 	## The CsrfTokenRepository to use. The default is HttpSessionCsrfTokenRepository wrapped by LazyCsrfTokenRepository.
 	attribute token-repository-ref { xsd:token }?
 csrf-options.attlist &=
-	## The CsrfTokenRequestHandler to use. The default is CsrfTokenRequestProcessor.
+	## The CsrfTokenRequestHandler to use. The default is CsrfTokenRepositoryRequestHandler.
 	attribute request-handler-ref { xsd:token }?
 
 headers =
