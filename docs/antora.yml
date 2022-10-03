@@ -1,3 +1,12 @@
-name: 'ROOT'
-version: '5.6.8'
-prerelease: '-SNAPSHOT'
+name: ROOT
+version: true
+title: Documentation
+nav:
+- modules/ROOT/nav.adoc
+ext:
+  collector:
+    run:
+      command: gradlew -q -PbuildSrc.skipTests=true "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError" :spring-security-docs:generateAntora
+      local: true
+    scan:
+      dir: ./build/generateAntora

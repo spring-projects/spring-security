@@ -1,6 +1,5 @@
 plugins {
 	id 'org.antora' version '1.0.0-alpha.3'
-	id 'org.springframework.antora.check-version'
 }
 
 apply plugin: 'io.spring.convention.docs'
@@ -15,9 +14,10 @@ antora {
 		'ALGOLIA_APP_ID': '244V8V9FGG',
 		'ALGOLIA_INDEX_NAME': 'security-docs'
 	]
+	dependencies = [
+		'@antora/collector-extension': '1.0.0-alpha.2'
+	]
 }
-
-tasks.antora.dependsOn 'generateAntora'
 
 tasks.register('generateAntora') {
 	group = 'Documentation'
@@ -33,21 +33,22 @@ tasks.register('generateAntora') {
 		def securityReferenceUrl = "$securityDocsUrl/reference/html5/"
 		def springFrameworkApiUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/javadoc-api/"
 		def springFrameworkReferenceUrl = "https://docs.spring.io/spring-framework/docs/$springFrameworkVersion/reference/html/"
-		def versions = resolvedVersions(project.configurations.testRuntimeClasspath)
-		def ymlVersions = ''
-		versions.call().each { name, version ->
-			ymlVersions += """
-    ${name}: ${version}"""
-		}
-		def outputFile = layout.buildDirectory.file('generateAntora/antora.yml').orNull.asFile
-		outputFile.getParentFile().mkdirs()
-		outputFile.createNewFile()
-		def antoraYmlText = file('antora.yml').text.trim()
-		outputFile.setText("""$antoraYmlText
-title: Spring Security
-start_page: ROOT:index.adoc
-nav:
-- modules/ROOT/nav.adoc
+		def ymlVersions = resolvedVersions(project.configurations.testRuntimeClasspath).call()
+			.collect(v -> "    ${v.getKey()}: ${v.getValue()}")
+			.join('\n')
+		def outputFile = layout.buildDirectory.file('generateAntora/antora.yml').get().asFile
+		mkdir(outputFile.getParentFile())
+		def (mainVersion, prerelease) = project.version.split(/(?=-)/, 2)
+		def antoraYmlText = file('antora.yml').text
+		layout.buildDirectory.file('.antora.yml').get().asFile.text = antoraYmlText
+		antoraYmlText = antoraYmlText.lines().collect { l ->
+			if (l.startsWith('version: ')) {
+				return prerelease == null ? "version: '${mainVersion}'" : "version: '${mainVersion}'\nprerelease: '${prerelease}'"
+			}
+			if (l.startsWith('title: ')) return "title: ${project.parent.description}"
+			return l == 'ext:' || l.getAt(0) == ' ' ? null : l
+		}.findAll(Objects::nonNull).join('\n')
+		outputFile.text = """$antoraYmlText
 asciidoc:
   attributes:
     icondir: icons
@@ -60,7 +61,7 @@ asciidoc:
     spring-framework-reference-url: $springFrameworkReferenceUrl
     spring-security-version: ${project.version}
 ${ymlVersions}
-""")
+"""
 	}
 }
 
