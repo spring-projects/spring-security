@@ -135,7 +135,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * <pre>
 	 * webSecurityBuilder.ignoring()
 	 * // ignore all URLs that start with /resources/ or /static/
-	 * 		.antMatchers(&quot;/resources/**&quot;, &quot;/static/**&quot;);
+	 * 		.requestMatchers(&quot;/resources/**&quot;, &quot;/static/**&quot;);
 	 * </pre>
 	 *
 	 * Alternatively this will accomplish the same result:
@@ -143,7 +143,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * <pre>
 	 * webSecurityBuilder.ignoring()
 	 * // ignore all URLs that start with /resources/ or /static/
-	 * 		.antMatchers(&quot;/resources/**&quot;).antMatchers(&quot;/static/**&quot;);
+	 * 		.requestMatchers(&quot;/resources/**&quot;).requestMatchers(&quot;/static/**&quot;);
 	 * </pre>
 	 *
 	 * Multiple invocations of ignoring() are also additive, so the following is also
@@ -152,10 +152,10 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * <pre>
 	 * webSecurityBuilder.ignoring()
 	 * // ignore all URLs that start with /resources/
-	 * 		.antMatchers(&quot;/resources/**&quot;);
+	 * 		.requestMatchers(&quot;/resources/**&quot;);
 	 * webSecurityBuilder.ignoring()
 	 * // ignore all URLs that start with /static/
-	 * 		.antMatchers(&quot;/static/**&quot;);
+	 * 		.requestMatchers(&quot;/static/**&quot;);
 	 * // now both URLs that start with /resources/ and /static/ will be ignored
 	 * </pre>
 	 * @return the {@link IgnoredRequestConfigurer} to use for registering request that
@@ -380,7 +380,9 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
 	 *
 	 * @author Rob Winch
+	 * @deprecated use {@link MvcRequestMatcher.Builder} instead
 	 */
+	@Deprecated
 	public final class MvcMatchersIgnoredRequestConfigurer extends IgnoredRequestConfigurer {
 
 		private final List<MvcRequestMatcher> mvcMatchers;
@@ -412,14 +414,22 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 			setApplicationContext(context);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			WebSecurity.this.ignoredRequests.addAll(mvcMatchers);
 			return new MvcMatchersIgnoredRequestConfigurer(getApplicationContext(), mvcMatchers);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(String... mvcPatterns) {
 			return mvcMatchers(null, mvcPatterns);
 		}

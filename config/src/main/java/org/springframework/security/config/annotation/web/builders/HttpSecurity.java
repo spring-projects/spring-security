@@ -28,6 +28,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
@@ -91,6 +92,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
+import org.springframework.util.ClassUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.filter.CorsFilter;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
@@ -116,7 +118,7 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeRequests().antMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
+ * 		http.authorizeHttpRequests().requestMatchers(&quot;/**&quot;).hasRole(&quot;USER&quot;).and().formLogin();
  * 		return http.build();
  * 	}
  *
@@ -140,6 +142,12 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<DefaultSecurityFilterChain, HttpSecurity>
 		implements SecurityBuilder<DefaultSecurityFilterChain>, HttpSecurityBuilder<HttpSecurity> {
 
+	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
+
+	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
+
+	private static final boolean mvcPresent;
+
 	private final RequestMatcherConfigurer requestMatcherConfigurer;
 
 	private List<OrderedFilter> filters = new ArrayList<>();
@@ -149,6 +157,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	private FilterOrderRegistration filterOrders = new FilterOrderRegistration();
 
 	private AuthenticationManager authenticationManager;
+
+	static {
+		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, HttpSecurity.class.getClassLoader());
+	}
 
 	/**
 	 * Creates a new instance
@@ -3193,7 +3205,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * }
 	 * </pre>
 	 * @return the {@link RequestMatcherConfigurer} for further customizations
+	 * @deprecated use {@link #securityMatchers()} instead
 	 */
+	@Deprecated
 	public RequestMatcherConfigurer requestMatchers() {
 		return this.requestMatcherConfigurer;
 	}
@@ -3325,7 +3339,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param requestMatcherCustomizer the {@link Customizer} to provide more options for
 	 * the {@link RequestMatcherConfigurer}
 	 * @return the {@link HttpSecurity} for further customizations
+	 * @deprecated use {@link #securityMatchers(Customizer)} instead
 	 */
+	@Deprecated
 	public HttpSecurity requestMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) {
 		requestMatcherCustomizer.customize(this.requestMatcherConfigurer);
 		return HttpSecurity.this;
@@ -3345,12 +3361,315 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
 	 * AntPathRequestMatcher("/admin/**","GET") )
 	 * @return the {@link HttpSecurity} for further customizations
+	 * @deprecated use {@link #securityMatcher(RequestMatcher)} instead
 	 * @see #requestMatchers()
 	 * @see #antMatcher(String)
 	 * @see #regexMatcher(String)
 	 */
+	@Deprecated
 	public HttpSecurity requestMatcher(RequestMatcher requestMatcher) {
 		this.requestMatcher = requestMatcher;
+		return this;
+	}
+
+	/**
+	 * Allows specifying which {@link HttpServletRequest} instances this
+	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
+	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
+	 * only a single {@link RequestMatcher} is necessary consider using
+	 * {@link #securityMatcher(String)}, or {@link #securityMatcher(RequestMatcher)}.
+	 *
+	 * <p>
+	 * Invoking {@link #securityMatchers()} will not override previous invocations of
+	 * {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
+	 * {@link #securityMatcher(String)} and {@link #securityMatcher(RequestMatcher)}
+	 * </p>
+	 *
+	 * <h3>Example Configurations</h3>
+	 *
+	 * The following configuration enables the {@link HttpSecurity} for URLs that begin
+	 * with "/api/" or "/oauth/".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is the same as the previous configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;)
+	 * 				.requestMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is also the same as the above configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;)
+	 * 			)
+	 *			.securityMatchers((matchers) -&gt; matchers
+	 *				.requestMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @return the {@link RequestMatcherConfigurer} for further customizations
+	 */
+	public RequestMatcherConfigurer securityMatchers() {
+		return this.requestMatcherConfigurer;
+	}
+
+	/**
+	 * Allows specifying which {@link HttpServletRequest} instances this
+	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
+	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
+	 * only a single {@link RequestMatcher} is necessary consider using
+	 * {@link #securityMatcher(String)}, or {@link #securityMatcher(RequestMatcher)}.
+	 *
+	 * <p>
+	 * Invoking {@link #securityMatchers(Customizer)} will not override previous
+	 * invocations of {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
+	 * {@link #securityMatcher(String)} and {@link #securityMatcher(RequestMatcher)}
+	 * </p>
+	 *
+	 * <h3>Example Configurations</h3>
+	 *
+	 * The following configuration enables the {@link HttpSecurity} for URLs that begin
+	 * with "/api/" or "/oauth/".
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;, &quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				.anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is the same as the previous configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;)
+	 * 				.requestMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				.anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 *
+	 * The configuration below is also the same as the above configuration.
+	 *
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class RequestMatchersSecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 			.securityMatchers((matchers) -&gt; matchers
+	 * 				.requestMatchers(&quot;/api/**&quot;)
+	 * 			)
+	 *			.securityMatchers((matchers) -&gt; matchers
+	 *				.requestMatchers(&quot;/oauth/**&quot;)
+	 * 			)
+	 * 			.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				.anyRequest().hasRole(&quot;USER&quot;)
+	 * 			)
+	 * 			.httpBasic(withDefaults());
+	 * 		return http.build();
+	 * 	}
+	 *
+	 * 	&#064;Bean
+	 * 	public UserDetailsService userDetailsService() {
+	 * 		UserDetails user = User.withDefaultPasswordEncoder()
+	 * 			.username(&quot;user&quot;)
+	 * 			.password(&quot;password&quot;)
+	 * 			.roles(&quot;USER&quot;)
+	 * 			.build();
+	 * 		return new InMemoryUserDetailsManager(user);
+	 * 	}
+	 * }
+	 * </pre>
+	 * @param requestMatcherCustomizer the {@link Customizer} to provide more options for
+	 * the {@link RequestMatcherConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 */
+	public HttpSecurity securityMatchers(Customizer<RequestMatcherConfigurer> requestMatcherCustomizer) {
+		requestMatcherCustomizer.customize(this.requestMatcherConfigurer);
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
+	 * provided {@link RequestMatcher}. If more advanced configuration is necessary,
+	 * consider using {@link #securityMatchers(Customizer)} ()}.
+	 *
+	 * <p>
+	 * Invoking {@link #securityMatcher(RequestMatcher)} will override previous
+	 * invocations of {@link #requestMatchers()}, {@link #mvcMatcher(String)},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)},
+	 * {@link #requestMatcher(RequestMatcher)}, {@link #securityMatchers(Customizer)},
+	 * {@link #securityMatchers()} and {@link #securityMatcher(String)}
+	 * </p>
+	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
+	 * AntPathRequestMatcher("/admin/**","GET") )
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @see #securityMatcher(String)
+	 */
+	public HttpSecurity securityMatcher(RequestMatcher requestMatcher) {
+		this.requestMatcher = requestMatcher;
+		return this;
+	}
+
+	/**
+	 * Allows configuring the {@link HttpSecurity} to only be invoked when matching the
+	 * provided pattern. This method creates a {@link MvcRequestMatcher} if Spring MVC is
+	 * in the classpath or creates an {@link AntPathRequestMatcher} if not. If more
+	 * advanced configuration is necessary, consider using
+	 * {@link #securityMatchers(Customizer)} or {@link #securityMatcher(RequestMatcher)}.
+	 *
+	 * <p>
+	 * Invoking {@link #securityMatcher(String)} will override previous invocations of
+	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
+	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
+	 * {@link #requestMatcher(RequestMatcher)}.
+	 * </p>
+	 * @param pattern the pattern to match on (i.e. "/admin/**")
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @see AntPathRequestMatcher
+	 * @see MvcRequestMatcher
+	 */
+	public HttpSecurity securityMatcher(String pattern) {
+		if (!mvcPresent) {
+			this.requestMatcher = new AntPathRequestMatcher(pattern);
+			return this;
+		}
+		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
+			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
+					+ " of type " + HandlerMappingIntrospector.class.getName()
+					+ " is required to use MvcRequestMatcher. Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext.");
+		}
+		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
+				HandlerMappingIntrospector.class);
+		this.requestMatcher = new MvcRequestMatcher(introspector, pattern);
 		return this;
 	}
 
@@ -3367,8 +3686,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param antPattern the Ant Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
+	 * @deprecated use {@link #securityMatcher(String)} instead
 	 * @see AntPathRequestMatcher
 	 */
+	@Deprecated
 	public HttpSecurity antMatcher(String antPattern) {
 		return requestMatcher(new AntPathRequestMatcher(antPattern));
 	}
@@ -3386,8 +3707,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param mvcPattern the Spring MVC Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
+	 * @deprecated use {@link #securityMatcher(String)} instead
 	 * @see MvcRequestMatcher
 	 */
+	@Deprecated
 	public HttpSecurity mvcMatcher(String mvcPattern) {
 		HandlerMappingIntrospector introspector = new HandlerMappingIntrospector();
 		introspector.setApplicationContext(getContext());
@@ -3408,8 +3731,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param pattern the Regular Expression to match on (i.e. "/admin/.+")
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @see RegexRequestMatcher
+	 * @deprecated use {@link #securityMatcher(RequestMatcher)} with a
+	 * {@link RegexRequestMatcher} instead
 	 */
+	@Deprecated
 	public HttpSecurity regexMatcher(String pattern) {
 		return requestMatcher(new RegexRequestMatcher(pattern, null));
 	}
@@ -3480,14 +3805,22 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			setApplicationContext(context);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersRequestMatcherConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			setMatchers(mvcMatchers);
 			return new MvcMatchersRequestMatcherConfigurer(getContext(), mvcMatchers, this.matchers);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersRequestMatcherConfigurer mvcMatchers(String... patterns) {
 			return mvcMatchers(null, patterns);
 		}
@@ -3500,7 +3833,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 
 		private void setMatchers(List<? extends RequestMatcher> requestMatchers) {
 			this.matchers.addAll(requestMatchers);
-			requestMatcher(new OrRequestMatcher(this.matchers));
+			securityMatcher(new OrRequestMatcher(this.matchers));
 		}
 
 		/**

@@ -163,7 +163,10 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </pre>
 	 *
 	 * @since 4.0
+	 * @deprecated use {@link #ignoringRequestMatchers(RequestMatcher...)} with an
+	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} instead
 	 */
+	@Deprecated
 	public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
 		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns).and();
 	}
@@ -195,6 +198,35 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	 */
 	public CsrfConfigurer<H> ignoringRequestMatchers(RequestMatcher... requestMatchers) {
 		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(requestMatchers).and();
+	}
+
+	/**
+	 * <p>
+	 * Allows specifying {@link HttpServletRequest} that should not use CSRF Protection
+	 * even if they match the {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
+	 * </p>
+	 *
+	 * <p>
+	 * For example, the following configuration will ensure CSRF protection ignores:
+	 * </p>
+	 * <ul>
+	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
+	 * <li>We also explicitly state to ignore any request that starts with "/sockjs/"</li>
+	 * </ul>
+	 *
+	 * <pre>
+	 * http
+	 *     .csrf()
+	 *         .ignoringRequestMatchers("/sockjs/**")
+	 *         .and()
+	 *     ...
+	 * </pre>
+	 *
+	 * @since 5.8
+	 * @see AbstractRequestMatcherRegistry#requestMatchers(String...)
+	 */
+	public CsrfConfigurer<H> ignoringRequestMatchers(String... patterns) {
+		return new IgnoreCsrfProtectionRegistry(this.context).requestMatchers(patterns).and();
 	}
 
 	/**
@@ -350,14 +382,22 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			setApplicationContext(context);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(HttpMethod method, String... mvcPatterns) {
 			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(mvcMatchers);
 			return new MvcMatchersIgnoreCsrfProtectionRegistry(getApplicationContext(), mvcMatchers);
 		}
 
+		/**
+		 * @deprecated use {@link #requestMatchers(String...)} instead
+		 */
 		@Override
+		@Deprecated
 		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(String... mvcPatterns) {
 			return mvcMatchers(null, mvcPatterns);
 		}

@@ -151,8 +151,8 @@ To restrict access to this controller method to admin users, you can provide aut
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
-		.authorizeHttpRequests(authorize -> authorize
-			.antMatchers("/admin").hasRole("ADMIN")
+		.authorizeHttpRequests((authorize) -> authorize
+			.requestMatchers("/admin").hasRole("ADMIN")
 		);
 	return http.build();
 }
@@ -164,8 +164,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
-        authorizeRequests {
-            authorize(AntPathRequestMatcher("/admin"), hasRole("ADMIN"))
+        authorizeHttpRequests {
+            authorize("/admin", hasRole("ADMIN"))
         }
     }
     return http.build()
@@ -191,20 +191,24 @@ Additionally, depending on our Spring MVC configuration, the `/admin` URL also m
 The problem is that our security rule protects only  `/admin`.
 We could add additional rules for all the permutations of Spring MVC, but this would be quite verbose and tedious.
 
-Instead, we can use Spring Security's `MvcRequestMatcher`.
-The following configuration protects the same URLs that Spring MVC matches on by using Spring MVC to match on the URL.
+Fortunately, when using the `requestMatchers` DSL method, Spring Security automatically creates a `MvcRequestMatcher` if it detects that Spring MVC is available in the classpath.
+Therefore, it will protect the same URLs that Spring MVC will match on by using Spring MVC to match on the URL.
+
+One common requirement when using Spring MVC is to specify the servlet path property, for that you can use the `MvcRequestMatcher.Builder` to create multiple `MvcRequestMatcher` instances that share the same servlet path:
 
 ====
 .Java
 [source,java,role="primary"]
 ----
 @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+public SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+	MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector).servletPath("/path");
 	http
-		.authorizeHttpRequests(authorize -> authorize
-			.mvcMatchers("/admin").hasRole("ADMIN")
+		.authorizeHttpRequests((authorize) -> authorize
+			.requestMatchers(mvcMatcherBuilder.pattern("/admin")).hasRole("ADMIN")
+			.requestMatchers(mvcMatcherBuilder.pattern("/user")).hasRole("USER")
 		);
-	// ...
+	return http.build();
 }
 ----
 
@@ -212,13 +216,15 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun filterChain(http: HttpSecurity): SecurityFilterChain {
+open fun filterChain(http: HttpSecurity, introspector: HandlerMappingIntrospector): SecurityFilterChain {
+    val mvcMatcherBuilder = MvcRequestMatcher.Builder(introspector)
     http {
-        authorizeRequests {
-            authorize("/admin", hasRole("ADMIN"))
+        authorizeHttpRequests {
+            authorize(mvcMatcherBuilder.pattern("/admin"), hasRole("ADMIN"))
+            authorize(mvcMatcherBuilder.pattern("/user"), hasRole("USER"))
         }
     }
-    // ...
+    return http.build()
 }
 ----
 ====

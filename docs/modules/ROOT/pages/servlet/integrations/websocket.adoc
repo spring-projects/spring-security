@@ -584,7 +584,7 @@ public class WebSecurityConfig {
         http
             .csrf(csrf -> csrf
                 // ignore our stomp endpoints since they are protected using Stomp headers
-                .ignoringAntMatchers("/chat/**")
+                .ignoringRequestMatchers("/chat/**")
             )
             .headers(headers -> headers
                 // allow same origin to frame our site to support iframe SockJS
@@ -610,7 +610,7 @@ open class WebSecurityConfig {
     open fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http {
             csrf {
-                ignoringAntMatchers("/chat/**")
+                ignoringRequestMatchers("/chat/**")
             }
             headers {
                 frameOptions {

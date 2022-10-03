@@ -41,12 +41,12 @@ import org.springframework.security.web.SecurityFilterChain;
  * 	public WebSecurityCustomizer webSecurityCustomizer() {
  * 		return (web) -> web.ignoring()
  * 		// Spring Security should completely ignore URLs starting with /resources/
- * 				.antMatchers(&quot;/resources/**&quot;);
+ * 				.requestMatchers(&quot;/resources/**&quot;);
  * 	}
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeRequests().antMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
+ * 		http.authorizeRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
  * 				.hasRole(&quot;USER&quot;).and()
  * 				// Possibly more configuration ...
  * 				.formLogin() // enable form based log in
