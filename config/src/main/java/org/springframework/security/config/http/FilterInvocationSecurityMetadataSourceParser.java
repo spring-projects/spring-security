@@ -93,7 +93,7 @@ public class FilterInvocationSecurityMetadataSourceParser implements BeanDefinit
 
 	static RootBeanDefinition createSecurityMetadataSource(List<Element> interceptUrls, boolean addAllAuth,
 			Element httpElt, ParserContext pc) {
-		MatcherType matcherType = MatcherType.fromElement(httpElt);
+		MatcherType matcherType = MatcherType.fromElementOrMvc(httpElt);
 		boolean useExpressions = isUseExpressions(httpElt);
 		ManagedMap<BeanMetadataElement, BeanDefinition> requestToAttributesMap = parseInterceptUrlsForFilterInvocationRequestMap(
 				matcherType, interceptUrls, useExpressions, addAllAuth, pc);

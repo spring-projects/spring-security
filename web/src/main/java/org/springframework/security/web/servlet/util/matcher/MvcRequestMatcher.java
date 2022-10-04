@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.web.servlet.util.matcher;
 
 import java.util.Map;
+import java.util.Objects;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -127,6 +128,24 @@ public class MvcRequestMatcher implements RequestMatcher, RequestVariablesExtrac
 
 	protected final String getServletPath() {
 		return this.servletPath;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+		MvcRequestMatcher that = (MvcRequestMatcher) o;
+		return Objects.equals(this.pattern, that.pattern) && Objects.equals(this.method, that.method)
+				&& Objects.equals(this.servletPath, that.servletPath);
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(this.pattern, this.method, this.servletPath);
 	}
 
 	@Override

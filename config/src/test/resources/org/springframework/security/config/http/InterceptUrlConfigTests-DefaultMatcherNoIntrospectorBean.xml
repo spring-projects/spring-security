@@ -24,15 +24,10 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false">
-		<intercept-url pattern="/secured" access="ROLE_NUNYA"/>
-		<access-denied-handler error-page="${accessDenied}"/>
+	<http>
+		<intercept-url pattern="/path" access="denyAll" servlet-path="/spring"/>
+		<http-basic/>
 	</http>
 
-	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
-
-	<b:bean name="sc" class="org.springframework.security.config.http.PlaceHolderAndELConfigTests.SimpleController"/>
-
 	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>

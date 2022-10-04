@@ -217,7 +217,7 @@ class HttpConfigurationBuilder {
 		this.pc = pc;
 		this.portMapper = portMapper;
 		this.portResolver = portResolver;
-		this.matcherType = MatcherType.fromElement(element);
+		this.matcherType = MatcherType.fromElementOrMvc(element);
 		this.interceptUrls = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 		validateInterceptUrls(pc);
 		String createSession = element.getAttribute(ATT_CREATE_SESSION);
