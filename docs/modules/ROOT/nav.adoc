@@ -91,6 +91,7 @@
 *** xref:servlet/integrations/websocket.adoc[WebSocket]
 *** xref:servlet/integrations/cors.adoc[Spring's CORS Support]
 *** xref:servlet/integrations/jsp-taglibs.adoc[JSP Taglib]
+*** xref:servlet/integrations/observability.adoc[Observability]
 ** Configuration
 *** xref:servlet/configuration/java.adoc[Java Configuration]
 *** xref:servlet/configuration/kotlin.adoc[Kotlin Configuration]
@@ -147,6 +148,7 @@
 ** Integrations
 *** xref:reactive/integrations/cors.adoc[CORS]
 *** xref:reactive/integrations/rsocket.adoc[RSocket]
+*** xref:reactive/integrations/observability.adoc[Observability]
 ** xref:reactive/test/index.adoc[Testing]
 *** xref:reactive/test/method.adoc[Testing Method Security]
 *** xref:reactive/test/web/index.adoc[Testing Web Security]

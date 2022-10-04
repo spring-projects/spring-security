@@ -27,6 +27,9 @@ This attribute allows you to define an alias name for the internal instance for 
 If set to true, the AuthenticationManager will attempt to clear any credentials data in the returned Authentication object, once the user has been authenticated.
 Literally it maps to the `eraseCredentialsAfterAuthentication` property of the xref:servlet/authentication/architecture.adoc#servlet-authentication-providermanager[`ProviderManager`].
 
+[[nsa-authentication-manager-observation-registry-ref]]
+* **observation-registry-ref**
+A reference to the `ObservationRegistry` used for the `FilterChain` and related components
 
 [[nsa-authentication-manager-id]]
 * **id**

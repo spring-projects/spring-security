@@ -29,3 +29,8 @@ Or use `use-authorization-manager="false"`
 * https://github.com/spring-projects/spring-security/issues/11939[gh-11939] - Remove deprecated `antMatchers`, `mvcMatchers`, `regexMatchers` helper methods from Java Configuration.
 Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/11985[gh-11985] - Remove deprecated constructors in `Argon2PasswordEncoder`, `SCryptPasswordEncoder` and `Pbkdf2PasswordEncoder`.
+
+== Observability
+
+* xref:servlet/integrations/observability.adoc[Instrumentation] of `AuthenticationManager`, `AuthorizationManager`, and `FilterChainProxy`
+* xref:reactive/integrations/observability.adoc[Instrumentation] of `ReactiveAuthenticationManager`, `ReactiveAuthorizationManager`, and `WebFilterChainProxy`

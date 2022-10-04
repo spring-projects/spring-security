@@ -37,6 +37,10 @@ Defaults to "false".
 Specifies a SecurityContextHolderStrategy to use when retrieving the SecurityContext.
 Defaults to the value returned by SecurityContextHolder.getContextHolderStrategy().
 
+[[nsa-method-security-observation-registry-ref]]
+* **observation-registry-ref**
+A reference to the `ObservationRegistry` used for the `FilterChain` and related components
+
 [[nsa-method-security-children]]
 === Child Elements of <method-security>
 
