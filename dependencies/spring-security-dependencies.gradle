@@ -67,6 +67,10 @@ dependencies {
 		api "org.slf4j:slf4j-api:1.7.36"
 		api "org.springframework.ldap:spring-ldap-core:3.0.0-M3"
 		api "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
+		api 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
+		api 'org.apache.maven.resolver:maven-resolver-impl:1.8.2'
+		api 'org.apache.maven.resolver:maven-resolver-transport-http:1.8.2'
+		api 'org.apache.maven:maven-resolver-provider:3.8.6'
 	}
 }
 

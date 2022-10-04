@@ -97,6 +97,18 @@ dependencies {
 	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
 	testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-reactor'
 	testImplementation 'io.mockk:mockk'
+	testImplementation 'org.junit.platform:junit-platform-launcher'
+	testImplementation 'org.apache.maven.resolver:maven-resolver-connector-basic'
+	testImplementation ('org.apache.maven.resolver:maven-resolver-impl') {
+		exclude(group: "javax.annotation", module: "javax.annotation-api")
+	}
+	testImplementation ('org.apache.maven:maven-resolver-provider') {
+		exclude(group: "javax.inject", module: "javax.inject")
+		exclude(group: "javax.annotation", module: "javax.annotation-api")
+	}
+	testImplementation ('org.apache.maven.resolver:maven-resolver-transport-http') {
+		exclude group: "org.slf4j", module: "jcl-over-slf4j"
+	}
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
