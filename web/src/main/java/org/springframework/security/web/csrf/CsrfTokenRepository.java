@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import jakarta.servlet.http.HttpSession;
  * {@link HttpSession}.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 3.2
  * @see HttpSessionCsrfTokenRepository
  */
@@ -54,5 +55,21 @@ public interface CsrfTokenRepository {
 	 * @return the {@link CsrfToken} or null if none exists
 	 */
 	CsrfToken loadToken(HttpServletRequest request);
+
+	/**
+	 * Defers loading the {@link CsrfToken} using the {@link HttpServletRequest} and
+	 * {@link HttpServletResponse} until it is needed by the application.
+	 * <p>
+	 * The returned {@link DeferredCsrfToken} is cached to allow subsequent calls to
+	 * {@link DeferredCsrfToken#get()} to return the same {@link CsrfToken} without the
+	 * cost of loading or generating the token again.
+	 * @param request the {@link HttpServletRequest} to use
+	 * @param response the {@link HttpServletResponse} to use
+	 * @return a {@link DeferredCsrfToken} that will load the {@link CsrfToken}
+	 * @since 5.8
+	 */
+	default DeferredCsrfToken loadDeferredToken(HttpServletRequest request, HttpServletResponse response) {
+		return new RepositoryDeferredCsrfToken(this, request, response);
+	}
 
 }

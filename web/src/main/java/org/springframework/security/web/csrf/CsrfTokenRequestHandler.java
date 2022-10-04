@@ -16,20 +16,22 @@
 
 package org.springframework.security.web.csrf;
 
+import java.util.function.Supplier;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.util.Assert;
 
 /**
- * An interface that is used to determine the {@link CsrfToken} to use and make the
- * {@link CsrfToken} available as a request attribute. Implementations of this interface
- * may choose to perform additional tasks or customize how the token is made available to
- * the application through request attributes.
+ * A callback interface that is used to make the {@link CsrfToken} created by the
+ * {@link CsrfTokenRepository} available as a request attribute. Implementations of this
+ * interface may choose to perform additional tasks or customize how the token is made
+ * available to the application through request attributes.
  *
  * @author Steve Riesenberg
  * @since 5.8
- * @see CsrfTokenRepositoryRequestHandler
+ * @see CsrfTokenRequestAttributeHandler
  */
 @FunctionalInterface
 public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
@@ -38,8 +40,9 @@ public interface CsrfTokenRequestHandler extends CsrfTokenRequestResolver {
 	 * Handles a request using a {@link CsrfToken}.
 	 * @param request the {@code HttpServletRequest} being handled
 	 * @param response the {@code HttpServletResponse} being handled
+	 * @param csrfToken the {@link CsrfToken} created by the {@link CsrfTokenRepository}
 	 */
-	DeferredCsrfToken handle(HttpServletRequest request, HttpServletResponse response);
+	void handle(HttpServletRequest request, HttpServletResponse response, Supplier<CsrfToken> csrfToken);
 
 	@Override
 	default String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {

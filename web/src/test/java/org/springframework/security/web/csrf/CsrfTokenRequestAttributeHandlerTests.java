@@ -18,29 +18,22 @@ package org.springframework.security.web.csrf;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.BDDMockito.given;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 /**
- * Tests for {@link CsrfTokenRepositoryRequestHandler}.
+ * Tests for {@link CsrfTokenRequestAttributeHandler}.
  *
  * @author Steve Riesenberg
  * @since 5.8
  */
-@ExtendWith(MockitoExtension.class)
-public class CsrfTokenRepositoryRequestHandlerTests {
-
-	@Mock
-	CsrfTokenRepository tokenRepository;
+public class CsrfTokenRequestAttributeHandlerTests {
 
 	private MockHttpServletRequest request;
 
@@ -48,76 +41,73 @@ public class CsrfTokenRepositoryRequestHandlerTests {
 
 	private CsrfToken token;
 
-	private CsrfTokenRepositoryRequestHandler handler;
+	private CsrfTokenRequestAttributeHandler handler;
 
 	@BeforeEach
 	public void setup() {
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.token = new DefaultCsrfToken("headerName", "paramName", "csrfTokenValue");
-		this.handler = new CsrfTokenRepositoryRequestHandler(this.tokenRepository);
-	}
-
-	@Test
-	public void constructorWhenCsrfTokenRepositoryIsNullThenThrowsIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new CsrfTokenRepositoryRequestHandler(null))
-				.withMessage("csrfTokenRepository cannot be null");
-		// @formatter:on
+		this.handler = new CsrfTokenRequestAttributeHandler();
 	}
 
 	@Test
 	public void handleWhenRequestIsNullThenThrowsIllegalArgumentException() {
-		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.handler.handle(null, this.response))
+				.isThrownBy(() -> this.handler.handle(null, this.response, () -> this.token))
 				.withMessage("request cannot be null");
-		// @formatter:on
 	}
 
 	@Test
 	public void handleWhenResponseIsNullThenThrowsIllegalArgumentException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.handler.handle(this.request, null))
+				.isThrownBy(() -> this.handler.handle(this.request, null, () -> this.token))
 				.withMessage("response cannot be null");
 		// @formatter:on
 	}
 
 	@Test
+	public void handleWhenCsrfTokenSupplierIsNullThenThrowsIllegalArgumentException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.handle(this.request, this.response, null))
+				.withMessage("deferredCsrfToken cannot be null");
+	}
+
+	@Test
+	public void handleWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		this.handler.setCsrfRequestAttributeName(null);
+		assertThatIllegalStateException()
+				.isThrownBy(() -> this.handler.handle(this.request, this.response, () -> null))
+				.withMessage("csrfTokenSupplier returned null delegate");
+		// @formatter:on
+	}
+
+	@Test
 	public void handleWhenCsrfRequestAttributeSetThenUsed() {
-		given(this.tokenRepository.generateToken(this.request)).willReturn(this.token);
 		this.handler.setCsrfRequestAttributeName("_csrf");
-		this.handler.handle(this.request, this.response);
+		this.handler.handle(this.request, this.response, () -> this.token);
 		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
 		assertThatCsrfToken(this.request.getAttribute("_csrf")).isEqualTo(this.token);
 	}
 
 	@Test
 	public void handleWhenValidParametersThenRequestAttributesSet() {
-		given(this.tokenRepository.loadToken(this.request)).willReturn(this.token);
-		this.handler.handle(this.request, this.response);
+		this.handler.handle(this.request, this.response, () -> this.token);
 		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isEqualTo(this.token);
 		assertThatCsrfToken(this.request.getAttribute("_csrf")).isEqualTo(this.token);
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenRequestIsNullThenThrowsIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
 				.withMessage("request cannot be null");
-		// @formatter:on
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
-		// @formatter:off
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> this.handler.resolveCsrfTokenValue(this.request, null))
+		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(this.request, null))
 				.withMessage("csrfToken cannot be null");
-		// @formatter:on
 	}
 
 	@Test

@@ -36,7 +36,6 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
-import org.springframework.security.web.csrf.CsrfTokenRepositoryRequestHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
@@ -249,13 +248,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	@SuppressWarnings("unchecked")
 	@Override
 	public void configure(H http) {
-		CsrfFilter filter;
-		if (this.requestHandler != null) {
-			filter = new CsrfFilter(this.requestHandler);
-		}
-		else {
-			filter = new CsrfFilter(new CsrfTokenRepositoryRequestHandler(this.csrfTokenRepository));
-		}
+		CsrfFilter filter = new CsrfFilter(this.csrfTokenRepository);
 		RequestMatcher requireCsrfProtectionMatcher = getRequireCsrfProtectionMatcher();
 		if (requireCsrfProtectionMatcher != null) {
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
@@ -271,6 +264,9 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		SessionManagementConfigurer<H> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 		if (sessionConfigurer != null) {
 			sessionConfigurer.addSessionAuthenticationStrategy(getSessionAuthenticationStrategy());
+		}
+		if (this.requestHandler != null) {
+			filter.setRequestHandler(this.requestHandler);
 		}
 		filter = postProcess(filter);
 		http.addFilter(filter);

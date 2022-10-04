@@ -38,17 +38,17 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final CsrfTokenRepository csrfTokenRepository;
+	private final CsrfTokenRepository tokenRepository;
 
-	private CsrfTokenRequestHandler requestHandler;
+	private CsrfTokenRequestHandler requestHandler = new CsrfTokenRequestAttributeHandler();
 
 	/**
 	 * Creates a new instance
-	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
+	 * @param tokenRepository the {@link CsrfTokenRepository} to use
 	 */
-	public CsrfAuthenticationStrategy(CsrfTokenRepository csrfTokenRepository) {
-		this.requestHandler = new CsrfTokenRepositoryRequestHandler(csrfTokenRepository);
-		this.csrfTokenRepository = csrfTokenRepository;
+	public CsrfAuthenticationStrategy(CsrfTokenRepository tokenRepository) {
+		Assert.notNull(tokenRepository, "tokenRepository cannot be null");
+		this.tokenRepository = tokenRepository;
 	}
 
 	/**
@@ -64,8 +64,9 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
-		this.csrfTokenRepository.saveToken(null, request, response);
-		this.requestHandler.handle(request, response);
+		this.tokenRepository.saveToken(null, request, response);
+		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
+		this.requestHandler.handle(request, response, deferredCsrfToken::get);
 		this.logger.debug("Replaced CSRF Token");
 	}
 
