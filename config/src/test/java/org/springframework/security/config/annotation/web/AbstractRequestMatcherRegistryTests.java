@@ -16,8 +16,6 @@
 
 package org.springframework.security.config.annotation.web;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.List;
 
 import jakarta.servlet.DispatcherType;
@@ -43,6 +41,7 @@ import static org.mockito.Mockito.mock;
  * Tests for {@link AbstractRequestMatcherRegistry}.
  *
  * @author Joe Grandja
+ * @author Marcus Da Coregio
  */
 public class AbstractRequestMatcherRegistryTests {
 
@@ -61,6 +60,7 @@ public class AbstractRequestMatcherRegistryTests {
 		ApplicationContext context = mock(ApplicationContext.class);
 		given(context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
 		this.matcherRegistry.setApplicationContext(context);
+		mockMvcIntrospector(true);
 	}
 
 	@Test
@@ -113,9 +113,7 @@ public class AbstractRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void requestMatchersWhenPatternAndMvcPresentThenReturnMvcRequestMatcherType() throws Exception {
-		mockMvcPresentClasspath(true);
-		mockMvcIntrospector(true);
+	public void requestMatchersWhenPatternAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/path");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
@@ -123,9 +121,7 @@ public class AbstractRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void requestMatchersWhenHttpMethodAndPatternAndMvcPresentThenReturnMvcRequestMatcherType() throws Exception {
-		mockMvcPresentClasspath(true);
-		mockMvcIntrospector(true);
+	public void requestMatchersWhenHttpMethodAndPatternAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET, "/path");
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
@@ -133,9 +129,7 @@ public class AbstractRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void requestMatchersWhenHttpMethodAndMvcPresentThenReturnMvcRequestMatcherType() throws Exception {
-		mockMvcPresentClasspath(true);
-		mockMvcIntrospector(true);
+	public void requestMatchersWhenHttpMethodAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET);
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
@@ -143,40 +137,7 @@ public class AbstractRequestMatcherRegistryTests {
 	}
 
 	@Test
-	public void requestMatchersWhenPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType() throws Exception {
-		mockMvcPresentClasspath(false);
-		mockMvcIntrospector(false);
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/path");
-		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
-	}
-
-	@Test
-	public void requestMatchersWhenHttpMethodAndPatternAndMvcNotPresentThenReturnAntPathRequestMatcherType()
-			throws Exception {
-		mockMvcPresentClasspath(false);
-		mockMvcIntrospector(false);
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET, "/path");
-		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
-	}
-
-	@Test
-	public void requestMatchersWhenHttpMethodAndMvcNotPresentThenReturnAntPathMatcherType() throws Exception {
-		mockMvcPresentClasspath(false);
-		mockMvcIntrospector(false);
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET);
-		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
-		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
-	}
-
-	@Test
-	public void requestMatchersWhenMvcPresentInClassPathAndMvcIntrospectorBeanNotAvailableThenException()
-			throws Exception {
-		mockMvcPresentClasspath(true);
+	public void requestMatchersWhenMvcPresentInClassPathAndMvcIntrospectorBeanNotAvailableThenException() {
 		mockMvcIntrospector(false);
 		assertThatExceptionOfType(NoSuchBeanDefinitionException.class)
 				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/path")).withMessageContaining(
@@ -186,15 +147,6 @@ public class AbstractRequestMatcherRegistryTests {
 	private void mockMvcIntrospector(boolean isPresent) {
 		ApplicationContext context = this.matcherRegistry.getApplicationContext();
 		given(context.containsBean("mvcHandlerMappingIntrospector")).willReturn(isPresent);
-	}
-
-	private void mockMvcPresentClasspath(Object newValue) throws Exception {
-		Field mvcPresentField = AbstractRequestMatcherRegistry.class.getDeclaredField("mvcPresent");
-		mvcPresentField.setAccessible(true);
-		Field modifiersField = Field.class.getDeclaredField("modifiers");
-		modifiersField.setAccessible(true);
-		modifiersField.setInt(mvcPresentField, mvcPresentField.getModifiers() & ~Modifier.FINAL);
-		mvcPresentField.set(null, newValue);
 	}
 
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
