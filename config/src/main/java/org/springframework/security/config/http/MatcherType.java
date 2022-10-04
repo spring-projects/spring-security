@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,11 +22,13 @@ import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.RootBeanDefinition;
 import org.springframework.beans.factory.xml.ParserContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
 
 /**
@@ -40,11 +42,17 @@ public enum MatcherType {
 	ant(AntPathRequestMatcher.class), regex(RegexRequestMatcher.class), ciRegex(RegexRequestMatcher.class), mvc(
 			MvcRequestMatcher.class);
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector";
+	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
+
+	private static final boolean mvcPresent;
 
 	private static final String ATT_MATCHER_TYPE = "request-matcher";
 
 	final Class<? extends RequestMatcher> type;
+
+	static {
+		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, MatcherType.class.getClassLoader());
+	}
 
 	MatcherType(Class<? extends RequestMatcher> type) {
 		this.type = type;
@@ -64,7 +72,7 @@ public enum MatcherType {
 		}
 		matcherBldr.addConstructorArgValue(path);
 		if (this == mvc) {
-			matcherBldr.addPropertyValue("method", method);
+			matcherBldr.addPropertyValue("method", (StringUtils.hasText(method) ? HttpMethod.valueOf(method) : null));
 			matcherBldr.addPropertyValue("servletPath", servletPath);
 		}
 		else {
@@ -82,6 +90,14 @@ public enum MatcherType {
 		}
 
 		return ant;
+	}
+
+	static MatcherType fromElementOrMvc(Element elt) {
+		String matcherTypeName = elt.getAttribute(ATT_MATCHER_TYPE);
+		if (!StringUtils.hasText(matcherTypeName) && mvcPresent) {
+			return MatcherType.mvc;
+		}
+		return MatcherType.fromElement(elt);
 	}
 
 }

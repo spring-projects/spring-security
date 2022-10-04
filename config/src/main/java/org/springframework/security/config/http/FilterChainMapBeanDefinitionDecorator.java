@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,7 +47,7 @@ public class FilterChainMapBeanDefinitionDecorator implements BeanDefinitionDeco
 		BeanDefinition filterChainProxy = holder.getBeanDefinition();
 		ManagedList<BeanMetadataElement> securityFilterChains = new ManagedList<>();
 		Element elt = (Element) node;
-		MatcherType matcherType = MatcherType.fromElement(elt);
+		MatcherType matcherType = MatcherType.fromElementOrMvc(elt);
 		List<Element> filterChainElts = DomUtils.getChildElementsByTagName(elt, Elements.FILTER_CHAIN);
 		for (Element chain : filterChainElts) {
 			String path = chain.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);

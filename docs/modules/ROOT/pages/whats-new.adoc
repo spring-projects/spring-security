@@ -20,3 +20,5 @@ Reorganize imports
 * https://github.com/spring-projects/spring-security/issues/10347[gh-10347] - Remove `UsernamePasswordAuthenticationToken` check in `BasicAuthenticationFilter`
 * https://github.com/spring-projects/spring-security/pull/11923[gh-11923] - Remove `WebSecurityConfigurerAdapter`.
 Instead, create a https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter[SecurityFilterChain bean].
+* https://github.com/spring-projects/spring-security/issues/11899[gh-11899] - Use `MvcRequestMatcher` by default if Spring MVC is present.
+You can configure a different `RequestMatcher` by using the https://docs.spring.io/spring-security/reference/servlet/appendix/namespace/http.html#nsa-http-attributes[request-matcher attribute from <http>].

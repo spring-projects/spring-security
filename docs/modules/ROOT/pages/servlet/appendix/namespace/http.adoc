@@ -117,7 +117,7 @@ Options are currently `mvc`, `ant`, `regex` and `ciRegex`, for Spring MVC, ant, 
 A separate instance is created for each <<nsa-intercept-url,intercept-url>> element using its <<nsa-intercept-url-pattern,pattern>>, <<nsa-intercept-url-method,method>> and <<nsa-intercept-url-servlet-path,servlet-path>> attributes.
 Ant paths are matched using an `AntPathRequestMatcher`, regular expressions are matched using a `RegexRequestMatcher` and for Spring MVC path matching the `MvcRequestMatcher` is used.
 See the Javadoc for these classes for more details on exactly how the matching is performed.
-Ant paths are the default strategy.
+MVC is the default strategy if Spring MVC is present in the classpath, if not, Ant paths are used.
 
 
 [[nsa-http-request-matcher-ref]]
@@ -1653,7 +1653,7 @@ If an identical pattern is specified with and without a method, the method-speci
 [[nsa-intercept-url-pattern]]
 * **pattern**
 The pattern which defines the URL path.
-The content will depend on the `request-matcher` attribute from the containing http element, so will default to ant path syntax.
+The content will depend on the `request-matcher` attribute from the containing http element, so will default to MVC matcher if Spring MVC is in the classpath.
 
 
 [[nsa-intercept-url-request-matcher-ref]]

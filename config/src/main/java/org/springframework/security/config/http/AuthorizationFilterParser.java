@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		if (expressionHandlerRef == null) {
 			expressionHandlerRef = registerDefaultExpressionHandler(parserContext);
 		}
-		MatcherType matcherType = MatcherType.fromElement(element);
+		MatcherType matcherType = MatcherType.fromElementOrMvc(element);
 		ManagedMap<BeanMetadataElement, BeanDefinition> matcherToExpression = new ManagedMap<>();
 		List<Element> interceptMessages = DomUtils.getChildElementsByTagName(element, Elements.INTERCEPT_URL);
 		for (Element interceptMessage : interceptMessages) {

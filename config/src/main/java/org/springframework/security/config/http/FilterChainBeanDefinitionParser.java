@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,7 +39,7 @@ public class FilterChainBeanDefinitionParser implements BeanDefinitionParser {
 
 	@Override
 	public BeanDefinition parse(Element elt, ParserContext pc) {
-		MatcherType matcherType = MatcherType.fromElement(elt);
+		MatcherType matcherType = MatcherType.fromElementOrMvc(elt);
 		String path = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_PATH_PATTERN);
 		String requestMatcher = elt.getAttribute(ATT_REQUEST_MATCHER_REF);
 		String filters = elt.getAttribute(HttpSecurityBeanDefinitionParser.ATT_FILTERS);

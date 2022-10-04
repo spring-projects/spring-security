@@ -16,23 +16,14 @@
   -->
 
 <b:beans xmlns:b="http://www.springframework.org/schema/beans"
-		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		xmlns="http://www.springframework.org/schema/security"
-		xsi:schemaLocation="
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xmlns="http://www.springframework.org/schema/security"
+		 xsi:schemaLocation="
 			http://www.springframework.org/schema/security
 			https://www.springframework.org/schema/security/spring-security.xsd
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false">
-		<intercept-url pattern="/secured" access="ROLE_NUNYA"/>
-		<access-denied-handler error-page="${accessDenied}"/>
-	</http>
+	<b:bean class="org.springframework.web.servlet.handler.HandlerMappingIntrospector" name="mvcHandlerMappingIntrospector"/>
 
-	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>
-
-	<b:bean name="sc" class="org.springframework.security.config.http.PlaceHolderAndELConfigTests.SimpleController"/>
-
-	<b:import resource="userservice.xml"/>
-	<b:import resource="handlermappingintrospector.xml"/>
 </b:beans>
