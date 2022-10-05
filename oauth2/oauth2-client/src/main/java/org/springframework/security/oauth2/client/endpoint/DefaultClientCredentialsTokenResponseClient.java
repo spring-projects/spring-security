@@ -77,7 +77,8 @@ public final class DefaultClientCredentialsTokenResponseClient
 		RequestEntity<?> request = this.requestEntityConverter.convert(clientCredentialsGrantRequest);
 		ResponseEntity<OAuth2AccessTokenResponse> response = getResponse(request);
 		OAuth2AccessTokenResponse tokenResponse = response.getBody();
-		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
+		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes()) &&
+				!tokenResponse.getAccessToken().getScopesProvided()) {
 			// As per spec, in Section 5.1 Successful Access Token Response
 			// https://tools.ietf.org/html/rfc6749#section-5.1
 			// If AccessTokenResponse.scope is empty, then default to the scope

@@ -45,6 +45,17 @@ public class OAuth2AccessTokenTests {
 
 	private static final Set<String> SCOPES = new LinkedHashSet<>(Arrays.asList("scope1", "scope2"));
 
+	private static final Set<String> EMTPY_SCOPES = new LinkedHashSet<>();
+
+	@Test
+	public void checkTokenWithNoScopes(){
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, EMTPY_SCOPES);
+		assertThat(accessToken.getScopesProvided()).isEqualTo(Boolean.TRUE);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, SCOPES);
+		assertThat(accessToken.getScopesProvided()).isEqualTo(Boolean.TRUE);
+		OAuth2AccessToken accessToken = new OAuth2AccessToken(TOKEN_TYPE, TOKEN_VALUE, ISSUED_AT, EXPIRES_AT, null);
+		assertThat(accessToken.getScopesProvided()).isEqualTo(Boolean.FALSE);
+	}
 	@Test
 	public void tokenTypeGetValueWhenTokenTypeBearerThenReturnBearer() {
 		assertThat(OAuth2AccessToken.TokenType.BEARER.getValue()).isEqualTo("Bearer");

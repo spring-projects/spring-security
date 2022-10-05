@@ -45,6 +45,8 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 
 	private final Set<String> scopes;
 
+	private Boolean scopesProvided
+
 	/**
 	 * Constructs an {@code OAuth2AccessToken} using the provided parameters.
 	 * @param tokenType the token type
@@ -71,7 +73,13 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 		super(tokenValue, issuedAt, expiresAt);
 		Assert.notNull(tokenType, "tokenType cannot be null");
 		this.tokenType = tokenType;
-		this.scopes = Collections.unmodifiableSet((scopes != null) ? scopes : Collections.emptySet());
+		if(scopes != null) {
+			this.scopes = Collections.unmodifiableSet(scopes);
+			this.scopesProvided = true;
+		} else {
+			this.scopes = Collections.emptySet();
+			this.scopesProvided = false;
+		}
 	}
 
 	/**
@@ -88,6 +96,14 @@ public class OAuth2AccessToken extends AbstractOAuth2Token {
 	 */
 	public Set<String> getScopes() {
 		return this.scopes;
+	}
+
+	/**
+	 * Indicates if a set of scopes, even an empty one, has been provided.
+	 * @return if a set of scopes has been provided
+	 */
+	public Boolean getScopesProvided() {
+		return scopesProvided;
 	}
 
 	/**
