@@ -340,7 +340,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
             .saml2Login(withDefaults());
@@ -496,7 +496,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .mvcMatchers("/messages/**").hasAuthority("ROLE_USER")
+                .requestMatchers("/messages/**").hasAuthority("ROLE_USER")
                 .anyRequest().authenticated()
             )
             .saml2Login(saml2 -> saml2

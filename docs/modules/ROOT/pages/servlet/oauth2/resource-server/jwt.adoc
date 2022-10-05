@@ -189,7 +189,7 @@ public class MyCustomSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_message:read")
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_message:read")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -744,8 +744,8 @@ public class DirectlyConfiguredJwkSetUri {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
-                .mvcMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
-                .mvcMatchers("/messages/**").hasAuthority("SCOPE_messages")
+                .requestMatchers("/contacts/**").hasAuthority("SCOPE_contacts")
+                .requestMatchers("/messages/**").hasAuthority("SCOPE_messages")
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);

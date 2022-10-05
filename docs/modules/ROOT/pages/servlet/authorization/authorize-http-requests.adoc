@@ -67,9 +67,9 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.authorizeHttpRequests(authorize -> authorize                                  // <1>
-			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
-			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
-			.mvcMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))   // <4>
+			.requestMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
+			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <3>
+			.requestMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))   // <4>
 			.anyRequest().denyAll()                                                // <5>
 		);
 
@@ -142,7 +142,7 @@ Here is an example of mapping a custom authorization manager to the `my/authoriz
 SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .mvcMatchers("/my/authorized/endpoint").access(new CustomAuthorizationManager());
+            .requestMatchers("/my/authorized/endpoint").access(new CustomAuthorizationManager());
         )
         // ...
 
