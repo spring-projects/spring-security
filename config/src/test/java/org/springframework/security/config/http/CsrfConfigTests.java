@@ -301,6 +301,39 @@ public class CsrfConfigTests {
 	}
 
 	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorThenOk() throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
+				.autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/ok"))
+				.andExpect(status().isOk())
+				.andReturn();
+		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+		CsrfToken csrfToken = (CsrfToken) mvcResult.getRequest().getAttribute("_csrf");
+		MockHttpServletRequestBuilder ok = post("/ok")
+				.header(csrfToken.getHeaderName(), csrfToken.getToken())
+				.session(session);
+		this.mvc.perform(ok).andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorWithRawTokenThenForbidden() throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
+				.autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/ok"))
+				.andExpect(status().isOk())
+				.andReturn();
+		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
+		MockHttpServletRequestBuilder ok = post("/ok")
+				.with(csrf())
+				.session(session);
+		this.mvc.perform(ok).andExpect(status().isForbidden());
+		// @formatter:on
+	}
+
+	@Test
 	public void postWhenHasCsrfTokenButSessionExpiresThenRequestIsCancelledAfterSuccessfulAuthentication()
 			throws Exception {
 		this.spring.configLocations(this.xml("CsrfEnabled")).autowire();
