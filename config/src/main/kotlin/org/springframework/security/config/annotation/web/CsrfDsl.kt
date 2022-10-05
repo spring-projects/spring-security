@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
 import jakarta.servlet.http.HttpServletRequest
 
@@ -39,6 +40,7 @@ class CsrfDsl {
     var csrfTokenRepository: CsrfTokenRepository? = null
     var requireCsrfProtectionMatcher: RequestMatcher? = null
     var sessionAuthenticationStrategy: SessionAuthenticationStrategy? = null
+    var csrfTokenRequestHandler: CsrfTokenRequestHandler? = null
 
     private var ignoringAntMatchers: Array<out String>? = null
     private var ignoringRequestMatchers: Array<out RequestMatcher>? = null
@@ -89,6 +91,7 @@ class CsrfDsl {
             csrfTokenRepository?.also { csrf.csrfTokenRepository(csrfTokenRepository) }
             requireCsrfProtectionMatcher?.also { csrf.requireCsrfProtectionMatcher(requireCsrfProtectionMatcher) }
             sessionAuthenticationStrategy?.also { csrf.sessionAuthenticationStrategy(sessionAuthenticationStrategy) }
+            csrfTokenRequestHandler?.also { csrf.csrfTokenRequestHandler(csrfTokenRequestHandler) }
             ignoringAntMatchers?.also { csrf.ignoringAntMatchers(*ignoringAntMatchers!!) }
             ignoringRequestMatchers?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchers!!) }
             ignoringRequestMatchersPatterns?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchersPatterns!!) }
