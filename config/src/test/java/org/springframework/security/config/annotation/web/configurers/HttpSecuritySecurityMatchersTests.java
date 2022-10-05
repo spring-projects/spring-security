@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.util.List;
+
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +43,8 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
@@ -119,10 +123,12 @@ public class HttpSecuritySecurityMatchersTests {
 		setup();
 		this.request.setServletPath("/path/");
 		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		List<RequestMatcher> requestMatchers = this.springSecurityFilterChain.getFilterChains().stream()
+				.map((chain) -> ((DefaultSecurityFilterChain) chain).getRequestMatcher())
+				.map((matcher) -> ReflectionTestUtils.getField(matcher, "requestMatchers"))
+				.map((matchers) -> (List<RequestMatcher>) matchers).findFirst().get();
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_UNAUTHORIZED);
-		assertThat(this.springSecurityFilterChain.getFilterChains())
-				.extracting((c) -> ((DefaultSecurityFilterChain) c).getRequestMatcher())
-				.hasOnlyElementsOfType(MvcRequestMatcher.class);
+		assertThat(requestMatchers).hasOnlyElementsOfType(MvcRequestMatcher.class);
 	}
 
 	@Test
