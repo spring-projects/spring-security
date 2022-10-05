@@ -20,9 +20,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.ChannelSecurityConfigurer
 import org.springframework.security.web.access.channel.ChannelDecisionManagerImpl
 import org.springframework.security.web.access.channel.ChannelProcessor
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher
 import org.springframework.security.web.util.matcher.AnyRequestMatcher
 import org.springframework.security.web.util.matcher.RequestMatcher
 import org.springframework.util.ClassUtils
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] channel security using idiomatic
@@ -36,6 +38,7 @@ import org.springframework.util.ClassUtils
 class RequiresChannelDsl : AbstractRequestMatcherDsl() {
     private val channelSecurityRules = mutableListOf<AuthorizationRule>()
 
+    private val HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME = "mvcHandlerMappingIntrospector"
     private val HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector"
     private val MVC_PRESENT = ClassUtils.isPresent(
             HANDLER_MAPPING_INTROSPECTOR,
@@ -119,11 +122,14 @@ class RequiresChannelDsl : AbstractRequestMatcherDsl() {
                     is MatcherAuthorizationRule -> channelSecurity.requestMatchers(rule.matcher).requires(rule.rule)
                     is PatternAuthorizationRule -> {
                         when (rule.patternType) {
-                            PatternType.ANT -> channelSecurity.antMatchers(rule.pattern).requires(rule.rule)
+                            PatternType.ANT -> channelSecurity.requestMatchers(rule.pattern).requires(rule.rule)
                             PatternType.MVC -> {
-                                val mvcMatchersRequiresChannel = channelSecurity.mvcMatchers(rule.pattern)
-                                rule.servletPath?.also { mvcMatchersRequiresChannel.servletPath(rule.servletPath) }
-                                mvcMatchersRequiresChannel.requires(rule.rule)
+                                val introspector = channelSecurity.applicationContext.getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME, HandlerMappingIntrospector::class.java)
+                                val mvcMatcher = MvcRequestMatcher.Builder(introspector)
+                                    .servletPath(rule.servletPath)
+                                    .pattern(rule.pattern)
+                                mvcMatcher.setMethod(rule.httpMethod)
+                                channelSecurity.requestMatchers(mvcMatcher).requires(rule.rule)
                             }
                         }
                     }

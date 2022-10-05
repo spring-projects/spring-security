@@ -22,7 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -41,7 +40,6 @@ import org.springframework.security.web.access.channel.RetryWithHttpEntryPoint;
 import org.springframework.security.web.access.channel.RetryWithHttpsEntryPoint;
 import org.springframework.security.web.access.channel.SecureChannelProcessor;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 /**
@@ -155,25 +153,6 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 			setApplicationContext(context);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersRequiresChannelUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
-			return new MvcMatchersRequiresChannelUrl(mvcMatchers);
-		}
-
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersRequiresChannelUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
-		}
-
 		@Override
 		protected RequiresChannelUrl chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return new RequiresChannelUrl(requestMatchers);
@@ -218,21 +197,6 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		 */
 		public H and() {
 			return ChannelSecurityConfigurer.this.and();
-		}
-
-	}
-
-	public final class MvcMatchersRequiresChannelUrl extends RequiresChannelUrl {
-
-		private MvcMatchersRequiresChannelUrl(List<MvcRequestMatcher> matchers) {
-			super(matchers);
-		}
-
-		public RequiresChannelUrl servletPath(String servletPath) {
-			for (RequestMatcher matcher : this.requestMatchers) {
-				((MvcRequestMatcher) matcher).setServletPath(servletPath);
-			}
-			return this;
 		}
 
 	}

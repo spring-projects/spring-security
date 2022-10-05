@@ -23,7 +23,6 @@ import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -40,7 +39,6 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
 import org.springframework.security.web.session.InvalidSessionStrategy;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -137,37 +135,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 	public CsrfConfigurer<H> csrfTokenRequestHandler(CsrfTokenRequestHandler requestHandler) {
 		this.requestHandler = requestHandler;
 		return this;
-	}
-
-	/**
-	 * <p>
-	 * Allows specifying {@link HttpServletRequest} that should not use CSRF Protection
-	 * even if they match the {@link #requireCsrfProtectionMatcher(RequestMatcher)}.
-	 * </p>
-	 *
-	 * <p>
-	 * For example, the following configuration will ensure CSRF protection ignores:
-	 * </p>
-	 * <ul>
-	 * <li>Any GET, HEAD, TRACE, OPTIONS (this is the default)</li>
-	 * <li>We also explicitly state to ignore any request that starts with "/sockjs/"</li>
-	 * </ul>
-	 *
-	 * <pre>
-	 * http
-	 *     .csrf()
-	 *         .ignoringAntMatchers("/sockjs/**")
-	 *         .and()
-	 *     ...
-	 * </pre>
-	 *
-	 * @since 4.0
-	 * @deprecated use {@link #ignoringRequestMatchers(RequestMatcher...)} with an
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} instead
-	 */
-	@Deprecated
-	public CsrfConfigurer<H> ignoringAntMatchers(String... antPatterns) {
-		return new IgnoreCsrfProtectionRegistry(this.context).antMatchers(antPatterns).and();
 	}
 
 	/**
@@ -378,26 +345,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			setApplicationContext(context);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
-			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(mvcMatchers);
-			return new MvcMatchersIgnoreCsrfProtectionRegistry(getApplicationContext(), mvcMatchers);
-		}
-
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersIgnoreCsrfProtectionRegistry mvcMatchers(String... mvcPatterns) {
-			return mvcMatchers(null, mvcPatterns);
-		}
-
 		CsrfConfigurer<H> and() {
 			return CsrfConfigurer.this;
 		}
@@ -405,31 +352,6 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		@Override
 		protected IgnoreCsrfProtectionRegistry chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			CsrfConfigurer.this.ignoredCsrfProtectionMatchers.addAll(requestMatchers);
-			return this;
-		}
-
-	}
-
-	/**
-	 * An {@link IgnoreCsrfProtectionRegistry} that allows optionally configuring the
-	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
-	 *
-	 * @author Rob Winch
-	 */
-	private final class MvcMatchersIgnoreCsrfProtectionRegistry extends IgnoreCsrfProtectionRegistry {
-
-		private final List<MvcRequestMatcher> mvcMatchers;
-
-		private MvcMatchersIgnoreCsrfProtectionRegistry(ApplicationContext context,
-				List<MvcRequestMatcher> mvcMatchers) {
-			super(context);
-			this.mvcMatchers = mvcMatchers;
-		}
-
-		IgnoreCsrfProtectionRegistry servletPath(String servletPath) {
-			for (MvcRequestMatcher matcher : this.mvcMatchers) {
-				matcher.setServletPath(servletPath);
-			}
 			return this;
 		}
 

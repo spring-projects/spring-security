@@ -40,12 +40,14 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -147,8 +149,8 @@ public class WebSecurityTests {
 	static class MvcMatcherConfig {
 
 		@Bean
-		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.ignoring().mvcMatchers("/path");
+		WebSecurityCustomizer webSecurityCustomizer(HandlerMappingIntrospector introspector) {
+			return (web) -> web.ignoring().requestMatchers(new MvcRequestMatcher(introspector, "/path"));
 		}
 
 		@Bean
@@ -185,8 +187,9 @@ public class WebSecurityTests {
 	static class MvcMatcherServletPathConfig {
 
 		@Bean
-		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.ignoring().mvcMatchers("/path").servletPath("/spring").mvcMatchers("/notused");
+		WebSecurityCustomizer webSecurityCustomizer(HandlerMappingIntrospector introspector) {
+			MvcRequestMatcher.Builder builder = new MvcRequestMatcher.Builder(introspector).servletPath("/spring");
+			return (web) -> web.ignoring().requestMatchers(builder.pattern("/path")).requestMatchers("/notused");
 		}
 
 		@Bean

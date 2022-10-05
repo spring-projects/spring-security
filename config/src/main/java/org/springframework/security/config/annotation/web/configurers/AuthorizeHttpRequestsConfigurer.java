@@ -21,7 +21,6 @@ import java.util.List;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -34,7 +33,6 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
@@ -146,24 +144,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			return postProcess(this.managerBuilder.build());
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... mvcPatterns) {
-			return mvcMatchers(null, mvcPatterns);
-		}
-
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
-		}
-
 		@Override
 		protected AuthorizedUrl chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			this.unmappedMatchers = requestMatchers;
@@ -201,35 +181,6 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public H and() {
 			return AuthorizeHttpRequestsConfigurer.this.and();
-		}
-
-	}
-
-	/**
-	 * An {@link AuthorizeHttpRequestsConfigurer.AuthorizedUrl} that allows optionally
-	 * configuring the {@link MvcRequestMatcher#setServletPath(String)}.
-	 *
-	 * @author Evgeniy Cheban
-	 * @deprecated use {@link MvcRequestMatcher.Builder} instead
-	 */
-	@Deprecated
-	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
-
-		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> matchers) {
-			super(matchers);
-		}
-
-		/**
-		 * Configures <code>servletPath</code> to {@link MvcRequestMatcher}s.
-		 * @param servletPath the servlet path
-		 * @return the {@link MvcMatchersAuthorizedUrl} for further customizations
-		 */
-		@SuppressWarnings("unchecked")
-		public MvcMatchersAuthorizedUrl servletPath(String servletPath) {
-			for (MvcRequestMatcher matcher : (List<MvcRequestMatcher>) getMatchers()) {
-				matcher.setServletPath(servletPath);
-			}
-			return this;
 		}
 
 	}

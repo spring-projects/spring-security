@@ -65,7 +65,8 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void regexMatchersWhenHttpMethodAndPatternParamsThenReturnRegexRequestMatcherType() {
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.regexMatchers(HttpMethod.GET, "/a.*");
+		List<RequestMatcher> requestMatchers = this.matcherRegistry
+				.requestMatchers(new RegexRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
@@ -73,7 +74,8 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void regexMatchersWhenPatternParamThenReturnRegexRequestMatcherType() {
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.regexMatchers("/a.*");
+		List<RequestMatcher> requestMatchers = this.matcherRegistry
+				.requestMatchers(new RegexRequestMatcher("/a.*", null));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
@@ -81,7 +83,8 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void antMatchersWhenHttpMethodAndPatternParamsThenReturnAntPathRequestMatcherType() {
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.antMatchers(HttpMethod.GET, "/a.*");
+		List<RequestMatcher> requestMatchers = this.matcherRegistry
+				.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
@@ -89,7 +92,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void antMatchersWhenPatternParamThenReturnAntPathRequestMatcherType() {
-		List<RequestMatcher> requestMatchers = this.matcherRegistry.antMatchers("/a.*");
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(new AntPathRequestMatcher("/a.*"));
 		assertThat(requestMatchers).isNotEmpty();
 		assertThat(requestMatchers.size()).isEqualTo(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
@@ -150,16 +153,6 @@ public class AbstractRequestMatcherRegistryTests {
 	}
 
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
-
-		@Override
-		public List<RequestMatcher> mvcMatchers(String... mvcPatterns) {
-			return null;
-		}
-
-		@Override
-		public List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return null;
-		}
 
 		@Override
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {

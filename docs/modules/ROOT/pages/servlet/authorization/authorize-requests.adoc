@@ -85,9 +85,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	http
 		// ...
 		.authorizeRequests(authorize -> authorize                                  // <1>
-			.mvcMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
-			.mvcMatchers("/admin/**").hasRole("ADMIN")                             // <3>
-			.mvcMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
+			.requestMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
+			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <3>
+			.requestMatchers("/db/**").access("hasRole('ADMIN') and hasRole('DBA')")   // <4>
 			.anyRequest().denyAll()                                                // <5>
 		);
 	return http.build();

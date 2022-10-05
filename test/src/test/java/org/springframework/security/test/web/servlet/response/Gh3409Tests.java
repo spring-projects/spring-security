@@ -99,7 +99,7 @@ public class Gh3409Tests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/public/**").permitAll()
+					.requestMatchers("/public/**").permitAll()
 					.anyRequest().authenticated()
 					.and()
 				.formLogin().and()

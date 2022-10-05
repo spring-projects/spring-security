@@ -127,7 +127,7 @@ public class SecurityMockMvcRequestPostProcessorsOpaqueTokenTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
+					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
 					.anyRequest().hasAuthority("SCOPE_read")
 					.and()
 				.oauth2ResourceServer()

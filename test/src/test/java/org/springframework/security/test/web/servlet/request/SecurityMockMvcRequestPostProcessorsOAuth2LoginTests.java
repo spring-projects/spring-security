@@ -153,7 +153,7 @@ public class SecurityMockMvcRequestPostProcessorsOAuth2LoginTests {
 			// @formatter:off
 			http
 				.authorizeRequests((authorize) -> authorize
-					.mvcMatchers("/admin/**").hasAuthority("SCOPE_admin")
+					.requestMatchers("/admin/**").hasAuthority("SCOPE_admin")
 					.anyRequest().hasAuthority("SCOPE_read")
 				).oauth2Login();
 			return http.build();

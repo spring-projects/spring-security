@@ -88,7 +88,7 @@ public class WithUserDetailsAuthenticationTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/admin/**").hasRole("ADMIN")
+					.requestMatchers("/admin/**").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.formLogin();

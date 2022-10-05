@@ -26,3 +26,5 @@ You can configure a different `RequestMatcher` by using the https://docs.spring.
 If the application uses `use-expressions="true"` or `access-decision-manager-ref` switch to `use-expressions="false"` or `authorization-manager-ref`, respectively.
 If application relies on the implicit `<intercept-url pattern="/**" access="permitAll"/>`, this is no longer implicit and needs to be specified.
 Or use `use-authorization-manager="false"`
+* https://github.com/spring-projects/spring-security/issues/11939[gh-11939] - Remove deprecated `antMatchers`, `mvcMatchers`, `regexMatchers` helper methods from Java Configuration.
+Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.

@@ -119,6 +119,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class IgnoringRequestInLambdaMatchers {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
@@ -149,7 +150,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			// @formatter:off
 			http
 				.csrf()
-					.ignoringAntMatchers("/no-csrf")
+					.ignoringRequestMatchers(new AntPathRequestMatcher("/no-csrf"))
 					.ignoringRequestMatchers(this.requestMatcher);
 			return http.build();
 			// @formatter:on
@@ -159,6 +160,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class IgnoringPathsAndMatchersInLambdaConfig {
 
 		RequestMatcher requestMatcher = (request) -> HttpMethod.POST.name().equals(request.getMethod());
@@ -169,7 +171,7 @@ public class CsrfConfigurerIgnoringRequestMatchersTests {
 			http
 				.csrf((csrf) ->
 					csrf
-						.ignoringAntMatchers("/no-csrf")
+						.ignoringRequestMatchers(new AntPathRequestMatcher("/no-csrf"))
 						.ignoringRequestMatchers(this.requestMatcher)
 				);
 			return http.build();

@@ -46,6 +46,7 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -55,6 +56,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.any;
@@ -615,7 +617,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			return http
 					.authorizeHttpRequests((requests) -> requests
 						.anyRequest().authenticated()
-						.mvcMatchers("/path").hasRole("USER")
+						.requestMatchers("/path").hasRole("USER")
 					)
 					.build();
 			// @formatter:on
@@ -847,11 +849,13 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	static class ServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
+					.servletPath("/spring");
 			// @formatter:off
 			return http
 					.authorizeHttpRequests((requests) -> requests
-						.mvcMatchers("/").servletPath("/spring").hasRole("ADMIN")
+						.requestMatchers(mvcMatcherBuilder.pattern("/")).hasRole("ADMIN")
 					)
 					.build();
 			// @formatter:on
@@ -940,7 +944,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 			http
 				.httpBasic(withDefaults())
 				.authorizeHttpRequests((requests) -> requests
-					.mvcMatchers("/user/{username}").access(new WebExpressionAuthorizationManager("#username == 'user'"))
+					.requestMatchers("/user/{username}").access(new WebExpressionAuthorizationManager("#username == 'user'"))
 				);
 			// @formatter:on
 			return http.build();

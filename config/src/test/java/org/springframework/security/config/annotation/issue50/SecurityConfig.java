@@ -32,6 +32,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.Assert;
 
 /**
@@ -51,7 +52,7 @@ public class SecurityConfig {
 		// @formatter:off
 		http
 			.authorizeRequests()
-				.antMatchers("/*").permitAll()
+				.requestMatchers(new AntPathRequestMatcher("/*")).permitAll()
 				.and()
 			.authenticationProvider(authenticationProvider());
 		// @formatter:on

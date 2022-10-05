@@ -70,16 +70,6 @@ public class AbstractRequestMatcherRegistryNoMvcTests {
 	private static class TestRequestMatcherRegistry extends AbstractRequestMatcherRegistry<List<RequestMatcher>> {
 
 		@Override
-		public List<RequestMatcher> mvcMatchers(String... mvcPatterns) {
-			return null;
-		}
-
-		@Override
-		public List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return null;
-		}
-
-		@Override
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
 		}

@@ -29,7 +29,7 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
  * <pre>
  * &#064;Bean
  * public WebSecurityCustomizer ignoringCustomizer() {
- * 	return (web) -&gt; web.ignoring().antMatchers("/ignore1", "/ignore2");
+ * 	return (web) -&gt; web.ignoring().requestMatchers("/ignore1", "/ignore2");
  * }
  * </pre>
  *

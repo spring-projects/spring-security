@@ -16,13 +16,13 @@
 
 package org.springframework.security.config.annotation.web
 
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configurers.CsrfConfigurer
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.security.web.csrf.CsrfTokenRepository
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler
 import org.springframework.security.web.util.matcher.RequestMatcher
-import jakarta.servlet.http.HttpServletRequest
 
 /**
  * A Kotlin DSL to configure [HttpSecurity] CSRF protection
@@ -42,22 +42,9 @@ class CsrfDsl {
     var sessionAuthenticationStrategy: SessionAuthenticationStrategy? = null
     var csrfTokenRequestHandler: CsrfTokenRequestHandler? = null
 
-    private var ignoringAntMatchers: Array<out String>? = null
     private var ignoringRequestMatchers: Array<out RequestMatcher>? = null
     private var ignoringRequestMatchersPatterns: Array<out String>? = null
     private var disabled = false
-
-    /**
-     * Allows specifying [HttpServletRequest]s that should not use CSRF Protection
-     * even if they match the [requireCsrfProtectionMatcher].
-     *
-     * @param antMatchers the ANT pattern matchers that should not use CSRF
-     * protection
-     */
-    @Deprecated("Use ignoringRequestMatchers instead")
-    fun ignoringAntMatchers(vararg antMatchers: String) {
-        ignoringAntMatchers = antMatchers
-    }
 
     /**
      * Allows specifying [HttpServletRequest]s that should not use CSRF Protection
@@ -93,7 +80,6 @@ class CsrfDsl {
             requireCsrfProtectionMatcher?.also { csrf.requireCsrfProtectionMatcher(requireCsrfProtectionMatcher) }
             sessionAuthenticationStrategy?.also { csrf.sessionAuthenticationStrategy(sessionAuthenticationStrategy) }
             csrfTokenRequestHandler?.also { csrf.csrfTokenRequestHandler(csrfTokenRequestHandler) }
-            ignoringAntMatchers?.also { csrf.ignoringAntMatchers(*ignoringAntMatchers!!) }
             ignoringRequestMatchers?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchers!!) }
             ignoringRequestMatchersPatterns?.also { csrf.ignoringRequestMatchers(*ignoringRequestMatchersPatterns!!) }
             if (disabled) {

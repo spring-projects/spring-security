@@ -32,7 +32,6 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.intercept.DefaultFilterInvocationSecurityMetadataSource;
 import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
@@ -51,8 +50,8 @@ import org.springframework.util.Assert;
  * <pre>
  * protected void configure(HttpSecurity http) throws Exception {
  * 	http.apply(new UrlAuthorizationConfigurer&lt;HttpSecurity&gt;()).getRegistry()
- * 			.antMatchers(&quot;/users**&quot;, &quot;/sessions/**&quot;).hasRole(&quot;USER&quot;)
- * 			.antMatchers(&quot;/signup&quot;).hasRole(&quot;ANONYMOUS&quot;).anyRequest().hasRole(&quot;USER&quot;);
+ * 			.requestMatchers(&quot;/users**&quot;, &quot;/sessions/**&quot;).hasRole(&quot;USER&quot;)
+ * 			.requestMatchers(&quot;/signup&quot;).hasRole(&quot;ANONYMOUS&quot;).anyRequest().hasRole(&quot;USER&quot;);
  * }
  * </pre>
  *
@@ -202,22 +201,24 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 			setApplicationContext(context);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
 		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
+		public AuthorizedUrl requestMatchers(String... patterns) {
+			return super.requestMatchers(patterns);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
 		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
+		public AuthorizedUrl requestMatchers(HttpMethod method, String... patterns) {
+			return super.requestMatchers(method, patterns);
+		}
+
+		@Override
+		public AuthorizedUrl requestMatchers(HttpMethod method) {
+			return super.requestMatchers(method);
+		}
+
+		@Override
+		public AuthorizedUrl requestMatchers(RequestMatcher... requestMatchers) {
+			return super.requestMatchers(requestMatchers);
 		}
 
 		@Override
@@ -238,32 +239,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 
 		public H and() {
 			return UrlAuthorizationConfigurer.this.and();
-		}
-
-	}
-
-	/**
-	 * An {@link AuthorizedUrl} that allows optionally configuring the
-	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
-	 *
-	 * @author Rob Winch
-	 */
-	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
-
-		/**
-		 * Creates a new instance
-		 * @param requestMatchers the {@link RequestMatcher} instances to map
-		 */
-		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> requestMatchers) {
-			super(requestMatchers);
-		}
-
-		@SuppressWarnings("unchecked")
-		public AuthorizedUrl servletPath(String servletPath) {
-			for (MvcRequestMatcher matcher : (List<MvcRequestMatcher>) getMatchers()) {
-				matcher.setServletPath(servletPath);
-			}
-			return this;
 		}
 
 	}

@@ -256,36 +256,6 @@ class CsrfDslTests {
     }
 
     @Test
-    fun `CSRF when ignoring ant matchers then CSRF disabled on matching requests`() {
-        this.spring.register(IgnoringAntMatchersConfig::class.java, BasicController::class.java).autowire()
-
-        this.mockMvc.post("/test1")
-                .andExpect {
-                    status { isForbidden() }
-                }
-
-        this.mockMvc.post("/test2")
-                .andExpect {
-                    status { isOk() }
-                }
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    open class IgnoringAntMatchersConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                csrf {
-                    requireCsrfProtectionMatcher = AntPathRequestMatcher("/**")
-                    ignoringAntMatchers("/test2")
-                }
-            }
-            return http.build()
-        }
-    }
-
-    @Test
     fun `CSRF when ignoring request matchers pattern then CSRF disabled on matching requests`() {
         this.spring.register(IgnoringRequestMatchersPatternConfig::class.java, BasicController::class.java).autowire()
 

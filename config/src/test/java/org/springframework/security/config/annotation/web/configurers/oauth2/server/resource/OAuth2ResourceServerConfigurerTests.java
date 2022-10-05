@@ -147,6 +147,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.context.support.GenericWebApplicationContext;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -1494,6 +1495,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class DefaultConfig {
 
 		@Bean
@@ -1501,7 +1503,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+					.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
@@ -1514,6 +1516,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class DefaultInLambdaConfig {
 
 		@Bean
@@ -1522,7 +1525,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+						.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 						.anyRequest().authenticated()
 				)
 				.oauth2ResourceServer((oauth2ResourceServer) ->
@@ -1537,6 +1540,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class JwkSetUriConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
@@ -1547,7 +1551,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+					.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
@@ -1561,6 +1565,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class JwkSetUriInLambdaConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
@@ -1572,7 +1577,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+						.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 						.anyRequest().authenticated()
 				)
 				.oauth2ResourceServer((oauth2ResourceServer) ->
@@ -1590,6 +1595,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class CsrfDisabledConfig {
 
 		@Value("${mockwebserver.url:https://example.org}")
@@ -1600,7 +1606,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
+					.requestMatchers("/requires-read-scope").access("hasAuthority('SCOPE_message:read')")
 					.anyRequest().authenticated()
 					.and()
 				.csrf().disable()
@@ -1787,6 +1793,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class CustomAuthorityMappingConfig {
 
 		@Bean
@@ -1794,7 +1801,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/requires-read-scope").access("hasAuthority('message:read')")
+					.requestMatchers("/requires-read-scope").access("hasAuthority('message:read')")
 					.and()
 				.oauth2ResourceServer()
 					.jwt()
@@ -2326,6 +2333,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class OpaqueTokenConfig {
 
 		@Bean
@@ -2333,7 +2341,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
+					.requestMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
 					.anyRequest().authenticated()
 					.and()
 				.oauth2ResourceServer()
@@ -2346,6 +2354,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class OpaqueTokenInLambdaConfig {
 
 		@Bean
@@ -2354,7 +2363,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.antMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
+						.requestMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
 						.anyRequest().authenticated()
 				)
 				.oauth2ResourceServer((oauth2ResourceServer) ->
@@ -2540,6 +2549,7 @@ public class OAuth2ResourceServerConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class OpaqueTokenAuthenticationConverterConfig {
 
 		@Bean
@@ -2547,7 +2557,7 @@ public class OAuth2ResourceServerConfigurerTests {
 			// @formatter:off
 			http
 					.authorizeRequests()
-					.antMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
+					.requestMatchers("/requires-read-scope").hasAuthority("SCOPE_message:read")
 					.anyRequest().authenticated()
 					.and()
 					.oauth2ResourceServer()

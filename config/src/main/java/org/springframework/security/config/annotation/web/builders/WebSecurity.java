@@ -29,7 +29,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.SecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -58,7 +57,6 @@ import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
@@ -376,32 +374,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	}
 
 	/**
-	 * An {@link IgnoredRequestConfigurer} that allows optionally configuring the
-	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
-	 *
-	 * @author Rob Winch
-	 * @deprecated use {@link MvcRequestMatcher.Builder} instead
-	 */
-	@Deprecated
-	public final class MvcMatchersIgnoredRequestConfigurer extends IgnoredRequestConfigurer {
-
-		private final List<MvcRequestMatcher> mvcMatchers;
-
-		private MvcMatchersIgnoredRequestConfigurer(ApplicationContext context, List<MvcRequestMatcher> mvcMatchers) {
-			super(context);
-			this.mvcMatchers = mvcMatchers;
-		}
-
-		public IgnoredRequestConfigurer servletPath(String servletPath) {
-			for (MvcRequestMatcher matcher : this.mvcMatchers) {
-				matcher.setServletPath(servletPath);
-			}
-			return this;
-		}
-
-	}
-
-	/**
 	 * Allows registering {@link RequestMatcher} instances that should be ignored by
 	 * Spring Security.
 	 *
@@ -412,26 +384,6 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 
 		IgnoredRequestConfigurer(ApplicationContext context) {
 			setApplicationContext(context);
-		}
-
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			List<MvcRequestMatcher> mvcMatchers = createMvcMatchers(method, mvcPatterns);
-			WebSecurity.this.ignoredRequests.addAll(mvcMatchers);
-			return new MvcMatchersIgnoredRequestConfigurer(getApplicationContext(), mvcMatchers);
-		}
-
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
-		@Override
-		@Deprecated
-		public MvcMatchersIgnoredRequestConfigurer mvcMatchers(String... mvcPatterns) {
-			return mvcMatchers(null, mvcPatterns);
 		}
 
 		@Override

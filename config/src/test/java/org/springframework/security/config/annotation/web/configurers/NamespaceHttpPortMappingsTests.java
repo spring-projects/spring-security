@@ -31,6 +31,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -62,6 +63,7 @@ public class NamespaceHttpPortMappingsTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class HttpInterceptUrlWithPortMapperConfig {
 
 		@Bean
@@ -75,7 +77,7 @@ public class NamespaceHttpPortMappingsTests {
 					.http(9080).mapsTo(9443)
 					.and()
 				.requiresChannel()
-					.antMatchers("/login", "/secured/**").requiresSecure()
+					.requestMatchers("/login", "/secured/**").requiresSecure()
 					.anyRequest().requiresInsecure();
 			// @formatter:on
 			return http.build();

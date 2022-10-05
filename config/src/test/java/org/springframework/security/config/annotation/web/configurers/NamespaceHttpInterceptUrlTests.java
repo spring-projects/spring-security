@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -110,25 +111,26 @@ public class NamespaceHttpInterceptUrlTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class HttpInterceptUrlConfig {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.authorizeRequests().antMatchers(
+				.authorizeRequests().requestMatchers(
 					// the line below is similar to intercept-url@pattern:
 					//    <intercept-url pattern="/users**" access="hasRole('ROLE_ADMIN')"/>
 					//" access="hasRole('ROLE_ADMIN')"/>
-"/users**", "/sessions/**").hasRole("ADMIN").antMatchers(
+"/users**", "/sessions/**").hasRole("ADMIN").requestMatchers(
 					// the line below is similar to intercept-url@method:
 					//    <intercept-url pattern="/admin/post" access="hasRole('ROLE_ADMIN')" method="POST"/>
 					//" access="hasRole('ROLE_ADMIN')" method="POST"/>
 HttpMethod.POST, "/admin/post", "/admin/another-post/**").hasRole("ADMIN")
-					.antMatchers("/signup").permitAll()
+					.requestMatchers("/signup").permitAll()
 					.anyRequest().hasRole("USER")
 					.and()
-				.requiresChannel().antMatchers("/login", "/secured/**")
+				.requiresChannel().requestMatchers("/login", "/secured/**")
 					// NOTE: channel security is configured separately of authorization (i.e. intercept-url@access
 					// the line below is similar to intercept-url@requires-channel="https":
 					//    <intercept-url pattern="/login" requires-channel="https"/>

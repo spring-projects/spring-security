@@ -38,6 +38,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -91,6 +92,7 @@ public class NamespaceHttpAnonymousTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AnonymousConfig {
 
 		@Bean
@@ -98,7 +100,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/type").anonymous()
+					.requestMatchers("/type").anonymous()
 					.anyRequest().denyAll();
 			return http.build();
 			// @formatter:on
@@ -131,6 +133,7 @@ public class NamespaceHttpAnonymousTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AnonymousGrantedAuthorityConfig {
 
 		@Bean
@@ -138,7 +141,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/type").hasRole("ANON")
+					.requestMatchers("/type").hasRole("ANON")
 					.anyRequest().denyAll()
 					.and()
 				.anonymous()
@@ -151,6 +154,7 @@ public class NamespaceHttpAnonymousTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AnonymousKeyConfig {
 
 		@Bean
@@ -158,7 +162,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/key").anonymous()
+					.requestMatchers("/key").anonymous()
 					.anyRequest().denyAll()
 					.and()
 				.anonymous().key("AnonymousKeyConfig");
@@ -170,6 +174,7 @@ public class NamespaceHttpAnonymousTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AnonymousUsernameConfig {
 
 		@Bean
@@ -177,7 +182,7 @@ public class NamespaceHttpAnonymousTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/principal").anonymous()
+					.requestMatchers("/principal").anonymous()
 					.anyRequest().denyAll()
 					.and()
 				.anonymous().principal("AnonymousUsernameConfig");

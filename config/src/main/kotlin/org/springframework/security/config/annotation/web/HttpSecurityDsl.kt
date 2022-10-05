@@ -137,18 +137,8 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * configuration should be invoked.
      */
     fun securityMatcher(vararg pattern: String) {
-        val mvcPresent = ClassUtils.isPresent(
-                HANDLER_MAPPING_INTROSPECTOR,
-                AuthorizeRequestsDsl::class.java.classLoader) ||
-                ClassUtils.isPresent(
-                    HANDLER_MAPPING_INTROSPECTOR,
-                    AuthorizeHttpRequestsDsl::class.java.classLoader)
-        this.http.requestMatchers {
-            if (mvcPresent) {
-                it.mvcMatchers(*pattern)
-            } else {
-                it.antMatchers(*pattern)
-            }
+        this.http.securityMatchers {
+            it.requestMatchers(*pattern)
         }
     }
 
@@ -180,7 +170,7 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
      * this configuration should be invoked.
      */
     fun securityMatcher(vararg requestMatcher: RequestMatcher) {
-        this.http.requestMatchers {
+        this.http.securityMatchers {
             it.requestMatchers(*requestMatcher)
         }
     }

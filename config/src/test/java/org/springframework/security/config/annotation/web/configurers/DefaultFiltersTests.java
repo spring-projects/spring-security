@@ -57,6 +57,7 @@ import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -163,11 +164,12 @@ public class DefaultFiltersTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class FilterChainProxyBuilderIgnoringConfig {
 
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.ignoring().antMatchers("/resources/**");
+			return (web) -> web.ignoring().requestMatchers("/resources/**");
 		}
 
 		@Bean

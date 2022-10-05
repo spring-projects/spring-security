@@ -22,6 +22,7 @@ import org.springframework.security.config.annotation.SecurityConfigurerAdapter;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.web.DefaultSecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 /**
  * @author Rob Winch
@@ -43,7 +44,7 @@ public class CustomConfigurer extends SecurityConfigurerAdapter<DefaultSecurityF
 		// @formatter:off
 		http
 			.authorizeRequests()
-				.antMatchers(this.permitAllPattern).permitAll()
+				.requestMatchers(new AntPathRequestMatcher(this.permitAllPattern)).permitAll()
 				.anyRequest().authenticated();
 		// @formatter:on
 		if (http.getConfigurer(FormLoginConfigurer.class) == null) {

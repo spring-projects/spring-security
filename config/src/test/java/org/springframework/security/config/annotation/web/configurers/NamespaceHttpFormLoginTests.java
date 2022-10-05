@@ -37,6 +37,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationFa
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.spy;
@@ -111,11 +112,12 @@ public class NamespaceHttpFormLoginTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class FormLoginConfig {
 
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.ignoring().antMatchers("/resources/**");
+			return (web) -> web.ignoring().requestMatchers("/resources/**");
 		}
 
 		@Bean

@@ -90,90 +90,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	}
 
 	/**
-	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
-	 * instances.
-	 * @param method the {@link HttpMethod} to use for any {@link HttpMethod}.
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @deprecated use {@link #requestMatchers(HttpMethod)} instead
-	 */
-	@Deprecated
-	public C antMatchers(HttpMethod method) {
-		return antMatchers(method, "/**");
-	}
-
-	/**
-	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
-	 * instances.
-	 * @param method the {@link HttpMethod} to use or {@code null} for any
-	 * {@link HttpMethod}.
-	 * @param antPatterns the ant patterns to create. If {@code null} or empty, then
-	 * matches on nothing.
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-	 */
-	@Deprecated
-	public C antMatchers(HttpMethod method, String... antPatterns) {
-		Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
-		return chainRequestMatchers(RequestMatchers.antMatchers(method, antPatterns));
-	}
-
-	/**
-	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher}
-	 * instances that do not care which {@link HttpMethod} is used.
-	 * @param antPatterns the ant patterns to create
-	 * {@link org.springframework.security.web.util.matcher.AntPathRequestMatcher} from
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @deprecated use {@link #requestMatchers(String...)} instead
-	 */
-	@Deprecated
-	public C antMatchers(String... antPatterns) {
-		Assert.state(!this.anyRequestConfigured, "Can't configure antMatchers after anyRequest");
-		return chainRequestMatchers(RequestMatchers.antMatchers(antPatterns));
-	}
-
-	/**
-	 * <p>
-	 * Maps an {@link MvcRequestMatcher} that does not care which {@link HttpMethod} is
-	 * used. This matcher will use the same rules that Spring MVC uses for matching. For
-	 * example, often times a mapping of the path "/path" will match on "/path", "/path/",
-	 * "/path.html", etc.
-	 * </p>
-	 * <p>
-	 * If the current request will not be processed by Spring MVC, a reasonable default
-	 * using the pattern as a ant pattern will be used.
-	 * </p>
-	 * @param mvcPatterns the patterns to match on. The rules for matching are defined by
-	 * Spring MVC
-	 * @return the object that is chained after creating the {@link RequestMatcher}.
-	 * @deprecated use {@link #requestMatchers(String...)} instead
-	 */
-	@Deprecated
-	public abstract C mvcMatchers(String... mvcPatterns);
-
-	/**
-	 * <p>
-	 * Maps an {@link MvcRequestMatcher} that also specifies a specific {@link HttpMethod}
-	 * to match on. This matcher will use the same rules that Spring MVC uses for
-	 * matching. For example, often times a mapping of the path "/path" will match on
-	 * "/path", "/path/", "/path.html", etc.
-	 * </p>
-	 * <p>
-	 * If the current request will not be processed by Spring MVC, a reasonable default
-	 * using the pattern as a ant pattern will be used.
-	 * </p>
-	 * @param method the HTTP method to match on
-	 * @param mvcPatterns the patterns to match on. The rules for matching are defined by
-	 * Spring MVC
-	 * @return the object that is chained after creating the {@link RequestMatcher}.
-	 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-	 */
-	@Deprecated
-	public abstract C mvcMatchers(HttpMethod method, String... mvcPatterns);
-
-	/**
 	 * Creates {@link MvcRequestMatcher} instances for the method and patterns passed in
 	 * @param method the HTTP method to use or null if any should be used
 	 * @param mvcPatterns the Spring MVC patterns to match on
@@ -199,40 +115,6 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 			matchers.add(matcher);
 		}
 		return matchers;
-	}
-
-	/**
-	 * Maps a {@link List} of
-	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher}
-	 * instances.
-	 * @param method the {@link HttpMethod} to use or {@code null} for any
-	 * {@link HttpMethod}.
-	 * @param regexPatterns the regular expressions to create
-	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @deprecated use {@link #requestMatchers(RequestMatcher...)} with a
-	 * {@link RegexRequestMatcher} instead
-	 */
-	@Deprecated
-	public C regexMatchers(HttpMethod method, String... regexPatterns) {
-		Assert.state(!this.anyRequestConfigured, "Can't configure regexMatchers after anyRequest");
-		return chainRequestMatchers(RequestMatchers.regexMatchers(method, regexPatterns));
-	}
-
-	/**
-	 * Create a {@link List} of
-	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} instances
-	 * that do not specify an {@link HttpMethod}.
-	 * @param regexPatterns the regular expressions to create
-	 * {@link org.springframework.security.web.util.matcher.RegexRequestMatcher} from
-	 * @return the object that is chained after creating the {@link RequestMatcher}
-	 * @deprecated use {@link #requestMatchers(RequestMatcher...)} with a
-	 * {@link RegexRequestMatcher} instead
-	 */
-	@Deprecated
-	public C regexMatchers(String... regexPatterns) {
-		Assert.state(!this.anyRequestConfigured, "Can't configure regexMatchers after anyRequest");
-		return chainRequestMatchers(RequestMatchers.regexMatchers(regexPatterns));
 	}
 
 	/**

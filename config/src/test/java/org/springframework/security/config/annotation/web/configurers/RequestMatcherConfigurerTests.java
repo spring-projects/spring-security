@@ -27,6 +27,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -77,11 +78,11 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers()
-					.antMatchers("/api/**")
+				.securityMatchers()
+					.requestMatchers(new AntPathRequestMatcher("/api/**"))
 					.and()
-				.requestMatchers()
-					.antMatchers("/oauth/**")
+				.securityMatchers()
+					.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
 					.and()
 				.authorizeRequests()
 					.anyRequest().denyAll();
@@ -99,13 +100,13 @@ public class RequestMatcherConfigurerTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatchers((requestMatchers) ->
-					requestMatchers
-						.antMatchers("/api/**")
+				.securityMatchers((matchers) ->
+					matchers
+						.requestMatchers(new AntPathRequestMatcher("/api/**"))
 				)
-				.requestMatchers((requestMatchers) ->
-					requestMatchers
-						.antMatchers("/oauth/**")
+				.securityMatchers((matchers) ->
+					matchers
+						.requestMatchers(new AntPathRequestMatcher("/oauth/**"))
 				)
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests

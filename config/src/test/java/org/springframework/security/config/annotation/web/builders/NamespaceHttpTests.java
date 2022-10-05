@@ -62,6 +62,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -302,6 +303,7 @@ public class NamespaceHttpTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AccessDeniedPageConfig {
 
 		@Bean
@@ -309,7 +311,7 @@ public class NamespaceHttpTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/admin").hasRole("ADMIN")
+					.requestMatchers("/admin").hasRole("ADMIN")
 					.anyRequest().authenticated()
 					.and()
 				.exceptionHandling()
@@ -385,6 +387,7 @@ public class NamespaceHttpTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class IfRequiredConfig {
 
 		@Bean
@@ -392,7 +395,7 @@ public class NamespaceHttpTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/unsecure").permitAll()
+					.requestMatchers("/unsecure").permitAll()
 					.anyRequest().authenticated()
 					.and()
 				.sessionManagement()
@@ -487,7 +490,7 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.antMatcher("/api/**");
+				.securityMatcher(new AntPathRequestMatcher("/api/**"));
 			return http.build();
 			// @formatter:on
 		}
@@ -502,7 +505,7 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.regexMatcher("/regex/.*");
+				.securityMatcher(new RegexRequestMatcher("/regex/.*", null));
 			return http.build();
 			// @formatter:on
 		}
@@ -517,7 +520,7 @@ public class NamespaceHttpTests {
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.requestMatcher(new MyRequestMatcher());
+				.securityMatcher(new MyRequestMatcher());
 			return http.build();
 			// @formatter:on
 		}
@@ -539,7 +542,8 @@ public class NamespaceHttpTests {
 
 		@Bean
 		WebSecurityCustomizer webSecurityCustomizer() {
-			return (web) -> web.ignoring().antMatchers("/resources/**", "/public/**");
+			return (web) -> web.ignoring().requestMatchers(new AntPathRequestMatcher("/resources/**"),
+					new AntPathRequestMatcher("/public/**"));
 		}
 
 		@Bean
@@ -625,6 +629,7 @@ public class NamespaceHttpTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class UseExpressionsConfig {
 
 		private Class<? extends FilterInvocationSecurityMetadataSource> filterInvocationSecurityMetadataSourceType;
@@ -636,8 +641,8 @@ public class NamespaceHttpTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/users**", "/sessions/**").hasRole("USER")
-					.antMatchers("/signup").permitAll()
+					.requestMatchers("/users**", "/sessions/**").hasRole("USER")
+					.requestMatchers("/signup").permitAll()
 					.anyRequest().hasRole("USER");
 			this.httpSecurity = http;
 			return http.build();
@@ -659,6 +664,7 @@ public class NamespaceHttpTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class DisableUseExpressionsConfig {
 
 		private Class<? extends FilterInvocationSecurityMetadataSource> filterInvocationSecurityMetadataSourceType;
@@ -670,8 +676,8 @@ public class NamespaceHttpTests {
 			// @formatter:off
 			http
 				.apply(new UrlAuthorizationConfigurer<>(context)).getRegistry()
-					.antMatchers("/users**", "/sessions/**").hasRole("USER")
-					.antMatchers("/signup").hasRole("ANONYMOUS")
+					.requestMatchers("/users**", "/sessions/**").hasRole("USER")
+					.requestMatchers("/signup").hasRole("ANONYMOUS")
 					.anyRequest().hasRole("USER");
 			this.httpSecurity = http;
 			return http.build();

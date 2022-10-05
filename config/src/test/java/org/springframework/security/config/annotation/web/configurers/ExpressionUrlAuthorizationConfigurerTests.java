@@ -63,6 +63,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -611,6 +612,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class IncompleteMappingConfig {
 
 		@Bean
@@ -618,7 +620,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/a").authenticated()
+					.requestMatchers("/a").authenticated()
 					.anyRequest();
 			return http.build();
 			// @formatter:on
@@ -965,6 +967,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class AllPropertiesWorkConfig {
 
 		@Bean
@@ -978,7 +981,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 					.expressionHandler(handler)
 					.accessDecisionManager(adm)
 					.filterSecurityInterceptorOncePerRequest(true)
-					.antMatchers("/a", "/b").hasRole("ADMIN")
+					.requestMatchers("/a", "/b").hasRole("ADMIN")
 					.anyRequest().permitAll()
 					.and()
 				.formLogin();
@@ -1034,6 +1037,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class UseBeansInExpressions {
 
 		@Bean
@@ -1041,9 +1045,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/admin").hasRole("ADMIN")
-					.antMatchers("/user").hasRole("USER")
-					.antMatchers("/allow").access("@permission.check(authentication,'user')")
+					.requestMatchers("/admin").hasRole("ADMIN")
+					.requestMatchers("/user").hasRole("USER")
+					.requestMatchers("/allow").access("@permission.check(authentication,'user')")
 					.anyRequest().access("@permission.check(authentication,'admin')");
 			return http.build();
 			// @formatter:on
@@ -1066,6 +1070,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class CustomExpressionRootConfig {
 
 		@Bean
@@ -1074,9 +1079,9 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			http
 				.authorizeRequests()
 					.expressionHandler(expressionHandler())
-					.antMatchers("/admin").hasRole("ADMIN")
-					.antMatchers("/user").hasRole("USER")
-					.antMatchers("/allow").access("check('user')")
+					.requestMatchers("/admin").hasRole("ADMIN")
+					.requestMatchers("/user").hasRole("USER")
+					.requestMatchers("/allow").access("check('user')")
 					.anyRequest().access("check('admin')");
 			return http.build();
 			// @formatter:on
@@ -1146,6 +1151,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class PermissionEvaluatorConfig {
 
 		@Bean
@@ -1153,10 +1159,10 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/allow").access("hasPermission('ID', 'TYPE', 'PERMISSION')")
-					.antMatchers("/allowObject").access("hasPermission('TESTOBJ', 'PERMISSION')")
-					.antMatchers("/deny").access("hasPermission('ID', 'TYPE', 'NO PERMISSION')")
-					.antMatchers("/denyObject").access("hasPermission('TESTOBJ', 'NO PERMISSION')")
+					.requestMatchers("/allow").access("hasPermission('ID', 'TYPE', 'PERMISSION')")
+					.requestMatchers("/allowObject").access("hasPermission('TESTOBJ', 'PERMISSION')")
+					.requestMatchers("/deny").access("hasPermission('ID', 'TYPE', 'NO PERMISSION')")
+					.requestMatchers("/denyObject").access("hasPermission('TESTOBJ', 'NO PERMISSION')")
 					.anyRequest().permitAll();
 			return http.build();
 			// @formatter:on
@@ -1183,6 +1189,7 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class RoleHierarchyConfig {
 
 		@Bean
@@ -1190,8 +1197,8 @@ public class ExpressionUrlAuthorizationConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/allow").access("hasRole('MEMBER')")
-					.antMatchers("/deny").access("hasRole('ADMIN')")
+					.requestMatchers("/allow").access("hasRole('MEMBER')")
+					.requestMatchers("/deny").access("hasRole('ADMIN')")
 					.anyRequest().permitAll();
 			return http.build();
 			// @formatter:on

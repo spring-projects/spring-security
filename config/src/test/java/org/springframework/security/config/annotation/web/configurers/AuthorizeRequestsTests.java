@@ -42,6 +42,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,6 +50,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
@@ -289,7 +291,7 @@ public class AuthorizeRequestsTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers(HttpMethod.POST).denyAll();
+					.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll();
 			// @formatter:on
 			return http.build();
 		}
@@ -311,7 +313,7 @@ public class AuthorizeRequestsTests {
 			http
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.antMatchers(HttpMethod.POST).denyAll()
+						.requestMatchers(new AntPathRequestMatcher("/**", HttpMethod.POST.name())).denyAll()
 				);
 			// @formatter:on
 			return http.build();
@@ -407,7 +409,7 @@ public class AuthorizeRequestsTests {
 			http
 				.httpBasic().and()
 				.authorizeRequests()
-					.mvcMatchers("/path").denyAll();
+					.requestMatchers("/path").denyAll();
 			// @formatter:on
 			return http.build();
 		}
@@ -441,7 +443,7 @@ public class AuthorizeRequestsTests {
 				.httpBasic(withDefaults())
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.mvcMatchers("/path").denyAll()
+						.requestMatchers("/path").denyAll()
 				);
 			// @formatter:on
 			return http.build();
@@ -470,12 +472,14 @@ public class AuthorizeRequestsTests {
 	static class MvcMatcherServletPathConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
+					.servletPath("/spring");
 			// @formatter:off
 			http
 				.httpBasic().and()
 				.authorizeRequests()
-					.mvcMatchers("/path").servletPath("/spring").denyAll();
+					.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll();
 			// @formatter:on
 			return http.build();
 		}
@@ -503,13 +507,15 @@ public class AuthorizeRequestsTests {
 	static class MvcMatcherServletPathInLambdaConfig {
 
 		@Bean
-		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		SecurityFilterChain filterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+			MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector)
+					.servletPath("/spring");
 			// @formatter:off
 			http
 				.httpBasic(withDefaults())
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.mvcMatchers("/path").servletPath("/spring").denyAll()
+						.requestMatchers(mvcMatcherBuilder.pattern("/path")).denyAll()
 				);
 			// @formatter:on
 			return http.build();
@@ -543,7 +549,7 @@ public class AuthorizeRequestsTests {
 			http
 				.httpBasic().and()
 				.authorizeRequests()
-					.mvcMatchers("/user/{userName}").access("#userName == 'user'");
+					.requestMatchers("/user/{userName}").access("#userName == 'user'");
 			// @formatter:on
 			return http.build();
 		}
@@ -577,7 +583,7 @@ public class AuthorizeRequestsTests {
 				.httpBasic(withDefaults())
 				.authorizeRequests((authorizeRequests) ->
 					authorizeRequests
-						.mvcMatchers("/user/{userName}").access("#userName == 'user'")
+						.requestMatchers("/user/{userName}").access("#userName == 'user'")
 				);
 			// @formatter:on
 			return http.build();
@@ -611,7 +617,7 @@ public class AuthorizeRequestsTests {
 			http
 				.httpBasic().and()
 				.authorizeRequests()
-					.mvcMatchers("/user").denyAll();
+					.requestMatchers("/user").denyAll();
 			// @formatter:on
 			return http.build();
 		}

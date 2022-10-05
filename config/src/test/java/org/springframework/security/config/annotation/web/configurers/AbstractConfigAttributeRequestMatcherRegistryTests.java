@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.http.HttpMethod;
-import org.springframework.security.access.AccessDecisionVoter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -40,7 +39,8 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
 	@Test
 	public void testGetRequestMatcherIsTypeRegexMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry.regexMatchers(HttpMethod.GET, "/a.*");
+		List<RequestMatcher> requestMatchers = this.registry
+				.requestMatchers(new RegexRequestMatcher("/a.*", HttpMethod.GET.name()));
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(RegexRequestMatcher.class);
 		}
@@ -48,7 +48,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
 	@Test
 	public void testRequestMatcherIsTypeRegexMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry.regexMatchers("/a.*");
+		List<RequestMatcher> requestMatchers = this.registry.requestMatchers(new RegexRequestMatcher("/a.*", null));
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(RegexRequestMatcher.class);
 		}
@@ -56,7 +56,8 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
 	@Test
 	public void testGetRequestMatcherIsTypeAntPathRequestMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry.antMatchers(HttpMethod.GET, "/a.*");
+		List<RequestMatcher> requestMatchers = this.registry
+				.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
 		}
@@ -64,7 +65,7 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 
 	@Test
 	public void testRequestMatcherIsTypeAntPathRequestMatcher() {
-		List<RequestMatcher> requestMatchers = this.registry.antMatchers("/a.*");
+		List<RequestMatcher> requestMatchers = this.registry.requestMatchers(new AntPathRequestMatcher("/a.*"));
 		for (RequestMatcher requestMatcher : requestMatchers) {
 			assertThat(requestMatcher).isInstanceOf(AntPathRequestMatcher.class);
 		}
@@ -73,23 +74,9 @@ public class AbstractConfigAttributeRequestMatcherRegistryTests {
 	static class ConcreteAbstractRequestMatcherMappingConfigurer
 			extends AbstractConfigAttributeRequestMatcherRegistry<List<RequestMatcher>> {
 
-		List<AccessDecisionVoter> decisionVoters() {
-			return null;
-		}
-
 		@Override
 		protected List<RequestMatcher> chainRequestMatchersInternal(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
-		}
-
-		@Override
-		public List<RequestMatcher> mvcMatchers(String... mvcPatterns) {
-			return null;
-		}
-
-		@Override
-		public List<RequestMatcher> mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return null;
 		}
 
 	}

@@ -38,6 +38,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -133,6 +134,7 @@ public class UrlAuthorizationsTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class RoleConfig {
 
 		@Bean
@@ -140,12 +142,12 @@ public class UrlAuthorizationsTests {
 			// @formatter:off
 			http
 				.authorizeRequests()
-					.antMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
-					.antMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
-					.antMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-					.antMatchers("/role-user").hasAnyRole("USER")
-					.antMatchers("/role-admin").hasAnyRole("ADMIN")
-					.antMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
+					.requestMatchers("/role-user-authority").hasAnyAuthority("ROLE_USER")
+					.requestMatchers("/role-admin-authority").hasAnyAuthority("ROLE_ADMIN")
+					.requestMatchers("/role-user-admin-authority").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+					.requestMatchers("/role-user").hasAnyRole("USER")
+					.requestMatchers("/role-admin").hasAnyRole("ADMIN")
+					.requestMatchers("/role-user-admin").hasAnyRole("USER", "ADMIN");
 			return http.build();
 			// @formatter:on
 		}
@@ -154,6 +156,7 @@ public class UrlAuthorizationsTests {
 
 	@Configuration
 	@EnableWebSecurity
+	@EnableWebMvc
 	static class NoSpecificAccessDecisionManagerConfig {
 
 		@Bean
@@ -162,7 +165,7 @@ public class UrlAuthorizationsTests {
 					.apply(new UrlAuthorizationConfigurer(context)).getRegistry();
 			// @formatter:off
 			registry
-					.antMatchers("/a").hasRole("ADMIN")
+					.requestMatchers("/a").hasRole("ADMIN")
 					.anyRequest().hasRole("USER");
 			return http.build();
 			// @formatter:on
