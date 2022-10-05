@@ -20,8 +20,8 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.security.crypto.codec.Utf8;
 import org.springframework.util.Assert;
