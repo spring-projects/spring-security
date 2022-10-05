@@ -3377,12 +3377,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
 	 * only a single {@link RequestMatcher} is necessary consider using
-	 * {@link #securityMatcher(String)}, or {@link #securityMatcher(RequestMatcher)}.
+	 * {@link #securityMatcher(String...)}, or {@link #securityMatcher(RequestMatcher)}.
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatchers()} will not override previous invocations of
 	 * {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
-	 * {@link #securityMatcher(String)} and {@link #securityMatcher(RequestMatcher)}
+	 * {@link #securityMatcher(String...)} and {@link #securityMatcher(RequestMatcher)}
 	 * </p>
 	 *
 	 * <h3>Example Configurations</h3>
@@ -3498,12 +3498,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link HttpSecurity} will be invoked on. This method allows for easily invoking the
 	 * {@link HttpSecurity} for multiple different {@link RequestMatcher} instances. If
 	 * only a single {@link RequestMatcher} is necessary consider using
-	 * {@link #securityMatcher(String)}, or {@link #securityMatcher(RequestMatcher)}.
+	 * {@link #securityMatcher(String...)}, or {@link #securityMatcher(RequestMatcher)}.
 	 *
 	 * <p>
 	 * Invoking {@link #securityMatchers(Customizer)} will not override previous
 	 * invocations of {@link #securityMatchers()}}, {@link #securityMatchers(Customizer)}
-	 * {@link #securityMatcher(String)} and {@link #securityMatcher(RequestMatcher)}
+	 * {@link #securityMatcher(String...)} and {@link #securityMatcher(RequestMatcher)}
 	 * </p>
 	 *
 	 * <h3>Example Configurations</h3>
@@ -3627,12 +3627,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * invocations of {@link #requestMatchers()}, {@link #mvcMatcher(String)},
 	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)},
 	 * {@link #requestMatcher(RequestMatcher)}, {@link #securityMatchers(Customizer)},
-	 * {@link #securityMatchers()} and {@link #securityMatcher(String)}
+	 * {@link #securityMatchers()} and {@link #securityMatcher(String...)}
 	 * </p>
 	 * @param requestMatcher the {@link RequestMatcher} to use (i.e. new
 	 * AntPathRequestMatcher("/admin/**","GET") )
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @see #securityMatcher(String)
+	 * @see #securityMatcher(String...)
 	 */
 	public HttpSecurity securityMatcher(RequestMatcher requestMatcher) {
 		this.requestMatcher = requestMatcher;
@@ -3647,21 +3647,35 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link #securityMatchers(Customizer)} or {@link #securityMatcher(RequestMatcher)}.
 	 *
 	 * <p>
-	 * Invoking {@link #securityMatcher(String)} will override previous invocations of
+	 * Invoking {@link #securityMatcher(String...)} will override previous invocations of
 	 * {@link #mvcMatcher(String)}}, {@link #requestMatchers()},
 	 * {@link #antMatcher(String)}, {@link #regexMatcher(String)}, and
 	 * {@link #requestMatcher(RequestMatcher)}.
 	 * </p>
-	 * @param pattern the pattern to match on (i.e. "/admin/**")
+	 * @param patterns the pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @see AntPathRequestMatcher
 	 * @see MvcRequestMatcher
 	 */
-	public HttpSecurity securityMatcher(String pattern) {
-		if (!mvcPresent) {
-			this.requestMatcher = new AntPathRequestMatcher(pattern);
+	public HttpSecurity securityMatcher(String... patterns) {
+		if (mvcPresent) {
+			this.requestMatcher = new OrRequestMatcher(createMvcMatchers(patterns));
 			return this;
 		}
+		this.requestMatcher = new OrRequestMatcher(createAntMatchers(patterns));
+		return this;
+	}
+
+	private List<RequestMatcher> createAntMatchers(String... patterns) {
+		List<RequestMatcher> matchers = new ArrayList<>(patterns.length);
+		for (String pattern : patterns) {
+			matchers.add(new AntPathRequestMatcher(pattern));
+		}
+		return matchers;
+	}
+
+	private List<RequestMatcher> createMvcMatchers(String... mvcPatterns) {
+		ObjectPostProcessor<Object> opp = getContext().getBean(ObjectPostProcessor.class);
 		if (!getContext().containsBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME)) {
 			throw new NoSuchBeanDefinitionException("A Bean named " + HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME
 					+ " of type " + HandlerMappingIntrospector.class.getName()
@@ -3669,8 +3683,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		}
 		HandlerMappingIntrospector introspector = getContext().getBean(HANDLER_MAPPING_INTROSPECTOR_BEAN_NAME,
 				HandlerMappingIntrospector.class);
-		this.requestMatcher = new MvcRequestMatcher(introspector, pattern);
-		return this;
+		List<RequestMatcher> matchers = new ArrayList<>(mvcPatterns.length);
+		for (String mvcPattern : mvcPatterns) {
+			MvcRequestMatcher matcher = new MvcRequestMatcher(introspector, mvcPattern);
+			opp.postProcess(matcher);
+			matchers.add(matcher);
+		}
+		return matchers;
 	}
 
 	/**
@@ -3686,7 +3705,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param antPattern the Ant Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @deprecated use {@link #securityMatcher(String)} instead
+	 * @deprecated use {@link #securityMatcher(String...)} instead
 	 * @see AntPathRequestMatcher
 	 */
 	@Deprecated
@@ -3707,7 +3726,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </p>
 	 * @param mvcPattern the Spring MVC Pattern to match on (i.e. "/admin/**")
 	 * @return the {@link HttpSecurity} for further customizations
-	 * @deprecated use {@link #securityMatcher(String)} instead
+	 * @deprecated use {@link #securityMatcher(String...)} instead
 	 * @see MvcRequestMatcher
 	 */
 	@Deprecated
