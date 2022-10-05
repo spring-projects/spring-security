@@ -2,6 +2,7 @@
 antora:
   extensions:
   - ./antora-linked-worktree-patch.js
+  - '@antora/collector-extension'
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
@@ -9,7 +10,7 @@ content:
   sources:
   - url: ./..
     branches: HEAD
-    start_paths: [docs, 'docs/build/generateAntora*']
+    start_path: docs
     worktrees: true
 asciidoc:
   attributes:
