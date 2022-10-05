@@ -1391,11 +1391,10 @@ public class OAuth2ResourceServerConfigurerTests {
 	}
 
 	@Test
-	public void getWhenCustomAuthenticationConverterThenConverts() throws Exception {
+	public void getWhenCustomAuthenticationConverterThenUsed() throws Exception {
 		this.spring.register(RestOperationsConfig.class, OpaqueTokenAuthenticationConverterConfig.class,
 				BasicController.class).autowire();
-		OpaqueTokenAuthenticationConverter authenticationConverter = this.spring.getContext()
-				.getBean(OpaqueTokenAuthenticationConverter.class);
+		OpaqueTokenAuthenticationConverter authenticationConverter = bean(OpaqueTokenAuthenticationConverter.class);
 		given(authenticationConverter.convert(anyString(), any(OAuth2AuthenticatedPrincipal.class)))
 				.willReturn(new TestingAuthenticationToken("jdoe", null, Collections.emptyList()));
 		mockRestOperations(json("Active"));
@@ -1404,6 +1403,7 @@ public class OAuth2ResourceServerConfigurerTests {
 				.andExpect(status().isOk())
 				.andExpect(content().string("jdoe"));
 		// @formatter:on
+		verify(authenticationConverter).convert(any(), any());
 	}
 
 	private static <T> void registerMockBean(GenericApplicationContext context, String name, Class<T> clazz) {
