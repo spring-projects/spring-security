@@ -48,23 +48,6 @@ public class XXssProtectionServerHttpHeadersWriterTests {
 	public void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
-		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION))
-				.containsOnly("1 ; mode=block");
-	}
-
-	@Test
-	public void writeHeadersWhenBlockFalseThenWriteHeaders() {
-		this.writer.setBlock(false);
-		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
-		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("1");
-	}
-
-	@Test
-	public void writeHeadersWhenEnabledFalseThenWriteHeaders() {
-		this.writer.setEnabled(false);
-		this.writer.writeHttpHeaders(this.exchange);
-		assertThat(this.headers).hasSize(1);
 		assertThat(this.headers.get(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION)).containsOnly("0");
 	}
 

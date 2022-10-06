@@ -565,23 +565,10 @@ This is in no-way a full protection to XSS attacks!
 Do not include the header for https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
 
 
-[[nsa-xss-protection-enabled]]
-* **xss-protection-enabled**
-Explicitly enable or disable https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] protection.
-
-
-[[nsa-xss-protection-block]]
-* **xss-protection-block**
-When true and xss-protection-enabled is true, adds mode=block to the header.
-This indicates to the browser that the page should not be loaded at all.
-When false and xss-protection-enabled is true, the page will still be rendered when an reflected attack is detected but the response will be modified to protect against the attack.
-Note that there are sometimes ways of bypassing this mode which can often times make blocking the page more desirable.
-
 [[nsa-xss-protection-header-value]]
 * **xss-protection-header-value**
 Explicitly set the value for https://en.wikipedia.org/wiki/Cross-site_scripting#Non-Persistent[reflected / Type-1 Cross-Site Scripting (XSS)] header.
-One of: "0", "1", "1; mode=block".
-When set, overrides both enabled and block attributes.
+One of: "0", "1", "1; mode=block". Defaults to "0".
 
 
 [[nsa-xss-protection-parents]]

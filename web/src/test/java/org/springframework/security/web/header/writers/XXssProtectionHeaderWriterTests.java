@@ -28,6 +28,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 /**
  * @author Rob Winch
  * @author Ankur Pathak
+ * @author Daniel Garnier-Moiroux
  *
  */
 public class XXssProtectionHeaderWriterTests {
@@ -51,39 +52,7 @@ public class XXssProtectionHeaderWriterTests {
 	public void writeHeaders() {
 		this.writer.writeHeaders(this.request, this.response);
 		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1; mode=block");
-	}
-
-	@Test
-	public void writeHeadersNoBlock() {
-		this.writer.setBlock(false);
-		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("1");
-	}
-
-	@Test
-	public void writeHeadersDisabled() {
-		this.writer.setBlock(false);
-		this.writer.setEnabled(false);
-		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderNames()).hasSize(1);
 		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
-	}
-
-	@Test
-	public void setEnabledFalseWithBlockTrue() {
-		this.writer.setEnabled(false);
-		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderNames()).hasSize(1);
-		assertThat(this.response.getHeaderValues("X-XSS-Protection")).containsOnly("0");
-	}
-
-	@Test
-	public void setBlockTrueWithEnabledFalse() {
-		this.writer.setBlock(false);
-		this.writer.setEnabled(false);
-		assertThatIllegalArgumentException().isThrownBy(() -> this.writer.setBlock(true));
 	}
 
 	@Test

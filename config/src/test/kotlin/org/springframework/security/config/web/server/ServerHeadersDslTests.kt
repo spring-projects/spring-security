@@ -71,7 +71,7 @@ class ServerHeadersDslTests {
                 .expectHeader().valueEquals(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate")
                 .expectHeader().valueEquals(HttpHeaders.EXPIRES, "0")
                 .expectHeader().valueEquals(HttpHeaders.PRAGMA, "no-cache")
-                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
+                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0")
     }
 
     @Configuration

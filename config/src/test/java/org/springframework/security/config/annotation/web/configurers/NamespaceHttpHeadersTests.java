@@ -62,7 +62,7 @@ public class NamespaceHttpHeadersTests {
 		defaultHeaders.put("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate");
 		defaultHeaders.put("Expires", "0");
 		defaultHeaders.put("Pragma", "no-cache");
-		defaultHeaders.put("X-XSS-Protection", "1; mode=block");
+		defaultHeaders.put("X-XSS-Protection", "0");
 	}
 	public final SpringTestContext spring = new SpringTestContext(this);
 
@@ -116,7 +116,7 @@ public class NamespaceHttpHeadersTests {
 	@Test
 	public void requestWhenXssCustomThenBehaviorMatchesNamespace() throws Exception {
 		this.spring.register(XssProtectionCustomConfig.class).autowire();
-		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-XSS-Protection", "1")));
+		this.mvc.perform(get("/")).andExpect(includes(Collections.singletonMap("X-XSS-Protection", "1; mode=block")));
 	}
 
 	@Test
@@ -291,7 +291,7 @@ public class NamespaceHttpHeadersTests {
 					// xss-protection@enabled and xss-protection@block
 					.defaultsDisabled()
 					.xssProtection()
-						.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED);
+						.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK);
 			// @formatter:on
 			return http.build();
 		}

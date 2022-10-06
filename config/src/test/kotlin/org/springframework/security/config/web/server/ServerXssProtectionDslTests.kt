@@ -57,7 +57,7 @@ class ServerXssProtectionDslTests {
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1 ; mode=block")
+                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0")
     }
 
     @Configuration
@@ -107,7 +107,7 @@ class ServerXssProtectionDslTests {
         this.client.get()
                 .uri("/")
                 .exchange()
-                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0")
+                .expectHeader().valueEquals(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1")
     }
 
     @EnableWebFluxSecurity
@@ -118,7 +118,7 @@ class ServerXssProtectionDslTests {
             return http {
                 headers {
                     xssProtection {
-                        headerValue = XXssProtectionServerHttpHeadersWriter.HeaderValue.DISABLED
+                        headerValue = XXssProtectionServerHttpHeadersWriter.HeaderValue.ENABLED
                     }
                 }
             }

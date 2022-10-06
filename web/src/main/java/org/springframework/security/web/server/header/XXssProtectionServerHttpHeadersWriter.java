@@ -41,7 +41,7 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	 * Creates a new instance
 	 */
 	public XXssProtectionServerHttpHeadersWriter() {
-		this.headerValue = HeaderValue.ENABLED_MODE_BLOCK;
+		this.headerValue = HeaderValue.DISABLED;
 		updateDelegate();
 	}
 
@@ -51,57 +51,8 @@ public class XXssProtectionServerHttpHeadersWriter implements ServerHttpHeadersW
 	}
 
 	/**
-	 * If true, will contain a value of 1. For example:
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 1
-	 * </pre>
-	 *
-	 * or if {@link #setBlock(boolean)} is true
-	 *
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 1; mode=block
-	 * </pre>
-	 *
-	 * If false, will explicitly disable specify that X-XSS-Protection is disabled. For
-	 * example:
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 0
-	 * </pre>
-	 * @param enabled the new value
-	 * @deprecated use
-	 * {@link XXssProtectionServerHttpHeadersWriter#setHeaderValue(HeaderValue)} instead
-	 */
-	@Deprecated
-	public void setEnabled(boolean enabled) {
-		if (!enabled) {
-			this.headerValue = HeaderValue.DISABLED;
-		}
-		else if (this.headerValue == HeaderValue.DISABLED) {
-			this.headerValue = HeaderValue.ENABLED;
-		}
-		updateDelegate();
-	}
-
-	/**
-	 * If false, will not specify the mode as blocked. In this instance, any content will
-	 * be attempted to be fixed. If true, the content will be replaced with "#".
-	 * @param block the new value
-	 * @deprecated use
-	 * {@link XXssProtectionServerHttpHeadersWriter#setHeaderValue(HeaderValue)} instead
-	 */
-	@Deprecated
-	public void setBlock(boolean block) {
-		Assert.isTrue(this.headerValue != HeaderValue.DISABLED || !block,
-				"Cannot set block to true with enabled false");
-		this.headerValue = block ? HeaderValue.ENABLED_MODE_BLOCK : HeaderValue.ENABLED;
-		updateDelegate();
-	}
-
-	/**
-	 * Sets the value of the X-XSS-PROTECTION header.
+	 * Sets the value of the X-XSS-PROTECTION header. Defaults to
+	 * {@link HeaderValue#DISABLED}
 	 * <p>
 	 * If {@link HeaderValue#DISABLED}, will specify that X-XSS-Protection is disabled.
 	 * For example:

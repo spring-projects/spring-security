@@ -106,7 +106,7 @@ class HttpSecurityDslTests {
                 string(HttpHeaders.PRAGMA, "no-cache")
             }
             header {
-                string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1; mode=block")
+                string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0")
             }
         }
     }
