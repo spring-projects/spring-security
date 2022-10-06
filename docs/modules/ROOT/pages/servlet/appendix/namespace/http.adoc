@@ -31,7 +31,7 @@ The attributes on the `<http>` element control some of the properties on the cor
 
 [[nsa-http-use-authorization-manager]]
 * **use-authorization-manager**
-Use AuthorizationManager API instead of SecurityMetadataSource
+Use AuthorizationManager API instead of SecurityMetadataSource (defaults to true)
 
 [[nsa-http-authorization-manager-ref]]
 * **access-decision-manager-ref**

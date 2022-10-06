@@ -30,6 +30,7 @@
 		</session-management>
 		<remember-me remember-me-cookie="rememberMeCookie"/>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="basicController"

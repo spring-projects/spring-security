@@ -28,12 +28,14 @@
 		<form-login login-page="/login2"/>
 		<logout invalidate-session="true"/>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<http authentication-manager-ref="authManager">
 		<form-login login-page="/login"/>
 		<logout invalidate-session="false"/>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean class="org.springframework.security.config.http.SecurityContextHolderAwareRequestConfigTests.ServletAuthenticatedController"/>

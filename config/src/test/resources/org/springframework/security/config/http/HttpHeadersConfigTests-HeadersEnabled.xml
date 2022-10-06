@@ -26,6 +26,7 @@
 
 	<http auto-config="true">
 		<headers/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>

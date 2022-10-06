@@ -28,6 +28,7 @@
 		<form-login login-page="/signin"/>
 		<logout invalidate-session="false" delete-cookies="JSESSIONID"/>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean class="org.springframework.security.config.http.SecurityContextHolderAwareRequestConfigTests.ServletAuthenticatedController"/>

@@ -24,6 +24,7 @@
 
 	<http auto-config="true">
 		<csrf request-handler-ref="requestHandler"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean id="requestHandler" class="org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler"

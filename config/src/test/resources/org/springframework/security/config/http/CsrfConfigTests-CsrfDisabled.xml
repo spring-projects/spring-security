@@ -23,6 +23,7 @@
 
 	<http auto-config="true">
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>

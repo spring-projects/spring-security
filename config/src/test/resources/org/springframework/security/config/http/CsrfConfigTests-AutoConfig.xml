@@ -23,7 +23,9 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http-firewall ref="firewall"/>
-	<http auto-config="true"/>
+	<http auto-config="true">
+		<intercept-url pattern="/**" access="permitAll"/>
+	</http>
 
 	<b:import resource="CsrfConfigTests-shared-userservice.xml"/>
 

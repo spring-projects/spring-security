@@ -32,6 +32,7 @@
 			<concurrency-control expired-url="/expired"/>
 		</session-management>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<mvc:annotation-driven/>

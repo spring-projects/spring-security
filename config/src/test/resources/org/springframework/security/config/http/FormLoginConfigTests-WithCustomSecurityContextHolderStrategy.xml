@@ -24,7 +24,8 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false" security-context-holder-strategy-ref="ref">
+	<http auto-config="true" security-context-holder-strategy-ref="ref">
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean id="ref" class="org.mockito.Mockito" factory-method="spy">

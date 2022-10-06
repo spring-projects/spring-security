@@ -178,7 +178,7 @@ intercept-methods.attlist &=
 	## Optional AccessDecisionManager bean ID to be used by the created method security interceptor.
 	attribute access-decision-manager-ref {xsd:token}?
 intercept-methods.attlist &=
-	## Use the AuthorizationManager API instead of AccessDecisionManager (defaults to false)
+	## Use the AuthorizationManager API instead of AccessDecisionManager (defaults to true)
 	attribute use-authorization-manager {xsd:boolean}?
 intercept-methods.attlist &=
 	## Use this AuthorizationManager instead of the default (supercedes use-authorization-manager)
@@ -306,7 +306,7 @@ websocket-message-broker.attrlist &=
 	## Use this AuthorizationManager instead of deriving one from <intercept-message> elements
 	attribute authorization-manager-ref {xsd:string}?
 websocket-message-broker.attrlist &=
-	## Use AuthorizationManager API instead of SecurityMetadatasource
+	## Use AuthorizationManager API instead of SecurityMetadatasource (defaults to true)
 	attribute use-authorization-manager {xsd:boolean}?
 websocket-message-broker.attrlist &=
 	## Use this SecurityContextHolderStrategy (note only supported in conjunction with the AuthorizationManager API)
@@ -368,7 +368,7 @@ http.attlist &=
 	## If available, runs the request as the Subject acquired from the JaasAuthenticationToken. Defaults to "false".
 	attribute jaas-api-provision {xsd:boolean}?
 http.attlist &=
-	## Use AuthorizationManager API instead of SecurityMetadataSource
+	## Use AuthorizationManager API instead of SecurityMetadataSource (defaults to true)
 	attribute use-authorization-manager {xsd:boolean}?
 http.attlist &=
 	## Use this AuthorizationManager instead of deriving one from <intercept-url> elements

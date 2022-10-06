@@ -24,7 +24,9 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true"/>
+	<http auto-config="true">
+		<intercept-url pattern="/**" access="permitAll"/>
+	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>
 

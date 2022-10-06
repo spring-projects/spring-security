@@ -39,7 +39,7 @@
 
 	<b:bean name="testHandler" class="org.springframework.security.config.websocket.WebSocketMessageBrokerConfigTests.TestHandshakeHandler"/>
 
-	<websocket-message-broker use-authorization-manager="true">
+	<websocket-message-broker>
 		<intercept-message pattern="/denyAll.*" access="denyAll"/>
 	</websocket-message-broker>
 

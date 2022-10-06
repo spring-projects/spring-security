@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false" request-matcher="ant">
+	<http auto-config="true" use-expressions="false" request-matcher="ant" use-authorization-manager="false">
 		<intercept-url pattern="/**" access="ROLE_USER"/>
 		<form-login authentication-success-handler-ref="fsh" authentication-failure-handler-ref="fsh"/>
 	</http>

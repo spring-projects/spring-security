@@ -42,7 +42,7 @@ Changing the default is useful if it is necessary to allow other origins to make
 * **authorization-manager-ref** Use this `AuthorizationManager` instance; when set, `use-authorization-manager` is ignored and assumed to be `true`
 
 [[nsa-websocket-message-broker-use-authorization-manager]]
-* **use-authorization-manager** Uses legacy `SecurityMetadataSource` API instead of `AuthorizationManager` API (default false).
+* **use-authorization-manager** Use `AuthorizationManager` API instead of `SecurityMetadataSource` API (defaults to true).
 
 [[nsa-websocket-message-broker-security-context-holder-strategy-ref]]
 * **security-context-holder-strategy-ref** Use this `SecurityContextHolderStrategy` (note only supported in conjunction with the `AuthorizationManager` API)

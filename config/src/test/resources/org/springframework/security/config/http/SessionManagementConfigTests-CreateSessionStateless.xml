@@ -26,6 +26,7 @@
 
 	<http auto-config="true" create-session="stateless" use-expressions="true">
 		<intercept-url pattern="/auth/**" access="authenticated"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="basicController"

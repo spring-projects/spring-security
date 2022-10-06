@@ -23,7 +23,7 @@
 	<b:import resource="classpath:org/springframework/security/config/websocket/controllers.xml"/>
 	<b:import resource="classpath:org/springframework/security/config/websocket/websocket.xml"/>
 
-	<websocket-message-broker use-authorization-manager="true" security-context-holder-strategy-ref="ref">
+	<websocket-message-broker security-context-holder-strategy-ref="ref">
 		<intercept-message pattern="/authenticated" access="authenticated"/>
 	</websocket-message-broker>
 

@@ -26,7 +26,7 @@
 
 	<http pattern="${pattern.nofilters}" security="none"/>
 
-	<http auto-config="true" use-expressions="false">
+	<http auto-config="true" use-expressions="false" use-authorization-manager="false">
 		<intercept-url pattern="/**" access="ROLE_NUNYA"/>
 	</http>
 

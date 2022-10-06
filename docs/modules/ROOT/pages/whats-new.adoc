@@ -22,3 +22,7 @@ Reorganize imports
 Instead, create a https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter[SecurityFilterChain bean].
 * https://github.com/spring-projects/spring-security/issues/11899[gh-11899] - Use `MvcRequestMatcher` by default if Spring MVC is present.
 You can configure a different `RequestMatcher` by using the https://docs.spring.io/spring-security/reference/servlet/appendix/namespace/http.html#nsa-http-attributes[request-matcher attribute from <http>].
+* Change use-authorization-manager="true" to default
+If the application uses `use-expressions="true"` or `access-decision-manager-ref` switch to `use-expressions="false"` or `authorization-manager-ref`, respectively.
+If application relies on the implicit `<intercept-url pattern="/**" access="permitAll"/>`, this is no longer implicit and needs to be specified.
+Or use `use-authorization-manager="false"`

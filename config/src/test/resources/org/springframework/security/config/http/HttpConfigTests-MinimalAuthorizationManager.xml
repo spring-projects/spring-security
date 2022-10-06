@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-authorization-manager="true">
+	<http auto-config="true">
 		<intercept-url pattern="/**" access="hasRole('USER')"/>
 	</http>
 

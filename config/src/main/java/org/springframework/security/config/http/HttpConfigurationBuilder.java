@@ -716,12 +716,15 @@ class HttpConfigurationBuilder {
 	}
 
 	private void createFilterSecurity(BeanReference authManager) {
-		boolean useAuthorizationManager = Boolean.parseBoolean(this.httpElt.getAttribute(ATT_USE_AUTHORIZATION_MGR));
-		if (useAuthorizationManager) {
+		if (StringUtils.hasText(this.httpElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
 			createAuthorizationFilter();
 			return;
 		}
-		if (StringUtils.hasText(this.httpElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
+		boolean useAuthorizationManager = true;
+		if (StringUtils.hasText(this.httpElt.getAttribute(ATT_USE_AUTHORIZATION_MGR))) {
+			useAuthorizationManager = Boolean.parseBoolean(this.httpElt.getAttribute(ATT_USE_AUTHORIZATION_MGR));
+		}
+		if (useAuthorizationManager) {
 			createAuthorizationFilter();
 			return;
 		}

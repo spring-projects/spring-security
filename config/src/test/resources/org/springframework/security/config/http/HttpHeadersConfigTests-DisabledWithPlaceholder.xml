@@ -26,6 +26,7 @@
 
 	<http auto-config="true">
 		<headers disabled="${security.headers.disabled}" />
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="propertyPlaceholderConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"/>

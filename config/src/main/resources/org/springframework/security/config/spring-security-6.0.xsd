@@ -542,7 +542,7 @@
       </xs:attribute>
       <xs:attribute name="use-authorization-manager" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Use the AuthorizationManager API instead of AccessDecisionManager (defaults to false)
+            <xs:documentation>Use the AuthorizationManager API instead of AccessDecisionManager (defaults to true)
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -967,7 +967,7 @@
       </xs:attribute>
       <xs:attribute name="use-authorization-manager" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadatasource
+            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadatasource (defaults to true)
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -1325,7 +1325,7 @@
       </xs:attribute>
       <xs:attribute name="use-authorization-manager" type="xs:boolean">
          <xs:annotation>
-            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadataSource
+            <xs:documentation>Use AuthorizationManager API instead of SecurityMetadataSource (defaults to true)
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

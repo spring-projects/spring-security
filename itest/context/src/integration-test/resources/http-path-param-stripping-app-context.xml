@@ -10,7 +10,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 						http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
-	<http pattern="/secured/**" use-expressions="false">
+	<http pattern="/secured/**" use-expressions="false" use-authorization-manager="false">
 		<intercept-url pattern="/secured/*user.html" access="ROLE_USER" />
 		<intercept-url pattern="/secured/admin.html" access="ROLE_ADMIN" />
 		<intercept-url pattern="/secured/user/**" access="ROLE_USER" />

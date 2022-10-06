@@ -28,6 +28,7 @@
 		<headers defaults-disabled="true">
 			<header ref="static"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="static" class="org.springframework.security.web.header.writers.StaticHeadersWriter">

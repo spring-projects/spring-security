@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http security-context-holder-strategy-ref="ref">
+	<http security-context-holder-strategy-ref="ref" use-authorization-manager="false">
 		<jee mappable-roles="admin,user"/>
 	</http>
 

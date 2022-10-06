@@ -84,6 +84,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -849,8 +850,7 @@ public class MiscHttpConfigTests {
 		assertThat(filters.next()).isInstanceOf(SecurityContextHolderAwareRequestFilter.class);
 		assertThat(filters.next()).isInstanceOf(AnonymousAuthenticationFilter.class);
 		assertThat(filters.next()).isInstanceOf(ExceptionTranslationFilter.class);
-		assertThat(filters.next()).isInstanceOf(FilterSecurityInterceptor.class)
-				.hasFieldOrPropertyWithValue("observeOncePerRequest", false);
+		assertThat(filters.next()).isInstanceOf(AuthorizationFilter.class);
 	}
 
 	private <T extends Filter> T getFilter(Class<T> filterClass) {

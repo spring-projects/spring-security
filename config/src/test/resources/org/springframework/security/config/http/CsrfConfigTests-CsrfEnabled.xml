@@ -25,6 +25,7 @@
 	<http-firewall ref="firewall"/>
 	<http auto-config="true">
 		<intercept-url pattern="/authenticated/**" access="authenticated"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 		<csrf/>
 	</http>
 

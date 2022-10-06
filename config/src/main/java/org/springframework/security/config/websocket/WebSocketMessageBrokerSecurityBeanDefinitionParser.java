@@ -159,7 +159,10 @@ public final class WebSocketMessageBrokerSecurityBeanDefinitionParser implements
 	}
 
 	private String parseAuthorization(Element element, ParserContext parserContext) {
-		boolean useAuthorizationManager = Boolean.parseBoolean(element.getAttribute(USE_AUTHORIZATION_MANAGER_ATTR));
+		boolean useAuthorizationManager = true;
+		if (StringUtils.hasText(element.getAttribute(USE_AUTHORIZATION_MANAGER_ATTR))) {
+			useAuthorizationManager = Boolean.parseBoolean(element.getAttribute(USE_AUTHORIZATION_MANAGER_ATTR));
+		}
 		if (useAuthorizationManager) {
 			return parseAuthorizationManager(element, parserContext);
 		}

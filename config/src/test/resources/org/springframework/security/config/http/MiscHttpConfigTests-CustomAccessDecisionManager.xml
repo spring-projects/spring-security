@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http access-decision-manager-ref="accessDecisionManager">
+	<http access-decision-manager-ref="accessDecisionManager" use-authorization-manager="false">
 		<http-basic/>
 		<intercept-url pattern="/**" access="permitAll"/>
 	</http>

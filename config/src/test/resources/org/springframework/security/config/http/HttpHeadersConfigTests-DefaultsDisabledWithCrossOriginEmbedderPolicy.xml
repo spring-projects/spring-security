@@ -28,6 +28,7 @@
 		<headers defaults-disabled="true">
 			<cross-origin-embedder-policy policy="require-corp"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>

@@ -93,10 +93,13 @@ public class InterceptMethodsBeanDefinitionDecorator implements BeanDefinitionDe
 
 		boolean supports(Node node) {
 			Element interceptMethodsElt = (Element) node;
-			if (Boolean.parseBoolean(interceptMethodsElt.getAttribute(ATT_USE_AUTHORIZATION_MGR))) {
+			if (StringUtils.hasText(interceptMethodsElt.getAttribute(ATT_AUTHORIZATION_MGR))) {
 				return true;
 			}
-			return StringUtils.hasText(interceptMethodsElt.getAttribute(ATT_AUTHORIZATION_MGR));
+			if (StringUtils.hasText(interceptMethodsElt.getAttribute(ATT_USE_AUTHORIZATION_MGR))) {
+				return Boolean.parseBoolean(interceptMethodsElt.getAttribute(ATT_USE_AUTHORIZATION_MGR));
+			}
+			return true;
 		}
 
 		private Pointcut pointcut(Element interceptorElt, Element protectElt) {

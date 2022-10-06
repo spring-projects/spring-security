@@ -25,7 +25,7 @@
 
 	<b:bean name="expressionHandler" class="org.springframework.security.config.websocket.WebSocketMessageBrokerConfigTests.DenyNileMessageSecurityExpressionHandler"/>
 
-	<websocket-message-broker>
+	<websocket-message-broker use-authorization-manager="false">
 		<expression-handler ref="expressionHandler"/>
 		<intercept-message pattern="/**" access="denyNile()"/>
 	</websocket-message-broker>

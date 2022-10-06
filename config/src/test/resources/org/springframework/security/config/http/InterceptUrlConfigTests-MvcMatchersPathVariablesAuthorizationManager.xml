@@ -27,7 +27,7 @@
 			http://www.springframework.org/schema/mvc
 			https://www.springframework.org/schema/mvc/spring-mvc.xsd">
 
-	<http auto-config="true" use-authorization-manager="true">
+	<http auto-config="true">
 		<intercept-url pattern="/path/{un}/**" access="#un == 'user'"/>
 		<intercept-url pattern="/**" access="denyAll"/>
 		<http-basic/>

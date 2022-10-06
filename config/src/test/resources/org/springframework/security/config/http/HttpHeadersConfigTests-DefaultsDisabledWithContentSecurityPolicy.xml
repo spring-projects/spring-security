@@ -28,6 +28,7 @@
 		<headers defaults-disabled="true">
 			<content-security-policy policy-directives="default-src 'self'"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>

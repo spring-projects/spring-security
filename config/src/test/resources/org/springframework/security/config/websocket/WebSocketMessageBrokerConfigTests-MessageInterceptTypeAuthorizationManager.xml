@@ -23,7 +23,7 @@
 	<b:import resource="classpath:org/springframework/security/config/websocket/controllers.xml"/>
 	<b:import resource="classpath:org/springframework/security/config/websocket/websocket.xml"/>
 
-	<websocket-message-broker use-authorization-manager="true">
+	<websocket-message-broker>
 		<intercept-message pattern="/permitAll" type="MESSAGE" access="permitAll"/>
 		<intercept-message pattern="/**" access="denyAll"/>
 	</websocket-message-broker>

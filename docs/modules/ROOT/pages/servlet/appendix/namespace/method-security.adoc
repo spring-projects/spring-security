@@ -279,7 +279,7 @@ Can be used inside a bean definition to add a security interceptor to the bean a
 
 [[nsa-intercept-methods-use-authorization-manager]]
 * **use-authorization-manager**
-Use AuthorizationManager API instead of AccessDecisionManager
+Use AuthorizationManager API instead of AccessDecisionManager (defaults to true)
 
 [[nsa-intercept-methods-authorization-manager-ref]]
 * **authorization-manager-ref**

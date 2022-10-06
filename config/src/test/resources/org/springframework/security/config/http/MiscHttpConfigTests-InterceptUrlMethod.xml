@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http use-expressions="false">
+	<http use-expressions="false" use-authorization-manager="false">
 		<http-basic/>
 		<intercept-url pattern="/protected*" method="POST" access="ROLE_POST,ROLE_ADMIN"/>
 		<intercept-url pattern="/protected*" method="DELETE" access="ROLE_ADMIN"/>

@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" create-session="ifRequired" use-expressions="true">
+	<http auto-config="true" create-session="ifRequired" use-expressions="true" use-authorization-manager="false">
 		<intercept-url pattern="/auth/**" access="authenticated"/>
 		<session-management session-fixation-protection="none">
 			<concurrency-control max-sessions="1" error-if-maximum-exceeded="true"/>

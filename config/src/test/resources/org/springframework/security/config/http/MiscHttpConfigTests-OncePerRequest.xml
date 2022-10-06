@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http once-per-request="false">
+	<http once-per-request="false" use-authorization-manager="false">
 		<http-basic/>
 		<intercept-url pattern="/protected" access="authenticated"/>
 		<intercept-url pattern="/unprotected-forwards-to-protected" access="permitAll"/>

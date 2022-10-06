@@ -27,6 +27,7 @@
 	<http>
 		<form-login/>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean class="org.springframework.security.config.http.SecurityContextHolderAwareRequestConfigTests.ServletAuthenticatedController"/>

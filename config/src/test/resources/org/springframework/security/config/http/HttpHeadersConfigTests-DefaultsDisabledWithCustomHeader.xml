@@ -29,6 +29,7 @@
 			<header name="a" value="b"/>
 			<header name="c" value="d"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>

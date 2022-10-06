@@ -99,7 +99,7 @@ public class NamespaceHttpBasicTests {
 	@Test
 	public void httpBasicCustomSecurityContextHolderStrategy() throws Exception {
 		// @formatter:off
-		loadContext("<http auto-config=\"true\" use-expressions=\"false\" security-context-holder-strategy-ref=\"ref\"/>\n"
+		loadContext("<http auto-config=\"true\" use-expressions=\"false\" security-context-holder-strategy-ref=\"ref\" use-authorization-manager=\"false\"/>\n"
 				+  "<authentication-manager id=\"authenticationManager\">\n"
 				+  "	<authentication-provider>\n"
 				+  "		<user-service>\n"

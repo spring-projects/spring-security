@@ -21,7 +21,7 @@
 		 xsi:schemaLocation="http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false">
+	<http auto-config="true" use-expressions="false" use-authorization-manager="false">
 		<csrf request-matcher-ref="requestMatcher"/>
 	</http>
 

@@ -28,6 +28,7 @@
 		<headers>
 			<hsts disabled="true" request-matcher-ref="dave"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="simple" class="org.springframework.security.config.http.HttpHeadersConfigTests.SimpleController"/>

@@ -25,6 +25,7 @@
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http auto-config="true" create-session="always">
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="basicController"

@@ -28,6 +28,7 @@
 		<headers defaults-disabled="true">
 			<hsts include-subdomains="false" max-age-seconds="1" request-matcher-ref="any"/>
 		</headers>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:bean name="any" class="org.springframework.security.web.util.matcher.AnyRequestMatcher"/>

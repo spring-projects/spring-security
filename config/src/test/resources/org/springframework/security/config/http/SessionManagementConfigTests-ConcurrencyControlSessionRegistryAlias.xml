@@ -30,6 +30,7 @@
 			<concurrency-control session-registry-alias="sessionRegistry"/>
 		</session-management>
 		<csrf disabled="true"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<b:import resource="userservice.xml"/>

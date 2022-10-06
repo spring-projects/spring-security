@@ -29,7 +29,7 @@
 		</b:constructor-arg>
 	</b:bean>
 
-	<websocket-message-broker use-authorization-manager="true">
+	<websocket-message-broker>
 		<expression-handler ref="expressionHandler"/>
 		<intercept-message pattern="/**" access="denyNile()"/>
 	</websocket-message-broker>

@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true" use-expressions="false">
+	<http auto-config="true" use-expressions="false" use-authorization-manager="false">
 		<intercept-url pattern="/**" access="ROLE_USER"/>
 		<form-login always-use-default-target="true" default-target-url="/default"/>
 	</http>

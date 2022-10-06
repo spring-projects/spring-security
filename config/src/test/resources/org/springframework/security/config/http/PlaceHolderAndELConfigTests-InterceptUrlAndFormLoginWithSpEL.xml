@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http use-expressions="false">
+	<http use-expressions="false" use-authorization-manager="false">
 		<intercept-url
 				pattern="#{systemProperties['secure.url']}"
 				access="#{systemProperties['secure.role']}"/>

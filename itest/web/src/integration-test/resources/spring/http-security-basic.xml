@@ -6,7 +6,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans-3.0.xsd
 						http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security.xsd">
 
-	<http use-expressions="false">
+	<http use-expressions="false" use-authorization-manager="false">
 		<intercept-url pattern="/**" access="ROLE_DEVELOPER,ROLE_USER" />
 		<http-basic />
 	</http>

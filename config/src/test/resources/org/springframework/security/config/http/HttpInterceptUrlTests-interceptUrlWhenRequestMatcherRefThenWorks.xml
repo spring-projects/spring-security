@@ -9,6 +9,7 @@
 	<http>
 		<http-basic/>
 		<intercept-url request-matcher-ref="matcherRef" access="denyAll"/>
+		<intercept-url pattern="/**" access="permitAll"/>
 	</http>
 
 	<user-service>
