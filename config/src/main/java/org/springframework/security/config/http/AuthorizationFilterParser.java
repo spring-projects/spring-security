@@ -50,6 +50,8 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 
 	private static final String ATT_USE_EXPRESSIONS = "use-expressions";
 
+	private static final String ATT_ACCESS_DECISION_MANAGER_REF = "access-decision-manager-ref";
+
 	private static final String ATT_HTTP_METHOD = "method";
 
 	private static final String ATT_PATTERN = "pattern";
@@ -60,6 +62,12 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 
 	private String authorizationManagerRef;
 
+	private final BeanMetadataElement securityContextHolderStrategy;
+
+	AuthorizationFilterParser(BeanMetadataElement securityContextHolderStrategy) {
+		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 		if (!isUseExpressions(element)) {
@@ -67,10 +75,16 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 					element);
 			return null;
 		}
+		if (StringUtils.hasText(element.getAttribute(ATT_ACCESS_DECISION_MANAGER_REF))) {
+			parserContext.getReaderContext().error(
+					"AuthorizationManager cannot be used in conjunction with `access-decision-manager-ref`", element);
+			return null;
+		}
 		this.authorizationManagerRef = createAuthorizationManager(element, parserContext);
 		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(AuthorizationFilter.class);
 		filterBuilder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
 		BeanDefinition filter = filterBuilder.addConstructorArgReference(this.authorizationManagerRef)
+				.addPropertyValue("securityContextHolderStrategy", this.securityContextHolderStrategy)
 				.getBeanDefinition();
 		String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
 		if (StringUtils.hasText(id)) {
@@ -172,7 +186,9 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 
 		@Override
 		public DefaultHttpSecurityExpressionHandler getBean() {
-			this.handler.setDefaultRolePrefix(this.rolePrefix);
+			if (this.rolePrefix != null) {
+				this.handler.setDefaultRolePrefix(this.rolePrefix);
+			}
 			return this.handler;
 		}
 
