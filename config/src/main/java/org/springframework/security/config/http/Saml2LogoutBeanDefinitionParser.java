@@ -33,6 +33,7 @@ import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
@@ -166,6 +167,8 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 		BeanMetadataElement logoutMatcher = BeanDefinitionBuilder.rootBeanDefinition(AntPathRequestMatcher.class)
 				.addConstructorArgValue(this.logoutUrl).addConstructorArgValue("POST").getBeanDefinition();
 		BeanMetadataElement saml2Matcher = BeanDefinitionBuilder.rootBeanDefinition(Saml2RequestMatcher.class)
+				.addPropertyValue("securityContextHolderStrategy",
+						this.authenticationFilterSecurityContextHolderStrategy)
 				.getBeanDefinition();
 		return BeanDefinitionBuilder.rootBeanDefinition(AndRequestMatcher.class)
 				.addConstructorArgValue(toManagedList(logoutMatcher, saml2Matcher)).getBeanDefinition();
@@ -227,15 +230,22 @@ final class Saml2LogoutBeanDefinitionParser implements BeanDefinitionParser {
 
 	}
 
-	private static class Saml2RequestMatcher implements RequestMatcher {
+	public static class Saml2RequestMatcher implements RequestMatcher {
+
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+				.getContextHolderStrategy();
 
 		@Override
 		public boolean matches(HttpServletRequest request) {
-			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
 			if (authentication == null) {
 				return false;
 			}
 			return authentication.getPrincipal() instanceof Saml2AuthenticatedPrincipal;
+		}
+
+		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
 		}
 
 	}
