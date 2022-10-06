@@ -54,6 +54,7 @@ class CsrfDsl {
      * @param antMatchers the ANT pattern matchers that should not use CSRF
      * protection
      */
+    @Deprecated("Use ignoringRequestMatchers instead")
     fun ignoringAntMatchers(vararg antMatchers: String) {
         ignoringAntMatchers = antMatchers
     }
