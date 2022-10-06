@@ -23,11 +23,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.UrlPathHelper;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 
 /**
  * @author Luke Taylor
@@ -203,6 +207,48 @@ public class AntPathRequestMatcherTests {
 		AntPathRequestMatcher matcher = new AntPathRequestMatcher("/**");
 		MockHttpServletRequest request = createRequest("/blah");
 		assertThat(matcher.matcher(request).isMatch()).isTrue();
+	}
+
+	@Test
+	public void staticAntMatcherWhenPatternProvidedThenPattern() {
+		AntPathRequestMatcher matcher = antMatcher("/path");
+		assertThat(matcher.getPattern()).isEqualTo("/path");
+	}
+
+	@Test
+	public void staticAntMatcherWhenMethodProvidedThenMatchAll() {
+		AntPathRequestMatcher matcher = antMatcher(HttpMethod.GET);
+		assertThat(ReflectionTestUtils.getField(matcher, "httpMethod")).isEqualTo(HttpMethod.GET);
+	}
+
+	@Test
+	public void staticAntMatcherWhenMethodAndPatternProvidedThenMatchAll() {
+		AntPathRequestMatcher matcher = antMatcher(HttpMethod.POST, "/path");
+		assertThat(matcher.getPattern()).isEqualTo("/path");
+		assertThat(ReflectionTestUtils.getField(matcher, "httpMethod")).isEqualTo(HttpMethod.POST);
+	}
+
+	@Test
+	public void staticAntMatcherWhenMethodNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> antMatcher((HttpMethod) null))
+				.withMessage("method cannot be null");
+	}
+
+	@Test
+	public void staticAntMatcherWhenPatternNullThenException() {
+		assertThatIllegalArgumentException().isThrownBy(() -> antMatcher((String) null))
+				.withMessage("pattern cannot be empty");
+	}
+
+	@Test
+	public void forMethodWhenMethodThenMatches() {
+		AntPathRequestMatcher matcher = antMatcher(HttpMethod.POST);
+		MockHttpServletRequest request = createRequest("/path");
+		assertThat(matcher.matches(request)).isTrue();
+		request.setServletPath("/another-path/second");
+		assertThat(matcher.matches(request)).isTrue();
+		request.setMethod("GET");
+		assertThat(matcher.matches(request)).isFalse();
 	}
 
 	private HttpServletRequest createRequestWithNullMethod(String path) {

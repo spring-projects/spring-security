@@ -281,3 +281,134 @@ open fun web(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 ====
+
+== Request Matchers
+
+The `RequestMatcher` interface is used to determine if a request matches a given rule.
+We use `securityMatchers` to determine if a given `HttpSecurity` should be applied to a given request.
+The same way, we can use `requestMatchers` to determine the authorization rules that we should apply to a given request.
+Look at the following example:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.securityMatcher("/api/**")                            <1>
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers("/user/**").hasRole("USER")       <2>
+				.requestMatchers("/admin/**").hasRole("ADMIN")     <3>
+				.anyRequest().authenticated()                      <4>
+			)
+			.formLogin(withDefaults());
+		return http.build();
+	}
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+open class SecurityConfig {
+
+    @Bean
+    open fun web(http: HttpSecurity): SecurityFilterChain {
+        http {
+            securityMatcher("/api/**")                                           <1>
+            authorizeHttpRequests {
+                authorize("/user/**", hasRole("USER"))                           <2>
+                authorize("/admin/**", hasRole("ADMIN"))                         <3>
+                authorize(anyRequest, authenticated)                             <4>
+            }
+        }
+        return http.build()
+    }
+
+}
+----
+====
+
+<1> Configure `HttpSecurity` to only be applied to URLs that start with `/api/`
+<2> Allow access to URLs that start with `/user/` to users with the `USER` role
+<3> Allow access to URLs that start with `/admin/` to users with the `ADMIN` role
+<4> Any other request that doesn't match the rules above, will require authentication
+
+The `securityMatcher(s)` and `requestMatcher(s)` methods will decide which `RequestMatcher` implementation fits best for your application: If Spring MVC is in the classpath, then `MvcRequestMatcher` will be used, otherwise, `AntPathRequestMatcher` will be used.
+You can read more about the Spring MVC integration xref:servlet/integrations/mvc.adoc[here].
+
+If you want to use a specific `RequestMatcher`, just pass an implementation to the `securityMatcher` and/or `requestMatcher` methods:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher; <1>
+import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http
+			.securityMatcher(antMatcher("/api/**"))                              <2>
+			.authorizeHttpRequests(authorize -> authorize
+				.requestMatchers(antMatcher("/user/**")).hasRole("USER")         <3>
+				.requestMatchers(regexMatcher("/admin/.*")).hasRole("ADMIN")     <4>
+				.requestMatchers(new MyCustomRequestMatcher()).hasRole("SUPERVISOR")     <5>
+				.anyRequest().authenticated()
+			)
+			.formLogin(withDefaults());
+		return http.build();
+	}
+}
+
+public class MyCustomRequestMatcher implements RequestMatcher {
+
+    @Override
+    public boolean matches(HttpServletRequest request) {
+        // ...
+    }
+}
+----
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher <1>
+import org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher
+
+@Configuration
+@EnableWebSecurity
+open class SecurityConfig {
+
+    @Bean
+    open fun web(http: HttpSecurity): SecurityFilterChain {
+        http {
+            securityMatcher(antMatcher("/api/**"))                               <2>
+            authorizeHttpRequests {
+                authorize(antMatcher("/user/**"), hasRole("USER"))               <3>
+                authorize(regexMatcher("/admin/**"), hasRole("ADMIN"))           <4>
+                authorize(MyCustomRequestMatcher(), hasRole("SUPERVISOR"))       <5>
+                authorize(anyRequest, authenticated)
+            }
+        }
+        return http.build()
+    }
+
+}
+----
+====
+
+<1> Import the static factory methods from `AntPathRequestMatcher` and `RegexRequestMatcher` to create `RequestMatcher` instances.
+<2> Configure `HttpSecurity` to only be applied to URLs that start with `/api/`, using `AntPathRequestMatcher`
+<3> Allow access to URLs that start with `/user/` to users with the `USER` role, using `AntPathRequestMatcher`
+<4> Allow access to URLs that start with `/admin/` to users with the `ADMIN` role, using `RegexRequestMatcher`
+<5> Allow access to URLs that match the `MyCustomRequestMatcher` to users with the `SUPERVISOR` role, using a custom `RequestMatcher`
