@@ -90,7 +90,7 @@ public class DefaultHttpSecurityExpressionHandler extends AbstractSecurityExpres
 	 * "ROLE_".
 	 */
 	public void setDefaultRolePrefix(String defaultRolePrefix) {
-		Assert.hasText(defaultRolePrefix, "defaultRolePrefix cannot be empty");
+		Assert.notNull(defaultRolePrefix, "defaultRolePrefix cannot be null");
 		this.defaultRolePrefix = defaultRolePrefix;
 	}
 

@@ -729,7 +729,7 @@ class HttpConfigurationBuilder {
 	}
 
 	private void createAuthorizationFilter() {
-		AuthorizationFilterParser authorizationFilterParser = new AuthorizationFilterParser();
+		AuthorizationFilterParser authorizationFilterParser = new AuthorizationFilterParser(this.holderStrategyRef);
 		BeanDefinition fsiBean = authorizationFilterParser.parse(this.httpElt, this.pc);
 		String fsiId = this.pc.getReaderContext().generateBeanName(fsiBean);
 		this.pc.registerBeanComponent(new BeanComponentDefinition(fsiBean, fsiId));
