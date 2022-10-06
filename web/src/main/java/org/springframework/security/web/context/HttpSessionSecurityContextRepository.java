@@ -142,7 +142,7 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
 		if (responseWrapper == null) {
 			boolean httpSessionExists = request.getSession(false) != null;
-			SecurityContext initialContext = SecurityContextHolder.createEmptyContext();
+			SecurityContext initialContext = this.securityContextHolderStrategy.createEmptyContext();
 			responseWrapper = new SaveToSessionResponseWrapper(response, request, httpSessionExists, initialContext);
 		}
 		responseWrapper.saveContext(context);
