@@ -48,6 +48,8 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 
 	private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
 
+	private AuthorizationManager<RequestAuthorizationContext> defaultManager = (authentication, request) -> null;
+
 	private RequestMatcherDelegatingAuthorizationManager(
 			List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings) {
 		Assert.notEmpty(mappings, "mappings cannot be empty");
@@ -81,8 +83,10 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
 			}
 		}
-		this.logger.trace("Abstaining since did not find matching RequestMatcher");
-		return null;
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, this.defaultManager));
+		}
+		return this.defaultManager.check(authentication, new RequestAuthorizationContext(request));
 	}
 
 	/**
@@ -91,6 +95,21 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	 */
 	public static Builder builder() {
 		return new Builder();
+	}
+
+	/**
+	 * Use this {@link AuthorizationManager} if the request fails to match any other
+	 * configured {@link AuthorizationManager}.
+	 *
+	 * <p>
+	 * This is specifically handy when considering whether to accept or deny requests by
+	 * default. The default is to abstain from deciding on requests that don't match
+	 * configuration.
+	 * @param authorizationManager the {@link AuthorizationManager} to use
+	 * @since 5.8
+	 */
+	public void setDefaultAuthorizationManager(AuthorizationManager<RequestAuthorizationContext> authorizationManager) {
+		this.defaultManager = authorizationManager;
 	}
 
 	/**
