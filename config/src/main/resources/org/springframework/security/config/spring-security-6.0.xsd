@@ -3553,23 +3553,9 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="enabled" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>specify that XSS Protection should be explicitly enabled or disabled. Default is 'true'
-                meaning it is enabled.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="block" type="xs:boolean">
-         <xs:annotation>
-            <xs:documentation>Add mode=block to the header or not, default is on.
-                </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
       <xs:attribute name="header-value">
          <xs:annotation>
-            <xs:documentation>Specify the value for the X-Xss-Protection header. When set, overrides both enabled and
-                block attributes.
+            <xs:documentation>Specify the value for the X-Xss-Protection header. Defaults to "0".
                 </xs:documentation>
          </xs:annotation>
          <xs:simpleType>

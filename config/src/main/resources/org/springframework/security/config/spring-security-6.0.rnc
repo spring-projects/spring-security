@@ -1268,13 +1268,7 @@ xss-protection.attlist &=
 	## disable the X-XSS-Protection header. Default is 'false' meaning it is enabled.
 	attribute disabled {xsd:boolean}?
 xss-protection.attlist &=
-	## specify that XSS Protection should be explicitly enabled or disabled. Default is 'true' meaning it is enabled.
-	attribute enabled {xsd:boolean}?
-xss-protection.attlist &=
-	## Add mode=block to the header or not, default is on.
-	attribute block {xsd:boolean}?
-xss-protection.attlist &=
-	## Specify the value for the X-Xss-Protection header. When set, overrides both enabled and block attributes.
+	## Specify the value for the X-Xss-Protection header. Defaults to "0".
 	attribute header-value {"0"|"1"|"1; mode=block"}?
 
 content-type-options =

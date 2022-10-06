@@ -36,6 +36,7 @@ import org.springframework.test.web.servlet.get
  * Tests for [XssProtectionConfigDsl]
  *
  * @author Eleftheria Stein
+ * @author Daniel Garnier-Moiroux
  */
 @ExtendWith(SpringTestContextExtension::class)
 class XssProtectionConfigDslTests {
@@ -52,7 +53,7 @@ class XssProtectionConfigDslTests {
         this.mockMvc.get("/") {
             secure = true
         }.andExpect {
-            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1; mode=block") }
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
         }
     }
 
@@ -65,62 +66,6 @@ class XssProtectionConfigDslTests {
                 headers {
                     defaultsDisabled = true
                     xssProtection { }
-                }
-            }
-            return http.build()
-        }
-    }
-
-    @Test
-    fun `headers when XSS protection with block false then mode is not block in header`() {
-        this.spring.register(XssProtectionBlockFalseConfig::class.java).autowire()
-
-        this.mockMvc.get("/") {
-            secure = true
-        }.andExpect {
-            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1") }
-        }
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    open class XssProtectionBlockFalseConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                headers {
-                    defaultsDisabled = true
-                    xssProtection {
-                        block = false
-                    }
-                }
-            }
-            return http.build()
-        }
-    }
-
-    @Test
-    fun `headers when XSS protection disabled then X-XSS-Protection header is 0`() {
-        this.spring.register(XssProtectionDisabledConfig::class.java).autowire()
-
-        this.mockMvc.get("/") {
-            secure = true
-        }.andExpect {
-            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
-        }
-    }
-
-    @Configuration
-    @EnableWebSecurity
-    open class XssProtectionDisabledConfig {
-        @Bean
-        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http {
-                headers {
-                    defaultsDisabled = true
-                    xssProtection {
-                        xssProtectionEnabled = false
-                    }
                 }
             }
             return http.build()
@@ -155,26 +100,54 @@ class XssProtectionConfigDslTests {
     }
 
     @Test
-    fun `headers when XSS protection header value disabled then X-XSS-Protection header is 0`() {
-        this.spring.register(XssProtectionHeaderValueDisabledFunctionConfig::class.java).autowire()
+    fun `headers when XSS protection header value enabled then X-XSS-Protection header is 1`() {
+        this.spring.register(XssProtectionHeaderValueEnabledFunctionConfig::class.java).autowire()
 
         this.mockMvc.get("/") {
             secure = true
         }.andExpect {
-            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1") }
         }
     }
 
     @Configuration
     @EnableWebSecurity
-    open class XssProtectionHeaderValueDisabledFunctionConfig () {
+    open class XssProtectionHeaderValueEnabledFunctionConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 headers {
                     defaultsDisabled = true
                     xssProtection {
-                        headerValue = XXssProtectionHeaderWriter.HeaderValue.DISABLED
+                        headerValue = XXssProtectionHeaderWriter.HeaderValue.ENABLED
+                    }
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `headers when XSS protection header value enabled_mode_block then X-XSS-Protection header is 1 and mode=block`() {
+        this.spring.register(XssProtectionHeaderValueEnabledModeBlockFunctionConfig::class.java).autowire()
+
+        this.mockMvc.get("/") {
+            secure = true
+        }.andExpect {
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1; mode=block") }
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    open class XssProtectionHeaderValueEnabledModeBlockFunctionConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                headers {
+                    defaultsDisabled = true
+                    xssProtection {
+                        headerValue = XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK
                     }
                 }
             }

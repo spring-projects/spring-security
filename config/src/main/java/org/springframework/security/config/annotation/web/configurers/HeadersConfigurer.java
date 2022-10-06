@@ -64,7 +64,7 @@ import org.springframework.util.Assert;
  * X-Content-Type-Options: nosniff
  * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
  * X-Frame-Options: DENY
- * X-XSS-Protection: 1; mode=block
+ * X-XSS-Protection: 0
  * </pre>
  *
  * @author Rob Winch
@@ -73,6 +73,7 @@ import org.springframework.util.Assert;
  * @author Eddú Meléndez
  * @author Vedran Pavic
  * @author Ankur Pathak
+ * @author Daniel Garnier-Moiroux
  * @since 3.2
  */
 public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
@@ -731,50 +732,6 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 
 		private XXssConfig() {
 			enable();
-		}
-
-		/**
-		 * If false, will not specify the mode as blocked. In this instance, any content
-		 * will be attempted to be fixed. If true, the content will be replaced with "#".
-		 * @param enabled the new value
-		 * @deprecated use
-		 * {@link XXssConfig#headerValue(XXssProtectionHeaderWriter.HeaderValue)} instead
-		 */
-		@Deprecated
-		public XXssConfig block(boolean enabled) {
-			this.writer.setBlock(enabled);
-			return this;
-		}
-
-		/**
-		 * If true, the header value will contain a value of 1. For example:
-		 *
-		 * <pre>
-		 * X-XSS-Protection: 1
-		 * </pre>
-		 *
-		 * or if {@link XXssProtectionHeaderWriter#setBlock(boolean)} of the given
-		 * {@link XXssProtectionHeaderWriter} is true
-		 *
-		 *
-		 * <pre>
-		 * X-XSS-Protection: 1; mode=block
-		 * </pre>
-		 *
-		 * If false, will explicitly disable specify that X-XSS-Protection is disabled.
-		 * For example:
-		 *
-		 * <pre>
-		 * X-XSS-Protection: 0
-		 * </pre>
-		 * @param enabled the new value
-		 * @deprecated use
-		 * {@link XXssConfig#headerValue(XXssProtectionHeaderWriter.HeaderValue)} instead
-		 */
-		@Deprecated
-		public XXssConfig xssProtectionEnabled(boolean enabled) {
-			this.writer.setEnabled(enabled);
-			return this;
 		}
 
 		/**

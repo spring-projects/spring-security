@@ -1040,7 +1040,7 @@ public class ServerHttpSecurity {
 	 * X-Content-Type-Options: nosniff
 	 * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
 	 * X-Frame-Options: DENY
-	 * X-XSS-Protection: 1; mode=block
+	 * X-XSS-Protection: 0
 	 * </pre>
 	 *
 	 * such that "Strict-Transport-Security" is only added on secure requests.
@@ -1081,7 +1081,7 @@ public class ServerHttpSecurity {
 	 * X-Content-Type-Options: nosniff
 	 * Strict-Transport-Security: max-age=31536000 ; includeSubDomains
 	 * X-Frame-Options: DENY
-	 * X-XSS-Protection: 1; mode=block
+	 * X-XSS-Protection: 0
 	 * </pre>
 	 *
 	 * such that "Strict-Transport-Security" is only added on secure requests.

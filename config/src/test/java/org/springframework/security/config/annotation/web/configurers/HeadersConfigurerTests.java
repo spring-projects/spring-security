@@ -80,7 +80,7 @@ public class HeadersConfigurerTests {
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
 				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
@@ -97,7 +97,7 @@ public class HeadersConfigurerTests {
 				.andExpect(header().string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate"))
 				.andExpect(header().string(HttpHeaders.EXPIRES, "0"))
 				.andExpect(header().string(HttpHeaders.PRAGMA, "no-cache"))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactlyInAnyOrder(
 				HttpHeaders.X_CONTENT_TYPE_OPTIONS, HttpHeaders.X_FRAME_OPTIONS, HttpHeaders.STRICT_TRANSPORT_SECURITY,
 				HttpHeaders.CACHE_CONTROL, HttpHeaders.EXPIRES, HttpHeaders.PRAGMA, HttpHeaders.X_XSS_PROTECTION);
@@ -169,16 +169,16 @@ public class HeadersConfigurerTests {
 			throws Exception {
 		this.spring.register(XssProtectionConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
 	@Test
-	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredValueDisabledThenOnlyXssProtectionHeaderInResponse()
+	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredEnabledModeBlockThenOnlyXssProtectionHeaderInResponse()
 			throws Exception {
-		this.spring.register(XssProtectionValueDisabledConfig.class).autowire();
+		this.spring.register(XssProtectionValueEnabledModeBlockConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
@@ -186,16 +186,16 @@ public class HeadersConfigurerTests {
 	public void getWhenOnlyXssProtectionConfiguredInLambdaThenOnlyXssProtectionHeaderInResponse() throws Exception {
 		this.spring.register(XssProtectionInLambdaConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
 	@Test
-	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredValueDisabledInLambdaThenOnlyXssProtectionHeaderInResponse()
+	public void getWhenHeaderDefaultsDisabledAndXssProtectionConfiguredValueEnabledModeBlockInLambdaThenOnlyXssProtectionHeaderInResponse()
 			throws Exception {
-		this.spring.register(XssProtectionValueDisabledInLambdaConfig.class).autowire();
+		this.spring.register(XssProtectionValueEnabledModeBlockInLambdaConfig.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/").secure(true))
-				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "0")).andReturn();
+				.andExpect(header().string(HttpHeaders.X_XSS_PROTECTION, "1; mode=block")).andReturn();
 		assertThat(mvcResult.getResponse().getHeaderNames()).containsExactly(HttpHeaders.X_XSS_PROTECTION);
 	}
 
@@ -719,7 +719,7 @@ public class HeadersConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class XssProtectionValueDisabledConfig {
+	static class XssProtectionValueEnabledModeBlockConfig {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -728,7 +728,7 @@ public class HeadersConfigurerTests {
 				.headers()
 					.defaultsDisabled()
 					.xssProtection()
-					.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED);
+					.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK);
 			// @formatter:on
 			return http.build();
 		}
@@ -755,7 +755,7 @@ public class HeadersConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class XssProtectionValueDisabledInLambdaConfig {
+	static class XssProtectionValueEnabledModeBlockInLambdaConfig {
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -765,7 +765,7 @@ public class HeadersConfigurerTests {
 					headers
 						.defaultsDisabled()
 						.xssProtection((xXssConfig) ->
-							xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.DISABLED)
+							xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK)
 						)
 				);
 			// @formatter:on

@@ -62,7 +62,7 @@ public class HttpHeadersConfigTests {
 			.put("Cache-Control", "no-cache, no-store, max-age=0, must-revalidate")
 			.put("Expires", "0")
 			.put("Pragma", "no-cache")
-			.put("X-XSS-Protection", "1; mode=block")
+			.put("X-XSS-Protection", "0")
 			.build();
 	// @formatter:on
 
@@ -353,32 +353,6 @@ public class HttpHeadersConfigTests {
 		// @formatter:off
 		this.mvc.perform(get("/"))
 				.andExpect(status().isOk())
-				.andExpect(header().string("X-XSS-Protection", "1; mode=block"))
-				.andExpect(excludes(excludedHeaders));
-		// @formatter:on
-	}
-
-	@Test
-	public void requestWhenEnablingXssProtectionThenDefaultsToModeBlock() throws Exception {
-		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
-		excludedHeaders.remove("X-XSS-Protection");
-		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtectionEnabled")).autowire();
-		// @formatter:off
-		this.mvc.perform(get("/"))
-				.andExpect(status().isOk())
-				.andExpect(header().string("X-XSS-Protection", "1; mode=block"))
-				.andExpect(excludes(excludedHeaders));
-		// @formatter:on
-	}
-
-	@Test
-	public void requestWhenDisablingXssProtectionThenDefaultsToZero() throws Exception {
-		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
-		excludedHeaders.remove("X-XSS-Protection");
-		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtectionDisabled")).autowire();
-		// @formatter:off
-		this.mvc.perform(get("/"))
-				.andExpect(status().isOk())
 				.andExpect(header().string("X-XSS-Protection", "0"))
 				.andExpect(excludes(excludedHeaders));
 		// @formatter:on
@@ -421,33 +395,6 @@ public class HttpHeadersConfigTests {
 				.andExpect(header().string("X-XSS-Protection", "1; mode=block"))
 				.andExpect(excludes(excludedHeaders));
 		// @formatter:on
-	}
-
-	@Test
-	public void requestWhenSettingXssProtectionDisabledHeaderValueToOneThenDefaultsToOne() throws Exception {
-		Set<String> excludedHeaders = new HashSet<>(defaultHeaders.keySet());
-		excludedHeaders.remove("X-XSS-Protection");
-		this.spring.configLocations(this.xml("DefaultsDisabledWithXssProtectionDisabledAndHeaderValueOne")).autowire();
-		// @formatter:off
-		this.mvc.perform(get("/"))
-				.andExpect(status().isOk())
-				.andExpect(header().string("X-XSS-Protection", "1"))
-				.andExpect(excludes(excludedHeaders));
-		// @formatter:on
-	}
-
-	@Test
-	public void configureWhenXssProtectionDisabledAndBlockSetThenAutowireFails() {
-		/*
-		 * NOTE: Original error message "Cannot set block to true with enabled false" no
-		 * longer shows up in stack trace as of Spring Framework 6.x.
-		 *
-		 * See https://github.com/spring-projects/spring-framework/issues/25162.
-		 */
-		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring
-						.configLocations(this.xml("DefaultsDisabledWithXssProtectionDisabledAndBlockSet")).autowire())
-				.havingRootCause().withMessageContaining("Property 'block' threw exception");
 	}
 
 	@Test
@@ -691,21 +638,6 @@ public class HttpHeadersConfigTests {
 				.isThrownBy(
 						() -> this.spring.configLocations(this.xml("HstsDisabledSpecifyingRequestMatcher")).autowire())
 				.withMessageContaining("request-matcher-ref");
-	}
-
-	@Test
-	public void configureWhenXssProtectionDisabledAndEnabledThenAutowireFails() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(() -> this.spring.configLocations(this.xml("XssProtectionDisabledAndEnabled")).autowire())
-				.withMessageContaining("enabled");
-	}
-
-	@Test
-	public void configureWhenXssProtectionDisabledAndBlockSpecifiedThenAutowireFails() {
-		assertThatExceptionOfType(BeanDefinitionParsingException.class)
-				.isThrownBy(
-						() -> this.spring.configLocations(this.xml("XssProtectionDisabledSpecifyingBlock")).autowire())
-				.withMessageContaining("block");
 	}
 
 	@Test

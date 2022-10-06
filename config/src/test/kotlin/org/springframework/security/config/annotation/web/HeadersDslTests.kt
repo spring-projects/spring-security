@@ -62,7 +62,7 @@ class HeadersDslTests {
             header { string(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, max-age=0, must-revalidate") }
             header { string(HttpHeaders.EXPIRES, "0") }
             header { string(HttpHeaders.PRAGMA, "no-cache") }
-            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "1; mode=block") }
+            header { string(XXssProtectionServerHttpHeadersWriter.X_XSS_PROTECTION, "0") }
         }
     }
 

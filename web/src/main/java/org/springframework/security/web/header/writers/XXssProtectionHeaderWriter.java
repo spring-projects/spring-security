@@ -29,6 +29,7 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @author Ankur Pathak
+ * @author Daniel Garnier-Moiroux
  * @since 3.2
  */
 public final class XXssProtectionHeaderWriter implements HeaderWriter {
@@ -41,7 +42,7 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 	 * Create a new instance
 	 */
 	public XXssProtectionHeaderWriter() {
-		this.headerValue = HeaderValue.ENABLED_MODE_BLOCK;
+		this.headerValue = HeaderValue.DISABLED;
 	}
 
 	@Override
@@ -49,55 +50,6 @@ public final class XXssProtectionHeaderWriter implements HeaderWriter {
 		if (!response.containsHeader(XSS_PROTECTION_HEADER)) {
 			response.setHeader(XSS_PROTECTION_HEADER, this.headerValue.toString());
 		}
-	}
-
-	/**
-	 * If true, will contain a value of 1. For example:
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 1
-	 * </pre>
-	 *
-	 * or if {@link #setBlock(boolean)} is true
-	 *
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 1; mode=block
-	 * </pre>
-	 *
-	 * If false, will explicitly disable specify that X-XSS-Protection is disabled. For
-	 * example:
-	 *
-	 * <pre>
-	 * X-XSS-Protection: 0
-	 * </pre>
-	 * @param enabled the new value
-	 * @deprecated use {@link XXssProtectionHeaderWriter#setHeaderValue(HeaderValue)}
-	 * instead
-	 */
-	@Deprecated
-	public void setEnabled(boolean enabled) {
-		if (!enabled) {
-			this.headerValue = HeaderValue.DISABLED;
-		}
-		else if (this.headerValue == HeaderValue.DISABLED) {
-			this.headerValue = HeaderValue.ENABLED;
-		}
-	}
-
-	/**
-	 * If false, will not specify the mode as blocked. In this instance, any content will
-	 * be attempted to be fixed. If true, the content will be replaced with "#".
-	 * @param block the new value
-	 * @deprecated use {@link XXssProtectionHeaderWriter#setHeaderValue(HeaderValue)}
-	 * instead
-	 */
-	@Deprecated
-	public void setBlock(boolean block) {
-		if (this.headerValue == HeaderValue.DISABLED && block) {
-			throw new IllegalArgumentException("Cannot set block to true with enabled false");
-		}
-		this.headerValue = block ? HeaderValue.ENABLED_MODE_BLOCK : HeaderValue.ENABLED;
 	}
 
 	/**
