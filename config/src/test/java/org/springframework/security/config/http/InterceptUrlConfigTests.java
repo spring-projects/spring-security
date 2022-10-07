@@ -406,6 +406,28 @@ public class InterceptUrlConfigTests {
 		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
 	}
 
+	@Test
+	public void requestWhenUsingFilterAllDispatcherTypesFalseThenAuthorizesRequestsAccordingly() throws Exception {
+		this.spring.configLocations(this.xml("FilterAllDispatcherTypesFalse")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/path").with(userCredentials()))
+				.andExpect(status().isOk());
+		this.mvc.perform(get("/path").with(adminCredentials()))
+				.andExpect(status().isForbidden());
+		this.mvc.perform(get("/error").with((request) -> {
+			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+			request.setDispatcherType(DispatcherType.ERROR);
+			return request;
+		})).andExpect(status().isOk());
+		this.mvc.perform(get("/path").with((request) -> {
+			request.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/path");
+			request.setDispatcherType(DispatcherType.ERROR);
+			return request;
+		})).andExpect(status().isOk());
+		// @formatter:on
+		assertThat(this.spring.getContext().getBean(AuthorizationManager.class)).isNotNull();
+	}
+
 	private static RequestPostProcessor adminCredentials() {
 		return httpBasic("admin", "password");
 	}

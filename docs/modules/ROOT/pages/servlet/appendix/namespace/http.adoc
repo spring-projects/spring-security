@@ -99,8 +99,8 @@ Defaults to `false`.
 
 [[nsa-http-filter-all-dispatcher-types]]
 * **filter-all-dispatcher-types**
-Corresponds to the `shouldFilterAllDispatcherTypes` property of the `AuthorizationFilter`. Only works when `use-authorization-manager=true`.
-Defaults to `false`.
+Corresponds to the `shouldFilterAllDispatcherTypes` property of the `AuthorizationFilter`. Does not work when `use-authorization-manager=false`.
+Defaults to `true`.
 
 
 [[nsa-http-pattern]]

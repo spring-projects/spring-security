@@ -1366,7 +1366,7 @@
       <xs:attribute name="filter-all-dispatcher-types" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Corresponds to the shouldFilterAllDispatcherTypes property of AuthorizationFilter. Do not
-                work when use-authorization-manager=false. Defaults to "false".
+                work when use-authorization-manager=false. Defaults to "true".
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>

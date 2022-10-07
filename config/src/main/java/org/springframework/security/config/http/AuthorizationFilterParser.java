@@ -85,8 +85,8 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(AuthorizationFilter.class);
 		filterBuilder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
 		filterBuilder.addConstructorArgReference(this.authorizationManagerRef);
-		if ("true".equals(element.getAttribute(ATT_FILTER_ALL_DISPATCHER_TYPES))) {
-			filterBuilder.addPropertyValue("shouldFilterAllDispatcherTypes", Boolean.TRUE);
+		if ("false".equals(element.getAttribute(ATT_FILTER_ALL_DISPATCHER_TYPES))) {
+			filterBuilder.addPropertyValue("shouldFilterAllDispatcherTypes", Boolean.FALSE);
 		}
 		BeanDefinition filter = filterBuilder
 				.addPropertyValue("securityContextHolderStrategy", this.securityContextHolderStrategy)

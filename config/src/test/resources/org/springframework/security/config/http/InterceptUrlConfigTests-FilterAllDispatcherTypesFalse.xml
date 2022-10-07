@@ -24,7 +24,7 @@
 			http://www.springframework.org/schema/beans
 			https://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<http auto-config="true">
+	<http auto-config="true" filter-all-dispatcher-types="false">
 		<intercept-url request-matcher-ref="pathErrorRequestMatcher" access="permitAll()" />
 		<intercept-url request-matcher-ref="errorRequestMatcher" access="authenticated" />
 		<intercept-url pattern="/**" access="hasRole('USER')"/>
