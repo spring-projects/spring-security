@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.publisher.TestPublisher;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
+import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
@@ -64,8 +66,12 @@ import org.springframework.security.web.server.context.SecurityContextServerWebE
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
+import org.springframework.security.web.server.csrf.DefaultCsrfToken;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
+import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler;
+import org.springframework.security.web.server.csrf.XorServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -84,6 +90,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -498,6 +505,60 @@ public class ServerHttpSecurityTests {
 		WebTestClient client = WebTestClientBuilder.bindToWebFilters(springSecurityFilterChain).build();
 		client.post().uri("/").exchange().expectStatus().isForbidden();
 		verify(customServerCsrfTokenRepository).loadToken(any());
+	}
+
+	@Test
+	public void postWhenCustomRequestHandlerThenUsed() {
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "tokenValue");
+		given(this.csrfTokenRepository.loadToken(any(ServerWebExchange.class))).willReturn(Mono.just(csrfToken));
+		given(this.csrfTokenRepository.generateToken(any(ServerWebExchange.class))).willReturn(Mono.empty());
+		ServerCsrfTokenRequestHandler requestHandler = mock(ServerCsrfTokenRequestHandler.class);
+		given(requestHandler.resolveCsrfTokenValue(any(ServerWebExchange.class), any(CsrfToken.class)))
+				.willReturn(Mono.just(csrfToken.getToken()));
+		// @formatter:off
+		this.http.csrf((csrf) -> csrf
+			.csrfTokenRepository(this.csrfTokenRepository)
+			.csrfTokenRequestHandler(requestHandler)
+		);
+		// @formatter:on
+		WebTestClient client = buildClient();
+		client.post().uri("/").exchange().expectStatus().isOk();
+		verify(this.csrfTokenRepository, times(2)).loadToken(any(ServerWebExchange.class));
+		verify(this.csrfTokenRepository).generateToken(any(ServerWebExchange.class));
+		verify(requestHandler).handle(any(ServerWebExchange.class), any());
+		verify(requestHandler).resolveCsrfTokenValue(any(ServerWebExchange.class), any());
+	}
+
+	@Test
+	public void postWhenServerXorCsrfTokenRequestAttributeHandlerThenOk() {
+		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
+		given(this.csrfTokenRepository.loadToken(any(ServerWebExchange.class))).willReturn(Mono.just(csrfToken));
+		given(this.csrfTokenRepository.generateToken(any(ServerWebExchange.class))).willReturn(Mono.empty());
+		ServerCsrfTokenRequestHandler requestHandler = new XorServerCsrfTokenRequestAttributeHandler();
+		// @formatter:off
+		this.http.csrf((csrf) -> csrf
+			.csrfTokenRepository(this.csrfTokenRepository)
+			.csrfTokenRequestHandler(requestHandler)
+		);
+		// @formatter:on
+
+		// Generate masked CSRF token value
+		ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
+		requestHandler.handle(exchange, Mono.just(csrfToken));
+		Mono<CsrfToken> csrfTokenAttribute = exchange.getAttribute(CsrfToken.class.getName());
+		String actualTokenValue = csrfTokenAttribute.map(CsrfToken::getToken).block();
+		assertThat(actualTokenValue).isNotEqualTo(csrfToken.getToken());
+
+		WebTestClient client = buildClient();
+		// @formatter:off
+		client.post()
+				.uri("/")
+				.header(csrfToken.getHeaderName(), actualTokenValue)
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
+		verify(this.csrfTokenRepository, times(2)).loadToken(any(ServerWebExchange.class));
+		verify(this.csrfTokenRepository).generateToken(any(ServerWebExchange.class));
 	}
 
 	@Test
