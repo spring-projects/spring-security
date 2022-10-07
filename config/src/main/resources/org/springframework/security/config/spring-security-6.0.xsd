@@ -1363,6 +1363,13 @@
                 </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="filter-all-dispatcher-types" type="xs:boolean">
+         <xs:annotation>
+            <xs:documentation>Corresponds to the shouldFilterAllDispatcherTypes property of AuthorizationFilter. Do not
+                work when use-authorization-manager=false. Defaults to "false".
+                </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="disable-url-rewriting" type="xs:boolean">
          <xs:annotation>
             <xs:documentation>Prevents the jsessionid parameter from being added to rendered URLs. Defaults to "true"

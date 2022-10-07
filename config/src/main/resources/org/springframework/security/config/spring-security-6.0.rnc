@@ -386,6 +386,9 @@ http.attlist &=
 	## Corresponds to the observeOncePerRequest property of FilterSecurityInterceptor. Defaults to "false"
 	attribute once-per-request {xsd:boolean}?
 http.attlist &=
+	## Corresponds to the shouldFilterAllDispatcherTypes property of AuthorizationFilter. Do not work when use-authorization-manager=false. Defaults to "false".
+	attribute filter-all-dispatcher-types {xsd:boolean}?
+http.attlist &=
 	## Prevents the jsessionid parameter from being added to rendered URLs. Defaults to "true" (rewriting is disabled).
 	attribute disable-url-rewriting {xsd:boolean}?
 http.attlist &=

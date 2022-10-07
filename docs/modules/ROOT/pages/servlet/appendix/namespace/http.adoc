@@ -97,6 +97,12 @@ Corresponds to the `observeOncePerRequest` property of `FilterSecurityIntercepto
 Defaults to `false`.
 
 
+[[nsa-http-filter-all-dispatcher-types]]
+* **filter-all-dispatcher-types**
+Corresponds to the `shouldFilterAllDispatcherTypes` property of the `AuthorizationFilter`. Only works when `use-authorization-manager=true`.
+Defaults to `false`.
+
+
 [[nsa-http-pattern]]
 * **pattern**
 Defining a pattern for the <<nsa-http,http>> element controls the requests which will be filtered through the list of filters which it defines.

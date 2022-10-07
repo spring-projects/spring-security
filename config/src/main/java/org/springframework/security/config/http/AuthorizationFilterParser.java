@@ -59,6 +59,8 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 
 	private static final String ATT_SERVLET_PATH = "servlet-path";
 
+	private static final String ATT_FILTER_ALL_DISPATCHER_TYPES = "filter-all-dispatcher-types";
+
 	private String authorizationManagerRef;
 
 	private final BeanMetadataElement securityContextHolderStrategy;
@@ -82,7 +84,11 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 		this.authorizationManagerRef = createAuthorizationManager(element, parserContext);
 		BeanDefinitionBuilder filterBuilder = BeanDefinitionBuilder.rootBeanDefinition(AuthorizationFilter.class);
 		filterBuilder.getRawBeanDefinition().setSource(parserContext.extractSource(element));
-		BeanDefinition filter = filterBuilder.addConstructorArgReference(this.authorizationManagerRef)
+		filterBuilder.addConstructorArgReference(this.authorizationManagerRef);
+		if ("true".equals(element.getAttribute(ATT_FILTER_ALL_DISPATCHER_TYPES))) {
+			filterBuilder.addPropertyValue("shouldFilterAllDispatcherTypes", Boolean.TRUE);
+		}
+		BeanDefinition filter = filterBuilder
 				.addPropertyValue("securityContextHolderStrategy", this.securityContextHolderStrategy)
 				.getBeanDefinition();
 		String id = element.getAttribute(AbstractBeanDefinitionParser.ID_ATTRIBUTE);
