@@ -7,6 +7,10 @@ assignees: ''
 
 ---
 
+<!--
+Do NOT report Security Vulnerabilities here. Please use https://github.com/spring-projects/spring-security/security/policy
+-->
+
 **Describe the bug**
 A clear and concise description of what the bug is.
 
