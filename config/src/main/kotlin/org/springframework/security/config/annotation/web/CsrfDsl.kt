@@ -34,6 +34,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher
  * @property requireCsrfProtectionMatcher specify the [RequestMatcher] to use for
  * determining when CSRF should be applied.
  * @property sessionAuthenticationStrategy the [SessionAuthenticationStrategy] to use.
+ * @property csrfTokenRequestHandler the [CsrfTokenRequestHandler] to use for making
+ * the CSRF token available as a request attribute
  */
 @SecurityMarker
 class CsrfDsl {
