@@ -29,24 +29,21 @@ import org.springframework.security.core.Authentication;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationDeniedEvent<T> extends ApplicationEvent {
-
-	private final Supplier<Authentication> authentication;
-
-	private final AuthorizationDecision decision;
+public class AuthorizationDeniedEvent<T> extends AuthorizationEvent {
 
 	public AuthorizationDeniedEvent(Supplier<Authentication> authentication, T object, AuthorizationDecision decision) {
-		super(object);
-		this.authentication = authentication;
-		this.decision = decision;
+		super(authentication, object, decision);
 	}
 
-	public Supplier<Authentication> getAuthentication() {
-		return this.authentication;
-	}
-
-	public AuthorizationDecision getAuthorizationDecision() {
-		return this.decision;
+	/**
+	 * Get the object to which access was requested
+	 * @return the object to which access was requested
+	 * @since 5.8
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public T getObject() {
+		return (T) getSource();
 	}
 
 }
