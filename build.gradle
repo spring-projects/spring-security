@@ -203,12 +203,9 @@ nohttp {
 }
 
 tasks.register('cloneSamples', IncludeRepoTask) {
-	if (!project.hasProperty("cloneOutputDirectory")) {
-		throw new GradleException("Required parameter 'cloneOutputDirectory' not found")
-	}
 	repository = 'spring-projects/spring-security-samples'
 	ref = samplesBranch
-	outputDirectory = project.file("$cloneOutputDirectory")
+	outputDirectory = project.hasProperty("cloneOutputDirectory") ? project.file("$cloneOutputDirectory") : project.file("build/samples")
 }
 
 s101 {
