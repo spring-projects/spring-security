@@ -21,7 +21,6 @@ import java.util.function.Supplier;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.core.Authentication;
-import org.springframework.util.Assert;
 
 /**
  * An {@link ApplicationEvent} which indicates successful authorization.
@@ -30,26 +29,22 @@ import org.springframework.util.Assert;
  * @author Josh Cummings
  * @since 5.7
  */
-public class AuthorizationGrantedEvent<T> extends ApplicationEvent {
-
-	private final Supplier<Authentication> authentication;
-
-	private final AuthorizationDecision decision;
+public class AuthorizationGrantedEvent<T> extends AuthorizationEvent {
 
 	public AuthorizationGrantedEvent(Supplier<Authentication> authentication, T object,
 			AuthorizationDecision decision) {
-		super(object);
-		Assert.notNull(authentication, "authentication supplier cannot be null");
-		this.authentication = authentication;
-		this.decision = decision;
+		super(authentication, object, decision);
 	}
 
-	public Supplier<Authentication> getAuthentication() {
-		return this.authentication;
-	}
-
-	public AuthorizationDecision getAuthorizationDecision() {
-		return this.decision;
+	/**
+	 * Get the object to which access was requested
+	 * @return the object to which access was requested
+	 * @since 5.8
+	 */
+	@Override
+	@SuppressWarnings("unchecked")
+	public T getObject() {
+		return (T) getSource();
 	}
 
 }
