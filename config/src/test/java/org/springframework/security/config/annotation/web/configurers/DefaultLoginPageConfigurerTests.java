@@ -85,7 +85,9 @@ public class DefaultLoginPageConfigurerTests {
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
 		// @formatter:off
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string("<!DOCTYPE html>\n"
+				.andExpect((result) -> {
+					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
 						+ "<html lang=\"en\">\n"
 						+ "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -108,11 +110,12 @@ public class DefaultLoginPageConfigurerTests {
 						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 						+ "        </p>\n"
-						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
 						+ "</div>\n"
-						+ "</body></html>"));
+						+ "</body></html>");
+				});
 		// @formatter:on
 	}
 
@@ -131,7 +134,9 @@ public class DefaultLoginPageConfigurerTests {
 		// @formatter:off
 		this.mvc.perform(get("/login?error").session((MockHttpSession) mvcResult.getRequest().getSession())
 				.sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string("<!DOCTYPE html>\n"
+				.andExpect((result) -> {
+					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
 						+ "<html lang=\"en\">\n"
 						+ "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -153,11 +158,12 @@ public class DefaultLoginPageConfigurerTests {
 						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 						+ "        </p>\n"
-						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
 						+ "</div>\n"
-						+ "</body></html>"));
+						+ "</body></html>");
+				});
 		// @formatter:on
 	}
 
@@ -180,7 +186,9 @@ public class DefaultLoginPageConfigurerTests {
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
 		// @formatter:off
 		this.mvc.perform(get("/login?logout").sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string("<!DOCTYPE html>\n"
+				.andExpect((result) -> {
+					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
 						+ "<html lang=\"en\">\n"
 						+ "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -203,11 +211,12 @@ public class DefaultLoginPageConfigurerTests {
 						+ "          <label for=\"password\" class=\"sr-only\">Password</label>\n"
 						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 						+ "        </p>\n"
-						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
 						+ "</div>\n"
-						+ "</body></html>"));
+						+ "</body></html>");
+				});
 		// @formatter:on
 	}
 
@@ -230,7 +239,9 @@ public class DefaultLoginPageConfigurerTests {
 		String csrfAttributeName = HttpSessionCsrfTokenRepository.class.getName().concat(".CSRF_TOKEN");
 		// @formatter:off
 		this.mvc.perform(get("/login").sessionAttr(csrfAttributeName, csrfToken))
-				.andExpect(content().string("<!DOCTYPE html>\n"
+				.andExpect((result) -> {
+					CsrfToken token = (CsrfToken) result.getRequest().getAttribute(CsrfToken.class.getName());
+					assertThat(result.getResponse().getContentAsString()).isEqualTo("<!DOCTYPE html>\n"
 						+ "<html lang=\"en\">\n"
 						+ "  <head>\n"
 						+ "    <meta charset=\"utf-8\">\n"
@@ -254,11 +265,12 @@ public class DefaultLoginPageConfigurerTests {
 						+ "          <input type=\"password\" id=\"password\" name=\"password\" class=\"form-control\" placeholder=\"Password\" required>\n"
 						+ "        </p>\n"
 						+ "<p><input type='checkbox' name='remember-me'/> Remember me on this computer.</p>\n"
-						+ "<input name=\"" + csrfToken.getParameterName() + "\" type=\"hidden\" value=\"" + csrfToken.getToken() + "\" />\n"
+						+ "<input name=\"" + token.getParameterName() + "\" type=\"hidden\" value=\"" + token.getToken() + "\" />\n"
 						+ "        <button class=\"btn btn-lg btn-primary btn-block\" type=\"submit\">Sign in</button>\n"
 						+ "      </form>\n"
 						+ "</div>\n"
-						+ "</body></html>"));
+						+ "</body></html>");
+				});
 		// @formatter:on
 	}
 

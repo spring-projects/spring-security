@@ -39,7 +39,10 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpRequestResponseHolder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,8 +85,10 @@ public class SessionManagementConfigurerServlet31Tests {
 		request.setParameter("username", "user");
 		request.setParameter("password", "password");
 		HttpSessionCsrfTokenRepository repository = new HttpSessionCsrfTokenRepository();
-		CsrfToken token = repository.generateToken(request);
-		repository.saveToken(token, request, this.response);
+		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
+		DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, this.response);
+		handler.handle(request, this.response, deferredCsrfToken::get);
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		request.setParameter(token.getParameterName(), token.getToken());
 		request.getSession().setAttribute("attribute1", "value1");
 		loadConfig(SessionManagementDefaultSessionFixationServlet31Config.class);

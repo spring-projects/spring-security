@@ -40,7 +40,10 @@ import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequ
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -157,9 +160,12 @@ public class SecurityMockMvcRequestPostProcessorsCsrfTests {
 		// @formatter:off
 		this.mockMvc.perform(post("/").with(csrf()));
 		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
 		HttpSessionCsrfTokenRepository repo = new HttpSessionCsrfTokenRepository();
-		CsrfToken token = repo.generateToken(request);
-		repo.saveToken(token, request, new MockHttpServletResponse());
+		CsrfTokenRequestHandler handler = new XorCsrfTokenRequestAttributeHandler();
+		DeferredCsrfToken deferredCsrfToken = repo.loadDeferredToken(request, response);
+		handler.handle(request, response, deferredCsrfToken::get);
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		MockHttpServletRequestBuilder requestWithCsrf = post("/")
 			.param(token.getParameterName(), token.getToken())
 			.session((MockHttpSession) request.getSession());

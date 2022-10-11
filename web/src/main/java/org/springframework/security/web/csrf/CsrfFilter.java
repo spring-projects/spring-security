@@ -87,7 +87,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private AccessDeniedHandler accessDeniedHandler = new AccessDeniedHandlerImpl();
 
-	private CsrfTokenRequestHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+	private CsrfTokenRequestHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
 
 	/**
 	 * Creates a new instance.
