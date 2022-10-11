@@ -58,6 +58,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.PortResolverImpl;
+import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -120,7 +121,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		CompositeComponentDefinition compositeDef = new CompositeComponentDefinition(element.getTagName(),
 				pc.extractSource(element));
 		pc.pushContainingComponent(compositeDef);
-		registerFilterChainProxyIfNecessary(pc, pc.extractSource(element));
+		registerFilterChainProxyIfNecessary(pc, element);
 		// Obtain the filter chains and add the new chain to it
 		BeanDefinition listFactoryBean = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAINS);
 		List<BeanReference> filterChains = (List<BeanReference>) listFactoryBean.getPropertyValues()
@@ -351,7 +352,8 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		return customFilters;
 	}
 
-	static void registerFilterChainProxyIfNecessary(ParserContext pc, Object source) {
+	static void registerFilterChainProxyIfNecessary(ParserContext pc, Element element) {
+		Object source = pc.extractSource(element);
 		BeanDefinitionRegistry registry = pc.getRegistry();
 		if (registry.containsBeanDefinition(BeanIds.FILTER_CHAIN_PROXY)) {
 			return;
@@ -378,6 +380,7 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		requestRejected.addConstructorArgValue("requestRejectedHandler");
 		requestRejected.addConstructorArgValue(BeanIds.FILTER_CHAIN_PROXY);
 		requestRejected.addConstructorArgValue("requestRejectedHandler");
+		requestRejected.addPropertyValue("observationRegistry", getObservationRegistry(element));
 		AbstractBeanDefinition requestRejectedBean = requestRejected.getBeanDefinition();
 		String requestRejectedPostProcessorName = pc.getReaderContext().generateBeanName(requestRejectedBean);
 		registry.registerBeanDefinition(requestRejectedPostProcessorName, requestRejectedBean);
@@ -391,13 +394,15 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
 	}
 
-	static class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
+	public static class RequestRejectedHandlerPostProcessor implements BeanDefinitionRegistryPostProcessor {
 
 		private final String beanName;
 
 		private final String targetBeanName;
 
 		private final String targetPropertyName;
+
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
 		RequestRejectedHandlerPostProcessor(String beanName, String targetBeanName, String targetPropertyName) {
 			this.beanName = beanName;
@@ -412,11 +417,22 @@ public class HttpSecurityBeanDefinitionParser implements BeanDefinitionParser {
 				beanDefinition.getPropertyValues().add(this.targetPropertyName,
 						new RuntimeBeanReference(this.beanName));
 			}
+			else if (!this.observationRegistry.isNoop()) {
+				BeanDefinition observable = BeanDefinitionBuilder
+						.rootBeanDefinition(ObservationMarkingRequestRejectedHandler.class)
+						.addConstructorArgValue(this.observationRegistry).getBeanDefinition();
+				BeanDefinition beanDefinition = registry.getBeanDefinition(this.targetBeanName);
+				beanDefinition.getPropertyValues().add(this.targetPropertyName, observable);
+			}
 		}
 
 		@Override
 		public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
 
+		}
+
+		public void setObservationRegistry(ObservationRegistry registry) {
+			this.observationRegistry = registry;
 		}
 
 	}

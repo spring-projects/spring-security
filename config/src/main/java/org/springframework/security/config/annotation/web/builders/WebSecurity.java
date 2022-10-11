@@ -57,6 +57,7 @@ import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.debug.DebugFilter;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -307,6 +308,10 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.requestRejectedHandler != null) {
 			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
+		else if (!this.observationRegistry.isNoop()) {
+			filterChainProxy
+					.setRequestRejectedHandler(new ObservationMarkingRequestRejectedHandler(this.observationRegistry));
+		}
 		filterChainProxy.setFilterChainDecorator(getFilterChainDecorator());
 		filterChainProxy.afterPropertiesSet();
 
@@ -319,6 +324,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 					+ "********************************************************************\n\n");
 			result = new DebugFilter(filterChainProxy);
 		}
+
 		this.postBuildAction.run();
 		return result;
 	}

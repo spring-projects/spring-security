@@ -40,7 +40,7 @@ public class HttpFirewallBeanDefinitionParser implements BeanDefinitionParser {
 			pc.getReaderContext().error("ref attribute is required", pc.extractSource(element));
 		}
 		// Ensure the FCP is registered.
-		HttpSecurityBeanDefinitionParser.registerFilterChainProxyIfNecessary(pc, pc.extractSource(element));
+		HttpSecurityBeanDefinitionParser.registerFilterChainProxyIfNecessary(pc, element);
 		BeanDefinition filterChainProxy = pc.getRegistry().getBeanDefinition(BeanIds.FILTER_CHAIN_PROXY);
 		filterChainProxy.getPropertyValues().addPropertyValue("firewall", new RuntimeBeanReference(ref));
 		return null;
