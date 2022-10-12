@@ -31,7 +31,9 @@ import org.springframework.security.web.context.SecurityContextPersistenceFilter
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
+import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -47,6 +49,8 @@ public abstract class WebTestUtils {
 	private static final SecurityContextRepository DEFAULT_CONTEXT_REPO = new HttpSessionSecurityContextRepository();
 
 	private static final CsrfTokenRepository DEFAULT_TOKEN_REPO = new HttpSessionCsrfTokenRepository();
+
+	private static final CsrfTokenRequestHandler DEFAULT_CSRF_HANDLER = new XorCsrfTokenRequestAttributeHandler();
 
 	private WebTestUtils() {
 	}
@@ -105,6 +109,23 @@ public abstract class WebTestUtils {
 			return DEFAULT_TOKEN_REPO;
 		}
 		return (CsrfTokenRepository) ReflectionTestUtils.getField(filter, "tokenRepository");
+	}
+
+	/**
+	 * Gets the {@link CsrfTokenRequestHandler} for the specified
+	 * {@link HttpServletRequest}. If one is not found, the default
+	 * {@link XorCsrfTokenRequestAttributeHandler} is used.
+	 * @param request the {@link HttpServletRequest} to obtain the
+	 * {@link CsrfTokenRequestHandler}
+	 * @return the {@link CsrfTokenRequestHandler} for the specified
+	 * {@link HttpServletRequest}
+	 */
+	public static CsrfTokenRequestHandler getCsrfTokenRequestHandler(HttpServletRequest request) {
+		CsrfFilter filter = findFilter(request, CsrfFilter.class);
+		if (filter == null) {
+			return DEFAULT_CSRF_HANDLER;
+		}
+		return (CsrfTokenRequestHandler) ReflectionTestUtils.getField(filter, "requestHandler");
 	}
 
 	/**
