@@ -194,8 +194,7 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 		this.logger.debug(LogMessage.format("preAuthenticatedPrincipal = %s, trying to authenticate", principal));
 		Object credentials = getPreAuthenticatedCredentials(request);
 		try {
-			PreAuthenticatedAuthenticationToken authenticationRequest = new PreAuthenticatedAuthenticationToken(
-					principal, credentials);
+			PreAuthenticatedAuthenticationToken authenticationRequest = this.createAuthenticationToken(principal, credentials);
 			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
 			successfulAuthentication(request, response, authenticationResult);
@@ -206,6 +205,20 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 				throw ex;
 			}
 		}
+	}
+
+	/**
+	 * creates the PreAuthenticatedAuthenticationToken.
+ 	 * <p>
+	 * The implementation can override the method createAuthenticationToken, which
+	 * will return the PreAuthenticatedAuthenticationToken or its subclass.
+	 *
+	 * @param principal The authenticated principal
+	 * @param credentials The authenticated credentials
+	 * @return the authenticated user token
+	 */
+	protected PreAuthenticatedAuthenticationToken createAuthenticationToken(Object principal, Object credentials) {
+		return new PreAuthenticatedAuthenticationToken(principal, credentials);
 	}
 
 	/**
