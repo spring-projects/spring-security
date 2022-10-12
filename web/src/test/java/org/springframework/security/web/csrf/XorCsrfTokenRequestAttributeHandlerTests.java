@@ -149,6 +149,15 @@ public class XorCsrfTokenRequestAttributeHandlerTests {
 	}
 
 	@Test
+	public void handleWhenCsrfTokenRequestedTwiceThenCached() {
+		this.handler.handle(this.request, this.response, () -> this.token);
+
+		CsrfToken csrfTokenAttribute = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
+		assertThat(csrfTokenAttribute.getToken()).isNotEqualTo(this.token.getToken());
+		assertThat(csrfTokenAttribute.getToken()).isEqualTo(csrfTokenAttribute.getToken());
+	}
+
+	@Test
 	public void resolveCsrfTokenValueWhenRequestIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
 				.withMessage("request cannot be null");

@@ -111,6 +111,17 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 	}
 
 	@Test
+	public void handleWhenCsrfTokenRequestedTwiceThenCached() {
+		this.handler.handle(this.exchange, Mono.just(this.token));
+		Mono<CsrfToken> csrfTokenAttribute = this.exchange.getAttribute(CsrfToken.class.getName());
+		assertThat(csrfTokenAttribute).isNotNull();
+		CsrfToken csrfToken1 = csrfTokenAttribute.block();
+		CsrfToken csrfToken2 = csrfTokenAttribute.block();
+		assertThat(csrfToken1.getToken()).isNotEqualTo(this.token.getToken());
+		assertThat(csrfToken1.getToken()).isEqualTo(csrfToken2.getToken());
+	}
+
+	@Test
 	public void resolveCsrfTokenValueWhenExchangeIsNullThenThrowsIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
 				.withMessage("exchange cannot be null");
