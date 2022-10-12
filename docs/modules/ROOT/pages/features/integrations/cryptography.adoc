@@ -235,7 +235,7 @@ The following system uses the `Pbkdf2PasswordEncoder`:
 [source,java,role="primary"]
 ----
 // Create an encoder with all the defaults
-Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder();
+Pbkdf2PasswordEncoder encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 String result = encoder.encode("myPassword");
 assertTrue(encoder.matches("myPassword", result));
 ----
@@ -244,7 +244,7 @@ assertTrue(encoder.matches("myPassword", result));
 [source,kotlin,role="secondary"]
 ----
 // Create an encoder with all the defaults
-val encoder = Pbkdf2PasswordEncoder()
+val encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
 val result: String = encoder.encode("myPassword")
 assertTrue(encoder.matches("myPassword", result))
 ----
