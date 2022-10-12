@@ -41,6 +41,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -301,24 +302,7 @@ public class CsrfConfigTests {
 	}
 
 	@Test
-	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorThenOk() throws Exception {
-		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
-				.autowire();
-		// @formatter:off
-		MvcResult mvcResult = this.mvc.perform(get("/ok"))
-				.andExpect(status().isOk())
-				.andReturn();
-		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
-		CsrfToken csrfToken = (CsrfToken) mvcResult.getRequest().getAttribute("_csrf");
-		MockHttpServletRequestBuilder ok = post("/ok")
-				.header(csrfToken.getHeaderName(), csrfToken.getToken())
-				.session(session);
-		this.mvc.perform(ok).andExpect(status().isOk());
-		// @formatter:on
-	}
-
-	@Test
-	public void postWhenUsingCsrfAndXorCsrfTokenRequestProcessorWithRawTokenThenForbidden() throws Exception {
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestAttributeHandlerThenOk() throws Exception {
 		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
 				.autowire();
 		// @formatter:off
@@ -328,6 +312,25 @@ public class CsrfConfigTests {
 		MockHttpSession session = (MockHttpSession) mvcResult.getRequest().getSession();
 		MockHttpServletRequestBuilder ok = post("/ok")
 				.with(csrf())
+				.session(session);
+		this.mvc.perform(ok).andExpect(status().isOk());
+		// @formatter:on
+	}
+
+	@Test
+	public void postWhenUsingCsrfAndXorCsrfTokenRequestAttributeHandlerWithRawTokenThenForbidden() throws Exception {
+		this.spring.configLocations(this.xml("WithXorCsrfTokenRequestAttributeHandler"), this.xml("shared-controllers"))
+				.autowire();
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/csrf"))
+				.andExpect(status().isOk())
+				.andReturn();
+		MockHttpServletRequest request = mvcResult.getRequest();
+		MockHttpSession session = (MockHttpSession) request.getSession();
+		CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+		CsrfToken csrfToken = repository.loadToken(request);
+		MockHttpServletRequestBuilder ok = post("/ok")
+				.header(csrfToken.getHeaderName(), csrfToken.getToken())
 				.session(session);
 		this.mvc.perform(ok).andExpect(status().isForbidden());
 		// @formatter:on
@@ -594,7 +597,7 @@ public class CsrfConfigTests {
 		@Override
 		public void match(MvcResult result) throws Exception {
 			MockHttpServletRequest request = result.getRequest();
-			CsrfToken token = WebTestUtils.getCsrfTokenRepository(request).loadToken(request);
+			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 			assertThat(token).isNotNull();
 			assertThat(token.getToken()).isEqualTo(this.token.apply(result));
 		}

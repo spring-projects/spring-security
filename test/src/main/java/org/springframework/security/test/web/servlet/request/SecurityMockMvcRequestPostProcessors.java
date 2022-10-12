@@ -95,6 +95,8 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -499,6 +501,10 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 */
 	public static final class CsrfRequestPostProcessor implements RequestPostProcessor {
 
+		private static final byte[] INVALID_TOKEN_BYTES = new byte[] { 1, 1, 1, 96, 99, 98 };
+
+		private static final String INVALID_TOKEN_VALUE = Base64.getEncoder().encodeToString(INVALID_TOKEN_BYTES);
+
 		private boolean asHeader;
 
 		private boolean useInvalidToken;
@@ -509,14 +515,17 @@ public final class SecurityMockMvcRequestPostProcessors {
 		@Override
 		public MockHttpServletRequest postProcessRequest(MockHttpServletRequest request) {
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
+			CsrfTokenRequestHandler handler = WebTestUtils.getCsrfTokenRequestHandler(request);
 			if (!(repository instanceof TestCsrfTokenRepository)) {
 				repository = new TestCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
 				WebTestUtils.setCsrfTokenRepository(request, repository);
 			}
 			TestCsrfTokenRepository.enable(request);
-			CsrfToken token = repository.generateToken(request);
-			repository.saveToken(token, request, new MockHttpServletResponse());
-			String tokenValue = this.useInvalidToken ? "invalid" + token.getToken() : token.getToken();
+			MockHttpServletResponse response = new MockHttpServletResponse();
+			DeferredCsrfToken deferredCsrfToken = repository.loadDeferredToken(request, response);
+			handler.handle(request, response, deferredCsrfToken::get);
+			CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+			String tokenValue = this.useInvalidToken ? INVALID_TOKEN_VALUE : token.getToken();
 			if (this.asHeader) {
 				request.addHeader(token.getHeaderName(), tokenValue);
 			}

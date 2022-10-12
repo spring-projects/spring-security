@@ -25,7 +25,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockServletContext;
-import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.CsrfRequestPostProcessor;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -52,8 +51,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void defaults() {
 		MockHttpServletRequest request = logout().buildRequest(this.servletContext);
-		CsrfToken token = (CsrfToken) request
-				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/logout");
@@ -62,8 +60,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	@Test
 	public void custom() {
 		MockHttpServletRequest request = logout("/admin/logout").buildRequest(this.servletContext);
-		CsrfToken token = (CsrfToken) request
-				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/admin/logout");
@@ -73,8 +70,7 @@ public class SecurityMockMvcRequestBuildersFormLogoutTests {
 	public void customWithUriVars() {
 		MockHttpServletRequest request = logout().logoutUrl("/uri-logout/{var1}/{var2}", "val1", "val2")
 				.buildRequest(this.servletContext);
-		CsrfToken token = (CsrfToken) request
-				.getAttribute(CsrfRequestPostProcessor.TestCsrfTokenRepository.TOKEN_ATTR_NAME);
+		CsrfToken token = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 		assertThat(request.getMethod()).isEqualTo("POST");
 		assertThat(request.getParameter(token.getParameterName())).isEqualTo(token.getToken());
 		assertThat(request.getRequestURI()).isEqualTo("/uri-logout/val1/val2");
