@@ -86,58 +86,6 @@ public class Pbkdf2PasswordEncoder implements PasswordEncoder {
 	private boolean encodeHashAsBase64;
 
 	/**
-	 * Constructs a PBKDF2 password encoder with no additional secret value. There will be
-	 * a salt length of 8 bytes, 185,000 iterations, SHA-1 algorithm and a hash length of
-	 * 256 bits. The default is based upon aiming for .5 seconds to validate the password
-	 * when this class was added. Users should tune password verification to their own
-	 * systems.
-	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_5()} instead
-	 */
-	@Deprecated
-	public Pbkdf2PasswordEncoder() {
-		this("");
-	}
-
-	/**
-	 * Constructs a PBKDF2 password encoder with a secret value which is also included in
-	 * the password hash. There will be a salt length of 8 bytes, 185,000 iterations,
-	 * SHA-1 algorithm and a hash length of 256 bits.
-	 * @param secret the secret key used in the encoding process (should not be shared)
-	 * @deprecated Use {@link #Pbkdf2PasswordEncoder(CharSequence, int, int, int)} instead
-	 */
-	@Deprecated
-	public Pbkdf2PasswordEncoder(CharSequence secret) {
-		this(secret, 8);
-	}
-
-	/**
-	 * Constructs a PBKDF2 password encoder with a secret value as well as salt length.
-	 * There will be 185,000 iterations, SHA-1 algorithm and a hash length of 256 bits.
-	 * @param secret the secret
-	 * @param saltLength the salt length (in bytes)
-	 * @since 5.5
-	 * @deprecated Use {@link #Pbkdf2PasswordEncoder(CharSequence, int, int, int)} instead
-	 */
-	@Deprecated
-	public Pbkdf2PasswordEncoder(CharSequence secret, int saltLength) {
-		this(secret, saltLength, 185000, 256);
-	}
-
-	/**
-	 * Constructs a PBKDF2 password encoder with a secret value as well as iterations and
-	 * hash width. The salt length will be 8 bytes.
-	 * @param secret the secret
-	 * @param iterations the number of iterations. Users should aim for taking about .5
-	 * seconds on their own system.
-	 * @param hashWidth the size of the hash (in bits)
-	 * @deprecated Use {@link #Pbkdf2PasswordEncoder(CharSequence, int, int, int)} instead
-	 */
-	@Deprecated
-	public Pbkdf2PasswordEncoder(CharSequence secret, int iterations, int hashWidth) {
-		this(secret, 8, iterations, hashWidth);
-	}
-
-	/**
 	 * Constructs a PBKDF2 password encoder with a secret value as well as salt length,
 	 * iterations and hash width.
 	 * @param secret the secret

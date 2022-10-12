@@ -81,16 +81,6 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	private final BytesKeyGenerator saltGenerator;
 
 	/**
-	 * Constructs a SCrypt password encoder with cpu cost of 16,384, memory cost of 8,
-	 * parallelization of 1, a key length of 32 and a salt length of 64 bytes.
-	 * @deprecated Use {@link #defaultsForSpringSecurity_v4_1()} instead
-	 */
-	@Deprecated
-	public SCryptPasswordEncoder() {
-		this(16384, 8, 1, 32, 64);
-	}
-
-	/**
 	 * Constructs a SCrypt password encoder with the provided parameters.
 	 * @param cpuCost cpu cost of the algorithm (as defined in scrypt this is N). must be
 	 * power of 2 greater than 1. Default is currently 65,536 or 2^16)

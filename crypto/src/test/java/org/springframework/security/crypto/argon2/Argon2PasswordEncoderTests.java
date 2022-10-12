@@ -89,7 +89,7 @@ public class Argon2PasswordEncoderTests {
 	@Test
 	public void matchesWhenGeneratedWithDifferentEncoderThenTrue() {
 		Argon2PasswordEncoder oldEncoder = new Argon2PasswordEncoder(20, 64, 4, 256, 4);
-		Argon2PasswordEncoder newEncoder = new Argon2PasswordEncoder();
+		Argon2PasswordEncoder newEncoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
 		String password = "secret";
 		String oldEncodedPassword = oldEncoder.encode(password);
 		assertThat(newEncoder.matches(password, oldEncodedPassword)).isTrue();

@@ -28,9 +28,9 @@ import static org.assertj.core.api.Assertions.assertThatNoException;
 
 public class Pbkdf2PasswordEncoderTests {
 
-	private Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("secret");
+	private Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("secret", 8, 185000, 256);
 
-	private Pbkdf2PasswordEncoder encoderSalt16 = new Pbkdf2PasswordEncoder("", 16);
+	private Pbkdf2PasswordEncoder encoderSalt16 = new Pbkdf2PasswordEncoder("", 16, 185000, 256);
 
 	private Pbkdf2PasswordEncoder[] encoders = new Pbkdf2PasswordEncoder[] { this.encoder, this.encoderSalt16 };
 
@@ -221,7 +221,7 @@ public class Pbkdf2PasswordEncoderTests {
 		long avg = 0;
 		while (avg < HALF_SECOND) {
 			iterations += 10000;
-			Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("", iterations, 256);
+			Pbkdf2PasswordEncoder encoder = new Pbkdf2PasswordEncoder("", 8, iterations, 256);
 			String encoded = encoder.encode("password");
 			System.out.println("Trying " + iterations);
 			long start = System.currentTimeMillis();

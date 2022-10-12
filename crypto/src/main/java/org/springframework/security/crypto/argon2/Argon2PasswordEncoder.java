@@ -69,16 +69,6 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 	private final BytesKeyGenerator saltGenerator;
 
 	/**
-	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
-	 * of 32 bytes, parallelism of 1, memory cost of 1 << 12 and 3 iterations.
-	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_2()} instead
-	 */
-	@Deprecated
-	public Argon2PasswordEncoder() {
-		this(16, 32, 1, 1 << 12, 3);
-	}
-
-	/**
 	 * Constructs an Argon2 password encoder with the provided parameters.
 	 * @param saltLength the salt length (in bytes)
 	 * @param hashLength the hash length (in bytes)
