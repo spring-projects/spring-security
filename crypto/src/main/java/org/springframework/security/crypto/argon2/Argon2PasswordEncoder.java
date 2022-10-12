@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,9 +52,9 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	private static final int DEFAULT_PARALLELISM = 1;
 
-	private static final int DEFAULT_MEMORY = 1 << 12;
+	private static final int DEFAULT_MEMORY = 1 << 14;
 
-	private static final int DEFAULT_ITERATIONS = 3;
+	private static final int DEFAULT_ITERATIONS = 2;
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -68,16 +68,53 @@ public class Argon2PasswordEncoder implements PasswordEncoder {
 
 	private final BytesKeyGenerator saltGenerator;
 
+	/**
+	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
+	 * of 32 bytes, parallelism of 1, memory cost of 1 << 12 and 3 iterations.
+	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_2()} instead
+	 */
+	@Deprecated
 	public Argon2PasswordEncoder() {
-		this(DEFAULT_SALT_LENGTH, DEFAULT_HASH_LENGTH, DEFAULT_PARALLELISM, DEFAULT_MEMORY, DEFAULT_ITERATIONS);
+		this(16, 32, 1, 1 << 12, 3);
 	}
 
+	/**
+	 * Constructs an Argon2 password encoder with the provided parameters.
+	 * @param saltLength the salt length (in bytes)
+	 * @param hashLength the hash length (in bytes)
+	 * @param parallelism the parallelism
+	 * @param memory the memory cost
+	 * @param iterations the number of iterations
+	 */
 	public Argon2PasswordEncoder(int saltLength, int hashLength, int parallelism, int memory, int iterations) {
 		this.hashLength = hashLength;
 		this.parallelism = parallelism;
 		this.memory = memory;
 		this.iterations = iterations;
 		this.saltGenerator = KeyGenerators.secureRandom(saltLength);
+	}
+
+	/**
+	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
+	 * of 32 bytes, parallelism of 1, memory cost of 1 << 12 and 3 iterations.
+	 * @return the {@link Argon2PasswordEncoder}
+	 * @since 5.8
+	 * @deprecated Use {@link #defaultsForSpringSecurity_v5_8()} instead
+	 */
+	@Deprecated
+	public static Argon2PasswordEncoder defaultsForSpringSecurity_v5_2() {
+		return new Argon2PasswordEncoder(16, 32, 1, 1 << 12, 3);
+	}
+
+	/**
+	 * Constructs an Argon2 password encoder with a salt length of 16 bytes, a hash length
+	 * of 32 bytes, parallelism of 1, memory cost of 1 << 14 and 2 iterations.
+	 * @return the {@link Argon2PasswordEncoder}
+	 * @since 5.8
+	 */
+	public static Argon2PasswordEncoder defaultsForSpringSecurity_v5_8() {
+		return new Argon2PasswordEncoder(DEFAULT_SALT_LENGTH, DEFAULT_HASH_LENGTH, DEFAULT_PARALLELISM, DEFAULT_MEMORY,
+				DEFAULT_ITERATIONS);
 	}
 
 	@Override

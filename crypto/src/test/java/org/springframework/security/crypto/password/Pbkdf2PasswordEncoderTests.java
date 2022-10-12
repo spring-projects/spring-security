@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -196,6 +196,14 @@ public class Pbkdf2PasswordEncoderTests {
 		String rawPassword = "password";
 		String encodedPassword = "0123456789abcdef0123456789abcdefc7cfc96cd26b854d096ccbb3308fad860d719eb552ed52ef8352935539158287";
 		assertThat(this.encoderSalt16.matches(rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	public void matchWhenDefaultsForSpringSecurity_v5_8ThenSuccess() {
+		Pbkdf2PasswordEncoder encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+		String rawPassword = "password";
+		String encodedPassword = "fefe5120467e5d4ccff442dbb2fa86d276262d97435c0c54e5eebced51ffd144fcb05eb53fea2677216c4f3250010006";
+		assertThat(encoder.matches(rawPassword, encodedPassword)).isTrue();
 	}
 
 	/**
