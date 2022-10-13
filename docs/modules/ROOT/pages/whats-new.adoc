@@ -4,13 +4,54 @@
 Spring Security 5.8 provides a number of new features.
 Below are the highlights of the release.
 
-* https://github.com/spring-projects/spring-security/pull/11638[gh-11638] - Refresh remote JWK when unknown KID error occurs
-* https://github.com/spring-projects/spring-security/pull/11782[gh-11782] - @WithMockUser Supported as Merged Annotation
-* https://github.com/spring-projects/spring-security/issues/11661[gh-11661] - Configurable authentication converter for resource-servers with token introspection
+== Core
+
+=== Session Handling Improvements
+* https://github.com/spring-projects/spring-security/issues/6125[gh-6125] - improved session creation and access
+* https://github.com/spring-projects/spring-security/issues/11392[gh-11392] - Support deferring lookup of `SecurityContext`
+
+=== AuthorizationManager API
+* https://github.com/spring-projects/spring-security/issues/11493[gh-11493] - `AuthorizationManager` supports SpEL
+* Additional XML support for `AuthorizationManager`
+* https://github.com/spring-projects/spring-security/pull/11393[gh-11393] - Additional DSL support for `AuthorizationManager`
+* Additional XML Support for `AuthorizationManager
+* https://github.com/spring-projects/spring-security/issues/11304[gh-11304] - `AuthorizationManager` supports `RoleHierarchy`
+* https://github.com/spring-projects/spring-security/issues/11076[gh-11076] - `AuthorizationManager` supports WebSockets
+* https://github.com/spring-projects/spring-security/issues/11326[gh-11326] - `AuthorizationManager` supports AspectJ
+* https://github.com/spring-projects/spring-security/issues/4841[gh-4841], https://github.com/spring-projects/spring-security/issues/9401[gh-9401] - `ReactiveAuthorizationManager` supports method security
+* https://github.com/spring-projects/spring-security/issues/11625[gh-11625] - Support `AuthorizationManager` composition
+
+=== Misc
+* https://github.com/spring-projects/spring-security/issues/10973[gh-10973] - `SecurityContextHolderStrategy` can be published as a `@Bean`
+
+== Config
+
 * https://github.com/spring-projects/spring-security/pull/11771[gh-11771] - `HttpSecurityDsl` should support `apply` method
+
+== OAuth
+
+* https://github.com/spring-projects/spring-security/issues/11590[gh-11590] - Deprecate Resource Owner Password Grant
+* https://github.com/spring-projects/spring-security/issues/11383[gh-11383] - Add `baseScheme`, `baseHost`, `basePort` and `basePath` to the `post_logout_redirect_uri`
+* https://github.com/spring-projects/spring-security/issues/11661[gh-11661] - Add `OpaqueTokenAuthenticationConverter`
 * https://github.com/spring-projects/spring-security/pull/11232[gh-11232] - `ClientRegistrations#rest` defines 30s connect and read timeouts
+* https://github.com/spring-projects/spring-security/pull/11638[gh-11638] - Refresh remote JWK when unknown KID error occurs
+
+== SAML
+
+* https://github.com/spring-projects/spring-security/issues/11286[gh-11286] - Support configuring multiple relying party logout bindings
+* https://github.com/spring-projects/spring-security/issues/11065[gh-11065] - Allow custom relay state for AuthnRequests
+* https://github.com/spring-projects/spring-security/issues/11468[gh-11468] - Simplify `AuthnRequest#id` access
+
+== Web
+* https://github.com/spring-projects/spring-security/issues/11073[gh-11073] - Add `DelegatingServerHttpHeadersWriter`
+* https://github.com/spring-projects/spring-security/issues/4001[gh-4001] - Protection against CSRF BREACH
 * https://github.com/spring-projects/spring-security/pull/11464[gh-11464] - Remember Me supports SHA256 algorithm
 * https://github.com/spring-projects/spring-security/pull/11908[gh-11908] - Make X-Xss-Protection header value configurable in ServerHttpSecurity
 * https://github.com/spring-projects/spring-security/issues/11347[gh-11347] - Simplify Java Configuration `RequestMatcher` Usage
 * https://github.com/spring-projects/spring-security/issues/9159[gh-9159] - Add `securityMatcher` as an alias on `requestMatcher` in `HttpSecurity`
 * https://github.com/spring-projects/spring-security/issues/11952[gh-11952] - Add `csrfTokenRequestResolver` to `CsrfDsl`
+* https://github.com/spring-projects/spring-security/issues/11916[gh-11916] - `HttpSecurityConfiguration` picks up `ContentNegotiationStrategy` bean
+* https://github.com/spring-projects/spring-security/issues/11971[gh-11971] - Additional support for `AuthorizationFilter` running for all dispatcher types
+
+== Test
+* https://github.com/spring-projects/spring-security/issues/6899[gh-6899] - `@WithMockUser` works as meta-annotation
