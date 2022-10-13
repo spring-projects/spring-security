@@ -113,23 +113,6 @@ public class CsrfWebFilter implements WebFilter {
 		this.requestHandler = requestHandler;
 	}
 
-	/**
-	 * Specifies if the {@code CsrfWebFilter} should try to resolve the actual CSRF token
-	 * from the body of multipart data requests.
-	 * @param tokenFromMultipartDataEnabled true if should read from multipart form body,
-	 * else false. Default is false
-	 * @deprecated Use
-	 * {@link ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled(boolean)}
-	 * instead
-	 */
-	@Deprecated
-	public void setTokenFromMultipartDataEnabled(boolean tokenFromMultipartDataEnabled) {
-		if (this.requestHandler instanceof ServerCsrfTokenRequestAttributeHandler) {
-			((ServerCsrfTokenRequestAttributeHandler) this.requestHandler)
-					.setTokenFromMultipartDataEnabled(tokenFromMultipartDataEnabled);
-		}
-	}
-
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
 		if (Boolean.TRUE.equals(exchange.getAttribute(SHOULD_NOT_FILTER))) {
