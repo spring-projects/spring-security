@@ -27,6 +27,8 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.mock.http.server.reactive.MockServerHttpRequest
+import org.springframework.mock.web.server.MockServerWebExchange
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
@@ -39,6 +41,7 @@ import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository
+import org.springframework.security.web.server.csrf.XorServerCsrfTokenRequestAttributeHandler
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.bind.annotation.PostMapping
@@ -278,12 +281,21 @@ class ServerCsrfDslTests {
             MultipartFormDataEnabledConfig.TOKEN_REPOSITORY.generateToken(any())
         } returns Mono.just(this.token)
 
+        val csrfToken = createXorCsrfToken()
         this.client.post()
                 .uri("/")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(fromMultipartData(this.token.parameterName, this.token.token))
+                .body(fromMultipartData(csrfToken.parameterName, csrfToken.token))
                 .exchange()
                 .expectStatus().isOk
+    }
+
+    private fun createXorCsrfToken(): CsrfToken {
+        val handler = XorServerCsrfTokenRequestAttributeHandler()
+        val exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/"))
+        handler.handle(exchange, Mono.just(this.token))
+        val deferredCsrfToken: Mono<CsrfToken>? = exchange.getAttribute(CsrfToken::class.java.name)
+        return deferredCsrfToken?.block()!!
     }
 
     @Configuration

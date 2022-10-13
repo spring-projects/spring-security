@@ -83,7 +83,7 @@ public class CsrfWebFilter implements WebFilter {
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(
 			HttpStatus.FORBIDDEN);
 
-	private ServerCsrfTokenRequestHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
+	private ServerCsrfTokenRequestHandler requestHandler = new XorServerCsrfTokenRequestAttributeHandler();
 
 	public void setAccessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler");
