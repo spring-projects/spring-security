@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,6 +44,8 @@ import org.springframework.util.Assert;
  */
 public final class RequestMatcherDelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
 
+	private static final AuthorizationDecision DENY = new AuthorizationDecision(false);
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
@@ -81,8 +83,10 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 						new RequestAuthorizationContext(request, matchResult.getVariables()));
 			}
 		}
-		this.logger.trace("Abstaining since did not find matching RequestMatcher");
-		return null;
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.of(() -> "Denying request since did not find matching RequestMatcher"));
+		}
+		return DENY;
 	}
 
 	/**

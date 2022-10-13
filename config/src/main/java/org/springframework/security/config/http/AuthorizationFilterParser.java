@@ -34,7 +34,6 @@ import org.springframework.beans.factory.xml.AbstractBeanDefinitionParser;
 import org.springframework.beans.factory.xml.BeanDefinitionParser;
 import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.beans.factory.xml.XmlReaderContext;
-import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.config.Elements;
@@ -43,7 +42,6 @@ import org.springframework.security.web.access.expression.WebExpressionAuthoriza
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
-import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.util.xml.DomUtils;
@@ -197,8 +195,7 @@ class AuthorizationFilterParser implements BeanDefinitionParser {
 					.entrySet()) {
 				builder.add(entry.getKey(), entry.getValue());
 			}
-			AuthorizationManager<HttpServletRequest> manager = builder
-					.add(AnyRequestMatcher.INSTANCE, AuthenticatedAuthorizationManager.authenticated()).build();
+			AuthorizationManager<HttpServletRequest> manager = builder.build();
 			if (!this.observationRegistry.isNoop()) {
 				return new ObservationAuthorizationManager<>(this.observationRegistry, manager);
 			}

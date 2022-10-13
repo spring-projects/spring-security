@@ -358,7 +358,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void getWhenServletPathRoleAdminConfiguredAndRoleIsUserAndWithoutServletPathThenRespondsWithOk()
+	public void getWhenServletPathRoleAdminConfiguredAndRoleIsUserAndWithoutServletPathThenRespondsWithForbidden()
 			throws Exception {
 		this.spring.register(ServletPathConfig.class, BasicController.class).autowire();
 		// @formatter:off
@@ -366,7 +366,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.with(user("user")
 				.roles("USER"));
 		// @formatter:on
-		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
 	}
 
 	@Test
