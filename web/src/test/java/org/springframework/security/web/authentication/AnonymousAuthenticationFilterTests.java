@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.MockSecurityContextHolderStrategy;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -45,6 +46,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -52,6 +54,7 @@ import static org.mockito.Mockito.verify;
  *
  * @author Ben Alex
  * @author Eddú Meléndez
+ * @author Evgeniy Cheban
  */
 public class AnonymousAuthenticationFilterTests {
 
@@ -125,6 +128,25 @@ public class AnonymousAuthenticationFilterTests {
 				new MockHttpServletResponse(), new MockFilterChain(true));
 		verify(strategy, never()).getContext();
 		verify(originalSupplier, never()).get();
+	}
+
+	@Test
+	public void doFilterSetsSingletonSupplier() throws Exception {
+		Supplier<SecurityContext> originalSupplier = mock(Supplier.class);
+		Authentication originalAuth = new TestingAuthenticationToken("user", "password", "ROLE_A");
+		SecurityContext originalContext = new SecurityContextImpl(originalAuth);
+		SecurityContextHolderStrategy strategy = new MockSecurityContextHolderStrategy(originalSupplier);
+		given(originalSupplier.get()).willReturn(originalContext);
+		AnonymousAuthenticationFilter filter = new AnonymousAuthenticationFilter("qwerty", "anonymousUsername",
+				AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
+		filter.setSecurityContextHolderStrategy(strategy);
+		filter.afterPropertiesSet();
+		executeFilterInContainerSimulator(mock(FilterConfig.class), filter, new MockHttpServletRequest(),
+				new MockHttpServletResponse(), new MockFilterChain(true));
+		Supplier<SecurityContext> deferredContext = strategy.getDeferredContext();
+		deferredContext.get();
+		deferredContext.get();
+		verify(originalSupplier, times(1)).get();
 	}
 
 	private class MockFilterChain implements FilterChain {

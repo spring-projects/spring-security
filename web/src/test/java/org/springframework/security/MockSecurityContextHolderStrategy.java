@@ -16,6 +16,8 @@
 
 package org.springframework.security;
 
+import java.util.function.Supplier;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -23,34 +25,48 @@ import org.springframework.security.core.context.SecurityContextImpl;
 
 public class MockSecurityContextHolderStrategy implements SecurityContextHolderStrategy {
 
-	private SecurityContext mock;
+	private Supplier<SecurityContext> mock;
 
 	public MockSecurityContextHolderStrategy() {
 
 	}
 
 	public MockSecurityContextHolderStrategy(Authentication authentication) {
-		this.mock = new SecurityContextImpl(authentication);
+		this(() -> new SecurityContextImpl(authentication));
+	}
+
+	public MockSecurityContextHolderStrategy(Supplier<SecurityContext> mock) {
+		this.mock = mock;
 	}
 
 	@Override
 	public void clearContext() {
-		this.mock = null;
+		this.mock = () -> null;
 	}
 
 	@Override
 	public SecurityContext getContext() {
-		return this.mock;
+		return this.mock.get();
 	}
 
 	@Override
 	public void setContext(SecurityContext context) {
-		this.mock = context;
+		this.mock = () -> context;
 	}
 
 	@Override
 	public SecurityContext createEmptyContext() {
 		return new SecurityContextImpl();
+	}
+
+	@Override
+	public Supplier<SecurityContext> getDeferredContext() {
+		return this.mock;
+	}
+
+	@Override
+	public void setDeferredContext(Supplier<SecurityContext> deferredContext) {
+		this.mock = deferredContext;
 	}
 
 }
