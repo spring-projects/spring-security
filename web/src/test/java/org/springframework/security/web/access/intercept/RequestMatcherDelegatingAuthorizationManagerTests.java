@@ -24,7 +24,6 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
-import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
@@ -32,10 +31,6 @@ import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link RequestMatcherDelegatingAuthorizationManager}.
@@ -118,20 +113,6 @@ public class RequestMatcherDelegatingAuthorizationManagerTests {
 		AuthorizationDecision unmapped = manager.check(authentication, new MockHttpServletRequest(null, "/unmapped"));
 		assertThat(unmapped).isNotNull();
 		assertThat(unmapped.isGranted()).isFalse();
-	}
-
-	@Test
-	public void checkWhenNoMatchesThenUsesDefaultAuthorizationManager() {
-		RequestMatcherDelegatingAuthorizationManager manager = RequestMatcherDelegatingAuthorizationManager.builder()
-				.add((request) -> false, (authentication, context) -> new AuthorizationDecision(false)).build();
-		AuthorizationManager<RequestAuthorizationContext> defaultManager = mock(AuthorizationManager.class);
-		given(defaultManager.check(any(), any())).willReturn(new AuthorizationDecision(true));
-		manager.setDefaultAuthorizationManager(defaultManager);
-		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password");
-		AuthorizationDecision decision = manager.check(authentication, new MockHttpServletRequest(null, "/endpoint"));
-		assertThat(decision).isNotNull();
-		assertThat(decision.isGranted()).isTrue();
-		verify(defaultManager).check(any(), any());
 	}
 
 	@Test
