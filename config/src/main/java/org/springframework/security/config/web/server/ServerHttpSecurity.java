@@ -149,7 +149,6 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
-import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler;
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
@@ -1862,22 +1861,6 @@ public class ServerHttpSecurity {
 		public CsrfSpec requireCsrfProtectionMatcher(ServerWebExchangeMatcher requireCsrfProtectionMatcher) {
 			this.filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 			this.specifiedRequireCsrfProtectionMatcher = true;
-			return this;
-		}
-
-		/**
-		 * Specifies if {@link CsrfWebFilter} should try to resolve the actual CSRF token
-		 * from the body of multipart data requests.
-		 * @param enabled true if should read from multipart form body, else false.
-		 * Default is false
-		 * @return the {@link CsrfSpec} for additional configuration
-		 * @deprecated Use
-		 * {@link ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled(boolean)}
-		 * instead
-		 */
-		@Deprecated
-		public CsrfSpec tokenFromMultipartDataEnabled(boolean enabled) {
-			this.filter.setTokenFromMultipartDataEnabled(enabled);
 			return this;
 		}
 

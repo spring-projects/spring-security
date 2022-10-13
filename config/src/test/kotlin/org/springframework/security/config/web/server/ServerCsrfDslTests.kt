@@ -311,7 +311,9 @@ class ServerCsrfDslTests {
             return http {
                 csrf {
                     csrfTokenRepository = TOKEN_REPOSITORY
-                    tokenFromMultipartDataEnabled = true
+                    csrfTokenRequestHandler = XorServerCsrfTokenRequestAttributeHandler().apply {
+                        setTokenFromMultipartDataEnabled(true)
+                    }
                 }
             }
         }
