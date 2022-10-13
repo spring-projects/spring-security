@@ -4,6 +4,10 @@
 Spring Security 6.0 provides a number of new features.
 Below are the highlights of the release.
 
+== Baseline Changes
+
+* Spring Security 6 requires JDK 17
+
 == Breaking Changes
 
 * https://github.com/spring-projects/spring-security/issues/10556[gh-10556] - Remove EOL OpenSaml 3 Support.
@@ -33,8 +37,23 @@ Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/12019[gh-12019] - Remove deprecated method `setTokenFromMultipartDataEnabled` from `CsrfWebFilter`
 * https://github.com/spring-projects/spring-security/issues/12020[gh-12020] - Remove deprecated method `tokenFromMultipartDataEnabled` from Java Configuration
 * https://github.com/spring-projects/spring-security/issues/9429[gh-9429] - `Authentication(Web)Filter` rethrows `AuthenticationServiceException`s
+* https://github.com/spring-projects/spring-security/issues/11027[gh-11027], https://github.com/spring-projects/spring-security/issues/11466[gh-11466] - Authorization on every dispatcher type
+* https://github.com/spring-projects/spring-security/issues/11110[gh-11110] - Require explicit session saves by default
+* https://github.com/spring-projects/spring-security/issues/11057[gh-11057] - Remove `MessageSourceAware` from `ExceptionTranslationWebFilter`
+* https://github.com/spring-projects/spring-security/issues/12022[gh-12202] - Remove OAuth deprecations
+* Remove SAML deprecations
 
-== Observability
+== Core
 
+* https://github.com/spring-projects/spring-security/issues/11446[gh-11446] - Add native image support for `@PreAuthorize`
+* https://github.com/spring-projects/spring-security/issues/11737[gh-11737] - Add native image support for `@PostAuthorize`
 * xref:servlet/integrations/observability.adoc[Instrumentation] of `AuthenticationManager`, `AuthorizationManager`, and `FilterChainProxy`
 * xref:reactive/integrations/observability.adoc[Instrumentation] of `ReactiveAuthenticationManager`, `ReactiveAuthorizationManager`, and `WebFilterChainProxy`
+
+== LDAP
+
+* https://github.com/spring-projects/spring-security/pull/9276[gh-9276] - LdapAuthoritiesPopulator is post-processed
+
+== Web
+
+* https://github.com/spring-projects/spring-security/issues/11432[gh-11432] - `CookieServerCsrfTokenRepository` supports maxage
