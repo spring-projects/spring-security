@@ -44,7 +44,8 @@ Below are the highlights of the release.
 
 == Web
 * https://github.com/spring-projects/spring-security/issues/11073[gh-11073] - Add `DelegatingServerHttpHeadersWriter`
-* https://github.com/spring-projects/spring-security/issues/4001[gh-4001] - Protection against CSRF BREACH
+* https://github.com/spring-projects/spring-security/issues/4001[gh-4001] - Add xref:servlet/exploits/csrf.adoc#servlet-csrf-configure-request-handler[servlet support] for CSRF BREACH protection
+* https://github.com/spring-projects/spring-security/issues/11959[gh-11959] - Add xref:reactive/exploits/csrf.adoc#webflux-csrf-configure-request-handler[reactive support] for CSRF BREACH protection
 * https://github.com/spring-projects/spring-security/pull/11464[gh-11464] - Remember Me supports SHA256 algorithm
 * https://github.com/spring-projects/spring-security/pull/11908[gh-11908] - Make X-Xss-Protection header value configurable in ServerHttpSecurity
 * https://github.com/spring-projects/spring-security/issues/11347[gh-11347] - Simplify Java Configuration `RequestMatcher` Usage
