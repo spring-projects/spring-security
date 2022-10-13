@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
@@ -31,10 +32,10 @@ import org.springframework.util.Assert;
  *
  * @author Sergey Bespalov
  * @since 5.2.0
- * @deprecated Use {@link AuthenticationEntryPointFailureHandlerAdapter} instead
  */
-@Deprecated
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
+
+	private boolean rethrowAuthenticationServiceException = false;
 
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -46,7 +47,25 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		this.authenticationEntryPoint.commence(request, response, exception);
+		if (!this.rethrowAuthenticationServiceException) {
+			this.authenticationEntryPoint.commence(request, response, exception);
+			return;
+		}
+		if (!AuthenticationServiceException.class.isAssignableFrom(exception.getClass())) {
+			this.authenticationEntryPoint.commence(request, response, exception);
+			return;
+		}
+		throw exception;
+	}
+
+	/**
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to false)
+	 * @param rethrowAuthenticationServiceException whether to rethrow
+	 * {@link AuthenticationServiceException}s
+	 * @since 5.8
+	 */
+	public void setRethrowAuthenticationServiceException(boolean rethrowAuthenticationServiceException) {
+		this.rethrowAuthenticationServiceException = rethrowAuthenticationServiceException;
 	}
 
 }

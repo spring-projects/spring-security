@@ -18,6 +18,7 @@ package org.springframework.security.web.server.authentication;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -29,12 +30,12 @@ import org.springframework.util.Assert;
  *
  * @author Rob Winch
  * @since 5.0
- * @deprecated use {@link ServerAuthenticationEntryPointFailureHandlerAdapter} instead.
  */
-@Deprecated
 public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthenticationFailureHandler {
 
 	private final ServerAuthenticationEntryPoint authenticationEntryPoint;
+
+	private boolean rethrowAuthenticationServiceException = false;
 
 	public ServerAuthenticationEntryPointFailureHandler(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
@@ -43,7 +44,23 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-		return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		if (!this.rethrowAuthenticationServiceException) {
+			return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		}
+		if (!AuthenticationServiceException.class.isAssignableFrom(exception.getClass())) {
+			return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		}
+		return Mono.error(exception);
+	}
+
+	/**
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to false)
+	 * @param rethrowAuthenticationServiceException whether to rethrow
+	 * {@link AuthenticationServiceException}s
+	 * @since 5.8
+	 */
+	public void setRethrowAuthenticationServiceException(boolean rethrowAuthenticationServiceException) {
+		this.rethrowAuthenticationServiceException = rethrowAuthenticationServiceException;
 	}
 
 }
