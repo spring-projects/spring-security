@@ -29,6 +29,9 @@ Or use `use-authorization-manager="false"`
 * https://github.com/spring-projects/spring-security/issues/11939[gh-11939] - Remove deprecated `antMatchers`, `mvcMatchers`, `regexMatchers` helper methods from Java Configuration.
 Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/11985[gh-11985] - Remove deprecated constructors in `Argon2PasswordEncoder`, `SCryptPasswordEncoder` and `Pbkdf2PasswordEncoder`.
+* https://github.com/spring-projects/spring-security/issues/11960[gh-11960] - Default to Xor CSRF protection for xref:servlet/exploits/csrf.adoc#servlet-csrf-configure-request-handler[servlet] and xref:reactive/exploits/csrf.adoc#webflux-csrf-configure-request-handler[reactive]
+* https://github.com/spring-projects/spring-security/issues/12019[gh-12019] - Remove deprecated method `setTokenFromMultipartDataEnabled` from `CsrfWebFilter`
+* https://github.com/spring-projects/spring-security/issues/12020[gh-12020] - Remove deprecated method `tokenFromMultipartDataEnabled` from Java Configuration
 
 == Observability
 
