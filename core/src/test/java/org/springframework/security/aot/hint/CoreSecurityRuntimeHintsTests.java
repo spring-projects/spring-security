@@ -49,6 +49,7 @@ import org.springframework.security.authentication.event.AuthenticationFailurePr
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.ClassUtils;
 
@@ -135,6 +136,12 @@ class CoreSecurityRuntimeHintsTests {
 	void defaultJdbcSchemaFileHasHints() {
 		assertThat(RuntimeHintsPredicates.resource()
 				.forResource("org/springframework/security/core/userdetails/jdbc/users.ddl")).accepts(this.hints);
+	}
+
+	@Test
+	void securityContextHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(SecurityContextImpl.class)
+				.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
 	}
 
 }
