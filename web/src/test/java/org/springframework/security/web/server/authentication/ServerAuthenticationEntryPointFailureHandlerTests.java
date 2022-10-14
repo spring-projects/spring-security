@@ -71,16 +71,16 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 	}
 
 	@Test
-	void onAuthenticationFailureWhenDefaultsThenAuthenticationServiceExceptionSwallowed() {
+	void onAuthenticationFailureWhenRethrownFalseThenAuthenticationServiceExceptionSwallowed() {
 		AuthenticationServiceException e = new AuthenticationServiceException("fail");
+		this.handler.setRethrowAuthenticationServiceException(false);
 		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(Mono.empty());
 		this.handler.onAuthenticationFailure(this.filterExchange, e).block();
 	}
 
 	@Test
-	void handleWhenRethrowingThenAuthenticationServiceExceptionRethrown() {
+	void handleWhenDefaultsThenAuthenticationServiceExceptionRethrown() {
 		AuthenticationServiceException e = new AuthenticationServiceException("fail");
-		this.handler.setRethrowAuthenticationServiceException(true);
 		assertThatExceptionOfType(AuthenticationServiceException.class)
 				.isThrownBy(() -> this.handler.onAuthenticationFailure(this.filterExchange, e).block());
 	}

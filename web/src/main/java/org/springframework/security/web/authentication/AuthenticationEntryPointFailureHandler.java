@@ -35,7 +35,7 @@ import org.springframework.util.Assert;
  */
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
 
-	private boolean rethrowAuthenticationServiceException = false;
+	private boolean rethrowAuthenticationServiceException = true;
 
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 
@@ -59,7 +59,7 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 	}
 
 	/**
-	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to false)
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
 	 * @param rethrowAuthenticationServiceException whether to rethrow
 	 * {@link AuthenticationServiceException}s
 	 * @since 5.8

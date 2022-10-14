@@ -35,7 +35,7 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 
 	private final ServerAuthenticationEntryPoint authenticationEntryPoint;
 
-	private boolean rethrowAuthenticationServiceException = false;
+	private boolean rethrowAuthenticationServiceException = true;
 
 	public ServerAuthenticationEntryPointFailureHandler(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
@@ -54,7 +54,7 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 	}
 
 	/**
-	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to false)
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
 	 * @param rethrowAuthenticationServiceException whether to rethrow
 	 * {@link AuthenticationServiceException}s
 	 * @since 5.8

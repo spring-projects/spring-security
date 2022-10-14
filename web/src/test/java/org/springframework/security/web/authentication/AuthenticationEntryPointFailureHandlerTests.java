@@ -30,17 +30,17 @@ import static org.mockito.Mockito.mock;
 public class AuthenticationEntryPointFailureHandlerTests {
 
 	@Test
-	void onAuthenticationFailureWhenDefaultsThenAuthenticationServiceExceptionSwallowed() throws Exception {
+	void onAuthenticationFailureWhenRethrowingThenAuthenticationServiceExceptionSwallowed() throws Exception {
 		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
 		AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(entryPoint);
+		handler.setRethrowAuthenticationServiceException(false);
 		handler.onAuthenticationFailure(null, null, new AuthenticationServiceException("fail"));
 	}
 
 	@Test
-	void handleWhenRethrowingThenAuthenticationServiceExceptionRethrown() {
+	void handleWhenDefaultsThenAuthenticationServiceExceptionRethrown() {
 		AuthenticationEntryPoint entryPoint = mock(AuthenticationEntryPoint.class);
 		AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(entryPoint);
-		handler.setRethrowAuthenticationServiceException(true);
 		assertThatExceptionOfType(AuthenticationServiceException.class).isThrownBy(
 				() -> handler.onAuthenticationFailure(null, null, new AuthenticationServiceException("fail")));
 	}

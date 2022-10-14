@@ -32,6 +32,7 @@ Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/11960[gh-11960] - Default to Xor CSRF protection for xref:servlet/exploits/csrf.adoc#servlet-csrf-configure-request-handler[servlet] and xref:reactive/exploits/csrf.adoc#webflux-csrf-configure-request-handler[reactive]
 * https://github.com/spring-projects/spring-security/issues/12019[gh-12019] - Remove deprecated method `setTokenFromMultipartDataEnabled` from `CsrfWebFilter`
 * https://github.com/spring-projects/spring-security/issues/12020[gh-12020] - Remove deprecated method `tokenFromMultipartDataEnabled` from Java Configuration
+* https://github.com/spring-projects/spring-security/issues/9429[gh-9429] - `Authentication(Web)Filter` rethrows `AuthenticationServiceException`s
 
 == Observability
 
