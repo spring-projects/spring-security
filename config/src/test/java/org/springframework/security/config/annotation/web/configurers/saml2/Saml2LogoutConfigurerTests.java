@@ -407,7 +407,7 @@ public class Saml2LogoutConfigurerTests {
 		this.mvc.perform(get("/logout/saml2/slo").param("SAMLResponse", "samlResponse")).andReturn();
 		verify(getBean(Saml2LogoutResponseValidator.class)).validate(any());
 	}
-	
+
 	@Test
 	public void saml2LogoutWhenCustomLogoutRequestRepositoryThenUses() throws Exception {
 		this.spring.register(Saml2LogoutComponentsConfig.class).autowire();
