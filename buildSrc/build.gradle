@@ -99,7 +99,7 @@ dependencies {
 	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0'
 	implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
 
-	testImplementation platform('org.junit:junit-bom:5.9.0')
+	testImplementation platform('org.junit:junit-bom:5.9.1')
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"
