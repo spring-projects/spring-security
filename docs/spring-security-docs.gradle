@@ -38,7 +38,9 @@ tasks.register('generateAntora') {
 			.join('\n')
 		def outputFile = layout.buildDirectory.file('generateAntora/antora.yml').get().asFile
 		mkdir(outputFile.getParentFile())
-		def (mainVersion, prerelease) = project.version.split(/(?=-)/, 2)
+		def components = project.version.split(/(?=-)/)
+		def mainVersion = components[0];
+		def prerelease = components.length > 1 ? components[1] : null
 		def antoraYmlText = file('antora.yml').text
 		layout.buildDirectory.file('.antora.yml').get().asFile.text = antoraYmlText
 		antoraYmlText = antoraYmlText.lines().collect { l ->
