@@ -64,7 +64,6 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           ./gradlew :updateProjectVersion
-          ./gradlew :spring-security-docs:antoraUpdateVersion
           updatedVersion=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
           git commit -am "Release $updatedVersion"
           git tag $updatedVersion
