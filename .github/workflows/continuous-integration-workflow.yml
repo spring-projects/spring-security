@@ -271,7 +271,6 @@ jobs:
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           echo "Updating $REPO@$VERSION to next snapshot version."
           ./gradlew :updateToSnapshotVersion
-          ./gradlew :spring-security-docs:antoraUpdateVersion
           git commit -am "Next development version"
           git push
   perform_post_release:
