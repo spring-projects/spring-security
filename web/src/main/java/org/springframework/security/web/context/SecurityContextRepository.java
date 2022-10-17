@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,9 @@ import java.util.function.Supplier;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.function.SingletonSupplier;
 
 /**
@@ -61,7 +63,7 @@ public interface SecurityContextRepository {
 	 * the context should be loaded.
 	 * @return The security context which should be used for the current request, never
 	 * null.
-	 * @deprecated Use {@link #loadContext(HttpServletRequest)} instead.
+	 * @deprecated Use {@link #loadDeferredContext(HttpServletRequest)} instead.
 	 */
 	@Deprecated
 	SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
@@ -75,9 +77,27 @@ public interface SecurityContextRepository {
 	 * @return a {@link Supplier} that returns the {@link SecurityContext} which cannot be
 	 * null.
 	 * @since 5.7
+	 * @deprecated Use
+	 * {@link SecurityContextRepository#loadDeferredContext(HttpServletRequest)} instead
 	 */
+	@Deprecated
 	default Supplier<SecurityContext> loadContext(HttpServletRequest request) {
-		return SingletonSupplier.of(() -> loadContext(new HttpRequestResponseHolder(request, null)));
+		return loadDeferredContext(request);
+	}
+
+	/**
+	 * Defers loading the {@link SecurityContext} using the {@link HttpServletRequest}
+	 * until it is needed by the application.
+	 * @param request the {@link HttpServletRequest} to load the {@link SecurityContext}
+	 * from
+	 * @return a {@link DeferredSecurityContext} that returns the {@link SecurityContext}
+	 * which cannot be null
+	 * @since 5.8
+	 */
+	default DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
+		Supplier<SecurityContext> supplier = () -> loadContext(new HttpRequestResponseHolder(request, null));
+		return new SupplierDeferredSecurityContext(SingletonSupplier.of(supplier),
+				SecurityContextHolder.getContextHolderStrategy());
 	}
 
 	/**

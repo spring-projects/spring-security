@@ -42,8 +42,8 @@ import org.springframework.util.Assert;
  * @author Marten Algesten
  * @author Rob Winch
  * @since 3.0
- * @deprecated Use {@link SecurityContextRepository#loadContext(HttpServletRequest)}
- * instead.
+ * @deprecated Use
+ * {@link SecurityContextRepository#loadDeferredContext(HttpServletRequest)} instead.
  */
 @Deprecated
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommittedResponseWrapper {
