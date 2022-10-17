@@ -76,7 +76,8 @@ class SecurityContextHolderFilterTests {
 	void doFilterThenSetsAndClearsSecurityContextHolder() throws Exception {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
-		given(this.repository.loadContext(this.requestArg.capture())).willReturn(() -> expectedContext);
+		given(this.repository.loadDeferredContext(this.requestArg.capture()))
+				.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
 		FilterChain filterChain = (request, response) -> assertThat(SecurityContextHolder.getContext())
 				.isEqualTo(expectedContext);
 
@@ -89,7 +90,8 @@ class SecurityContextHolderFilterTests {
 	void doFilterThenSetsAndClearsSecurityContextHolderStrategy() throws Exception {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		SecurityContext expectedContext = new SecurityContextImpl(authentication);
-		given(this.repository.loadContext(this.requestArg.capture())).willReturn(() -> expectedContext);
+		given(this.repository.loadDeferredContext(this.requestArg.capture()))
+				.willReturn(new SupplierDeferredSecurityContext(() -> expectedContext, this.strategy));
 		FilterChain filterChain = (request, response) -> {
 		};
 
