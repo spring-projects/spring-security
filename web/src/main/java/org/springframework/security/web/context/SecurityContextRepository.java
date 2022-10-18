@@ -69,23 +69,6 @@ public interface SecurityContextRepository {
 	SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder);
 
 	/**
-	 * Obtains the security context for the supplied request. For an unauthenticated user,
-	 * an empty context implementation should be returned. This method should not return
-	 * null.
-	 * @param request the {@link HttpServletRequest} to load the {@link SecurityContext}
-	 * from
-	 * @return a {@link Supplier} that returns the {@link SecurityContext} which cannot be
-	 * null.
-	 * @since 5.7
-	 * @deprecated Use
-	 * {@link SecurityContextRepository#loadDeferredContext(HttpServletRequest)} instead
-	 */
-	@Deprecated
-	default Supplier<SecurityContext> loadContext(HttpServletRequest request) {
-		return loadDeferredContext(request);
-	}
-
-	/**
 	 * Defers loading the {@link SecurityContext} using the {@link HttpServletRequest}
 	 * until it is needed by the application.
 	 * @param request the {@link HttpServletRequest} to load the {@link SecurityContext}

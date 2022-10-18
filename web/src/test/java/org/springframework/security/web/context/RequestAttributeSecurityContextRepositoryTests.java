@@ -86,7 +86,7 @@ class RequestAttributeSecurityContextRepositoryTests {
 
 	@Test
 	void loadDeferredContextWhenNotPresentThenEmptyContext() {
-		Supplier<SecurityContext> deferredContext = this.repository.loadContext(this.request);
+		Supplier<SecurityContext> deferredContext = this.repository.loadDeferredContext(this.request);
 		assertThat(deferredContext.get()).isEqualTo(SecurityContextHolder.createEmptyContext());
 	}
 
@@ -103,7 +103,7 @@ class RequestAttributeSecurityContextRepositoryTests {
 		given(securityContextHolderStrategy.createEmptyContext()).willReturn(new SecurityContextImpl());
 		this.repository.setSecurityContextHolderStrategy(securityContextHolderStrategy);
 
-		Supplier<SecurityContext> deferredContext = this.repository.loadContext(this.request);
+		Supplier<SecurityContext> deferredContext = this.repository.loadDeferredContext(this.request);
 		assertThat(deferredContext.get()).isNotNull();
 		verify(securityContextHolderStrategy).createEmptyContext();
 		verifyNoMoreInteractions(securityContextHolderStrategy);

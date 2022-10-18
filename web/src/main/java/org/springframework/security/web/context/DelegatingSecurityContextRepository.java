@@ -46,7 +46,7 @@ public final class DelegatingSecurityContextRepository implements SecurityContex
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		return loadContext(requestResponseHolder.getRequest()).get();
+		return loadDeferredContext(requestResponseHolder.getRequest()).get();
 	}
 
 	@Override

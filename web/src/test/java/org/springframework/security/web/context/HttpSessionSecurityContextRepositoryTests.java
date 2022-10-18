@@ -146,7 +146,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 	public void loadContextHttpServletRequestWhenNotSavedThenEmptyContextReturned() {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
-		assertThat(repo.loadContext(request).get()).isEqualTo(SecurityContextHolder.createEmptyContext());
+		assertThat(repo.loadDeferredContext(request).get()).isEqualTo(SecurityContextHolder.createEmptyContext());
 	}
 
 	@Test
@@ -156,7 +156,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		repo.saveContext(expectedContext, request, response);
-		assertThat(repo.loadContext(request).get()).isEqualTo(expectedContext);
+		assertThat(repo.loadDeferredContext(request).get()).isEqualTo(expectedContext);
 	}
 
 	@Test
@@ -165,7 +165,7 @@ public class HttpSessionSecurityContextRepositoryTests {
 		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setSession(session);
-		repo.loadContext(request);
+		repo.loadDeferredContext(request);
 		verifyNoInteractions(session);
 	}
 
