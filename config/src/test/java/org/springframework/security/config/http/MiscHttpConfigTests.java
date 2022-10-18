@@ -68,6 +68,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.jaas.AuthorityGranter;
+import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -75,7 +76,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -473,7 +473,8 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("SecurityContextRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
+		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
+				.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/protected").with(userCredentials()))
 				.andExpect(status().isOk())
@@ -1035,29 +1036,6 @@ public class MiscHttpConfigTests {
 		@Override
 		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
-		}
-
-	}
-
-	static class TestDeferredSecurityContext implements DeferredSecurityContext {
-
-		private SecurityContext securityContext;
-
-		private boolean isGenerated;
-
-		TestDeferredSecurityContext(SecurityContext securityContext, boolean isGenerated) {
-			this.securityContext = securityContext;
-			this.isGenerated = isGenerated;
-		}
-
-		@Override
-		public SecurityContext get() {
-			return this.securityContext;
-		}
-
-		@Override
-		public boolean isGenerated() {
-			return this.isGenerated;
 		}
 
 	}

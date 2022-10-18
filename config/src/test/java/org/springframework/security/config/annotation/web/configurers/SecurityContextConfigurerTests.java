@@ -28,6 +28,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.TestHttpSecurity;
@@ -83,10 +84,10 @@ public class SecurityContextConfigurerTests {
 	@Test
 	public void securityContextWhenInvokedTwiceThenUsesOriginalSecurityContextRepository() throws Exception {
 		this.spring.register(DuplicateDoesNotOverrideConfig.class).autowire();
-		given(DuplicateDoesNotOverrideConfig.SCR.loadContext(any(HttpServletRequest.class)))
-				.willReturn(() -> mock(SecurityContext.class));
+		given(DuplicateDoesNotOverrideConfig.SCR.loadDeferredContext(any(HttpServletRequest.class)))
+				.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.mvc.perform(get("/"));
-		verify(DuplicateDoesNotOverrideConfig.SCR).loadContext(any(HttpServletRequest.class));
+		verify(DuplicateDoesNotOverrideConfig.SCR).loadDeferredContext(any(HttpServletRequest.class));
 	}
 
 	// SEC-2932

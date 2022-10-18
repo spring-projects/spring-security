@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -103,7 +104,8 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadContext(any(HttpServletRequest.class))).willReturn(() -> mock(SecurityContext.class));
+				.loadDeferredContext(any(HttpServletRequest.class)))
+						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 		this.mvc.perform(get("/"));
 	}
