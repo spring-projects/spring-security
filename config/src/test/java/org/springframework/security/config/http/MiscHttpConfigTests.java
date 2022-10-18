@@ -75,6 +75,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -487,7 +488,8 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("ExplicitSaveAndExplicitRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
+		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
+				.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(formLogin())
 				.andExpect(status().is3xxRedirection())
@@ -1033,6 +1035,29 @@ public class MiscHttpConfigTests {
 		@Override
 		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
+		}
+
+	}
+
+	static class TestDeferredSecurityContext implements DeferredSecurityContext {
+
+		private SecurityContext securityContext;
+
+		private boolean isGenerated;
+
+		TestDeferredSecurityContext(SecurityContext securityContext, boolean isGenerated) {
+			this.securityContext = securityContext;
+			this.isGenerated = isGenerated;
+		}
+
+		@Override
+		public SecurityContext get() {
+			return this.securityContext;
+		}
+
+		@Override
+		public boolean isGenerated() {
+			return this.isGenerated;
 		}
 
 	}

@@ -27,7 +27,8 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Luke Taylor
  * @since 3.0
- * @deprecated Use {@link SecurityContextRepository#loadContext(HttpServletRequest)}
+ * @deprecated Use
+ * {@link SecurityContextRepository#loadDeferredContext(HttpServletRequest)}
  */
 @Deprecated
 public final class HttpRequestResponseHolder {
