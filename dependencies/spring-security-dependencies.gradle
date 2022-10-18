@@ -54,7 +54,7 @@ dependencies {
 		api "org.eclipse.jetty:jetty-servlet:9.4.49.v20220914"
 		api "org.eclipse.persistence:javax.persistence:2.2.1"
 		api "org.hamcrest:hamcrest:2.2"
-		api "org.hibernate:hibernate-entitymanager:5.6.11.Final"
+		api "org.hibernate:hibernate-entitymanager:5.6.12.Final"
 		api "org.hsqldb:hsqldb:2.7.0"
 		api "org.jasig.cas.client:cas-client-core:3.6.4"
 		api "org.openid4java:openid4java-nodeps:0.9.6"
