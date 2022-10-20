@@ -33,6 +33,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
@@ -119,7 +120,7 @@ public class WebTestUtilsTests {
 	public void getSecurityContextRepositorySecurityNoCsrf() {
 		loadConfig(SecurityNoCsrfConfig.class);
 		assertThat(WebTestUtils.getSecurityContextRepository(this.request))
-				.isInstanceOf(HttpSessionSecurityContextRepository.class);
+				.isInstanceOf(DelegatingSecurityContextRepository.class);
 	}
 
 	@Test

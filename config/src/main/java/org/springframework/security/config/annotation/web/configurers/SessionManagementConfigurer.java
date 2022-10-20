@@ -48,7 +48,9 @@ import org.springframework.security.web.authentication.session.NullAuthenticated
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.session.SessionFixationProtectionStrategy;
+import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.NullSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.savedrequest.NullRequestCache;
@@ -140,6 +142,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	private Set<String> propertiesThatRequireImplicitAuthentication = new HashSet<>();
 
 	private Boolean requireExplicitAuthenticationStrategy;
+
+	/**
+	 * This should not use RequestAttributeSecurityContextRepository since that is
+	 * stateless and sesison management is about state management.
+	 */
+	private SecurityContextRepository sessionManagementSecurityContextRepository = new HttpSessionSecurityContextRepository();
 
 	/**
 	 * Creates a new instance
@@ -356,6 +364,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (securityContextRepository == null) {
 			if (stateless) {
 				http.setSharedObject(SecurityContextRepository.class, new RequestAttributeSecurityContextRepository());
+				this.sessionManagementSecurityContextRepository = new NullSecurityContextRepository();
 			}
 			else {
 				HttpSessionSecurityContextRepository httpSecurityRepository = new HttpSessionSecurityContextRepository();
@@ -365,7 +374,10 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				if (trustResolver != null) {
 					httpSecurityRepository.setTrustResolver(trustResolver);
 				}
-				http.setSharedObject(SecurityContextRepository.class, httpSecurityRepository);
+				this.sessionManagementSecurityContextRepository = httpSecurityRepository;
+				DelegatingSecurityContextRepository defaultRepository = new DelegatingSecurityContextRepository(
+						httpSecurityRepository, new RequestAttributeSecurityContextRepository());
+				http.setSharedObject(SecurityContextRepository.class, defaultRepository);
 			}
 		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
@@ -420,7 +432,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 		if (shouldRequireExplicitAuthenticationStrategy()) {
 			return null;
 		}
-		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+		SecurityContextRepository securityContextRepository = this.sessionManagementSecurityContextRepository;
 		SessionManagementFilter sessionManagementFilter = new SessionManagementFilter(securityContextRepository,
 				getSessionAuthenticationStrategy(http));
 		if (this.sessionAuthenticationErrorUrl != null) {
