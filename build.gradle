@@ -4,7 +4,7 @@ plugins {
 }
 
 antora {
-    version = '~3.1'
+    version = '3.2.0-alpha.1'
 	options = ['--clean', '--fetch', '--stacktrace']
 	environment = [
 		'ALGOLIA_API_KEY': '82c7ead946afbac3cf98c32446154691',

@@ -75,7 +75,7 @@ SDKMAN will switch to the required JDK or install it if it isn't present.
 This command will build the documentation, including any generated attributes, for the main branch.
 --
 
-. Navigate to _$HOME/spring-security/main/docs/build/site/index.html_ to view the documentation.
+. Navigate to _$HOME/spring-security/main/docs/build/site/index.html_ to view the generated documentation.
 
 [#build-branch]
 == Build the 5.8.x branch documentation (writers)
@@ -104,7 +104,7 @@ Set up a worktree for the 5.8.x branch and then change into the new directory by
 This command will build the documentation, including any generated attributes, for the 5.8.x branch.
 --
 
-. Navigate to _$HOME/spring-security/5.8.x/docs/build/site/index.html_ to view the documentation.
+. Navigate to _$HOME/spring-security/5.8.x/docs/build/site/index.html_ to view the generated documentation.
 
 [#build-production]
 == Build the production documentation site (docs manager)
@@ -130,7 +130,11 @@ Then change into the new _docs-build_ directory.
 --
  $ ./gradlew antora
 
-This command will build all of the documentation included in the project's production site.
+This command will build all of the documentation included in the project's production site from the repository on GitHub.
+
+To build the documentation from the current clone, using any worktrees that are available, use the following command instead:
+
+ $ ./gradlew antora --playbook local-antora-playbook.yml
 --
 
-. Navigate to _$HOME/spring-security/docs-site/build/site/index.html_ to view the documentation.
+. Navigate to _$HOME/spring-security/docs-site/build/site/index.html_ to view the generated documentation.
