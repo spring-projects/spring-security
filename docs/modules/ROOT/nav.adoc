@@ -2,6 +2,7 @@
 * xref:prerequisites.adoc[Prerequisites]
 * xref:community.adoc[Community]
 * xref:whats-new.adoc[What's New]
+* xref:migration.adoc[Migrating for 6.0]
 * xref:getting-spring-security.adoc[Getting Spring Security]
 * xref:features/index.adoc[Features]
 ** xref:features/authentication/index.adoc[Authentication]
