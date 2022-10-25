@@ -2,110 +2,32 @@
 = Migrating to 6.0
 
 The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
-Use 5.8 and the steps below to minimize changes when updating to 6.0.
+Use 5.8 and its preparation steps to simplify updating to 6.0
 
-== Servlet
+After updating to 5.8, follow this guide to perform any needed migration steps.
 
-=== Change `@EnableGlobalMethodSecurity` to `@EnableMethodSecurity`
+Also, this guide includes ways to revert to 5.x behaviors and its defaults, should you run into trouble.
 
-xref:servlet/authorization/method-security.adoc[Method Security] has been xref:servlet/authorization/method-security.adoc#jc-enable-method-security[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+== Updating
 
-The public API difference between these two annotations is that {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] defaults `prePostEnabled` to `true`, while {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] defaults it to `false`.
-Also, `@EnableMethodSecurity` internally uses `AuthorizationManager` while `@EnableGlobalMethodSecurity` does not.
+=== Reactive
 
-This means that the following two listings are functionally equivalent:
+==== Remove `useAuthorizationManager` usage from `@EnableReactiveMethodSecurity`
 
-====
-.Java
-[source,java,role="primary"]
-----
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableGlobalMethodSecurity(prePostEnabled = true)
-----
-====
-
-changes to:
+{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] sets `useAuthorizationManager` to `true` by default.
+Because of that, in 6.0 you can change:
 
 ====
 .Java
 [source,java,role="primary"]
 ----
-@EnableMethodSecurity
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@EnableMethodSecurity
-----
-====
-
-For applications not using `prePostEnabled`, make sure to turn it off to avoid activating unwanted behavior.
-
-For example, a listing like:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@EnableGlobalMethodSecurity(securedEnabled = true)
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableGlobalMethodSecurity(securedEnabled = true)
-----
-====
-
-should change to:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
-----
-====
-
-Additionally, note that `@EnableMethodSecurity` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
-If after moving to `@EnableMethodSecurity` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
-
-==== Publish your custom `PermissionEvaluator` as a `MethodSecurityExpressionHandler`
-
-`@EnableMethodSecurity` does not pick up a `PermissionEvaluator` bean.
-Instead, it picks up the more generic `MethodSecurityExpressionHandler` to simplify the API.
-
-If you have a custom {security-api-url}org/springframework/security/access/PermissionEvaluator.html[`PermissionEvaluator`] `@Bean`, please change it from:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-PermissionEvaluator permissionEvaluator() {
-	// ... your evaluator
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun permissionEvaluator(): PermissionEvaluator {
-	// ... your evaluator
-}
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 ====
 
@@ -115,35 +37,96 @@ to:
 .Java
 [source,java,role="primary"]
 ----
-@Bean
-MethodSecurityExpressionHandler expressionHandler() {
-    var expressionHandler = new DefaultMethodSecurityExpressionHandler();
-    expressionHandler.setPermissionEvaluator(myPermissionEvaluator);
-    return expressionHandler;
-}
+@EnableReactiveMethodSecurity
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@Bean
-fun expressionHandler(): MethodSecurityExpressionHandler {
-    val expressionHandler = DefaultMethodSecurityExpressionHandler
-    expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
-    return expressionHandler
-}
+@EnableReactiveMethodSecurity
 ----
 ====
 
-== Reactive
+== Reverting
 
-=== Activate `AuthorizationManager` in `@EnableReactiveMethodSecurity`
+If you are running into trouble with any of the 6.0 changes, please first try to apply the following changes to get you up and running.
+It's more important to stay on 6.0 and get the security improvements.
 
-xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+=== Servlet
 
-In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt-in to ``AuthorizationManager``'s features.
+==== Change `@EnableMethodSecurity` to `@EnableGlobalMethodSecurity`
 
-To opt in, change `useAuthorizationManager` to `true` like so:
+For applications using `prePostEnabled`, make sure to turn it on to reactivate the behavior.
+
+For example, change:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+----
+====
+
+Other usage can simply change {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+====
+
+should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+====
+
+=== Reactive
+
+==== Deactivate `AuthorizationManager` in `@EnableReactiveMethodSecurity`
+
+To opt-out of {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] for reactive method security, add `useAuthorizationManager = false`:
 
 ====
 .Java
@@ -165,19 +148,13 @@ changes to:
 .Java
 [source,java,role="primary"]
 ----
-@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
 ----
 ====
-
-Note that in 6.0, `useAuthorizationManager` defaults to `true`.
-
-Additionally, note that `useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
-If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
-
 
