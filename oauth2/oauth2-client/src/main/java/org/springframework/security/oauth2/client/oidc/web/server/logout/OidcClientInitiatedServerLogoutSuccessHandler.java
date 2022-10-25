@@ -43,8 +43,7 @@ import org.springframework.web.util.UriComponentsBuilder;
  * @author Josh Cummings
  * @since 5.2
  * @see <a href=
- * "https://openid.net/specs/openid-connect-session-1_0.html#RPLogout">RP-Initiated
- * Logout</a>
+ * "https://openid.net/specs/openid-connect-rpinitiated-1_0.html">RP-Initiated Logout</a>
  * @see org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler
  */
 public class OidcClientInitiatedServerLogoutSuccessHandler implements ServerLogoutSuccessHandler {
