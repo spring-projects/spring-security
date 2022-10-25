@@ -3,7 +3,7 @@ antora:
   - ./lib/antora/extensions/inject-collector-config.js
   - '@antora/collector-extension'
   - ./lib/antora/extensions/version-fix.js
-  - ./lib/antora/extensions/major-minor-segment.js
+  - '@opendevise/antora-release-line-extension'
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
