@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,11 @@ package org.springframework.security.web.access.intercept;
 
 import java.io.IOException;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +31,7 @@ import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * An authorization filter that restricts access to the URL using
@@ -37,9 +40,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public class AuthorizationFilter extends OncePerRequestFilter {
+public class AuthorizationFilter extends GenericFilterBean {
 
 	private final AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	private boolean observeOncePerRequest = true;
+
+	private boolean filterErrorDispatch = false;
+
+	private boolean filterAsyncDispatch = false;
 
 	/**
 	 * Creates an instance.
@@ -51,11 +60,53 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws ServletException, IOException {
 
-		this.authorizationManager.verify(this::getAuthentication, request);
-		filterChain.doFilter(request, response);
+		HttpServletRequest request = (HttpServletRequest) servletRequest;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+		if (this.observeOncePerRequest && isApplied(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		if (skipDispatch(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+		request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+		try {
+			this.authorizationManager.verify(this::getAuthentication, request);
+			chain.doFilter(request, response);
+		}
+		finally {
+			request.removeAttribute(alreadyFilteredAttributeName);
+		}
+	}
+
+	private boolean skipDispatch(HttpServletRequest request) {
+		if (DispatcherType.ERROR.equals(request.getDispatcherType()) && !this.filterErrorDispatch) {
+			return true;
+		}
+		if (DispatcherType.ASYNC.equals(request.getDispatcherType()) && !this.filterAsyncDispatch) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isApplied(HttpServletRequest request) {
+		return request.getAttribute(getAlreadyFilteredAttributeName()) != null;
+	}
+
+	private String getAlreadyFilteredAttributeName() {
+		String name = getFilterName();
+		if (name == null) {
+			name = getClass().getName();
+		}
+		return name + ".APPLIED";
 	}
 
 	private Authentication getAuthentication() {
@@ -73,6 +124,40 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	 */
 	public AuthorizationManager<HttpServletRequest> getAuthorizationManager() {
 		return this.authorizationManager;
+	}
+
+	public boolean isObserveOncePerRequest() {
+		return this.observeOncePerRequest;
+	}
+
+	/**
+	 * Sets whether this filter apply only once per request. By default, this is
+	 * <code>true</code>, meaning the filter will only execute once per request. Sometimes
+	 * users may wish it to execute more than once per request, such as when JSP forwards
+	 * are being used and filter security is desired on each included fragment of the HTTP
+	 * request.
+	 * @param observeOncePerRequest whether the filter should only be applied once per
+	 * request
+	 */
+	public void setObserveOncePerRequest(boolean observeOncePerRequest) {
+		this.observeOncePerRequest = observeOncePerRequest;
+	}
+
+	/**
+	 * If set to true, the filter will be applied to error dispatcher. Defaults to false.
+	 * @param filterErrorDispatch whether the filter should be applied to error dispatcher
+	 */
+	public void setFilterErrorDispatch(boolean filterErrorDispatch) {
+		this.filterErrorDispatch = filterErrorDispatch;
+	}
+
+	/**
+	 * If set to true, the filter will be applied to the async dispatcher. Defaults to
+	 * false.
+	 * @param filterAsyncDispatch whether the filter should be applied to async dispatch
+	 */
+	public void setFilterAsyncDispatch(boolean filterAsyncDispatch) {
+		this.filterAsyncDispatch = filterAsyncDispatch;
 	}
 
 }
