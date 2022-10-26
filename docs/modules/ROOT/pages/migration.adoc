@@ -6,13 +6,24 @@ Use 5.8 and its preparation steps to simplify updating to 6.0
 
 After updating to 5.8, follow this guide to perform any needed migration steps.
 
-Also, this guide includes ways to revert to 5.x behaviors and its defaults, should you run into trouble.
+Also, this guide includes ways to <<revert,revert to 5.x>> behaviors and its defaults, should you run into trouble.
 
-== Updating
+== Servlet
 
-=== Reactive
+=== Use `AuthorizationManager` for Method Security
 
-==== Remove `useAuthorizationManager` usage from `@EnableReactiveMethodSecurity`
+There are no further migration steps for this feature.
+However, if you run into trouble with this enhancement, you can instead <<servlet-replace-methodsecurity-with-globalmethodsecurity,revert the behavior>>.
+
+== Reactive
+
+=== Use `AuthorizationManager` for Method Security
+
+If you run into trouble with this enhancement, you can instead <<reactive-change-to-useauthorizationmanager-false,revert the behavior>>.
+
+[[reactive-method-security-remove-useauthorizationmanager]]
+[%interactive]
+* [ ] Remove `useAuthorizationManager` usage from `@EnableReactiveMethodSecurity`
 
 {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] sets `useAuthorizationManager` to `true` by default.
 Because of that, in 6.0 you can change:
@@ -47,16 +58,21 @@ to:
 ----
 ====
 
-== Reverting
+'''
 
+[[revert]]
 If you are running into trouble with any of the 6.0 changes, please first try to apply the following changes to get you up and running.
 It's more important to stay on 6.0 and get the security improvements.
 
-=== Servlet
+== Revert Servlet
 
-==== Change `@EnableMethodSecurity` to `@EnableGlobalMethodSecurity`
+=== Don't Use `AuthorizationManager` in Method Security
 
-For applications using `prePostEnabled`, make sure to turn it on to reactivate the behavior.
+[[servlet-replace-methodsecurity-with-globalmethodsecurity]]
+[%interactive]
+* [ ] Replace xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security] with xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security]
+
+For applications using xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations], make sure to turn it on to reactivate the behavior.
 
 For example, change:
 
@@ -71,6 +87,12 @@ For example, change:
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security/>
 ----
 ====
 
@@ -88,9 +110,15 @@ to:
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security pre-post-enabled="true"/>
+----
 ====
 
-Other usage can simply change {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`], like so:
+Other usages can simply change {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`] to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`], like so:
 
 ====
 .Java
@@ -103,6 +131,12 @@ Other usage can simply change {security-api-url}org/springframework/security/con
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security secured-enabled="true" pre-post-enabled="false"/>
 ----
 ====
 
@@ -120,11 +154,21 @@ should change to:
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security secured-enabled="true" pre-post-enabled="false"/>
+----
 ====
 
-=== Reactive
+== Revert Reactive
 
-==== Deactivate `AuthorizationManager` in `@EnableReactiveMethodSecurity`
+=== Don't Use `AuthorizationManager` in Method Security
+
+[[reactive-change-to-useauthorizationmanager-false]]
+[%interactive]
+* [ ] Change `useAuthorizationManager` to `false`
 
 To opt-out of {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] for reactive method security, add `useAuthorizationManager = false`:
 
