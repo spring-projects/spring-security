@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,18 +79,6 @@ public final class WebClientReactivePasswordTokenResponseClient implements React
 									.then(Mono.error(new OAuth2AuthorizationException(oauth2Error)));
 						}
 						return response.body(oauth2AccessTokenResponse());
-					})
-					.map(tokenResponse -> {
-						if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
-							// As per spec, in Section 5.1 Successful Access Token Response
-							// https://tools.ietf.org/html/rfc6749#section-5.1
-							// If AccessTokenResponse.scope is empty, then default to the scope
-							// originally requested by the client in the Token Request
-							tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-									.scopes(passwordGrantRequest.getClientRegistration().getScopes())
-									.build();
-						}
-						return tokenResponse;
 					});
 		});
 	}

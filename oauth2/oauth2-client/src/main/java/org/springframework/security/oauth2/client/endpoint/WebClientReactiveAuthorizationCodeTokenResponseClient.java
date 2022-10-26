@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -79,15 +79,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClient implements Re
 					})
 					.body(body)
 					.exchange()
-					.flatMap(response -> response.body(oauth2AccessTokenResponse()))
-					.map(response -> {
-						if (response.getAccessToken().getScopes().isEmpty()) {
-							response = OAuth2AccessTokenResponse.withResponse(response)
-								.scopes(authorizationExchange.getAuthorizationRequest().getScopes())
-								.build();
-						}
-						return response;
-					});
+					.flatMap(response -> response.body(oauth2AccessTokenResponse()));
 		});
 	}
 

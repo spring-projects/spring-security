@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,6 +78,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		String body = actualRequest.getUtf8Body();
 
 		assertThat(response.getAccessToken()).isNotNull();
+		assertThat(response.getAccessToken().getScopes()).containsExactly("create");
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isEqualTo("Basic Y2xpZW50LWlkOmNsaWVudC1zZWNyZXQ=");
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser");
 	}
@@ -102,12 +103,13 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		String body = actualRequest.getUtf8Body();
 
 		assertThat(response.getAccessToken()).isNotNull();
+		assertThat(response.getAccessToken().getScopes()).containsExactly("create");
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
 		assertThat(body).isEqualTo("grant_type=client_credentials&scope=read%3Auser&client_id=client-id&client_secret=client-secret");
 	}
 
 	@Test
-	public void getTokenResponseWhenNoScopeThenClientRegistrationScopesDefaulted() {
+	public void getTokenResponseWhenNoScopeThenReturnAccessTokenResponseWithNoScopes() {
 		ClientRegistration registration = this.clientRegistration.build();
 		enqueueJson("{\n"
 				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
@@ -119,7 +121,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 
-		assertThat(response.getAccessToken().getScopes()).isEqualTo(registration.getScopes());
+		assertThat(response.getAccessToken().getScopes()).isEmpty();
 	}
 
 	@Test(expected=IllegalArgumentException.class)
