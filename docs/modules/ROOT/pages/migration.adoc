@@ -6,12 +6,18 @@ Use 5.8 and the steps below to minimize changes when updating to 6.0.
 
 == Servlet
 
-=== Change `@EnableGlobalMethodSecurity` to `@EnableMethodSecurity`
+=== Use `AuthorizationManager` for Method Security
 
 xref:servlet/authorization/method-security.adoc[Method Security] has been xref:servlet/authorization/method-security.adoc#jc-enable-method-security[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
 
-The public API difference between these two annotations is that {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] defaults `prePostEnabled` to `true`, while {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] defaults it to `false`.
-Also, `@EnableMethodSecurity` internally uses `AuthorizationManager` while `@EnableGlobalMethodSecurity` does not.
+'''
+
+[[servlet-replace-globalmethodsecurity-with-methodsecurity]]
+[%interactive]
+* [ ] Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
+
+{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
+The new annotation and XML element activate Spring's xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations] by default and use `AuthorizationManager` internally.
 
 This means that the following two listings are functionally equivalent:
 
@@ -27,9 +33,15 @@ This means that the following two listings are functionally equivalent:
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security pre-post-enabled="true"/>
+----
 ====
 
-changes to:
+and:
 
 ====
 .Java
@@ -43,9 +55,15 @@ changes to:
 ----
 @EnableMethodSecurity
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security/>
+----
 ====
 
-For applications not using `prePostEnabled`, make sure to turn it off to avoid activating unwanted behavior.
+For applications not using the pre-post annotations, make sure to turn it off to avoid activating unwanted behavior.
 
 For example, a listing like:
 
@@ -60,6 +78,12 @@ For example, a listing like:
 [source,kotlin,role="secondary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security secured-enabled="true"/>
 ----
 ====
 
@@ -77,15 +101,22 @@ should change to:
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security secured-enabled="true" pre-post-enabled="false"/>
+----
 ====
 
-Additionally, note that `@EnableMethodSecurity` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
-If after moving to `@EnableMethodSecurity` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
+'''
 
-==== Publish your custom `PermissionEvaluator` as a `MethodSecurityExpressionHandler`
+[[servlet-replace-permissionevaluator-bean-with-methodsecurityexpression-handler]]
+[%interactive]
+* [ ] Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
 
-`@EnableMethodSecurity` does not pick up a `PermissionEvaluator` bean.
-Instead, it picks up the more generic `MethodSecurityExpressionHandler` to simplify the API.
+`@EnableMethodSecurity` does not pick up a `PermissionEvaluator`.
+This helps keep its API simple.
 
 If you have a custom {security-api-url}org/springframework/security/access/PermissionEvaluator.html[`PermissionEvaluator`] `@Bean`, please change it from:
 
@@ -94,7 +125,7 @@ If you have a custom {security-api-url}org/springframework/security/access/Permi
 [source,java,role="primary"]
 ----
 @Bean
-PermissionEvaluator permissionEvaluator() {
+static PermissionEvaluator permissionEvaluator() {
 	// ... your evaluator
 }
 ----
@@ -102,9 +133,11 @@ PermissionEvaluator permissionEvaluator() {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@Bean
-fun permissionEvaluator(): PermissionEvaluator {
-	// ... your evaluator
+companion object {
+    @Bean
+    fun permissionEvaluator(): PermissionEvaluator {
+        // ... your evaluator
+    }
 }
 ----
 ====
@@ -116,7 +149,7 @@ to:
 [source,java,role="primary"]
 ----
 @Bean
-MethodSecurityExpressionHandler expressionHandler() {
+static MethodSecurityExpressionHandler expressionHandler() {
     var expressionHandler = new DefaultMethodSecurityExpressionHandler();
     expressionHandler.setPermissionEvaluator(myPermissionEvaluator);
     return expressionHandler;
@@ -126,20 +159,37 @@ MethodSecurityExpressionHandler expressionHandler() {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@Bean
-fun expressionHandler(): MethodSecurityExpressionHandler {
-    val expressionHandler = DefaultMethodSecurityExpressionHandler
-    expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
-    return expressionHandler
+companion object {
+    @Bean
+    fun expressionHandler(): MethodSecurityExpressionHandler {
+        val expressionHandler = DefaultMethodSecurityExpressionHandler
+        expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
+        return expressionHandler
+    }
 }
 ----
 ====
 
+'''
+
+[[servlet-check-for-annotationconfigurationexceptions]]
+[%interactive]
+* [ ] Check for ``AnnotationConfigurationException``s
+
+`@EnableMethodSecurity` and `<method-security>` activate stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
+If after moving to either you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
+
 == Reactive
 
-=== Activate `AuthorizationManager` in `@EnableReactiveMethodSecurity`
+=== Use `AuthorizationManager` for Method Security
 
 xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+
+'''
+
+[[reactive-change-to-useauthorizationmanager]]
+[%interactive]
+* [ ] Change `useAuthorizationManager` to `true`
 
 In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt-in to ``AuthorizationManager``'s features.
 
@@ -175,9 +225,16 @@ changes to:
 ----
 ====
 
-Note that in 6.0, `useAuthorizationManager` defaults to `true`.
+[NOTE]
+=====
+In 6.0, `useAuthorizationManager` defaults to `true`.
+=====
 
-Additionally, note that `useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
+'''
+
+[[reactive-check-for-annotationconfigurationexceptions]]
+[%interactive]
+* [ ] Check for ``AnnotationConfigurationException``s
+
+`useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
 If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
-
-
