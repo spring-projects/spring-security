@@ -21,12 +21,8 @@ However, if you run into trouble with this enhancement, you can instead <<servle
 
 If you run into trouble with this enhancement, you can instead <<reactive-change-to-useauthorizationmanager-false,revert the behavior>>.
 
-[[reactive-method-security-remove-useauthorizationmanager]]
-[%interactive]
-* [ ] Remove `useAuthorizationManager` usage from `@EnableReactiveMethodSecurity`
-
-{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] sets `useAuthorizationManager` to `true` by default.
-Because of that, in 6.0 you can change:
+In 6.0, `@EnableReactiveMethodSecurity` defaults `useAuthorizationManager` to `true`.
+So, to complete migration, {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] remove the `useAuthorizationManager` attribute:
 
 ====
 .Java
@@ -42,7 +38,7 @@ Because of that, in 6.0 you can change:
 ----
 ====
 
-to:
+changes to:
 
 ====
 .Java
@@ -68,9 +64,7 @@ It's more important to stay on 6.0 and get the security improvements.
 
 === Don't Use `AuthorizationManager` in Method Security
 
-[[servlet-replace-methodsecurity-with-globalmethodsecurity]]
-[%interactive]
-* [ ] Replace xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security] with xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security]
+To opt out of `AuthorizationManager` for Method Security, replace xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security] with xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security]
 
 For applications using xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations], make sure to turn it on to reactivate the behavior.
 
@@ -165,10 +159,6 @@ should change to:
 == Revert Reactive
 
 === Don't Use `AuthorizationManager` in Method Security
-
-[[reactive-change-to-useauthorizationmanager-false]]
-[%interactive]
-* [ ] Change `useAuthorizationManager` to `false`
 
 To opt-out of {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] for reactive method security, add `useAuthorizationManager = false`:
 
