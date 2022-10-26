@@ -10,6 +10,20 @@ Also, this guide includes ways to <<revert,revert to 5.x>> behaviors and its def
 
 == Servlet
 
+[[requestcache-query-optimization]]
+=== Optimize Querying of `RequestCache`
+
+In Spring Security 5, the default behavior is to query the xref:servlet/architecture.adoc#savedrequests[saved request] on every request.
+This means that in a typical setup, that in order to use the xref:servlet/architecture.adoc#requestcache[`RequestCache`] the `HttpSession` is queried on every request.
+
+In Spring Security 6, the default is that `RequestCache` will only be queried for a cached request if the HTTP parameter `continue` is defined.
+This allows Spring Security to avoid unnecessarily reading the `HttpSession` with the `RequestCache`.
+
+In Spring Security 5 the default is to use `HttpSessionRequestCache` which will be queried for a cached request on every request.
+If you are not overriding the defaults (i.e. using `NullRequestCache`), then the following configuration can be used to explicitly opt into the Spring Security 6 behavior in Spring Security 5.8:
+
+include::partial$servlet/architecture/request-cache-continue.adoc[]
+
 === Use `AuthorizationManager` for Method Security
 
 There are no further migration steps for this feature.
