@@ -83,6 +83,7 @@ It's more important to stay on 6.0 and get the security improvements.
 
 == Revert Servlet
 
+[[servlet-replace-methodsecurity-with-globalmethodsecurity]]
 === Don't Use `AuthorizationManager` in Method Security
 
 To opt out of `AuthorizationManager` for Method Security, replace xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security] with xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security]
@@ -179,6 +180,7 @@ should change to:
 
 == Revert Reactive
 
+[[reactive-change-to-useauthorizationmanager-false]]
 === Don't Use `AuthorizationManager` in Method Security
 
 To opt-out of {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] for reactive method security, add `useAuthorizationManager = false`:
