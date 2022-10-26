@@ -1,4 +1,10 @@
 buildscript {
+	configurations.all {
+		resolutionStrategy.dependencySubstitution {
+			substitute module('org.apache.xerces:xercesImpl') with module('xerces:xercesImpl:2.9.1')
+			substitute module('org.apache.xerces:resolver') with module('xerces:resolver:2.9.1')
+		}
+	}
 	dependencies {
 		classpath 'io.spring.gradle:spring-build-conventions:0.0.38'
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
