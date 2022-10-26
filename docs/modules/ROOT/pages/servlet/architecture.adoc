@@ -188,7 +188,7 @@ Below is a comprehensive list of Spring Security Filter ordering:
 * xref:servlet/authentication/passwords/digest.adoc#servlet-authentication-digest[`DigestAuthenticationFilter`]
 * BearerTokenAuthenticationFilter
 * xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[`BasicAuthenticationFilter`]
-* RequestCacheAwareFilter
+* <<requestcacheawarefilter,RequestCacheAwareFilter>>
 * SecurityContextHolderAwareRequestFilter
 * JaasApiIntegrationFilter
 * RememberMeAuthenticationFilter
@@ -213,8 +213,7 @@ image::{figures}/exceptiontranslationfilter.png[]
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
 ** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out
-** The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
-When the user successfully authenticates, the `RequestCache` is used to replay the original request.
+** The `HttpServletRequest` is <<savedrequests,saved>> so that it can be used to replay the original request once authentication is successful.
 // FIXME: add link to authentication success
 ** The `AuthenticationEntryPoint` is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
@@ -247,3 +246,26 @@ try {
 This means that if another part of the application, (i.e. xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] or method security) throws an `AuthenticationException` or `AccessDeniedException` it will be caught and handled here.
 <2> If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
 <3> Otherwise, __Access Denied__
+
+[[savedrequests]]
+== Saving Requests Between Authentication
+
+As illustrated in <<servlet-exceptiontranslationfilter>>, when a request has no authentication and is for a resource that requires authentication, there is a need to save the request for the authenticated resource to re-request after authentication is successful.
+In Spring Security this is done by saving the `HttpServletRequest` using a <<requestcache,`RequestCache`>> implementation.
+
+[[requestcache]]
+=== RequestCache
+
+The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
+When the user successfully authenticates, the `RequestCache` is used to replay the original request.
+The <<requestcacheawarefilter,`RequestCacheAwareFilter`>> is what uses the `RequestCache` to save the `HttpServletRequest`.
+
+By default, an `HttpSessionRequestCache` is used.
+The code below demonstrates how to customize the `RequestCache` implementation that is used to check the `HttpSession` for a saved request if the parameter named `continue` is present.
+
+include::partial$servlet/architecture/request-cache-continue.adoc[]
+
+[[requestcacheawarefilter]]
+=== RequestCacheAwareFilter
+
+The {security-api-url}org/springframework/security/web/savedrequest/RequestCacheAwareFilter.html[`RequestCacheAwareFilter`] uses the <<requestcache,`RequestCache`>> to save the `HttpServletRequest`.
