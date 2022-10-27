@@ -60,6 +60,14 @@ gradlePlugin {
 }
 
 configurations {
+	all {
+		resolutionStrategy.dependencySubstitution {
+			substitute(module("org.apache.xerces:xercesImpl"))
+					.using(module("xerces:xercesImpl:2.9.1"))
+			substitute(module("org.apache.xerces:resolver"))
+					.using(module("xerces:resolver:2.9.1"))
+		}
+	}
 	implementation {
 		exclude module: 'groovy-all'
 	}
