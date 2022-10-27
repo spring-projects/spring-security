@@ -19,20 +19,16 @@ DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-@EnableWebSecurity
-class SecurityConfig {
-
-	@Bean
-	open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
-		val httpRequestCache = HttpSessionRequestCache()
-		httpRequestCache.setMatchingRequestParameterName("continue")
-		http {
-			requestCache {
-				requestCache = httpRequestCache
-			}
-		}
-		return http.build()
-	}
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+    val httpRequestCache = HttpSessionRequestCache()
+    httpRequestCache.setMatchingRequestParameterName("continue")
+    http {
+        requestCache {
+            requestCache = httpRequestCache
+        }
+    }
+    return http.build()
 }
 ----
 
