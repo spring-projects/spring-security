@@ -34,8 +34,7 @@ xref:servlet/authorization/method-security.adoc[Method Security] has been xref:s
 '''
 
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
-[%interactive]
-* [ ] Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
+==== Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
 
 {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
 The new annotation and XML element activate Spring's xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations] by default and use `AuthorizationManager` internally.
@@ -133,8 +132,7 @@ should change to:
 '''
 
 [[servlet-replace-permissionevaluator-bean-with-methodsecurityexpression-handler]]
-[%interactive]
-* [ ] Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
+==== Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
 
 `@EnableMethodSecurity` does not pick up a `PermissionEvaluator`.
 This helps keep its API simple.
@@ -194,8 +192,7 @@ companion object {
 '''
 
 [[servlet-check-for-annotationconfigurationexceptions]]
-[%interactive]
-* [ ] Check for ``AnnotationConfigurationException``s
+==== Check for ``AnnotationConfigurationException``s
 
 `@EnableMethodSecurity` and `<method-security>` activate stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
 If after moving to either you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
@@ -209,8 +206,7 @@ xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/
 '''
 
 [[reactive-change-to-useauthorizationmanager]]
-[%interactive]
-* [ ] Change `useAuthorizationManager` to `true`
+==== Change `useAuthorizationManager` to `true`
 
 In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt-in to ``AuthorizationManager``'s features.
 
@@ -254,8 +250,7 @@ In 6.0, `useAuthorizationManager` defaults to `true`.
 '''
 
 [[reactive-check-for-annotationconfigurationexceptions]]
-[%interactive]
-* [ ] Check for ``AnnotationConfigurationException``s
+==== Check for ``AnnotationConfigurationException``s
 
 `useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
 If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
