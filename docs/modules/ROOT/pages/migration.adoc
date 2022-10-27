@@ -17,6 +17,19 @@ Also, this guide includes ways to <<revert,revert to 5.x>> behaviors and its def
 
 == Servlet
 
+In Spring Security 5, the default behavior is for the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to automatically be saved to the xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] using the xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`].
+Saving must be done just prior to the `HttpServletResponse` being committed and just before `SecurityContextPersistenceFilter`.
+Unfortunately, automatic persistence of the `SecurityContext` can surprise users when it is done prior to the request completing (i.e. just prior to committing the `HttpServletResponse`).
+It also is complex to keep track of the state to determine if a save is necessary causing unnecessary writes to the `SecurityContextRepository` (i.e. `HttpSession`) at times.
+
+In Spring Security 6, the default behavior is that the xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] will only read the `SecurityContext` from  `SecurityContextRepository` and populate it in the `SecurityContextHolder`.
+Users now must explicitly save the `SecurityContext` with the `SecurityContextRepository` if they want the `SecurityContext` to persist between requests.
+This removes ambiguity and improves performance by only requiring writing to the `SecurityContextRepository` (i.e. `HttpSession`) when it is necessary.
+
+If you are explicitly opting into Spring Security 6's new defaults, the following configuration can be removed to accept the Spring Security 6 defaults.
+
+include::partial$servlet/architecture/security-context-explicit.adoc[]
+
 [[requestcache-query-optimization]]
 === Optimize Querying of `RequestCache`
 
