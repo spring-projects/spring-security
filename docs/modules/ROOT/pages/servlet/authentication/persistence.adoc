@@ -144,29 +144,8 @@ image::{figures}/securitycontextholderfilter.png[]
 <1> Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
 <2> Next, the application is ran.
 
-Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersisteneFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
+Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
 This means that when using `SecurityContextHolderFilter`, it is required that the `SecurityContext` is explicitly saved.
 
-.Explicit Saving of SecurityContext
-====
-.Java
-[source,java,role="primary"]
-----
-public SecurityFilterChain filterChain(HttpSecurity http) {
-	http
-		// ...
-		.securityContext((securityContext) -> securityContext
-			.requireExplicitSave(true)
-		);
-	return http.build();
-}
-----
 
-.XML
-[source,xml,role="secondary"]
-----
-<http security-context-explicit-save="true">
-	<!-- ... -->
-</http>
-----
-====
+include::partial$servlet/architecture/security-context-explicit.adoc[]
