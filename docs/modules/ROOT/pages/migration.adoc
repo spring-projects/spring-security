@@ -13,6 +13,64 @@ endif::[]
 
 == Servlet
 
+=== Defer Loading CsrfToken
+
+In Spring Security 5, the default behavior is that the `CsrfToken` will be loaded on every request.
+This means that in a typical setup, the `HttpSession` must be read for every request even if it is unnecessary.
+
+In Spring Security 6, the default is that the lookup of the `CsrfToken` will be deferred until it is needed.
+
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+.Defer Loading `CsrfToken`
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	CsrfTokenRequestAttributeHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+	// set the name of the attribute the CsrfToken will be populated on
+	requestHandler.setCsrfRequestAttributeName("_csrf");
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRequestHandler(requestHandler)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	val requestHandler = CsrfTokenRequestAttributeHandler()
+	// set the name of the attribute the CsrfToken will be populated on
+	requestHandler.setCsrfRequestAttributeName("_csrf")
+	http {
+		csrf {
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<csrf request-handler-ref="requestHandler"/>
+</http>
+<b:bean id="requestHandler"
+	class="org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler"
+	p:csrfRequestAttributeName="_csrf"/>
+----
+====
+
 === Explicit Save SecurityContextRepository
 
 In Spring Security 5, the default behavior is for the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to automatically be saved to the xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] using the xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`].
@@ -170,10 +228,10 @@ static PermissionEvaluator permissionEvaluator() {
 [source,kotlin,role="secondary"]
 ----
 companion object {
-    @Bean
-    fun permissionEvaluator(): PermissionEvaluator {
-        // ... your evaluator
-    }
+	@Bean
+	fun permissionEvaluator(): PermissionEvaluator {
+		// ... your evaluator
+	}
 }
 ----
 ====
@@ -186,9 +244,9 @@ to:
 ----
 @Bean
 static MethodSecurityExpressionHandler expressionHandler() {
-    var expressionHandler = new DefaultMethodSecurityExpressionHandler();
-    expressionHandler.setPermissionEvaluator(myPermissionEvaluator);
-    return expressionHandler;
+	var expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	expressionHandler.setPermissionEvaluator(myPermissionEvaluator);
+	return expressionHandler;
 }
 ----
 
@@ -196,12 +254,12 @@ static MethodSecurityExpressionHandler expressionHandler() {
 [source,kotlin,role="secondary"]
 ----
 companion object {
-    @Bean
-    fun expressionHandler(): MethodSecurityExpressionHandler {
-        val expressionHandler = DefaultMethodSecurityExpressionHandler
-        expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
-        return expressionHandler
-    }
+	@Bean
+	fun expressionHandler(): MethodSecurityExpressionHandler {
+		val expressionHandler = DefaultMethodSecurityExpressionHandler
+		expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
+		return expressionHandler
+	}
 }
 ----
 ====
