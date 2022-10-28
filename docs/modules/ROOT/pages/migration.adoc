@@ -49,6 +49,33 @@ include::partial$servlet/architecture/request-cache-continue.adoc[]
 There are no further migration steps for this feature.
 However, if you run into trouble with this enhancement, you can instead <<servlet-replace-methodsecurity-with-globalmethodsecurity,revert the behavior>>.
 
+=== Use `AuthorizationManager` for Message Security
+
+In 6.0, `<websocket-message-broker>` defaults `use-authorization-manager` to `true`.
+So, to complete migration, remove any `websocket-message-broker@use-authorization-manager=true` attribute.
+
+For example:
+
+====
+.Xml
+[source,xml,role="primary"]
+----
+<websocket-message-broker use-authorization-manager="true"/>
+----
+====
+
+changes to:
+
+====
+.Xml
+[source,xml,role="primary"]
+----
+<websocket-message-broker/>
+----
+====
+
+There are no further migrations steps for Java or Kotlin for this feature.
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
