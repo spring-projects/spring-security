@@ -73,7 +73,7 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 
 If this breaks your application, then you can explicitly opt into the 5.8 defaults using the following configuration:
 
-.Defer Loading `CsrfToken`
+.Explicit Configure `CsrfToken` with 5.8 Defaults
 ====
 .Java
 [source,java,role="primary"]
@@ -122,6 +122,59 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 		<b:null/>
 	</b:property>
 </b:bean>
+----
+====
+
+=== CSRF BREACH Protection
+
+If the steps for <<Defer Loading CsrfToken>> work for you, then you can also opt into Spring Security 6's default support for BREACH protection of the `CsrfToken` using the following configuration:
+
+.`CsrfToken` BREACH Protection
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	XorCsrfTokenRequestAttributeHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
+	// set the name of the attribute the CsrfToken will be populated on
+	requestHandler.setCsrfRequestAttributeName("_csrf");
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRequestHandler(requestHandler)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	val requestHandler = XorCsrfTokenRequestAttributeHandler()
+	// set the name of the attribute the CsrfToken will be populated on
+	requestHandler.setCsrfRequestAttributeName("_csrf")
+	http {
+		csrf {
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<csrf request-handler-ref="requestHandler"/>
+</http>
+<b:bean id="requestHandler"
+	class="org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler"
+	p:csrfRequestAttributeName="_csrf"/>
 ----
 ====
 
