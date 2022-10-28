@@ -519,10 +519,46 @@ xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/
 
 '''
 
+In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt in to ``AuthorizationManager``'s features.
+
+==== Declare the 5.8 default
+
+First, declare the 5.8 default:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+====
+
+This is helpful because, if the remaining preparation steps cannot be taken, you can still upgrade to 6.0 while keeping this feature as-is.
+
 [[reactive-change-to-useauthorizationmanager]]
 ==== Change `useAuthorizationManager` to `true`
-
-In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt-in to ``AuthorizationManager``'s features.
 
 To opt in, change `useAuthorizationManager` to `true` like so:
 
@@ -555,11 +591,6 @@ changes to:
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 ====
-
-[NOTE]
-=====
-In 6.0, `useAuthorizationManager` defaults to `true`.
-=====
 
 '''
 
