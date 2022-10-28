@@ -46,6 +46,8 @@ include::partial$servlet/architecture/request-cache-continue.adoc[]
 
 xref:servlet/authorization/method-security.adoc[Method Security] has been xref:servlet/authorization/method-security.adoc#jc-enable-method-security[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
 
+Should you run into trouble with making these changes, note that `@EnableGlobalMethodSecurity`, while deprecated, will not be removed in 6.0, allowing you to opt out by sticking with the old annotation.
+
 '''
 
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
@@ -216,37 +218,7 @@ If after moving to either you see ``AnnotationConfigurationException``s in your 
 
 xref:servlet/integrations/websocket.adoc[Message Security] has been xref:servlet/integrations/websocket.adoc#websocket-configuration[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
 
-==== Declare the 5.8 default
-
-In case you run into trouble with the ensuing steps and cannot use `AuthorizationManager` at this time, it's recommended as a first step to declare you are using the 5.8 default so that 5.8 behavior is preserved when you update.
-
-The only default to change for Method Security is if you are using `<websocket-message-broker>` in which case you will change:
-
-====
-.Xml
-[source,xml,role="secondary"]
-----
-<websocket-message-broker>
-    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
-    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
-</websocket-message-broker>
-----
-====
-
-to:
-
-====
-.Xml
-[source,xml,role="secondary"]
-----
-<websocket-message-broker use-authorization-manager="false">
-    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
-    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
-</websocket-message-broker>
-----
-====
-
-Later steps will turn this value back on, but now your code is minimally ready for upgrading in case you run into trouble with the remaining steps.
+Should you run into trouble with making these changes, you can follow the <<servlet-authorizationmanager-messages-opt-out,opt out steps>> at the end of this section.
 
 ==== Ensure all messages have defined authorization rules
 
@@ -511,147 +483,92 @@ class WebSocketSecurityConfig: WebSocketMessageBrokerConfigurer {
 ----
 ====
 
+[[servlet-authorizationmanager-messages-opt-out]]
+==== Opt-out Steps
+
+In case you had trouble, take a look at these scenarios for optimal opt out behavior:
+
+===== I cannot declare an authorization rule for all requests
+
+If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/messaging/access/intercept/MessageMatcherDelegatingAuthorizationManager.Builder.Constraint.html#permitAll()[`permitAll`] instead, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        // ...
+        .anyMessage().permitAll();
+	return messages.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        // ...
+        .anyMessage().permitAll();
+    return messages.build()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <!-- ... -->
+    <intercept-message pattern="/**" access="permitAll"/>
+</websocket-message-broker>
+----
+====
+
+===== I cannot get CSRF working, need some other `AbstractSecurityWebSocketMessageBrokerConfigurer` feature, or am having trouble with `AuthorizationManager`
+
+In the case of Java, you may continue using `AbstractMessageSecurityWebSocketMessageBrokerConfigurer`.
+Even though it is deprecated, it will not be removed in 6.0.
+
+In the case of XML, you can opt out of `AuthorizationManager` by setting `use-authorization-manager="false"`:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+to:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="false">
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
 === Use `AuthorizationManager` for Request Security
 
 xref:servlet/authorization/authorize-requests.adoc[HTTP Request Security] has been xref:servlet/authorization/authorize-http-requests.adoc[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API].
 
-==== Declare the 5.8 default
-
-Spring Security 5.8 and earlier only xref:servlet/authorization/architecture.adoc[perform authorization] once per request.
-This means that dispatcher types like `FORWARD` and `INCLUDE` that run after `REQUEST` are not secured by default.
-
-It's recommended that Spring Security secure all dispatch types.
-As such, in 6.0, Spring Security changes this default.
-
-In case you have trouble with the remaining steps and cannot use `AuthorizationManager` at this time, it's recommended as a first step to declare the 5.8 default so that the 5.8 behavior is preserved when you update.
-
-To declare the 5.8 default, change:
-
-====
-.Java
-[source,java,role="primary"]
-----
-http
-    .authorizeRequests((authorize) -> authorize
-        .mvcMatchers("/app/**").hasRole("APP")
-        // ...
-    )
-    // ...
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-http {
-    authorizeRequests {
-        authorize("/messages/**", hasRole("APP"))
-        // ...
-    }
-}
-----
-
-.Xml
-[source,xml,role="secondary"]
-----
-<http>
-    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
-    <!-- ... -->
-</http>
-----
-====
-
-to:
-
-====
-.Java
-[source,java,role="primary"]
-----
-http
-    .authorizeRequests((authorize) -> authorize
-        .filterSecurityInterceptorOncePerRequest(true)
-        .mvcMatchers("/app/**").hasRole("APP")
-        // ...
-    )
-    // ...
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-http {
-    authorizeRequests {
-        filterSecurityInterceptorOncePerRequest = true
-        authorize("/messages/**", hasRole("APP"))
-        // ...
-    }
-}
-----
-
-.Xml
-[source,xml,role="secondary"]
-----
-<http once-per-request="true" use-authorization-manager="false">
-    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
-    <!-- ... -->
-</http>
-----
-====
-
-Or, if you already migrated to `authorizeHttpRequests` in a previous release, change:
-
-====
-.Java
-[source,java,role="primary"]
-----
-http
-    .authorizeHttpRequests((authorize) -> authorize
-        .mvcMatchers("/app/**").hasRole("APP")
-        // ...
-    )
-    // ...
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-http {
-    authorizeHttpRequests {
-        authorize("/messages/**", hasRole("APP"))
-        // ...
-    }
-}
-----
-====
-
-to:
-
-====
-.Java
-[source,java,role="primary"]
-----
-http
-    .authorizeHttpRequests((authorize) -> authorize
-        .shouldFilterAllDispatcherTypes(false)
-        .mvcMatchers("/app/**").hasRole("APP")
-        // ...
-    )
-    // ...
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-http {
-    authorizeHttpRequests {
-        shouldFilterAllDispatcherTypes = false
-        authorize("/messages/**", hasRole("APP"))
-        // ...
-    }
-}
-----
-====
-
-This value will be switched in a later step, but now you are ready for upgrading in case you run into trouble with the remaining steps.
+Should you run into trouble with making these changes, you can follow the <<servlet-authorizationmanager-requests-opt-out,opt out steps>> at the end of this section.
 
 ==== Ensure that all requests have defined authorization rules
 
@@ -660,7 +577,7 @@ It is a stronger security position to deny by default, thus requiring that autho
 As such, in 6.0, Spring Security by default denies any request that is missing an authorization rule.
 
 The simplest way to prepare for this change is to introduce an appropriate {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#anyRequest()[`anyRequest`] rule as the last authorization rule.
-The recommendation is {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#denyAll()[`denyAll`] since that is the implied 6.0 default; however, you may want to choose {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#permitAll()[`permitAll`] to preserve 5.8 behavior.
+The recommendation is {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#denyAll()[`denyAll`] since that is the implied 6.0 default.
 
 [NOTE]
 ====
@@ -935,7 +852,13 @@ http {
 
 ==== Switch to filter all dispatcher types
 
-Finally, change your authorization rules to filter all dispatcher types.
+Spring Security 5.8 and earlier only xref:servlet/authorization/architecture.adoc[perform authorization] once per request.
+This means that dispatcher types like `FORWARD` and `INCLUDE` that run after `REQUEST` are not secured by default.
+
+It's recommended that Spring Security secure all dispatch types.
+As such, in 6.0, Spring Security changes this default.
+
+So, finally, change your authorization rules to filter all dispatcher types.
 
 To do this, change:
 
@@ -1017,51 +940,209 @@ http {
 ----
 ====
 
+[[servlet-authorizationmanager-requests-opt-out]]
+==== Opt-out Steps
+
+In case you had trouble, take a look at these scenarios for optimal opt out behavior:
+
+===== I cannot secure all dispatcher types
+
+If you cannot secure all dispatcher types, first try and declare which dispatcher types should not require authorization like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(true)
+        .dispatcherTypeMatchers(FORWARD, INCLUDE).permitAll()
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = true
+        authorize(DispatcherTypeRequestMatcher(FORWARD, INCLUDE), permitAll)
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="true" use-authorization-manager="true">
+    <intercept-url request-matcher-ref="dispatchers"/>
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+
+<bean id="dispatchers" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+    <constructor-arg>
+        <util:list value-type="javax.servlet.DispatcherType">
+            <value>FORWARD</value>
+            <value>INCLUDE</value>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+Or, if that doesn't work, then you can explicitly opt out of the behavior by setting `filter-all-dispatcher-types` and `filterAllDispatcherTypes` to `false`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .filterAllDispatcherTypes(false)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        filterAllDispatcherTypes = false
+        authorize("/messages/**", hasRole("APP"))
+        // ...
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="false" use-authorization-manager="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
+or, if you are still using `authorizeRequests` or `use-authorization-manager="false"`, set `oncePerRequest` to `true`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/messages/**", hasRole("APP"))
+        // ...
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http once-per-request="true" use-authorization-manager="false">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
+===== I cannot declare an authorization rule for all requests
+
+If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#permitAll()[`permitAll`] instead, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpReqeusts((authorize) -> authorize
+        .mvcMatchers("/app/*").hasRole("APP")
+        // ...
+        .anyRequest().permitAll()
+    )
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize("/app*", hasRole("APP"))
+        // ...
+        authorize(anyRequest, permitAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="permitAll"/>
+</http>
+----
+====
+
+===== I cannot migrate my SpEL or my `AccessDecisionManager`
+
+If you are having trouble with SpEL, `AccessDecisionManager`, or there is some other feature that you are needing to keep using in `<http>` or `authorizeRequests`, try the following.
+
+First, if you still need `authorizeRequests`, you are welcome to keep using it. Even though it is deprecated, it is not removed in 6.0.
+
+Second, if you still need your custom `access-decision-manager-ref` or have some other reason to opt out of `AuthorizationManager`, do:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<http use-authorization-manager="false">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
 
 xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
 
+Should you run into trouble with making these changes, you can follow the
+<<reactive-authorizationmanager-methods-opt-out,opt out steps>> at the end of this section.
+
 '''
 
 In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt in to ``AuthorizationManager``'s features.
-
-==== Declare the 5.8 default
-
-First, declare the 5.8 default:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@EnableReactiveMethodSecurity
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableReactiveMethodSecurity
-----
-====
-
-to:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@EnableReactiveMethodSecurity(useAuthorizationManager = false)
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@EnableReactiveMethodSecurity(useAuthorizationManager = false)
-----
-====
-
-This is helpful because, if the remaining preparation steps cannot be taken, you can still upgrade to 6.0 while keeping this feature as-is.
 
 [[reactive-change-to-useauthorizationmanager]]
 ==== Change `useAuthorizationManager` to `true`
@@ -1105,3 +1186,38 @@ changes to:
 
 `useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
 If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
+
+[[reactive-authorizationmanager-methods-opt-out]]
+==== Opt-out Steps
+
+If you ran into trouble with `AuthorizationManager` for reactive method security, you can opt out by changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+====
