@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,7 +96,8 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n"
 			+ "   \"access_token\": \"access-token-1234\",\n"
 			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\"\n"
 			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
@@ -121,6 +122,26 @@ public class DefaultRefreshTokenTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getScopes())
 				.containsExactly(this.accessToken.getScopes().toArray(new String[0]));
 		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo(this.refreshToken.getTokenValue());
+	}
+
+	@Test
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasOriginalScope() {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder
+				.clientAuthenticationMethod(ClientAuthenticationMethod.POST).build();
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(clientRegistration,
+				this.accessToken, this.refreshToken);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
+				.getTokenResponse(refreshTokenGrantRequest);
+		assertThat(accessTokenResponse.getAccessToken().getScopes())
+				.containsExactly(this.accessToken.getScopes().toArray(new String[0]));
 	}
 
 	@Test
