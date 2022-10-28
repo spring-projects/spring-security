@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,12 +80,48 @@ public class WebClientReactivePasswordTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseThenReturnAccessTokenResponse() throws Exception {
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseWithNoScope()
+			throws Exception {
 		// @formatter:off
 		String accessTokenSuccessResponse = "{\n"
 			+ "   \"access_token\": \"access-token-1234\",\n"
 			+ "   \"token_type\": \"bearer\",\n"
 			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		Instant expiresAtBefore = Instant.now().plusSeconds(3600);
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.build();
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(clientRegistration,
+				this.username, this.password);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest)
+				.block();
+		Instant expiresAtAfter = Instant.now().plusSeconds(3600);
+		RecordedRequest recordedRequest = this.server.takeRequest();
+		assertThat(recordedRequest.getMethod()).isEqualTo(HttpMethod.POST.toString());
+		assertThat(recordedRequest.getHeader(HttpHeaders.ACCEPT)).isEqualTo(MediaType.APPLICATION_JSON_VALUE);
+		assertThat(recordedRequest.getHeader(HttpHeaders.CONTENT_TYPE))
+				.isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE + ";charset=UTF-8");
+		String formParameters = recordedRequest.getBody().readUtf8();
+		assertThat(formParameters).contains("grant_type=password");
+		assertThat(formParameters).contains("username=user1");
+		assertThat(formParameters).contains("password=password");
+		assertThat(formParameters).contains("scope=read+write");
+		assertThat(accessTokenResponse.getAccessToken().getTokenValue()).isEqualTo("access-token-1234");
+		assertThat(accessTokenResponse.getAccessToken().getTokenType()).isEqualTo(OAuth2AccessToken.TokenType.BEARER);
+		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
+		assertThat(accessTokenResponse.getRefreshToken()).isNull();
+	}
+
+	@Test
+	public void getTokenResponseWhenSuccessResponseIncludesScopeThenReturnAccessTokenResponse() throws Exception {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\"\n"
 			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
