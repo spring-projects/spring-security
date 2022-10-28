@@ -102,7 +102,8 @@ public class DefaultJwtBearerTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n"
 				+ "   \"access_token\": \"access-token-1234\",\n"
 				+ "   \"token_type\": \"bearer\",\n"
-				+ "   \"expires_in\": \"3600\"\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"read write\"\n"
 				+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
@@ -204,7 +205,7 @@ public class DefaultJwtBearerTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasDefaultScope() {
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasNoScope() {
 		// @formatter:off
 		String accessTokenSuccessResponse = "{\n"
 				+ "   \"access_token\": \"access-token-1234\",\n"
@@ -217,7 +218,7 @@ public class DefaultJwtBearerTokenResponseClientTests {
 				this.jwtAssertion);
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(jwtBearerGrantRequest);
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
 	}
 
 	@Test

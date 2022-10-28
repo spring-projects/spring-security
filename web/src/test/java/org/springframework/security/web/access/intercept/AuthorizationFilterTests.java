@@ -16,16 +16,20 @@
 
 package org.springframework.security.web.access.intercept;
 
+import java.io.IOException;
 import java.util.function.Supplier;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,6 +43,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,6 +54,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -58,6 +64,24 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Evgeniy Cheban
  */
 public class AuthorizationFilterTests {
+
+	private static final String ALREADY_FILTERED_ATTRIBUTE_NAME = "org.springframework.security.web.access.intercept.AuthorizationFilter.APPLIED";
+
+	private AuthorizationFilter filter;
+
+	private AuthorizationManager<HttpServletRequest> authorizationManager;
+
+	private MockHttpServletRequest request = new MockHttpServletRequest();
+
+	private final MockHttpServletResponse response = new MockHttpServletResponse();
+
+	private final FilterChain chain = new MockFilterChain();
+
+	@BeforeEach
+	public void setup() {
+		this.authorizationManager = mock(AuthorizationManager.class);
+		this.filter = new AuthorizationFilter(this.authorizationManager);
+	}
 
 	@AfterEach
 	public void tearDown() {
@@ -197,37 +221,101 @@ public class AuthorizationFilterTests {
 	}
 
 	@Test
-	public void doFilterNestedErrorDispatchWhenAuthorizationManagerThenUses() throws Exception {
-		AuthorizationManager<HttpServletRequest> authorizationManager = mock(AuthorizationManager.class);
-		AuthorizationFilter authorizationFilter = new AuthorizationFilter(authorizationManager);
-		authorizationFilter.setShouldFilterAllDispatcherTypes(true);
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
-		mockRequest.setDispatcherType(DispatcherType.ERROR);
-		mockRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
-		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-		FilterChain mockFilterChain = mock(FilterChain.class);
-
-		authorizationFilter.doFilterNestedErrorDispatch(mockRequest, mockResponse, mockFilterChain);
-		verify(authorizationManager).check(any(Supplier.class), any(HttpServletRequest.class));
+	public void doFilterWhenObserveOncePerRequestTrueAndIsAppliedThenNotInvoked() throws ServletException, IOException {
+		setIsAppliedTrue();
+		this.filter.setObserveOncePerRequest(true);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verifyNoInteractions(this.authorizationManager);
 	}
 
 	@Test
-	public void doFilterNestedErrorDispatchWhenAuthorizationEventPublisherThenUses() throws Exception {
-		AuthorizationFilter authorizationFilter = new AuthorizationFilter(
-				AuthenticatedAuthorizationManager.authenticated());
-		MockHttpServletRequest mockRequest = new MockHttpServletRequest(null, "/path");
-		MockHttpServletResponse mockResponse = new MockHttpServletResponse();
-		FilterChain mockFilterChain = mock(FilterChain.class);
+	public void doFilterWhenObserveOncePerRequestTrueAndNotAppliedThenInvoked() throws ServletException, IOException {
+		this.filter.setObserveOncePerRequest(true);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.authorizationManager).check(any(), any());
+	}
 
-		SecurityContext securityContext = new SecurityContextImpl();
-		securityContext.setAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		SecurityContextHolder.setContext(securityContext);
+	@Test
+	public void doFilterWhenObserveOncePerRequestFalseAndIsAppliedThenInvoked() throws ServletException, IOException {
+		setIsAppliedTrue();
+		this.filter.setObserveOncePerRequest(false);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.authorizationManager).check(any(), any());
+	}
 
-		AuthorizationEventPublisher eventPublisher = mock(AuthorizationEventPublisher.class);
-		authorizationFilter.setAuthorizationEventPublisher(eventPublisher);
-		authorizationFilter.doFilterNestedErrorDispatch(mockRequest, mockResponse, mockFilterChain);
-		verify(eventPublisher).publishAuthorizationEvent(any(Supplier.class), any(HttpServletRequest.class),
-				any(AuthorizationDecision.class));
+	@Test
+	public void doFilterWhenObserveOncePerRequestFalseAndNotAppliedThenInvoked() throws ServletException, IOException {
+		this.filter.setObserveOncePerRequest(false);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void doFilterWhenFilterErrorDispatchFalseAndIsErrorThenNotInvoked() throws ServletException, IOException {
+		this.request.setDispatcherType(DispatcherType.ERROR);
+		this.filter.setFilterErrorDispatch(false);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verifyNoInteractions(this.authorizationManager);
+	}
+
+	@Test
+	public void doFilterWhenFilterErrorDispatchTrueAndIsErrorThenInvoked() throws ServletException, IOException {
+		this.request.setDispatcherType(DispatcherType.ERROR);
+		this.filter.setFilterErrorDispatch(true);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void doFilterWhenFilterThenSetAlreadyFilteredAttribute() throws ServletException, IOException {
+		this.request = mock(MockHttpServletRequest.class);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.request).setAttribute(ALREADY_FILTERED_ATTRIBUTE_NAME, Boolean.TRUE);
+	}
+
+	@Test
+	public void doFilterWhenFilterThenRemoveAlreadyFilteredAttribute() throws ServletException, IOException {
+		this.request = spy(MockHttpServletRequest.class);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.request).setAttribute(ALREADY_FILTERED_ATTRIBUTE_NAME, Boolean.TRUE);
+		assertThat(this.request.getAttribute(ALREADY_FILTERED_ATTRIBUTE_NAME)).isNull();
+	}
+
+	@Test
+	public void doFilterWhenFilterAsyncDispatchTrueAndIsAsyncThenInvoked() throws ServletException, IOException {
+		this.request.setDispatcherType(DispatcherType.ASYNC);
+		this.filter.setFilterAsyncDispatch(true);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(this.authorizationManager).check(any(), any());
+	}
+
+	@Test
+	public void doFilterWhenFilterAsyncDispatchFalseAndIsAsyncThenNotInvoked() throws ServletException, IOException {
+		this.request.setDispatcherType(DispatcherType.ASYNC);
+		this.filter.setFilterAsyncDispatch(false);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verifyNoInteractions(this.authorizationManager);
+	}
+
+	@Test
+	public void filterWhenFilterErrorDispatchDefaultThenFalse() {
+		Boolean filterErrorDispatch = (Boolean) ReflectionTestUtils.getField(this.filter, "filterErrorDispatch");
+		assertThat(filterErrorDispatch).isFalse();
+	}
+
+	@Test
+	public void filterWhenFilterAsyncDispatchDefaultThenFalse() {
+		Boolean filterAsyncDispatch = (Boolean) ReflectionTestUtils.getField(this.filter, "filterAsyncDispatch");
+		assertThat(filterAsyncDispatch).isFalse();
+	}
+
+	@Test
+	public void filterWhenObserveOncePerRequestDefaultThenTrue() {
+		assertThat(this.filter.isObserveOncePerRequest()).isTrue();
+	}
+
+	private void setIsAppliedTrue() {
+		this.request.setAttribute(ALREADY_FILTERED_ATTRIBUTE_NAME, Boolean.TRUE);
 	}
 
 }
