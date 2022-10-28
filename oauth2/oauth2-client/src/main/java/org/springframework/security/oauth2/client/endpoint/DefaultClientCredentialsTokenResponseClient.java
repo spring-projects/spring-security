@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,6 @@ import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.http.converter.OAuth2AccessTokenResponseHttpMessageConverter;
 import org.springframework.util.Assert;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
@@ -78,20 +77,12 @@ public final class DefaultClientCredentialsTokenResponseClient implements OAuth2
 					"An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: " + ex.getMessage(), null);
 			throw new OAuth2AuthorizationException(oauth2Error, ex);
 		}
-
-		OAuth2AccessTokenResponse tokenResponse = response.getBody();
-
-		if (CollectionUtils.isEmpty(tokenResponse.getAccessToken().getScopes())) {
-			// As per spec, in Section 5.1 Successful Access Token Response
-			// https://tools.ietf.org/html/rfc6749#section-5.1
-			// If AccessTokenResponse.scope is empty, then default to the scope
-			// originally requested by the client in the Token Request
-			tokenResponse = OAuth2AccessTokenResponse.withResponse(tokenResponse)
-					.scopes(clientCredentialsGrantRequest.getClientRegistration().getScopes())
-					.build();
-		}
-
-		return tokenResponse;
+		// As per spec, in Section 5.1 Successful Access Token Response
+		// https://tools.ietf.org/html/rfc6749#section-5.1
+		// If AccessTokenResponse.scope is empty, then we assume all requested scopes were
+		// granted.
+		// However, we use the explicit scopes returned in the response (if any).
+		return response.getBody();
 	}
 
 	/**
