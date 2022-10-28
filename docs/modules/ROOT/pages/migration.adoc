@@ -212,6 +212,273 @@ companion object {
 `@EnableMethodSecurity` and `<method-security>` activate stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
 If after moving to either you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
 
+=== Use `AuthorizationManager` for Message Security
+
+xref:servlet/integrations/websocket.adoc[Message Security] has been xref:servlet/integrations/websocket.adoc#websocket-configuration[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+
+==== Ensure all messages have defined authorization rules
+
+The now-deprecated {security-api-url}org/springframework/security/config/annotation/web/socket/AbstractSecurityWebSocketMessageBrokerConfigurer.html[message security support] permits all messages by default.
+xref:servlet/integrations/websocket.adoc[The new support] has the stronger default of denying all messages.
+
+To prepare for this, ensure that authorization rules exist are declared for every request.
+
+For example, an application configuration like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+==== Add `@EnableWebSocketSecurity`
+
+[NOTE]
+====
+If you want to have CSRF disabled and you are using Java configuration, the migration steps are slightly different.
+Instead of using `@EnableWebSocketSecurity`, you will override the appropriate methods in `WebSocketMessageBrokerConfigurer` yourself.
+Please see xref:servlet/integrations/websocket.adoc#websocket-sameorigin-disable[the reference manual] for details about this step.
+====
+
+If you are using Java Configuration, add {security-api-url}org/springframework/security/config/annotation/web/socket/EnableWebSocketSecurity.html[`@EnableWebSocketSecurity`] to your application.
+
+For example, you can add it to your websocket security configuration class, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer() {
+	// ...
+}
+----
+====
+
+This will make a prototype instance of `MessageMatcherDelegatingAuthorizationManager.Builder` available to encourage configuration by composition instead of extension.
+
+==== Use an `AuthorizationManager<Message<?>>` instance
+
+To start using `AuthorizationManager`, you can set the `use-authorization-manager` attribute in XML or you can publish an `AuthorizationManager<Message<?>>` `@Bean` in Java.
+
+For example, the following application configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+	return messages.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+    return messages.build()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+==== Stop Implementing `AbstractSecurityWebSocketMessageBrokerConfigurer`
+
+If you are using Java configuration, you can now simply extend `WebSocketMessageBrokerConfigurer`.
+
+For example, if your class that extends `AbstractSecurityWebSocketMessageBrokerConfigurer` is called `WebSocketSecurityConfig`, then:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer() {
+	// ...
+}
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: WebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
