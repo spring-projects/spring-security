@@ -216,6 +216,38 @@ If after moving to either you see ``AnnotationConfigurationException``s in your 
 
 xref:servlet/integrations/websocket.adoc[Message Security] has been xref:servlet/integrations/websocket.adoc#websocket-configuration[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
 
+==== Declare the 5.8 default
+
+In case you run into trouble with the ensuing steps and cannot use `AuthorizationManager` at this time, it's recommended as a first step to declare you are using the 5.8 default so that 5.8 behavior is preserved when you update.
+
+The only default to change for Method Security is if you are using `<websocket-message-broker>` in which case you will change:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+to:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="false">
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+Later steps will turn this value back on, but now your code is minimally ready for upgrading in case you run into trouble with the remaining steps.
+
 ==== Ensure all messages have defined authorization rules
 
 The now-deprecated {security-api-url}org/springframework/security/config/annotation/web/socket/AbstractSecurityWebSocketMessageBrokerConfigurer.html[message security support] permits all messages by default.
