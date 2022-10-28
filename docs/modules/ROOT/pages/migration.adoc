@@ -2188,6 +2188,423 @@ versionFour.setAssertionValidator(validator)
 ----
 ====
 
+[[use-new-requestmatchers]]
+=== Use the new `requestMatchers` methods
+
+In Spring Security 5.8, the {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#antMatchers(java.lang.String...)[`antMatchers`], {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#mvcMatchers(java.lang.String...)`mvcMatchers`, and {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#regexMatchers(java.lang.String...)[`regexMatchers`] methods were deprecated in favor of new xref::servlet/authorization/authorize-http-requests.adoc#_request_matchers[`requestMatchers` methods].
+
+The new `requestMatchers` methods were added xref::servlet/authorization/authorize-http-requests.adoc[to `authorizeHttpRequests`], `authorizeRequests`, CSRF configuration, `WebSecurityCustomizer` and any other places that had the specialized `RequestMatcher` methods.
+The deprecated methods are removed in Spring Security 6.
+
+These new methods have more secure defaults since they choose the most appropriate `RequestMatcher` implementation for your application.
+In summary, the new methods choose the `MvcRequestMatcher` implementation if your application has Spring MVC in the classpath, falling back to the `AntPathRequestMatcher` implementation if Spring MVC is not present (aligning the behavior with the Kotlin equivalent methods).
+
+To start using the new methods, you can replace the deprecated methods with the new ones. For example, the following application configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .antMatchers("/api/admin/**").hasRole("ADMIN")
+                .antMatchers("/api/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+can be changed to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**").hasRole("USER")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+If you have Spring MVC in the classpath and are using the `mvcMatchers` methods, you can replace it with the new methods and Spring Security will choose the `MvcRequestMatcher` implementation for you.
+The following configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+@EnableWebMvc
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .mvcMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+is equivalent to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+@EnableWebMvc
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+If you are customizing the `servletPath` property of the `MvcRequestMatcher`, you can now use the `MvcRequestMatcher.Builder` to create `MvcRequestMatcher` instances that share the same servlet path:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+@EnableWebMvc
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .mvcMatchers("/admin").servletPath("/path").hasRole("ADMIN")
+                .mvcMatchers("/user").servletPath("/path").hasRole("USER")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+The code above can be rewritten using the `MvcRequestMatcher.Builder` and the `requestMatchers` method:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+@EnableWebMvc
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerMappingIntrospector introspector) throws Exception {
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector).servletPath("/path");
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers(mvcMatcherBuilder.pattern("/admin")).hasRole("ADMIN")
+                .requestMatchers(mvcMatcherBuilder.pattern("/user")).hasRole("USER")
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+If you are having problem with the new `requestMatchers` methods, you can always switch back to the `RequestMatcher` implementation that you were using.
+For example, if you still want to use `AntPathRequestMatcher` and `RegexRequestMatcher` implementations, you can use the `requestMatchers` method that accepts a `RequestMatcher` instance:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import static org.springframework.security.web.util.matcher.RegexRequestMatcher.regexMatcher;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers(antMatcher("/user/**")).hasRole("USER")
+                .requestMatchers(antMatcher(HttpMethod.POST, "/user/**")).hasRole("ADMIN")
+                .requestMatchers(regexMatcher(".*\\?x=y")).hasRole("SPECIAL") // matches /any/path?x=y
+                .anyRequest().authenticated()
+            );
+        return http.build();
+    }
+
+}
+----
+====
+
+Note that the above sample uses static factory methods from {security-api-url}org/springframework/security/web/util/matcher/AntPathRequestMatcher.html[`AntPathRequestMatcher`] and {security-api-url}org/springframework/security/web/util/matcher/RegexRequestMatcher.html[`RegexRequestMatcher`] to improve readability.
+
+If you are using the `WebSecurityCustomizer` interface, you can replace the deprecated `antMatchers` methods:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public WebSecurityCustomizer webSecurityCustomizer() {
+	return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+}
+----
+====
+
+with their `requestMatchers` counterparts:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public WebSecurityCustomizer webSecurityCustomizer() {
+	return (web) -> web.ignoring().requestMatchers("/ignore1", "/ignore2");
+}
+----
+====
+
+The same way, if you are customizing the CSRF configuration to ignore some paths, you can replace the deprecated methods with the `requestMatchers` methods:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf((csrf) -> csrf
+            .ignoringAntMatchers("/no-csrf")
+        );
+    return http.build();
+}
+----
+====
+
+can be changed to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .csrf((csrf) -> csrf
+            .ignoringRequestMatchers("/no-csrf")
+        );
+    return http.build();
+}
+----
+====
+
+[[use-new-security-matchers]]
+=== Use the new `securityMatchers` methods
+
+In Spring Security 5.8, the `antMatchers`, `mvcMatchers` and `requestMatchers` methods from `HttpSecurity` were deprecated in favor of new `securityMatchers` methods.
+
+Note that these methods are not the same from `authorizeHttpRequests` methods <<use-new-requestmatchers,which were deprecated>> in favor of the `requestMatchers` methods.
+However, the `securityMatchers` methods are similar to the `requestMatchers` methods in the sense that they will choose the most appropriate `RequestMatcher` implementation for your application.
+In summary, the new methods choose the `MvcRequestMatcher` implementation if your application has Spring MVC in the classpath, falling back to the `AntPathRequestMatcher` implementation if Spring MVC is not present (aligning the behavior with the Kotlin equivalent methods).
+Another reason for adding the `securityMatchers` methods is to avoid confusion with the `requestMatchers` methods from `authorizeHttpRequests`.
+
+The following configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .antMatcher("/api/**", "/app/**")
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+----
+====
+
+can be rewritten using the `securityMatchers` methods:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatcher("/api/**", "/app/**")
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+----
+====
+
+If you are using a custom `RequestMatcher` in your `HttpSecurity` configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .requestMatcher(new MyCustomRequestMatcher())
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+
+public class MyCustomRequestMatcher implements RequestMatcher {
+	// ...
+}
+----
+====
+
+you can do the same using `securityMatcher`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatcher(new MyCustomRequestMatcher())
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+
+public class MyCustomRequestMatcher implements RequestMatcher {
+	// ...
+}
+----
+====
+
+If you are combining multiple `RequestMatcher` implementations in your `HttpSecurity` configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .requestMatchers((matchers) -> matchers
+            .antMatchers("/api/**", "/app/**")
+            .mvcMatchers("/admin/**")
+            .requestMatchers(new MyCustomRequestMatcher())
+        )
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+----
+====
+
+you can change it by using `securityMatchers`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatchers((matchers) -> matchers
+            .requestMatchers("/api/**", "/app/**", "/admin/**")
+            .requestMatchers(new MyCustomRequestMatcher())
+        )
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers("/admin/**").hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+----
+====
+
+If you are having problems with the `securityMatchers` methods choosing the `RequestMatcher` implementation for you, you can always choose the `RequestMatcher` implementation yourself:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .securityMatcher(antMatcher("/api/**"), antMatcher("/app/**"))
+        .authorizeHttpRequests((authz) -> authz
+            .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
+            .anyRequest().authenticated()
+        );
+    return http.build();
+}
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
