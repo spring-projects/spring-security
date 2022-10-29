@@ -23,6 +23,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
@@ -59,8 +60,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	public CookieCsrfTokenRepository() {
-	}
+	private String sameSite = null;
 
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
@@ -70,15 +70,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	@Override
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
-		Cookie cookie = new Cookie(this.cookieName, tokenValue);
-		cookie.setSecure((this.secure != null) ? this.secure : request.isSecure());
-		cookie.setPath(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request));
-		cookie.setMaxAge((token != null) ? this.cookieMaxAge : 0);
-		cookie.setHttpOnly(this.cookieHttpOnly);
-		if (StringUtils.hasLength(this.cookieDomain)) {
-			cookie.setDomain(this.cookieDomain);
-		}
-		response.addCookie(cookie);
+
+		ResponseCookie rCookie = ResponseCookie
+				.from(this.cookieName, tokenValue)
+				.secure(this.secure != null ? this.secure : request.isSecure())
+				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
+				.maxAge(token != null ? this.cookieMaxAge : 0)
+				.httpOnly(this.cookieHttpOnly)
+				.domain(this.cookieDomain)
+				.sameSite(this.sameSite)
+				.build();
+
+		response.setHeader(cookieName, rCookie.toString());
 	}
 
 	@Override
@@ -218,6 +221,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void setCookieMaxAge(int cookieMaxAge) {
 		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;
+	}
+
+	/**
+	 * Add the "SameSite" attribute to the generated cookie.
+	 * <p>This limits the scope of the cookie such that it will only be
+	 * attached to same site requests if {@code "Strict"} or cross-site
+	 * requests if {@code "Lax"}.
+	 * @since 6.1
+	 * @see <a href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis#section-4.1.2.7">RFC6265 bis</a>
+	 */
+	public void setSameSite(String sameSite) {
+		this.sameSite = sameSite;
 	}
 
 }
