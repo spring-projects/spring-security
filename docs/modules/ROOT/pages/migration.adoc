@@ -1623,6 +1623,86 @@ Second, if you still need your custom `access-decision-manager-ref` or have some
 ----
 ====
 
+=== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/authentication/AuthenticationFilter.html[`AuthenticationFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/authentication/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+==== Configure `AuthenticationFailureHandler` to rethrow ``AuthenticationServiceException``s
+
+To prepare for the 6.0 default, wire `AuthenticationFilter` instances with a `AuthenticationFailureHandler` that rethrows ``AuthenticationServiceException``s, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+handler.setRethrowAuthenticationServiceException(true);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+handler.setRethrowAuthenticationServiceException(true)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <property name="rethrowAuthenticationServiceException" value="true"/>
+</bean>
+----
+====
+
+[[servlet-authenticationfailurehandler-opt-out]]
+==== Opt-out Steps
+
+If rethrowing ``AuthenticationServiceException``s gives you trouble, you can set the value to false instead of taking the 6.0 default, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+handler.setRethrowAuthenticationServiceException(false);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+handler.setRethrowAuthenticationServiceException(false)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <property name="rethrowAuthenticationServiceException" value="false"/>
+</bean>
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
