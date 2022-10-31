@@ -131,6 +131,7 @@ AuthorizationManager<RequestAuthorizationContext> requestMatcherAuthorizationMan
 
 You can also wire xref:servlet/authorization/architecture.adoc#authz-custom-authorization-manager[your own custom authorization managers] for any request matcher.
 
+[[custom-authorization-manager]]
 Here is an example of mapping a custom authorization manager to the `my/authorized/endpoint`:
 
 .Custom Authorization Manager

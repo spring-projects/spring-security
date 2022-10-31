@@ -367,6 +367,98 @@ companion object {
 ----
 ====
 
+==== Replace any custom method-security ``AccessDecisionManager``s
+
+Your application may have a custom {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] or {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] arrangement.
+The preparation strategy will depend on your reason for each arrangement.
+Read on to find the best match for your situation.
+
+===== I use `UnanimousBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`] with the default voters, you likely need do nothing since unanimous-based is the default behavior with {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`].
+
+However, if you do discover that you cannot accept the default authorization managers, you can use `AuthorizationManagers.allOf` to compose your own arrangement.
+Having done that, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+===== I use `AffirmativeBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthorizationManager<MethodInvocation> authorization = AuthorizationManagers.anyOf(
+		// ... your list of authorization managers
+)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authorization = AuthorizationManagers.anyOf(
+		// ... your list of authorization managers
+)
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+===== I use `ConsensusBased`
+
+There is no framework-provided equivalent for {security-api-url}org/springframework/security/access/vote/ConsensusBased.html[`ConsensusBased`].
+In that case, please implement a composite {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] that takes the set of delegate ``AuthorizationManager``s into account.
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+===== I use a custom `AccessDecisionVoter`
+
+You should either change the class to implement {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] or create an adapter.
+
+Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
+By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `@PreAuthorize` would look like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class PreAuthorizeAuthorizationManagerAdapter implements AuthorizationManager<MethodInvocation> {
+    private final SecurityMetadataSource metadata;
+    private final AccessDecisionVoter voter;
+
+    public PreAuthorizeAuthorizationManagerAdapter(MethodSecurityExpressionHandler expressionHandler) {
+        ExpressionBasedAnnotationAttributeFactory attributeFactory =
+                new ExpressionBasedAnnotationAttributeFactory(expressionHandler);
+        this.metadata = new PrePostAnnotationSecurityMetadataSource(attributeFactory);
+        ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
+        expressionAdvice.setExpressionHandler(expressionHandler);
+        this.voter = new PreInvocationAuthorizationAdviceVoter(expressionAdvice);
+    }
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+        List<ConfigAttribute> attributes = this.metadata.getAttributes(invocation, AopUtils.getTargetClass(invocation.getThis()));
+        int decision = this.voter.vote(authentication.get(), invocation, attributes);
+        if (decision == ACCESS_GRANTED) {
+            return new AuthorizationDecision(true);
+        }
+        if (decision == ACCESS_DENIED) {
+            return new AuthorizationDecision(false);
+        }
+        return null; // abstain
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+===== I use a custom `AfterInvocationManager`
+
+{security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] replaces both {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] and  {security-api-url}org/springframework/security/access/intercept/AfterInvocationManager.html[`AfterInvocationManager`].
+The difference is that `AuthorizationManager<MethodInvocation>` replaces `AccessDecisionManager` and `AuthorizationManager<MethodInvocationResult>` replaces `AfterInvocationManager`.
+
+Given that, <<_i_use_a_custom_accessdecisionvoter,the same rules apply for adaptation>>, where the goal this time is to implement `AuthorizationManager<MethodInvocationResult>` instead of `AuthorizationManager<MethodInvocation>` and use `AuthorizationManagerAfterMethodInterceptor` instead of `AuthorizationManagerBeforeMethodInterceptor`.
+
 [[servlet-check-for-annotationconfigurationexceptions]]
 ==== Check for ``AnnotationConfigurationException``s
 
@@ -1098,6 +1190,215 @@ http {
 </http>
 ----
 ====
+
+==== Replace any custom filter-security ``AccessDecisionManager``s
+
+Your application may have a custom {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] or {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] arrangement.
+The preparation strategy will depend on your reason for each arrangement.
+Read on to find the best match for your situation.
+
+===== I use `UnanimousBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`], you should first adapt or replace any ``AccessDecisionVoter``s and then you can construct an `AuthorizationManager` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
+    PolicyAuthorizationManager policy = ...;
+    LocalAuthorizationManager local = ...;
+    return AuthorizationMangers.allOf(policy, local);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
+    val policy: PolicyAuthorizationManager = ...
+    val local: LocalAuthorizationManager = ...
+    return AuthorizationMangers.allOf(policy, local)
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
+        factory-method="allOf">
+    <constructor-arg>
+        <util:list>
+            <bean class="my.PolicyAuthorizationManager"/>
+            <bean class="my.LocalAuthorizationManager"/>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+then, wire it into the DSL like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().access(requestAuthorization))
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(anyRequest, requestAuthorization)
+    }
+    // ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http authorization-manager-ref="requestAuthorization"/>
+----
+====
+
+[NOTE]
+====
+`authorizeHttpRequests` is designed so that you can apply a custom `AuthorizationManager` to any url pattern.
+See xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[the reference] for more details.
+====
+
+===== I use `AffirmativeBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
+    PolicyAuthorizationManager policy = ...;
+    LocalAuthorizationManager local = ...;
+    return AuthorizationMangers.anyOf(policy, local);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
+    val policy: PolicyAuthorizationManager = ...
+    val local: LocalAuthorizationManager = ...
+    return AuthorizationMangers.anyOf(policy, local)
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
+        factory-method="anyOf">
+    <constructor-arg>
+        <util:list>
+            <bean class="my.PolicyAuthorizationManager"/>
+            <bean class="my.LocalAuthorizationManager"/>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+then, wire it into the DSL like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().access(requestAuthorization))
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(anyRequest, requestAuthorization)
+    }
+    // ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http authorization-manager-ref="requestAuthorization"/>
+----
+====
+
+[NOTE]
+====
+`authorizeHttpRequests` is designed so that you can apply a custom `AuthorizationManager` to any url pattern.
+See xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[the reference] for more details.
+====
+
+===== I use `ConsensusBased`
+
+There is no framework-provided equivalent for {security-api-url}org/springframework/security/access/vote/ConsensusBased.html[`ConsensusBased`].
+In that case, please implement a composite {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] that takes the set of delegate ``AuthorizationManager``s into account.
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+===== I use a custom `AccessDecisionVoter`
+
+You should either change the class to implement {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] or create an adapter.
+
+
+Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
+By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `anyRequest().authenticated()` would look like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class AnyRequestAuthenticatedAuthorizationManagerAdapter implements AuthorizationManager<RequestAuthorizationContext> {
+    private final SecurityMetadataSource metadata;
+    private final AccessDecisionVoter voter;
+
+    public PreAuthorizeAuthorizationManagerAdapter(SecurityExpressionHandler expressionHandler) {
+        Map<RequestMatcher, List<ConfigAttribute>> requestMap = Collections.singletonMap(
+                AnyRequestMatcher.INSTANCE, Collections.singletonList(new SecurityConfig("authenticated")));
+        this.metadata = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
+        WebExpressionVoter voter = new WebExpressionVoter();
+        voter.setExpressionHandler(expressionHandler);
+        this.voter = voter;
+    }
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+        List<ConfigAttribute> attributes = this.metadata.getAttributes(context);
+        int decision = this.voter.vote(authentication.get(), invocation, attributes);
+        if (decision == ACCESS_GRANTED) {
+            return new AuthorizationDecision(true);
+        }
+        if (decision == ACCESS_DENIED) {
+            return new AuthorizationDecision(false);
+        }
+        return null; // abstain
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
 
 [[servlet-authorizationmanager-requests-opt-out]]
 ==== Opt-out Steps
