@@ -146,6 +146,79 @@ http {
 `once-per-request` applies only when `use-authorization-manager="false"` and `filter-all-dispatcher-types` only applies when `use-authorization-manager="true"`
 ====
 
+=== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/authentication/AuthenticationFilter.html[`AuthenticationFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/authentication/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+handler.setRethrowAuthenticationServiceException(true);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+handler.setRethrowAuthenticationServiceException(true)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <property name="rethrowAuthenticationServiceException" value="true"/>
+</bean>
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <!-- ... -->
+</bean>
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
