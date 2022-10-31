@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -293,9 +293,17 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 
 	@Test
 	public void getTokenResponseWhenClientSecretBasicThenSuccess() throws Exception {
+		// @formatter:off
+		String accessTokenResponse = "{\n"
+				+ "  \"access_token\": \"access-token-1234\",\n"
+				+ "  \"token_type\": \"bearer\",\n"
+				+ "  \"expires_in\": 3600,\n"
+				+ "  \"scope\": \"read write\""
+				+ "}\n";
+		// @formatter:on
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		enqueueJson(accessTokenResponse);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read", "write");
@@ -309,12 +317,18 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	@Test
 	public void getTokenResponseWhenClientSecretPostThenSuccess() throws Exception {
 		// @formatter:off
+		String accessTokenResponse = "{\n"
+				+ "  \"access_token\": \"access-token-1234\",\n"
+				+ "  \"token_type\": \"bearer\",\n"
+				+ "  \"expires_in\": 3600,\n"
+				+ "  \"scope\": \"read write\""
+				+ "}\n";
 		ClientRegistration clientRegistration = this.clientRegistration
 				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
 				.build();
 		// @formatter:on
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
-		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		enqueueJson(accessTokenResponse);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read", "write");
@@ -333,12 +347,24 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 				+ "  \"expires_in\": 3600,\n"
 				+ "  \"scope\": \"read\"\n"
 				+ "}\n";
+		// @formatter:on
 		ClientRegistration clientRegistration = this.clientRegistration.build();
 		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
 		enqueueJson(accessTokenResponse);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("read");
+	}
+
+	@Test
+	public void getTokenResponseWhenResponseDoesNotIncludeScopeThenReturnAccessTokenResponseWithNoScopes()
+			throws Exception {
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		enqueueJson(DEFAULT_ACCESS_TOKEN_RESPONSE);
+		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
+		assertThat(response).isNotNull();
+		assertThat(response.getAccessToken().getScopes()).isEmpty();
 	}
 
 	private void enqueueJson(String body) {

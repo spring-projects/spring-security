@@ -212,7 +212,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * no scopes.
 	 */
 	Set<String> defaultScopes(T grantRequest) {
-		return scopes(grantRequest);
+		return Collections.emptySet();
 	}
 
 	/**

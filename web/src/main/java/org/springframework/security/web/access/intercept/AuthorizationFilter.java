@@ -19,8 +19,11 @@ package org.springframework.security.web.access.intercept;
 import java.io.IOException;
 import java.util.function.Supplier;
 
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -36,7 +39,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * An authorization filter that restricts access to the URL using
@@ -45,7 +48,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * @author Evgeniy Cheban
  * @since 5.5
  */
-public class AuthorizationFilter extends OncePerRequestFilter {
+public class AuthorizationFilter extends GenericFilterBean {
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 			.getContextHolderStrategy();
@@ -54,7 +57,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 
 	private AuthorizationEventPublisher eventPublisher = AuthorizationFilter::noPublish;
 
-	private boolean shouldFilterAllDispatcherTypes = true;
+	private boolean observeOncePerRequest = false;
+
+	private boolean filterErrorDispatch = true;
+
+	private boolean filterAsyncDispatch = true;
 
 	/**
 	 * Creates an instance.
@@ -66,15 +73,57 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+	public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain)
 			throws ServletException, IOException {
 
-		AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
-		this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
-		if (decision != null && !decision.isGranted()) {
-			throw new AccessDeniedException("Access Denied");
+		HttpServletRequest request = (HttpServletRequest) servletRequest;
+		HttpServletResponse response = (HttpServletResponse) servletResponse;
+
+		if (this.observeOncePerRequest && isApplied(request)) {
+			chain.doFilter(request, response);
+			return;
 		}
-		filterChain.doFilter(request, response);
+
+		if (skipDispatch(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
+		String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
+		request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
+		try {
+			AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
+			this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
+			if (decision != null && !decision.isGranted()) {
+				throw new AccessDeniedException("Access Denied");
+			}
+			chain.doFilter(request, response);
+		}
+		finally {
+			request.removeAttribute(alreadyFilteredAttributeName);
+		}
+	}
+
+	private boolean skipDispatch(HttpServletRequest request) {
+		if (DispatcherType.ERROR.equals(request.getDispatcherType()) && !this.filterErrorDispatch) {
+			return true;
+		}
+		if (DispatcherType.ASYNC.equals(request.getDispatcherType()) && !this.filterAsyncDispatch) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isApplied(HttpServletRequest request) {
+		return request.getAttribute(getAlreadyFilteredAttributeName()) != null;
+	}
+
+	private String getAlreadyFilteredAttributeName() {
+		String name = getFilterName();
+		if (name == null) {
+			name = getClass().getName();
+		}
+		return name + ".APPLIED";
 	}
 
 	/**
@@ -95,22 +144,6 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 					"An Authentication object was not found in the SecurityContext");
 		}
 		return authentication;
-	}
-
-	@Override
-	protected void doFilterNestedErrorDispatch(HttpServletRequest request, HttpServletResponse response,
-			FilterChain filterChain) throws ServletException, IOException {
-		doFilterInternal(request, response, filterChain);
-	}
-
-	@Override
-	protected boolean shouldNotFilterAsyncDispatch() {
-		return !this.shouldFilterAllDispatcherTypes;
-	}
-
-	@Override
-	protected boolean shouldNotFilterErrorDispatch() {
-		return !this.shouldFilterAllDispatcherTypes;
 	}
 
 	/**
@@ -139,12 +172,48 @@ public class AuthorizationFilter extends OncePerRequestFilter {
 	 * @since 5.7
 	 */
 	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {
-		this.shouldFilterAllDispatcherTypes = shouldFilterAllDispatcherTypes;
+		this.observeOncePerRequest = !shouldFilterAllDispatcherTypes;
+		this.filterErrorDispatch = shouldFilterAllDispatcherTypes;
+		this.filterAsyncDispatch = shouldFilterAllDispatcherTypes;
 	}
 
 	private static <T> void noPublish(Supplier<Authentication> authentication, T object,
 			AuthorizationDecision decision) {
 
+	}
+
+	public boolean isObserveOncePerRequest() {
+		return this.observeOncePerRequest;
+	}
+
+	/**
+	 * Sets whether this filter apply only once per request. By default, this is
+	 * <code>true</code>, meaning the filter will only execute once per request. Sometimes
+	 * users may wish it to execute more than once per request, such as when JSP forwards
+	 * are being used and filter security is desired on each included fragment of the HTTP
+	 * request.
+	 * @param observeOncePerRequest whether the filter should only be applied once per
+	 * request
+	 */
+	public void setObserveOncePerRequest(boolean observeOncePerRequest) {
+		this.observeOncePerRequest = observeOncePerRequest;
+	}
+
+	/**
+	 * If set to true, the filter will be applied to error dispatcher. Defaults to false.
+	 * @param filterErrorDispatch whether the filter should be applied to error dispatcher
+	 */
+	public void setFilterErrorDispatch(boolean filterErrorDispatch) {
+		this.filterErrorDispatch = filterErrorDispatch;
+	}
+
+	/**
+	 * If set to true, the filter will be applied to the async dispatcher. Defaults to
+	 * false.
+	 * @param filterAsyncDispatch whether the filter should be applied to async dispatch
+	 */
+	public void setFilterAsyncDispatch(boolean filterAsyncDispatch) {
+		this.filterAsyncDispatch = filterAsyncDispatch;
 	}
 
 }
