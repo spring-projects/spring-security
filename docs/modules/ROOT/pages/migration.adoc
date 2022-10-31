@@ -213,8 +213,6 @@ xref:servlet/authorization/method-security.adoc[Method Security] has been xref:s
 
 Should you run into trouble with making these changes, note that `@EnableGlobalMethodSecurity`, while deprecated, will not be removed in 6.0, allowing you to opt out by sticking with the old annotation.
 
-'''
-
 [[servlet-replace-globalmethodsecurity-with-methodsecurity]]
 ==== Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
 
@@ -311,8 +309,6 @@ should change to:
 ----
 ====
 
-'''
-
 [[servlet-replace-permissionevaluator-bean-with-methodsecurityexpression-handler]]
 ==== Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
 
@@ -370,8 +366,6 @@ companion object {
 }
 ----
 ====
-
-'''
 
 [[servlet-check-for-annotationconfigurationexceptions]]
 ==== Check for ``AnnotationConfigurationException``s
@@ -1305,8 +1299,6 @@ xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/
 Should you run into trouble with making these changes, you can follow the
 <<reactive-authorizationmanager-methods-opt-out,opt out steps>> at the end of this section.
 
-'''
-
 In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt in to ``AuthorizationManager``'s features.
 
 [[reactive-change-to-useauthorizationmanager]]
@@ -1343,8 +1335,6 @@ changes to:
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 ====
-
-'''
 
 [[reactive-check-for-annotationconfigurationexceptions]]
 ==== Check for ``AnnotationConfigurationException``s
