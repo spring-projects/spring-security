@@ -459,6 +459,38 @@ The difference is that `AuthorizationManager<MethodInvocation>` replaces `Access
 
 Given that, <<_i_use_a_custom_accessdecisionvoter,the same rules apply for adaptation>>, where the goal this time is to implement `AuthorizationManager<MethodInvocationResult>` instead of `AuthorizationManager<MethodInvocation>` and use `AuthorizationManagerAfterMethodInterceptor` instead of `AuthorizationManagerBeforeMethodInterceptor`.
 
+===== I use `RunAsManager`
+
+There is currently https://github.com/spring-projects/spring-security/issues/11331[no replacement for `RunAsManager`] though one is being considered.
+
+It is quite straightforward to adapt a `RunAsManager`, though, to the `AuthorizationManager` API, if needed.
+
+Here is some pseudocode to get you started:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class RunAsAuthorizationManagerAdapter<T> implements AuthorizationManager<T> {
+	private final RunAsManager runAs = new RunAsManagerImpl();
+	private final SecurityMetadataSource metadata;
+    private final AuthorizationManager<T> authorization;
+
+    // ... constructor
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
+		Supplier<Authentication> wrapped = (auth) -> {
+			List<ConfigAttribute> attributes = this.metadata.getAttributes(object);
+			return this.runAs.buildRunAs(auth, object, attributes);
+		};
+		return this.authorization.check(wrapped, object);
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
 [[servlet-check-for-annotationconfigurationexceptions]]
 ==== Check for ``AnnotationConfigurationException``s
 
