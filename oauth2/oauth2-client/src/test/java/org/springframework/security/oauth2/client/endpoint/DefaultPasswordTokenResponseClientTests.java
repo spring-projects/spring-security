@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,7 +102,8 @@ public class DefaultPasswordTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n"
 			+ "   \"access_token\": \"access-token-1234\",\n"
 			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read write\"\n"
 			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
@@ -136,7 +137,8 @@ public class DefaultPasswordTokenResponseClientTests {
 		String accessTokenSuccessResponse = "{\n"
 			+ "   \"access_token\": \"access-token-1234\",\n"
 			+ "   \"token_type\": \"bearer\",\n"
-			+ "   \"expires_in\": \"3600\"\n"
+			+ "   \"expires_in\": \"3600\",\n"
+			+ "   \"scope\": \"read\"\n"
 			+ "}\n";
 		// @formatter:on
 		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
@@ -266,6 +268,22 @@ public class DefaultPasswordTokenResponseClientTests {
 		String formParameters = recordedRequest.getBody().readUtf8();
 		assertThat(formParameters).contains("scope=read");
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read");
+	}
+
+	@Test
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenAccessTokenHasNoScope() {
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+			+ "   \"access_token\": \"access-token-1234\",\n"
+			+ "   \"token_type\": \"bearer\",\n"
+			+ "   \"expires_in\": \"3600\"\n"
+			+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		OAuth2PasswordGrantRequest passwordGrantRequest = new OAuth2PasswordGrantRequest(
+				this.clientRegistration.build(), this.username, this.password);
+		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient.getTokenResponse(passwordGrantRequest);
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
 	}
 
 	@Test
