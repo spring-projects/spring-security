@@ -38,14 +38,22 @@ tasks.register('generateAntora') {
 			.join('\n')
 		def outputFile = layout.buildDirectory.file('generateAntora/antora.yml').get().asFile
 		mkdir(outputFile.getParentFile())
-		def components = project.version.split(/(?=-)/)
-		def mainVersion = components[0];
-		def prerelease = components.length > 1 ? components[1] : null
+		def mainVersion = project.version
+		def prerelease = null
+		def versionComponents = mainVersion.split(/(?=-)/)
+        if (versionComponents.length > 1) {
+          if (versionComponents[1] == '-SNAPSHOT') {
+            mainVersion = versionComponents[0]
+            prerelease = "'-SNAPSHOT'"
+          } else {
+            prerelease = 'true'
+          }
+        }
 		def antoraYmlText = file('antora.yml').text
 		layout.buildDirectory.file('.antora.yml').get().asFile.text = antoraYmlText
 		antoraYmlText = antoraYmlText.lines().collect { l ->
 			if (l.startsWith('version: ')) {
-				return prerelease == null ? "version: '${mainVersion}'" : "version: '${mainVersion}'\nprerelease: '${prerelease}'"
+				return prerelease == null ? "version: '${mainVersion}'" : "version: '${mainVersion}'\nprerelease: ${prerelease}"
 			}
 			if (l.startsWith('title: ')) return "title: ${project.parent.description}"
 			return l == 'ext:' || l.getAt(0) == ' ' ? null : l
