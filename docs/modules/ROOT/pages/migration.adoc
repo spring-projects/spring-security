@@ -222,18 +222,11 @@ authenticationFilter.setAuthenticationFailureHandler(handler)
 [[servlet-opt-in-sha256-rememberme]]
 === Use SHA-256 in Remember Me
 
-The `TokenBasedRememberMeServices` implementation now supports SHA-256 for the Remember Me token and this is the default in Spring Security 6.
-This change makes the implementation more secure by default since MD5 is already proven to be a weak hashing algorithm and vulnerable against collision attacks and modular differential attacks.
+In 6.0, the `TokenBasedRememberMeServices` uses SHA-256 to encode and match the token.
+To complete the migration, any default values can be removed.
 
-The new generated tokens now have the information of which algorithm was used to generate the token and that information is used in order to match it.
-If the algorithm name is not present, then the `matchingAlgorithm` property is used to check the token.
-This allows for a smooth transition from MD5 to SHA-256.
+For example, if you opted in to the 6.0 default for `encodingAlgorithm` and `matchingAlgorithm` like so:
 
-To opt into the new Spring Security 6 default to encode the tokens while still being able to decode tokens encoded with MD5, you can set the `encodingAlgorithm` property to SHA-256 and the `matchingAlgorithm` property to MD5.
-See the xref:servlet/authentication/rememberme.adoc#_tokenbasedremembermeservices[reference documentation] and the {security-api-url}org/springframework/security/web/authentication/rememberme/TokenBasedRememberMeServices.html[API docs] for more information.
-
-[[servlet-opt-in-sha256-sha256-encoding]]
-.Use Spring Security 6 defaults for encoding, SHA-256 for encoding and MD5 for matching
 ====
 .Java
 [source,java,role="primary"]
@@ -241,7 +234,6 @@ See the xref:servlet/authentication/rememberme.adoc#_tokenbasedremembermeservice
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
         http
@@ -251,58 +243,6 @@ public class SecurityConfig {
                 );
         return http.build();
     }
-
-    @Bean
-    RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-        RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
-        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
-        rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-        return rememberMe;
-    }
-
-}
-----
-
-.XML
-[source,xml,role="secondary"]
-----
-<http>
-  <remember-me services-ref="rememberMeServices"/>
-</http>
-
-<bean id="rememberMeServices" class=
-"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-    <property name="userDetailsService" ref="myUserDetailsService"/>
-    <property name="key" value="springRocks"/>
-    <property name="matchingAlgorithm" value="MD5"/>
-    <property name="encodingAlgorithm" value="SHA256"/>
-</bean>
-----
-====
-
-At some point, you will want to fully migrate to Spring Security 6 defaults. But how do you know when it is safe to do so?
-Let's suppose that you deployed your application using SHA-256 as the encoding algorithm (as you have done <<servlet-opt-in-sha256-sha256-encoding,here>>) on November 1st, if you have the value for the `tokenValiditySeconds` property set to N days (14 is the default), you can migrate to SHA-256 N days after November 1st (which is November 15th in this example).
-By that time, all the tokens generated with MD5 will have expired.
-
-.Use Spring Security 6 defaults, SHA-256 for both encoding and matching
-====
-.Java
-[source,java,role="primary"]
-----
-@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-
-    @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
-        http
-                // ...
-                .rememberMe((remember) -> remember
-                    .rememberMeServices(rememberMeServices)
-                );
-        return http.build();
-    }
-
     @Bean
     RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
         RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
@@ -310,17 +250,14 @@ public class SecurityConfig {
         rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.SHA256);
         return rememberMe;
     }
-
 }
 ----
-
 .XML
 [source,xml,role="secondary"]
 ----
 <http>
   <remember-me services-ref="rememberMeServices"/>
 </http>
-
 <bean id="rememberMeServices" class=
 "org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
     <property name="userDetailsService" ref="myUserDetailsService"/>
@@ -331,9 +268,8 @@ public class SecurityConfig {
 ----
 ====
 
-If you are having problems with the Spring Security 6 defaults, you can explicitly opt into 5.8 defaults using the following configuration:
+then the defaults can be removed:
 
-.Use MD5 for both encoding and matching algorithms
 ====
 .Java
 [source,java,role="primary"]
@@ -341,7 +277,6 @@ If you are having problems with the Spring Security 6 defaults, you can explicit
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
         http
@@ -351,31 +286,22 @@ public class SecurityConfig {
                 );
         return http.build();
     }
-
     @Bean
     RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
-        RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.MD5;
-        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
-        rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.MD5);
-        return rememberMe;
+        return new TokenBasedRememberMeServices(myKey, userDetailsService);
     }
-
 }
 ----
-
 .XML
 [source,xml,role="secondary"]
 ----
 <http>
   <remember-me services-ref="rememberMeServices"/>
 </http>
-
 <bean id="rememberMeServices" class=
 "org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
     <property name="userDetailsService" ref="myUserDetailsService"/>
     <property name="key" value="springRocks"/>
-    <property name="matchingAlgorithm" value="MD5"/>
-    <property name="encodingAlgorithm" value="MD5"/>
 </bean>
 ----
 ====
