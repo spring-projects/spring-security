@@ -345,6 +345,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * Creates a new instance
 		 */
 		private UserBuilder() {
+			this.authorities = new ArrayList<>();
 		}
 
 		/**
@@ -439,7 +440,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @see #roles(String...)
 		 */
 		public UserBuilder authorities(Collection<? extends GrantedAuthority> authorities) {
-			this.authorities = new ArrayList<>(authorities);
+			this.authorities.addAll(authorities);
 			return this;
 		}
 
