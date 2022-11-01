@@ -645,7 +645,7 @@ If more than one `ClientRegistration` is configured for OpenID Connect 1.0 Authe
 == OpenID Connect 1.0 Logout
 
 OpenID Connect Session Management 1.0 allows the ability to log out the End-User at the Provider using the Client.
-One of the strategies available is https://openid.net/specs/openid-connect-session-1_0.html#RPLogout[RP-Initiated Logout].
+One of the strategies available is https://openid.net/specs/openid-connect-rpinitiated-1_0.html[RP-Initiated Logout].
 
 If the OpenID Provider supports both Session Management and https://openid.net/specs/openid-connect-discovery-1_0.html[Discovery], the client may obtain the `end_session_endpoint` `URL` from the OpenID Provider's https://openid.net/specs/openid-connect-session-1_0.html#OPMetadata[Discovery Metadata].
 This can be achieved by configuring the `ClientRegistration` with the `issuer-uri`, as in the following example:
