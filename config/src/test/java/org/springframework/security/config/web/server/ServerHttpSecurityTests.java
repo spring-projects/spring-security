@@ -35,6 +35,7 @@ import reactor.test.publisher.TestPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
@@ -57,6 +58,7 @@ import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilterTests;
 import org.springframework.security.web.server.authentication.HttpBasicServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authentication.ServerX509AuthenticationConverter;
 import org.springframework.security.web.server.authentication.logout.DelegatingServerLogoutHandler;
 import org.springframework.security.web.server.authentication.logout.LogoutWebFilter;
@@ -216,6 +218,27 @@ public class ServerHttpSecurityTests {
 				.expectBody().isEmpty();
 		// @formatter:on
 		verify(authenticationEntryPoint).commence(any(), any());
+	}
+
+	@Test
+	public void basicWhenCustomAuthenticationFailureHandlerThenUses() {
+		ReactiveAuthenticationManager authenticationManager = mock(ReactiveAuthenticationManager.class);
+		ServerAuthenticationFailureHandler authenticationFailureHandler = mock(
+				ServerAuthenticationFailureHandler.class);
+		this.http.httpBasic().authenticationFailureHandler(authenticationFailureHandler);
+		this.http.httpBasic().authenticationManager(authenticationManager);
+		this.http.authorizeExchange().anyExchange().authenticated();
+		given(authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
+		given(authenticationFailureHandler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
+		WebTestClient client = buildClient();
+		// @formatter:off
+		client.get().uri("/")
+			.headers((headers) -> headers.setBasicAuth("user", "password"))
+			.exchange()
+			.expectStatus().isOk();
+		// @formatter:on
+		verify(authenticationFailureHandler).onAuthenticationFailure(any(), any());
 	}
 
 	@Test

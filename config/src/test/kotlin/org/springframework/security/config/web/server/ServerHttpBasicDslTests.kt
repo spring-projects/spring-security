@@ -19,7 +19,6 @@ package org.springframework.security.config.web.server
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import java.util.Base64
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +35,7 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.web.server.SecurityWebFilterChain
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.config.EnableWebFlux
 import reactor.core.publisher.Mono
+import java.util.*
 
 /**
  * Tests for [ServerHttpBasicDsl]
@@ -211,6 +212,43 @@ class ServerHttpBasicDslTests {
                 }
                 httpBasic {
                     authenticationEntryPoint = ENTRY_POINT
+                }
+            }
+        }
+    }
+
+    @Test
+    fun `http basic when custom authentication failure handler then failure handler used`() {
+        this.spring.register(CustomAuthenticationFailureHandlerConfig::class.java, UserDetailsConfig::class.java).autowire()
+        mockkObject(CustomAuthenticationFailureHandlerConfig.FAILURE_HANDLER)
+        every {
+            CustomAuthenticationFailureHandlerConfig.FAILURE_HANDLER.onAuthenticationFailure(any(), any())
+        } returns Mono.empty()
+
+        this.client.get()
+            .uri("/")
+            .header("Authorization", "Basic " + Base64.getEncoder().encodeToString("user:wrong".toByteArray()))
+            .exchange()
+
+        verify(exactly = 1) { CustomAuthenticationFailureHandlerConfig.FAILURE_HANDLER.onAuthenticationFailure(any(), any()) }
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class CustomAuthenticationFailureHandlerConfig {
+
+        companion object {
+            val FAILURE_HANDLER: ServerAuthenticationFailureHandler = ServerAuthenticationFailureHandler { _, _ -> Mono.empty() }
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                httpBasic {
+                    authenticationFailureHandler = FAILURE_HANDLER
                 }
             }
         }
