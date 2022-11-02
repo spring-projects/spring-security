@@ -102,6 +102,7 @@ public final class SecurityNamespaceHandler implements NamespaceHandler {
 		if (parser == null) {
 			// SEC-1455. Load parsers when required, not just on init().
 			loadParsers();
+			parser = this.parsers.get(name);
 		}
 		if (parser != null) {
 			return parser.parse(element, pc);
