@@ -19,6 +19,7 @@ package org.springframework.security.config.web.server
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.authorization.ServerAccessDeniedHandler
 import org.springframework.web.server.ServerWebExchange
 
@@ -38,6 +39,7 @@ import org.springframework.web.server.ServerWebExchange
 @ServerSecurityMarker
 class ServerOAuth2ResourceServerDsl {
     var accessDeniedHandler: ServerAccessDeniedHandler? = null
+    var authenticationFailureHandler: ServerAuthenticationFailureHandler? = null
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
     var bearerTokenConverter: ServerAuthenticationConverter? = null
     var authenticationManagerResolver: ReactiveAuthenticationManagerResolver<ServerWebExchange>? = null
@@ -109,6 +111,7 @@ class ServerOAuth2ResourceServerDsl {
     internal fun get(): (ServerHttpSecurity.OAuth2ResourceServerSpec) -> Unit {
         return { oauth2ResourceServer ->
             accessDeniedHandler?.also { oauth2ResourceServer.accessDeniedHandler(accessDeniedHandler) }
+            authenticationFailureHandler?.also { oauth2ResourceServer.authenticationFailureHandler(authenticationFailureHandler) }
             authenticationEntryPoint?.also { oauth2ResourceServer.authenticationEntryPoint(authenticationEntryPoint) }
             bearerTokenConverter?.also { oauth2ResourceServer.bearerTokenConverter(bearerTokenConverter) }
             authenticationManagerResolver?.also { oauth2ResourceServer.authenticationManagerResolver(authenticationManagerResolver!!) }
