@@ -345,6 +345,56 @@ changes to:
 
 '''
 
+=== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/server/authentication/AuthenticationWebFilter.html[`AuthenticationWebFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/web/server/ServerAuthenticationEntryPoint.html[`ServerAuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
+bearerFailureHandler.setRethrowAuthenticationServiceException(true);
+AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
+basicFailureHandler.setRethrowAuthenticationServiceException(true);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
+bearerFailureHandler.setRethrowAuthenticationServiceException(true)
+val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
+basicFailureHandler.setRethrowAuthenticationServiceException(true)
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
+AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
+val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
+----
+====
+
+[NOTE]
+====
+If you configured the `ServerAuthenticationFailureHandler` only for the purpose of updating to 6.0, you can remove it completely.
+====
+
 [[revert]]
 If you are running into trouble with any of the 6.0 changes, please first try to apply the following changes to get you up and running.
 It's more important to stay on 6.0 and get the security improvements.
