@@ -30,9 +30,11 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerReactiveAuthenticationManagerResolver
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.WebFilterExchange
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
@@ -152,7 +154,7 @@ class ServerOAuth2ResourceServerDslTests {
     open class AuthenticationFailureHandlerConfig {
 
         companion object {
-            val FAILURE_HANDLER: ServerAuthenticationFailureHandler = ServerAuthenticationFailureHandler { _, _ -> Mono.empty() }
+            val FAILURE_HANDLER: ServerAuthenticationFailureHandler = MockServerAuthenticationFailureHandler()
         }
 
         @Bean
@@ -169,6 +171,16 @@ class ServerOAuth2ResourceServerDslTests {
                 }
             }
         }
+    }
+
+    open class MockServerAuthenticationFailureHandler: ServerAuthenticationFailureHandler {
+        override fun onAuthenticationFailure(
+            webFilterExchange: WebFilterExchange?,
+            exception: AuthenticationException?
+        ): Mono<Void> {
+            return Mono.empty()
+        }
+
     }
 
     @Test
