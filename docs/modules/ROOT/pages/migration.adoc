@@ -1973,6 +1973,48 @@ Saml2AuthenticationRequestResolver authenticationRequestResolver() {
 Since Spring Security only supports the `POST` binding for authentication, there is not very much value in overriding the protocol binding at this point in time.
 ====
 
+=== Use the latest `Saml2AuthenticationToken` constructor
+
+In an early release, `Saml2AuthenticationToken` took several individual settings as constructor parameters.
+This created a challenge each time a new parameter needed to be added.
+Since most of these settings were part of `RelyingPartyRegistration`, a new constructor was added where a `RelyingPartyRegistration` could be provided, making the constructor more stable.
+It also is valuable in that it more closely aligns with the design of `OAuth2LoginAuthenticationToken`.
+
+Most applications do not construct this class directly since `Saml2WebSsoAuthenticationFilter` does.
+However, in the event that your application constructs one, please change from:
+
+====
+.Java
+[source,java,role="primary"]
+----
+new Saml2AuthenticationToken(saml2Response, registration.getSingleSignOnServiceLocation(),
+    registration.getAssertingParty().getEntityId(), registration.getEntityId(), registration.getCredentials())
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+Saml2AuthenticationToken(saml2Response, registration.getSingleSignOnServiceLocation(),
+    registration.getAssertingParty().getEntityId(), registration.getEntityId(), registration.getCredentials())
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+new Saml2AuthenticationToken(saml2Response, registration)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+Saml2AuthenticationToken(saml2Response, registration)
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
