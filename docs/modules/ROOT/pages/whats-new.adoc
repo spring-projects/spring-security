@@ -43,7 +43,7 @@ Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/12022[gh-12202] - Remove OAuth deprecations
 * Remove `Converter` constructors from `Saml2MetadataFilter` and `Saml2AuthenticationTokenConverter`
 * Remove `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory`
-* Remove `Saml2AuthenticationToken(String, String, String, String, List)
+* Remove `Saml2AuthenticationToken(String, String, String, String, List)`
 * Remove `RelyingPartyRegistration.ProviderDetails`
 * Remove `OpenSamlAuthenticationProvider`
 
