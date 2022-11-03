@@ -1864,6 +1864,115 @@ public class SecurityConfig {
 ----
 ====
 
+=== Stop Using SAML 2.0 `Converter` constructors
+
+In an early release of Spring Security's SAML 2.0 support, `Saml2MetadataFilter` and `Saml2AuthenticationTokenConverter` shipped with constructors of type `Converter`.
+This level of abstraction made it tricky to evolve the class and so a dedicated interface `RelyingPartyRegistrationResolver` was introduced in a later release.
+
+In 6.0, the `Converter` constructors are removed.
+To prepare for this in 5.8, change classes that implement `Converter<HttpServletRequest, RelyingPartyRegistration>` to instead implement `RelyingPartyRegistrationResolver`.
+
+=== Change to Using `Saml2AuthenticationRequestResolver`
+
+`Saml2AuthenticationContextResolver` and `Saml2AuthenticationRequestFactory` are removed in 6.0 as is the `Saml2WebSsoAuthenticationRequestFilter` that requires them.
+They are replaced by `Saml2AuthenticationRequestResolver` and a new constructor in `Saml2WebSsoAuthenticationRequestFilter`.
+The new interface removes an unnecessary transport object between the two classes.
+
+Most applications need do nothing; however, if you use or configure `Saml2AuthenticationRequestContextResolver` or `Saml2AuthenticationRequestFactory`, try the following steps to convert instead use `Saml2AuthenticationRequestResolver`.
+
+==== Use `setAuthnRequestCustomizer` instead of `setAuthenticationRequestContextConverter`
+
+If you are calling `OpenSaml4AuthenticationReqeustFactory#setAuthenticationRequestContextConverter`, for example, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestFactory authenticationRequestFactory() {
+    OpenSaml4AuthenticationRequestFactory factory = new OpenSaml4AuthenticationRequestFactory();
+	factory.setAuthenticationRequestContextConverter((context) -> {
+        AuthnRequestBuilder authnRequestBuilder =  ConfigurationService.get(XMLObjectProviderRegistry.class)
+            .getBuilderFactory().getBuilder(AuthnRequest.DEFAULT_ELEMENT_NAME);
+		IssuerBuilder issuerBuilder =  ConfigurationService.get(XMLObjectProviderRegistry.class)
+            .getBuilderFactory().getBuilder(Issuer.DEFAULT_ELEMENT_NAME);
+        tring issuer = context.getIssuer();
+		String destination = context.getDestination();
+		String assertionConsumerServiceUrl = context.getAssertionConsumerServiceUrl();
+		String protocolBinding = context.getRelyingPartyRegistration().getAssertionConsumerServiceBinding().getUrn();
+		AuthnRequest auth = authnRequestBuilder.buildObject();
+		auth.setID("ARQ" + UUID.randomUUID().toString().substring(1));
+		auth.setIssueInstant(Instant.now());
+		auth.setForceAuthn(Boolean.TRUE);
+		auth.setIsPassive(Boolean.FALSE);
+		auth.setProtocolBinding(SAMLConstants.SAML2_POST_BINDING_URI);
+		Issuer iss = issuerBuilder.buildObject();
+		iss.setValue(issuer);
+		auth.setIssuer(iss);
+		auth.setDestination(destination);
+		auth.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
+	});
+	return factory;
+}
+----
+====
+
+to ensure that ForceAuthn is set to `true`, you can instead do:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestResolver authenticationRequestResolver(RelyingPartyRegistrationResolver registrations) {
+    OpenSaml4AuthenticationRequestResolver reaolver = new OpenSaml4AuthenticationRequestResolver(registrations);
+	resolver.setAuthnRequestCustomizer((context) -> context.getAuthnRequest().setForceAuthn(Boolean.TRUE));
+	return resolver;
+}
+----
+====
+
+Also, since `setAuthnRequestCustomizer` has direct access to the `HttpServletRequest`, there is no need for a `Saml2AuthenticationRequestContextResolver`.
+Simply use `setAuthnRequestCustomizer` to read directly from `HttpServletRequest` this information you need.
+
+==== Use `setAuthnRequestCustomizer` instead of `setProtocolBinding`
+
+Instead of doing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestFactory authenticationRequestFactory() {
+    OpenSaml4AuthenticationRequestFactory factory = new OpenSaml4AuthenticationRequestFactory();
+	factory.setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST")
+	return factory;
+}
+----
+====
+
+you can do:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationRequestResolver authenticationRequestResolver() {
+	OpenSaml4AuthenticationRequestResolver reaolver = new OpenSaml4AuthenticationRequestResolver(registrations);
+	resolver.setAuthnRequestCustomizer((context) -> context.getAuthnRequest()
+            .setProtocolBinding("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"));
+	return resolver;
+}
+----
+====
+
+[NOTE]
+====
+Since Spring Security only supports the `POST` binding for authentication, there is not very much value in overriding the protocol binding at this point in time.
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
