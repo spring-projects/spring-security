@@ -43,6 +43,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
+	private static final String CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME = CookieCsrfTokenRepository.class.getName()
+			.concat(".REMOVED");
+
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
 	private String headerName = DEFAULT_CSRF_HEADER_NAME;
@@ -79,10 +82,24 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 			cookie.setDomain(this.cookieDomain);
 		}
 		response.addCookie(cookie);
+
+		// Set request attribute to signal that response has blank cookie value,
+		// which allows loadToken to return null when token has been removed
+		if (!StringUtils.hasLength(tokenValue)) {
+			request.setAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME, Boolean.TRUE);
+		}
+		else {
+			request.removeAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME);
+		}
 	}
 
 	@Override
 	public CsrfToken loadToken(HttpServletRequest request) {
+		// Return null when token has been removed during the current request
+		// which allows loadDeferredToken to re-generate the token
+		if (Boolean.TRUE.equals(request.getAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME))) {
+			return null;
+		}
 		Cookie cookie = WebUtils.getCookie(request, this.cookieName);
 		if (cookie == null) {
 			return null;
