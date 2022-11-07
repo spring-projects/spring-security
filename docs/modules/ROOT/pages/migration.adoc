@@ -2015,6 +2015,65 @@ Saml2AuthenticationToken(saml2Response, registration)
 ----
 ====
 
+=== Use `RelyingPartyRegistration` updated methods
+
+In an early release of Spring Security's SAML support, there was some ambiguity on the meaning of certain `RelyingPartyRegistration` methods and their function.
+As more capabilities were added to `RelyingPartyRegistration`, it became necessary to clarify this ambiguity by changing method names to ones that aligned with spec language.
+
+The deprecated methods in `RelyingPartyRegstration` are removed.
+To prepare for that, consider the following representative usage of `RelyingPartyRegistration`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+String idpEntityId = registration.getRemoteIdpEntityId();
+String assertionConsumerServiceUrl = registration.getAssertionConsumerServiceUrlTemplate();
+String idpWebSsoUrl = registration.getIdpWebSsoUrl();
+String localEntityId = registration.getLocalEntityIdTemplate();
+List<Saml2X509Credential> verifying = registration.getCredentials().stream()
+        .filter(Saml2X509Credential::isSignatureVerficationCredential)
+        .collect(Collectors.toList());
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val idpEntityId: String = registration.getRemoteIdpEntityId()
+val assertionConsumerServiceUrl: String = registration.getAssertionConsumerServiceUrlTemplate()
+val idpWebSsoUrl: String = registration.getIdpWebSsoUrl()
+val localEntityId: String = registration.getLocalEntityIdTemplate()
+val verifying: List<Saml2X509Credential> = registration.getCredentials()
+        .filter(Saml2X509Credential::isSignatureVerficationCredential)
+----
+====
+
+This should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+String assertionConsumerServiceLocation = registration.getAssertionConsumerServiceLocation();
+String singleSignOnServiceLocation = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation();
+String entityId = registration.getEntityId();
+List<Saml2X509Credential> verifying = registration.getAssertingPartyDetails().getVerificationX509Credentials();
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val assertingPartyEntityId: String = registration.getAssertingPartyDetails().getEntityId()
+val assertionConsumerServiceLocation: String = registration.getAssertionConsumerServiceLocation()
+val singleSignOnServiceLocation: String = registration.getAssertingPartyDetails().getSingleSignOnServiceLocation()
+val entityId: String = registration.getEntityId()
+val verifying: List<Saml2X509Credential> = registration.getAssertingPartyDetails().getVerificationX509Credentials()
+----
+====
+
+For a complete listing of all changed methods, please see {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[``RelyingPartyRegistration``'s JavaDoc].
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
