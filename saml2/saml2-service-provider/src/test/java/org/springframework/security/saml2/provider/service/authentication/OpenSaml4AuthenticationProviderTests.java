@@ -520,6 +520,25 @@ public class OpenSaml4AuthenticationProviderTests {
 		// @formatter:on
 	}
 
+	// gh-11675
+	@Test
+	public void authenticateWhenUsingCustomAssertionValidatorThenUses() {
+		OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
+		Consumer<Map<String, Object>> validationParameters = mock(Consumer.class);
+		// @formatter:off
+		provider.setAssertionValidator(OpenSaml4AuthenticationProvider
+				.createDefaultAssertionValidatorWithParameters(validationParameters));
+		// @formatter:on
+		Response response = response();
+		Assertion assertion = assertion();
+		OneTimeUse oneTimeUse = build(OneTimeUse.DEFAULT_ELEMENT_NAME);
+		assertion.getConditions().getConditions().add(oneTimeUse);
+		response.getAssertions().add(assertion);
+		Saml2AuthenticationToken token = token(signed(response), verifying(registration()));
+		provider.authenticate(token);
+		verify(validationParameters).accept(any());
+	}
+
 	@Test
 	public void authenticateWhenCustomAssertionValidatorThenUses() {
 		Converter<OpenSaml4AuthenticationProvider.AssertionToken, Saml2ResponseValidatorResult> validator = mock(
