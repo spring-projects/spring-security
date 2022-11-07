@@ -63,6 +63,8 @@ dependencies {
 	testImplementation 'io.rsocket:rsocket-transport-netty'
 	testImplementation 'jakarta.annotation:jakarta.annotation-api'
 	testImplementation 'jakarta.xml.bind:jakarta.xml.bind-api'
+	testImplementation 'jakarta.websocket:jakarta.websocket-api'
+	testImplementation 'jakarta.websocket:jakarta.websocket-client-api'
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
