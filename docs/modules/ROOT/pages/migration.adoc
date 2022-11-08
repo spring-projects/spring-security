@@ -306,6 +306,16 @@ public class SecurityConfig {
 ----
 ====
 
+[[use-new-requestmatchers]]
+=== Use the new `requestMatchers` methods
+
+There are no further migration steps for this feature.
+
+[[use-new-security-matchers]]
+=== Use the new `securityMatchers` methods
+
+There are no further migration steps for this feature.
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
