@@ -2074,6 +2074,120 @@ val verifying: List<Saml2X509Credential> = registration.getAssertingPartyDetails
 
 For a complete listing of all changed methods, please see {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[``RelyingPartyRegistration``'s JavaDoc].
 
+=== Use OpenSAML 4
+
+OpenSAML 3 has reached its end-of-life.
+As such, Spring Security 6 drops support for it, bumping up its OpenSAML baseline to 4.
+
+To prepare for the upgrade, update your pom to depend on OpenSAML 4 instead of 3:
+
+====
+.Maven
+[source,maven,role="primary"]
+----
+<dependencyManagement>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-core</artifactId>
+        <version>4.2.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-api</artifactId>
+        <version>4.2.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-impl</artifactId>
+        <version>4.2.1</version>
+    </dependency>
+</dependencyManagement>
+----
+
+.Gradle
+[source,gradle,role="secondary"]
+----
+dependencies {
+    constraints {
+        api "org.opensaml:opensaml-core:4.2.1"
+        api "org.opensaml:opensaml-saml-api:4.2.1"
+        api "org.opensaml:opensaml-saml-impl:4.2.1"
+    }
+}
+----
+====
+
+You must use at least OpenSAML 4.1.1 to update to Spring Security 6's SAML support.
+
+=== Use `OpenSaml4AuthenticationProvider`
+
+In order to support both OpenSAML 3 and 4 at the same time, Spring Security released `OpenSamlAuthenticationProvider` and `OpenSaml4AuthenticationProvider`.
+In 6.0, because OpenSAML3 support is removed, `OpenSamlAuthenticationProvider` is removed as well.
+
+Not all methods in `OpenSamlAuthenticationProvider` were ported 1-to-1 to `OpenSaml4AuthenticationProvider`.
+As such, some adjustment will be required to make the challenge.
+
+Consider the following representative usage of `OpenSamlAuthenticationProvider`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+OpenSamlAuthenticationProvider versionThree = new OpenSamlAuthenticationProvider();
+versionThree.setAuthoritiesExtractor(myAuthoritiesExtractor);
+versionThree.setResponseTimeValidationSkew(myDuration);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val versionThree: OpenSamlAuthenticationProvider = OpenSamlAuthenticationProvider()
+versionThree.setAuthoritiesExtractor(myAuthoritiesExtractor)
+versionThree.setResponseTimeValidationSkew(myDuration)
+----
+====
+
+This should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Converter<ResponseToken, Saml2Authentication> delegate = OpenSaml4AuthenticationProvider
+        .createDefaultResponseAuthenticationConverter();
+OpenSaml4AuthenticationProvider versionFour = new OpenSaml4AuthenticationProvider();
+versionFour.setResponseAuthenticationConverter((responseToken) -> {
+	Saml2Authentication authentication = delegate.convert(responseToken);
+	Assertion assertion = responseToken.getResponse().getAssertions().get(0);
+	AuthenticatedPrincipal principal = (AuthenticatedPrincipal) authentication.getPrincipal();
+	Collection<GrantedAuthority> authorities = myAuthoritiesExtractor.convert(assertion);
+	return new Saml2Authentication(principal, authentication.getSaml2Response(), authorities);
+});
+Converter<AssertionToken, Saml2ResponseValidationResult> validator = OpenSaml4AuthenticationProvider
+        .createDefaultAssertionValidatorWithParameters((p) -> p.put(CLOCK_SKEW, myDuration));
+versionFour.setAssertionValidator(validator);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val delegate = OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter()
+val versionFour = OpenSaml4AuthenticationProvider()
+versionFour.setResponseAuthenticationConverter({
+    responseToken -> {
+        val authentication = delegate.convert(responseToken)
+        val assertion = responseToken.getResponse().getAssertions().get(0)
+        val principal = (AuthenticatedPrincipal) authentication.getPrincipal()
+        val authorities = myAuthoritiesExtractor.convert(assertion)
+        return Saml2Authentication(principal, authentication.getSaml2Response(), authorities)
+    }
+})
+val validator = OpenSaml4AuthenticationProvider
+        .createDefaultAssertionValidatorWithParameters({ p -> p.put(CLOCK_SKEW, myDuration) })
+versionFour.setAssertionValidator(validator)
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
