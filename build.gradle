@@ -196,7 +196,6 @@ if (hasProperty('buildScan')) {
 }
 
 nohttp {
-	allowlistFile = project.file("etc/nohttp/allowlist.lines")
 	source.exclude "buildSrc/build/**"
 
 }
