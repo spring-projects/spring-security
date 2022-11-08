@@ -173,8 +173,14 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
 			// Return true if there is at least one match between the authorized scope(s)
 			// and accessible scope(s)
+			//
+			// Also return true if authorized scope(s) is empty, because the provider has
+			// not indicated which scopes are accessible via the access token
+			// @formatter:off
 			return this.accessibleScopes.isEmpty()
+					|| CollectionUtils.isEmpty(userRequest.getAccessToken().getScopes())
 					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
+			// @formatter:on
 		}
 		return false;
 	}
