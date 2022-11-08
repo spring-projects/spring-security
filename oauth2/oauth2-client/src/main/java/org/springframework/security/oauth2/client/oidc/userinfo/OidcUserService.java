@@ -173,8 +173,15 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 				.equals(userRequest.getClientRegistration().getAuthorizationGrantType())) {
 			// Return true if there is at least one match between the authorized scope(s)
 			// and accessible scope(s)
+			// As per spec, in Section 5.1 Successful Access Token Response
+			// https://www.rfc-editor.org/rfc/rfc6749#section-5.1
+			// If AccessTokenResponse.scope is empty, then default to the scope
+			// originally requested by the client in the Token Request
+			// @formatter:off
 			return this.accessibleScopes.isEmpty()
+					|| CollectionUtils.isEmpty(userRequest.getAccessToken().getScopes())
 					|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(), this.accessibleScopes);
+			// @formatter:on
 		}
 		return false;
 	}
