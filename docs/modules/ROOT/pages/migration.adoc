@@ -2191,7 +2191,7 @@ versionFour.setAssertionValidator(validator)
 [[use-new-requestmatchers]]
 === Use the new `requestMatchers` methods
 
-In Spring Security 5.8, the {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#antMatchers(java.lang.String...)[`antMatchers`], {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#mvcMatchers(java.lang.String...)`mvcMatchers`, and {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#regexMatchers(java.lang.String...)[`regexMatchers`] methods were deprecated in favor of new xref::servlet/authorization/authorize-http-requests.adoc#_request_matchers[`requestMatchers` methods].
+In Spring Security 5.8, the {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#antMatchers(java.lang.String...)[`antMatchers`], {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#mvcMatchers(java.lang.String...)[`mvcMatchers`], and {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#regexMatchers(java.lang.String...)[`regexMatchers`] methods were deprecated in favor of new xref::servlet/authorization/authorize-http-requests.adoc#_request_matchers[`requestMatchers` methods].
 
 The new `requestMatchers` methods were added xref::servlet/authorization/authorize-http-requests.adoc[to `authorizeHttpRequests`], `authorizeRequests`, CSRF configuration, `WebSecurityCustomizer` and any other places that had the specialized `RequestMatcher` methods.
 The deprecated methods are removed in Spring Security 6.
