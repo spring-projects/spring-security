@@ -10,8 +10,6 @@ Below are the highlights of the release.
 
 == Breaking Changes
 
-* https://github.com/spring-projects/spring-security/issues/10556[gh-10556] - Remove EOL OpenSaml 3 Support.
-Use the OpenSaml 4 Support instead.
 * https://github.com/spring-projects/spring-security/issues/8980[gh-8980] - Remove unsafe/deprecated `Encryptors.querableText(CharSequence,CharSequence)`.
 Instead use data storage to encrypt values.
 * https://github.com/spring-projects/spring-security/issues/11520[gh-11520] - Remember Me uses SHA256 by default
@@ -41,13 +39,14 @@ Instead, use `requestMatchers` or `HttpSecurity#securityMatchers`.
 * https://github.com/spring-projects/spring-security/issues/11110[gh-11110] - Require explicit session saves by default
 * https://github.com/spring-projects/spring-security/issues/11057[gh-11057] - Remove `MessageSourceAware` from `ExceptionTranslationWebFilter`
 * https://github.com/spring-projects/spring-security/issues/12022[gh-12202] - Remove OAuth deprecations
-* Remove `Converter` constructors from `Saml2MetadataFilter` and `Saml2AuthenticationTokenConverter`
-* Remove `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory`
-* Remove `Saml2AuthenticationToken(String, String, String, String, List)`
-* Remove `RelyingPartyRegistration.ProviderDetails`
-* Remove `OpenSamlAuthenticationProvider`
-
-* Remove SAML deprecations
+* https://github.com/spring-projects/spring-security/issues/10556[gh-10556] - Remove EOL OpenSaml 3 Support.
+Use the OpenSaml 4 Support instead.
+* https://github.com/spring-projects/spring-security/issues/11077[gh-11077] - Remove SAML deprecations
+** Remove `Converter` constructors from `Saml2MetadataFilter` and `Saml2AuthenticationTokenConverter`
+** Remove `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and implementations
+** Remove `Saml2AuthenticationToken(String, String, String, String, List)`
+** Remove `RelyingPartyRegistration.ProviderDetails` and related methods
+** Remove `OpenSamlAuthenticationProvider`
 
 == Core
 
