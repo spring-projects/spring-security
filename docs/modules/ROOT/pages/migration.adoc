@@ -2605,6 +2605,34 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 ----
 ====
 
+=== Stop using `Encryptors.queryableText`
+
+`Encryptors.queryableText(CharSequence,CharSequence)` is unsafe since https://tanzu.vmware.com/security/cve-2020-5408[the same input data will produce the same output].
+It was deprecated and will be removed in 6.0; Spring Security no longer supports encrypting data in this way.
+
+To upgrade, you will either need to re-encrypt with a supported mechanism or store it decrypted.
+
+Consider the following pseudocode for reading each encrypted entry from a table, decrypting it, and then re-encrypting it using a supported mechanism:
+
+====
+.Java
+[source,java,role="primary"]
+----
+TextEncryptor deprecated = Encryptors.queryableText(password, salt);
+BytesEncryptor aes = new AesBytesEncryptor(password, salt, KeyGenerators.secureRandom(12), CipherAlgorithm.GCM);
+TextEncryptor supported = new HexEncodingTextEncryptor(aes);
+for (MyEntry entry : entries) {
+	String value = deprecated.decrypt(entry.getEncryptedValue()); <1>
+	entry.setEncryptedValue(supported.encrypt(value)); <2>
+	entryService.save(entry)
+}
+----
+====
+<1> - The above uses the deprecated `queryableText` to convert the value to plaintext.
+<2> - Then, the value is re-encrypted with a supported Spring Security mechanism.
+
+Please see the reference manual for more information on what xref:features/integrations/cryptography.adoc[encryption mechanisms Spring Security supports].
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
