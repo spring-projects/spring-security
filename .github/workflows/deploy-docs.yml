@@ -1,6 +1,10 @@
 name: Deploy Docs
 on:
   workflow_dispatch:
+    inputs:
+      build-refname:
+        description: Enter git refname to build (e.g., 5.7.x).
+        required: false
   push:
     branches: docs-build
 permissions: read-all
@@ -10,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 5
     - name: Set Up Gradle
@@ -24,6 +28,12 @@ jobs:
       run: |
         rm -f /home/runner/.gradle/caches/modules-2/modules-2.lock
         rm -f /home/runner/.gradle/caches/modules-2/gc.properties
+    - name: Set up refname build
+      if: github.event.inputs.build-refname
+      run: |
+        git fetch --depth 1 https://github.com/$GITHUB_REPOSITORY ${{ github.event.inputs.build-refname }}
+        echo BUILD_REFNAME=${{ github.event.inputs.build-refname }} >> $GITHUB_ENV
+        echo BUILD_VERSION=$(git cat-file --textconv FETCH_HEAD:gradle.properties | sed -n '/^version=/ { s/^version=//;p }') >> $GITHUB_ENV
     - name: Run Antora
       run: ./gradlew antora
     - name: Publish Docs

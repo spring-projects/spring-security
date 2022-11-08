@@ -1,8 +1,10 @@
 antora:
   extensions:
+  - ./lib/antora/extensions/autoconfig-partial-build.js
   - ./lib/antora/extensions/inject-collector-config.js
   - '@antora/collector-extension'
   - ./lib/antora/extensions/version-fix.js
+  - '@antora/atlas-extension'
   - '@opendevise/antora-release-line-extension'
 site:
   title: Spring Security
