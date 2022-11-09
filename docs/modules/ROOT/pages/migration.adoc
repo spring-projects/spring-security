@@ -255,6 +255,11 @@ fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 ----
 ====
 
+[IMPORTANT]
+====
+If you are already using an implementation other than `HttpSessionSecurityContextRepository`, you should replace it with your chosen implementation in the example above to ensure that it is used along with `RequestAttributeSecurityContextRepository`.
+====
+
 === Deprecation in SecurityContextRepository
 
 In Spring Security 5.7, a new method was added to xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] with the signature:
