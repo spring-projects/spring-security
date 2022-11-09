@@ -193,6 +193,68 @@ To opt into the new Spring Security 6 default, the following configuration can b
 
 include::partial$servlet/architecture/security-context-explicit.adoc[]
 
+=== Multiple SecurityContextRepository
+
+In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] is `HttpSessionSecurityContextRepository`.
+
+In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecurityContextRepository`.
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+.Configure SecurityContextRepository with 6.0 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.securityContextRepository(new DelegatingSecurityContextRepository(
+				new RequestAttributeSecurityContextRepository(),
+				new HttpSessionSecurityContextRepository()
+			))
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		securityContext {
+			securityContextRepository = DelegatingSecurityContextRepository(
+				RequestAttributeSecurityContextRepository(),
+				HttpSessionSecurityContextRepository()
+			)
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-repository-ref="contextRepository">
+	<!-- ... -->
+</http>
+<bean name="contextRepository"
+	class="org.springframework.security.web.context.DelegatingSecurityContextRepository">
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.RequestAttributeSecurityContextRepository" />
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
+		</constructor-arg>
+</bean>
+----
+====
+
 === Deprecation in SecurityContextRepository
 
 In Spring Security 5.7, a new method was added to xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] with the signature:
