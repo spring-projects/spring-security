@@ -30,6 +30,13 @@ If you are explicitly opting into Spring Security 6's new defaults, the followin
 
 include::partial$servlet/architecture/security-context-explicit.adoc[]
 
+=== Multiple SecurityContextRepository
+
+In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] was `HttpSessionSecurityContextRepository`.
+
+In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecurityContextRepository`.
+If you configured the `SecurityContextRepository` only for the purpose of updating to 6.0, you can remove it completely.
+
 [[requestcache-query-optimization]]
 === Optimize Querying of `RequestCache`
 
