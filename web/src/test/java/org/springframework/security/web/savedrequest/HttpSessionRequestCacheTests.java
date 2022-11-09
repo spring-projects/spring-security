@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,6 +83,21 @@ public class HttpSessionRequestCacheTests {
 		cache.saveRequest(request, response);
 		cache.saveRequest(request, response);
 		assertThat(cache.getRequest(request, response)).isInstanceOf(CustomSavedRequest.class);
+	}
+
+	@Test
+	public void getRequestStringNoClassCastException() {
+		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/destination");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpSessionRequestCache cache = new HttpSessionRequestCache() {
+			@Override
+			public void saveRequest(HttpServletRequest request, HttpServletResponse response) {
+				request.getSession().setAttribute(SAVED_REQUEST, "session_from_webflux_as_string");
+			}
+		};
+		cache.saveRequest(request, response);
+		cache.saveRequest(request, response);
+		assertThat(cache.getRequest(request, response)).isNull();
 	}
 
 	@Test
