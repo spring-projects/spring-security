@@ -37,6 +37,10 @@ In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#s
 In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecurityContextRepository`.
 If you configured the `SecurityContextRepository` only for the purpose of updating to 6.0, you can remove it completely.
 
+=== Deprecation in SecurityContextRepository
+
+There are no further migration steps for this deprecation.
+
 [[requestcache-query-optimization]]
 === Optimize Querying of `RequestCache`
 
