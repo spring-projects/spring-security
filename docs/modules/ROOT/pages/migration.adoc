@@ -3832,6 +3832,131 @@ fun passwordEncoder(): PasswordEncoder {
 ----
 ====
 
+=== Deprecations in OAuth2 Client
+
+In Spring Security 6, deprecated classes and methods were removed from xref:servlet/oauth2/client/index.adoc[OAuth2 Client].
+Each deprecation is listed below, along with a direct replacement.
+
+==== `ServletOAuth2AuthorizedClientExchangeFilterFunction`
+
+The method `setAccessTokenExpiresSkew(...)` can be replaced with one of:
+
+* `ClientCredentialsOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `RefreshTokenOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `JwtBearerOAuth2AuthorizedClientProvider#setClockSkew(...)`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+==== `OidcUserInfo`
+
+The method `phoneNumberVerified(String)` can be replaced with `phoneNumberVerified(Boolean)`.
+
+==== `JwtAuthenticationConverter`
+
+The method `extractAuthorities(...)` can be replaced with `JwtGrantedAuthoritiesConverter#convert(...)`.
+
+==== `OAuth2AuthorizedClientArgumentResolver`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+==== `ClaimAccessor`
+
+The method `containsClaim(...)` can be replaced with `hasClaim(...)`.
+
+==== `OidcClientInitiatedLogoutSuccessHandler`
+
+The method `setPostLogoutRedirectUri(URI)` can be replaced with `setPostLogoutRedirectUri(String)`.
+
+==== `HttpSessionOAuth2AuthorizationRequestRepository`
+
+The method `setAllowMultipleAuthorizationRequests(...)` has no direct replacement.
+
+==== `AuthorizationRequestRepository`
+
+The method `removeAuthorizationRequest(HttpServletRequest)` can be replaced with `removeAuthorizationRequest(HttpServletRequest, HttpServletResponse)`.
+
+==== `ClientRegistration`
+
+The method `getRedirectUriTemplate()` can be replaced with `getRedirectUri()`.
+
+==== `ClientRegistration.Builder`
+
+The method `redirectUriTemplate(...)` can be replaced with `redirectUri(...)`.
+
+==== `AbstractOAuth2AuthorizationGrantRequest`
+
+The constructor `AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType)` can be replaced with `AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType, ClientRegistration)`.
+
+==== `ClientAuthenticationMethod`
+
+The static field `BASIC` can be replaced with `CLIENT_SECRET_BASIC`.
+
+The static field `POST` can be replaced with `CLIENT_SECRET_POST`.
+
+==== `OAuth2AccessTokenResponseHttpMessageConverter`
+
+The field `tokenResponseConverter` has no direct replacement.
+
+The method `setTokenResponseConverter(...)` can be replaced with `setAccessTokenResponseConverter(...)`.
+
+The field `tokenResponseParametersConverter` has no direct replacement.
+
+The method `setTokenResponseParametersConverter(...)` can be replaced with `setAccessTokenResponseParametersConverter(...)`.
+
+==== `NimbusAuthorizationCodeTokenResponseClient`
+
+The class `NimbusAuthorizationCodeTokenResponseClient` can be replaced with `DefaultAuthorizationCodeTokenResponseClient`.
+
+==== `NimbusJwtDecoderJwkSupport`
+
+The class `NimbusJwtDecoderJwkSupport` can be replaced with `NimbusJwtDecoder` or `JwtDecoders`.
+
+==== `ImplicitGrantConfigurer`
+
+The class `ImplicitGrantConfigurer` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+==== `AuthorizationGrantType`
+
+The static field `IMPLICIT` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+==== `OAuth2AuthorizationResponseType`
+
+The static field `TOKEN` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+==== `OAuth2AuthorizationRequest`
+
+The static method `implicit()` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
@@ -4002,3 +4127,28 @@ http {
 ==== Opt-out Steps
 
 To opt-out of the 6.0 defaults and instead continue to pass `AuthenticationServiceException` on to ``ServerAuthenticationEntryPoint``s, you can follow the same steps as above, except set `rethrowAuthenticationServiceException` to false.
+
+=== Deprecations in OAuth2 Client
+
+==== `ServerOAuth2AuthorizedClientExchangeFilterFunction`
+
+The method `setAccessTokenExpiresSkew(...)` can be replaced with one of:
+
+* `ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `RefreshTokenReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `JwtBearerReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:reactive/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+==== `WebSessionOAuth2ServerAuthorizationRequestRepository`
+
+The method `setAllowMultipleAuthorizationRequests(...)` has no direct replacement.
+
+==== `UnAuthenticatedServerOAuth2AuthorizedClientRepository`
+
+The class `UnAuthenticatedServerOAuth2AuthorizedClientRepository` has no direct replacement. Usage of the class can be replaced with `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager`.
