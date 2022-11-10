@@ -2785,6 +2785,196 @@ for (MyEntry entry : entries) {
 
 Please see the reference manual for more information on what xref:features/integrations/cryptography.adoc[encryption mechanisms Spring Security supports].
 
+=== Default authorities for oauth2Login()
+
+In Spring Security 5, the default `GrantedAuthority` given to a user that authenticates with an OAuth2 or OpenID Connect 1.0 provider (via `oauth2Login()`) is `ROLE_USER`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/login/advanced.adoc#oauth2login-advanced-map-authorities[Mapping User Authorities] for more information.
+====
+
+In Spring Security 6, the default authority given to a user authenticating with an OAuth2 provider is `OAUTH2_USER`.
+The default authority given to a user authenticating with an OpenID Connect 1.0 provider is `OIDC_USER`.
+These defaults allow clearer distinction of users that have authenticated with an OAuth2 or OpenID Connect 1.0 provider.
+
+If you are using authorization rules or expressions such as `hasRole("USER")` or `hasAuthority("ROLE_USER")` to authorize users with this specific authority, the new defaults in Spring Security 6 will impact your application.
+
+To opt into the new Spring Security 6 defaults, the following configuration can be used.
+
+.Configure oauth2Login() with 6.0 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.oauth2Login((oauth2Login) -> oauth2Login
+			.userInfoEndpoint((userInfo) -> userInfo
+				.userAuthoritiesMapper(grantedAuthoritiesMapper())
+			)
+		);
+	return http.build();
+}
+
+private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+	return (authorities) -> {
+		Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+		authorities.forEach((authority) -> {
+			GrantedAuthority mappedAuthority;
+
+			if (authority instanceof OidcUserAuthority) {
+				OidcUserAuthority userAuthority = (OidcUserAuthority) authority;
+				mappedAuthority = new OidcUserAuthority(
+					"OIDC_USER", userAuthority.getIdToken(), userAuthority.getUserInfo());
+			} else if (authority instanceof OAuth2UserAuthority) {
+				OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) authority;
+				mappedAuthority = new OAuth2UserAuthority(
+					"OAUTH2_USER", userAuthority.getAttributes());
+			} else {
+				mappedAuthority = authority;
+			}
+
+			mappedAuthorities.add(mappedAuthority);
+		});
+
+		return mappedAuthorities;
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		oauth2Login {
+			userInfoEndpoint {
+				userAuthoritiesMapper = grantedAuthoritiesMapper()
+			}
+		}
+	}
+	return http.build()
+}
+
+private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
+	return GrantedAuthoritiesMapper { authorities ->
+		authorities.map { authority ->
+			when (authority) {
+				is OidcUserAuthority ->
+					OidcUserAuthority("OIDC_USER", authority.idToken, authority.userInfo)
+				is OAuth2UserAuthority ->
+					OAuth2UserAuthority("OAUTH2_USER", authority.attributes)
+				else -> authority
+			}
+		}
+	}
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
+</http>
+----
+====
+
+[[servlet-oauth2-login-authorities-opt-out]]
+==== Opt-out Steps
+
+If configuring the new authorities gives you trouble, you can opt out and explicitly use the 5.8 authority of `ROLE_USER` with the following configuration.
+
+.Configure oauth2Login() with 5.8 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.oauth2Login((oauth2Login) -> oauth2Login
+			.userInfoEndpoint((userInfo) -> userInfo
+				.userAuthoritiesMapper(grantedAuthoritiesMapper())
+			)
+		);
+	return http.build();
+}
+
+private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+	return (authorities) -> {
+		Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+		authorities.forEach((authority) -> {
+			GrantedAuthority mappedAuthority;
+
+			if (authority instanceof OidcUserAuthority) {
+				OidcUserAuthority userAuthority = (OidcUserAuthority) authority;
+				mappedAuthority = new OidcUserAuthority(
+					"ROLE_USER", userAuthority.getIdToken(), userAuthority.getUserInfo());
+			} else if (authority instanceof OAuth2UserAuthority) {
+				OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) authority;
+				mappedAuthority = new OAuth2UserAuthority(
+					"ROLE_USER", userAuthority.getAttributes());
+			} else {
+				mappedAuthority = authority;
+			}
+
+			mappedAuthorities.add(mappedAuthority);
+		});
+
+		return mappedAuthorities;
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		oauth2Login {
+			userInfoEndpoint {
+				userAuthoritiesMapper = grantedAuthoritiesMapper()
+			}
+		}
+	}
+	return http.build()
+}
+
+private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
+	return GrantedAuthoritiesMapper { authorities ->
+		authorities.map { authority ->
+			when (authority) {
+				is OidcUserAuthority ->
+					OidcUserAuthority("ROLE_USER", authority.idToken, authority.userInfo)
+				is OAuth2UserAuthority ->
+					OAuth2UserAuthority("ROLE_USER", authority.attributes)
+				else -> authority
+			}
+		}
+	}
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
+</http>
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
