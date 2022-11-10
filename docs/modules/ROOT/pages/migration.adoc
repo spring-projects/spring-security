@@ -1133,6 +1133,7 @@ http {
 ----
 ====
 
+[[switch-filter-all-dispatcher-types]]
 ==== Switch to filter all dispatcher types
 
 Spring Security 5.8 and earlier only xref:servlet/authorization/architecture.adoc[perform authorization] once per request.
@@ -1143,7 +1144,7 @@ As such, in 6.0, Spring Security changes this default.
 
 So, finally, change your authorization rules to filter all dispatcher types.
 
-To do this, change:
+To do this, you should change:
 
 ====
 .Java
@@ -1220,6 +1221,145 @@ http {
     <!-- ... -->
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
+----
+====
+
+And, the `FilterChainProxy` should be registered for all dispatcher types as well.
+If you are using Spring Boot, https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.filter.dispatcher-types[you have to change the `spring.security.filter.dispatcher-types` property] to include all dispatcher types:
+
+====
+.application.properties
+[source,properties,role="primary"]
+----
+spring.security.filter.dispatcher-types=request,async,error,forward,include
+----
+====
+
+If you are xref::servlet/configuration/java.adoc#_abstractsecuritywebapplicationinitializer[using the `AbstractSecurityWebApplicationInitializer`] you should override the `getSecurityDispatcherTypes` method and return all dispatcher types:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import org.springframework.security.web.context.*;
+
+public class SecurityWebApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
+
+    @Override
+    protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
+        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.FORWARD,
+                DispatcherType.FORWARD, DispatcherType.INCLUDE);
+    }
+
+}
+----
+====
+
+===== Permit `FORWARD` when using Spring MVC
+
+If you are using {spring-framework-reference-url}/web.html#mvc-viewresolver[Spring MVC to resolve view names], you will need to permit `FORWARD` requests.
+This is because when Spring MVC detects a mapping between view name and the actual views, it will perform a forward to the view.
+As we saw on the <<switch-filter-all-dispatcher-types,previous section>>, Spring Security 6.0 will apply authorization to `FORWARD` requests by default.
+
+Consider the following common configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .shouldFilterAllDispatcherTypes(true)
+            .requestMatchers("/").authenticated()
+            .anyRequest().denyAll()
+        )
+        .formLogin((form) -> form
+            .loginPage("/login")
+            .permitAll()
+        ));
+    return http.build();
+}
+----
+====
+
+and one of the following equivalents MVC view mapping configurations:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Controller
+public class MyController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+}
+----
+====
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class MyWebMvcConfigurer implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/login").setViewName("login");
+    }
+
+}
+----
+====
+
+With either configuration, when there is a request to `/login`, Spring MVC will perform a *forward* to the view `login`, which, with the default configuration, is under `src/main/resources/templates/login.html` path.
+The security configuration permits requests to `/login` but every other request will be denied, including the `FORWARD` request to the view under `/templates/login.html`.
+
+To fix this, you should configure Spring Security to permit `FORWARD` requests:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(true)
+        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = true
+        authorize(DispatcherTypeRequestMatcher(DispatcherType.FORWARD), permitAll)
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="true" use-authorization-manager="true">
+    <intercept-url request-matcher-ref="forwardRequestMatcher" access="permitAll()" />
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+
+<bean name="forwardRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+    <constructor-arg value="FORWARD"/>
+</bean>
 ----
 ====
 
