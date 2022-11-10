@@ -26,7 +26,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
@@ -54,19 +53,12 @@ final class Jsr250MethodSecurityConfiguration {
 		defaultsProvider.ifAvailable((d) -> jsr250.setRolePrefix(d.getRolePrefix()));
 		SecurityContextHolderStrategy strategy = strategyProvider
 				.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
-		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
-		AuthorizationManager<MethodInvocation> manager = manager(jsr250, registry);
+		AuthorizationManager<MethodInvocation> manager = new DeferringObservationAuthorizationManager<>(
+				registryProvider, jsr250);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 				.jsr250(manager);
 		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
-	}
-
-	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> jsr250, ObservationRegistry registry) {
-		if (registry.isNoop()) {
-			return jsr250;
-		}
-		return new ObservationAuthorizationManager<>(registry, jsr250);
 	}
 
 }

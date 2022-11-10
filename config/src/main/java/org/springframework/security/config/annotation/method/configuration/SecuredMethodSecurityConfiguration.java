@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.SecuredAuthorizationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -52,19 +51,12 @@ final class SecuredMethodSecurityConfiguration {
 		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
 		SecurityContextHolderStrategy strategy = strategyProvider
 				.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
-		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
-		AuthorizationManager<MethodInvocation> manager = manager(secured, registry);
+		AuthorizationManager<MethodInvocation> manager = new DeferringObservationAuthorizationManager<>(
+				registryProvider, secured);
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 				.secured(manager);
 		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
-	}
-
-	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> jsr250, ObservationRegistry registry) {
-		if (registry.isNoop()) {
-			return jsr250;
-		}
-		return new ObservationAuthorizationManager<>(registry, jsr250);
 	}
 
 }

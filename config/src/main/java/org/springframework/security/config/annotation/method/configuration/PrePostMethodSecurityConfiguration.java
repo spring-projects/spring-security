@@ -29,7 +29,6 @@ import org.springframework.security.access.expression.method.DefaultMethodSecuri
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
-import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
@@ -120,11 +119,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> delegate,
 			ObjectProvider<ObservationRegistry> registryProvider) {
-		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
-		if (registry.isNoop()) {
-			return delegate;
-		}
-		return new ObservationAuthorizationManager<>(registry, delegate);
+		return new DeferringObservationAuthorizationManager<>(registryProvider, delegate);
 	}
 
 }
