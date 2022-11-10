@@ -13,6 +13,98 @@ endif::[]
 
 == Servlet
 
+=== Explicit SessionAuthenticationStrategy
+
+In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke the `SessionAuthenticationStrategy`.
+The problem with this is that it means that in a typical setup, the `HttpSession` must be read for every request.
+
+In Spring Security 6, the default is that authentication mechanisms themselves must invoke the `SessionAuthenticationStrategy`.
+This means that there is no need to detect when `Authentication` is done and thus the `HttpSession` does not need to be read for every request.
+
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+.Require Explicit `SessionAuthenticationStrategy` Invocation
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.sessionManagement((sessions) -> sessions
+			.requireExplicitAuthenticationStrategy(true)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	http {
+		sessionManagement {
+			requireExplicitAuthenticationStrategy = true
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<session-management authentication-strategy-explicit-invocation="true"/>
+</http>
+----
+====
+
+If this breaks your application, then you can explicitly opt into the 5.8 defaults using the following configuration:
+
+.Explicit use Spring Security 5.8 defaults for `SessionAuthenticationStrategy`
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.sessionManagement((sessions) -> sessions
+			.requireExplicitAuthenticationStrategy(false)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	http {
+		sessionManagement {
+			requireExplicitAuthenticationStrategy = false
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<session-management authentication-strategy-explicit-invocation="false"/>
+</http>
+----
+====
+
 === Defer Loading CsrfToken
 
 In Spring Security 5, the default behavior is that the `CsrfToken` will be loaded on every request.
