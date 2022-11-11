@@ -11,6 +11,14 @@ updating to 6.0
 endif::[]
 .
 
+== Update to Spring Security 5.8
+
+The first step is to ensure you are the latest patch release of Spring Boot 2.7.
+Next, you should ensure you are on the latest patch release of Spring Security 5.8.
+If you are using Spring Boot, you will need to override the Spring Boot version from Spring Security 5.7 to 5.8.
+Spring Security 5.8 is fully compatible with Spring Security 5.7 and thus Spring Boot 2.7.
+For directions, on how to update to Spring Security 5.8 visit the xref::getting-spring-security.adoc[] section of the reference guide.
+
 == Servlet
 
 === Explicit SessionAuthenticationStrategy
