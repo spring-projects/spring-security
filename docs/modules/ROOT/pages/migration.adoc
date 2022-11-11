@@ -327,6 +327,11 @@ There are no further migration steps for this feature.
 
 There are no further migration steps for this feature.
 
+=== Remove CAS support
+
+In Spring Security 6.0, the CAS support https://github.com/spring-projects/spring-security/issues/10441[has been removed].
+There is no direct replacement for it, however, it is possible to https://apereo.github.io/cas/6.6.x/authentication/OAuth-Authentication.html[configure your CAS server to act as an OAuth 2.0 Authentication Provider] and use the xref::servlet/oauth2/index.adoc[OAuth 2.0 support in Spring Security].
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
