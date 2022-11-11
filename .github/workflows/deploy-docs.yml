@@ -13,21 +13,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: github.repository_owner == 'spring-projects'
-    env:
-      DOCS_BUILD_BRANCH: docs-build
     steps:
     - name: Checkout
       uses: actions/checkout@v3
       with:
-        ref: $DOCS_BUILD_BRANCH
+        ref: docs-build
         fetch-depth: 1
     - name: Dispatch (partial build)
       if: github.ref_type == 'branch'
       env:
         GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-      run: gh workflow run deploy-docs.yml -r $DOCS_BUILD_BRANCH -f build-refname=${{ github.ref_name }}
+      run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD) -f build-refname=${{ github.ref_name }}
     - name: Dispatch (full build)
       if: github.ref_type == 'tag'
       env:
         GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
-      run: gh workflow run deploy-docs.yml -r $DOCS_BUILD_BRANCH
+      run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD)
