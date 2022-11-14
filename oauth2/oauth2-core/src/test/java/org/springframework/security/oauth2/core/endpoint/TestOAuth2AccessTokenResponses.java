@@ -16,10 +16,12 @@
 
 package org.springframework.security.oauth2.core.endpoint;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.oidc.OidcScopes;
 import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 
 /**
@@ -42,7 +44,8 @@ public final class TestOAuth2AccessTokenResponses {
 	public static OAuth2AccessTokenResponse.Builder oidcAccessTokenResponse() {
 		Map<String, Object> additionalParameters = new HashMap<>();
 		additionalParameters.put(OidcParameterNames.ID_TOKEN, "id-token");
-		return accessTokenResponse().additionalParameters(additionalParameters);
+		return accessTokenResponse().scopes(Collections.singleton(OidcScopes.OPENID))
+				.additionalParameters(additionalParameters);
 	}
 
 }
