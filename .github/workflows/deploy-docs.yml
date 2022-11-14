@@ -12,11 +12,17 @@ jobs:
     if: github.repository_owner == 'spring-projects'
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: docs-build
         fetch-depth: 1
-    - name: Dispatch
-      run: gh workflow run --ref $(git rev-parse --abbrev-ref HEAD) deploy-docs.yml
+    - name: Dispatch (partial build)
+      if: github.ref_type == 'branch'
       env:
         GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD) -f build-refname=${{ github.ref_name }}
+    - name: Dispatch (full build)
+      if: github.ref_type == 'tag'
+      env:
+        GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      run: gh workflow run deploy-docs.yml -r $(git rev-parse --abbrev-ref HEAD)
