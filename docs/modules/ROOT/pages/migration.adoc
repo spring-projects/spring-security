@@ -373,23 +373,15 @@ With the addition of xref:servlet/authentication/persistence.adoc#delegatingsecu
 In Spring Security 6, the deprecated method was removed.
 If you have implemented `SecurityContextRepository` yourself and added an implementation of the `loadContext(request)` method, you can prepare for Spring Security 6 by removing the implementation of that method and implementing the new method instead.
 
-To get started implementing the new method, use the following example that adapts a `Supplier<SecurityContext>` to provide a `DeferredSecurityContext`:
+To get started implementing the new method, use the following example to provide a `DeferredSecurityContext`:
 
-[NOTE]
-====
-The adapted `Supplier` should return `null` when no `SecurityContext` is available, which was not the case with the `Supplier` returned from `loadContext(request)`.
-====
-
-.Adapt `Supplier<SecurityContext>` to `DeferredSecurityContext`
+.Provide `DeferredSecurityContext`
 ====
 .Java
 [source,java,role="primary"]
 ----
 @Override
 public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
-	// Adapt a supplier that returns null when the context is not available
-	Supplier<SecurityContext> supplier = () -> getContextOrNull(request);
-	SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
 	return new DeferredSecurityContext() {
 		private SecurityContext securityContext;
 		private boolean isGenerated;
@@ -397,8 +389,9 @@ public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
 		@Override
 		public SecurityContext get() {
 			if (this.securityContext == null) {
-				this.securityContext = supplier.get();
+				this.securityContext = getContextOrNull(request);
 				if (this.securityContext == null) {
+					SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
 					this.securityContext = strategy.createEmptyContext();
 					this.isGenerated = true;
 				}
@@ -419,19 +412,15 @@ public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
 [source,kotlin,role="secondary"]
 ----
 override fun loadDeferredContext(request: HttpServletRequest): DeferredSecurityContext {
-	// Adapt a supplier that returns null when the context is not available
-	val supplier: Supplier<SecurityContext?> = SingletonSupplier.of {
-		getContextOrNull(request)
-	}
-	val strategy = SecurityContextHolder.getContextHolderStrategy()
 	return object : DeferredSecurityContext {
 		private var securityContext: SecurityContext? = null
 		private var isGenerated = false
 
 		override fun get(): SecurityContext {
 			if (securityContext == null) {
-				securityContext = supplier.get()
-					?: strategy.createEmptyContext().also { isGenerated = true }
+				securityContext = getContextOrNull(request)
+					?: SecurityContextHolder.getContextHolderStrategy().createEmptyContext()
+						.also { isGenerated = true }
 			}
 			return securityContext!!
 		}
