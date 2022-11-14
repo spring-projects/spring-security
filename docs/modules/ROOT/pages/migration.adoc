@@ -3064,6 +3064,462 @@ private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
 ----
 ====
 
+=== Stop Using `WebSecurityConfigurerAdapter`
+
+==== Publish a `SecurityFilterChain` Bean
+
+Spring Security 5.4 introduced the capability to publish a `SecurityFilterChain` bean instead of extending `WebSecurityConfigurerAdapter`.
+In 6.0, `WebSecurityConfigurerAdapter` is removed.
+To prepare for this change, you can replace constructs like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authorize) -> authorize
+                .anyRequest().authenticated()
+            )
+            .httpBasic(withDefaults());
+    }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
+
+    @Override
+    override fun configure(val http: HttpSecurity) {
+        http {
+            authorizeHttpRequests {
+                authorize(anyRequest, authenticated)
+            }
+
+            httpBasic {}
+        }
+    }
+
+}
+----
+====
+
+with:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests((authorize) -> authorize
+                .anyRequest().authenticated()
+            )
+            .httpBasic(withDefaults());
+        return http.build();
+    }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration {
+
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http {
+            authorizeHttpRequests {
+                authorize(anyRequest, authenticated)
+            }
+            httpBasic {}
+        }
+        return http.build()
+    }
+
+}
+----
+====
+
+==== Publish an `AuthenticationManager` Bean
+
+As part of `WebSecurityConfigurerAdapeter` removal, `configure(AuthenticationManagerBuilder)` is also removed.
+Preparing for its removal will differ based on your reason for using it.
+
+===== LDAP Authentication
+
+If you are using `auth.ldapAuthentication()` for xref:servlet/authentication/passwords/ldap.adoc[LDAP authentication support], you can replace:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth
+            .ldapAuthentication()
+                .userDetailsContextMapper(new PersonContextMapper())
+                .userDnPatterns("uid={0},ou=people")
+                .contextSource()
+                .port(0);
+    }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
+
+    override fun configure(auth: AuthenticationManagerBuilder) {
+        auth
+            .ldapAuthentication()
+                .userDetailsContextMapper(PersonContextMapper())
+                .userDnPatterns("uid={0},ou=people")
+                .contextSource()
+                .port(0)
+    }
+
+}
+----
+====
+
+with:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration {
+    @Bean
+    public EmbeddedLdapServerContextSourceFactoryBean contextSourceFactoryBean() {
+        EmbeddedLdapServerContextSourceFactoryBean contextSourceFactoryBean =
+            EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer();
+        contextSourceFactoryBean.setPort(0);
+        return contextSourceFactoryBean;
+    }
+
+    @Bean
+    AuthenticationManager ldapAuthenticationManager(BaseLdapPathContextSource contextSource) {
+        LdapBindAuthenticationManagerFactory factory =
+            new LdapBindAuthenticationManagerFactory(contextSource);
+        factory.setUserDnPatterns("uid={0},ou=people");
+        factory.setUserDetailsContextMapper(new PersonContextMapper());
+        return factory.createAuthenticationManager();
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration {
+    @Bean
+    fun contextSourceFactoryBean(): EmbeddedLdapServerContextSourceFactoryBean {
+        val contextSourceFactoryBean: EmbeddedLdapServerContextSourceFactoryBean =
+            EmbeddedLdapServerContextSourceFactoryBean.fromEmbeddedLdapServer()
+        contextSourceFactoryBean.setPort(0)
+        return contextSourceFactoryBean
+    }
+
+    @Bean
+    fun ldapAuthenticationManager(val contextSource: BaseLdapPathContextSource): AuthenticationManager {
+        val factory = LdapBindAuthenticationManagerFactory(contextSource)
+        factory.setUserDnPatterns("uid={0},ou=people")
+        factory.setUserDetailsContextMapper(PersonContextMapper())
+        return factory.createAuthenticationManager()
+    }
+}
+----
+====
+
+===== JDBC Authentication
+
+If you are using `auth.jdbcAuthentication()` for xref:servlet/authentication/passwords/jdbc.adoc[JDBC Authentication support], you can replace:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .build();
+    }
+
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build();
+        auth.jdbcAuthentication()
+            .withDefaultSchema()
+                .dataSource(this.dataSource)
+                .withUser(user);
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
+    @Bean
+    fun dataSource(): DataSource {
+        return EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .build()
+    }
+
+    override fun configure(val auth: AuthenticationManagerBuilder) {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build()
+        auth.jdbcAuthentication()
+            .withDefaultSchema()
+                .dataSource(this.dataSource)
+                .withUser(user)
+    }
+}
+----
+====
+
+with:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration {
+    @Bean
+    public DataSource dataSource() {
+        return new EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+            .build();
+    }
+
+    @Bean
+    public UserDetailsManager users(DataSource dataSource) {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build();
+        JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
+        users.createUser(user);
+        return users;
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration {
+    @Bean
+    fun dataSource(): DataSource {
+        return EmbeddedDatabaseBuilder()
+            .setType(EmbeddedDatabaseType.H2)
+            .addScript(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION)
+            .build()
+    }
+
+    @Bean
+    fun users(val dataSource: DataSource): UserDetailsManager {
+        val user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build()
+        val users = JdbcUserDetailsManager(dataSource)
+        users.createUser(user)
+        return users
+    }
+}
+----
+====
+
+===== In-Memory Authentication
+
+If you are using `auth.inMemoryAuthentication()` for xref:servlet/authentication/passwords/in-memory.adoc[In-Memory Authentication support], you can replace:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build();
+        auth.inMemoryAuthentication()
+            .withUser(user);
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
+    override fun configure(val auth: AuthenticationManagerBuilder) {
+        val user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build()
+        auth.inMemoryAuthentication()
+            .withUser(user)
+    }
+}
+----
+====
+
+with:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration {
+    @Bean
+    public InMemoryUserDetailsManager userDetailsService() {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build();
+        return new InMemoryUserDetailsManager(user);
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration {
+    @Bean
+    fun userDetailsService(): InMemoryUserDetailsManager {
+        UserDetails user = User.withDefaultPasswordEncoder()
+            .username("user")
+            .password("password")
+            .roles("USER")
+            .build()
+        return InMemoryUserDetailsManager(user)
+    }
+}
+----
+====
+
+===== Other Scenarios
+
+If you are using `AuthenticationManagerBuilder` for something more sophisticated, you can xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[publish your own `AuthenticationManager` `@Bean`] or wire an `AuthenticationManager` instance into the `HttpSecurity` DSL with {security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html#authenticationManager(org.springframework.security.authentication.AuthenticationManager)[`HttpSecurity#authenticationManager`].
+
+==== Publish a `WebSecurityCustomizer` Bean
+
+Spring Security 5.4 https://github.com/spring-projects/spring-security/issues/8978[introduced `WebSecurityCustomizer`] to replace `configure(WebSecurity web)` in `WebSecurityConfigurerAdapter`.
+To prepare for its removal, you can replace code like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+    @Override
+    public void configure(WebSecurity web) {
+        web.ignoring().antMatchers("/ignore1", "/ignore2");
+    }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
+
+    override fun configure(val web: WebSecurity) {
+        web.ignoring().antMatchers("/ignore1", "/ignore2")
+    }
+
+}
+----
+====
+
+with:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class SecurityConfiguration {
+
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
+    }
+
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Configuration
+open class SecurityConfiguration {
+
+    @Bean
+    fun webSecurityCustomizer(): WebSecurityCustomizer {
+        return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2")
+    }
+
+}
+----
+====
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
