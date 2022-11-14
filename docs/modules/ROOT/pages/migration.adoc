@@ -332,6 +332,14 @@ There are no further migration steps for this feature.
 In Spring Security 6.0, the CAS support https://github.com/spring-projects/spring-security/issues/10441[has been removed].
 There is no direct replacement for it, however, it is possible to https://apereo.github.io/cas/6.6.x/authentication/OAuth-Authentication.html[configure your CAS server to act as an OAuth 2.0 Authentication Provider] and use the xref::servlet/oauth2/index.adoc[OAuth 2.0 support in Spring Security].
 
+=== Default authorities for oauth2Login()
+
+In Spring Security 5, the default `GrantedAuthority` given to a user that authenticates with an OAuth2 or OpenID Connect 1.0 provider (via `oauth2Login()`) is `ROLE_USER`.
+
+In Spring Security 6, the default authority given to a user authenticating with an OAuth2 provider is `OAUTH2_USER`.
+The default authority given to a user authenticating with an OpenID Connect 1.0 provider is `OIDC_USER`.
+If you configured the `GrantedAuthoritiesMapper` only for the purpose of updating to 6.0, you can remove it completely.
+
 == Reactive
 
 === Use `AuthorizationManager` for Method Security
