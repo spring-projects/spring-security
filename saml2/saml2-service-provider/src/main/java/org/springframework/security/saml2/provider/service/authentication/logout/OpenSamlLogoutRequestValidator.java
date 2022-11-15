@@ -128,7 +128,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 			RelyingPartyRegistration registration) {
 		return (errors) -> {
 			if (request.getIssuer() == null) {
-				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to find issuer in LogoutResponse"));
+				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_ISSUER, "Failed to find issuer in LogoutRequest"));
 				return;
 			}
 			String issuer = request.getIssuer().getValue();
@@ -144,7 +144,7 @@ public final class OpenSamlLogoutRequestValidator implements Saml2LogoutRequestV
 		return (errors) -> {
 			if (request.getDestination() == null) {
 				errors.add(new Saml2Error(Saml2ErrorCodes.INVALID_DESTINATION,
-						"Failed to find destination in LogoutResponse"));
+						"Failed to find destination in LogoutRequest"));
 				return;
 			}
 			String destination = request.getDestination();
