@@ -102,6 +102,7 @@ updateDependenciesSettings {
 	})
 	dependencyExcludes {
 		majorVersionBump()
+		minorVersionBump()
 		releaseCandidatesVersions()
 		alphaBetaVersions()
 		snapshotVersions()
