@@ -88,7 +88,7 @@ dependencies {
 
 	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
 	implementation 'io.projectreactor:reactor-core:3.5.0-M6'
-	implementation 'gradle.plugin.org.gretty:gretty:3.0.1'
+	implementation 'org.gretty:gretty:3.0.9'
 	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
 	implementation 'com.github.spullara.mustache.java:compiler:0.9.4'

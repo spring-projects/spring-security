@@ -328,9 +328,7 @@ public class SessionManagementConfigurerTests {
 				HttpServletResponse responseToSpy = spy((HttpServletResponse) response);
 				chain.doFilter(request, responseToSpy);
 				verify(responseToSpy, atLeastOnce()).encodeRedirectURL(any());
-				verify(responseToSpy, atLeastOnce()).encodeRedirectUrl(any());
 				verify(responseToSpy, atLeastOnce()).encodeURL(any());
-				verify(responseToSpy, atLeastOnce()).encodeUrl(any());
 			})
 			.apply(springSecurity())
 			.build();
@@ -348,9 +346,7 @@ public class SessionManagementConfigurerTests {
 				HttpServletResponse responseToSpy = spy((HttpServletResponse) response);
 				chain.doFilter(request, responseToSpy);
 				verify(responseToSpy, never()).encodeRedirectURL(any());
-				verify(responseToSpy, never()).encodeRedirectUrl(any());
 				verify(responseToSpy, never()).encodeURL(any());
-				verify(responseToSpy, never()).encodeUrl(any());
 			})
 			.apply(springSecurity())
 			.build();
@@ -807,9 +803,7 @@ public class SessionManagementConfigurerTests {
 		@RequestMapping("/")
 		String encoded(HttpServletResponse response) {
 			response.encodeURL("/foo");
-			response.encodeUrl("/foo");
 			response.encodeRedirectURL("/foo");
-			response.encodeRedirectUrl("/foo");
 			return "encoded";
 		}
 

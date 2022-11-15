@@ -578,16 +578,12 @@ public class MiscHttpConfigTests {
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		proxy.doFilter(request, responseToSpy, (req, resp) -> {
 			HttpServletResponse httpResponse = (HttpServletResponse) resp;
-			httpResponse.encodeUrl("/");
 			httpResponse.encodeURL("/");
-			httpResponse.encodeRedirectUrl("/");
 			httpResponse.encodeRedirectURL("/");
 			httpResponse.getWriter().write("encodeRedirect");
 		});
 		verify(responseToSpy, never()).encodeRedirectURL(any());
-		verify(responseToSpy, never()).encodeRedirectUrl(any());
 		verify(responseToSpy, never()).encodeURL(any());
-		verify(responseToSpy, never()).encodeUrl(any());
 		assertThat(responseToSpy.getContentAsString()).isEqualTo("encodeRedirect");
 	}
 
@@ -1025,16 +1021,6 @@ public class MiscHttpConfigTests {
 
 		@Override
 		public String encodeRedirectURL(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
-		}
-
-		@Override
-		public String encodeUrl(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
-		}
-
-		@Override
-		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 

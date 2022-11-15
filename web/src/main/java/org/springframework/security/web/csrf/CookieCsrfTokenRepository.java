@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import org.springframework.web.util.WebUtils;
  * AngularJS. When using with AngularJS be sure to use {@link #withHttpOnlyFalse()}.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 4.1
  */
 public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
@@ -44,6 +45,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
+
+	private static final String CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME = CookieCsrfTokenRepository.class.getName()
+			.concat(".REMOVED");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -96,10 +100,24 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		}
 
 		response.setHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
+
+		// Set request attribute to signal that response has blank cookie value,
+		// which allows loadToken to return null when token has been removed
+		if (!StringUtils.hasLength(tokenValue)) {
+			request.setAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME, Boolean.TRUE);
+		}
+		else {
+			request.removeAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME);
+		}
 	}
 
 	@Override
 	public CsrfToken loadToken(HttpServletRequest request) {
+		// Return null when token has been removed during the current request
+		// which allows loadDeferredToken to re-generate the token
+		if (Boolean.TRUE.equals(request.getAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME))) {
+			return null;
+		}
 		Cookie cookie = WebUtils.getCookie(request, this.cookieName);
 		if (cookie == null) {
 			return null;

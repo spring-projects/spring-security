@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,7 +51,8 @@ class CookieDeserializer extends JsonDeserializer<Cookie> {
 		cookie.setSecure(readJsonNode(jsonNode, "secure").asBoolean());
 		cookie.setVersion(readJsonNode(jsonNode, "version").asInt());
 		cookie.setPath(readJsonNode(jsonNode, "path").asText());
-		cookie.setHttpOnly(readJsonNode(jsonNode, "httpOnly").asBoolean());
+		JsonNode attributes = readJsonNode(jsonNode, "attributes");
+		cookie.setHttpOnly(readJsonNode(attributes, "HttpOnly").asBoolean());
 		return cookie;
 	}
 

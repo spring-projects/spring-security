@@ -106,27 +106,11 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 	}
 
 	@Override
-	public final String encodeRedirectUrl(String url) {
-		if (this.disableUrlRewriting) {
-			return url;
-		}
-		return super.encodeRedirectUrl(url);
-	}
-
-	@Override
 	public final String encodeRedirectURL(String url) {
 		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeRedirectURL(url);
-	}
-
-	@Override
-	public final String encodeUrl(String url) {
-		if (this.disableUrlRewriting) {
-			return url;
-		}
-		return super.encodeUrl(url);
 	}
 
 	@Override

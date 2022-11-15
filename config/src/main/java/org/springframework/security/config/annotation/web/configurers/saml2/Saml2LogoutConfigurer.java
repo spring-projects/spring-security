@@ -265,6 +265,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutRequestSuccessHandler = createSaml2LogoutRequestSuccessHandler(
 				registrations);
+		logoutRequestSuccessHandler.setLogoutRequestRepository(this.logoutRequestConfigurer.logoutRequestRepository);
 		LogoutFilter logoutFilter = new LogoutFilter(logoutRequestSuccessHandler, logoutHandlers);
 		logoutFilter.setLogoutRequestMatcher(createLogoutMatcher());
 		return postProcess(logoutFilter);
