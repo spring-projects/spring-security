@@ -15,15 +15,16 @@
  */
 
 package org.springframework.security.web.csrf;
-
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
+import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
@@ -60,7 +61,19 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	private String sameSite = null;
+	@Nullable
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieInitializer = null;
+
+	/**
+	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked
+	 * for each cookie being built, just before the call to {@code build()}.
+	 * @param initializer consumer for a cookie builder
+	 * @since 6.1
+	 */
+	public void addCookieInitializer(Consumer<ResponseCookie.ResponseCookieBuilder> initializer) {
+		this.cookieInitializer = this.cookieInitializer != null ?
+				this.cookieInitializer.andThen(initializer) : initializer;
+	}
 
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {
@@ -71,17 +84,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
 
-		ResponseCookie rCookie = ResponseCookie
-				.from(this.cookieName, tokenValue)
+		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
 				.secure(this.secure != null ? this.secure : request.isSecure())
 				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
 				.maxAge(token != null ? this.cookieMaxAge : 0)
 				.httpOnly(this.cookieHttpOnly)
-				.domain(this.cookieDomain)
-				.sameSite(this.sameSite)
-				.build();
+				.domain(this.cookieDomain);
 
-		response.setHeader(cookieName, rCookie.toString());
+		if (this.cookieInitializer != null) {
+			this.cookieInitializer.accept(cookieBuilder);
+		}
+
+		response.setHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
 	}
 
 	@Override
@@ -128,11 +142,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the HttpOnly attribute on the cookie containing the CSRF token. Defaults to
-	 * <code>true</code>.
-	 * @param cookieHttpOnly <code>true</code> sets the HttpOnly attribute,
-	 * <code>false</code> does not set it
+	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
 		this.cookieHttpOnly = cookieHttpOnly;
 	}
@@ -150,7 +162,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public static CookieCsrfTokenRepository withHttpOnlyFalse() {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
-		result.setCookieHttpOnly(false);
+		result.addCookieInitializer(builder -> builder.httpOnly(false));
 		return result;
 	}
 
@@ -176,63 +188,30 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the domain of the cookie that the expected CSRF token is saved to and read
-	 * from.
-	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved
-	 * to and read from
+	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
 	 * @since 5.2
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
 
 	/**
-	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read
-	 * from. By default secure flag depends on {@link ServletRequest#isSecure()}
-	 * @param secure the secure flag of the cookie that the expected CSRF token is saved
-	 * to and read from
+	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
 	 * @since 5.4
 	 */
+	@Deprecated(since = "6.1")
 	public void setSecure(Boolean secure) {
 		this.secure = secure;
 	}
 
 	/**
-	 * Sets maximum age in seconds for the cookie that the expected CSRF token is saved to
-	 * and read from. By default maximum age value is -1.
-	 *
-	 * <p>
-	 * A positive value indicates that the cookie will expire after that many seconds have
-	 * passed. Note that the value is the <i>maximum</i> age when the cookie will expire,
-	 * not the cookie's current age.
-	 *
-	 * <p>
-	 * A negative value means that the cookie is not stored persistently and will be
-	 * deleted when the Web browser exits.
-	 *
-	 * <p>
-	 * A zero value causes the cookie to be deleted immediately therefore it is not a
-	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
-	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
-	 * if negative, means the cookie is not stored; if zero, the method throws an
-	 * {@link IllegalArgumentException}
+	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
 	 * @since 5.5
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieMaxAge(int cookieMaxAge) {
 		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;
 	}
-
-	/**
-	 * Add the "SameSite" attribute to the generated cookie.
-	 * <p>This limits the scope of the cookie such that it will only be
-	 * attached to same site requests if {@code "Strict"} or cross-site
-	 * requests if {@code "Lax"}.
-	 * @since 6.1
-	 * @see <a href="https://tools.ietf.org/html/draft-ietf-httpbis-rfc6265bis#section-4.1.2.7">RFC6265 bis</a>
-	 */
-	public void setSameSite(String sameSite) {
-		this.sameSite = sameSite;
-	}
-
 }
