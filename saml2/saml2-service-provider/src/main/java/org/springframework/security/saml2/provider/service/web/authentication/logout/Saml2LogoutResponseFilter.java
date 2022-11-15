@@ -114,7 +114,7 @@ public final class Saml2LogoutResponseFilter extends OncePerRequestFilter {
 				logoutRequest.getRelyingPartyRegistrationId());
 		if (registration == null) {
 			this.logger
-					.trace("Did not process logout request since failed to find associated RelyingPartyRegistration");
+					.trace("Did not process logout response since failed to find associated RelyingPartyRegistration");
 			Saml2Error error = new Saml2Error(Saml2ErrorCodes.RELYING_PARTY_REGISTRATION_NOT_FOUND,
 					"Failed to find associated RelyingPartyRegistration");
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, error.toString());
