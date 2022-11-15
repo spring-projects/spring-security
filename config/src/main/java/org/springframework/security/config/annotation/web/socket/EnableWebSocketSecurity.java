@@ -37,7 +37,7 @@ import org.springframework.context.annotation.Import;
  * public class WebSocketSecurityConfig {
  *
  * 	&#064;Bean
- * 	AuthorizationManager&lt;Message&lt;?&gt;&gt; (MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+ * 	AuthorizationManager&lt;Message&lt;?&gt;&gt; authorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
  * 		messages.simpDestMatchers(&quot;/user/queue/errors&quot;).permitAll()
  * 				.simpDestMatchers(&quot;/admin/**&quot;).hasRole(&quot;ADMIN&quot;)
  * 				.anyMessage().authenticated();
