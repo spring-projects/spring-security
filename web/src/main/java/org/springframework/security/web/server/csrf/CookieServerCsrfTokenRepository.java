@@ -39,6 +39,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Eric Deandrea
  * @author Thomas Vitale
  * @author Alonso Araya
+ * @author Alex Montoya
  * @since 5.1
  */
 public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRepository {
@@ -63,19 +64,16 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	private int cookieMaxAge = -1;
 
-	@Nullable
-	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieInitializer = null;
-
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {};
 
 	/**
 	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked
 	 * for each cookie being built, just before the call to {@code build()}.
-	 * @param initializer consumer for a cookie builder
+	 * @param cookieCustomizer consumer for a cookie builder
 	 * @since 6.1
 	 */
-	public void addCookieInitializer(Consumer<ResponseCookie.ResponseCookieBuilder> initializer) {
-		this.cookieInitializer = this.cookieInitializer != null ?
-				this.cookieInitializer.andThen(initializer) : initializer;
+	public void setCookieCustomizer(Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer) {
+		this.cookieCustomizer = cookieCustomizer;
 	}
 
 	/**
@@ -86,7 +84,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
 		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
-		result.addCookieInitializer(builder -> builder.httpOnly(false));
+		result.setCookieCustomizer(customizer -> customizer.httpOnly(false));
 		return result;
 	}
 
@@ -108,9 +106,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 					.path((this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest()))
 					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null));
 
-			if (this.cookieInitializer != null) {
-				this.cookieInitializer.accept(cookieBuilder);
-			}
+			this.cookieCustomizer.accept(cookieBuilder);
+
 			// @formatter:on
 			exchange.getResponse().addCookie(cookieBuilder.build());
 		});
@@ -128,7 +125,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
@@ -171,7 +168,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieDomain(String cookieDomain) {
@@ -179,7 +176,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.5
 	 */
 	@Deprecated(since = "6.1")
@@ -188,7 +185,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.8
 	 */
 	@Deprecated(since = "6.1")

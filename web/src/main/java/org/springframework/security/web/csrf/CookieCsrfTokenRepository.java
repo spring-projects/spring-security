@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2022 the original author or authors.
+ * Copyright 2012-2016 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
-import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
@@ -36,6 +35,7 @@ import org.springframework.web.util.WebUtils;
  *
  * @author Rob Winch
  * @author Steve Riesenberg
+ * @author Alex Montoya
  * @since 4.1
  */
 public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
@@ -65,18 +65,16 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	@Nullable
-	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieInitializer = null;
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {};
 
 	/**
 	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked
 	 * for each cookie being built, just before the call to {@code build()}.
-	 * @param initializer consumer for a cookie builder
+	 * @param cookieCustomizer consumer for a cookie builder
 	 * @since 6.1
 	 */
-	public void addCookieInitializer(Consumer<ResponseCookie.ResponseCookieBuilder> initializer) {
-		this.cookieInitializer = this.cookieInitializer != null ?
-				this.cookieInitializer.andThen(initializer) : initializer;
+	public void setCookieCustomizer(Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer) {
+		this.cookieCustomizer = cookieCustomizer;
 	}
 
 	@Override
@@ -95,11 +93,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 				.httpOnly(this.cookieHttpOnly)
 				.domain(this.cookieDomain);
 
-		if (this.cookieInitializer != null) {
-			this.cookieInitializer.accept(cookieBuilder);
-		}
+			this.cookieCustomizer.accept(cookieBuilder);
 
-		response.setHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
+ 		response.setHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
 
 		// Set request attribute to signal that response has blank cookie value,
 		// which allows loadToken to return null when token has been removed
@@ -160,7 +156,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
@@ -180,7 +176,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public static CookieCsrfTokenRepository withHttpOnlyFalse() {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
-		result.addCookieInitializer(builder -> builder.httpOnly(false));
+		result.setCookieCustomizer(customizer -> customizer.httpOnly(false));
 		return result;
 	}
 
@@ -206,7 +202,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.2
 	 */
 	@Deprecated(since = "6.1")
@@ -215,7 +211,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.4
 	 */
 	@Deprecated(since = "6.1")
@@ -224,7 +220,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #addCookieInitializer(Consumer)} instead.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.5
 	 */
 	@Deprecated(since = "6.1")
