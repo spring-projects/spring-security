@@ -39,8 +39,8 @@ public class ExpressionAuthorizationDecision extends AuthorizationDecision {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [" + "granted=" + isGranted() + ", expressionAttribute=" + this.expression
-				+ ']';
+		return getClass().getSimpleName() + " [" + "granted=" + isGranted() + ", expressionAttribute="
+				+ this.expression.getExpressionString() + ']';
 	}
 
 }
