@@ -19,6 +19,9 @@ package org.springframework.security.authorization;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
+import org.aopalliance.intercept.MethodInvocation;
+
+import org.springframework.security.authorization.method.MethodInvocationResult;
 
 /**
  * An {@link ObservationConvention} for translating authorizations into {@link KeyValues}.
@@ -39,14 +42,19 @@ public final class AuthorizationObservationConvention
 		return OBSERVATION_NAME;
 	}
 
+	@Override
+	public String getContextualName(AuthorizationObservationContext<?> context) {
+		return "authorize " + getObjectType(context);
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public KeyValues getLowCardinalityKeyValues(AuthorizationObservationContext<?> context) {
-		return KeyValues.of("authentication.type", getAuthenticationType(context))
-				.and("object.type", getObjectType(context))
-				.and("authorization.decision", getAuthorizationDecision(context));
+		return KeyValues.of("spring.security.authentication.type", getAuthenticationType(context))
+				.and("spring.security.object", getObjectType(context))
+				.and("spring.security.authorization.decision", getAuthorizationDecision(context));
 	}
 
 	/**
@@ -54,8 +62,8 @@ public final class AuthorizationObservationConvention
 	 */
 	@Override
 	public KeyValues getHighCardinalityKeyValues(AuthorizationObservationContext<?> context) {
-		return KeyValues.of("authentication.authorities", getAuthorities(context)).and("authorization.decision.details",
-				getDecisionDetails(context));
+		return KeyValues.of("spring.security.authentication.authorities", getAuthorities(context))
+				.and("spring.security.authorization.decision.details", getDecisionDetails(context));
 	}
 
 	@Override
@@ -74,7 +82,20 @@ public final class AuthorizationObservationConvention
 		if (context.getObject() == null) {
 			return "unknown";
 		}
-		return context.getObject().getClass().getSimpleName();
+		if (context.getObject() instanceof MethodInvocation) {
+			return "method";
+		}
+		if (context.getObject() instanceof MethodInvocationResult) {
+			return "method";
+		}
+		String className = context.getObject().getClass().getSimpleName();
+		if (className.contains("Request")) {
+			return "request";
+		}
+		if (className.contains("Message")) {
+			return "message";
+		}
+		return className;
 	}
 
 	private String getAuthorizationDecision(AuthorizationObservationContext<?> context) {

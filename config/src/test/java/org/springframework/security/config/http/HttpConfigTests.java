@@ -122,11 +122,11 @@ public class HttpConfigTests {
 		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
 		verify(handler, times(5)).onStart(captor.capture());
 		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
-		assertThat(contexts.next().getContextualName()).isEqualTo("spring.security.http.chains.before");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain before");
 		assertThat(contexts.next().getName()).isEqualTo("spring.security.authentications");
 		assertThat(contexts.next().getName()).isEqualTo("spring.security.authorizations");
 		assertThat(contexts.next().getName()).isEqualTo("spring.security.http.secured.requests");
-		assertThat(contexts.next().getContextualName()).isEqualTo("spring.security.http.chains.after");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain after");
 	}
 
 	private String xml(String configName) {
