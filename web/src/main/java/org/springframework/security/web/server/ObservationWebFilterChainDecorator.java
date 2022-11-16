@@ -75,14 +75,16 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 	private WebFilterChain wrapSecured(WebFilterChain original) {
 		return (exchange) -> {
 			AroundWebFilterObservation parent = observation(exchange);
-			Observation observation = Observation.createNotStarted(SECURED_OBSERVATION_NAME, this.registry);
+			Observation observation = Observation.createNotStarted(SECURED_OBSERVATION_NAME, this.registry)
+					.contextualName("secured request");
 			return parent.wrap(WebFilterObservation.create(observation).wrap(original)).filter(exchange);
 		};
 	}
 
 	private WebFilterChain wrapUnsecured(WebFilterChain original) {
 		return (exchange) -> {
-			Observation observation = Observation.createNotStarted(UNSECURED_OBSERVATION_NAME, this.registry);
+			Observation observation = Observation.createNotStarted(UNSECURED_OBSERVATION_NAME, this.registry)
+					.contextualName("unsecured request");
 			return WebFilterObservation.create(observation).wrap(original).filter(exchange);
 		};
 	}
@@ -210,8 +212,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 		}
 
 		private AroundWebFilterObservation parent(ServerWebExchange exchange) {
-			WebFilterChainObservationContext beforeContext = WebFilterChainObservationContext.before(exchange);
-			WebFilterChainObservationContext afterContext = WebFilterChainObservationContext.after(exchange);
+			WebFilterChainObservationContext beforeContext = WebFilterChainObservationContext.before();
+			WebFilterChainObservationContext afterContext = WebFilterChainObservationContext.after();
 			Observation before = Observation.createNotStarted(this.convention, () -> beforeContext, this.registry);
 			Observation after = Observation.createNotStarted(this.convention, () -> afterContext, this.registry);
 			AroundWebFilterObservation parent = AroundWebFilterObservation.create(before, after);
@@ -419,8 +421,6 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 	static final class WebFilterChainObservationContext extends Observation.Context {
 
-		private final ServerWebExchange exchange;
-
 		private final String filterSection;
 
 		private String filterName;
@@ -429,29 +429,16 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private int chainSize;
 
-		private WebFilterChainObservationContext(ServerWebExchange exchange, String filterSection) {
-			this.exchange = exchange;
+		private WebFilterChainObservationContext(String filterSection) {
 			this.filterSection = filterSection;
 		}
 
-		static WebFilterChainObservationContext before(ServerWebExchange exchange) {
-			return new WebFilterChainObservationContext(exchange, "before");
+		static WebFilterChainObservationContext before() {
+			return new WebFilterChainObservationContext("before");
 		}
 
-		static WebFilterChainObservationContext after(ServerWebExchange exchange) {
-			return new WebFilterChainObservationContext(exchange, "after");
-		}
-
-		@Override
-		public void setName(String name) {
-			super.setName(name);
-			if (name != null) {
-				setContextualName(name + "." + this.filterSection);
-			}
-		}
-
-		String getRequestLine() {
-			return this.exchange.getRequest().getPath().toString();
+		static WebFilterChainObservationContext after() {
+			return new WebFilterChainObservationContext("after");
 		}
 
 		String getFilterSection() {
@@ -487,21 +474,24 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 	static final class WebFilterChainObservationConvention
 			implements ObservationConvention<WebFilterChainObservationContext> {
 
-		static final String CHAIN_OBSERVATION_NAME = "spring.security.http.chains";
+		static final String CHAIN_OBSERVATION_NAME = "spring.security.filterchains";
 
-		private static final String REQUEST_LINE_NAME = "request.line";
+		private static final String CHAIN_POSITION_NAME = "spring.security.filterchain.position";
 
-		private static final String CHAIN_POSITION_NAME = "chain.position";
+		private static final String CHAIN_SIZE_NAME = "spring.security.filterchain.size";
 
-		private static final String CHAIN_SIZE_NAME = "chain.size";
+		private static final String FILTER_SECTION_NAME = "spring.security.reached.filter.section";
 
-		private static final String FILTER_SECTION_NAME = "filter.section";
-
-		private static final String FILTER_NAME = "current.filter.name";
+		private static final String FILTER_NAME = "spring.security.reached.filter.name";
 
 		@Override
 		public String getName() {
 			return CHAIN_OBSERVATION_NAME;
+		}
+
+		@Override
+		public String getContextualName(WebFilterChainObservationContext context) {
+			return "security filterchain " + context.getFilterSection();
 		}
 
 		@Override
@@ -513,12 +503,6 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				kv = kv.and(FILTER_NAME, context.getFilterName());
 			}
 			return kv;
-		}
-
-		@Override
-		public KeyValues getHighCardinalityKeyValues(WebFilterChainObservationContext context) {
-			String requestLine = context.getRequestLine();
-			return KeyValues.of(REQUEST_LINE_NAME, requestLine);
 		}
 
 		@Override
