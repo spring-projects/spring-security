@@ -1,0 +1,364 @@
+[[migration]]
+= Migrating to 6.0
+
+The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
+Use 5.8 and the steps below to minimize changes when
+ifdef::spring-security-version[]
+xref:6.0.0@migration.adoc[updating to 6.0]
+endif::[]
+ifndef::spring-security-version[]
+updating to 6.0
+endif::[]
+.
+
+== Update to Spring Security 5.8
+
+The first step is to ensure you are the latest patch release of Spring Boot 2.7.
+Next, you should ensure you are on the latest patch release of Spring Security 5.8.
+If you are using Spring Boot, you will need to override the Spring Boot version from Spring Security 5.7 to 5.8.
+Spring Security 5.8 is fully compatible with Spring Security 5.7 and thus Spring Boot 2.7.
+For directions, on how to update to Spring Security 5.8 visit the xref:getting-spring-security.adoc[] section of the reference guide.
+
+== Update Password Encoding
+
+In 6.0, password encoding minimums are updated for PBKDF2, SCrypt, and Argon2.
+
+[NOTE]
+====
+If you are using the default password encoder, then there are no preparation steps to follow and this section can be skipped.
+====
+
+=== Update `Pbkdf2PasswordEncoder`
+
+If you are xref:features/authentication/password-storage.adoc#authentication-password-storage-pbkdf2[using `Pbkdf2PasswordEncoder`], the constructors are replaced with static factories that refer to the Spring Security version that the given settings apply to.
+
+==== Replace Deprecated Constructor Usage
+
+If you use the default constructor, you should begin by changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    return new Pbkdf2PasswordEncoder();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    return Pbkdf2PasswordEncoder()
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_5();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_5()
+}
+----
+====
+
+Or, if you have custom settings, change to the constructor that specifies all settings, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    PasswordEncoder current = new Pbkdf2PasswordEncoder("mysecret".getBytes(UTF_8), 320000);
+    return current;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    val current: PasswordEncoder = Pbkdf2PasswordEncoder("mysecret".getBytes(UTF_8), 320000)
+    return current
+}
+----
+====
+
+Change them to use the fully-specified constructor, like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    PasswordEncoder current = new Pbkdf2PasswordEncoder("mysecret".getBytes(UTF_8), 16, 185000, 256);
+    return current;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    val current: PasswordEncoder = Pbkdf2PasswordEncoder("mysecret".getBytes(UTF_8), 16, 185000, 256)
+    return current
+}
+----
+====
+
+==== Use `DelegatedPasswordEncoder`
+
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    String prefix = "pbkdf2@5.8";
+    PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
+    delegating.setDefaultPasswordEncoderFormatches(current);
+    return delegating;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    String prefix = "pbkdf2@5.8"
+    PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
+    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
+    delegating.setDefaultPasswordEncoderFormatches(current)
+    return delegating
+}
+----
+====
+
+=== Update `SCryptPasswordEncoder`
+
+If you are xref:features/authentication/password-storage.adoc#authentication-password-storage-scrypt[using `SCryptPasswordEncoder`], the constructors are replaced with static factories that refer to the Spring Security version that the given settings apply to.
+
+==== Replace Deprecated Constructor Usage
+
+If you use the default constructor, you should begin by changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    return new SCryptPasswordEncoder();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    return SCryptPasswordEncoder()
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    return SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    return SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1()
+}
+----
+====
+
+==== Use `DelegatedPasswordEncoder`
+
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+    String prefix = "scrypt@5.8";
+    PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
+    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
+    delegating.setDefaultPasswordEncoderFormatches(current);
+    return delegating;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+    String prefix = "scrypt@5.8"
+    PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8()
+    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
+    delegating.setDefaultPasswordEncoderFormatches(current)
+    return delegating
+}
+----
+====
+
+=== Update `Argon2PasswordEncoder`
+
+If you are xref:features/authentication/password-storage.adoc#authentication-password-storage-argon2[using `Argon2PasswordEncoder`], the constructors are replaced with static factories that refer to the Spring Security version that the given settings apply to.
+
+==== Replace Deprecated Constructor Usage
+
+If you use the default constructor, you should begin by changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+	return new Argon2PasswordEncoder();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+	return Argon2PasswordEncoder()
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+	return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+	return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2()
+}
+----
+====
+
+==== Use `DelegatedPasswordEncoder`
+
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+PasswordEncoder passwordEncoder() {
+	String prefix = "argon@5.8";
+	PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
+	DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
+	delegating.setDefaultPasswordEncoderFormatches(current);
+	return delegating;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun passwordEncoder(): PasswordEncoder {
+	String prefix = "argon@5.8"
+	PasswordEncoder current = // ... see previous step
+    PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
+	DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
+	delegating.setDefaultPasswordEncoderFormatches(current)
+	return delegating
+}
+----
+====
+
+== Stop using `Encryptors.queryableText`
+
+`Encryptors.queryableText(CharSequence,CharSequence)` is unsafe since https://tanzu.vmware.com/security/cve-2020-5408[the same input data will produce the same output].
+It was deprecated and will be removed in 6.0; Spring Security no longer supports encrypting data in this way.
+
+To upgrade, you will either need to re-encrypt with a supported mechanism or store it decrypted.
+
+Consider the following pseudocode for reading each encrypted entry from a table, decrypting it, and then re-encrypting it using a supported mechanism:
+
+====
+.Java
+[source,java,role="primary"]
+----
+TextEncryptor deprecated = Encryptors.queryableText(password, salt);
+BytesEncryptor aes = new AesBytesEncryptor(password, salt, KeyGenerators.secureRandom(12), CipherAlgorithm.GCM);
+TextEncryptor supported = new HexEncodingTextEncryptor(aes);
+for (MyEntry entry : entries) {
+	String value = deprecated.decrypt(entry.getEncryptedValue()); <1>
+	entry.setEncryptedValue(supported.encrypt(value)); <2>
+	entryService.save(entry)
+}
+----
+====
+<1> - The above uses the deprecated `queryableText` to convert the value to plaintext.
+<2> - Then, the value is re-encrypted with a supported Spring Security mechanism.
+
+Please see the reference manual for more information on what xref:features/integrations/cryptography.adoc[encryption mechanisms Spring Security supports].
+
+== Perform Application-Specific Steps
+
+Next, there are steps you need to perform based on whether it is a xref:migration/servlet/index.adoc[Servlet] or xref:migration/reactive.adoc[Reactive] application.

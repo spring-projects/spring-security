@@ -1,0 +1,197 @@
+= Reactive Migrations
+
+If you have already performed the xref:migration/index.adoc[initial migration steps] for your Reactive application, you're now ready to perform steps specific to Reactive applications.
+
+== Use `AuthorizationManager` for Method Security
+
+xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+
+Should you run into trouble with making these changes, you can follow the
+<<reactive-authorizationmanager-methods-opt-out,opt out steps>> at the end of this section.
+
+In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] to allow applications to opt in to ``AuthorizationManager``'s features.
+
+[[reactive-change-to-useauthorizationmanager]]
+=== Change `useAuthorizationManager` to `true`
+
+To opt in, change `useAuthorizationManager` to `true` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+----
+====
+
+[[reactive-check-for-annotationconfigurationexceptions]]
+=== Check for ``AnnotationConfigurationException``s
+
+`useAuthorizationManager` activates stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
+If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
+
+[[reactive-authorizationmanager-methods-opt-out]]
+=== Opt-out Steps
+
+If you ran into trouble with `AuthorizationManager` for reactive method security, you can opt out by changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = false)
+----
+====
+
+== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/server/Webauthentication/AuthenticationWebFilter.html[`AuthenticationFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/web/server/ServerAuthenticationEntryPoint.html[`ServerAuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s  represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+=== Configure `ServerAuthenticationFailureHandler` to rethrow ``AuthenticationServiceException``s
+
+To prepare for the 6.0 default, `httpBasic` and `oauth2ResourceServer` should be configured to rethrow ``AuthenticationServiceException``s.
+
+For each, construct the appropriate authentication entry point for `httpBasic` and for `oauth2ResourceServer`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+ServerAuthenticationEntryPoint bearerEntryPoint = new BearerTokenServerAuthenticationEntryPoint();
+ServerAuthenticationEntryPoint basicEntryPoint = new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerEntryPoint: ServerAuthenticationEntryPoint = BearerTokenServerAuthenticationEntryPoint()
+val basicEntryPoint: ServerAuthenticationEntryPoint = HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)
+----
+====
+
+[NOTE]
+====
+If you use a custom `AuthenticationEntryPoint` for either or both mechanisms, use that one instead for the remaining steps.
+====
+
+Then, construct and configure a `ServerAuthenticationEntryPointFailureHandler` for each one:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
+bearerFailureHandler.setRethrowAuthenticationServiceException(true);
+AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
+basicFailureHandler.setRethrowAuthenticationServiceException(true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
+bearerFailureHandler.setRethrowAuthenticationServiceException(true)
+val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
+basicFailureHandler.setRethrowAuthenticationServiceException(true)
+----
+====
+
+Finally, wire each authentication failure handler into the DSL, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .httpBasic((basic) -> basic.authenticationFailureHandler(basicFailureHandler))
+    .oauth2ResourceServer((oauth2) -> oauth2.authenticationFailureHandler(bearerFailureHandler))
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    httpBasic {
+        authenticationFailureHandler = basicFailureHandler
+    }
+    oauth2ResourceServer {
+        authenticationFailureHandler = bearerFailureHandler
+    }
+}
+----
+====
+
+[[reactive-authenticationfailurehandler-opt-out]]
+=== Opt-out Steps
+
+To opt-out of the 6.0 defaults and instead continue to pass `AuthenticationServiceException` on to ``ServerAuthenticationEntryPoint``s, you can follow the same steps as above, except set `rethrowAuthenticationServiceException` to false.
+
+== Deprecations in OAuth2 Client
+
+=== `ServerOAuth2AuthorizedClientExchangeFilterFunction`
+
+The method `setAccessTokenExpiresSkew(...)` can be replaced with one of:
+
+* `ClientCredentialsReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `RefreshTokenReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `JwtBearerReactiveOAuth2AuthorizedClientProvider#setClockSkew(...)`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `ServerOAuth2AuthorizedClientExchangeFilterFunction(ReactiveOAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:reactive/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+=== `WebSessionOAuth2ServerAuthorizationRequestRepository`
+
+The method `setAllowMultipleAuthorizationRequests(...)` has no direct replacement.
+
+=== `UnAuthenticatedServerOAuth2AuthorizedClientRepository`
+
+The class `UnAuthenticatedServerOAuth2AuthorizedClientRepository` has no direct replacement. Usage of the class can be replaced with `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager`.

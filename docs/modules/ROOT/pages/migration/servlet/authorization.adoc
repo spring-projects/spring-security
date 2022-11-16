@@ -1,0 +1,1559 @@
+= Authorization Migrations
+
+The following steps relate to changes around how authorization is performed.
+
+== Use `AuthorizationManager` for Method Security
+
+xref:servlet/authorization/method-security.adoc[Method Security] has been xref:servlet/authorization/method-security.adoc#jc-enable-method-security[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+
+Should you run into trouble with making these changes, note that `@EnableGlobalMethodSecurity`, while deprecated, will not be removed in 6.0, allowing you to opt out by sticking with the old annotation.
+
+[[servlet-replace-globalmethodsecurity-with-methodsecurity]]
+=== Replace xref:servlet/authorization/method-security.adoc#jc-enable-global-method-security[global method security] with xref:servlet/authorization/method-security.adoc#jc-enable-method-security[method security]
+
+{security-api-url}org/springframework/security/config/annotation/method/configuration/EnableGlobalMethodSecurity.html[`@EnableGlobalMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-global-method-security[`<global-method-security>`] are deprecated in favor of {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`] and xref:servlet/appendix/namespace/method-security.adoc#nsa-method-security[`<method-security>`], respectively.
+The new annotation and XML element activate Spring's xref:servlet/authorization/method-security.adoc#jc-enable-method-security[pre-post annotations] by default and use `AuthorizationManager` internally.
+
+This means that the following two listings are functionally equivalent:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(prePostEnabled = true)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security pre-post-enabled="true"/>
+----
+====
+
+and:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security/>
+----
+====
+
+For applications not using the pre-post annotations, make sure to turn it off to avoid activating unwanted behavior.
+
+For example, a listing like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableGlobalMethodSecurity(securedEnabled = true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableGlobalMethodSecurity(securedEnabled = true)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<global-method-security secured-enabled="true"/>
+----
+====
+
+should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<method-security secured-enabled="true" pre-post-enabled="false"/>
+----
+====
+
+[[servlet-replace-permissionevaluator-bean-with-methodsecurityexpression-handler]]
+=== Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
+
+`@EnableMethodSecurity` does not pick up a `PermissionEvaluator`.
+This helps keep its API simple.
+
+If you have a custom {security-api-url}org/springframework/security/access/PermissionEvaluator.html[`PermissionEvaluator`] `@Bean`, please change it from:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static PermissionEvaluator permissionEvaluator() {
+	// ... your evaluator
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun permissionEvaluator(): PermissionEvaluator {
+		// ... your evaluator
+	}
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static MethodSecurityExpressionHandler expressionHandler() {
+	var expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	expressionHandler.setPermissionEvaluator(myPermissionEvaluator);
+	return expressionHandler;
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun expressionHandler(): MethodSecurityExpressionHandler {
+		val expressionHandler = DefaultMethodSecurityExpressionHandler
+		expressionHandler.setPermissionEvaluator(myPermissionEvaluator)
+		return expressionHandler
+	}
+}
+----
+====
+
+=== Replace any custom method-security ``AccessDecisionManager``s
+
+Your application may have a custom {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] or {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] arrangement.
+The preparation strategy will depend on your reason for each arrangement.
+Read on to find the best match for your situation.
+
+==== I use `UnanimousBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`] with the default voters, you likely need do nothing since unanimous-based is the default behavior with {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`].
+
+However, if you do discover that you cannot accept the default authorization managers, you can use `AuthorizationManagers.allOf` to compose your own arrangement.
+Having done that, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+==== I use `AffirmativeBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthorizationManager<MethodInvocation> authorization = AuthorizationManagers.anyOf(
+		// ... your list of authorization managers
+)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authorization = AuthorizationManagers.anyOf(
+		// ... your list of authorization managers
+)
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+==== I use `ConsensusBased`
+
+There is no framework-provided equivalent for {security-api-url}org/springframework/security/access/vote/ConsensusBased.html[`ConsensusBased`].
+In that case, please implement a composite {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] that takes the set of delegate ``AuthorizationManager``s into account.
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+==== I use a custom `AccessDecisionVoter`
+
+You should either change the class to implement {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] or create an adapter.
+
+Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
+By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `@PreAuthorize` would look like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class PreAuthorizeAuthorizationManagerAdapter implements AuthorizationManager<MethodInvocation> {
+    private final SecurityMetadataSource metadata;
+    private final AccessDecisionVoter voter;
+
+    public PreAuthorizeAuthorizationManagerAdapter(MethodSecurityExpressionHandler expressionHandler) {
+        ExpressionBasedAnnotationAttributeFactory attributeFactory =
+                new ExpressionBasedAnnotationAttributeFactory(expressionHandler);
+        this.metadata = new PrePostAnnotationSecurityMetadataSource(attributeFactory);
+        ExpressionBasedPreInvocationAdvice expressionAdvice = new ExpressionBasedPreInvocationAdvice();
+        expressionAdvice.setExpressionHandler(expressionHandler);
+        this.voter = new PreInvocationAuthorizationAdviceVoter(expressionAdvice);
+    }
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation invocation) {
+        List<ConfigAttribute> attributes = this.metadata.getAttributes(invocation, AopUtils.getTargetClass(invocation.getThis()));
+        int decision = this.voter.vote(authentication.get(), invocation, attributes);
+        if (decision == ACCESS_GRANTED) {
+            return new AuthorizationDecision(true);
+        }
+        if (decision == ACCESS_DENIED) {
+            return new AuthorizationDecision(false);
+        }
+        return null; // abstain
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+==== I use a custom `AfterInvocationManager`
+
+{security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] replaces both {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] and  {security-api-url}org/springframework/security/access/intercept/AfterInvocationManager.html[`AfterInvocationManager`].
+The difference is that `AuthorizationManager<MethodInvocation>` replaces `AccessDecisionManager` and `AuthorizationManager<MethodInvocationResult>` replaces `AfterInvocationManager`.
+
+Given that, <<_i_use_a_custom_accessdecisionvoter,the same rules apply for adaptation>>, where the goal this time is to implement `AuthorizationManager<MethodInvocationResult>` instead of `AuthorizationManager<MethodInvocation>` and use `AuthorizationManagerAfterMethodInterceptor` instead of `AuthorizationManagerBeforeMethodInterceptor`.
+
+==== I use `RunAsManager`
+
+There is currently https://github.com/spring-projects/spring-security/issues/11331[no replacement for `RunAsManager`] though one is being considered.
+
+It is quite straightforward to adapt a `RunAsManager`, though, to the `AuthorizationManager` API, if needed.
+
+Here is some pseudocode to get you started:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class RunAsAuthorizationManagerAdapter<T> implements AuthorizationManager<T> {
+	private final RunAsManager runAs = new RunAsManagerImpl();
+	private final SecurityMetadataSource metadata;
+    private final AuthorizationManager<T> authorization;
+
+    // ... constructor
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
+		Supplier<Authentication> wrapped = (auth) -> {
+			List<ConfigAttribute> attributes = this.metadata.getAttributes(object);
+			return this.runAs.buildRunAs(auth, object, attributes);
+		};
+		return this.authorization.check(wrapped, object);
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+[[servlet-check-for-annotationconfigurationexceptions]]
+=== Check for ``AnnotationConfigurationException``s
+
+`@EnableMethodSecurity` and `<method-security>` activate stricter enforcement of Spring Security's non-repeatable or otherwise incompatible annotations.
+If after moving to either you see ``AnnotationConfigurationException``s in your logs, follow the instructions in the exception message to clean up your application's method security annotation usage.
+
+== Use `AuthorizationManager` for Message Security
+
+xref:servlet/integrations/websocket.adoc[Message Security] has been xref:servlet/integrations/websocket.adoc#websocket-configuration[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
+
+Should you run into trouble with making these changes, you can follow the <<servlet-authorizationmanager-messages-opt-out,opt out steps>> at the end of this section.
+
+=== Ensure all messages have defined authorization rules
+
+The now-deprecated {security-api-url}org/springframework/security/config/annotation/web/socket/AbstractSecurityWebSocketMessageBrokerConfigurer.html[message security support] permits all messages by default.
+xref:servlet/integrations/websocket.adoc[The new support] has the stronger default of denying all messages.
+
+To prepare for this, ensure that authorization rules exist are declared for every request.
+
+For example, an application configuration like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+should change to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+=== Add `@EnableWebSocketSecurity`
+
+[NOTE]
+====
+If you want to have CSRF disabled and you are using Java configuration, the migration steps are slightly different.
+Instead of using `@EnableWebSocketSecurity`, you will override the appropriate methods in `WebSocketMessageBrokerConfigurer` yourself.
+Please see xref:servlet/integrations/websocket.adoc#websocket-sameorigin-disable[the reference manual] for details about this step.
+====
+
+If you are using Java Configuration, add {security-api-url}org/springframework/security/config/annotation/web/socket/EnableWebSocketSecurity.html[`@EnableWebSocketSecurity`] to your application.
+
+For example, you can add it to your websocket security configuration class, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer() {
+	// ...
+}
+----
+====
+
+This will make a prototype instance of `MessageMatcherDelegatingAuthorizationManager.Builder` available to encourage configuration by composition instead of extension.
+
+=== Use an `AuthorizationManager<Message<?>>` instance
+
+To start using `AuthorizationManager`, you can set the `use-authorization-manager` attribute in XML or you can publish an `AuthorizationManager<Message<?>>` `@Bean` in Java.
+
+For example, the following application configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll();
+	return messages.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    messages
+        .simpTypeMatchers(CONNECT, DISCONNECT, UNSUBSCRIBE).permitAll()
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        .anyMessage().denyAll()
+    return messages.build()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <intercept-message type="CONNECT" access="permitAll"/>
+    <intercept-message type="DISCONNECT" access="permitAll"/>
+    <intercept-message type="UNSUBSCRIBE" access="permitAll"/>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <intercept-message pattern="/**" access="denyAll"/>
+</websocket-message-broker>
+----
+====
+
+=== Stop Implementing `AbstractSecurityWebSocketMessageBrokerConfigurer`
+
+If you are using Java configuration, you can now simply extend `WebSocketMessageBrokerConfigurer`.
+
+For example, if your class that extends `AbstractSecurityWebSocketMessageBrokerConfigurer` is called `WebSocketSecurityConfig`, then:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer() {
+	// ...
+}
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableWebSocketSecurity
+@Configuration
+class WebSocketSecurityConfig: WebSocketMessageBrokerConfigurer {
+	// ...
+}
+----
+====
+
+[[servlet-authorizationmanager-messages-opt-out]]
+=== Opt-out Steps
+
+In case you had trouble, take a look at these scenarios for optimal opt out behavior:
+
+==== I cannot declare an authorization rule for all requests
+
+If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/messaging/access/intercept/MessageMatcherDelegatingAuthorizationManager.Builder.Constraint.html#permitAll()[`permitAll`] instead, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        // ...
+        .anyMessage().permitAll();
+	return messages.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    messages
+        .simpDestMatchers("/user/queue/errors").permitAll()
+        .simpDestMatchers("/admin/**").hasRole("ADMIN")
+        // ...
+        .anyMessage().permitAll();
+    return messages.build()
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="true">
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+    <!-- ... -->
+    <intercept-message pattern="/**" access="permitAll"/>
+</websocket-message-broker>
+----
+====
+
+==== I cannot get CSRF working, need some other `AbstractSecurityWebSocketMessageBrokerConfigurer` feature, or am having trouble with `AuthorizationManager`
+
+In the case of Java, you may continue using `AbstractMessageSecurityWebSocketMessageBrokerConfigurer`.
+Even though it is deprecated, it will not be removed in 6.0.
+
+In the case of XML, you can opt out of `AuthorizationManager` by setting `use-authorization-manager="false"`:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker>
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+to:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<websocket-message-broker use-authorization-manager="false">
+    <intercept-message pattern="/user/queue/errors" access="permitAll"/>
+    <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
+</websocket-message-broker>
+----
+====
+
+== Use `AuthorizationManager` for Request Security
+
+xref:servlet/authorization/authorize-requests.adoc[HTTP Request Security] has been xref:servlet/authorization/authorize-http-requests.adoc[simplified] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API].
+
+Should you run into trouble with making these changes, you can follow the <<servlet-authorizationmanager-requests-opt-out,opt out steps>> at the end of this section.
+
+=== Ensure that all requests have defined authorization rules
+
+In Spring Security 5.8 and earlier, requests with no authorization rule are permitted by default.
+It is a stronger security position to deny by default, thus requiring that authorization rules be clearly defined for every endpoint.
+As such, in 6.0, Spring Security by default denies any request that is missing an authorization rule.
+
+The simplest way to prepare for this change is to introduce an appropriate {security-api-url}org/springframework/security/config/annotation/web/AbstractRequestMatcherRegistry.html#anyRequest()[`anyRequest`] rule as the last authorization rule.
+The recommendation is {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#denyAll()[`denyAll`] since that is the implied 6.0 default.
+
+[NOTE]
+====
+You may already have an `anyRequest` rule defined that you are happy with in which case this step can be skipped.
+====
+
+Adding `denyAll` to the end looks like changing:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/app/**", hasRole("APP"))
+        // ...
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http once-per-request="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http once-per-request="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+----
+====
+
+If you have already migrated to `authorizeHttpRequests`, the recommended change is the same.
+
+=== Switch to `AuthorizationManager`
+
+To opt in to using `AuthorizationManager`, you can use `authorizeHttpRequests` or xref:servlet/appendix/namespace/http.adoc#nsa-http-use-authorization-manager[`use-authorization-manager`] for Java or XML, respectively.
+
+Change:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http once-per-request="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(false)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = false
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="false" use-authorization-manager="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+----
+====
+
+=== Migrate SpEL expressions to `AuthorizationManager`
+
+For authorization rules, Java tends to be easier to test and maintain than SpEL.
+As such, `authorizeHttpRequests` does not have a method for declaring a `String` SpEL.
+
+Instead, you can implement your own `AuthorizationManager` implementation or use `WebExpressionAuthorizationManager`.
+
+For completeness, both options will be demonstrated.
+
+First, if you have the following SpEL:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/complicated/**").access("hasRole('ADMIN') || hasAuthority('SCOPE_read')")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/complicated/**", access("hasRole('ADMIN') || hasAuthority('SCOPE_read')"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+====
+
+Then you can compose your own `AuthorizationManager` with Spring Security authorization primitives like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(false)
+        .mvcMatchers("/complicated/**").access(anyOf(hasRole("ADMIN"), hasAuthority("SCOPE_read"))
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = false
+        authorize("/complicated/**", access(anyOf(hasRole("ADMIN"), hasAuthority("SCOPE_read"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+====
+
+Or you can use `WebExpressionAuthorizationManager` in the following way:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/complicated/**").access(
+			new WebExpressionAuthorizationManager("hasRole('ADMIN') || hasAuthority('SCOPE_read')")
+        )
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/complicated/**", access(
+            WebExpressionAuthorizationManager("hasRole('ADMIN') || hasAuthority('SCOPE_read')"))
+        )
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+====
+
+[[switch-filter-all-dispatcher-types]]
+=== Switch to filter all dispatcher types
+
+Spring Security 5.8 and earlier only xref:servlet/authorization/architecture.adoc[perform authorization] once per request.
+This means that dispatcher types like `FORWARD` and `INCLUDE` that run after `REQUEST` are not secured by default.
+
+It's recommended that Spring Security secure all dispatch types.
+As such, in 6.0, Spring Security changes this default.
+
+So, finally, change your authorization rules to filter all dispatcher types.
+
+To do this, you should change:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(false)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = false
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="false" use-authorization-manager="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = true
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="true" use-authorization-manager="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+----
+====
+
+And, the `FilterChainProxy` should be registered for all dispatcher types as well.
+If you are using Spring Boot, https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.filter.dispatcher-types[you have to change the `spring.security.filter.dispatcher-types` property] to include all dispatcher types:
+
+====
+.application.properties
+[source,properties,role="primary"]
+----
+spring.security.filter.dispatcher-types=request,async,error,forward,include
+----
+====
+
+If you are xref:servlet/configuration/java.adoc#_abstractsecuritywebapplicationinitializer[using the `AbstractSecurityWebApplicationInitializer`] you should override the `getSecurityDispatcherTypes` method and return all dispatcher types:
+
+====
+.Java
+[source,java,role="primary"]
+----
+import org.springframework.security.web.context.*;
+
+public class SecurityWebApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
+
+    @Override
+    protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
+        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.FORWARD,
+                DispatcherType.FORWARD, DispatcherType.INCLUDE);
+    }
+
+}
+----
+====
+
+==== Permit `FORWARD` when using Spring MVC
+
+If you are using {spring-framework-reference-url}/web.html#mvc-viewresolver[Spring MVC to resolve view names], you will need to permit `FORWARD` requests.
+This is because when Spring MVC detects a mapping between view name and the actual views, it will perform a forward to the view.
+As we saw on the <<switch-filter-all-dispatcher-types,previous section>>, Spring Security 6.0 will apply authorization to `FORWARD` requests by default.
+
+Consider the following common configuration:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .shouldFilterAllDispatcherTypes(true)
+            .requestMatchers("/").authenticated()
+            .anyRequest().denyAll()
+        )
+        .formLogin((form) -> form
+            .loginPage("/login")
+            .permitAll()
+        ));
+    return http.build();
+}
+----
+====
+
+and one of the following equivalents MVC view mapping configurations:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Controller
+public class MyController {
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";
+    }
+
+}
+----
+====
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+public class MyWebMvcConfigurer implements WebMvcConfigurer {
+
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/login").setViewName("login");
+    }
+
+}
+----
+====
+
+With either configuration, when there is a request to `/login`, Spring MVC will perform a *forward* to the view `login`, which, with the default configuration, is under `src/main/resources/templates/login.html` path.
+The security configuration permits requests to `/login` but every other request will be denied, including the `FORWARD` request to the view under `/templates/login.html`.
+
+To fix this, you should configure Spring Security to permit `FORWARD` requests:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(true)
+        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = true
+        authorize(DispatcherTypeRequestMatcher(DispatcherType.FORWARD), permitAll)
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="true" use-authorization-manager="true">
+    <intercept-url request-matcher-ref="forwardRequestMatcher" access="permitAll()" />
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+
+<bean name="forwardRequestMatcher" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+    <constructor-arg value="FORWARD"/>
+</bean>
+----
+====
+
+=== Replace any custom filter-security ``AccessDecisionManager``s
+
+Your application may have a custom {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] or {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] arrangement.
+The preparation strategy will depend on your reason for each arrangement.
+Read on to find the best match for your situation.
+
+==== I use `UnanimousBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`], you should first adapt or replace any ``AccessDecisionVoter``s and then you can construct an `AuthorizationManager` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
+    PolicyAuthorizationManager policy = ...;
+    LocalAuthorizationManager local = ...;
+    return AuthorizationMangers.allOf(policy, local);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
+    val policy: PolicyAuthorizationManager = ...
+    val local: LocalAuthorizationManager = ...
+    return AuthorizationMangers.allOf(policy, local)
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
+        factory-method="allOf">
+    <constructor-arg>
+        <util:list>
+            <bean class="my.PolicyAuthorizationManager"/>
+            <bean class="my.LocalAuthorizationManager"/>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+then, wire it into the DSL like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().access(requestAuthorization))
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(anyRequest, requestAuthorization)
+    }
+    // ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http authorization-manager-ref="requestAuthorization"/>
+----
+====
+
+[NOTE]
+====
+`authorizeHttpRequests` is designed so that you can apply a custom `AuthorizationManager` to any url pattern.
+See xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[the reference] for more details.
+====
+
+==== I use `AffirmativeBased`
+
+If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
+    PolicyAuthorizationManager policy = ...;
+    LocalAuthorizationManager local = ...;
+    return AuthorizationMangers.anyOf(policy, local);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
+    val policy: PolicyAuthorizationManager = ...
+    val local: LocalAuthorizationManager = ...
+    return AuthorizationMangers.anyOf(policy, local)
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
+        factory-method="anyOf">
+    <constructor-arg>
+        <util:list>
+            <bean class="my.PolicyAuthorizationManager"/>
+            <bean class="my.LocalAuthorizationManager"/>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+then, wire it into the DSL like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize.anyRequest().access(requestAuthorization))
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize(anyRequest, requestAuthorization)
+    }
+    // ...
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http authorization-manager-ref="requestAuthorization"/>
+----
+====
+
+[NOTE]
+====
+`authorizeHttpRequests` is designed so that you can apply a custom `AuthorizationManager` to any url pattern.
+See xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[the reference] for more details.
+====
+
+==== I use `ConsensusBased`
+
+There is no framework-provided equivalent for {security-api-url}org/springframework/security/access/vote/ConsensusBased.html[`ConsensusBased`].
+In that case, please implement a composite {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] that takes the set of delegate ``AuthorizationManager``s into account.
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+==== I use a custom `AccessDecisionVoter`
+
+You should either change the class to implement {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] or create an adapter.
+
+
+Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
+By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `anyRequest().authenticated()` would look like:
+
+====
+.Java
+[source,java,role="primary"]
+----
+public final class AnyRequestAuthenticatedAuthorizationManagerAdapter implements AuthorizationManager<RequestAuthorizationContext> {
+    private final SecurityMetadataSource metadata;
+    private final AccessDecisionVoter voter;
+
+    public PreAuthorizeAuthorizationManagerAdapter(SecurityExpressionHandler expressionHandler) {
+        Map<RequestMatcher, List<ConfigAttribute>> requestMap = Collections.singletonMap(
+                AnyRequestMatcher.INSTANCE, Collections.singletonList(new SecurityConfig("authenticated")));
+        this.metadata = new DefaultFilterInvocationSecurityMetadataSource(requestMap);
+        WebExpressionVoter voter = new WebExpressionVoter();
+        voter.setExpressionHandler(expressionHandler);
+        this.voter = voter;
+    }
+
+    public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext context) {
+        List<ConfigAttribute> attributes = this.metadata.getAttributes(context);
+        int decision = this.voter.vote(authentication.get(), invocation, attributes);
+        if (decision == ACCESS_GRANTED) {
+            return new AuthorizationDecision(true);
+        }
+        if (decision == ACCESS_DENIED) {
+            return new AuthorizationDecision(false);
+        }
+        return null; // abstain
+    }
+}
+----
+====
+
+Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
+
+[[servlet-authorizationmanager-requests-opt-out]]
+=== Opt-out Steps
+
+In case you had trouble, take a look at these scenarios for optimal opt out behavior:
+
+==== I cannot secure all dispatcher types
+
+If you cannot secure all dispatcher types, first try and declare which dispatcher types should not require authorization like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .shouldFilterAllDispatcherTypes(true)
+        .dispatcherTypeMatchers(FORWARD, INCLUDE).permitAll()
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        shouldFilterAllDispatcherTypes = true
+        authorize(DispatcherTypeRequestMatcher(FORWARD, INCLUDE), permitAll)
+        authorize("/app/**", hasRole("APP"))
+        // ...
+        authorize(anyRequest, denyAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="true" use-authorization-manager="true">
+    <intercept-url request-matcher-ref="dispatchers"/>
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="denyAll"/>
+</http>
+
+<bean id="dispatchers" class="org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher">
+    <constructor-arg>
+        <util:list value-type="javax.servlet.DispatcherType">
+            <value>FORWARD</value>
+            <value>INCLUDE</value>
+        </util:list>
+    </constructor-arg>
+</bean>
+----
+====
+
+Or, if that doesn't work, then you can explicitly opt out of the behavior by setting `filter-all-dispatcher-types` and `filterAllDispatcherTypes` to `false`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .filterAllDispatcherTypes(false)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        filterAllDispatcherTypes = false
+        authorize("/messages/**", hasRole("APP"))
+        // ...
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http filter-all-dispatcher-types="false" use-authorization-manager="true">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
+or, if you are still using `authorizeRequests` or `use-authorization-manager="false"`, set `oncePerRequest` to `true`:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .filterSecurityInterceptorOncePerRequest(true)
+        .mvcMatchers("/app/**").hasRole("APP")
+        // ...
+    )
+    // ...
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeRequests {
+        filterSecurityInterceptorOncePerRequest = true
+        authorize("/messages/**", hasRole("APP"))
+        // ...
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http once-per-request="true" use-authorization-manager="false">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====
+
+==== I cannot declare an authorization rule for all requests
+
+If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#permitAll()[`permitAll`] instead, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpReqeusts((authorize) -> authorize
+        .mvcMatchers("/app/*").hasRole("APP")
+        // ...
+        .anyRequest().permitAll()
+    )
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+http {
+    authorizeHttpRequests {
+        authorize("/app*", hasRole("APP"))
+        // ...
+        authorize(anyRequest, permitAll)
+    }
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+    <intercept-url pattern="/**" access="permitAll"/>
+</http>
+----
+====
+
+==== I cannot migrate my SpEL or my `AccessDecisionManager`
+
+If you are having trouble with SpEL, `AccessDecisionManager`, or there is some other feature that you are needing to keep using in `<http>` or `authorizeRequests`, try the following.
+
+First, if you still need `authorizeRequests`, you are welcome to keep using it. Even though it is deprecated, it is not removed in 6.0.
+
+Second, if you still need your custom `access-decision-manager-ref` or have some other reason to opt out of `AuthorizationManager`, do:
+
+====
+.Xml
+[source,xml,role="secondary"]
+----
+<http use-authorization-manager="false">
+    <intercept-url pattern="/app/*" access="hasRole('APP')"/>
+    <!-- ... -->
+</http>
+----
+====

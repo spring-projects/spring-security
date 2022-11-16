@@ -1,0 +1,324 @@
+= OAuth Migrations
+
+The following steps relate to changes around how to configure OAuth 2.0.
+
+== Default authorities for oauth2Login()
+
+In Spring Security 5, the default `GrantedAuthority` given to a user that authenticates with an OAuth2 or OpenID Connect 1.0 provider (via `oauth2Login()`) is `ROLE_USER`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/login/advanced.adoc#oauth2login-advanced-map-authorities[Mapping User Authorities] for more information.
+====
+
+In Spring Security 6, the default authority given to a user authenticating with an OAuth2 provider is `OAUTH2_USER`.
+The default authority given to a user authenticating with an OpenID Connect 1.0 provider is `OIDC_USER`.
+These defaults allow clearer distinction of users that have authenticated with an OAuth2 or OpenID Connect 1.0 provider.
+
+If you are using authorization rules or expressions such as `hasRole("USER")` or `hasAuthority("ROLE_USER")` to authorize users with this specific authority, the new defaults in Spring Security 6 will impact your application.
+
+To opt into the new Spring Security 6 defaults, the following configuration can be used.
+
+.Configure oauth2Login() with 6.0 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.oauth2Login((oauth2Login) -> oauth2Login
+			.userInfoEndpoint((userInfo) -> userInfo
+				.userAuthoritiesMapper(grantedAuthoritiesMapper())
+			)
+		);
+	return http.build();
+}
+
+private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+	return (authorities) -> {
+		Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+		authorities.forEach((authority) -> {
+			GrantedAuthority mappedAuthority;
+
+			if (authority instanceof OidcUserAuthority) {
+				OidcUserAuthority userAuthority = (OidcUserAuthority) authority;
+				mappedAuthority = new OidcUserAuthority(
+					"OIDC_USER", userAuthority.getIdToken(), userAuthority.getUserInfo());
+			} else if (authority instanceof OAuth2UserAuthority) {
+				OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) authority;
+				mappedAuthority = new OAuth2UserAuthority(
+					"OAUTH2_USER", userAuthority.getAttributes());
+			} else {
+				mappedAuthority = authority;
+			}
+
+			mappedAuthorities.add(mappedAuthority);
+		});
+
+		return mappedAuthorities;
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		oauth2Login {
+			userInfoEndpoint {
+				userAuthoritiesMapper = grantedAuthoritiesMapper()
+			}
+		}
+	}
+	return http.build()
+}
+
+private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
+	return GrantedAuthoritiesMapper { authorities ->
+		authorities.map { authority ->
+			when (authority) {
+				is OidcUserAuthority ->
+					OidcUserAuthority("OIDC_USER", authority.idToken, authority.userInfo)
+				is OAuth2UserAuthority ->
+					OAuth2UserAuthority("OAUTH2_USER", authority.attributes)
+				else -> authority
+			}
+		}
+	}
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
+</http>
+----
+====
+
+[[servlet-oauth2-login-authorities-opt-out]]
+=== Opt-out Steps
+
+If configuring the new authorities gives you trouble, you can opt out and explicitly use the 5.8 authority of `ROLE_USER` with the following configuration.
+
+.Configure oauth2Login() with 5.8 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.oauth2Login((oauth2Login) -> oauth2Login
+			.userInfoEndpoint((userInfo) -> userInfo
+				.userAuthoritiesMapper(grantedAuthoritiesMapper())
+			)
+		);
+	return http.build();
+}
+
+private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
+	return (authorities) -> {
+		Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+
+		authorities.forEach((authority) -> {
+			GrantedAuthority mappedAuthority;
+
+			if (authority instanceof OidcUserAuthority) {
+				OidcUserAuthority userAuthority = (OidcUserAuthority) authority;
+				mappedAuthority = new OidcUserAuthority(
+					"ROLE_USER", userAuthority.getIdToken(), userAuthority.getUserInfo());
+			} else if (authority instanceof OAuth2UserAuthority) {
+				OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) authority;
+				mappedAuthority = new OAuth2UserAuthority(
+					"ROLE_USER", userAuthority.getAttributes());
+			} else {
+				mappedAuthority = authority;
+			}
+
+			mappedAuthorities.add(mappedAuthority);
+		});
+
+		return mappedAuthorities;
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		oauth2Login {
+			userInfoEndpoint {
+				userAuthoritiesMapper = grantedAuthoritiesMapper()
+			}
+		}
+	}
+	return http.build()
+}
+
+private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
+	return GrantedAuthoritiesMapper { authorities ->
+		authorities.map { authority ->
+			when (authority) {
+				is OidcUserAuthority ->
+					OidcUserAuthority("ROLE_USER", authority.idToken, authority.userInfo)
+				is OAuth2UserAuthority ->
+					OAuth2UserAuthority("ROLE_USER", authority.attributes)
+				else -> authority
+			}
+		}
+	}
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
+</http>
+----
+====
+
+== Deprecations in OAuth2 Client
+
+In Spring Security 6, deprecated classes and methods were removed from xref:servlet/oauth2/client/index.adoc[OAuth2 Client].
+Each deprecation is listed below, along with a direct replacement.
+
+=== `ServletOAuth2AuthorizedClientExchangeFilterFunction`
+
+The method `setAccessTokenExpiresSkew(...)` can be replaced with one of:
+
+* `ClientCredentialsOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `RefreshTokenOAuth2AuthorizedClientProvider#setClockSkew(...)`
+* `JwtBearerOAuth2AuthorizedClientProvider#setClockSkew(...)`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `ServletOAuth2AuthorizedClientExchangeFilterFunction(OAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+=== `OidcUserInfo`
+
+The method `phoneNumberVerified(String)` can be replaced with `phoneNumberVerified(Boolean)`.
+
+=== `OAuth2AuthorizedClientArgumentResolver`
+
+The method `setClientCredentialsTokenResponseClient(...)` can be replaced with the constructor `OAuth2AuthorizedClientArgumentResolver(OAuth2AuthorizedClientManager)`.
+
+[NOTE]
+====
+See xref:servlet/oauth2/client/authorization-grants.adoc#oauth2Client-client-creds-grant[Client Credentials] for more information.
+====
+
+=== `ClaimAccessor`
+
+The method `containsClaim(...)` can be replaced with `hasClaim(...)`.
+
+=== `OidcClientInitiatedLogoutSuccessHandler`
+
+The method `setPostLogoutRedirectUri(URI)` can be replaced with `setPostLogoutRedirectUri(String)`.
+
+=== `HttpSessionOAuth2AuthorizationRequestRepository`
+
+The method `setAllowMultipleAuthorizationRequests(...)` has no direct replacement.
+
+=== `AuthorizationRequestRepository`
+
+The method `removeAuthorizationRequest(HttpServletRequest)` can be replaced with `removeAuthorizationRequest(HttpServletRequest, HttpServletResponse)`.
+
+=== `ClientRegistration`
+
+The method `getRedirectUriTemplate()` can be replaced with `getRedirectUri()`.
+
+=== `ClientRegistration.Builder`
+
+The method `redirectUriTemplate(...)` can be replaced with `redirectUri(...)`.
+
+=== `AbstractOAuth2AuthorizationGrantRequest`
+
+The constructor `AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType)` can be replaced with `AbstractOAuth2AuthorizationGrantRequest(AuthorizationGrantType, ClientRegistration)`.
+
+=== `ClientAuthenticationMethod`
+
+The static field `BASIC` can be replaced with `CLIENT_SECRET_BASIC`.
+
+The static field `POST` can be replaced with `CLIENT_SECRET_POST`.
+
+=== `OAuth2AccessTokenResponseHttpMessageConverter`
+
+The field `tokenResponseConverter` has no direct replacement.
+
+The method `setTokenResponseConverter(...)` can be replaced with `setAccessTokenResponseConverter(...)`.
+
+The field `tokenResponseParametersConverter` has no direct replacement.
+
+The method `setTokenResponseParametersConverter(...)` can be replaced with `setAccessTokenResponseParametersConverter(...)`.
+
+=== `NimbusAuthorizationCodeTokenResponseClient`
+
+The class `NimbusAuthorizationCodeTokenResponseClient` can be replaced with `DefaultAuthorizationCodeTokenResponseClient`.
+
+=== `NimbusJwtDecoderJwkSupport`
+
+The class `NimbusJwtDecoderJwkSupport` can be replaced with `NimbusJwtDecoder` or `JwtDecoders`.
+
+=== `ImplicitGrantConfigurer`
+
+The class `ImplicitGrantConfigurer` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+=== `AuthorizationGrantType`
+
+The static field `IMPLICIT` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+=== `OAuth2AuthorizationResponseType`
+
+The static field `TOKEN` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+=== `OAuth2AuthorizationRequest`
+
+The static method `implicit()` has no direct replacement.
+
+[WARNING]
+====
+Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
+====
+
+== Deprecations in OAuth2 Resource Server
+
+In Spring Security 6, deprecated classes and methods were removed from xref:servlet/oauth2/resource-server/index.adoc[OAuth2 Resource Server].
+Each deprecation is listed below, along with a direct replacement.
+
+=== `JwtAuthenticationConverter`
+
+The method `extractAuthorities(...)` can be replaced with `JwtGrantedAuthoritiesConverter#convert(...)`.
+

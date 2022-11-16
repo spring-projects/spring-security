@@ -1,0 +1,263 @@
+= Session Management Migrations
+
+== Explicit Save SecurityContextRepository
+
+In Spring Security 5, the default behavior is for the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to automatically be saved to the xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] using the xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`].
+Saving must be done just prior to the `HttpServletResponse` being committed and just before `SecurityContextPersistenceFilter`.
+Unfortunately, automatic persistence of the `SecurityContext` can surprise users when it is done prior to the request completing (i.e. just prior to committing the `HttpServletResponse`).
+It also is complex to keep track of the state to determine if a save is necessary causing unnecessary writes to the `SecurityContextRepository` (i.e. `HttpSession`) at times.
+
+In Spring Security 6, the default behavior is that the xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] will only read the `SecurityContext` from  `SecurityContextRepository` and populate it in the `SecurityContextHolder`.
+Users now must explicitly save the `SecurityContext` with the `SecurityContextRepository` if they want the `SecurityContext` to persist between requests.
+This removes ambiguity and improves performance by only requiring writing to the `SecurityContextRepository` (i.e. `HttpSession`) when it is necessary.
+
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+include::partial$servlet/architecture/security-context-explicit.adoc[]
+
+== Multiple SecurityContextRepository
+
+In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] is `HttpSessionSecurityContextRepository`.
+
+In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecurityContextRepository`.
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+.Configure SecurityContextRepository with 6.0 defaults
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.securityContextRepository(new DelegatingSecurityContextRepository(
+				new RequestAttributeSecurityContextRepository(),
+				new HttpSessionSecurityContextRepository()
+			))
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		securityContext {
+			securityContextRepository = DelegatingSecurityContextRepository(
+				RequestAttributeSecurityContextRepository(),
+				HttpSessionSecurityContextRepository()
+			)
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-repository-ref="contextRepository">
+	<!-- ... -->
+</http>
+<bean name="contextRepository"
+	class="org.springframework.security.web.context.DelegatingSecurityContextRepository">
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.RequestAttributeSecurityContextRepository" />
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
+		</constructor-arg>
+</bean>
+----
+====
+
+[IMPORTANT]
+====
+If you are already using an implementation other than `HttpSessionSecurityContextRepository`, you should replace it with your chosen implementation in the example above to ensure that it is used along with `RequestAttributeSecurityContextRepository`.
+====
+
+== Deprecation in SecurityContextRepository
+
+In Spring Security 5.7, a new method was added to xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] with the signature:
+
+    Supplier<SecurityContext> loadContext(HttpServletRequest request)
+
+With the addition of xref:servlet/authentication/persistence.adoc#delegatingsecuritycontextrepository[`DelegatingSecurityContextRepository`] in Spring Security 5.8, that method was deprecated in favor of a new method with the signature:
+
+    DeferredSecurityContext loadDeferredContext(HttpServletRequest request)
+
+In Spring Security 6, the deprecated method was removed.
+If you have implemented `SecurityContextRepository` yourself and added an implementation of the `loadContext(request)` method, you can prepare for Spring Security 6 by removing the implementation of that method and implementing the new method instead.
+
+To get started implementing the new method, use the following example to provide a `DeferredSecurityContext`:
+
+.Provide `DeferredSecurityContext`
+====
+.Java
+[source,java,role="primary"]
+----
+@Override
+public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
+	return new DeferredSecurityContext() {
+		private SecurityContext securityContext;
+		private boolean isGenerated;
+
+		@Override
+		public SecurityContext get() {
+			if (this.securityContext == null) {
+				this.securityContext = getContextOrNull(request);
+				if (this.securityContext == null) {
+					SecurityContextHolderStrategy strategy = SecurityContextHolder.getContextHolderStrategy();
+					this.securityContext = strategy.createEmptyContext();
+					this.isGenerated = true;
+				}
+			}
+			return this.securityContext;
+		}
+
+		@Override
+		public boolean isGenerated() {
+			get();
+			return this.isGenerated;
+		}
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+override fun loadDeferredContext(request: HttpServletRequest): DeferredSecurityContext {
+	return object : DeferredSecurityContext {
+		private var securityContext: SecurityContext? = null
+		private var isGenerated = false
+
+		override fun get(): SecurityContext {
+			if (securityContext == null) {
+				securityContext = getContextOrNull(request)
+					?: SecurityContextHolder.getContextHolderStrategy().createEmptyContext()
+						.also { isGenerated = true }
+			}
+			return securityContext!!
+		}
+
+		override fun isGenerated(): Boolean {
+			get()
+			return isGenerated
+		}
+	}
+}
+----
+====
+
+[[requestcache-query-optimization]]
+== Optimize Querying of `RequestCache`
+
+In Spring Security 5, the default behavior is to query the xref:servlet/architecture.adoc#savedrequests[saved request] on every request.
+This means that in a typical setup, that in order to use the xref:servlet/architecture.adoc#requestcache[`RequestCache`] the `HttpSession` is queried on every request.
+
+In Spring Security 6, the default is that `RequestCache` will only be queried for a cached request if the HTTP parameter `continue` is defined.
+This allows Spring Security to avoid unnecessarily reading the `HttpSession` with the `RequestCache`.
+
+In Spring Security 5 the default is to use `HttpSessionRequestCache` which will be queried for a cached request on every request.
+If you are not overriding the defaults (i.e. using `NullRequestCache`), then the following configuration can be used to explicitly opt into the Spring Security 6 behavior in Spring Security 5.8:
+
+include::partial$servlet/architecture/request-cache-continue.adoc[]
+
+== Explicit SessionAuthenticationStrategy
+
+In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke the `SessionAuthenticationStrategy`.
+The problem with this is that it means that in a typical setup, the `HttpSession` must be read for every request.
+
+In Spring Security 6, the default is that authentication mechanisms themselves must invoke the `SessionAuthenticationStrategy`.
+This means that there is no need to detect when `Authentication` is done and thus the `HttpSession` does not need to be read for every request.
+
+To opt into the new Spring Security 6 default, the following configuration can be used.
+
+.Require Explicit `SessionAuthenticationStrategy` Invocation
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.sessionManagement((sessions) -> sessions
+			.requireExplicitAuthenticationStrategy(true)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	http {
+		sessionManagement {
+			requireExplicitAuthenticationStrategy = true
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<session-management authentication-strategy-explicit-invocation="true"/>
+</http>
+----
+====
+
+If this breaks your application, then you can explicitly opt into the 5.8 defaults using the following configuration:
+
+.Explicit use Spring Security 5.8 defaults for `SessionAuthenticationStrategy`
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.sessionManagement((sessions) -> sessions
+			.requireExplicitAuthenticationStrategy(false)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+	http {
+		sessionManagement {
+			requireExplicitAuthenticationStrategy = false
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+	<!-- ... -->
+	<session-management authentication-strategy-explicit-invocation="false"/>
+</http>
+----
+====
