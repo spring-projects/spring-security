@@ -16,11 +16,9 @@
 
 package org.springframework.security.web.server.csrf;
 
-import java.time.Duration;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.springframework.lang.Nullable;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -84,7 +82,7 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
 		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
-		result.setCookieCustomizer(customizer -> customizer.httpOnly(false));
+		result.setCookieHttpOnly(false);
 		return result;
 	}
 
