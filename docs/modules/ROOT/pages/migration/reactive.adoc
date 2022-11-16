@@ -171,7 +171,7 @@ http {
 
 To opt-out of the 6.0 defaults and instead continue to pass `AuthenticationServiceException` on to ``ServerAuthenticationEntryPoint``s, you can follow the same steps as above, except set `rethrowAuthenticationServiceException` to false.
 
-== Deprecations in OAuth2 Client
+== Address OAuth2 Client Deprecations
 
 === `ServerOAuth2AuthorizedClientExchangeFilterFunction`
 

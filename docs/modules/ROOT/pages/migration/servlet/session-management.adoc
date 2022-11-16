@@ -1,6 +1,6 @@
 = Session Management Migrations
 
-== Explicit Save SecurityContextRepository
+== Require Explicit Saving of SecurityContextRepository
 
 In Spring Security 5, the default behavior is for the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to automatically be saved to the xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] using the xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`].
 Saving must be done just prior to the `HttpServletResponse` being committed and just before `SecurityContextPersistenceFilter`.
@@ -15,7 +15,7 @@ To opt into the new Spring Security 6 default, the following configuration can b
 
 include::partial$servlet/architecture/security-context-explicit.adoc[]
 
-== Multiple SecurityContextRepository
+== Change `HttpSessionSecurityContextRepository` to `DelegatingSecurityContextRepository`
 
 In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] is `HttpSessionSecurityContextRepository`.
 
@@ -82,7 +82,7 @@ fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 If you are already using an implementation other than `HttpSessionSecurityContextRepository`, you should replace it with your chosen implementation in the example above to ensure that it is used along with `RequestAttributeSecurityContextRepository`.
 ====
 
-== Deprecation in SecurityContextRepository
+== Address `SecurityContextRepository` Deprecations
 
 In Spring Security 5.7, a new method was added to xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] with the signature:
 
@@ -170,7 +170,7 @@ If you are not overriding the defaults (i.e. using `NullRequestCache`), then the
 
 include::partial$servlet/architecture/request-cache-continue.adoc[]
 
-== Explicit SessionAuthenticationStrategy
+== Require Explicit Invocation of SessionAuthenticationStrategy
 
 In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke the `SessionAuthenticationStrategy`.
 The problem with this is that it means that in a typical setup, the `HttpSession` must be read for every request.

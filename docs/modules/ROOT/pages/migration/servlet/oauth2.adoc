@@ -2,7 +2,7 @@
 
 The following steps relate to changes around how to configure OAuth 2.0.
 
-== Default authorities for oauth2Login()
+== Change Default `oauth2Login()` Authorities
 
 In Spring Security 5, the default `GrantedAuthority` given to a user that authenticates with an OAuth2 or OpenID Connect 1.0 provider (via `oauth2Login()`) is `ROLE_USER`.
 
@@ -192,7 +192,7 @@ private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
 ----
 ====
 
-== Deprecations in OAuth2 Client
+== Address OAuth2 Client Deprecations
 
 In Spring Security 6, deprecated classes and methods were removed from xref:servlet/oauth2/client/index.adoc[OAuth2 Client].
 Each deprecation is listed below, along with a direct replacement.
@@ -313,12 +313,7 @@ The static method `implicit()` has no direct replacement.
 Use of the `implicit` grant type is not recommended and all related support is removed in Spring Security 6.
 ====
 
-== Deprecations in OAuth2 Resource Server
-
-In Spring Security 6, deprecated classes and methods were removed from xref:servlet/oauth2/resource-server/index.adoc[OAuth2 Resource Server].
-Each deprecation is listed below, along with a direct replacement.
-
-=== `JwtAuthenticationConverter`
+== Address `JwtAuthenticationConverter` Deprecation
 
 The method `extractAuthorities(...)` can be replaced with `JwtGrantedAuthoritiesConverter#convert(...)`.
 
