@@ -2,6 +2,84 @@
 
 If you have already performed the xref:migration/index.adoc[initial migration steps] for your Reactive application, you're now ready to perform steps specific to Reactive applications.
 
+== Exploit Protection Migrations
+
+The following steps relate to changes around how to configure CSRF.
+
+=== Configure `tokenFromMultipartDataEnabled`
+
+In Spring Security 5.8, the method `tokenFromMultipartDataEnabled` was deprecated in favor of `ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled`.
+
+To address the deprecation, the following code:
+
+.Configure `tokenFromMultipartDataEnabled` with DSL
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.tokenFromMultipartDataEnabled(true)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+	return http {
+		// ...
+		csrf {
+			tokenFromMultipartDataEnabled = true
+		}
+	}
+}
+----
+====
+
+can be replaced with:
+
+.Configure `tokenFromMultipartDataEnabled` with `ServerCsrfTokenRequestAttributeHandler`
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	ServerCsrfTokenRequestAttributeHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
+	requestHandler.setTokenFromMultipartDataEnabled(true);
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRequestHandler(requestHandler)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+	val requestHandler = ServerCsrfTokenRequestAttributeHandler()
+	requestHandler.tokenFromMultipartDataEnabled = true
+	return http {
+		// ...
+		csrf {
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+}
+----
+====
+
 == Use `AuthorizationManager` for Method Security
 
 xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
