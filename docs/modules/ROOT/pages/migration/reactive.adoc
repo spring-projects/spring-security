@@ -80,6 +80,45 @@ open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
 ----
 ====
 
+=== Protect against CSRF BREACH
+
+You can opt into Spring Security 6's default support for BREACH protection of the `CsrfToken` using the following configuration:
+
+.`CsrfToken` BREACH Protection
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	XorServerCsrfTokenRequestAttributeHandler requestHandler = new XorServerCsrfTokenRequestAttributeHandler();
+	// ...
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRequestHandler(requestHandler)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+	val requestHandler = XorServerCsrfTokenRequestAttributeHandler()
+	// ...
+	return http {
+		// ...
+		csrf {
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+}
+----
+====
+
 == Use `AuthorizationManager` for Method Security
 
 xref:reactive/authorization/method.adoc[Method Security] has been xref:reactive/authorization/method.adoc#jc-enable-reactive-method-security-authorization-manager[improved] through {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[the `AuthorizationManager` API] and direct use of Spring AOP.
