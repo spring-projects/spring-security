@@ -315,5 +315,6 @@ Use of the `implicit` grant type is not recommended and all related support is r
 
 == Address `JwtAuthenticationConverter` Deprecation
 
-The method `extractAuthorities(...)` can be replaced with `JwtGrantedAuthoritiesConverter#convert(...)`.
+The method `extractAuthorities` will be removed.
+Instead of extending `JwtAuthenticationConverter`, please supply a custom granted authorities converter with `JwtAuthenticationConverter#setJwtGrantedAuthoritiesConverter`.
 
