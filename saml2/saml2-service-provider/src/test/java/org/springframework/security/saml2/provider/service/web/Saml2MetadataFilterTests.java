@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -151,6 +151,21 @@ public class Saml2MetadataFilterTests {
 		this.request.setPathInfo("/metadata");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	// gh-12026
+	@Test
+	public void doFilterWhenCharacterEncodingThenEncodeSpecialCharactersCorrectly() throws Exception {
+		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.full().build();
+		String testMetadataFilename = "test-{registrationId}-metadata.xml";
+		String generatedMetadata = "<xml>testäöü</xml>";
+		this.request.setPathInfo("/saml2/service-provider-metadata/registration-id");
+		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
+		this.filter = new Saml2MetadataFilter((req, id) -> validRegistration, this.resolver);
+		this.filter.setMetadataFilename(testMetadataFilename);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getCharacterEncoding()).isEqualTo(StandardCharsets.UTF_8.name());
+		assertThat(new String(this.response.getContentAsByteArray())).isEqualTo(generatedMetadata);
 	}
 
 	@Test
