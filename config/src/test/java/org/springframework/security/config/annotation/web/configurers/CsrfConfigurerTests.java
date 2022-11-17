@@ -302,6 +302,7 @@ public class CsrfConfigurerTests {
 	public void loginWhenCustomCsrfTokenRepositoryThenCsrfTokenIsCleared() throws Exception {
 		CsrfTokenRepositoryConfig.REPO = mock(CsrfTokenRepository.class);
 		DefaultCsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
+		given(CsrfTokenRepositoryConfig.REPO.loadToken(any())).willReturn(csrfToken);
 		given(CsrfTokenRepositoryConfig.REPO.loadDeferredToken(any(HttpServletRequest.class),
 				any(HttpServletResponse.class))).willReturn(new TestDeferredCsrfToken(csrfToken));
 		this.spring.register(CsrfTokenRepositoryConfig.class, BasicController.class).autowire();
@@ -312,6 +313,7 @@ public class CsrfConfigurerTests {
 				.param("password", "password");
 		// @formatter:on
 		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+		verify(CsrfTokenRepositoryConfig.REPO).loadToken(any(HttpServletRequest.class));
 		verify(CsrfTokenRepositoryConfig.REPO).saveToken(isNull(), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
 	}
@@ -443,6 +445,7 @@ public class CsrfConfigurerTests {
 	public void loginWhenCsrfTokenRequestAttributeHandlerSetAndNormalCsrfTokenThenSuccess() throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
+		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(csrfToken);
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
 				.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
@@ -456,6 +459,7 @@ public class CsrfConfigurerTests {
 				.param("password", "password");
 		// @formatter:on
 		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+		verify(csrfTokenRepository).loadToken(any(HttpServletRequest.class));
 		verify(csrfTokenRepository).saveToken(isNull(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 		verify(csrfTokenRepository, times(2)).loadDeferredToken(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
@@ -481,6 +485,7 @@ public class CsrfConfigurerTests {
 	public void loginWhenXorCsrfTokenRequestAttributeHandlerSetAndMaskedCsrfTokenThenSuccess() throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("X-CSRF-TOKEN", "_csrf", "token");
 		CsrfTokenRepository csrfTokenRepository = mock(CsrfTokenRepository.class);
+		given(csrfTokenRepository.loadToken(any(HttpServletRequest.class))).willReturn(csrfToken);
 		given(csrfTokenRepository.loadDeferredToken(any(HttpServletRequest.class), any(HttpServletResponse.class)))
 				.willReturn(new TestDeferredCsrfToken(csrfToken));
 		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
@@ -497,6 +502,7 @@ public class CsrfConfigurerTests {
 				.param("password", "password");
 		// @formatter:on
 		this.mvc.perform(loginRequest).andExpect(redirectedUrl("/"));
+		verify(csrfTokenRepository).loadToken(any(HttpServletRequest.class));
 		verify(csrfTokenRepository).saveToken(isNull(), any(HttpServletRequest.class), any(HttpServletResponse.class));
 		verify(csrfTokenRepository, times(3)).loadDeferredToken(any(HttpServletRequest.class),
 				any(HttpServletResponse.class));
