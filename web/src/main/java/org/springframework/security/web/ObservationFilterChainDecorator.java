@@ -181,12 +181,14 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			parentBefore.setChainSize(this.size);
 			parentBefore.setFilterName(this.name);
 			parentBefore.setChainPosition(this.position);
+			parent.before().event(Observation.Event.of(this.name + " before"));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
 			FilterChainObservationContext parentAfter = (FilterChainObservationContext) parent.after().getContext();
 			parentAfter.setChainSize(this.size);
 			parentAfter.setFilterName(this.name);
 			parentAfter.setChainPosition(this.size - this.position + 1);
+			parent.after().event(Observation.Event.of(this.name + " after"));
 		}
 
 		private AroundFilterObservation parent(HttpServletRequest request) {
