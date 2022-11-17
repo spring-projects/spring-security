@@ -333,7 +333,7 @@ public final class ClientRegistration implements Serializable {
 
 		private static final List<AuthorizationGrantType> AUTHORIZATION_GRANT_TYPES = Arrays.asList(
 				AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.CLIENT_CREDENTIALS,
-				AuthorizationGrantType.REFRESH_TOKEN, AuthorizationGrantType.IMPLICIT, AuthorizationGrantType.PASSWORD);
+				AuthorizationGrantType.REFRESH_TOKEN, AuthorizationGrantType.PASSWORD);
 
 		private String registrationId;
 
