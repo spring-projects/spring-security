@@ -17,6 +17,7 @@
 package org.springframework.security.test.aot.hint;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
@@ -38,11 +39,19 @@ class WithSecurityContextTestRuntimeHints implements TestRuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, Class<?> testClass, ClassLoader classLoader) {
-		Arrays.stream(testClass.getDeclaredMethods())
-				.map((method) -> MergedAnnotations.from(method, SUPERCLASS).get(WithSecurityContext.class))
+		Stream.concat(getClassAnnotations(testClass), getMethodAnnotations(testClass))
 				.filter(MergedAnnotation::isPresent)
 				.map((withSecurityContext) -> withSecurityContext.getClass("factory"))
 				.forEach((factory) -> registerDeclaredConstructors(hints, factory));
+	}
+
+	private Stream<MergedAnnotation<WithSecurityContext>> getClassAnnotations(Class<?> testClass) {
+		return MergedAnnotations.search(SUPERCLASS).from(testClass).stream(WithSecurityContext.class);
+	}
+
+	private Stream<MergedAnnotation<WithSecurityContext>> getMethodAnnotations(Class<?> testClass) {
+		return Arrays.stream(testClass.getDeclaredMethods())
+				.map((method) -> MergedAnnotations.from(method, SUPERCLASS).get(WithSecurityContext.class));
 	}
 
 	private void registerDeclaredConstructors(RuntimeHints hints, Class<?> factory) {

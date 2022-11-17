@@ -28,6 +28,8 @@ import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.test.context.showcase.WithMockCustomUser;
+import org.springframework.security.test.context.showcase.WithMockCustomUserSecurityContextFactory;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.context.support.WithSecurityContext;
@@ -39,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Tests for {@link WithSecurityContextTestRuntimeHints}.
  */
+@WithMockCustomUser
 class WithSecurityContextTestRuntimeHintsTests {
 
 	private final RuntimeHints hints = new RuntimeHints();
@@ -82,6 +85,12 @@ class WithSecurityContextTestRuntimeHintsTests {
 	@WithMockTestUser
 	void withMockTestUserHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection().onType(WithMockTestUserSecurityContextFactory.class)
+				.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
+	}
+
+	@Test
+	void withMockCustomUserOnClassHasHints() {
+		assertThat(RuntimeHintsPredicates.reflection().onType(WithMockCustomUserSecurityContextFactory.class)
 				.withMemberCategory(MemberCategory.INVOKE_DECLARED_CONSTRUCTORS)).accepts(this.hints);
 	}
 

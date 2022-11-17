@@ -16,11 +16,15 @@
 
 package org.springframework.security.test.context.showcase;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
 import org.springframework.security.test.context.support.WithSecurityContext;
 
 /**
  * @author Rob Winch
  */
+@Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockCustomUserSecurityContextFactory.class)
 public @interface WithMockCustomUser {
 
