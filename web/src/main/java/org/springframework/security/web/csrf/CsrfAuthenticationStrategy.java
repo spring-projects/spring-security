@@ -32,6 +32,7 @@ import org.springframework.util.Assert;
  * the next request.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 3.2
  */
 public final class CsrfAuthenticationStrategy implements SessionAuthenticationStrategy {
@@ -64,10 +65,13 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 	@Override
 	public void onAuthentication(Authentication authentication, HttpServletRequest request,
 			HttpServletResponse response) throws SessionAuthenticationException {
-		this.tokenRepository.saveToken(null, request, response);
-		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
-		this.requestHandler.handle(request, response, deferredCsrfToken::get);
-		this.logger.debug("Replaced CSRF Token");
+		boolean containsToken = this.tokenRepository.loadToken(request) != null;
+		if (containsToken) {
+			this.tokenRepository.saveToken(null, request, response);
+			DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
+			this.requestHandler.handle(request, response, deferredCsrfToken::get);
+			this.logger.debug("Replaced CSRF Token");
+		}
 	}
 
 }
