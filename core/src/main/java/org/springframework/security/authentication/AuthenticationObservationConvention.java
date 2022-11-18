@@ -43,6 +43,21 @@ public final class AuthenticationObservationConvention
 		return OBSERVATION_NAME;
 	}
 
+	@Override
+	public String getContextualName(AuthenticationObservationContext context) {
+		if (context.getAuthenticationRequest() != null) {
+			String authenticationType = context.getAuthenticationRequest().getClass().getSimpleName();
+			if (authenticationType.endsWith("Token")) {
+				authenticationType = authenticationType.substring(0, authenticationType.lastIndexOf("Token"));
+			}
+			if (authenticationType.endsWith("Authentication")) {
+				authenticationType = authenticationType.substring(0, authenticationType.lastIndexOf("Authentication"));
+			}
+			return "authenticate " + authenticationType.toLowerCase();
+		}
+		return "authenticate";
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

@@ -47,6 +47,7 @@ Use the OpenSaml 4 Support instead.
 ** Remove `Saml2AuthenticationToken(String, String, String, String, List)`
 ** Remove `RelyingPartyRegistration.ProviderDetails` and related methods
 ** Remove `OpenSamlAuthenticationProvider`
+* https://github.com/spring-projects/spring-security/issues/12180[gh-12180] - Register `FilterChainProxy` for all dispatcher types
 
 == Core
 

@@ -33,11 +33,11 @@ import org.springframework.security.core.Authentication;
  */
 public final class ObservationSecurityContextChangedListener implements SecurityContextChangedListener {
 
-	private static final String SECURITY_CONTEXT_CREATED = "security.context.created";
+	static final String SECURITY_CONTEXT_CREATED = "spring.security.context.created";
 
-	private static final String SECURITY_CONTEXT_CHANGED = "security.context.changed";
+	static final String SECURITY_CONTEXT_CHANGED = "spring.security.context.changed";
 
-	private static final String SECURITY_CONTEXT_CLEARED = "security.context.cleared";
+	static final String SECURITY_CONTEXT_CLEARED = "spring.security.context.cleared";
 
 	private final ObservationRegistry registry;
 
@@ -60,7 +60,7 @@ public final class ObservationSecurityContextChangedListener implements Security
 			return;
 		}
 		if (event.isCleared()) {
-			observation.event(Observation.Event.of("security.context.cleared"));
+			observation.event(Observation.Event.of(SECURITY_CONTEXT_CLEARED));
 			return;
 		}
 		Authentication oldAuthentication = getAuthentication(event.getOldContext());

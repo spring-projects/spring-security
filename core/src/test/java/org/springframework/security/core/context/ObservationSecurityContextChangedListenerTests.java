@@ -66,7 +66,8 @@ public class ObservationSecurityContextChangedListenerTests {
 				.securityContextChanged(new SecurityContextChangedEvent(one, SecurityContextChangedEvent.NO_CONTEXT));
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
-		assertThat(event.getValue().getName()).isEqualTo("security.context.cleared");
+		assertThat(event.getValue().getName())
+				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CLEARED);
 		verifyNoInteractions(one);
 	}
 
@@ -85,7 +86,8 @@ public class ObservationSecurityContextChangedListenerTests {
 		this.tested.securityContextChanged(new SecurityContextChangedEvent(this.one, this.two));
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
-		assertThat(event.getValue().getName()).isEqualTo("security.context.changed");
+		assertThat(event.getValue().getName())
+				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CHANGED);
 	}
 
 	@Test
@@ -95,7 +97,8 @@ public class ObservationSecurityContextChangedListenerTests {
 		this.tested.securityContextChanged(new SecurityContextChangedEvent(null, this.one));
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
 		verify(observation).event(event.capture());
-		assertThat(event.getValue().getName()).isEqualTo("security.context.created");
+		assertThat(event.getValue().getName())
+				.isEqualTo(ObservationSecurityContextChangedListener.SECURITY_CONTEXT_CREATED);
 	}
 
 }
