@@ -1,0 +1,88 @@
+= Reactive
+
+If you have already performed the xref:migration/index.adoc[initial migration steps] for your Reactive application, you're now ready to perform steps specific to Reactive applications.
+
+== Use `AuthorizationManager` for Method Security
+
+In 6.0, `@EnableReactiveMethodSecurity` defaults `useAuthorizationManager` to `true`.
+So, to complete migration, {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] remove the `useAuthorizationManager` attribute:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity(useAuthorizationManager = true)
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableReactiveMethodSecurity
+----
+====
+
+== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/server/authentication/AuthenticationWebFilter.html[`AuthenticationWebFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/web/server/ServerAuthenticationEntryPoint.html[`ServerAuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
+bearerFailureHandler.setRethrowAuthenticationServiceException(true);
+AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
+basicFailureHandler.setRethrowAuthenticationServiceException(true);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
+bearerFailureHandler.setRethrowAuthenticationServiceException(true)
+val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
+basicFailureHandler.setRethrowAuthenticationServiceException(true)
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
+AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
+val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
+----
+====
+
+[NOTE]
+====
+If you configured the `ServerAuthenticationFailureHandler` only for the purpose of updating to 6.0, you can remove it completely.
+====

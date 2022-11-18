@@ -1,0 +1,30 @@
+[[migration]]
+= Migrating to 6.0
+
+The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
+Use 5.8 and
+ifdef::spring-security-version[]
+xref:5.8.0@migration/index.adoc[its preparation steps]
+endif::[]
+ifndef::spring-security-version[]
+its preparation steps
+endif::[]
+to simplify updating to 6.0
+
+After updating to 5.8, follow this guide to perform any remaining migration or cleanup steps.
+
+And recall that if you run into trouble, the preparation guide includes opt-out steps to revert to 5.x behaviors.
+
+== Update to Spring Security 6.0
+
+The first step is to ensure you are the latest patch release of Spring Boot 3.0.
+Next, you should ensure you are on the latest patch release of Spring Security 6.0.
+For directions, on how to update to Spring Security 6.0 visit the xref:getting-spring-security.adoc[] section of the reference guide.
+
+== Update Package Names
+
+Now that you are updated, you need to change your `javax` imports to `jakarta` imports.
+
+== Perform Application-Specific Steps
+
+Next, there are steps you need to perform based on whether it is a xref:migration/servlet/index.adoc[Servlet] or xref:migration/reactive.adoc[Reactive] application.

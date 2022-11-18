@@ -1,0 +1,171 @@
+= Authentication Migrations
+
+The following steps relate to how to finish migrating authentication support.
+
+== Propagate ``AuthenticationServiceException``s
+
+{security-api-url}org/springframework/security/web/authentication/AuthenticationFilter.html[`AuthenticationFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/authentication/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`].
+Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
+
+So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+handler.setRethrowAuthenticationServiceException(true);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+handler.setRethrowAuthenticationServiceException(true)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <property name="rethrowAuthenticationServiceException" value="true"/>
+</bean>
+----
+====
+
+changes to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
+AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFailureHandler(...);
+authenticationFilter.setAuthenticationFailureHandler(handler);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+authenticationFilter.setAuthenticationFailureHandler(handler)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
+    <!-- ... -->
+    <property ref="authenticationFailureHandler"/>
+</bean>
+
+<bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler">
+    <!-- ... -->
+</bean>
+----
+====
+
+[[servlet-opt-in-sha256-rememberme]]
+== Use SHA-256 in Remember Me
+
+In 6.0, the `TokenBasedRememberMeServices` uses SHA-256 to encode and match the token.
+To complete the migration, any default values can be removed.
+
+For example, if you opted in to the 6.0 default for `encodingAlgorithm` and `matchingAlgorithm` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
+        http
+                // ...
+                .rememberMe((remember) -> remember
+                    .rememberMeServices(rememberMeServices)
+                );
+        return http.build();
+    }
+    @Bean
+    RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+        RememberMeTokenAlgorithm encodingAlgorithm = RememberMeTokenAlgorithm.SHA256;
+        TokenBasedRememberMeServices rememberMe = new TokenBasedRememberMeServices(myKey, userDetailsService, encodingAlgorithm);
+        rememberMe.setMatchingAlgorithm(RememberMeTokenAlgorithm.SHA256);
+        return rememberMe;
+    }
+}
+----
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+  <remember-me services-ref="rememberMeServices"/>
+</http>
+<bean id="rememberMeServices" class=
+"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+    <property name="userDetailsService" ref="myUserDetailsService"/>
+    <property name="key" value="springRocks"/>
+    <property name="matchingAlgorithm" value="SHA256"/>
+    <property name="encodingAlgorithm" value="SHA256"/>
+</bean>
+----
+====
+
+then the defaults can be removed:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http, RememberMeServices rememberMeServices) throws Exception {
+        http
+                // ...
+                .rememberMe((remember) -> remember
+                    .rememberMeServices(rememberMeServices)
+                );
+        return http.build();
+    }
+    @Bean
+    RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
+        return new TokenBasedRememberMeServices(myKey, userDetailsService);
+    }
+}
+----
+.XML
+[source,xml,role="secondary"]
+----
+<http>
+  <remember-me services-ref="rememberMeServices"/>
+</http>
+<bean id="rememberMeServices" class=
+"org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
+    <property name="userDetailsService" ref="myUserDetailsService"/>
+    <property name="key" value="springRocks"/>
+</bean>
+----
+====
+
+== Default authorities for oauth2Login()
+
+In Spring Security 5, the default `GrantedAuthority` given to a user that authenticates with an OAuth2 or OpenID Connect 1.0 provider (via `oauth2Login()`) is `ROLE_USER`.
+
+In Spring Security 6, the default authority given to a user authenticating with an OAuth2 provider is `OAUTH2_USER`.
+The default authority given to a user authenticating with an OpenID Connect 1.0 provider is `OIDC_USER`.
+If you configured the `GrantedAuthoritiesMapper` only for the purpose of updating to 6.0, you can remove it completely.
