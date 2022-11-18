@@ -66,11 +66,15 @@ Cookie: SESSION=4c66e474-3f5a-43ed-8e48-cc1d8cb1d1c8
 
 // FIXME: api documentation
 In Spring Security the association of the user to future requests is made using  {security-api-url}org/springframework/security/web/context/SecurityContextRepository.html[`SecurityContextRepository`].
+The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/DelegatingSecurityContextRepository.html[`DelegatingSecurityContextRepository`] which delegates to the following:
+
+* <<httpsecuritycontextrepository,`HttpSessionSecurityContextRepository`>>
+* <<requestattributesecuritycontextrepository,`RequestAttributeSecurityContextRepository`>>
 
 [[httpsecuritycontextrepository]]
-=== HttpSecurityContextRepository
+=== HttpSessionSecurityContextRepository
 
-The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] which associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
+The {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
 Users can replace `HttpSessionSecurityContextRepository` with another implementation of `SecurityContextRepository` if they wish to associate the user with subsequent requests in another way or not at all.
 
 [[nullsecuritycontextrepository]]
