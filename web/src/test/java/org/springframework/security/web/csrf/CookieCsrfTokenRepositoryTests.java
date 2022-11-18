@@ -33,7 +33,7 @@ import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCs
  * @author Alex Montoya
  * @since 4.1
  */
-public class CookieCsrfTokenRepositoryTests {
+class CookieCsrfTokenRepositoryTests {
 
 	CookieCsrfTokenRepository repository;
 
@@ -50,7 +50,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void generateToken() {
+	void generateToken() {
 		CsrfToken generateToken = this.repository.generateToken(this.request);
 		assertThat(generateToken).isNotNull();
 		assertThat(generateToken.getHeaderName()).isEqualTo(CookieCsrfTokenRepository.DEFAULT_CSRF_HEADER_NAME);
@@ -59,7 +59,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void generateTokenCustom() {
+	void generateTokenCustom() {
 		String headerName = "headerName";
 		String parameterName = "paramName";
 		this.repository.setHeaderName(headerName);
@@ -72,7 +72,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveToken() {
+	void saveToken() {
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
@@ -81,11 +81,11 @@ public class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getPath()).isEqualTo(this.request.getContextPath());
 		assertThat(tokenCookie.getSecure()).isEqualTo(this.request.isSecure());
 		assertThat(tokenCookie.getValue()).isEqualTo(token.getToken());
-		assertThat(tokenCookie.isHttpOnly()).isEqualTo(true);
+		assertThat(tokenCookie.isHttpOnly()).isTrue();
 	}
 
 	@Test
-	public void saveTokenSecure() {
+	void saveTokenSecure() {
 		this.request.setSecure(true);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
@@ -94,7 +94,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenSecureFlagTrue() {
+	void saveTokenSecureFlagTrue() {
 		this.request.setSecure(false);
 		this.repository.setSecure(Boolean.TRUE);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -146,7 +146,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenHttpOnlyTrue() {
+	void saveTokenHttpOnlyTrue() {
 		this.repository.setCookieHttpOnly(true);
 		CsrfToken token = this.repository.generateToken(this.request);
 		this.repository.saveToken(token, this.request, this.response);
@@ -191,7 +191,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenCustomPath() {
+	void saveTokenCustomPath() {
 		String customPath = "/custompath";
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -201,7 +201,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenEmptyCustomPath() {
+	void saveTokenEmptyCustomPath() {
 		String customPath = "";
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -211,7 +211,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenNullCustomPath() {
+	void saveTokenNullCustomPath() {
 		String customPath = null;
 		this.repository.setCookiePath(customPath);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -221,7 +221,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenWithCookieDomain() {
+	void saveTokenWithCookieDomain() {
 		String domainName = "example.com";
 		this.repository.setCookieDomain(domainName);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -241,7 +241,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void saveTokenWithCookieMaxAge() {
+	void saveTokenWithCookieMaxAge() {
 		int maxAge = 1200;
 		this.repository.setCookieMaxAge(maxAge);
 		CsrfToken token = this.repository.generateToken(this.request);
@@ -291,24 +291,24 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadTokenNoCookiesNull() {
+	void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
 
 	@Test
-	public void loadTokenCookieIncorrectNameNull() {
+	void loadTokenCookieIncorrectNameNull() {
 		this.request.setCookies(new Cookie("other", "name"));
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
 
 	@Test
-	public void loadTokenCookieValueEmptyString() {
+	void loadTokenCookieValueEmptyString() {
 		this.request.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, ""));
 		assertThat(this.repository.loadToken(this.request)).isNull();
 	}
 
 	@Test
-	public void loadToken() {
+	void loadToken() {
 		CsrfToken generateToken = this.repository.generateToken(this.request);
 		this.request
 				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generateToken.getToken()));
@@ -320,7 +320,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadTokenCustom() {
+	void loadTokenCustom() {
 		String cookieName = "cookieName";
 		String value = "value";
 		String headerName = "headerName";
@@ -337,7 +337,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadDeferredTokenWhenDoesNotExistThenGeneratedAndSaved() {
+	void loadDeferredTokenWhenDoesNotExistThenGeneratedAndSaved() {
 		DeferredCsrfToken deferredCsrfToken = this.repository.loadDeferredToken(this.request, this.response);
 		CsrfToken csrfToken = deferredCsrfToken.get();
 		assertThat(csrfToken).isNotNull();
@@ -353,7 +353,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadDeferredTokenWhenExistsAndNullSavedThenGeneratedAndSaved() {
+	void loadDeferredTokenWhenExistsAndNullSavedThenGeneratedAndSaved() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
 				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
@@ -366,7 +366,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadDeferredTokenWhenExistsAndNullSavedAndNonNullSavedThenLoaded() {
+	void loadDeferredTokenWhenExistsAndNullSavedAndNonNullSavedThenLoaded() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
 				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
@@ -379,7 +379,7 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void loadDeferredTokenWhenExistsThenLoaded() {
+	void loadDeferredTokenWhenExistsThenLoaded() {
 		CsrfToken generatedToken = this.repository.generateToken(this.request);
 		this.request
 				.setCookies(new Cookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME, generatedToken.getToken()));
@@ -412,23 +412,22 @@ public class CookieCsrfTokenRepositoryTests {
 	}
 
 	@Test
-	public void setCookieNameNullIllegalArgumentException() {
+	void setCookieNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieName(null));
 	}
 
 	@Test
-	public void setParameterNameNullIllegalArgumentException() {
+	void setParameterNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setParameterName(null));
 	}
 
 	@Test
-	public void setHeaderNameNullIllegalArgumentException() {
+	void setHeaderNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setHeaderName(null));
 	}
 
 	@Test
-	public void setCookieMaxAgeZeroIllegalArgumentException() {
+	void setCookieMaxAgeZeroIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieMaxAge(0));
 	}
-
 }
