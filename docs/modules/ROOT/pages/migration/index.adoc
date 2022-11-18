@@ -1,5 +1,5 @@
 [[migration]]
-= Migrating to 6.0
+= Preparing for 6.0
 
 The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
 Use 5.8 and the steps below to minimize changes when
