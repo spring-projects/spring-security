@@ -521,8 +521,7 @@ public class CsrfConfigurerTests {
 	}
 
 	@Test
-	public void loginWhenFormLoginAndCookieCsrfTokenRepositorySetAndExistingTokenThenRemovesAndGeneratesNewToken()
-			throws Exception {
+	public void loginWhenFormLoginAndCookieCsrfTokenRepositorySetAndExistingTokenThenRemoves() throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
 		Cookie existingCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
 		CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
@@ -541,13 +540,12 @@ public class CsrfConfigurerTests {
 		MvcResult mvcResult = this.mvc.perform(loginRequest).andExpect(redirectedUrl("/")).andReturn();
 		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
 		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(existingCookie.getName()));
-		assertThat(cookies).hasSize(2);
+		assertThat(cookies).hasSize(1);
 		assertThat(cookies.get(0).getValue()).isEmpty();
-		assertThat(cookies.get(1).getValue()).isNotEmpty();
 	}
 
 	@Test
-	public void postWhenHttpBasicAndCookieCsrfTokenRepositorySetAndExistingTokenThenRemovesAndGeneratesNewToken()
+	public void postWhenHttpBasicAndCookieCsrfTokenRepositorySetAndExistingTokenThenDoesNotGenerateNewToken()
 			throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
 		Cookie existingCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
@@ -569,13 +567,11 @@ public class CsrfConfigurerTests {
 		// @formatter:on
 		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
 		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(existingCookie.getName()));
-		assertThat(cookies).hasSize(2);
-		assertThat(cookies.get(0).getValue()).isEmpty();
-		assertThat(cookies.get(1).getValue()).isNotEmpty();
+		assertThat(cookies).isEmpty();
 	}
 
 	@Test
-	public void getWhenHttpBasicAndCookieCsrfTokenRepositorySetAndNoExistingCookieThenGeneratesNewToken()
+	public void getWhenHttpBasicAndCookieCsrfTokenRepositorySetAndNoExistingCookieThenDoesNotGenerateNewToken()
 			throws Exception {
 		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
 		Cookie expectedCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
@@ -596,8 +592,7 @@ public class CsrfConfigurerTests {
 		// @formatter:on
 		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
 		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(expectedCookie.getName()));
-		assertThat(cookies).hasSize(1);
-		assertThat(cookies.get(0).getValue()).isNotEmpty();
+		assertThat(cookies).isEmpty();
 	}
 
 	@Configuration
