@@ -4,7 +4,7 @@
 The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
 Use 5.8 and
 ifdef::spring-security-version[]
-xref:5.8.0@migration.adoc[its preparation steps]
+xref:5.8.0@migration/index.adoc[its preparation steps]
 endif::[]
 ifndef::spring-security-version[]
 its preparation steps
