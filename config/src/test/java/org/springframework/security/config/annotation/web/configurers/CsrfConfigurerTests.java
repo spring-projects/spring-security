@@ -17,7 +17,10 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,6 +31,7 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.config.Customizer;
@@ -42,6 +46,7 @@ import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
@@ -509,6 +514,86 @@ public class CsrfConfigurerTests {
 		verifyNoMoreInteractions(csrfTokenRepository);
 	}
 
+	@Test
+	public void loginWhenFormLoginAndCookieCsrfTokenRepositorySetAndExistingTokenThenRemovesAndGeneratesNewToken()
+			throws Exception {
+		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
+		Cookie existingCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
+		CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		csrfTokenRepository.setCookieName(existingCookie.getName());
+		CsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
+		CsrfTokenRequestHandlerConfig.HANDLER = new CsrfTokenRequestAttributeHandler();
+		this.spring.register(CsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
+
+		// @formatter:off
+		MockHttpServletRequestBuilder loginRequest = post("/login")
+				.cookie(existingCookie)
+				.header(csrfToken.getHeaderName(), csrfToken.getToken())
+				.param("username", "user")
+				.param("password", "password");
+		// @formatter:on
+		MvcResult mvcResult = this.mvc.perform(loginRequest).andExpect(redirectedUrl("/")).andReturn();
+		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
+		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(existingCookie.getName()));
+		assertThat(cookies).hasSize(2);
+		assertThat(cookies.get(0).getValue()).isEmpty();
+		assertThat(cookies.get(1).getValue()).isNotEmpty();
+	}
+
+	@Test
+	public void postWhenHttpBasicAndCookieCsrfTokenRepositorySetAndExistingTokenThenRemovesAndGeneratesNewToken()
+			throws Exception {
+		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
+		Cookie existingCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
+		CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		csrfTokenRepository.setCookieName(existingCookie.getName());
+		HttpBasicCsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
+		HttpBasicCsrfTokenRequestHandlerConfig.HANDLER = new CsrfTokenRequestAttributeHandler();
+		this.spring.register(HttpBasicCsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(csrfToken.getHeaderName(), csrfToken.getToken());
+		headers.setBasicAuth("user", "password");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(post("/")
+				.cookie(existingCookie)
+				.headers(headers))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
+		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
+		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(existingCookie.getName()));
+		assertThat(cookies).hasSize(2);
+		assertThat(cookies.get(0).getValue()).isEmpty();
+		assertThat(cookies.get(1).getValue()).isNotEmpty();
+	}
+
+	@Test
+	public void getWhenHttpBasicAndCookieCsrfTokenRepositorySetAndNoExistingCookieThenGeneratesNewToken()
+			throws Exception {
+		CsrfToken csrfToken = new DefaultCsrfToken("X-XSRF-TOKEN", "_csrf", "token");
+		Cookie expectedCookie = new Cookie("XSRF-TOKEN", csrfToken.getToken());
+		CookieCsrfTokenRepository csrfTokenRepository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		csrfTokenRepository.setCookieName(expectedCookie.getName());
+		HttpBasicCsrfTokenRequestHandlerConfig.REPO = csrfTokenRepository;
+		HttpBasicCsrfTokenRequestHandlerConfig.HANDLER = new CsrfTokenRequestAttributeHandler();
+		this.spring.register(HttpBasicCsrfTokenRequestHandlerConfig.class, BasicController.class).autowire();
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(csrfToken.getHeaderName(), csrfToken.getToken());
+		headers.setBasicAuth("user", "password");
+		// @formatter:off
+		MvcResult mvcResult = this.mvc.perform(get("/")
+				.headers(headers))
+				.andExpect(status().isOk())
+				.andReturn();
+		// @formatter:on
+		List<Cookie> cookies = Arrays.asList(mvcResult.getResponse().getCookies());
+		cookies.removeIf((cookie) -> !cookie.getName().equalsIgnoreCase(expectedCookie.getName()));
+		assertThat(cookies).hasSize(1);
+		assertThat(cookies.get(0).getValue()).isNotEmpty();
+	}
+
 	@Configuration
 	static class AllowHttpMethodsFirewallConfig {
 
@@ -880,6 +965,42 @@ public class CsrfConfigurerTests {
 			// @formatter:off
 			auth
 					.inMemoryAuthentication()
+					.withUser(PasswordEncodedUser.user());
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class HttpBasicCsrfTokenRequestHandlerConfig {
+
+		static CsrfTokenRepository REPO;
+
+		static CsrfTokenRequestHandler HANDLER;
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.httpBasic(Customizer.withDefaults())
+				.csrf((csrf) -> csrf
+					.csrfTokenRepository(REPO)
+					.csrfTokenRequestHandler(HANDLER)
+				);
+			// @formatter:on
+
+			return http.build();
+		}
+
+		@Autowired
+		void configure(AuthenticationManagerBuilder auth) throws Exception {
+			// @formatter:off
+			auth
+				.inMemoryAuthentication()
 					.withUser(PasswordEncodedUser.user());
 			// @formatter:on
 		}
