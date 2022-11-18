@@ -11,6 +11,7 @@
 *** xref:migration/servlet/authorization.adoc[Authorization]
 *** xref:migration/servlet/oauth2.adoc[OAuth]
 *** xref:migration/servlet/saml2.adoc[SAML]
+*** xref:migration/servlet/cas.adoc[CAS]
 ** xref:migration/reactive.adoc[Reactive Migrations]
 * xref:getting-spring-security.adoc[Getting Spring Security]
 * xref:features/index.adoc[Features]

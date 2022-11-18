@@ -1,0 +1,10 @@
+= CAS Migrations
+
+The following steps relate to changes around CAS support.
+
+== Remove CAS support
+
+In Spring Security 6.0, the CAS support https://github.com/spring-projects/spring-security/issues/10441[has been removed], see the linked issue for more information.
+There is no direct replacement for it, however, it is possible to https://apereo.github.io/cas/6.6.x/authentication/OAuth-Authentication.html[configure your CAS server to act as an OAuth 2.0 Authentication Provider] and use the xref::servlet/oauth2/index.adoc[OAuth 2.0 support in Spring Security].
+
+The support might be re-added in future versions of Spring Security, subscribe to https://github.com/spring-projects/spring-security/issues/11674[this issue] to receive updates.
