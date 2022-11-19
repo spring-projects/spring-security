@@ -37,6 +37,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.ldap.SpringSecurityLdapTemplate;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 
 /**
  * The default strategy for obtaining user role information from the directory.
@@ -169,7 +170,14 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 			logger.info("Will perform group search from the context source base since groupSearchBase is empty.");
 		}
 		this.authorityMapper = (record) -> {
-			String role = record.get(this.groupRoleAttribute).get(0);
+			List<String> roles = record.get(this.groupRoleAttribute);
+			if (CollectionUtils.isEmpty(roles)) {
+				return null;
+			}
+			String role = roles.get(0);
+			if (role == null) {
+				return null;
+			}
 			if (this.convertToUpperCase) {
 				role = role.toUpperCase();
 			}
@@ -225,7 +233,10 @@ public class DefaultLdapAuthoritiesPopulator implements LdapAuthoritiesPopulator
 				new String[] { this.groupRoleAttribute });
 		logger.debug(LogMessage.of(() -> "Found roles from search " + userRoles));
 		for (Map<String, List<String>> role : userRoles) {
-			authorities.add(this.authorityMapper.apply(role));
+			GrantedAuthority authority = this.authorityMapper.apply(role);
+			if (authority != null) {
+				authorities.add(authority);
+			}
 		}
 		return authorities;
 	}
