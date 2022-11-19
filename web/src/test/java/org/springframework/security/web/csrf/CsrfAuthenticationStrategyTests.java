@@ -108,9 +108,10 @@ public class CsrfAuthenticationStrategyTests {
 		verify(this.csrfTokenRepository).loadDeferredToken(this.request, this.response);
 		// SEC-2404, SEC-2832
 		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
-		assertThat(tokenInRequest.getToken()).isSameAs(this.generatedToken.getToken());
-		assertThat(tokenInRequest.getHeaderName()).isSameAs(this.generatedToken.getHeaderName());
-		assertThat(tokenInRequest.getParameterName()).isSameAs(this.generatedToken.getParameterName());
+		assertThat(tokenInRequest.getToken()).isNotEmpty();
+		assertThat(tokenInRequest.getToken()).isNotEqualTo(this.generatedToken.getToken());
+		assertThat(tokenInRequest.getHeaderName()).isEqualTo(this.generatedToken.getHeaderName());
+		assertThat(tokenInRequest.getParameterName()).isEqualTo(this.generatedToken.getParameterName());
 		assertThat(this.request.getAttribute(this.generatedToken.getParameterName())).isSameAs(tokenInRequest);
 	}
 

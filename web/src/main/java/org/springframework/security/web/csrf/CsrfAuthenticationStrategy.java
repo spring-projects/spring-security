@@ -41,7 +41,7 @@ public final class CsrfAuthenticationStrategy implements SessionAuthenticationSt
 
 	private final CsrfTokenRepository tokenRepository;
 
-	private CsrfTokenRequestHandler requestHandler = new CsrfTokenRequestAttributeHandler();
+	private CsrfTokenRequestHandler requestHandler = new XorCsrfTokenRequestAttributeHandler();
 
 	/**
 	 * Creates a new instance
