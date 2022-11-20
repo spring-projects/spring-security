@@ -4,7 +4,7 @@
 The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
 Use 5.8 and the steps below to minimize changes when
 ifdef::spring-security-version[]
-xref:6.0.0@migration.adoc[updating to 6.0]
+xref:6.0.0@migration/index.adoc[updating to 6.0]
 endif::[]
 ifndef::spring-security-version[]
 updating to 6.0
