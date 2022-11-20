@@ -126,7 +126,7 @@ If configuring CSRF BREACH protection gives you trouble, take a look at these sc
 
 ==== I am using AngularJS or another Javascript framework
 
-If you are using AngularJS and the https://angular.io/api/common/http/HttpClientXsrfModule[HttpClientXsrfModule] (or a similar module in another framework) along with `CookieCsrfTokenRepository.withHttpOnlyFalse()`, you may find that automatic support no longer works.
+If you are using AngularJS and the https://angular.io/api/common/http/HttpClientXsrfModule[HttpClientXsrfModule] (or a similar module in another framework) along with `CookieServerCsrfTokenRepository.withHttpOnlyFalse()`, you may find that automatic support no longer works.
 
 In this case, you can configure Spring Security to validate the raw `CsrfToken` from the cookie while keeping CSRF BREACH protection of the response using a custom `ServerCsrfTokenRequestHandler` with delegation, like so:
 
