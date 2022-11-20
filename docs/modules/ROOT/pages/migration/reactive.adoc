@@ -32,7 +32,7 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 	return http {
 		// ...
 		csrf {
@@ -67,7 +67,7 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 	val requestHandler = ServerCsrfTokenRequestAttributeHandler()
 	requestHandler.tokenFromMultipartDataEnabled = true
 	return http {
@@ -106,9 +106,119 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 [source,kotlin,role="secondary"]
 ----
 @Bean
-open fun securityWebFilterChain(http: HttpSecurity): SecurityWebFilterChain {
+open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 	val requestHandler = XorServerCsrfTokenRequestAttributeHandler()
 	// ...
+	return http {
+		// ...
+		csrf {
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+}
+----
+====
+
+[[reactive-csrf-breach-opt-out]]
+=== Opt-out Steps
+
+If configuring CSRF BREACH protection gives you trouble, take a look at these scenarios for optimal opt out behavior:
+
+==== I am using AngularJS or another Javascript framework
+
+If you are using AngularJS and the https://angular.io/api/common/http/HttpClientXsrfModule[HttpClientXsrfModule] (or a similar module in another framework) along with `CookieCsrfTokenRepository.withHttpOnlyFalse()`, you may find that automatic support no longer works.
+
+In this case, you can configure Spring Security to validate the raw `CsrfToken` from the cookie while keeping CSRF BREACH protection of the response using a custom `ServerCsrfTokenRequestHandler` with delegation, like so:
+
+.Configure `CsrfToken` BREACH Protection to validate raw tokens
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	CookieServerCsrfTokenRepository tokenRepository = CookieServerCsrfTokenRepository.withHttpOnlyFalse();
+	XorServerCsrfTokenRequestAttributeHandler delegate = new XorServerCsrfTokenRequestAttributeHandler();
+	// Use only the handle() method of XorServerCsrfTokenRequestAttributeHandler and the
+	// default implementation of resolveCsrfTokenValue() from ServerCsrfTokenRequestHandler
+	ServerCsrfTokenRequestHandler requestHandler = delegate::handle;
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRepository(tokenRepository)
+			.csrfTokenRequestHandler(requestHandler)
+		);
+
+	return http.build();
+}
+
+@Bean
+WebFilter csrfCookieWebFilter() {
+	return (exchange, chain) -> {
+		Mono<CsrfToken> csrfToken = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
+		return csrfToken.doOnSuccess(token -> {
+			/* Ensures the token is subscribed to. */
+		}).then(chain.filter(exchange));
+	};
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+	val tokenRepository = CookieServerCsrfTokenRepository.withHttpOnlyFalse()
+	val delegate = XorServerCsrfTokenRequestAttributeHandler()
+	// Use only the handle() method of XorCsrfTokenRequestAttributeHandler and the
+	// default implementation of resolveCsrfTokenValue() from CsrfTokenRequestHandler
+	val requestHandler = ServerCsrfTokenRequestHandler(delegate::handle)
+	return http.invoke {
+		// ...
+		csrf {
+			csrfTokenRepository = tokenRepository
+			csrfTokenRequestHandler = requestHandler
+		}
+	}
+}
+
+@Bean
+fun csrfCookieWebFilter(): WebFilter {
+	return WebFilter { exchange, chain ->
+		val csrfToken = exchange.getAttribute<Mono<CsrfToken>>(CsrfToken::class.java.name) ?: Mono.empty()
+		csrfToken.doOnSuccess { }.then(chain.filter(exchange))
+	}
+}
+----
+====
+
+==== I need to opt out of CSRF BREACH protection for another reason
+
+If CSRF BREACH protection does not work for you for another reason, you can opt out using the following configuration:
+
+.Opt out of `CsrfToken` BREACH protection
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+	ServerCsrfTokenRequestAttributeHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
+	http
+		// ...
+		.csrf((csrf) -> csrf
+			.csrfTokenRequestHandler(requestHandler)
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+	val requestHandler = ServerCsrfTokenRequestAttributeHandler()
 	return http {
 		// ...
 		csrf {
