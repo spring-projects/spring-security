@@ -186,7 +186,9 @@ open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChai
 fun csrfCookieWebFilter(): WebFilter {
 	return WebFilter { exchange, chain ->
 		val csrfToken = exchange.getAttribute<Mono<CsrfToken>>(CsrfToken::class.java.name) ?: Mono.empty()
-		csrfToken.doOnSuccess { }.then(chain.filter(exchange))
+		csrfToken.doOnSuccess {
+            /* Ensures the token is subscribed to. */
+		}.then(chain.filter(exchange))
 	}
 }
 ----
