@@ -170,8 +170,8 @@ WebFilter csrfCookieWebFilter() {
 open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 	val tokenRepository = CookieServerCsrfTokenRepository.withHttpOnlyFalse()
 	val delegate = XorServerCsrfTokenRequestAttributeHandler()
-	// Use only the handle() method of XorCsrfTokenRequestAttributeHandler and the
-	// default implementation of resolveCsrfTokenValue() from CsrfTokenRequestHandler
+	// Use only the handle() method of XorServerCsrfTokenRequestAttributeHandler and the
+	// default implementation of resolveCsrfTokenValue() from ServerCsrfTokenRequestHandler
 	val requestHandler = ServerCsrfTokenRequestHandler(delegate::handle)
 	return http.invoke {
 		// ...
