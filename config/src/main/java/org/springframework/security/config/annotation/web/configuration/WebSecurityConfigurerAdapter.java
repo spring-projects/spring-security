@@ -91,7 +91,24 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * @see EnableWebSecurity
  * @deprecated Use a {@link org.springframework.security.web.SecurityFilterChain} Bean to
  * configure {@link HttpSecurity} or a {@link WebSecurityCustomizer} Bean to configure
- * {@link WebSecurity}
+ * {@link WebSecurity}. <pre>
+ *     &#64;Bean
+ *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+ *         http
+ *             .authorizeHttpRequests((authz) ->
+ *                 authz.anyRequest().authenticated()
+ *             );
+ *             // ...
+ *         return http.build();
+ *     }
+ *
+ *    &#64;Bean
+ *    public WebSecurityCustomizer webSecurityCustomizer(WebSecurity web) {
+ *        return (web) -> web.ignoring().antMatchers("/resources/**");
+ *    }
+ * </pre> See the <a href=
+ * "https://spring.io/blog/2022/02/21/spring-security-without-the-websecurityconfigureradapter">Spring
+ * Security without WebSecurityConfigurerAdapter</a> for more details.
  */
 @Order(100)
 @Deprecated
