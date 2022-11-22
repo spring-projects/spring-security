@@ -1,7 +1,6 @@
 # The purpose of this Antora playbook is to generate a preview of the docs in the current branch.
 antora:
   extensions:
-  - ./antora-linked-worktree-patch.js
   - '@antora/collector-extension'
 site:
   title: Spring Security
