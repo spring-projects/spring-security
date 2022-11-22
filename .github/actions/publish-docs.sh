@@ -19,6 +19,10 @@ fi
   echo "$SSH_PRIVATE_KEY" > "$SSH_PRIVATE_KEY_PATH"
   echo "$SSH_KNOWN_HOST" > ~/.ssh/known_hosts
   RSYNC_OPTS='-avz --delete'
+  if [ -f .full-build ]; then
+    unlink .full-build
+    BUILD_REFNAME=
+  fi
   if [ -n "$BUILD_REFNAME" ]; then
     RSYNC_OPTS="-c $RSYNC_OPTS$(find $FROM -mindepth 1 -maxdepth 1 \! -name 404.html \! -name '.*' -type f -printf ' --include /%P')"
     RSYNC_OPTS="$RSYNC_OPTS$(find $FROM -mindepth 1 -maxdepth 1 -type d \! -name _ -printf ' --include /%P --include /%P/**') --exclude **"
