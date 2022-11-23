@@ -49,10 +49,11 @@ import org.springframework.util.Assert;
  * </p>
  *
  * <pre>
- * protected void configure(HttpSecurity http) throws Exception {
- * 	http.apply(new UrlAuthorizationConfigurer&lt;HttpSecurity&gt;()).getRegistry()
- * 			.antMatchers(&quot;/users**&quot;, &quot;/sessions/**&quot;).hasRole(&quot;USER&quot;)
- * 			.antMatchers(&quot;/signup&quot;).hasRole(&quot;ANONYMOUS&quot;).anyRequest().hasRole(&quot;USER&quot;);
+ * @Bean
+ * public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+ * 	http.apply(new UrlAuthorizationConfigurer&lt;HttpSecurity&gt;(context)).getRegistry()
+ * 			.requestMatchers(&quot;/users**&quot;, &quot;/sessions/**&quot;).hasRole(&quot;USER&quot;)
+ * 			.requestMatchers(&quot;/signup&quot;).hasRole(&quot;ANONYMOUS&quot;).anyRequest().hasRole(&quot;USER&quot;);
  * }
  * </pre>
  *
