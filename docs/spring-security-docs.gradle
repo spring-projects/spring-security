@@ -6,7 +6,7 @@ apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	version = '~3.1'
+	version = '3.2.0-alpha.2'
 	playbook = file('local-antora-playbook.yml')
 	options = ['--clean', '--stacktrace']
 	environment = [
@@ -15,7 +15,7 @@ antora {
 		'ALGOLIA_INDEX_NAME': 'security-docs'
 	]
 	dependencies = [
-		'@antora/collector-extension': '1.0.0-alpha.2'
+		'@antora/collector-extension': '1.0.0-alpha.3'
 	]
 }
 
