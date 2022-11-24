@@ -145,7 +145,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 		return DEFAULT_CLAIM_TYPE_CONVERTER.convert(oauth2User.getAttributes());
 	}
 
-	private OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
+	protected OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
 		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
 		String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
 		if (StringUtils.hasText(userNameAttributeName)) {

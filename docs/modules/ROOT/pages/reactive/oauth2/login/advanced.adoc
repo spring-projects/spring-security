@@ -439,24 +439,21 @@ public class OAuth2LoginSecurityConfig {
 
 	@Bean
 	public ReactiveOAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-		final OidcReactiveOAuth2UserService delegate = new OidcReactiveOAuth2UserService();
+		return new OidcReactiveOAuth2UserService() {
+			@Override
+			protected OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
+				OAuth2AccessToken accessToken = userRequest.getAccessToken();
+				Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
-		return (userRequest) -> {
-			// Delegate to the default implementation for loading a user
-			return delegate.loadUser(userRequest)
-					.flatMap((oidcUser) -> {
-						OAuth2AccessToken accessToken = userRequest.getAccessToken();
-						Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+				// TODO
+				// 1) Fetch the authority information from the protected resource using accessToken
+				// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
 
-						// TODO
-						// 1) Fetch the authority information from the protected resource using accessToken
-						// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
+				// Delegate to the default implementation for getting a user
+				OidcUser oidcUser = super.loadUser(userRequest, userInfo, mappedAuthorities);
 
-						// 3) Create a copy of oidcUser but use the mappedAuthorities instead
-						oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
-
-						return Mono.just(oidcUser);
-					});
+				return oidcUser;
+			}
 		};
 	}
 }
@@ -479,24 +476,19 @@ class OAuth2LoginSecurityConfig {
     }
 
     @Bean
-    fun oidcUserService(): ReactiveOAuth2UserService<OidcUserRequest, OidcUser> {
-        val delegate = OidcReactiveOAuth2UserService()
+    fun oidcUserService(): ReactiveOAuth2UserService<OidcUserRequest, OidcUser> = object : OidcReactiveOAuth2UserService() {
+        override fun getUser(userRequest: OidcUserRequest, userInfo: OidcUserInfo, authorities: Set<GrantedAuthority>): OidcUser {
+            val accessToken = userRequest.accessToken
+            val mappedAuthorities = mutableSetOf<GrantedAuthority>()
 
-        return ReactiveOAuth2UserService { userRequest ->
-            // Delegate to the default implementation for loading a user
-            delegate.loadUser(userRequest)
-                .flatMap { oidcUser ->
-                    val accessToken = userRequest.accessToken
-                    val mappedAuthorities = mutableSetOf<GrantedAuthority>()
+            // TODO
+            // 1) Fetch the authority information from the protected resource using accessToken
+            // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
 
-                    // TODO
-                    // 1) Fetch the authority information from the protected resource using accessToken
-                    // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
-                    // 3) Create a copy of oidcUser but use the mappedAuthorities instead
-                    val mappedOidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+            // Delegate to the default implementation for getting a user
+            val mappedOidcUser = super.getUser(userRequest, userInfo, mappedAuthorities)
 
-                    Mono.just(mappedOidcUser)
-                }
+            mappedOidcUser
         }
     }
 }

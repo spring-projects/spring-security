@@ -626,23 +626,21 @@ public class OAuth2LoginSecurityConfig {
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-		final OidcUserService delegate = new OidcUserService();
+		return new OidcUserService() {
+			@Override
+			protected OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
+				OAuth2AccessToken accessToken = userRequest.getAccessToken();
+				Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
-		return (userRequest) -> {
-			// Delegate to the default implementation for loading a user
-			OidcUser oidcUser = delegate.loadUser(userRequest);
+				// TODO
+				// 1) Fetch the authority information from the protected resource using accessToken
+				// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
 
-			OAuth2AccessToken accessToken = userRequest.getAccessToken();
-			Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
+				// Delegate to the default implementation for getting a user
+				OidcUser oidcUser = super.getUser(userRequest, userInfo, mappedAuthorities);
 
-			// TODO
-			// 1) Fetch the authority information from the protected resource using accessToken
-			// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
-
-			// 3) Create a copy of oidcUser but use the mappedAuthorities instead
-			oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
-
-			return oidcUser;
+				return oidcUser;
+			}
 		};
 	}
 }
@@ -668,21 +666,17 @@ class OAuth2LoginSecurityConfig  {
     }
 
     @Bean
-    fun oidcUserService(): OAuth2UserService<OidcUserRequest, OidcUser> {
-        val delegate = OidcUserService()
-
-        return OAuth2UserService { userRequest ->
-            // Delegate to the default implementation for loading a user
-            var oidcUser = delegate.loadUser(userRequest)
-
+    fun oidcUserService(): OAuth2UserService<OidcUserRequest, OidcUser> = object : OidcUserService() {
+        override fun getUser(userRequest: OidcUserRequest, userInfo: OidcUserInfo, authorities: Set<GrantedAuthority>): OidcUser {
             val accessToken = userRequest.accessToken
             val mappedAuthorities = HashSet<GrantedAuthority>()
 
             // TODO
             // 1) Fetch the authority information from the protected resource using accessToken
             // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
-            // 3) Create a copy of oidcUser but use the mappedAuthorities instead
-            oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+
+            // Delegate to the default implementation for getting a user
+            val oidcUser = super.getUser(userRequest, userInfo, mappedAuthorities)
 
             oidcUser
         }

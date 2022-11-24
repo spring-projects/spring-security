@@ -111,15 +111,19 @@ public class OidcReactiveOAuth2UserService implements ReactiveOAuth2UserService<
 					for (String scope : token.getScopes()) {
 						authorities.add(new SimpleGrantedAuthority("SCOPE_" + scope));
 					}
-					String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
-							.getUserInfoEndpoint().getUserNameAttributeName();
-					if (StringUtils.hasText(userNameAttributeName)) {
-						return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo,
-								userNameAttributeName);
-					}
-					return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
+					return getUser(userRequest, userInfo, authorities);
 				});
 		// @formatter:on
+	}
+
+	protected OidcUser getUser(OidcUserRequest userRequest, OidcUserInfo userInfo, Set<GrantedAuthority> authorities) {
+		String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails()
+				.getUserInfoEndpoint().getUserNameAttributeName();
+		if (StringUtils.hasText(userNameAttributeName)) {
+			return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo,
+					userNameAttributeName);
+		}
+		return new DefaultOidcUser(authorities, userRequest.getIdToken(), userInfo);
 	}
 
 	private Mono<OidcUserInfo> getUserInfo(OidcUserRequest userRequest) {
