@@ -640,7 +640,13 @@ public class OAuth2LoginSecurityConfig {
 			// 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
 
 			// 3) Create a copy of oidcUser but use the mappedAuthorities instead
-			oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+			ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
+			String userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName();
+			if (StringUtils.hasText(userNameAttributeName)) {
+				oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo(), userNameAttributeName);
+			} else {
+				oidcUser = new DefaultOidcUser(mappedAuthorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
+			}
 
 			return oidcUser;
 		};
@@ -682,7 +688,13 @@ class OAuth2LoginSecurityConfig  {
             // 1) Fetch the authority information from the protected resource using accessToken
             // 2) Map the authority information to one or more GrantedAuthority's and add it to mappedAuthorities
             // 3) Create a copy of oidcUser but use the mappedAuthorities instead
-            oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+            val providerDetails = userRequest.getClientRegistration().getProviderDetails()
+            val userNameAttributeName = providerDetails.getUserInfoEndpoint().getUserNameAttributeName()
+            if (StringUtils.hasText(userNameAttributeName)) {
+                oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo, userNameAttributeName)
+            else {
+                oidcUser = DefaultOidcUser(mappedAuthorities, oidcUser.idToken, oidcUser.userInfo)
+            }
 
             oidcUser
         }
