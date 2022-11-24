@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,14 +20,14 @@ import java.util.List;
 import java.util.ListIterator;
 
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.security.rsocket.api.PayloadExchange;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
 import org.springframework.security.rsocket.api.PayloadInterceptorChain;
 
 /**
- * A {@link PayloadInterceptorChain} which exposes the Reactor {@link Context} via a
+ * A {@link PayloadInterceptorChain} which exposes the Reactor {@link ContextView} via a
  * member variable. This class is not Thread safe, so a new instance must be created for
  * each Thread.
  *
@@ -45,7 +45,7 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 
 	private final ContextPayloadInterceptorChain next;
 
-	private Context context;
+	private ContextView contextView;
 
 	ContextPayloadInterceptorChain(List<PayloadInterceptor> interceptors) {
 		if (interceptors == null) {
@@ -75,15 +75,20 @@ class ContextPayloadInterceptorChain implements PayloadInterceptorChain {
 
 	@Override
 	public Mono<Void> next(PayloadExchange exchange) {
-		return Mono.defer(() -> shouldIntercept() ? this.currentInterceptor.intercept(exchange, this.next)
-				: Mono.subscriberContext().doOnNext((c) -> this.context = c).then());
+		return Mono.deferContextual((ctxView) -> {
+			if (shouldIntercept()) {
+				return this.currentInterceptor.intercept(exchange, this.next);
+			}
+			this.contextView = ctxView;
+			return Mono.empty();
+		});
 	}
 
-	Context getContext() {
+	ContextView getContextView() {
 		if (this.next == null) {
-			return this.context;
+			return this.contextView;
 		}
-		return this.next.getContext();
+		return this.next.getContextView();
 	}
 
 	private boolean shouldIntercept() {

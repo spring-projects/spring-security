@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.reactivestreams.Publisher;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.security.rsocket.api.PayloadExchangeType;
 import org.springframework.security.rsocket.api.PayloadInterceptor;
@@ -44,7 +45,7 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 
 	private final MimeType dataMimeType;
 
-	private final Context context;
+	private final ContextView contextView;
 
 	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
 			MimeType dataMimeType) {
@@ -52,7 +53,7 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	}
 
 	PayloadInterceptorRSocket(RSocket delegate, List<PayloadInterceptor> interceptors, MimeType metadataMimeType,
-			MimeType dataMimeType, Context context) {
+			MimeType dataMimeType, ContextView contextView) {
 		super(delegate);
 		this.metadataMimeType = metadataMimeType;
 		this.dataMimeType = dataMimeType;
@@ -66,35 +67,34 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 			throw new IllegalArgumentException("interceptors cannot be empty");
 		}
 		this.interceptors = interceptors;
-		this.context = context;
+		this.contextView = contextView;
 	}
 
 	@Override
 	public Mono<Void> fireAndForget(Payload payload) {
 		return intercept(PayloadExchangeType.FIRE_AND_FORGET, payload)
-				.flatMap((context) -> this.source.fireAndForget(payload).subscriberContext(context));
+				.flatMap((context) -> this.source.fireAndForget(payload).contextWrite(context));
 	}
 
 	@Override
 	public Mono<Payload> requestResponse(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_RESPONSE, payload)
-				.flatMap((context) -> this.source.requestResponse(payload).subscriberContext(context));
+				.flatMap((context) -> this.source.requestResponse(payload).contextWrite(context));
 	}
 
 	@Override
 	public Flux<Payload> requestStream(Payload payload) {
 		return intercept(PayloadExchangeType.REQUEST_STREAM, payload)
-				.flatMapMany((context) -> this.source.requestStream(payload).subscriberContext(context));
+				.flatMapMany((context) -> this.source.requestStream(payload).contextWrite(context));
 	}
 
 	@Override
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
 		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
 			Payload firstPayload = signal.get();
-			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
-					(context) -> innerFlux.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
-							.transform((securedPayloads) -> this.source.requestChannel(securedPayloads))
-							.subscriberContext(context));
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany((context) -> innerFlux
+					.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
+					.transform((securedPayloads) -> this.source.requestChannel(securedPayloads)).contextWrite(context));
 		});
 	}
 
@@ -105,16 +105,16 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	@Override
 	public Mono<Void> metadataPush(Payload payload) {
 		return intercept(PayloadExchangeType.METADATA_PUSH, payload)
-				.flatMap((c) -> this.source.metadataPush(payload).subscriberContext(c));
+				.flatMap((c) -> this.source.metadataPush(payload).contextWrite(c));
 	}
 
-	private Mono<Context> intercept(PayloadExchangeType type, Payload payload) {
+	private Mono<ContextView> intercept(PayloadExchangeType type, Payload payload) {
 		return Mono.defer(() -> {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
 			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload, this.metadataMimeType,
 					this.dataMimeType);
-			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
-					.defaultIfEmpty(Context.empty()).subscriberContext(this.context);
+			return chain.next(exchange).then(Mono.fromCallable(chain::getContextView)).defaultIfEmpty(Context.empty())
+					.contextWrite(this.contextView);
 		});
 	}
 

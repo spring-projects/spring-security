@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -238,7 +238,7 @@ public class SwitchUserWebFilter implements WebFilter {
 		return this.securityContextRepository.save(exchange, securityContext)
 				.doOnSuccess((v) -> this.logger.debug(LogMessage.format("Switched user to %s", authentication)))
 				.then(this.successHandler.onAuthenticationSuccess(webFilterExchange, authentication))
-				.subscriberContext(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
+				.contextWrite(ReactiveSecurityContextHolder.withSecurityContext(Mono.just(securityContext)));
 	}
 
 	private Mono<Void> onAuthenticationFailure(AuthenticationException exception, WebFilterExchange webFilterExchange) {

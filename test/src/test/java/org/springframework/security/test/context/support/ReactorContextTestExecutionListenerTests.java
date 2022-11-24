@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -101,7 +101,7 @@ public class ReactorContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 		Mono<Authentication> authentication = Mono.just("any")
 				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(expectedAuthentication));
 		StepVerifier.create(authentication).expectNext(expectedAuthentication).verifyComplete();
 	}
 
@@ -115,7 +115,7 @@ public class ReactorContextTestExecutionListenerTests {
 		this.listener.beforeTestMethod(this.testContext);
 		Mono<Authentication> authentication = Mono.just("any")
 				.flatMap((s) -> ReactiveSecurityContextHolder.getContext().map(SecurityContext::getAuthentication))
-				.subscriberContext(ReactiveSecurityContextHolder.clearContext());
+				.contextWrite(ReactiveSecurityContextHolder.clearContext());
 		StepVerifier.create(authentication).verifyComplete();
 	}
 
@@ -129,7 +129,7 @@ public class ReactorContextTestExecutionListenerTests {
 	public void afterTestMethodWhenSetupThenReactorContextNull() throws Exception {
 		beforeTestMethodWhenAuthenticationThenReactorContextHasAuthentication();
 		this.listener.afterTestMethod(this.testContext);
-		assertThat(Mono.subscriberContext().block().isEmpty()).isTrue();
+		assertThat(Mono.deferContextual(Mono::just).block().isEmpty()).isTrue();
 	}
 
 	@Test
@@ -137,7 +137,7 @@ public class ReactorContextTestExecutionListenerTests {
 		Object obj = new Object();
 		Hooks.onLastOperator("CUSTOM_HOOK", (p) -> Mono.just(obj));
 		this.listener.afterTestMethod(this.testContext);
-		Object result = Mono.subscriberContext().block();
+		Object result = Mono.deferContextual(Mono::just).block();
 		assertThat(result).isEqualTo(obj);
 	}
 

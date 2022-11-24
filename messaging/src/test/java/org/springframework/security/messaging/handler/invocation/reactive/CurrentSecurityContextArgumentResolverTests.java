@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<SecurityContext> result = (Mono<SecurityContext>) this.resolver
 				.resolveArgument(arg0("currentSecurityContextOnMonoSecurityContext"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block().getAuthentication()).isEqualTo(authentication);
 	}
 
@@ -76,7 +76,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
 				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
 	}
 
@@ -89,7 +89,7 @@ public class CurrentSecurityContextArgumentResolverTests {
 		Authentication authentication = TestAuthentication.authenticatedUser();
 		Mono<String> result = (Mono<String>) this.resolver
 				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication)).block();
 		assertThat(result.block()).isEqualTo(authentication.getName());
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -472,18 +472,18 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 	private Mono<ClientRequest> mergeRequestAttributesFromContext(ClientRequest request) {
 		ClientRequest.Builder builder = ClientRequest.from(request);
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
 				.map((ctx) -> builder.attributes((attrs) -> populateRequestAttributes(attrs, ctx)))
 				.map(ClientRequest.Builder::build);
 	}
 
-	private void populateRequestAttributes(Map<String, Object> attrs, Context ctx) {
+	private void populateRequestAttributes(Map<String, Object> attrs, ContextView ctxView) {
 		// NOTE: SecurityReactorContextConfiguration.SecurityReactorContextSubscriber adds
 		// this key
-		if (!ctx.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {
+		if (!ctxView.hasKey(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY)) {
 			return;
 		}
-		Map<Object, Object> contextAttributes = ctx.get(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY);
+		Map<Object, Object> contextAttributes = ctxView.get(SECURITY_REACTOR_CONTEXT_ATTRIBUTES_KEY);
 		HttpServletRequest servletRequest = (HttpServletRequest) contextAttributes.get(HttpServletRequest.class);
 		if (servletRequest != null) {
 			attrs.putIfAbsent(HTTP_SERVLET_REQUEST_ATTR_NAME, servletRequest);

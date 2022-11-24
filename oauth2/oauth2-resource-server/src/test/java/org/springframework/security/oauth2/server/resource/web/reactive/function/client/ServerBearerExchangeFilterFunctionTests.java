@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 	public void filterWhenAuthenticatedThenAuthorizationHeaderNull() throws Exception {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
@@ -80,7 +80,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(token)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(token)).block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
@@ -89,7 +89,7 @@ public class ServerBearerExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -47,10 +47,10 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 		Mono<Void> result = this.filter
 				.filter(this.exchange, new DefaultWebFilterChain((e) -> e.getPrincipal()
 						.doOnSuccess((contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
-						.flatMap((contextPrincipal) -> Mono.subscriberContext())
+						.flatMap((contextPrincipal) -> Mono.deferContextual(Mono::just))
 						.doOnSuccess((context) -> assertThat(context.<String>get("foo")).isEqualTo("bar")).then()))
-				.subscriberContext((context) -> context.put("foo", "bar"))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+				.contextWrite((context) -> context.put("foo", "bar"))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
 	}
 
@@ -62,7 +62,7 @@ public class SecurityContextServerWebExchangeWebFilterTests {
 								.doOnSuccess(
 										(contextPrincipal) -> assertThat(contextPrincipal).isEqualTo(this.principal))
 								.then()))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.principal));
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.principal));
 		StepVerifier.create(result).verifyComplete();
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -557,7 +557,7 @@ public class ServerHttpSecurityTests {
 
 		@GetMapping("/**")
 		Mono<String> pathWithinApplicationFromContext() {
-			return Mono.subscriberContext().filter((c) -> c.hasKey(ServerWebExchange.class))
+			return Mono.deferContextual(Mono::just).filter((c) -> c.hasKey(ServerWebExchange.class))
 					.map((c) -> c.get(ServerWebExchange.class))
 					.map((e) -> e.getRequest().getPath().pathWithinApplication().value());
 		}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import java.util.function.Function;
 
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.security.core.Authentication;
 
@@ -37,23 +38,23 @@ public final class ReactiveSecurityContextHolder {
 	}
 
 	/**
-	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link Context}
+	 * Gets the {@code Mono<SecurityContext>} from Reactor {@link ContextView}
 	 * @return the {@code Mono<SecurityContext>}
 	 */
 	public static Mono<SecurityContext> getContext() {
 		// @formatter:off
-		return Mono.subscriberContext()
+		return Mono.deferContextual(Mono::just)
 				.filter(ReactiveSecurityContextHolder::hasSecurityContext)
 				.flatMap(ReactiveSecurityContextHolder::getSecurityContext);
 		// @formatter:on
 	}
 
-	private static boolean hasSecurityContext(Context context) {
-		return context.hasKey(SECURITY_CONTEXT_KEY);
+	private static boolean hasSecurityContext(ContextView contextView) {
+		return contextView.hasKey(SECURITY_CONTEXT_KEY);
 	}
 
-	private static Mono<SecurityContext> getSecurityContext(Context context) {
-		return context.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY);
+	private static Mono<SecurityContext> getSecurityContext(ContextView contextView) {
+		return contextView.<Mono<SecurityContext>>get(SECURITY_CONTEXT_KEY);
 	}
 
 	/**

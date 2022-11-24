@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -84,8 +84,7 @@ public class AnonymousPayloadInterceptor implements PayloadInterceptor, Ordered 
 		return ReactiveSecurityContextHolder.getContext().switchIfEmpty(Mono.defer(() -> {
 			AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(this.key, this.principal,
 					this.authorities);
-			return chain.next(exchange)
-					.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+			return chain.next(exchange).contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 					.then(Mono.empty());
 		})).flatMap((securityContext) -> chain.next(exchange));
 	}

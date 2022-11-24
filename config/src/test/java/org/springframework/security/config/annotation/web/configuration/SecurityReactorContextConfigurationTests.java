@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ public class SecurityReactorContextConfigurationTests {
 		SecurityContextHolder.getContext().setAuthentication(this.authentication);
 		ClientResponse clientResponseOk = ClientResponse.create(HttpStatus.OK).build();
 		// @formatter:off
-		ExchangeFilterFunction filter = (req, next) -> Mono.subscriberContext()
+		ExchangeFilterFunction filter = (req, next) -> Mono.deferContextual(Mono::just)
 				.filter((ctx) -> ctx.hasKey(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
 				.map((ctx) -> ctx.get(SecurityReactorContextSubscriber.SECURITY_CONTEXT_ATTRIBUTES))
 				.cast(Map.class)

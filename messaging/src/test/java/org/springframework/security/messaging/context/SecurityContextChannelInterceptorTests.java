@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -197,8 +197,8 @@ public class SecurityContextChannelInterceptorTests {
 	public void restoresOriginalContextNestedThreeDeep() {
 		AnonymousAuthenticationToken anonymous = new AnonymousAuthenticationToken("key", "anonymous",
 				AuthorityUtils.createAuthorityList("ROLE_USER"));
-		TestingAuthenticationToken origional = new TestingAuthenticationToken("original", "origional", "ROLE_USER");
-		SecurityContextHolder.getContext().setAuthentication(origional);
+		TestingAuthenticationToken original = new TestingAuthenticationToken("original", "original", "ROLE_USER");
+		SecurityContextHolder.getContext().setAuthentication(original);
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.USER_HEADER, this.authentication);
 		this.interceptor.beforeHandle(this.messageBuilder.build(), this.channel, this.handler);
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
@@ -210,7 +210,7 @@ public class SecurityContextChannelInterceptorTests {
 		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(this.authentication);
 		// end send websocket
 		this.interceptor.afterMessageHandled(this.messageBuilder.build(), this.channel, this.handler, null);
-		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(origional);
+		assertThat(SecurityContextHolder.getContext().getAuthentication()).isSameAs(original);
 	}
 
 	private void assertAnonymous() {

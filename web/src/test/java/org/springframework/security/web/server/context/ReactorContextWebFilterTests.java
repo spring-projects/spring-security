@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class ReactorContextWebFilterTests {
 	public void filterWhenMainContextThenDoesNotOverride() {
 		given(this.repository.load(any())).willReturn(this.securityContext.mono());
 		String contextKey = "main";
-		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).subscriberContext(Context.of(contextKey, true));
+		WebFilter mainContextWebFilter = (e, c) -> c.filter(e).contextWrite(Context.of(contextKey, true));
 		WebFilterChain chain = new DefaultWebFilterChain((e) -> Mono.empty(), mainContextWebFilter, this.filter);
 		Mono<Void> filter = chain.filter(MockServerWebExchange.from(this.exchange.build()));
 		StepVerifier.create(filter).expectAccessibleContext().hasKey(contextKey).then().verifyComplete();

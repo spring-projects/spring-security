@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -249,7 +249,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		// @formatter:off
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange())
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
@@ -266,7 +266,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		// @formatter:on
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
 	}
@@ -296,8 +296,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange())
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		verify(this.clientCredentialsTokenResponseClient).getTokenResponse(any());
@@ -322,8 +322,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange())
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		verify(this.clientCredentialsTokenResponseClient, never()).getTokenResponse(any());
@@ -357,8 +357,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("test", "this");
 		// @formatter:off
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange())
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		verify(this.refreshTokenTokenResponseClient).getTokenResponse(any());
@@ -394,7 +394,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(serverWebExchange())
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		verify(this.refreshTokenTokenResponseClient).getTokenResponse(any());
@@ -436,8 +436,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(jwtAuthentication))
-				.subscriberContext(serverWebExchange()).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(jwtAuthentication))
+				.contextWrite(serverWebExchange()).block();
 		verify(this.jwtBearerTokenResponseClient).getTokenResponse(any());
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(registration.getRegistrationId()),
 				eq(jwtAuthentication), any());
@@ -460,7 +460,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(serverWebExchange())
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -482,7 +482,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(serverWebExchange())
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -510,7 +510,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.UNAUTHORIZED.value());
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
@@ -547,7 +547,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThatExceptionOfType(WebClientResponseException.class)
 				.isThrownBy(() -> this.function
 					.filter(request, throwingExchangeFunction)
-						.subscriberContext(serverWebExchange())
+						.contextWrite(serverWebExchange())
 						.block()
 				)
 				.isEqualTo(exception);
@@ -585,7 +585,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.build();
 		// @formatter:on
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.FORBIDDEN.value());
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
@@ -620,7 +620,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		assertThatExceptionOfType(WebClientResponseException.class)
 				.isThrownBy(() -> this.function
 					.filter(request, throwingExchangeFunction)
-					.subscriberContext(serverWebExchange())
+					.contextWrite(serverWebExchange())
 					.block()
 				)
 				.isEqualTo(exception);
@@ -659,7 +659,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		given(headers.header(eq(HttpHeaders.WWW_AUTHENTICATE)))
 				.willReturn(Collections.singletonList(wwwAuthenticateHeader));
 		given(this.exchange.getResponse().headers()).willReturn(headers);
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
 				this.authenticationCaptor.capture(), this.attributesCaptor.capture());
@@ -693,8 +693,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthorizationException exception = new OAuth2AuthorizationException(
 				new OAuth2Error(OAuth2ErrorCodes.INVALID_TOKEN, null, null));
 		ExchangeFunction throwingExchangeFunction = (r) -> Mono.error(exception);
-		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> this.function
-				.filter(request, throwingExchangeFunction).subscriberContext(serverWebExchange()).block())
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(
+				() -> this.function.filter(request, throwingExchangeFunction).contextWrite(serverWebExchange()).block())
 				.isEqualTo(exception);
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
@@ -716,7 +716,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.BAD_REQUEST.value());
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		verify(this.authorizationFailureHandler, never()).onAuthorizationFailure(any(), any(), any());
 	}
 
@@ -754,8 +754,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 						.clientRegistrationId(registration.getRegistrationId()))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange()).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(serverWebExchange()).block();
 		verify(this.passwordTokenResponseClient).getTokenResponse(any());
 		verify(this.authorizedClientRepository).saveAuthorizedClient(any(), eq(authentication), any());
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -778,7 +778,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(this.registration.getRegistrationId()))
 				.build();
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
 		ClientRequest request0 = requests.get(0);
@@ -797,7 +797,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any()))
 				.willReturn(Mono.just(authorizedClient));
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
-		this.function.filter(request, this.exchange).subscriberContext(serverWebExchange()).block();
+		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
 		ClientRequest request0 = requests.get(0);
@@ -821,8 +821,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		OAuth2AuthenticationToken authentication = new OAuth2AuthenticationToken(user, user.getAuthorities(),
 				"client-id");
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
-				.subscriberContext(serverWebExchange()).block();
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(serverWebExchange()).block();
 		List<ClientRequest> requests = this.exchange.getRequests();
 		assertThat(requests).hasSize(1);
 		ClientRequest request0 = requests.get(0);
@@ -841,7 +841,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				"client-id");
 		// @formatter:off
 		this.function.filter(request, this.exchange)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 		// @formatter:on
 		List<ClientRequest> requests = this.exchange.getRequests();
@@ -861,7 +861,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.clientRegistrationId(this.registration.getRegistrationId()))
 				.build();
 		this.function.filter(request, this.exchange)
-				.subscriberContext(serverWebExchange())
+				.contextWrite(serverWebExchange())
 				.block();
 		// @formatter:on
 		verify(this.authorizedClientRepository).loadAuthorizedClient(eq(this.registration.getRegistrationId()), any(),

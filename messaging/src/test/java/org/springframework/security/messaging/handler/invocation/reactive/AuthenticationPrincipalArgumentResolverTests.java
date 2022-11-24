@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,7 +58,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:off
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
 				.resolveArgument(arg0("authenticationPrincipalOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
@@ -79,7 +79,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:off
 		Mono<UserDetails> result = (Mono<UserDetails>) this.resolver
 				.resolveArgument(arg0("currentUserOnMonoUserDetails"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getPrincipal());
@@ -95,7 +95,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:off
 		Mono<String> result = (Mono<String>) this.resolver
 				.resolveArgument(arg0("authenticationPrincipalExpression"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(authentication))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(authentication))
 				.block();
 		// @formatter:on
 		assertThat(result.block()).isEqualTo(authentication.getName());
@@ -112,7 +112,7 @@ public class AuthenticationPrincipalArgumentResolverTests {
 		// @formatter:off
 		Mono<Object> result = this.resolver
 				.resolveArgument(arg0("authenticationPrincipalExpressionPrimitive"), null)
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER")));
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(new TestingAuthenticationToken(principal, "password", "ROLE_USER")));
 		// @formatter:on
 		assertThat(result.block()).isEqualTo(principal.id);
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -156,8 +156,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
 				.retrieve()
 				.bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+				.contextWrite(Context.of(ServerWebExchange.class, this.exchange))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
 				.block();
 		// @formatter:on
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
@@ -199,9 +199,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 		this.webClient.get().uri(this.serverUrl)
 				.attributes(ServletOAuth2AuthorizedClientExchangeFilterFunction
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
-				.retrieve().bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
+				.retrieve().bodyToMono(String.class).contextWrite(Context.of(ServerWebExchange.class, this.exchange))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication)).block();
 		assertThat(this.server.getRequestCount()).isEqualTo(2);
 		ArgumentCaptor<OAuth2AuthorizedClient> authorizedClientCaptor = ArgumentCaptor
 				.forClass(OAuth2AuthorizedClient.class);
@@ -254,8 +253,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						.retrieve()
 						.bodyToMono(String.class)
 				)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
+				.contextWrite(Context.of(ServerWebExchange.class, this.exchange))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication))
 				.block();
 		// @formatter:on
 		assertThat(this.server.getRequestCount()).isEqualTo(4);
@@ -306,8 +305,8 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionITests {
 						.clientRegistrationId(clientRegistration.getRegistrationId()))
 				.retrieve()
 				.bodyToMono(String.class)
-				.subscriberContext(Context.of(ServerWebExchange.class, this.exchange))
-				.subscriberContext(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
+				.contextWrite(Context.of(ServerWebExchange.class, this.exchange))
+				.contextWrite(ReactiveSecurityContextHolder.withAuthentication(this.authentication));
 		// @formatter:on
 		// first try should fail, and remove the cached authorized client
 		// @formatter:off

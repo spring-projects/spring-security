@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import io.rsocket.SocketAcceptor;
 import io.rsocket.metadata.WellKnownMimeType;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
+import reactor.util.context.ContextView;
 
 import org.springframework.lang.Nullable;
 import org.springframework.security.rsocket.api.PayloadExchangeType;
@@ -71,19 +72,18 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 		// FIXME do we want to make the sendingSocket available in the PayloadExchange
 		return intercept(setup, dataMimeType, metadataMimeType)
 				.flatMap(
-						(ctx) -> this.delegate.accept(setup, sendingSocket)
+						(ctxView) -> this.delegate.accept(setup, sendingSocket)
 								.map((acceptingSocket) -> new PayloadInterceptorRSocket(acceptingSocket,
-										this.interceptors, metadataMimeType, dataMimeType, ctx))
-								.subscriberContext(ctx));
+										this.interceptors, metadataMimeType, dataMimeType, ctxView))
+								.contextWrite(ctxView));
 	}
 
-	private Mono<Context> intercept(Payload payload, MimeType dataMimeType, MimeType metadataMimeType) {
+	private Mono<ContextView> intercept(Payload payload, MimeType dataMimeType, MimeType metadataMimeType) {
 		return Mono.defer(() -> {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
 			DefaultPayloadExchange exchange = new DefaultPayloadExchange(PayloadExchangeType.SETUP, payload,
 					metadataMimeType, dataMimeType);
-			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
-					.defaultIfEmpty(Context.empty());
+			return chain.next(exchange).then(Mono.fromCallable(chain::getContextView)).defaultIfEmpty(Context.empty());
 		});
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -83,7 +83,7 @@ public class AuthorizationPayloadInterceptorTests {
 				AuthorityReactiveAuthorizationManager.hasRole("USER"));
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password"));
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).contextWrite(userContext);
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasNotSubscribed())
 				.verifyError(AccessDeniedException.class);
 	}
@@ -95,7 +95,7 @@ public class AuthorizationPayloadInterceptorTests {
 				AuthenticatedReactiveAuthorizationManager.authenticated());
 		Context userContext = ReactiveSecurityContextHolder
 				.withAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"));
-		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).subscriberContext(userContext);
+		Mono<Void> intercept = interceptor.intercept(this.exchange, this.chain).contextWrite(userContext);
 		StepVerifier.create(intercept).then(() -> this.chainResult.assertWasSubscribed()).verifyComplete();
 	}
 

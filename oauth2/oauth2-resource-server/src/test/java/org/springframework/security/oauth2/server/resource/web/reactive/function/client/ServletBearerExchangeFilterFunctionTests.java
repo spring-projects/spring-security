@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,14 +74,14 @@ public class ServletBearerExchangeFilterFunctionTests {
 	public void filterWhenAuthenticatedWithOtherTokenThenAuthorizationHeaderNull() {
 		TestingAuthenticationToken token = new TestingAuthenticationToken("user", "pass");
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
-		this.function.filter(request, this.exchange).subscriberContext(context(token)).block();
+		this.function.filter(request, this.exchange).contextWrite(context(token)).block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION)).isNull();
 	}
 
 	@Test
 	public void filterWhenAuthenticatedThenAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com")).build();
-		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
+		this.function.filter(request, this.exchange).contextWrite(context(this.authentication)).block();
 		assertThat(this.exchange.getRequest().headers().getFirst(HttpHeaders.AUTHORIZATION))
 				.isEqualTo("Bearer " + this.accessToken.getTokenValue());
 	}
@@ -90,7 +90,7 @@ public class ServletBearerExchangeFilterFunctionTests {
 	public void filterWhenExistingAuthorizationThenSingleAuthorizationHeader() {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.header(HttpHeaders.AUTHORIZATION, "Existing").build();
-		this.function.filter(request, this.exchange).subscriberContext(context(this.authentication)).block();
+		this.function.filter(request, this.exchange).contextWrite(context(this.authentication)).block();
 		HttpHeaders headers = this.exchange.getRequest().headers();
 		assertThat(headers.get(HttpHeaders.AUTHORIZATION)).containsOnly("Bearer " + this.accessToken.getTokenValue());
 	}
