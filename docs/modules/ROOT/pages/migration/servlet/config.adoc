@@ -409,7 +409,9 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-        .securityMatcher(antMatcher("/api/**"), antMatcher("/app/**"))
+        .securityMatchers((matchers) -> matchers
+            .requestMatchers(antMatcher("/api/**"), antMatcher("/app/**"))
+        )
         .authorizeHttpRequests((authz) -> authz
             .requestMatchers(antMatcher("/api/admin/**")).hasRole("ADMIN")
             .anyRequest().authenticated()
