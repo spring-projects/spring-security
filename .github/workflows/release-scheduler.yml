@@ -27,6 +27,6 @@ jobs:
       TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
     steps:
       - uses: actions/checkout@v3
-      - uses: spring-io/spring-gradle-build-action@v1
+      - uses: kirklin/spring-gradle-build-action@v1
       - name: Trigger release workflow
         run: ./gradlew dispatchGitHubWorkflow -Pbranch=${{ matrix.branch }} -PworkflowId=update-scheduled-release-version.yml -PgitHubAccessToken=$TOKEN
