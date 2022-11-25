@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.repository == 'spring-projects/spring-security' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
