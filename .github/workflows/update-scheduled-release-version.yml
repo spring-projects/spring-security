@@ -23,7 +23,7 @@ jobs:
     steps:
       - id: checkout-source
         name: Checkout Source Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Set up gradle
@@ -38,7 +38,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew gitHubCheckNextVersionDueToday
-          echo "::set-output name=is_due_today::$(cat build/github/milestones/is-due-today)"
+          echo "is_due_today=$(cat build/github/milestones/is-due-today)" >>$GITHUB_OUTPUT
       - id: check-open-issues
         name: Check for open issues
         if: steps.check-release-due.outputs.is_due_today == 'true'
@@ -47,7 +47,7 @@ jobs:
           export GRADLE_ENTERPRISE_CACHE_PASSWORD="$GRADLE_ENTERPRISE_CACHE_PASSWORD"
           export GRADLE_ENTERPRISE_ACCESS_KEY="$GRADLE_ENTERPRISE_SECRET_ACCESS_KEY"
           ./gradlew gitHubCheckMilestoneHasNoOpenIssues
-          echo "::set-output name=is_open_issues::$(cat build/github/milestones/is-open-issues)"
+          echo "is_open_issues=$(cat build/github/milestones/is-open-issues)" >>$GITHUB_OUTPUT
       - id: validate-release-state
         name: Validate State of Release
         if: steps.check-release-due.outputs.is_due_today == 'true' && steps.check-open-issues.outputs.is_open_issues == 'true'
