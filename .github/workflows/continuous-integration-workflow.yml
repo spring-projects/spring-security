@@ -31,15 +31,15 @@ jobs:
       runjobs: ${{ steps.continue.outputs.runjobs }}
       project_version: ${{ steps.continue.outputs.project_version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - id: continue
         name: Determine if should continue
         run: |
           # Run jobs if in upstream repository
-          echo "::set-output name=runjobs::true"
+          echo "runjobs=true" >>$GITHUB_OUTPUT
           # Extract version from gradle.properties
           version=$(cat gradle.properties | grep "version=" | awk -F'=' '{print $2}')
-          echo "::set-output name=project_version::$version"
+          echo "project_version=$version" >>$GITHUB_OUTPUT
   build_jdk_17:
     name: Build JDK 17
     needs: [prerequisites]
@@ -49,9 +49,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     if: needs.prerequisites.outputs.runjobs
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up JDK 17
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -113,7 +113,7 @@ jobs:
     runs-on: ubuntu-latest
     if: needs.prerequisites.outputs.runjobs
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -130,7 +130,7 @@ jobs:
     needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -154,7 +154,7 @@ jobs:
     needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -175,7 +175,7 @@ jobs:
     needs: [build_jdk_17, snapshot_tests, check_samples, check_tangles]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
@@ -205,7 +205,7 @@ jobs:
       TOKEN: ${{ github.token }}
       VERSION: ${{ needs.prerequisites.outputs.project_version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           token: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
       - name: Set up gradle
@@ -286,7 +286,7 @@ jobs:
       TOKEN: ${{ github.token }}
       VERSION: ${{ needs.prerequisites.outputs.project_version }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up gradle
         uses: spring-io/spring-gradle-build-action@v1
         with:
