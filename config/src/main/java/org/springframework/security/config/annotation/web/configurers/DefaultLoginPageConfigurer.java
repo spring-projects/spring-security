@@ -50,7 +50,8 @@ import org.springframework.security.web.csrf.CsrfToken;
  *
  * <h2>Shared Objects Created</h2>
  *
- * No shared objects are created. isLogoutRequest
+ * No shared objects are created.
+ *
  * <h2>Shared Objects Used</h2>
  *
  * The following shared objects are used:
