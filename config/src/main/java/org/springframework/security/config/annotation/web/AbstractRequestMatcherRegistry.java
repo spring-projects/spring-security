@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.servlet.DispatcherType;
 
@@ -263,11 +264,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
 			String method = (httpMethod != null) ? httpMethod.toString() : null;
-			List<RequestMatcher> matchers = new ArrayList<>();
-			for (String pattern : antPatterns) {
-				matchers.add(new AntPathRequestMatcher(pattern, method));
-			}
-			return matchers;
+			return Arrays.stream(antPatterns).map((pattern) -> new AntPathRequestMatcher(pattern, method)).collect(Collectors.toList());
 		}
 
 		/**
@@ -291,11 +288,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> regexMatchers(HttpMethod httpMethod, String... regexPatterns) {
 			String method = (httpMethod != null) ? httpMethod.toString() : null;
-			List<RequestMatcher> matchers = new ArrayList<>();
-			for (String pattern : regexPatterns) {
-				matchers.add(new RegexRequestMatcher(pattern, method));
-			}
-			return matchers;
+			return Arrays.stream(regexPatterns).map(pattern -> new RegexRequestMatcher(pattern, method)).collect(Collectors.toList());
 		}
 
 		/**
