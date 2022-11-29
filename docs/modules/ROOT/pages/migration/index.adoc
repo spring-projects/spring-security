@@ -126,9 +126,9 @@ fun passwordEncoder(): PasswordEncoder {
 ----
 ====
 
-==== Use `DelegatedPasswordEncoder`
+==== Use `DelegatingPasswordEncoder`
 
-Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
 ====
@@ -140,8 +140,8 @@ PasswordEncoder passwordEncoder() {
     String prefix = "pbkdf2@5.8";
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
-    delegating.setDefaultPasswordEncoderFormatches(current);
+    DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
+    delegating.setDefaultPasswordEncoderForMatches(current);
     return delegating;
 }
 ----
@@ -154,8 +154,8 @@ fun passwordEncoder(): PasswordEncoder {
     String prefix = "pbkdf2@5.8"
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
-    delegating.setDefaultPasswordEncoderFormatches(current)
+    DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
+    delegating.setDefaultPasswordEncoderForMatches(current)
     return delegating
 }
 ----
@@ -211,9 +211,9 @@ fun passwordEncoder(): PasswordEncoder {
 ----
 ====
 
-==== Use `DelegatedPasswordEncoder`
+==== Use `DelegatingPasswordEncoder`
 
-Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
 ====
@@ -225,8 +225,8 @@ PasswordEncoder passwordEncoder() {
     String prefix = "scrypt@5.8";
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
-    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
-    delegating.setDefaultPasswordEncoderFormatches(current);
+    DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
+    delegating.setDefaultPasswordEncoderForMatches(current);
     return delegating;
 }
 ----
@@ -239,8 +239,8 @@ fun passwordEncoder(): PasswordEncoder {
     String prefix = "scrypt@5.8"
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8()
-    DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
-    delegating.setDefaultPasswordEncoderFormatches(current)
+    DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
+    delegating.setDefaultPasswordEncoderForMatches(current)
     return delegating
 }
 ----
@@ -296,9 +296,9 @@ fun passwordEncoder(): PasswordEncoder {
 ----
 ====
 
-==== Use `DelegatedPasswordEncoder`
+==== Use `DelegatingPasswordEncoder`
 
-Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatedPasswordEncoder`.
+Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
 ====
@@ -310,8 +310,8 @@ PasswordEncoder passwordEncoder() {
 	String prefix = "argon@5.8";
 	PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-	DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded));
-	delegating.setDefaultPasswordEncoderFormatches(current);
+	DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
+	delegating.setDefaultPasswordEncoderForMatches(current);
 	return delegating;
 }
 ----
@@ -324,8 +324,8 @@ fun passwordEncoder(): PasswordEncoder {
 	String prefix = "argon@5.8"
 	PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
-	DelegatedPasswordEncoder delegating = new DelegatedPasswordEncoder(prefix, Map.of(prefix, upgraded))
-	delegating.setDefaultPasswordEncoderFormatches(current)
+	DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
+	delegating.setDefaultPasswordEncoderForMatches(current)
 	return delegating
 }
 ----
