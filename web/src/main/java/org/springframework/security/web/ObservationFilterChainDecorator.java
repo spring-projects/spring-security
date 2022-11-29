@@ -177,17 +177,19 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private void wrapFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 				throws IOException, ServletException {
 			AroundFilterObservation parent = observation((HttpServletRequest) request);
-			FilterChainObservationContext parentBefore = (FilterChainObservationContext) parent.before().getContext();
-			parentBefore.setChainSize(this.size);
-			parentBefore.setFilterName(this.name);
-			parentBefore.setChainPosition(this.position);
+			if (parent.before().getContext() instanceof FilterChainObservationContext parentBefore) {
+				parentBefore.setChainSize(this.size);
+				parentBefore.setFilterName(this.name);
+				parentBefore.setChainPosition(this.position);
+			}
 			parent.before().event(Observation.Event.of(this.name + " before"));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
-			FilterChainObservationContext parentAfter = (FilterChainObservationContext) parent.after().getContext();
-			parentAfter.setChainSize(this.size);
-			parentAfter.setFilterName(this.name);
-			parentAfter.setChainPosition(this.size - this.position + 1);
+			if (parent.after().getContext() instanceof FilterChainObservationContext parentAfter) {
+				parentAfter.setChainSize(this.size);
+				parentAfter.setFilterName(this.name);
+				parentAfter.setChainPosition(this.size - this.position + 1);
+			}
 			parent.after().event(Observation.Event.of(this.name + " after"));
 		}
 

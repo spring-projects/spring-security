@@ -196,18 +196,18 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		private Mono<Void> wrapFilter(ServerWebExchange exchange, WebFilterChain chain) {
 			AroundWebFilterObservation parent = observation(exchange);
-			WebFilterChainObservationContext parentBefore = (WebFilterChainObservationContext) parent.before()
-					.getContext();
-			parentBefore.setChainSize(this.size);
-			parentBefore.setFilterName(this.name);
-			parentBefore.setChainPosition(this.position);
+			if (parent.before().getContext() instanceof WebFilterChainObservationContext parentBefore) {
+				parentBefore.setChainSize(this.size);
+				parentBefore.setFilterName(this.name);
+				parentBefore.setChainPosition(this.position);
+			}
 			return this.filter.filter(exchange, chain).doOnSuccess((result) -> {
 				parent.start();
-				WebFilterChainObservationContext parentAfter = (WebFilterChainObservationContext) parent.after()
-						.getContext();
-				parentAfter.setChainSize(this.size);
-				parentAfter.setFilterName(this.name);
-				parentAfter.setChainPosition(this.size - this.position + 1);
+				if (parent.after().getContext() instanceof WebFilterChainObservationContext parentAfter) {
+					parentAfter.setChainSize(this.size);
+					parentAfter.setFilterName(this.name);
+					parentAfter.setChainPosition(this.size - this.position + 1);
+				}
 			});
 		}
 
