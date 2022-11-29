@@ -62,9 +62,9 @@ public interface AuthenticationTrustResolver {
 	 * @param authentication to test (may be <code>null</code> in which case the method
 	 * will always return <code>false</code>)
 	 * @return <code>true</code> the passed authentication token represented an anonymous
-	 * principal & is authenticated using a remember-me token, <code>false</code>
+	 * principal and is authenticated using a remember-me token, <code>false</code>
 	 * otherwise
-	 * @since 5.8
+	 * @since 6.1
 	 */
 	default boolean isFullyAuthenticated(Authentication authentication) {
 		return !isAnonymous(authentication) && !isRememberMe(authentication);
