@@ -141,7 +141,7 @@ PasswordEncoder passwordEncoder() {
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
     DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
-    delegating.setDefaultPasswordEncoderForMatches(current);
+    delegating.setDefaultPasswordEncoderFormatches(current);
     return delegating;
 }
 ----
@@ -155,7 +155,7 @@ fun passwordEncoder(): PasswordEncoder {
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8()
     DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
-    delegating.setDefaultPasswordEncoderForMatches(current)
+    delegating.setDefaultPasswordEncoderFormatches(current)
     return delegating
 }
 ----
@@ -226,7 +226,7 @@ PasswordEncoder passwordEncoder() {
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
     DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
-    delegating.setDefaultPasswordEncoderForMatches(current);
+    delegating.setDefaultPasswordEncoderFormatches(current);
     return delegating;
 }
 ----
@@ -240,7 +240,7 @@ fun passwordEncoder(): PasswordEncoder {
     PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8()
     DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
-    delegating.setDefaultPasswordEncoderForMatches(current)
+    delegating.setDefaultPasswordEncoderFormatches(current)
     return delegating
 }
 ----
@@ -311,7 +311,7 @@ PasswordEncoder passwordEncoder() {
 	PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
 	DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded));
-	delegating.setDefaultPasswordEncoderForMatches(current);
+	delegating.setDefaultPasswordEncoderFormatches(current);
 	return delegating;
 }
 ----
@@ -325,7 +325,7 @@ fun passwordEncoder(): PasswordEncoder {
 	PasswordEncoder current = // ... see previous step
     PasswordEncoder upgraded = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8()
 	DelegatingPasswordEncoder delegating = new DelegatingPasswordEncoder(prefix, Map.of(prefix, upgraded))
-	delegating.setDefaultPasswordEncoderForMatches(current)
+	delegating.setDefaultPasswordEncoderFormatches(current)
 	return delegating
 }
 ----
