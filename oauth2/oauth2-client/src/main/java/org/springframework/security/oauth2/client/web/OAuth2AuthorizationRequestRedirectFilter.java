@@ -195,8 +195,8 @@ public class OAuth2AuthorizationRequestRedirectFilter extends OncePerRequestFilt
 					if (authorizationRequest == null) {
 						throw authzEx;
 					}
-					this.sendRedirectForAuthorization(request, response, authorizationRequest);
 					this.requestCache.saveRequest(request, response);
+					this.sendRedirectForAuthorization(request, response, authorizationRequest);
 				}
 				catch (Exception failed) {
 					this.unsuccessfulRedirectForAuthorization(request, response, failed);
