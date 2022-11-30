@@ -21,6 +21,8 @@ import java.util.function.Supplier;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -28,7 +30,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.util.Assert;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.filter.GenericFilterBean;
 
 /**
  * A {@link javax.servlet.Filter} that uses the {@link SecurityContextRepository} to
@@ -40,16 +42,17 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * mechanisms to choose individually if authentication should be persisted.
  *
  * @author Rob Winch
+ * @author Marcus da Coregio
  * @since 5.7
  */
-public class SecurityContextHolderFilter extends OncePerRequestFilter {
+public class SecurityContextHolderFilter extends GenericFilterBean {
+
+	private static final String FILTER_APPLIED = SecurityContextHolderFilter.class.getName() + ".APPLIED";
 
 	private final SecurityContextRepository securityContextRepository;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 			.getContextHolderStrategy();
-
-	private boolean shouldNotFilterErrorDispatch;
 
 	/**
 	 * Creates a new instance.
@@ -61,21 +64,27 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	}
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+			throws IOException, ServletException {
+		doFilter((HttpServletRequest) request, (HttpServletResponse) response, chain);
+	}
+
+	private void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 			throws ServletException, IOException {
+		if (request.getAttribute(FILTER_APPLIED) != null) {
+			chain.doFilter(request, response);
+			return;
+		}
+		request.setAttribute(FILTER_APPLIED, Boolean.TRUE);
 		Supplier<SecurityContext> deferredContext = this.securityContextRepository.loadDeferredContext(request);
 		try {
 			this.securityContextHolderStrategy.setDeferredContext(deferredContext);
-			filterChain.doFilter(request, response);
+			chain.doFilter(request, response);
 		}
 		finally {
 			this.securityContextHolderStrategy.clearContext();
+			request.removeAttribute(FILTER_APPLIED);
 		}
-	}
-
-	@Override
-	protected boolean shouldNotFilterErrorDispatch() {
-		return this.shouldNotFilterErrorDispatch;
 	}
 
 	/**
@@ -87,15 +96,6 @@ public class SecurityContextHolderFilter extends OncePerRequestFilter {
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
-	}
-
-	/**
-	 * Disables {@link SecurityContextHolderFilter} for error dispatch.
-	 * @param shouldNotFilterErrorDispatch if the Filter should be disabled for error
-	 * dispatch. Default is false.
-	 */
-	public void setShouldNotFilterErrorDispatch(boolean shouldNotFilterErrorDispatch) {
-		this.shouldNotFilterErrorDispatch = shouldNotFilterErrorDispatch;
 	}
 
 }
