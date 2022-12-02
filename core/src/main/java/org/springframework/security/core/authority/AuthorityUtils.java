@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.springframework.util.StringUtils;
  * Mainly intended for internal use.
  *
  * @author Luke Taylor
+ * @author Evgeniy Cheban
  */
 public final class AuthorityUtils {
 
@@ -72,6 +73,20 @@ public final class AuthorityUtils {
 	 */
 	public static List<GrantedAuthority> createAuthorityList(String... authorities) {
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities.length);
+		for (String authority : authorities) {
+			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
+		}
+		return grantedAuthorities;
+	}
+
+	/**
+	 * Converts authorities into a List of GrantedAuthority objects.
+	 * @param authorities the authorities to convert
+	 * @return a List of GrantedAuthority objects
+	 * @since 6.1
+	 */
+	public static List<GrantedAuthority> createAuthorityList(Collection<String> authorities) {
+		List<GrantedAuthority> grantedAuthorities = new ArrayList<>(authorities.size());
 		for (String authority : authorities) {
 			grantedAuthorities.add(new SimpleGrantedAuthority(authority));
 		}

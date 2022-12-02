@@ -226,13 +226,13 @@ public class AuthorityAuthorizationManagerTests {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
 		RoleHierarchy roleHierarchy = new RoleHierarchyImpl();
 		manager.setRoleHierarchy(roleHierarchy);
-		assertThat(manager).extracting("roleHierarchy").isEqualTo(roleHierarchy);
+		assertThat(manager).extracting("delegate").extracting("roleHierarchy").isEqualTo(roleHierarchy);
 	}
 
 	@Test
 	public void getRoleHierarchyWhenNotSetThenDefaultsToNullRoleHierarchy() {
 		AuthorityAuthorizationManager<Object> manager = AuthorityAuthorizationManager.hasRole("USER");
-		assertThat(manager).extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
+		assertThat(manager).extracting("delegate").extracting("roleHierarchy").isInstanceOf(NullRoleHierarchy.class);
 	}
 
 	@Test

@@ -16,16 +16,14 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
 import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 /**
@@ -40,12 +38,12 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 
 	private static final String ROLE_PREFIX = "ROLE_";
 
-	private final List<GrantedAuthority> authorities;
+	private final AuthoritiesAuthorizationManager delegate = new AuthoritiesAuthorizationManager();
 
-	private RoleHierarchy roleHierarchy = new NullRoleHierarchy();
+	private final Set<String> authorities;
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = AuthorityUtils.createAuthorityList(authorities);
+		this.authorities = new HashSet<>(Arrays.asList(authorities));
 	}
 
 	/**
@@ -55,8 +53,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 * @since 5.8
 	 */
 	public void setRoleHierarchy(RoleHierarchy roleHierarchy) {
-		Assert.notNull(roleHierarchy, "roleHierarchy cannot be null");
-		this.roleHierarchy = roleHierarchy;
+		this.delegate.setRoleHierarchy(roleHierarchy);
 	}
 
 	/**
@@ -139,26 +136,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, T object) {
-		boolean granted = isGranted(authentication.get());
-		return new AuthorityAuthorizationDecision(granted, this.authorities);
-	}
-
-	private boolean isGranted(Authentication authentication) {
-		return authentication != null && authentication.isAuthenticated() && isAuthorized(authentication);
-	}
-
-	private boolean isAuthorized(Authentication authentication) {
-		Set<String> authorities = AuthorityUtils.authorityListToSet(this.authorities);
-		for (GrantedAuthority grantedAuthority : getGrantedAuthorities(authentication)) {
-			if (authorities.contains(grantedAuthority.getAuthority())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private Collection<? extends GrantedAuthority> getGrantedAuthorities(Authentication authentication) {
-		return this.roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities());
+		return this.delegate.check(authentication, this.authorities);
 	}
 
 	@Override
