@@ -45,13 +45,13 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private static final String DEFAULT_AUTHORITY_PREFIX = "SCOPE_";
 
-	private static final String DEFAULT_AUTHORITIES_SPLIT_REGEX = " ";
+	private static final String DEFAULT_AUTHORITIES_CLAIM_DELIMITER = " ";
 
 	private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES = Arrays.asList("scope", "scp");
 
 	private String authorityPrefix = DEFAULT_AUTHORITY_PREFIX;
 
-	private String authoritiesSplitRegex = DEFAULT_AUTHORITIES_SPLIT_REGEX;
+	private String authoritiesClaimDelimiter = DEFAULT_AUTHORITIES_CLAIM_DELIMITER;
 
 	private String authoritiesClaimName;
 
@@ -84,13 +84,13 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	/**
 	 * Sets the regex to use for splitting the value of the authorities claim into
 	 * {@link GrantedAuthority authorities}. Defaults to
-	 * {@link JwtGrantedAuthoritiesConverter#DEFAULT_AUTHORITIES_SPLIT_REGEX}.
-	 * @param authoritiesSplitRegex The regex used to split the authorities
+	 * {@link JwtGrantedAuthoritiesConverter#DEFAULT_AUTHORITIES_CLAIM_DELIMITER}.
+	 * @param authoritiesClaimDelimiter The regex used to split the authorities
 	 * @since 6.1
 	 */
-	public void setAuthoritiesSplitRegex(String authoritiesSplitRegex) {
-		Assert.notNull(authoritiesSplitRegex, "authoritiesSplitRegex cannot be null");
-		this.authoritiesSplitRegex = authoritiesSplitRegex;
+	public void setAuthoritiesClaimDelimiter(String authoritiesClaimDelimiter) {
+		Assert.notNull(authoritiesClaimDelimiter, "authoritiesClaimDelimiter cannot be null");
+		this.authoritiesClaimDelimiter = authoritiesClaimDelimiter;
 	}
 
 	/**
@@ -129,7 +129,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		Object authorities = jwt.getClaim(claimName);
 		if (authorities instanceof String) {
 			if (StringUtils.hasText((String) authorities)) {
-				return Arrays.asList(((String) authorities).split(this.authoritiesSplitRegex));
+				return Arrays.asList(((String) authorities).split(this.authoritiesClaimDelimiter));
 			}
 			return Collections.emptyList();
 		}

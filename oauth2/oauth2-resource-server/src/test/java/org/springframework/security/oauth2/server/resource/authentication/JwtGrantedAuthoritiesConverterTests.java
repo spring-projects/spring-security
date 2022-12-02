@@ -264,7 +264,7 @@ public class JwtGrantedAuthoritiesConverterTests {
 				.build();
 		// @formatter:on
 		JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
-		jwtGrantedAuthoritiesConverter.setAuthoritiesSplitRegex(",");
+		jwtGrantedAuthoritiesConverter.setAuthoritiesClaimDelimiter(",");
 		Collection<GrantedAuthority> authorities = jwtGrantedAuthoritiesConverter.convert(jwt);
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("SCOPE_message:read"),
 				new SimpleGrantedAuthority("SCOPE_message:write"));
