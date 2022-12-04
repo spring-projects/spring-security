@@ -81,18 +81,17 @@ In Windows operating system
 gradlew :spring-security-docs:antora
 ----
 
-That command publishes the docs site to the _docs/build/site_ directory.
+That command publishes the docs site to the `_docs/build/site_` directory.
 The https://github.com/spring-projects/spring-security/tree/docs-build[playbook branch] describes how to build the reference docs in detail.
 
-Discover more commands with `./gradlew tasks`.
-See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-build-and-release-FAQ[Gradle build and release FAQ].
+Discover more commands with `./gradlew tasks` in macOS/Linux (or `gradlew tasks` in Windows OS).
 
 == Getting Support
 Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
 https://spring.io/services[Commercial support] is available too.
 
 == Contributing
-https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.
+https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.
 
 == License
 Spring Security is Open Source software released under the
