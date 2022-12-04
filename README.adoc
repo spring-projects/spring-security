@@ -41,7 +41,7 @@ git clone git@github.com:spring-projects/spring-security.git
 ----
 
 === Install all `spring-*.jar` into your local Maven repository.
-In macOS, Linux operating system, at directory where has file `gradlew.bat` of source code, run command
+In macOS, Linux operating system, at directory where has file `gradlew.bat` of source code, run command. If the command did not work as expected, set execute permission for `gradlew`.
 
 [indent=0]
 ----
