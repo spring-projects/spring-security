@@ -77,14 +77,14 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Factory method to conveniently create an instance that has
-	 * {@link #setCookieHttpOnly(boolean)} set to false.
-	 * @return an instance of CookieCsrfTokenRepository with
-	 * {@link #setCookieHttpOnly(boolean)} set to false
+	 * Factory method to conveniently create an instance that has creates cookies with
+	 * {@link ResponseCookie#isHttpOnly} set to false.
+	 * @return an instance of CookieCsrfTokenRepository that creates cookies with
+	 * {@link ResponseCookie#isHttpOnly} set to false
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
 		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
-		result.setCookieHttpOnly(false);
+		result.setCookieCustomizer((cookie) -> cookie.httpOnly(false));
 		return result;
 	}
 
