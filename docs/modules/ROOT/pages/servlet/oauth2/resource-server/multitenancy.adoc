@@ -248,7 +248,7 @@ public class TenantJWSKeySelector
 	}
 
 	private JWSKeySelector<SecurityContext> fromTenant(String tenant) {
-		return Optional.ofNullable(this.tenantRepository.findById(tenant)) <3>
+		return Optional.ofNullable(this.tenants.findById(tenant)) <3>
 		        .map(t -> t.getAttrbute("jwks_uri"))
 				.map(this::fromUri)
 				.orElseThrow(() -> new IllegalArgumentException("unknown tenant"));
