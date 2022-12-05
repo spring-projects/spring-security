@@ -68,7 +68,8 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 			.requestMatchers("/resources/**", "/signup", "/about").permitAll()         // <2>
 			.requestMatchers("/admin/**").hasRole("ADMIN")                             // <3>
 			.requestMatchers("/db/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') and hasRole('DBA')"))   // <4>
-			.anyRequest().denyAll()                                                // <5>
+			// .requestMatchers("/db/**").access(AuthorizationManagers.allOf(AuthorityAuthorizationManager.hasRole("ADMIN"), AuthorityAuthorizationManager.hasRole("DBA")))   // <5>
+			.anyRequest().denyAll()                                                // <6>
 		);
 
 	return http.build();
@@ -83,7 +84,8 @@ Specifically, any user can access a request if the URL starts with "/resources/"
 You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
 <4> Any URL that starts with "/db/" requires the user to have both "ROLE_ADMIN" and "ROLE_DBA".
 You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
-<5> Any URL that has not already been matched on is denied access.
+<5> The same rule from 4, could be written by combining multiple `AuthorizationManager`.
+<6> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
 
 You can take a bean-based approach by constructing your own xref:servlet/authorization/architecture.adoc#authz-delegate-authorization-manager[`RequestMatcherDelegatingAuthorizationManager`] like so:
@@ -116,7 +118,7 @@ AuthorizationManager<RequestAuthorizationContext> requestMatcherAuthorizationMan
     RequestMatcher admin = mvcMatcherBuilder.pattern("/admin/**");
     RequestMatcher db = mvcMatcherBuilder.pattern("/db/**");
     RequestMatcher any = AnyRequestMatcher.INSTANCE;
-    AuthorizationManager<HttpRequestServlet> manager = RequestMatcherDelegatingAuthorizationManager.builder()
+    AuthorizationManager<HttpServletRequest> manager = RequestMatcherDelegatingAuthorizationManager.builder()
             .add(permitAll, (context) -> new AuthorizationDecision(true))
             .add(admin, AuthorityAuthorizationManager.hasRole("ADMIN"))
             .add(db, AuthorityAuthorizationManager.hasRole("DBA"))
@@ -161,7 +163,7 @@ Or you can provide it for all requests as seen below:
 SecurityFilterChain web(HttpSecurity http) throws Exception {
     http
         .authorizeHttpRequests((authorize) -> authorize
-            .anyRequest.access(new CustomAuthorizationManager());
+            .anyRequest().access(new CustomAuthorizationManager());
         )
         // ...
 
