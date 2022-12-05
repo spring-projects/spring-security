@@ -25,6 +25,7 @@ import io.r2dbc.h2.H2ConnectionFactory;
 import io.r2dbc.spi.ConnectionFactory;
 import io.r2dbc.spi.Result;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -114,12 +115,14 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void loadAuthorizedClientWhenDoesNotExistThenReturnNull() {
 		this.authorizedClientService.loadAuthorizedClient("registration-not-found", "principalName")
 				.as(StepVerifier::create).expectNextCount(0).verifyComplete();
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void loadAuthorizedClientWhenExistsThenReturnAuthorizedClient() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
@@ -150,6 +153,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void loadAuthorizedClientWhenExistsButNotFoundInClientRegistrationRepositoryThenThrowDataRetrievalFailureException() {
 		given(this.clientRegistrationRepository.findByRegistrationId(any())).willReturn(Mono.empty());
 		Authentication principal = createPrincipal();
@@ -186,6 +190,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void saveAuthorizedClientWhenSaveThenLoadReturnsSaved() {
 		Authentication principal = createPrincipal();
 		final OAuth2AuthorizedClient expected = createAuthorizedClient(principal, this.clientRegistration);
@@ -244,6 +249,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void saveAuthorizedClientWhenSaveClientWithExistingPrimaryKeyThenUpdate() {
 		// Given a saved authorized client
 		Authentication principal = createPrincipal();
@@ -297,6 +303,7 @@ public class R2dbcReactiveOAuth2AuthorizedClientServiceTests {
 	}
 
 	@Test
+	@Disabled // until https://github.com/reactor/reactor-core/issues/3307 is resolved
 	public void removeAuthorizedClientWhenExistsThenRemoved() {
 		Authentication principal = createPrincipal();
 		OAuth2AuthorizedClient authorizedClient = createAuthorizedClient(principal, this.clientRegistration);
