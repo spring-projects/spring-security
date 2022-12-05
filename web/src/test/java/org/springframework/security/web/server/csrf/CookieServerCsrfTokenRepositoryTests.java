@@ -66,7 +66,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	private String expectedSameSitePolicy = null;
 
 	@BeforeEach
-	public void setUp() {
+	void setUp() {
 		this.csrfTokenRepository = new CookieServerCsrfTokenRepository();
 		this.request = MockServerHttpRequest.get("/someUri");
 	}
@@ -156,7 +156,7 @@ class CookieServerCsrfTokenRepositoryTests {
 
 		CsrfToken token = createToken();
 
-		this.csrfTokenRepository.setCookieCustomizer(customizer -> {
+		this.csrfTokenRepository.setCookieCustomizer((customizer) -> {
 			customizer.domain(expectedDomain);
 			customizer.maxAge(expectedMaxAge);
 			customizer.path(expectedPath);
@@ -209,7 +209,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenWhenSecureFlagTrueThenSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.csrfTokenRepository.setCookieCustomizer(customizer -> customizer.secure(true));
+		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(true));
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
 		assertThat(cookie).isNotNull();
@@ -229,7 +229,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	@Test
 	void saveTokenWhenSecureFlagFalseThenNotSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
-		this.csrfTokenRepository.setCookieCustomizer(customizer -> customizer.secure(false));
+		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(false));
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
 		assertThat(cookie).isNotNull();
@@ -251,7 +251,7 @@ class CookieServerCsrfTokenRepositoryTests {
 	void saveTokenWhenSecureFlagFalseAndSslInfoThenNotSecureUsingCustomizer() {
 		MockServerWebExchange exchange = MockServerWebExchange.from(this.request);
 		this.request.sslInfo(new MockSslInfo());
-		this.csrfTokenRepository.setCookieCustomizer(customizer -> customizer.secure(false));
+		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.secure(false));
 		this.csrfTokenRepository.saveToken(exchange, createToken()).block();
 		ResponseCookie cookie = exchange.getResponse().getCookies().getFirst(this.expectedCookieName);
 		assertThat(cookie).isNotNull();
@@ -325,8 +325,8 @@ class CookieServerCsrfTokenRepositoryTests {
 		this.expectedMaxAge = Duration.ofSeconds(expectedCookieMaxAge);
 	}
 
-	private void setExpectedSameSitePolicy(String sameSitePolicy){
-		this.csrfTokenRepository.setCookieCustomizer(customizer -> customizer.sameSite(sameSitePolicy));
+	private void setExpectedSameSitePolicy(String sameSitePolicy) {
+		this.csrfTokenRepository.setCookieCustomizer((customizer) -> customizer.sameSite(sameSitePolicy));
 		this.expectedSameSitePolicy = sameSitePolicy;
 	}
 

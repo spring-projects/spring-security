@@ -15,6 +15,7 @@
  */
 
 package org.springframework.security.web.csrf;
+
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -65,11 +66,12 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {};
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {
+	};
 
 	/**
-	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked
-	 * for each cookie being built, just before the call to {@code build()}.
+	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked for
+	 * each cookie being built, just before the call to {@code build()}.
 	 * @param cookieCustomizer consumer for a cookie builder
 	 * @since 6.1
 	 */
@@ -88,10 +90,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 		String tokenValue = (token != null) ? token.getToken() : "";
 
 		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
-				.secure(this.secure != null ? this.secure : request.isSecure())
+				.secure((this.secure != null) ? this.secure : request.isSecure())
 				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
-				.maxAge(token != null ? this.cookieMaxAge : 0)
-				.httpOnly(this.cookieHttpOnly)
+				.maxAge((token != null) ? this.cookieMaxAge : 0).httpOnly(this.cookieHttpOnly)
 				.domain(this.cookieDomain);
 
 		this.cookieCustomizer.accept(cookieBuilder);
@@ -203,8 +204,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.2
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieDomain(String cookieDomain) {
@@ -212,8 +213,8 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.4
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setSecure(Boolean secure) {
@@ -221,12 +222,13 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.5
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieMaxAge(int cookieMaxAge) {
 		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;
 	}
+
 }

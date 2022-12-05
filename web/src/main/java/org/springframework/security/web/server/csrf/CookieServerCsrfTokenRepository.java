@@ -62,11 +62,12 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	private int cookieMaxAge = -1;
 
-	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {};
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {
+	};
 
 	/**
-	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked
-	 * for each cookie being built, just before the call to {@code build()}.
+	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked for
+	 * each cookie being built, just before the call to {@code build()}.
 	 * @param cookieCustomizer consumer for a cookie builder
 	 * @since 6.1
 	 */
@@ -175,8 +176,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.5
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setSecure(boolean secure) {
@@ -184,8 +185,8 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 * @since 5.8
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
 	@Deprecated(since = "6.1")
 	public void setCookieMaxAge(int cookieMaxAge) {
