@@ -202,22 +202,24 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 			setApplicationContext(context);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(HttpMethod, String...)} instead
-		 */
 		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(HttpMethod method, String... mvcPatterns) {
-			return new MvcMatchersAuthorizedUrl(createMvcMatchers(method, mvcPatterns));
+		public AuthorizedUrl requestMatchers(String... patterns) {
+			return super.requestMatchers(patterns);
 		}
 
-		/**
-		 * @deprecated use {@link #requestMatchers(String...)} instead
-		 */
 		@Override
-		@Deprecated
-		public MvcMatchersAuthorizedUrl mvcMatchers(String... patterns) {
-			return mvcMatchers(null, patterns);
+		public AuthorizedUrl requestMatchers(HttpMethod method, String... patterns) {
+			return super.requestMatchers(method, patterns);
+		}
+
+		@Override
+		public AuthorizedUrl requestMatchers(HttpMethod method) {
+			return super.requestMatchers(method);
+		}
+
+		@Override
+		public AuthorizedUrl requestMatchers(RequestMatcher... requestMatchers) {
+			return super.requestMatchers(requestMatchers);
 		}
 
 		@Override
@@ -238,32 +240,6 @@ public final class UrlAuthorizationConfigurer<H extends HttpSecurityBuilder<H>>
 
 		public H and() {
 			return UrlAuthorizationConfigurer.this.and();
-		}
-
-	}
-
-	/**
-	 * An {@link AuthorizedUrl} that allows optionally configuring the
-	 * {@link MvcRequestMatcher#setMethod(HttpMethod)}
-	 *
-	 * @author Rob Winch
-	 */
-	public final class MvcMatchersAuthorizedUrl extends AuthorizedUrl {
-
-		/**
-		 * Creates a new instance
-		 * @param requestMatchers the {@link RequestMatcher} instances to map
-		 */
-		private MvcMatchersAuthorizedUrl(List<MvcRequestMatcher> requestMatchers) {
-			super(requestMatchers);
-		}
-
-		@SuppressWarnings("unchecked")
-		public AuthorizedUrl servletPath(String servletPath) {
-			for (MvcRequestMatcher matcher : (List<MvcRequestMatcher>) getMatchers()) {
-				matcher.setServletPath(servletPath);
-			}
-			return this;
 		}
 
 	}
