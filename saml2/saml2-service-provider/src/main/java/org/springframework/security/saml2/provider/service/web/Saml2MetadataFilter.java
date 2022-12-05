@@ -63,6 +63,16 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 		this.saml2MetadataResolver = saml2MetadataResolver;
 	}
 
+	/**
+	 * Constructs an instance of {@link Saml2MetadataFilter} using the provided
+	 * parameters. The {@link #relyingPartyRegistrationResolver} field will be initialized
+	 * with a {@link DefaultRelyingPartyRegistrationResolver} instance using the provided
+	 * {@link RelyingPartyRegistrationRepository}
+	 * @param relyingPartyRegistrationRepository the
+	 * {@link RelyingPartyRegistrationRepository} to use
+	 * @param saml2MetadataResolver the {@link Saml2MetadataResolver} to use
+	 * @since 6.1
+	 */
 	public Saml2MetadataFilter(RelyingPartyRegistrationRepository relyingPartyRegistrationRepository,
 			Saml2MetadataResolver saml2MetadataResolver) {
 		this(new DefaultRelyingPartyRegistrationResolver(relyingPartyRegistrationRepository), saml2MetadataResolver);
