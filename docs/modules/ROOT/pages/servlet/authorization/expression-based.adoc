@@ -144,7 +144,7 @@ You could then refer to the method as follows:
 ----
 http
     .authorizeHttpRequests(authorize -> authorize
-        .requestMatchers("/user/**").access("@webSecurity.check(authentication,request)")
+        .requestMatchers("/user/**").access(new WebExpressionAuthorizationManager("@webSecurity.check(authentication,request)"))
         ...
     )
 ----
