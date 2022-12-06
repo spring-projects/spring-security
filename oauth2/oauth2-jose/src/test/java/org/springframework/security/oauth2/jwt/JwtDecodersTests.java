@@ -165,6 +165,17 @@ public class JwtDecodersTests {
 	}
 
 	@Test
+	public void issuerAndJwksUri() {
+		String providedIssuer = "COMPANYNAME";
+		String jwksUri = jwks();
+		Map<String, MockResponse> responses = new HashMap<>();
+		responses.put(jwksUri, response(JWK_SET));
+		prepareConfigurationResponses(responses);
+		JwtDecoder jwtDecoder = JwtDecoders.fromIssuerAndJwksUri(providedIssuer, jwksUri);
+		assertThat(jwtDecoder).isNotNull();
+	}
+
+	@Test
 	public void issuerWhenResponseIsNonCompliantThenThrowsRuntimeException() {
 		prepareConfigurationResponse("{ \"missing_required_keys\" : \"and_values\" }");
 		assertThatExceptionOfType(RuntimeException.class)

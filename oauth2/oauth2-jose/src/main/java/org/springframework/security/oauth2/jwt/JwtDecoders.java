@@ -95,6 +95,26 @@ public final class JwtDecoders {
 	}
 
 	/**
+	 * Creates a {@link JwtDecoder} using the provided
+	 * <a href= "https://tools.ietf.org/html/rfc7519#section-4.1.1">Issuer</a> an jwksUri.
+	 *
+	 * Note that this method is useful for cases when JWT token has {@code iss} param
+	 * which is not an uri
+	 * @param issuer an issuer from
+	 * <a href="https://tools.ietf.org/html/rfc7519#section-4.1.1">JWT</a>
+	 * @param jwksUri <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
+	 * uri
+	 * @return a {@link JwtDecoder} that was initialized by provided issuer and jwksUri
+	 */
+	public static JwtDecoder fromIssuerAndJwksUri(String issuer, String jwksUri) {
+		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
+		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwksUri)
+				.jwtProcessorCustomizer(JwtDecoderProviderConfigurationUtils::addJWSAlgorithms).build();
+		jwtDecoder.setJwtValidator(jwtValidator);
+		return jwtDecoder;
+	}
+
+	/**
 	 * Validate provided issuer and build {@link JwtDecoder} from <a href=
 	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
 	 * Provider Configuration Response</a> and
