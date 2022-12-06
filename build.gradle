@@ -9,11 +9,13 @@ antora {
 	environment = [
 		'ALGOLIA_API_KEY': '82c7ead946afbac3cf98c32446154691',
 		'ALGOLIA_APP_ID': '244V8V9FGG',
-		'ALGOLIA_INDEX_NAME': 'security-docs'
+		'ALGOLIA_INDEX_NAME': 'security-docs',
     ]
 	dependencies = [
 		'@antora/atlas-extension': '1.0.0-alpha.1',
 		'@antora/collector-extension': '1.0.0-alpha.2',
-		'@opendevise/antora-release-line-extension': '1.0.0-alpha.2'
+		'@asciidoctor/tabs': '1.0.0-alpha.8',
+		'@opendevise/antora-release-line-extension': '1.0.0-alpha.2',
+		'@springio/asciidoctor-extensions': '1.0.0-alpha.4',
 	]
 }
