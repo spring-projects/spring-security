@@ -105,7 +105,7 @@ public final class JwtDecoders {
 	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
 	 * @return {@link JwtDecoder}
 	 */
-	private static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
+	public static JwtDecoder withProviderConfiguration(Map<String, Object> configuration, String issuer) {
 		JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
 		OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefaultWithIssuer(issuer);
 		String jwkSetUri = configuration.get("jwks_uri").toString();
