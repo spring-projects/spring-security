@@ -6,6 +6,10 @@ antora:
   - ./lib/antora/extensions/version-fix.js
   - '@antora/atlas-extension'
   - '@opendevise/antora-release-line-extension'
+  - require: '@springio/asciidoctor-extensions/tabs-migration-antora-extension'
+    # uncomment this option to save the migrated content to the worktree
+    #save_result: true
+    unwrap_example_block: always
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
@@ -22,6 +26,10 @@ asciidoc:
   attributes:
     page-pagination: ''
     hide-uri-scheme: '@'
+    tabs-sync-option: '@'
+  extensions:
+  - '@asciidoctor/tabs'
+  - '@springio/asciidoctor-extensions'
 urls:
   latest_version_segment_strategy: redirect:to
   latest_version_segment: ''
