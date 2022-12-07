@@ -873,6 +873,50 @@ open class SecurityConfiguration {
 ----
 ====
 
+== Add `@Configuration` to `@Enable*` annotations
+
+In 6.0, all Spring Security's `@Enable*` annotations had their `@Configuration` removed.
+While convenient, it was not consistent with the rest of the Spring projects and most notably Spring Framework's `@Enable*` annotations.
+Additionally, the introduction of support for `@Configuration(proxyBeanMethods=false)` in Spring Framework provides another reason to remove `@Configuration` meta-annotation from Spring Security's `@Enable*` annotations and allow users to opt into their preferred configuration mode.
+
+The following annotations had their `@Configuration` removed:
+
+- `@EnableGlobalAuthentication`
+- `@EnableGlobalMethodSecurity`
+- `@EnableMethodSecurity`
+- `@EnableReactiveMethodSecurity`
+- `@EnableWebSecurity`
+- `@EnableWebFluxSecurity`
+
+For example, if you are using `@EnableWebSecurity`, you will need to change:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableWebSecurity
+public class SecurityConfig {
+	// ...
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+	// ...
+}
+----
+====
+
+And the same applies to every other annotation listed above.
+
 ==== Other Scenarios
 
 If you are using `AuthenticationManagerBuilder` for something more sophisticated, you can xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[publish your own `AuthenticationManager` `@Bean`] or wire an `AuthenticationManager` instance into the `HttpSecurity` DSL with {security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html#authenticationManager(org.springframework.security.authentication.AuthenticationManager)[`HttpSecurity#authenticationManager`].
