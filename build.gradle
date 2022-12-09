@@ -14,7 +14,7 @@ antora {
 	dependencies = [
 		'@antora/atlas-extension': '1.0.0-alpha.1',
 		'@antora/collector-extension': '1.0.0-alpha.2',
-		'@asciidoctor/tabs': '1.0.0-alpha.8',
+		'@asciidoctor/tabs': '1.0.0-alpha.11',
 		'@opendevise/antora-release-line-extension': '1.0.0-alpha.2',
 		'@springio/asciidoctor-extensions': '1.0.0-alpha.4',
 	]
