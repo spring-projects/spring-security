@@ -20,8 +20,7 @@ import java.io.IOException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.jasig.cas.client.util.CommonUtils;
+import org.apereo.cas.client.util.CommonUtils;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;

@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.authentication.AttributePrincipal;
+import org.apereo.cas.client.validation.Assertion;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;

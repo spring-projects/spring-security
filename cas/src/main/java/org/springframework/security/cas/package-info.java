@@ -15,7 +15,7 @@
  */
 
 /**
- * Spring Security support for Jasig's Central Authentication Service
- * (<a href="https://www.jasig.org/cas">CAS</a>).
+ * Spring Security support for Apereo's Central Authentication Service
+ * (<a href="https://github.com/apereo/cas">CAS</a>).
  */
 package org.springframework.security.cas;

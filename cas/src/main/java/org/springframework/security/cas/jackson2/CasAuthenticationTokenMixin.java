@@ -23,7 +23,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
 import org.springframework.security.cas.authentication.CasAuthenticationToken;

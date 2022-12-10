@@ -18,9 +18,9 @@ package org.springframework.security.cas.authentication;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.TicketValidationException;
-import org.jasig.cas.client.validation.TicketValidator;
+import org.apereo.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.TicketValidationException;
+import org.apereo.cas.client.validation.TicketValidator;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.MessageSource;

@@ -19,9 +19,9 @@ package org.springframework.security.cas.authentication;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.AssertionImpl;
-import org.jasig.cas.client.validation.TicketValidator;
+import org.apereo.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.AssertionImpl;
+import org.apereo.cas.client.validation.TicketValidator;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;

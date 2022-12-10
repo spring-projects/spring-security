@@ -18,8 +18,8 @@ package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.jasig.cas.client.authentication.AttributePrincipalImpl;
-import org.jasig.cas.client.validation.AssertionImpl;
+import org.apereo.cas.client.authentication.AttributePrincipalImpl;
+import org.apereo.cas.client.validation.AssertionImpl;
 
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.jackson2.SecurityJackson2Modules;
