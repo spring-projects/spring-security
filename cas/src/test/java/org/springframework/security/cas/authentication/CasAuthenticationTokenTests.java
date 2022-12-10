@@ -23,7 +23,6 @@ import org.apereo.cas.client.validation.Assertion;
 import org.apereo.cas.client.validation.AssertionImpl;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -113,16 +112,6 @@ public class CasAuthenticationTokenTests {
 				makeUserDetails(), assertion);
 		CasAuthenticationToken token2 = new CasAuthenticationToken("key", makeUserDetails("OTHER_NAME"), "Password",
 				this.ROLES, makeUserDetails(), assertion);
-		assertThat(!token1.equals(token2)).isTrue();
-	}
-
-	@Test
-	public void testNotEqualsDueToDifferentAuthenticationClass() {
-		final Assertion assertion = new AssertionImpl("test");
-		CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
-				makeUserDetails(), assertion);
-		UsernamePasswordAuthenticationToken token2 = new UsernamePasswordAuthenticationToken("Test", "Password",
-				this.ROLES);
 		assertThat(!token1.equals(token2)).isTrue();
 	}
 

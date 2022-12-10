@@ -29,7 +29,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -87,8 +86,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateful("ST-123");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
 		// Confirm ST-123 was NOT added to the cache
@@ -120,8 +118,7 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateless("ST-456");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
 		// Confirm ST-456 was added to the cache
@@ -135,7 +132,7 @@ public class CasAuthenticationProviderTests {
 		// Now try to authenticate again. To ensure TicketValidator not
 		// called again, set it to deliver an exception...
 		cap.setTicketValidator(new MockTicketValidator(false));
-		// Previously created UsernamePasswordAuthenticationToken is OK
+		// Previously created CasServiceTicketAuthenticationToken is OK
 		Authentication newResult = cap.authenticate(token);
 		assertThat(newResult.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
 		assertThat(newResult.getCredentials()).isEqualTo("ST-456");
@@ -157,8 +154,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateless(ticket);
 		Authentication result = cap.authenticate(token);
 	}
 
@@ -178,8 +174,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateless(ticket);
 		Authentication result = cap.authenticate(token);
 		verify(validator).validate(ticket, serviceProperties.getService());
 		serviceProperties.setAuthenticateAllArtifacts(true);
@@ -211,8 +206,7 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
+		CasServiceTicketAuthenticationToken token = CasServiceTicketAuthenticationToken.stateful("");
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> cap.authenticate(token));
 	}
 
@@ -322,7 +316,7 @@ public class CasAuthenticationProviderTests {
 	@Test
 	public void supportsRequiredTokens() {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
-		assertThat(cap.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
+		assertThat(cap.supports(CasServiceTicketAuthenticationToken.class)).isTrue();
 		assertThat(cap.supports(CasAuthenticationToken.class)).isTrue();
 	}
 

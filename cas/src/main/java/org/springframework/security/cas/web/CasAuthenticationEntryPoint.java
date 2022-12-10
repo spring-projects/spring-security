@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.util.Assert;
 
 /**
@@ -72,7 +73,8 @@ public class CasAuthenticationEntryPoint implements AuthenticationEntryPoint, In
 		String urlEncodedService = createServiceUrl(servletRequest, response);
 		String redirectUrl = createRedirectUrl(urlEncodedService);
 		preCommence(servletRequest, response);
-		response.sendRedirect(redirectUrl);
+		new DefaultRedirectStrategy().sendRedirect(servletRequest, response, redirectUrl);
+		// response.sendRedirect(redirectUrl);
 	}
 
 	/**
