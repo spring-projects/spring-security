@@ -396,10 +396,6 @@ fun doSomething(contact: Contact?)
 ----
 ====
 
-Here we are accessing another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
-You can also access its "principal" property directly, using the expression `principal`.
-The value will often be a `UserDetails` instance, so you might use an expression like `principal.username` or `principal.enabled`.
-
 .[[el-pre-post-annotations-post]]
 Here, we access another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
 You can also access its `principal` property directly, by using the `principal` expression.
