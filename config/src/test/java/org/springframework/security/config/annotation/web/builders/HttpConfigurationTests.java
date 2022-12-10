@@ -32,7 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -125,17 +124,18 @@ public class HttpConfigurationTests {
 	}
 
 	@EnableWebSecurity
-	static class CasAuthenticationFilterConfig extends WebSecurityConfigurerAdapter {
+	static class CasAuthenticationFilterConfig {
 
-		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
-
-		@Override
-		protected void configure(HttpSecurity http) {
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 			// @formatter:off
 			http
-				.addFilter(CAS_AUTHENTICATION_FILTER);
+					.addFilter(CAS_AUTHENTICATION_FILTER);
 			// @formatter:on
+			return http.build();
 		}
+
+		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
 
 	}
 

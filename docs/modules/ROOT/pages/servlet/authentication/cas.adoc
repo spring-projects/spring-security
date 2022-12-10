@@ -163,7 +163,7 @@ Next you need to add a `CasAuthenticationProvider` and its collaborators:
 </property>
 <property name="serviceProperties" ref="serviceProperties" />
 <property name="ticketValidator">
-	<bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
+	<bean class="org.apereo.cas.client.validation.Cas20ServiceTicketValidator">
 	<constructor-arg index="0" value="https://localhost:9443/cas" />
 	</bean>
 </property>
@@ -208,7 +208,7 @@ Below are updates to the Spring Security configuration that handle Single Logout
 </security:http>
 
 <!-- This filter handles a Single Logout Request from the CAS Server -->
-<bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter"/>
+<bean id="singleLogoutFilter" class="org.apereo.cas.client.session.SingleSignOutFilter"/>
 
 <!-- This filter redirects to the CAS Server to signal Single Logout should be performed -->
 <bean id="requestSingleLogoutFilter"
@@ -235,7 +235,7 @@ With the configuration above, the flow of logout would be:
 * The logout success page, `/cas-logout.jsp`, should instruct the user to click a link pointing to `/logout/cas` in order to logout out of all applications.
 * When the user clicks the link, the user is redirected to the CAS single logout URL (https://localhost:9443/cas/logout).
 * On the CAS Server side, the CAS single logout URL then submits single logout requests to all the CAS Services.
-On the CAS Service side, JASIG's `SingleSignOutFilter` processes the logout request by invalidating the original session.
+On the CAS Service side, Apereo's `SingleSignOutFilter` processes the logout request by invalidating the original session.
 
 
 
@@ -259,14 +259,14 @@ The next step is to add the following to your web.xml
 </filter-mapping>
 <listener>
 <listener-class>
-	org.jasig.cas.client.session.SingleSignOutHttpSessionListener
+	org.apereo.cas.client.session.SingleSignOutHttpSessionListener
 </listener-class>
 </listener>
 ----
 
 When using the SingleSignOutFilter you might encounter some encoding issues.
 Therefore it is recommended to add the `CharacterEncodingFilter` to ensure that the character encoding is correct when using the `SingleSignOutFilter`.
-Again, refer to JASIG's documentation for details.
+Again, refer to Apereo CAS's documentation for details.
 The `SingleSignOutHttpSessionListener` ensures that when an `HttpSession` expires, the mapping used for single logout is removed.
 
 
@@ -293,7 +293,7 @@ NOTE: In a real application you should not use an in memory implementation.
 You will also want to ensure to clean up expired tickets by calling
 ProxyGrantingTicketStorage.cleanup()
 -->
-<bean id="pgtStorage" class="org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl"/>
+<bean id="pgtStorage" class="org.apereo.cas.client.proxy.ProxyGrantingTicketStorageImpl"/>
 ----
 
 The next step is to update the `CasAuthenticationProvider` to be able to obtain proxy tickets.
@@ -308,7 +308,7 @@ You can find an example of the configuration changes that should be made below.
 	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
 ...
 <property name="ticketValidator">
-	<bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
+	<bean class="org.apereo.cas.client.validation.Cas20ProxyTicketValidator">
 	<constructor-arg value="https://localhost:9443/cas"/>
 		<property name="proxyCallbackUrl"
 		value="https://localhost:8443/cas-sample/login/cas/proxyreceptor"/>
@@ -439,7 +439,7 @@ You can find an example of the updates required to accept all proxies below.
 	class="org.springframework.security.cas.authentication.CasAuthenticationProvider">
 ...
 <property name="ticketValidator">
-	<bean class="org.jasig.cas.client.validation.Cas20ProxyTicketValidator">
+	<bean class="org.apereo.cas.client.validation.Cas20ProxyTicketValidator">
 	<constructor-arg value="https://localhost:9443/cas"/>
 	<property name="acceptAnyProxy" value="true"/>
 	</bean>

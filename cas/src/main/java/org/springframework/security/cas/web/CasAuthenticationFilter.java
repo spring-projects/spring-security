@@ -22,10 +22,9 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.jasig.cas.client.proxy.ProxyGrantingTicketStorage;
-import org.jasig.cas.client.util.CommonUtils;
-import org.jasig.cas.client.validation.TicketValidator;
+import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
+import org.apereo.cas.client.util.CommonUtils;
+import org.apereo.cas.client.validation.TicketValidator;
 
 import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -133,7 +132,7 @@ import org.springframework.util.Assert;
  *     NOTE: In a real application you should not use an in memory implementation. You will also want
  *           to ensure to clean up expired tickets by calling ProxyGrantingTicketStorage.cleanup()
  *  --&gt;
- * &lt;b:bean id=&quot;pgtStorage&quot; class=&quot;org.jasig.cas.client.proxy.ProxyGrantingTicketStorageImpl&quot;/&gt;
+ * &lt;b:bean id=&quot;pgtStorage&quot; class=&quot;org.apereo.cas.client.proxy.ProxyGrantingTicketStorageImpl&quot;/&gt;
  * &lt;b:bean id=&quot;casAuthProvider&quot; class=&quot;org.springframework.security.cas.authentication.CasAuthenticationProvider&quot;
  *     p:serviceProperties-ref=&quot;serviceProperties&quot;
  *     p:key=&quot;casAuthProviderKey&quot;&gt;
@@ -145,7 +144,7 @@ import org.springframework.util.Assert;
  *     &lt;/b:property&gt;
  *     &lt;b:property name=&quot;ticketValidator&quot;&gt;
  *         &lt;b:bean
- *             class=&quot;org.jasig.cas.client.validation.Cas20ProxyTicketValidator&quot;
+ *             class=&quot;org.apereo.cas.client.validation.Cas20ProxyTicketValidator&quot;
  *             p:acceptAnyProxy=&quot;true&quot;
  *             p:proxyCallbackUrl=&quot;https://service.example.com/cas-sample/login/cas/proxyreceptor&quot;
  *             p:proxyGrantingTicketStorage-ref=&quot;pgtStorage&quot;&gt;

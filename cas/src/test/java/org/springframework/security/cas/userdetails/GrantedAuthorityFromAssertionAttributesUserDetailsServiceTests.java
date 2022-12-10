@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.jasig.cas.client.authentication.AttributePrincipal;
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.authentication.AttributePrincipal;
+import org.apereo.cas.client.validation.Assertion;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;

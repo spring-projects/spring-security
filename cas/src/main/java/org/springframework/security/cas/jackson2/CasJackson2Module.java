@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,8 @@ package org.springframework.security.cas.jackson2;
 
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import org.jasig.cas.client.authentication.AttributePrincipalImpl;
-import org.jasig.cas.client.validation.AssertionImpl;
+import org.apereo.cas.client.authentication.AttributePrincipalImpl;
+import org.apereo.cas.client.validation.AssertionImpl;
 
 import org.springframework.security.cas.authentication.CasAuthenticationToken;
 import org.springframework.security.jackson2.SecurityJackson2Modules;

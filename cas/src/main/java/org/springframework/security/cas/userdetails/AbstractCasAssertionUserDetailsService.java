@@ -16,7 +16,7 @@
 
 package org.springframework.security.cas.userdetails;
 
-import org.jasig.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.Assertion;
 
 import org.springframework.security.cas.authentication.CasAssertionAuthenticationToken;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;

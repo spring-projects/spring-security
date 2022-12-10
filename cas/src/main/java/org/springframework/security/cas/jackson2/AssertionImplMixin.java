@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2015-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import org.jasig.cas.client.authentication.AttributePrincipal;
+import org.apereo.cas.client.authentication.AttributePrincipal;
 
 /**
  * Helps in jackson deserialization of class
- * {@link org.jasig.cas.client.validation.AssertionImpl}, which is used with
+ * {@link org.apereo.cas.client.validation.AssertionImpl}, which is used with
  * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. To use
  * this class we need to register with
  * {@link com.fasterxml.jackson.databind.ObjectMapper}. Type information will be stored
@@ -52,7 +52,7 @@ class AssertionImplMixin {
 
 	/**
 	 * Mixin Constructor helps in deserialize
-	 * {@link org.jasig.cas.client.validation.AssertionImpl}
+	 * {@link org.apereo.cas.client.validation.AssertionImpl}
 	 * @param principal the Principal to associate with the Assertion.
 	 * @param validFromDate when the assertion is valid from.
 	 * @param validUntilDate when the assertion is valid to.

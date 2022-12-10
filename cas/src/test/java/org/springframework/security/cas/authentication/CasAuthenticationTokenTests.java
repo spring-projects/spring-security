@@ -19,8 +19,8 @@ package org.springframework.security.cas.authentication;
 import java.util.Collections;
 import java.util.List;
 
-import org.jasig.cas.client.validation.Assertion;
-import org.jasig.cas.client.validation.AssertionImpl;
+import org.apereo.cas.client.validation.Assertion;
+import org.apereo.cas.client.validation.AssertionImpl;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
