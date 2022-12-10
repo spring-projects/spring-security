@@ -27,7 +27,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
@@ -87,7 +86,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(makeServiceProperties());
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "ST-123");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
@@ -120,7 +119,7 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, "ST-456");
 		token.setDetails("details");
 		Authentication result = cap.authenticate(token);
@@ -135,7 +134,7 @@ public class CasAuthenticationProviderTests {
 		// Now try to authenticate again. To ensure TicketValidator not
 		// called again, set it to deliver an exception...
 		cap.setTicketValidator(new MockTicketValidator(false));
-		// Previously created UsernamePasswordAuthenticationToken is OK
+		// Previously created CasServiceTicketAuthenticationToken is OK
 		Authentication newResult = cap.authenticate(token);
 		assertThat(newResult.getPrincipal()).isEqualTo(makeUserDetailsFromAuthoritiesPopulator());
 		assertThat(newResult.getCredentials()).isEqualTo("ST-456");
@@ -157,7 +156,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
 		Authentication result = cap.authenticate(token);
 	}
@@ -178,7 +177,7 @@ public class CasAuthenticationProviderTests {
 		cap.setServiceProperties(serviceProperties);
 		cap.afterPropertiesSet();
 		String ticket = "ST-456";
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER, ticket);
 		Authentication result = cap.authenticate(token);
 		verify(validator).validate(ticket, serviceProperties.getService());
@@ -211,7 +210,7 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken(
 				CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER, "");
 		assertThatExceptionOfType(BadCredentialsException.class).isThrownBy(() -> cap.authenticate(token));
 	}
@@ -306,7 +305,7 @@ public class CasAuthenticationProviderTests {
 	}
 
 	@Test
-	public void ignoresUsernamePasswordAuthenticationTokensWithoutCasIdentifiersAsPrincipal() throws Exception {
+	public void ignoresCasServiceTicketAuthenticationTokensWithoutCasIdentifiersAsPrincipal() throws Exception {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
 		cap.setAuthenticationUserDetailsService(new MockAuthoritiesPopulator());
 		cap.setKey("qwerty");
@@ -314,7 +313,7 @@ public class CasAuthenticationProviderTests {
 		cap.setTicketValidator(new MockTicketValidator(true));
 		cap.setServiceProperties(makeServiceProperties());
 		cap.afterPropertiesSet();
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken("some_normal_user",
+		CasServiceTicketAuthenticationToken token = new CasServiceTicketAuthenticationToken("some_normal_user",
 				"password", AuthorityUtils.createAuthorityList("ROLE_A"));
 		assertThat(cap.authenticate(token)).isNull();
 	}
@@ -322,7 +321,7 @@ public class CasAuthenticationProviderTests {
 	@Test
 	public void supportsRequiredTokens() {
 		CasAuthenticationProvider cap = new CasAuthenticationProvider();
-		assertThat(cap.supports(UsernamePasswordAuthenticationToken.class)).isTrue();
+		assertThat(cap.supports(CasServiceTicketAuthenticationToken.class)).isTrue();
 		assertThat(cap.supports(CasAuthenticationToken.class)).isTrue();
 	}
 

@@ -30,7 +30,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AccountStatusUserDetailsChecker;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.cas.web.authentication.ServiceAuthenticationDetails;
@@ -51,7 +50,7 @@ import org.springframework.util.Assert;
  * Authentication Service (CAS).
  * <p>
  * This <code>AuthenticationProvider</code> is capable of validating
- * {@link UsernamePasswordAuthenticationToken} requests which contain a
+ * {@link CasServiceTicketAuthenticationToken} requests which contain a
  * <code>principal</code> name equal to either
  * {@link CasAuthenticationFilter#CAS_STATEFUL_IDENTIFIER} or
  * {@link CasAuthenticationFilter#CAS_STATELESS_IDENTIFIER}. It can also validate a
@@ -95,11 +94,11 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-		if (authentication instanceof UsernamePasswordAuthenticationToken
+		if (authentication instanceof CasServiceTicketAuthenticationToken
 				&& (!CasAuthenticationFilter.CAS_STATEFUL_IDENTIFIER.equals(authentication.getPrincipal().toString())
 						&& !CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER
 								.equals(authentication.getPrincipal().toString()))) {
-			// UsernamePasswordAuthenticationToken not CAS related
+			// CasServiceTicketAuthenticationToken not CAS related
 			return null;
 		}
 		// If an existing CasAuthenticationToken, just check we created it
@@ -117,7 +116,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 					"Failed to provide a CAS service ticket to validate"));
 		}
 
-		boolean stateless = (authentication instanceof UsernamePasswordAuthenticationToken
+		boolean stateless = (authentication instanceof CasServiceTicketAuthenticationToken
 				&& CasAuthenticationFilter.CAS_STATELESS_IDENTIFIER.equals(authentication.getPrincipal()));
 		CasAuthenticationToken result = null;
 
@@ -236,7 +235,7 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 
 	@Override
 	public boolean supports(final Class<?> authentication) {
-		return (UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication))
+		return (CasServiceTicketAuthenticationToken.class.isAssignableFrom(authentication))
 				|| (CasAuthenticationToken.class.isAssignableFrom(authentication))
 				|| (CasAssertionAuthenticationToken.class.isAssignableFrom(authentication));
 	}
