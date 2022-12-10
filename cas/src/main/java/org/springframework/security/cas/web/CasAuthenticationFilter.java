@@ -45,8 +45,6 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 
-
-
 /**
  * Processes a CAS service ticket, obtains proxy granting tickets, and processes proxy
  * tickets.
@@ -66,8 +64,9 @@ import org.springframework.util.Assert;
  * <p>
  * Processing the service ticket involves creating a
  * <code>CasServiceTicketAuthenticationToken</code> which uses
- * {@link #CAS_STATEFUL_IDENTIFIER} for the <code>principal</code> and the opaque ticket
- * string as the <code>credentials</code>.
+ * {@link CasServiceTicketAuthenticationToken.CasUserAgentType#CAS_STATEFUL_IDENTIFIER}
+ * for the <code>principal</code> and the opaque ticket string as the
+ * <code>credentials</code>.
  * <h2>Obtaining Proxy Granting Tickets</h2>
  * <p>
  * If specified, the filter can also monitor the <code>proxyReceptorUrl</code>. The filter
@@ -91,10 +90,10 @@ import org.springframework.util.Assert;
  * <p>
  * Processing the proxy ticket involves creating a
  * <code>CasServiceTicketAuthenticationToken</code> which uses
- * {@link #CAS_STATELESS_IDENTIFIER} for the <code>principal</code> and the opaque ticket
- * string as the <code>credentials</code>. When a proxy ticket is successfully
- * authenticated, the FilterChain continues and the
- * <code>authenticationSuccessHandler</code> is not used.
+ * {@link CasServiceTicketAuthenticationToken.CasUserAgentType#CAS_STATELESS_IDENTIFIER}
+ * for the <code>principal</code> and the opaque ticket string as the
+ * <code>credentials</code>. When a proxy ticket is successfully authenticated, the
+ * FilterChain continues and the <code>authenticationSuccessHandler</code> is not used.
  * <h2>Notes about the <code>AuthenticationManager</code></h2>
  * <p>
  * The configured <code>AuthenticationManager</code> is expected to provide a provider
@@ -178,19 +177,6 @@ import org.springframework.util.Assert;
 public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
 
 	/**
-	 * Used to identify a CAS request for a stateful user agent, such as a web browser.
-	 */
-	public static final String CAS_STATEFUL_IDENTIFIER = "_cas_stateful_";
-
-	/**
-	 * Used to identify a CAS request for a stateless user agent, such as a remoting
-	 * protocol client (e.g. Hessian, Burlap, SOAP etc). Results in a more aggressive
-	 * caching strategy being used, as the absence of a <code>HttpSession</code> will
-	 * result in a new authentication attempt on every request.
-	 */
-	public static final String CAS_STATELESS_IDENTIFIER = "_cas_stateless_";
-
-	/**
 	 * The last portion of the receptor url, i.e. /proxy/receptor
 	 */
 	private RequestMatcher proxyReceptorMatcher;
@@ -241,13 +227,16 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 			return null;
 		}
 		boolean serviceTicketRequest = serviceTicketRequest(request, response);
-		String username = serviceTicketRequest ? CAS_STATEFUL_IDENTIFIER : CAS_STATELESS_IDENTIFIER;
-		String password = obtainArtifact(request);
-		if (password == null) {
+		CasServiceTicketAuthenticationToken.CasUserAgentType userAgentType = serviceTicketRequest
+				? CasServiceTicketAuthenticationToken.CasUserAgentType.CAS_STATEFUL_IDENTIFIER
+				: CasServiceTicketAuthenticationToken.CasUserAgentType.CAS_STATELESS_IDENTIFIER;
+		String serviceTicket = obtainArtifact(request);
+		if (serviceTicket == null) {
 			this.logger.debug("Failed to obtain an artifact (cas ticket)");
-			password = "";
+			serviceTicket = "";
 		}
-		CasServiceTicketAuthenticationToken authRequest = new CasServiceTicketAuthenticationToken(username, password);
+		CasServiceTicketAuthenticationToken authRequest = new CasServiceTicketAuthenticationToken(userAgentType,
+				serviceTicket);
 		authRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}

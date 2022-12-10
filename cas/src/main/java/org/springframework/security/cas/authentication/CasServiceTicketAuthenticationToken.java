@@ -16,6 +16,7 @@
 
 package org.springframework.security.cas.authentication;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -25,21 +26,16 @@ import org.springframework.util.Assert;
 
 /**
  * An {@link org.springframework.security.core.Authentication} implementation that is
- * designed for simple presentation of a username and password.
- * <p>
- * The <code>principal</code> and <code>credentials</code> should be set with an
- * <code>Object</code> that provides the respective property via its
- * <code>Object.toString()</code> method. The simplest such <code>Object</code> to use is
- * <code>String</code>.
+ * designed to process CAS service ticket.
  *
- * @author Ben Alex
- * @author Norbert Nowak
+ * @author Hal Deadman
+ * @since 6.1
  */
 public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationToken {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private final Object principal;
+	private final CasUserAgentType userAgentType;
 
 	private Object credentials;
 
@@ -49,9 +45,9 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	 * will return <code>false</code>.
 	 *
 	 */
-	public CasServiceTicketAuthenticationToken(Object principal, Object credentials) {
+	public CasServiceTicketAuthenticationToken(CasUserAgentType userAgentType, Object credentials) {
 		super(null);
-		this.principal = principal;
+		this.userAgentType = userAgentType;
 		this.credentials = credentials;
 		setAuthenticated(false);
 	}
@@ -61,14 +57,14 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	 * <code>AuthenticationProvider</code> implementations that are satisfied with
 	 * producing a trusted (i.e. {@link #isAuthenticated()} = <code>true</code>)
 	 * authentication token.
-	 * @param principal
+	 * @param userAgentType
 	 * @param credentials
 	 * @param authorities
 	 */
-	public CasServiceTicketAuthenticationToken(Object principal, Object credentials,
-												Collection<? extends GrantedAuthority> authorities) {
+	public CasServiceTicketAuthenticationToken(CasUserAgentType userAgentType, Object credentials,
+			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
-		this.principal = principal;
+		this.userAgentType = userAgentType;
 		this.credentials = credentials;
 		super.setAuthenticated(true); // must use super, as we override
 	}
@@ -76,28 +72,27 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	/**
 	 * This factory method can be safely used by any code that wishes to create a
 	 * unauthenticated <code>CasServiceTicketAuthenticationToken</code>.
-	 * @param principal
+	 * @param casUserAgentType
 	 * @param credentials
 	 * @return CasServiceTicketAuthenticationToken with false isAuthenticated() result
 	 *
-	 * @since 5.7
 	 */
-	public static CasServiceTicketAuthenticationToken unauthenticated(Object principal, Object credentials) {
-		return new CasServiceTicketAuthenticationToken(principal, credentials);
+	public static CasServiceTicketAuthenticationToken unauthenticated(CasUserAgentType casUserAgentType,
+			Object credentials) {
+		return new CasServiceTicketAuthenticationToken(casUserAgentType, credentials);
 	}
 
 	/**
 	 * This factory method can be safely used by any code that wishes to create a
 	 * authenticated <code>CasServiceTicketAuthenticationToken</code>.
-	 * @param principal
+	 * @param casUserAgentType
 	 * @param credentials
 	 * @return CasServiceTicketAuthenticationToken with true isAuthenticated() result
 	 *
-	 * @since 5.7
 	 */
-	public static CasServiceTicketAuthenticationToken authenticated(Object principal, Object credentials,
-																	Collection<? extends GrantedAuthority> authorities) {
-		return new CasServiceTicketAuthenticationToken(principal, credentials, authorities);
+	public static CasServiceTicketAuthenticationToken authenticated(CasUserAgentType casUserAgentType,
+			Object credentials, Collection<? extends GrantedAuthority> authorities) {
+		return new CasServiceTicketAuthenticationToken(casUserAgentType, credentials, authorities);
 	}
 
 	@Override
@@ -107,7 +102,7 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 
 	@Override
 	public Object getPrincipal() {
-		return this.principal;
+		return this.userAgentType;
 	}
 
 	@Override
@@ -121,6 +116,21 @@ public class CasServiceTicketAuthenticationToken extends AbstractAuthenticationT
 	public void eraseCredentials() {
 		super.eraseCredentials();
 		this.credentials = null;
+	}
+
+	public enum CasUserAgentType implements Serializable {
+
+		CAS_STATELESS_IDENTIFIER("_cas_stateless_"), CAS_STATEFUL_IDENTIFIER("_cas_stateful_");
+		private String value;
+
+		public String getValue() {
+			return this.value;
+		}
+
+		CasUserAgentType(String value) {
+			this.value = value;
+		}
+
 	}
 
 }

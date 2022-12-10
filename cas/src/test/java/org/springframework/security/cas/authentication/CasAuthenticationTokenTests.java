@@ -120,8 +120,8 @@ public class CasAuthenticationTokenTests {
 		final Assertion assertion = new AssertionImpl("test");
 		CasAuthenticationToken token1 = new CasAuthenticationToken("key", makeUserDetails(), "Password", this.ROLES,
 				makeUserDetails(), assertion);
-		CasServiceTicketAuthenticationToken token2 = new CasServiceTicketAuthenticationToken("Test", "Password",
-				this.ROLES);
+		CasServiceTicketAuthenticationToken token2 = new CasServiceTicketAuthenticationToken(
+				CasServiceTicketAuthenticationToken.CasUserAgentType.CAS_STATEFUL_IDENTIFIER, "Password", this.ROLES);
 		assertThat(!token1.equals(token2)).isTrue();
 	}
 

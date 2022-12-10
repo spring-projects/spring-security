@@ -26,8 +26,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import org.apereo.cas.client.proxy.ProxyRetriever;
 
 /**
- * Helps in deserialize {@link org.apereo.cas.client.authentication.AttributePrincipalImpl}
- * which is used with
+ * Helps in deserialize
+ * {@link org.apereo.cas.client.authentication.AttributePrincipalImpl} which is used with
  * {@link org.springframework.security.cas.authentication.CasAuthenticationToken}. Type
  * information will be stored in property named @class.
  * <p>

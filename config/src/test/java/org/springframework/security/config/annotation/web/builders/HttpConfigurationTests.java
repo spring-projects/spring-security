@@ -136,6 +136,7 @@ public class HttpConfigurationTests {
 		}
 
 		static CasAuthenticationFilter CAS_AUTHENTICATION_FILTER;
+
 	}
 
 	@Configuration
