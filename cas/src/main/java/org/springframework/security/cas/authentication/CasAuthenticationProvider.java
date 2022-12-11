@@ -93,14 +93,6 @@ public class CasAuthenticationProvider implements AuthenticationProvider, Initia
 		if (!supports(authentication.getClass())) {
 			return null;
 		}
-		if (authentication instanceof CasServiceTicketAuthenticationToken
-				&& (!CasServiceTicketAuthenticationToken.CasUserAgentType.CAS_STATEFUL_IDENTIFIER
-						.equals(authentication.getPrincipal())
-						&& !CasServiceTicketAuthenticationToken.CasUserAgentType.CAS_STATELESS_IDENTIFIER
-								.equals(authentication.getPrincipal()))) {
-			// CasServiceTicketAuthenticationToken not CAS related
-			return null;
-		}
 		// If an existing CasAuthenticationToken, just check we created it
 		if (authentication instanceof CasAuthenticationToken) {
 			if (this.key.hashCode() != ((CasAuthenticationToken) authentication).getKeyHash()) {
