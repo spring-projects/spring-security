@@ -23,16 +23,20 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.framework.Advised;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
 import org.springframework.aot.hint.predicate.RuntimeHintsPredicates;
+import org.springframework.core.DecoratingProxy;
 import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -59,6 +63,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Tests for {@link CoreSecurityRuntimeHints}
  *
  * @author Marcus Da Coregio
+ * @author Nikita Konev
  */
 class CoreSecurityRuntimeHintsTests {
 
@@ -142,6 +147,12 @@ class CoreSecurityRuntimeHintsTests {
 	void securityContextHasHints() {
 		assertThat(RuntimeHintsPredicates.reflection().onType(SecurityContextImpl.class)
 				.withMemberCategories(MemberCategory.INVOKE_PUBLIC_METHODS)).accepts(this.hints);
+	}
+
+	@Test
+	void authenticationManagerHasHints() {
+		assertThat(RuntimeHintsPredicates.proxies().forInterfaces(AuthenticationManager.class, SpringProxy.class,
+				Advised.class, DecoratingProxy.class)).accepts(this.hints);
 	}
 
 }

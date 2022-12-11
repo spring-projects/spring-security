@@ -19,14 +19,18 @@ package org.springframework.security.aot.hint;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.springframework.aop.SpringProxy;
+import org.springframework.aop.framework.Advised;
 import org.springframework.aot.hint.MemberCategory;
 import org.springframework.aot.hint.RuntimeHints;
 import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.aot.hint.TypeReference;
+import org.springframework.core.DecoratingProxy;
 import org.springframework.security.access.expression.SecurityExpressionOperations;
 import org.springframework.security.access.expression.SecurityExpressionRoot;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AccountExpiredException;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
@@ -49,6 +53,7 @@ import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
  * {@link RuntimeHintsRegistrar} for core classes
  *
  * @author Marcus Da Coregio
+ * @author Nikita Konev
  * @since 6.0
  */
 class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
@@ -61,6 +66,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
 		registerDefaultJdbcSchemaFileHint(hints);
 		registerSecurityContextHints(hints);
+		registerJdkProxyHints(hints);
 	}
 
 	private void registerMethodSecurityHints(RuntimeHints hints) {
@@ -102,6 +108,11 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 	private void registerSecurityContextHints(RuntimeHints hints) {
 		hints.reflection().registerType(SecurityContextImpl.class,
 				(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
+	}
+
+	private void registerJdkProxyHints(RuntimeHints hints) {
+		hints.proxies().registerJdkProxy(AuthenticationManager.class, SpringProxy.class, Advised.class,
+				DecoratingProxy.class);
 	}
 
 }
