@@ -58,6 +58,25 @@ public class DefaultRelyingPartyRegistrationResolverTests {
 	}
 
 	@Test
+	public void resolveWhenRequestContainsRegistrationIdPlusContextPathThenResolves() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		String pathInfo = "/some/path/" + this.registration.getRegistrationId();
+		request.setPathInfo(pathInfo);
+		request.setContextPath("/path");
+		request.setRequestURI(pathInfo);
+		RelyingPartyRegistration registration = this.resolver.convert(request);
+		assertThat(registration).isNotNull();
+		assertThat(registration.getRegistrationId()).isEqualTo(this.registration.getRegistrationId());
+		assertThat(registration.getEntityId())
+				.isEqualTo("http://localhost/some/path/saml2/service-provider-metadata/" + this.registration.getRegistrationId());
+		assertThat(registration.getAssertionConsumerServiceLocation())
+				.isEqualTo("http://localhost/some/path/login/saml2/sso/" + this.registration.getRegistrationId());
+		assertThat(registration.getSingleLogoutServiceLocation()).isEqualTo("http://localhost/some/path/logout/saml2/slo");
+		assertThat(registration.getSingleLogoutServiceResponseLocation())
+				.isEqualTo("http://localhost/some/path/logout/saml2/slo");
+	}
+
+	@Test
 	public void resolveWhenRequestContainsInvalidRegistrationIdThenNull() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/some/path/not-" + this.registration.getRegistrationId());

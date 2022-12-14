@@ -18,6 +18,7 @@ package org.springframework.security.saml2.provider.service.web;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.servlet.http.HttpServletRequest;
@@ -140,8 +141,17 @@ public final class DefaultRelyingPartyRegistrationResolver
 	}
 
 	private static String getApplicationUri(HttpServletRequest request) {
-		UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(UrlUtils.buildFullRequestUrl(request))
-				.replacePath(request.getContextPath()).replaceQuery(null).fragment(null).build();
+		String urlPath = UrlUtils.buildFullRequestUrl(request);
+		UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder
+				.fromHttpUrl(urlPath);
+
+		// Remove string after the context path
+		UriComponents uriComponentsTemp = uriComponentsBuilder.build();
+		String ctxPath = request.getContextPath();
+		int contextIndex = Objects.requireNonNull(uriComponentsTemp.getPath()).indexOf(ctxPath);
+		String path = uriComponentsTemp.getPath().substring(0, contextIndex + ctxPath.length());
+
+		UriComponents uriComponents = uriComponentsBuilder.replacePath(path).replaceQuery(null).fragment(null).build();
 		return uriComponents.toUriString();
 	}
 
