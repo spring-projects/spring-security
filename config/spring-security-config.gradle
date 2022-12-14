@@ -93,6 +93,7 @@ dependencies {
 	testImplementation 'org.springframework:spring-jdbc'
 	testImplementation 'org.springframework:spring-orm'
 	testImplementation 'org.springframework:spring-tx'
+	testImplementation 'org.springframework:spring-core-test'
 	testImplementation ('org.springframework.data:spring-data-jpa') {
 		exclude group: 'org.aspectj', module: 'aspectjrt'
 	}
