@@ -66,8 +66,8 @@ The only columns are the ID and the Java class name.
 Thus, there is a single row for each unique Class for which we wish to store ACL permissions.
 
 * `ACL_OBJECT_IDENTITY` stores information for each unique domain object instance in the system.
-Columns include a primary key ID, a foreign key to the `ACL_CLASS` table, a unique identifier so we know which ACL_CLASS instance we're providing information for, the parent, a foreign key to the `ACL_SID` table to represent the owner of the domain object instance, and whether we allow ACL entries to inherit from any parent ACL.
-We have a single row for every domain object instance we're storing ACL permissions for.
+Columns include the ID, a foreign key to the ACL_CLASS table, a unique identifier so we know the ACL_CLASS instance for which we provide information, the parent, a foreign key to the ACL_SID table to represent the owner of the domain object instance, and whether we allow ACL entries to inherit from any parent ACL.
+We have a single row for every domain object instance for which we store ACL permissions.
 
 * Finally, `ACL_ENTRY` stores the individual permissions assigned to each recipient.
 Columns include a foreign key to the `ACL_OBJECT_IDENTITY`, the recipient (i.e. a foreign key to ACL_SID), whether we'll be auditing or not, and the integer bit mask that represents the actual permission being granted or denied.
