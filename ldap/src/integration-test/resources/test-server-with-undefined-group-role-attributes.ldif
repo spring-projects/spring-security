@@ -1,0 +1,41 @@
+dn: ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: groups
+
+dn: ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: organizationalUnit
+ou: people
+
+dn: uid=dayan,ou=people,dc=springframework,dc=org
+objectclass: top
+objectclass: person
+objectclass: organizationalPerson
+objectclass: inetOrgPerson
+cn: Dayan K
+sn: Dayan
+uid: dayan
+userPassword: dayanspassword
+
+
+
+dn: cn=managers,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: managers
+ou:
+member: uid=dayan,ou=people,dc=springframework,dc=org
+
+dn: cn=researchers,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: researchers
+member: uid=dayan,ou=people,dc=springframework,dc=org
+
+dn: cn=developers,ou=groups,dc=springframework,dc=org
+objectclass: top
+objectclass: groupOfNames
+cn: developers
+ou: developer
+member: uid=dayan,ou=people,dc=springframework,dc=org
