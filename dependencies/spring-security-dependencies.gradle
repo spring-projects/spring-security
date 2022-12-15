@@ -44,7 +44,7 @@ dependencies {
 		api "org.apache.directory.server:apacheds-protocol-shared:1.5.5"
 		api "org.apache.directory.server:apacheds-server-jndi:1.5.5"
 		api "org.apache.directory.shared:shared-ldap:0.9.15"
-		api "org.apache.httpcomponents:httpclient:4.5.13"
+		api "org.apache.httpcomponents:httpclient:4.5.14"
 		api "org.aspectj:aspectjrt:$aspectjVersion"
 		api "org.aspectj:aspectjweaver:$aspectjVersion"
 		api "org.assertj:assertj-core:3.21.0"
