@@ -6,15 +6,15 @@ on:
 permissions: read-all
 jobs:
   build:
-    runs-on: ubuntu-latest
     if: github.repository_owner == 'spring-projects'
+    runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         ref: docs-build
         fetch-depth: 1
     - name: Dispatch
-      run: gh workflow run --ref $(git rev-parse --abbrev-ref HEAD) rebuild-search-index.yml
       env:
         GH_TOKEN: ${{ secrets.GH_ACTIONS_REPO_TOKEN }}
+      run: gh workflow run rebuild-search-index.yml -r $(git rev-parse --abbrev-ref HEAD)
