@@ -1,12 +1,12 @@
 antora:
   extensions:
-  - ./lib/antora/extensions/autoconfig-partial-build.js
+  - '@springio/antora-extensions/partial-build-extension'
   - ./lib/antora/extensions/inject-collector-config.js
   - '@antora/collector-extension'
   - ./lib/antora/extensions/version-fix.js
   - '@antora/atlas-extension'
   - '@opendevise/antora-release-line-extension'
-  - require: '@springio/asciidoctor-extensions/tabs-migration-antora-extension'
+  - require: '@springio/antora-extensions/tabs-migration-extension'
     # uncomment this option to save the migrated content to the worktree
     #save_result: true
     unwrap_example_block: always
