@@ -57,7 +57,8 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	 * {@code context}. Returns {@code null} if re-authorization is not supported, e.g.
 	 * the client is not authorized OR the {@link OAuth2AuthorizedClient#getRefreshToken()
 	 * refresh token} is not available for the authorized client OR the
-	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired OR the
+	 * refresh token has expired.
 	 *
 	 * <p>
 	 * The following {@link OAuth2AuthorizationContext#getAttributes() context attributes}
@@ -77,7 +78,8 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 		Assert.notNull(context, "context cannot be null");
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
 		if (authorizedClient == null || authorizedClient.getRefreshToken() == null
-				|| !hasTokenExpired(authorizedClient.getAccessToken())) {
+				|| !hasTokenExpired(authorizedClient.getAccessToken())
+				|| hasTokenExpired(authorizedClient.getRefreshToken())) {
 			return null;
 		}
 		Object requestScope = context.getAttribute(OAuth2AuthorizationContext.REQUEST_SCOPE_ATTRIBUTE_NAME);
@@ -107,7 +109,11 @@ public final class RefreshTokenOAuth2AuthorizedClientProvider implements OAuth2A
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+        Instant expires = token.getExpiresAt();
+        if (expires == null) {
+            return false;
+        }
+		return this.clock.instant().isAfter(expires.minus(this.clockSkew));
 	}
 
 	/**

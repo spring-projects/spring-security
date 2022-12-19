@@ -113,7 +113,11 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+        Instant expires = token.getExpiresAt();
+        if (expires == null) {
+            return false;
+        }
+		return this.clock.instant().isAfter(expires.minus(this.clockSkew));
 	}
 
 	/**

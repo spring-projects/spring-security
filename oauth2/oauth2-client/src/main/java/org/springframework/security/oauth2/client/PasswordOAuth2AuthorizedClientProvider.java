@@ -98,9 +98,10 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 			return null;
 		}
 		if (authorizedClient != null && hasTokenExpired(authorizedClient.getAccessToken())
-				&& authorizedClient.getRefreshToken() != null) {
+				&& authorizedClient.getRefreshToken() != null
+				&& !hasTokenExpired(authorizedClient.getRefreshToken())) {
 			// If client is already authorized and access token is expired and a refresh
-			// token is available, than return and allow
+			// token is available, then return and allow
 			// RefreshTokenOAuth2AuthorizedClientProvider to handle the refresh
 			return null;
 		}
@@ -122,7 +123,11 @@ public final class PasswordOAuth2AuthorizedClientProvider implements OAuth2Autho
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+        Instant expires = token.getExpiresAt();
+        if (expires == null) {
+            return false;
+        }
+		return this.clock.instant().isAfter(expires.minus(this.clockSkew));
 	}
 
 	/**
