@@ -296,7 +296,7 @@ fun foo(@AuthenticationPrincipal oauth2User: OAuth2User): String? {
 ----
 ====
 
-In that case, we can tell Spring Security to include a default `OAuth2User` using the `oauth2User` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`], like so:
+In that case, we can tell Spring Security to include a default `OAuth2User` using the `oauth2Login` xref:servlet/test/mockmvc/request-post-processors.adoc[`RequestPostProcessor`], like so:
 
 ====
 .Java
