@@ -40,6 +40,7 @@ import org.springframework.security.oauth2.client.registration.ReactiveClientReg
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -134,6 +135,7 @@ public class OAuth2ClientSpecTests {
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
 		ServerRequestCache requestCache = config.requestCache;
+		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.redirectUri("/authorize/oauth2/code/registration-id").build();
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
@@ -145,6 +147,7 @@ public class OAuth2ClientSpecTests {
 				this.registration, authorizationExchange, accessToken);
 		given(authorizationRequestRepository.loadAuthorizationRequest(any()))
 				.willReturn(Mono.just(authorizationRequest));
+		given(resolver.resolve(any())).willReturn(Mono.empty());
 		given(converter.convert(any())).willReturn(Mono.just(new TestingAuthenticationToken("a", "b", "c")));
 		given(manager.authenticate(any())).willReturn(Mono.just(result));
 		given(requestCache.getRedirectUri(any())).willReturn(Mono.just(URI.create("/saved-request")));
@@ -162,6 +165,7 @@ public class OAuth2ClientSpecTests {
 		verify(converter).convert(any());
 		verify(manager).authenticate(any());
 		verify(requestCache).getRedirectUri(any());
+		verify(resolver).resolve(any());
 	}
 
 	@Test
@@ -266,6 +270,8 @@ public class OAuth2ClientSpecTests {
 
 		ServerRequestCache requestCache = mock(ServerRequestCache.class);
 
+		ServerOAuth2AuthorizationRequestResolver resolver = mock(ServerOAuth2AuthorizationRequestResolver.class);
+
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {
 			// @formatter:off
@@ -274,6 +280,7 @@ public class OAuth2ClientSpecTests {
 					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(this.manager)
 					.authorizationRequestRepository(this.authorizationRequestRepository)
+					.authorizationRequestResolver(this.resolver)
 					.and()
 				.requestCache((c) -> c.requestCache(this.requestCache));
 			// @formatter:on
