@@ -10,7 +10,8 @@ antora:
     # uncomment this option to save the migrated content to the worktree
     #save_result: true
     unwrap_example_block: always
-  - require: ./lib/antora/extensions/publish-docsearch-config
+  - id: publish-docsearch-config
+    require: ./lib/antora/extensions/publish-docsearch-config
     template_path: ./.github/actions/docsearch-config.json.hbs
 site:
   title: Spring Security
@@ -21,8 +22,8 @@ git:
 content:
   sources:
   - url: https://github.com/spring-projects/spring-security
-    branches: [main, '5.{{6..9},{1..9}+({0..9})}.x', '6.+({0..9}).x']
-    tags: ['5.{{6..9},{1..9}+({0..9})}.+({0..9})?(-RC+({0..9}))', '6.+({0..9}).+({0..9})?(-{RC,M}*)']
+    branches: main
+    tags: 6.0.1
     start_path: docs
 asciidoc:
   attributes:

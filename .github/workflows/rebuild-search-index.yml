@@ -8,8 +8,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 5
-    - name: Run Docsearch Scraper
-      run: $GITHUB_WORKSPACE/.github/actions/algolia-docsearch-scraper.sh "${{ secrets.ALGOLIA_APPLICATION_ID }}" "${{ secrets.ALGOLIA_WRITE_API_KEY }}" $GITHUB_WORKSPACE/.github/actions/algolia-config.json
+    - name: Configure Indexer
+      run: |
+        CONFIG_FILE=.github/actions/docsearch-config.json
+        if [ ! -f $CONFIG_FILE ]; then
+          curl -sL -o $CONFIG_FILE $(node -p "require('fs').readFileSync('antora-playbook.yml', 'utf8').match(/^  url: (.*)/m)[1]")/docsearch-config.json
+        fi
+        INDEX_NAME=$(node -p "JSON.parse(require('fs').readFileSync('$CONFIG_FILE')).index_name")
+        echo "CONFIG_FILE=${CONFIG_FILE}" >> $GITHUB_ENV
+        echo "INDEX_NAME_TMP=${INDEX_NAME}-${GITHUB_RUN_ID}" >> $GITHUB_ENV
+    - name: Run Indexer
+      uses: darrenjennings/algolia-docsearch-action@master
+      with:
+        algolia_application_id: ${{ secrets.ALGOLIA_APP_ID }}
+        algolia_api_key: ${{ secrets.ALGOLIA_API_KEY }}
+        file: ${{ env.CONFIG_FILE }}
