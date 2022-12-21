@@ -3841,6 +3841,7 @@ public class ServerHttpSecurity {
 		 * @param authorizationRequestResolver the resolver used for resolving
 		 * {@link OAuth2AuthorizationRequest}'s
 		 * @return the {@link OAuth2ClientSpec} for further configuration
+		 * @since 6.1
 		 */
 		public OAuth2ClientSpec authorizationRequestResolver(
 				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
