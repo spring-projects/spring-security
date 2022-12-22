@@ -39,6 +39,7 @@ public class OAuth2ClientSecurityConfig {
 				.clientRegistrationRepository(this.clientRegistrationRepository())
 				.authorizedClientRepository(this.authorizedClientRepository())
 				.authorizationRequestRepository(this.authorizationRequestRepository())
+				.authorizationRequestResolver(this.authorizationRequestResolver())
 				.authenticationConverter(this.authenticationConverter())
 				.authenticationManager(this.authenticationManager())
 			);
@@ -62,6 +63,7 @@ class OAuth2ClientSecurityConfig {
                 clientRegistrationRepository = clientRegistrationRepository()
                 authorizedClientRepository = authorizedClientRepository()
                 authorizationRequestRepository = authorizedRequestRepository()
+                authorizationRequestResolver = authorizationRequestResolver()
                 authenticationConverter = authenticationConverter()
                 authenticationManager = authenticationManager()
             }

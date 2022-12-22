@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,8 @@ import org.springframework.security.oauth2.client.registration.InMemoryReactiveC
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.TestOAuth2AccessTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationExchange;
@@ -134,8 +134,8 @@ public class OAuth2ClientSpecTests {
 		ServerAuthenticationConverter converter = config.authenticationConverter;
 		ReactiveAuthenticationManager manager = config.manager;
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = config.authorizationRequestRepository;
-		ServerRequestCache requestCache = config.requestCache;
 		ServerOAuth2AuthorizationRequestResolver resolver = config.resolver;
+		ServerRequestCache requestCache = config.requestCache;
 		OAuth2AuthorizationRequest authorizationRequest = TestOAuth2AuthorizationRequests.request()
 				.redirectUri("/authorize/oauth2/code/registration-id").build();
 		OAuth2AuthorizationResponse authorizationResponse = TestOAuth2AuthorizationResponses.success()
@@ -268,9 +268,9 @@ public class OAuth2ClientSpecTests {
 		ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository = mock(
 				ServerAuthorizationRequestRepository.class);
 
-		ServerRequestCache requestCache = mock(ServerRequestCache.class);
-
 		ServerOAuth2AuthorizationRequestResolver resolver = mock(ServerOAuth2AuthorizationRequestResolver.class);
+
+		ServerRequestCache requestCache = mock(ServerRequestCache.class);
 
 		@Bean
 		SecurityWebFilterChain springSecurityFilter(ServerHttpSecurity http) {

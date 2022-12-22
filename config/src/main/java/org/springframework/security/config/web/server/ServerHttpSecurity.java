@@ -3829,31 +3829,11 @@ public class ServerHttpSecurity {
 
 		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
-		private ServerRedirectStrategy authorizationRedirectStrategy;
-
 		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
 
+		private ServerRedirectStrategy authorizationRedirectStrategy;
+
 		private OAuth2ClientSpec() {
-		}
-
-		/**
-		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
-		 * @param authorizationRequestResolver the resolver used for resolving
-		 * {@link OAuth2AuthorizationRequest}'s
-		 * @return the {@link OAuth2ClientSpec} for further configuration
-		 * @since 6.1
-		 */
-		public OAuth2ClientSpec authorizationRequestResolver(
-				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
-			this.authorizationRequestResolver = authorizationRequestResolver;
-			return this;
-		}
-
-		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
-			if (this.authorizationRequestResolver != null) {
-				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
-			}
-			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
 		}
 
 		/**
@@ -3946,6 +3926,26 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
+		 * @param authorizationRequestResolver the resolver used for resolving
+		 * {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 * @since 6.1
+		 */
+		public OAuth2ClientSpec authorizationRequestResolver(
+				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+			this.authorizationRequestResolver = authorizationRequestResolver;
+			return this;
+		}
+
+		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
+			if (this.authorizationRequestResolver != null) {
+				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
+			}
+			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
+		}
+
+		/**
 		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
 		 * @param authorizationRedirectStrategy the redirect strategy
 		 * @return the {@link OAuth2ClientSpec} for further configuration
@@ -3971,7 +3971,6 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
 			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
