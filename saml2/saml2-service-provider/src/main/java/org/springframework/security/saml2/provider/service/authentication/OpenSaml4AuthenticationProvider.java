@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -674,7 +675,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 				attributeMap.addAll(attribute.getName(), attributeValues);
 			}
 		}
-		return attributeMap;
+		return new LinkedHashMap<>(attributeMap); // gh-11785
 	}
 
 	private static List<String> getSessionIndexes(Assertion assertion) {
