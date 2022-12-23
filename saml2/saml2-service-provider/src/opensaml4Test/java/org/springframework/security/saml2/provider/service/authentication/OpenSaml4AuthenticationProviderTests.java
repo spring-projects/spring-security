@@ -32,6 +32,7 @@ import java.util.function.Consumer;
 
 import javax.xml.namespace.QName;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.junit.jupiter.api.Test;
 import org.opensaml.core.xml.XMLObject;
@@ -68,6 +69,7 @@ import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.jackson2.SecurityJackson2Modules;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
@@ -347,6 +349,23 @@ public class OpenSaml4AuthenticationProviderTests {
 		assertThat((String) principal.getFirstAttribute("name")).isEqualTo("John Doe");
 		assertThat(principal.getAttributes()).isEqualTo(expected);
 		assertThat(principal.getSessionIndexes()).contains("session-index");
+	}
+
+	// gh-11785
+	@Test
+	public void deserializeWhenAssertionContainsAttributesThenWorks() throws Exception {
+		ObjectMapper mapper = new ObjectMapper();
+		ClassLoader loader = getClass().getClassLoader();
+		mapper.registerModules(SecurityJackson2Modules.getModules(loader));
+		Response response = response();
+		Assertion assertion = assertion();
+		List<AttributeStatement> attributes = TestOpenSamlObjects.attributeStatements();
+		assertion.getAttributeStatements().addAll(attributes);
+		response.getAssertions().add(signed(assertion));
+		Saml2AuthenticationToken token = token(response, verifying(registration()));
+		Authentication authentication = this.provider.authenticate(token);
+		String result = mapper.writeValueAsString(authentication);
+		mapper.readValue(result, Authentication.class);
 	}
 
 	@Test
