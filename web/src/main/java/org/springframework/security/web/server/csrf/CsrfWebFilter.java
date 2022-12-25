@@ -104,7 +104,7 @@ public class CsrfWebFilter implements WebFilter {
 	 * Specifies a {@link ServerCsrfTokenRequestHandler} that is used to make the
 	 * {@code CsrfToken} available as an exchange attribute.
 	 * <p>
-	 * The default is {@link ServerCsrfTokenRequestAttributeHandler}.
+	 * The default is {@link XorServerCsrfTokenRequestAttributeHandler}.
 	 * @param requestHandler the {@link ServerCsrfTokenRequestHandler} to use
 	 * @since 5.8
 	 */
