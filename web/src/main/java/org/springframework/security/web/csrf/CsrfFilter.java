@@ -170,7 +170,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * {@link CsrfToken} available as a request attribute.
 	 *
 	 * <p>
-	 * The default is {@link CsrfTokenRequestAttributeHandler}.
+	 * The default is {@link XorCsrfTokenRequestAttributeHandler}.
 	 * </p>
 	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
 	 * @since 5.8
