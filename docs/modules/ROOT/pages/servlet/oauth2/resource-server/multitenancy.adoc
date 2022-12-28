@@ -418,7 +418,7 @@ Now that we have a tenant-aware processor and a tenant-aware validator, we can p
 JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtValidator) {
 	NimbusJwtDecoder decoder = new NimbusJwtDecoder(processor);
 	OAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>
-			(JwtValidators.createDefault(), this.jwtValidator);
+			(JwtValidators.createDefault(), jwtValidator);
 	decoder.setJwtValidator(validator);
 	return decoder;
 }
