@@ -11,8 +11,6 @@ antora:
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
-git:
-  ensure_git_suffix: false
 content:
   sources:
   - url: .
