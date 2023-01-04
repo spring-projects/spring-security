@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,6 @@
 
 package org.springframework.security.authorization;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
 
@@ -43,7 +41,7 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	private final Set<String> authorities;
 
 	private AuthorityAuthorizationManager(String... authorities) {
-		this.authorities = new HashSet<>(Arrays.asList(authorities));
+		this.authorities = Set.of(authorities);
 	}
 
 	/**
