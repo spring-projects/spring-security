@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,14 +74,14 @@ class AuthoritiesAuthorizationManagerTests {
 	}
 
 	@Test
-	void hasRoleWhenRoleHierarchySetThenGreaterRoleTakesPrecedence() {
+	void checkWhenRoleHierarchySetThenGreaterRoleTakesPrecedence() {
 		AuthoritiesAuthorizationManager manager = new AuthoritiesAuthorizationManager();
 		RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
 		roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
 		manager.setRoleHierarchy(roleHierarchy);
 		Supplier<Authentication> authentication = () -> new TestingAuthenticationToken("user", "password",
 				"ROLE_ADMIN");
-		assertThat(manager.check(authentication, Collections.singleton("ROLE_ADMIN")).isGranted()).isTrue();
+		assertThat(manager.check(authentication, Collections.singleton("ROLE_USER")).isGranted()).isTrue();
 	}
 
 }
