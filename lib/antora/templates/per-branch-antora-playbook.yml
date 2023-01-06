@@ -11,6 +11,7 @@ asciidoc:
   attributes:
     page-pagination: ''
     hide-uri-scheme: '@'
+  sourcemap: true
 urls:
   latest_version_segment: ''
 ui:
