@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.springframework.security.authorization.AuthoritiesAuthorizationManage
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
@@ -43,9 +45,22 @@ import org.springframework.security.core.Authentication;
  */
 public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
-	private final AuthoritiesAuthorizationManager delegate = new AuthoritiesAuthorizationManager();
+	private AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
 
 	private final Map<MethodClassKey, Set<String>> cachedAuthorities = new ConcurrentHashMap<>();
+
+	/**
+	 * Sets an {@link AuthorizationManager} that accepts a collection of authority
+	 * strings.
+	 * @param authoritiesAuthorizationManager the {@link AuthorizationManager} that
+	 * accepts a collection of authority strings to use
+	 * @since 6.1
+	 */
+	public void setAuthoritiesAuthorizationManager(
+			AuthorizationManager<Collection<String>> authoritiesAuthorizationManager) {
+		Assert.notNull(authoritiesAuthorizationManager, "authoritiesAuthorizationManager cannot be null");
+		this.authoritiesAuthorizationManager = authoritiesAuthorizationManager;
+	}
 
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
@@ -58,7 +73,7 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
 		Set<String> authorities = getAuthorities(mi);
-		return authorities.isEmpty() ? null : this.delegate.check(authentication, authorities);
+		return authorities.isEmpty() ? null : this.authoritiesAuthorizationManager.check(authentication, authorities);
 	}
 
 	private Set<String> getAuthorities(MethodInvocation methodInvocation) {

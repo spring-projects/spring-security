@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collection;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
@@ -29,10 +31,14 @@ import org.springframework.security.access.intercept.method.MockMethodInvocation
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link SecuredAuthorizationManager}.
@@ -40,6 +46,26 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
  * @author Evgeniy Cheban
  */
 public class SecuredAuthorizationManagerTests {
+
+	@Test
+	public void setAuthoritiesAuthorizationManagerWhenNullThenException() {
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		assertThatIllegalArgumentException().isThrownBy(() -> manager.setAuthoritiesAuthorizationManager(null))
+				.withMessage("authoritiesAuthorizationManager cannot be null");
+	}
+
+	@Test
+	public void setAuthoritiesAuthorizationManagerWhenNotNullThenVerifyUsage() throws Exception {
+		AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = mock(AuthorizationManager.class);
+		SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+		manager.setAuthoritiesAuthorizationManager(authoritiesAuthorizationManager);
+		MockMethodInvocation methodInvocation = new MockMethodInvocation(new TestClass(), TestClass.class,
+				"securedUserOrAdmin");
+		Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
+		AuthorizationDecision decision = manager.check(authentication, methodInvocation);
+		assertThat(decision).isNull();
+		verify(authoritiesAuthorizationManager).check(authentication, Set.of("ROLE_USER", "ROLE_ADMIN"));
+	}
 
 	@Test
 	public void checkDoSomethingWhenNoSecuredAnnotationThenNullDecision() throws Exception {
