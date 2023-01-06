@@ -60,6 +60,7 @@ import org.mockito.ArgumentCaptor;
 
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleValueWrapper;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -700,6 +701,7 @@ public class NimbusJwtDecoderTests {
 		RestOperations restOperations = mock(RestOperations.class);
 		Cache cache = mock(Cache.class);
 		given(cache.get(eq(JWK_SET_URI), eq(String.class))).willReturn(JWK_SET);
+		given(cache.get(eq(JWK_SET_URI))).willReturn(new SimpleValueWrapper(JWK_SET));
 		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
 				.willReturn(new ResponseEntity<>(NEW_KID_JWK_SET, HttpStatus.OK));
 
