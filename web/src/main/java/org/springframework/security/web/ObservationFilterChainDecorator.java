@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -182,7 +182,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentBefore.setFilterName(this.name);
 				parentBefore.setChainPosition(this.position);
 			}
-			parent.before().event(Observation.Event.of(this.name + " before"));
+			parent.before().event(Observation.Event.of(this.name + ".before", "before " + this.name));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
 			if (parent.after().getContext() instanceof FilterChainObservationContext parentAfter) {
@@ -190,7 +190,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentAfter.setFilterName(this.name);
 				parentAfter.setChainPosition(this.size - this.position + 1);
 			}
-			parent.after().event(Observation.Event.of(this.name + " after"));
+			parent.after().event(Observation.Event.of(this.name + ".after", "after " + this.name));
 		}
 
 		private AroundFilterObservation parent(HttpServletRequest request) {
