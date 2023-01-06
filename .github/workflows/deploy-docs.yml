@@ -5,8 +5,8 @@ on:
     tags: '**'
   repository_dispatch:
     types: request-build-reference # legacy
-  schedule:
-  - cron: '0 10 * * *' # Once per day at 10am UTC
+  #schedule:
+  #- cron: '0 10 * * *' # Once per day at 10am UTC
   workflow_dispatch:
 permissions: read-all
 jobs:
