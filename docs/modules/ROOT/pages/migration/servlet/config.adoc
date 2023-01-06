@@ -2,6 +2,58 @@
 
 The following steps relate to changes around how to configure `HttpSecurity`, `WebSecurity`, and `AuthenticationManager`.
 
+[[add-configuration-annotation]]
+== Add `@Configuration` annotation
+
+In 6.0, `@Configuration` is removed from `@EnableWebSecurity`, `@EnableMethodSecurity`,  `@EnableGlobalMethodSecurity`, and `@EnableGlobalAuthentication`.
+
+To prepare for this, wherever you are using one of these annotations, you may need to add `@Configuration`.
+For example, `@EnableMethodSecurity` changes from:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+public class MyConfiguration {
+	// ...
+}
+----
+
+.Kotlin
+[source,java,role="primary"]
+----
+@EnableMethodSecurity
+open class MyConfiguration {
+	// ...
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableMethodSecurity
+public class MyConfiguration {
+	// ...
+}
+----
+
+.Kotlin
+[source,java,role="primary"]
+----
+@Configuration
+@EnableMethodSecurity
+open class MyConfiguration {
+	// ...
+}
+----
+====
+
 [[use-new-requestmatchers]]
 == Use the new `requestMatchers` methods
 

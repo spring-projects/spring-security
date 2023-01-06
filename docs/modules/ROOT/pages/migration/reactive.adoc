@@ -400,6 +400,58 @@ http {
 
 To opt-out of the 6.0 defaults and instead continue to pass `AuthenticationServiceException` on to ``ServerAuthenticationEntryPoint``s, you can follow the same steps as above, except set `rethrowAuthenticationServiceException` to false.
 
+[[add-configuration-annotation]]
+== Add `@Configuration` annotation
+
+In 6.0, `@Configuration` is removed from `@EnableWebFluxSecurity` and `@EnableReactiveMethodSecurity`.
+
+To prepare for this, wherever you are using one of these annotations, you may need to add `@Configuration`.
+For example, `@EnableReactiveMethodSecurity` changes from:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+public class MyConfiguration {
+	// ...
+}
+----
+
+.Kotlin
+[source,java,role="primary"]
+----
+@EnableReactiveMethodSecurity
+open class MyConfiguration {
+	// ...
+}
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Configuration
+@EnableReactiveMethodSecurity
+public class MyConfiguration {
+	// ...
+}
+----
+
+.Kotlin
+[source,java,role="primary"]
+----
+@Configuration
+@EnableReactiveMethodSecurity
+open class MyConfiguration {
+	// ...
+}
+----
+====
+
 == Address OAuth2 Client Deprecations
 
 === `ServerOAuth2AuthorizedClientExchangeFilterFunction`
