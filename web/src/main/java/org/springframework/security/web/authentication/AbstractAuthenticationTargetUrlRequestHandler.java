@@ -107,31 +107,25 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		if (isAlwaysUseDefaultTargetUrl()) {
 			return this.defaultTargetUrl;
 		}
-		// Check for the parameter and use that if available
-		String targetUrl = null;
-		if (this.targetUrlParameter != null) {
-			targetUrl = request.getParameter(this.targetUrlParameter);
-			if (StringUtils.hasText(targetUrl)) {
-				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
-							this.targetUrlParameter));
-				}
-				return targetUrl;
-			}
+		// with or without value the targetUrlParameter take precedence
+		if (StringUtils.hasText(this.targetUrlParameter)
+				&& StringUtils.hasText(request.getParameter(this.targetUrlParameter))) {
+			trace("Using url %s from request parameter %s", request.getParameter(this.targetUrlParameter),
+					this.targetUrlParameter);
+			return request.getParameter(this.targetUrlParameter);
 		}
-		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
-			targetUrl = request.getHeader("Referer");
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Using url %s from Referer header", targetUrl));
-			}
+		if (this.targetUrlParameter == null && this.useReferer) {
+			trace("Using url %s from Referer header", request.getHeader("Referer"));
+			return request.getHeader("Referer");
 		}
-		if (!StringUtils.hasText(targetUrl)) {
-			targetUrl = this.defaultTargetUrl;
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Using default url %s", targetUrl));
-			}
+		trace("Using default url %s", this.defaultTargetUrl);
+		return this.defaultTargetUrl;
+	}
+
+	private void trace(String msg, String... msgParts) {
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format(msg, msgParts));
 		}
-		return targetUrl;
 	}
 
 	/**
