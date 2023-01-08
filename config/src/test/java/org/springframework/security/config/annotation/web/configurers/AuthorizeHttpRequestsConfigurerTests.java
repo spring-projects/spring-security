@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.RememberMeAuthenticationToken;
 import org.springframework.security.authentication.TestAuthentication;
 import org.springframework.security.authorization.AuthorizationDecision;
@@ -270,6 +272,17 @@ public class AuthorizeHttpRequestsConfigurerTests {
 				.roles("ADMIN"));
 		// @formatter:on
 		this.mvc.perform(requestWithAdmin).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenHasRoleUserAndRoleHierarchyConfiguredThenGreaterRoleTakesPrecedence() throws Exception {
+		this.spring.register(RoleHierarchyUserConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+				.roles("ADMIN"));
+		// @formatter:on
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 
 	@Test
@@ -766,6 +779,30 @@ public class AuthorizeHttpRequestsConfigurerTests {
 					)
 					.build();
 			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class RoleHierarchyUserConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			return http
+					.authorizeHttpRequests((requests) -> requests
+						.anyRequest().hasRole("USER")
+					)
+					.build();
+			// @formatter:on
+		}
+
+		@Bean
+		RoleHierarchy roleHierarchy() {
+			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+			roleHierarchy.setHierarchy("ROLE_ADMIN > ROLE_USER");
+			return roleHierarchy;
 		}
 
 	}
