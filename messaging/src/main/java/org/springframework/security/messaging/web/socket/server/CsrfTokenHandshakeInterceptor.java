@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2015 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,18 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 /**
- * Copies a CsrfToken from the HttpServletRequest's attributes to the WebSocket
- * attributes. This is used as the expected CsrfToken when validating connection requests
- * to ensure only the same origin connects.
+ * Loads a CsrfToken from the HttpServletRequest and HttpServletResponse to populate the
+ * WebSocket attributes. This is used as the expected CsrfToken when validating connection
+ * requests to ensure only the same origin connects.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
  * @since 4.0
  */
 public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor {
@@ -41,11 +44,19 @@ public final class CsrfTokenHandshakeInterceptor implements HandshakeInterceptor
 	public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 			Map<String, Object> attributes) {
 		HttpServletRequest httpRequest = ((ServletServerHttpRequest) request).getServletRequest();
-		CsrfToken token = (CsrfToken) httpRequest.getAttribute(CsrfToken.class.getName());
-		if (token == null) {
+		DeferredCsrfToken deferredCsrfToken = (DeferredCsrfToken) httpRequest
+				.getAttribute(DeferredCsrfToken.class.getName());
+		if (deferredCsrfToken == null) {
 			return true;
 		}
-		attributes.put(CsrfToken.class.getName(), token);
+		CsrfToken csrfToken = deferredCsrfToken.get();
+		// Ensure the values of the CsrfToken are copied into a new token so the old token
+		// is available for garbage collection.
+		// This is required because the original token could hold a reference to the
+		// HttpServletRequest/Response of the handshake request.
+		CsrfToken resolvedCsrfToken = new DefaultCsrfToken(csrfToken.getHeaderName(), csrfToken.getParameterName(),
+				csrfToken.getToken());
+		attributes.put(CsrfToken.class.getName(), resolvedCsrfToken);
 		return true;
 	}
 
