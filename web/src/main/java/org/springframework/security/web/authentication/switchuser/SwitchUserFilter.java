@@ -58,6 +58,8 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -142,6 +144,8 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
 	private AuthenticationFailureHandler failureHandler;
 
+	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+
 	@Override
 	public void afterPropertiesSet() {
 		Assert.notNull(this.userDetailsService, "userDetailsService must be specified");
@@ -179,6 +183,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 				context.setAuthentication(targetUser);
 				SecurityContextHolder.setContext(context);
 				this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", targetUser));
+				this.securityContextRepository.saveContext(context, request, response);
 				// redirect to target url
 				this.successHandler.onAuthenticationSuccess(request, response, targetUser);
 			}
@@ -196,6 +201,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 			context.setAuthentication(originalUser);
 			SecurityContextHolder.setContext(context);
 			this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", originalUser));
+			this.securityContextRepository.saveContext(context, request, response);
 			// redirect to target url
 			this.successHandler.onAuthenticationSuccess(request, response, originalUser);
 			return;
@@ -508,6 +514,19 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 	public void setSwitchAuthorityRole(String switchAuthorityRole) {
 		Assert.notNull(switchAuthorityRole, "switchAuthorityRole cannot be null");
 		this.switchAuthorityRole = switchAuthorityRole;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to save the {@link SecurityContext} on
+	 * switch user success. The default is
+	 * {@link RequestAttributeSecurityContextRepository}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 * Cannot be null.
+	 * @since 5.7.7
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 	private static RequestMatcher createMatcher(String pattern) {
