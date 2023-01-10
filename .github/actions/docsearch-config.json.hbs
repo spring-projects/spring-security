@@ -3,6 +3,7 @@
   "start_urls": [
     {{#each components}}
     {{#each versions}}
+    {{#unless (eq ./activeVersionSegment ./version)}}
     {
       "url": "{{{@root.site.url}}}/{{#if (eq ./activeVersionSegment '')}}(?:$|index.html$|[a-z].*){{else}}{{{./activeVersionSegment}}}/{{/if}}",
       "extra_attributes": {
@@ -11,6 +12,7 @@
         "version_rank": {{#if (eq this ../latest)}}1{{else}}2{{/if}}
       }
     }{{#unless (and @last @../last)}},{{/unless}}
+    {{/unless}}
     {{/each}}
     {{/each}}
   ],
