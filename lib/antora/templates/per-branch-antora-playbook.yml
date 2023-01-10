@@ -1,4 +1,11 @@
-# The purpose of this Antora playbook is to generate a preview of the docs in the current branch.
+# PACKAGES antora@3.2.0-alpha.2 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0-alpha.2 @asciidoctor/tabs@1.0.0-alpha.11
+#
+# The purpose of this Antora playbook is to build the docs in the current branch.
+antora:
+  extensions:
+  - '@antora/collector-extension'
+  - require: '@springio/antora-extensions/tabs-migration-extension'
+    unwrap_example_block: always
 site:
   title: Spring Security Reference
 content:
@@ -11,6 +18,9 @@ asciidoc:
   attributes:
     page-pagination: ''
     hide-uri-scheme: '@'
+    tabs-sync-option: '@'
+  extensions:
+  - '@asciidoctor/tabs'
   sourcemap: true
 urls:
   latest_version_segment: ''
