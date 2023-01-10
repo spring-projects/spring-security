@@ -548,7 +548,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public Advisor customAuthorize(AuthorizationManager<MethodInvocationResult> rules) {
-		AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
+		AnnotationMatchingPointcut pattern = new AnnotationMatchingPointcut(MySecurityAnnotation.class);
 		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(pattern, rules);
 		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
 		return interceptor;
@@ -564,7 +564,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun customAuthorize(rules : AuthorizationManager<MethodInvocationResult>) : Advisor {
-		val pattern = AnnotationMethodMatcher(MySecurityAnnotation::class.java);
+		val pattern = AnnotationMatchingPointcut(MySecurityAnnotation::class.java);
 		val interceptor = AuthorizationManagerAfterMethodInterceptor(pattern, rules);
 		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
 		return interceptor;
