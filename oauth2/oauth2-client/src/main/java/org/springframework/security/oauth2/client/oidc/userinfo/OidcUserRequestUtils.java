@@ -60,7 +60,8 @@ final class OidcUserRequestUtils {
 		if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(clientRegistration.getAuthorizationGrantType())) {
 			// Return true if there is at least one match between the authorized scope(s)
 			// and UserInfo scope(s)
-			return CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(),
+			return CollectionUtils.isEmpty(userRequest.getAccessToken().getScopes())
+				|| CollectionUtils.containsAny(userRequest.getAccessToken().getScopes(),
 					userRequest.getClientRegistration().getScopes());
 		}
 		return false;
