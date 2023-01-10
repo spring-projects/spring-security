@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * {@link CsrfToken} available as a request attribute.
 	 *
 	 * <p>
-	 * The default is {@link CsrfTokenRequestAttributeHandler}.
+	 * The default is {@link XorCsrfTokenRequestAttributeHandler}.
 	 * </p>
 	 * @param requestHandler the {@link CsrfTokenRequestHandler} to use
 	 * @since 5.8
