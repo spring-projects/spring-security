@@ -16,14 +16,17 @@
 
 package org.springframework.security.web.authentication.switchuser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AccountExpiredException;
@@ -46,11 +49,15 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -500,6 +507,59 @@ public class SwitchUserFilterTests {
 	public void setSwitchFailureUrlWhenValidThenNoException() {
 		SwitchUserFilter filter = new SwitchUserFilter();
 		filter.setSwitchFailureUrl("/foo");
+	}
+
+	@Test
+	void filterWhenDefaultSecurityContextRepositoryThenRequestAttributeRepository() {
+		SwitchUserFilter switchUserFilter = new SwitchUserFilter();
+		assertThat(ReflectionTestUtils.getField(switchUserFilter, "securityContextRepository"))
+				.isInstanceOf(RequestAttributeSecurityContextRepository.class);
+	}
+
+	@Test
+	void doFilterWhenSwitchUserThenSaveSecurityContext() throws ServletException, IOException {
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain filterChain = new MockFilterChain();
+		request.setParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		request.setRequestURI("/login/impersonate");
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSecurityContextRepository(securityContextRepository);
+		filter.setUserDetailsService(new MockUserDetailsService());
+		filter.setTargetUrl("/target");
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, filterChain);
+
+		verify(securityContextRepository).saveContext(any(), any(), any());
+	}
+
+	@Test
+	void doFilterWhenExitUserThenSaveSecurityContext() throws ServletException, IOException {
+		UsernamePasswordAuthenticationToken source = UsernamePasswordAuthenticationToken.authenticated("dano",
+				"hawaii50", ROLES_12);
+		// set current user (Admin)
+		List<GrantedAuthority> adminAuths = new ArrayList<>(ROLES_12);
+		adminAuths.add(new SwitchUserGrantedAuthority("PREVIOUS_ADMINISTRATOR", source));
+		UsernamePasswordAuthenticationToken admin = UsernamePasswordAuthenticationToken.authenticated("jacklord",
+				"hawaii50", adminAuths);
+		SecurityContextHolder.getContext().setAuthentication(admin);
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		MockFilterChain filterChain = new MockFilterChain();
+		request.setParameter(SwitchUserFilter.SPRING_SECURITY_SWITCH_USERNAME_KEY, "jacklord");
+		request.setRequestURI("/logout/impersonate");
+		SwitchUserFilter filter = new SwitchUserFilter();
+		filter.setSecurityContextRepository(securityContextRepository);
+		filter.setUserDetailsService(new MockUserDetailsService());
+		filter.setTargetUrl("/target");
+		filter.afterPropertiesSet();
+
+		filter.doFilter(request, response, filterChain);
+
+		verify(securityContextRepository).saveContext(any(), any(), any());
 	}
 
 	private class MockUserDetailsService implements UserDetailsService {
