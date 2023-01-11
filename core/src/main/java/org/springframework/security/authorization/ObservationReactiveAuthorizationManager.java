@@ -18,6 +18,7 @@ package org.springframework.security.authorization;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -50,16 +51,19 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 			context.setAuthentication(auth);
 			return context.getAuthentication();
 		});
-		Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry).start();
-		return this.delegate.check(wrapped, object).doOnSuccess((decision) -> {
-			context.setDecision(decision);
-			if (decision == null || !decision.isGranted()) {
-				observation.error(new AccessDeniedException("Access Denied"));
-			}
-			observation.stop();
-		}).doOnCancel(observation::stop).doOnError((t) -> {
-			observation.error(t);
-			observation.stop();
+		return Mono.deferContextual((contextView) -> {
+			Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry)
+					.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null)).start();
+			return this.delegate.check(wrapped, object).doOnSuccess((decision) -> {
+				context.setDecision(decision);
+				if (decision == null || !decision.isGranted()) {
+					observation.error(new AccessDeniedException("Access Denied"));
+				}
+				observation.stop();
+			}).doOnCancel(observation::stop).doOnError((t) -> {
+				observation.error(t);
+				observation.stop();
+			});
 		});
 	}
 
