@@ -18,6 +18,7 @@ package org.springframework.security.authentication;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -48,13 +49,16 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 		AuthenticationObservationContext context = new AuthenticationObservationContext();
 		context.setAuthenticationRequest(authentication);
 		context.setAuthenticationManagerClass(this.delegate.getClass());
-		Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry).start();
-		return this.delegate.authenticate(authentication).doOnSuccess((result) -> {
-			context.setAuthenticationResult(result);
-			observation.stop();
-		}).doOnCancel(observation::stop).doOnError((t) -> {
-			observation.error(t);
-			observation.stop();
+		return Mono.deferContextual((contextView) -> {
+			Observation observation = Observation.createNotStarted(this.convention, () -> context, this.registry)
+					.parentObservation(contextView.getOrDefault(ObservationThreadLocalAccessor.KEY, null)).start();
+			return this.delegate.authenticate(authentication).doOnSuccess((result) -> {
+				context.setAuthenticationResult(result);
+				observation.stop();
+			}).doOnCancel(observation::stop).doOnError((t) -> {
+				observation.error(t);
+				observation.stop();
+			});
 		});
 	}
 
