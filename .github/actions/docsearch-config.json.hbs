@@ -1,17 +1,15 @@
 {
   "index_name": "spring-security-docs",
   "start_urls": [
-    {{#each components}}
-    {{#each versions}}
+    {{#each latestVersions}}
     {
       "url": "{{{@root.site.url}}}/{{#if (eq ./activeVersionSegment '')}}(?:$|index.html$|[a-z].*){{else}}{{{./activeVersionSegment}}}/{{/if}}",
       "extra_attributes": {
-        "component": "{{#if (eq ./name 'ROOT')}}spring-security{{else}}{{{./name}}}{{/if}}",
+        "component": "{{#if (eq ./name 'ROOT')}}security{{else}}{{{./name}}}{{/if}}",
         "version": "{{{./version}}}",
-        "version_rank": {{#if (eq this ../latest)}}1{{else}}2{{/if}}
+        "version_rank": {{#if (eq ./activeVersionSegment '')}}1{{else}}2{{/if}}
       }
-    }{{#unless (and @last @../last)}},{{/unless}}
-    {{/each}}
+    }{{#unless @last}},{{/unless}}
     {{/each}}
   ],
   "sitemap_urls": [
