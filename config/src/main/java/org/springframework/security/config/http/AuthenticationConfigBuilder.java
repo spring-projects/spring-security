@@ -80,6 +80,8 @@ final class AuthenticationConfigBuilder {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
+	private static final boolean webMvcPresent;
+
 	private static final String ATT_REALM = "realm";
 
 	private static final String DEF_REALM = "Realm";
@@ -212,6 +214,11 @@ final class AuthenticationConfigBuilder {
 	private final Map<BeanDefinition, BeanMetadataElement> defaultEntryPointMappings = new ManagedMap<>();
 
 	private final List<BeanDefinition> csrfIgnoreRequestMatchers = new ManagedList<>();
+
+	static {
+		ClassLoader classLoader = AuthenticationConfigBuilder.class.getClassLoader();
+		webMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", classLoader);
+	}
 
 	AuthenticationConfigBuilder(Element element, boolean forceAutoConfig, ParserContext pc,
 			SessionCreationPolicy sessionPolicy, BeanReference requestCache, BeanReference authenticationManager,
@@ -409,9 +416,7 @@ final class AuthenticationConfigBuilder {
 		if (!this.oauth2LoginEnabled && !this.oauth2ClientEnabled) {
 			return;
 		}
-		boolean webmvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
-				getClass().getClassLoader());
-		if (webmvcPresent) {
+		if (webMvcPresent) {
 			this.pc.getReaderContext()
 					.registerWithGeneratedName(new RootBeanDefinition(OAuth2ClientWebMvcSecurityPostProcessor.class));
 		}

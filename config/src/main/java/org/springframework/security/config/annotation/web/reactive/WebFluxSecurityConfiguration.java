@@ -53,12 +53,16 @@ class WebFluxSecurityConfiguration {
 
 	public static final String REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME = "org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository";
 
-	private static final boolean isOAuth2Present = ClassUtils.isPresent(
-			REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, WebFluxSecurityConfiguration.class.getClassLoader());
+	private static final boolean isOAuth2Present;
 
 	private List<SecurityWebFilterChain> securityWebFilterChains;
 
 	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+	static {
+		isOAuth2Present = ClassUtils.isPresent(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME,
+				WebFluxSecurityConfiguration.class.getClassLoader());
+	}
 
 	@Autowired
 	ApplicationContext context;

@@ -42,6 +42,8 @@ public class EmbeddedLdapServerContextSourceFactoryBean
 
 	private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
 
+	private static final boolean unboundIdPresent;
+
 	private static final int DEFAULT_PORT = 33389;
 
 	private static final int RANDOM_PORT = 0;
@@ -59,6 +61,11 @@ public class EmbeddedLdapServerContextSourceFactoryBean
 	private String managerPassword;
 
 	private EmbeddedLdapServerContainer container;
+
+	static {
+		ClassLoader classLoader = EmbeddedLdapServerContextSourceFactoryBean.class.getClassLoader();
+		unboundIdPresent = ClassUtils.isPresent(UNBOUNDID_CLASSNAME, classLoader);
+	}
 
 	/**
 	 * Create an EmbeddedLdapServerContextSourceFactoryBean that will use an embedded LDAP
@@ -120,7 +127,7 @@ public class EmbeddedLdapServerContextSourceFactoryBean
 
 	@Override
 	public DefaultSpringSecurityContextSource getObject() throws Exception {
-		if (!ClassUtils.isPresent(UNBOUNDID_CLASSNAME, getClass().getClassLoader())) {
+		if (!unboundIdPresent) {
 			throw new IllegalStateException("Embedded LDAP server is not provided");
 		}
 		this.container = getContainer();
@@ -156,7 +163,7 @@ public class EmbeddedLdapServerContextSourceFactoryBean
 	}
 
 	private EmbeddedLdapServerContainer getContainer() {
-		if (!ClassUtils.isPresent(UNBOUNDID_CLASSNAME, getClass().getClassLoader())) {
+		if (!unboundIdPresent) {
 			throw new IllegalStateException("Embedded LDAP server is not provided");
 		}
 		UnboundIdContainer unboundIdContainer = new UnboundIdContainer(this.root, this.ldif);

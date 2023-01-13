@@ -86,6 +86,16 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String UNBOUNDID_CONTAINER_CLASSNAME = "org.springframework.security.ldap.server.UnboundIdContainer";
 
+	private static final boolean unboundIdPresent;
+
+	private static final boolean apacheDsPresent;
+
+	static {
+		ClassLoader classLoader = LdapServerBeanDefinitionParser.class.getClassLoader();
+		unboundIdPresent = ClassUtils.isPresent(UNBOUNID_CLASSNAME, classLoader);
+		apacheDsPresent = ClassUtils.isPresent(APACHEDS_CLASSNAME, classLoader);
+	}
+
 	@Override
 	public BeanDefinition parse(Element elt, ParserContext parserContext) {
 		String url = elt.getAttribute(ATT_URL);
@@ -184,11 +194,11 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 	}
 
 	private boolean isApacheDsEnabled(String mode) {
-		return "apacheds".equals(mode) || ClassUtils.isPresent(APACHEDS_CLASSNAME, getClass().getClassLoader());
+		return "apacheds".equals(mode) || apacheDsPresent;
 	}
 
 	private boolean isUnboundidEnabled(String mode) {
-		return "unboundid".equals(mode) || ClassUtils.isPresent(UNBOUNID_CLASSNAME, getClass().getClassLoader());
+		return "unboundid".equals(mode) || unboundIdPresent;
 	}
 
 	private String getPort(Element element) {
@@ -222,11 +232,11 @@ public class LdapServerBeanDefinitionParser implements BeanDefinitionParser {
 		}
 
 		private int getPort() {
-			if (ClassUtils.isPresent(APACHEDS_CLASSNAME, getClass().getClassLoader())) {
+			if (apacheDsPresent) {
 				ApacheDSContainer apacheDSContainer = this.applicationContext.getBean(ApacheDSContainer.class);
 				return apacheDSContainer.getLocalPort();
 			}
-			if (ClassUtils.isPresent(UNBOUNID_CLASSNAME, getClass().getClassLoader())) {
+			if (unboundIdPresent) {
 				UnboundIdContainer unboundIdContainer = this.applicationContext.getBean(UnboundIdContainer.class);
 				return unboundIdContainer.getPort();
 			}

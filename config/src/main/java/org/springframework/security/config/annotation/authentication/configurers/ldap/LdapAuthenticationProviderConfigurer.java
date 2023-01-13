@@ -61,6 +61,14 @@ import org.springframework.util.ClassUtils;
 public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuilder<B>>
 		extends SecurityConfigurerAdapter<AuthenticationManager, B> {
 
+	private static final String APACHEDS_CLASSNAME = "org.apache.directory.server.core.DefaultDirectoryService";
+
+	private static final String UNBOUNDID_CLASSNAME = "com.unboundid.ldap.listener.InMemoryDirectoryServer";
+
+	private static final boolean apacheDsPresent;
+
+	private static final boolean unboundIdPresent;
+
 	private String groupRoleAttribute = "cn";
 
 	private String groupSearchBase = "";
@@ -90,6 +98,12 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 	private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
 
 	private GrantedAuthoritiesMapper authoritiesMapper;
+
+	static {
+		ClassLoader classLoader = LdapAuthenticationProviderConfigurer.class.getClassLoader();
+		apacheDsPresent = ClassUtils.isPresent(APACHEDS_CLASSNAME, classLoader);
+		unboundIdPresent = ClassUtils.isPresent(UNBOUNDID_CLASSNAME, classLoader);
+	}
 
 	private LdapAuthenticationProvider build() throws Exception {
 		BaseLdapPathContextSource contextSource = getContextSource();
@@ -562,13 +576,13 @@ public class LdapAuthenticationProviderConfigurer<B extends ProviderManagerBuild
 		}
 
 		private void startEmbeddedLdapServer() throws Exception {
-			if (ClassUtils.isPresent(APACHEDS_CLASSNAME, getClass().getClassLoader())) {
+			if (apacheDsPresent) {
 				ApacheDSContainer apacheDsContainer = new ApacheDSContainer(this.root, this.ldif);
 				apacheDsContainer.setPort(getPort());
 				postProcess(apacheDsContainer);
 				this.port = apacheDsContainer.getLocalPort();
 			}
-			else if (ClassUtils.isPresent(UNBOUNDID_CLASSNAME, getClass().getClassLoader())) {
+			else if (unboundIdPresent) {
 				UnboundIdContainer unboundIdContainer = new UnboundIdContainer(this.root, this.ldif);
 				unboundIdContainer.setPort(getPort());
 				postProcess(unboundIdContainer);

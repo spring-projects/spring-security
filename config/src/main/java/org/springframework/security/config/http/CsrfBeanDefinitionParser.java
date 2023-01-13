@@ -66,13 +66,18 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String REQUEST_DATA_VALUE_PROCESSOR = "requestDataValueProcessor";
 
-	private static final String DISPATCHER_SERVLET_CLASS_NAME = "org.springframework.web.servlet.DispatcherServlet";
-
 	private static final String ATT_MATCHER = "request-matcher-ref";
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
 	private static final String ATT_REQUEST_HANDLER = "request-handler-ref";
+
+	private static final boolean webMvcPresent;
+
+	static {
+		ClassLoader classLoader = CsrfBeanDefinitionParser.class.getClassLoader();
+		webMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", classLoader);
+	}
 
 	private String csrfRepositoryRef;
 
@@ -90,8 +95,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 		if (disabled) {
 			return null;
 		}
-		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
-		if (webmvcPresent) {
+		if (webMvcPresent) {
 			if (!pc.getRegistry().containsBeanDefinition(REQUEST_DATA_VALUE_PROCESSOR)) {
 				RootBeanDefinition beanDefinition = new RootBeanDefinition(CsrfRequestDataValueProcessor.class);
 				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(beanDefinition,

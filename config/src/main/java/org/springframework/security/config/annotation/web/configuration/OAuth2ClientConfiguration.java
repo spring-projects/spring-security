@@ -51,12 +51,18 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Import(OAuth2ClientConfiguration.OAuth2ClientWebMvcImportSelector.class)
 final class OAuth2ClientConfiguration {
 
+	private static final boolean webMvcPresent;
+
+	static {
+		ClassLoader classLoader = OAuth2ClientConfiguration.class.getClassLoader();
+		webMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", classLoader);
+	}
+
 	static class OAuth2ClientWebMvcImportSelector implements ImportSelector {
 
 		@Override
 		public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-			if (!ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet",
-					getClass().getClassLoader())) {
+			if (!webMvcPresent) {
 				return new String[0];
 			}
 			return new String[] { "org.springframework.security.config.annotation.web.configuration."
