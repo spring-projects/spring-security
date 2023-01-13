@@ -71,29 +71,26 @@ The following listing shows pseudo code of `DelegatingFilterProxy`:
 .`DelegatingFilterProxy` Pseudo Code
 ====
 .Java
-[source,java,role="primary",subs="+quotes,+macros"]
+[source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-	// Lazily get Filter that was registered as a Spring Bean
-	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
-	Filter delegate = getFilterBean(someBeanName);
-	// delegate work to the Spring Bean
-	delegate.doFilter(request, response);
+	Filter delegate = getFilterBean(someBeanName); // <1>
+	delegate.doFilter(request, response); // <2>
 }
 ----
 
 .Kotlin
-[source,kotlin,role="secondary",subs="+quotes,+macros"]
+[source,kotlin,role="secondary"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-	// Lazily get Filter that was registered as a Spring Bean
-	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
-	val delegate: Filter = getFilterBean(someBeanName)
-	// delegate work to the Spring Bean
-	delegate.doFilter(request, response)
+	val delegate: Filter = getFilterBean(someBeanName) // <1>
+	delegate.doFilter(request, response) // <2>
 }
 ----
 ====
+<1> Lazily get Filter that was registered as a Spring Bean.
+For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__.
+<2> Delegate work to the Spring Bean.
 
 Another benefit of `DelegatingFilterProxy` is that it allows delaying looking up `Filter` bean instances.
 This is important because the container needs to register the `Filter` instances before the container can start up.
