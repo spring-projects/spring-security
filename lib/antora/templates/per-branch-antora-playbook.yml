@@ -1,4 +1,4 @@
-# PACKAGES antora@3.2.0-alpha.2 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0-alpha.2 @asciidoctor/tabs@1.0.0-alpha.11
+# PACKAGES antora@3.2.0-alpha.2 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0-alpha.2 @asciidoctor/tabs@1.0.0-alpha.12
 #
 # The purpose of this Antora playbook is to build the docs in the current branch.
 antora:
