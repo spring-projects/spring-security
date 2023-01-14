@@ -138,3 +138,29 @@ To build the documentation from the current clone, using any worktrees that are 
 --
 
 . Navigate to _$HOME/spring-security/docs-site/build/site/index.html_ to view the generated documentation.
+
+[#trigger]
+== Trigger the documentation build workflow (docs manager)
+
+You can either trigger the production document build using the Deploy Docs entry in the GitHub Actions web UI or using the https://cli.github.com/[GitHub CLI].
+
+=== GitHub Actions web UI
+
+In the GitHub Actions web UI, click the Deploy Docs entry.
+Click on the "Run workflow" menu.
+Select the branch `docs-build` and click "Run workflow" to trigger a full build.
+To trigger a partial build, specify a release line branch name in the input field labeled "Enter git refname to build".
+
+=== GitHub CLI
+
+Starting from within the cloned repository (ideally the playbook branch), here's how to trigger a full build of the documentation site using the `gh` command:
+
+ $ gh workflow run deploy-docs.yml --ref docs-build
+
+Here's how to trigger a partial build of a single version (based on the release line branch name):
+
+ $ gh workflow run deploy-docs.yml --ref docs-build -f build-refname=5.7.x
+
+Run `gh help workflow run` to show the docs for this command and other examples of how to use it.
+
+If you're not running the `gh` command from within the cloned repository, you can specify the repository using the `--repo` CLI option (e.g., `--repo spring-projects/spring-security`).
