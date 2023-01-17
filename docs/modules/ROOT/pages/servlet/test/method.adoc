@@ -61,6 +61,7 @@ public class WithMockUserTests {
 @ContextConfiguration
 class WithMockUserTests {
 ----
+====
 
 This is a basic example of how to setup Spring Security Test. The highlights are:
 
