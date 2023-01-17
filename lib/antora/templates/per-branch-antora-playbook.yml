@@ -1,9 +1,13 @@
-# PACKAGES antora@3.2.0-alpha.2 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0-alpha.2 @asciidoctor/tabs@1.0.0-alpha.12
+# PACKAGES antora@3.2.0-alpha.2 @antora/atlas-extension:1.0.0-alpha.1 @antora/collector-extension@1.0.0-alpha.3 @springio/antora-extensions@1.0.0-alpha.2 @asciidoctor/tabs@1.0.0-alpha.12 @opendevise/antora-release-line-extension@1.0.0-alpha.2
 #
 # The purpose of this Antora playbook is to build the docs in the current branch.
 antora:
   extensions:
   - '@antora/collector-extension'
+  - id: '@antora/atlas-extension'
+    require: '@antora/atlas-extension'
+    enabled: false
+  - '@opendevise/antora-release-line-extension'
   - require: '@springio/antora-extensions/tabs-migration-extension'
     unwrap_example_block: always
 site:
@@ -16,8 +20,9 @@ content:
     worktrees: true
 asciidoc:
   attributes:
-    page-pagination: ''
     hide-uri-scheme: '@'
+    page-pagination: ''
+    primary-site-url: https://docs.spring.io/spring-security/reference
     tabs-sync-option: '@'
   extensions:
   - '@asciidoctor/tabs'
