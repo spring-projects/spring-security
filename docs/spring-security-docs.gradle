@@ -1,22 +1,19 @@
 plugins {
-	id 'org.antora' version '1.0.0-alpha.3'
+	id 'org.antora' version '1.0.0-alpha.7'
 }
 
 apply plugin: 'io.spring.convention.docs'
 apply plugin: 'java'
 
 antora {
-	version = '3.2.0-alpha.2'
-	playbook = file('local-antora-playbook.yml')
-	options = ['--clean', '--stacktrace']
-	environment = [
-		'ALGOLIA_API_KEY': '82c7ead946afbac3cf98c32446154691',
-		'ALGOLIA_APP_ID': '244V8V9FGG',
-		'ALGOLIA_INDEX_NAME': 'security-docs'
-	]
-	dependencies = [
-		'@antora/collector-extension': '1.0.0-alpha.3'
-	]
+	playbook = 'cached-antora-playbook.yml'
+	playbookProvider {
+		repository = 'spring-projects/spring-security'
+		branch = 'docs-build'
+		path = 'lib/antora/templates/per-branch-antora-playbook.yml'
+		checkLocalBranch = true
+	}
+	options = [clean: true, stacktrace: true]
 }
 
 tasks.register('generateAntora') {
