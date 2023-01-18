@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,18 +107,29 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		if (isAlwaysUseDefaultTargetUrl()) {
 			return this.defaultTargetUrl;
 		}
-		// with or without value the targetUrlParameter take precedence
-		if (StringUtils.hasText(this.targetUrlParameter)
-				&& StringUtils.hasText(request.getParameter(this.targetUrlParameter))) {
-			trace("Using url %s from request parameter %s", request.getParameter(this.targetUrlParameter),
-					this.targetUrlParameter);
-			return request.getParameter(this.targetUrlParameter);
+		String targetUrlParameterValue = getTargetUrlParameterValue(request);
+		if (StringUtils.hasText(targetUrlParameterValue)) {
+			trace("Using url %s from request parameter %s", targetUrlParameterValue, this.targetUrlParameter);
+			return targetUrlParameterValue;
 		}
-		if (this.targetUrlParameter == null && this.useReferer) {
+		if (this.useReferer) {
 			trace("Using url %s from Referer header", request.getHeader("Referer"));
 			return request.getHeader("Referer");
 		}
-		trace("Using default url %s", this.defaultTargetUrl);
+		return this.defaultTargetUrl;
+	}
+
+	private String getTargetUrlParameterValue(HttpServletRequest request) {
+		if (this.targetUrlParameter == null) {
+			return null;
+		}
+		String value = request.getParameter(this.targetUrlParameter);
+		if (value == null) {
+			return null;
+		}
+		if (StringUtils.hasText(value)) {
+			return value;
+		}
 		return this.defaultTargetUrl;
 	}
 
