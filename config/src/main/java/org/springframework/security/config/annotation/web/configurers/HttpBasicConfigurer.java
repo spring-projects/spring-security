@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.MediaTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
@@ -75,6 +77,7 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * </ul>
  *
  * @author Rob Winch
+ * @author Evgeniy Cheban
  * @since 3.2
  */
 public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
@@ -90,6 +93,8 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 	private AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource;
 
 	private BasicAuthenticationEntryPoint basicAuthEntryPoint = new BasicAuthenticationEntryPoint();
+
+	private SecurityContextRepository securityContextRepository;
 
 	/**
 	 * Creates a new instance
@@ -139,6 +144,19 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 	public HttpBasicConfigurer<B> authenticationDetailsSource(
 			AuthenticationDetailsSource<HttpServletRequest, ?> authenticationDetailsSource) {
 		this.authenticationDetailsSource = authenticationDetailsSource;
+		return this;
+	}
+
+	/**
+	 * Specifies a custom {@link SecurityContextRepository} to use for basic
+	 * authentication. The default is {@link RequestAttributeSecurityContextRepository}.
+	 * @param securityContextRepository the custom {@link SecurityContextRepository} to
+	 * use
+	 * @return {@link HttpBasicConfigurer} for additional customization
+	 * @since 6.1
+	 */
+	public HttpBasicConfigurer<B> securityContextRepository(SecurityContextRepository securityContextRepository) {
+		this.securityContextRepository = securityContextRepository;
 		return this;
 	}
 
@@ -194,6 +212,9 @@ public final class HttpBasicConfigurer<B extends HttpSecurityBuilder<B>>
 				this.authenticationEntryPoint);
 		if (this.authenticationDetailsSource != null) {
 			basicAuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
+		}
+		if (this.securityContextRepository != null) {
+			basicAuthenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 		}
 		RememberMeServices rememberMeServices = http.getSharedObject(RememberMeServices.class);
 		if (rememberMeServices != null) {
