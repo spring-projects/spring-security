@@ -869,6 +869,38 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
     }
 
     /**
+     * Configures OIDC 1.0 logout support.
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebSecurity
+     * class SecurityConfig {
+     *
+     *     @Bean
+     *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+     *         http {
+     *             oauth2Login { }
+     *             oidcLogout {
+     *                 backChannel { }
+     *             }
+     *         }
+     *         return http.build()
+     *     }
+     * }
+     * ```
+     *
+     * @param oidcLogoutConfiguration custom configuration to configure the
+     * OIDC 1.0 logout support
+     * @see [OidcLogoutDsl]
+     */
+    fun oidcLogout(oidcLogoutConfiguration: OidcLogoutDsl.() -> Unit) {
+        val oidcLogoutCustomizer = OidcLogoutDsl().apply(oidcLogoutConfiguration).get()
+        this.http.oidcLogout(oidcLogoutCustomizer)
+    }
+
+    /**
      * Configures Remember Me authentication.
      *
      * Example:

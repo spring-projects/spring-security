@@ -25,6 +25,8 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.InMemoryOAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.AuthenticatedPrincipalOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
@@ -110,6 +112,15 @@ final class OAuth2ClientConfigurerUtils {
 							+ StringUtils.collectionToCommaDelimitedString(authorizedClientServiceMap.keySet()));
 		}
 		return (!authorizedClientServiceMap.isEmpty() ? authorizedClientServiceMap.values().iterator().next() : null);
+	}
+
+	static <B extends HttpSecurityBuilder<B>> OidcSessionRegistry getOidcSessionRegistry(B builder) {
+		OidcSessionRegistry sessionRegistry = builder.getSharedObject(OidcSessionRegistry.class);
+		if (sessionRegistry == null) {
+			sessionRegistry = new InMemoryOidcSessionRegistry();
+			builder.setSharedObject(OidcSessionRegistry.class, sessionRegistry);
+		}
+		return sessionRegistry;
 	}
 
 }

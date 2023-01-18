@@ -22,9 +22,18 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.GenericApplicationListenerAdapter;
+import org.springframework.context.event.SmartApplicationListener;
 import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -32,9 +41,14 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.SessionManagementConfigurer;
+import org.springframework.security.context.DelegatingApplicationListener;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
+import org.springframework.security.core.session.AbstractSessionEvent;
+import org.springframework.security.core.session.SessionDestroyedEvent;
+import org.springframework.security.core.session.SessionIdChangedEvent;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationProvider;
 import org.springframework.security.oauth2.client.authentication.OAuth2LoginAuthenticationToken;
@@ -42,6 +56,9 @@ import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationC
 import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider;
+import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -67,7 +84,10 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.session.SessionAuthenticationException;
+import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.savedrequest.RequestCache;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -124,6 +144,7 @@ import org.springframework.util.ReflectionUtils;
  * <li>{@link DefaultLoginPageGeneratingFilter} - if {@link #loginPage(String)} is not
  * configured and {@code DefaultLoginPageGeneratingFilter} is available, then a default
  * login page will be made available</li>
+ * <li>{@link OidcSessionRegistry}</li>
  * </ul>
  *
  * @author Joe Grandja
@@ -199,6 +220,18 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public OAuth2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
 		this.loginProcessingUrl = loginProcessingUrl;
+		return this;
+	}
+
+	/**
+	 * Sets the registry for managing the OIDC client-provider session link
+	 * @param oidcSessionRegistry the {@link OidcSessionRegistry} to use
+	 * @return the {@link OAuth2LoginConfigurer} for further configuration
+	 * @since 6.2
+	 */
+	public OAuth2LoginConfigurer<B> oidcSessionRegistry(OidcSessionRegistry oidcSessionRegistry) {
+		Assert.notNull(oidcSessionRegistry, "oidcSessionRegistry cannot be null");
+		getBuilder().setSharedObject(OidcSessionRegistry.class, oidcSessionRegistry);
 		return this;
 	}
 
@@ -397,6 +430,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			authenticationFilter
 					.setAuthorizationRequestRepository(this.authorizationEndpointConfig.authorizationRequestRepository);
 		}
+		configureOidcSessionRegistry(http);
 		super.configure(http);
 	}
 
@@ -544,6 +578,29 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 					.equals(ReflectionUtils.getField(formLoginEnabledField, defaultLoginPageGeneratingFilter));
 		}
 		return AnyRequestMatcher.INSTANCE;
+	}
+
+	private void configureOidcSessionRegistry(B http) {
+		OidcSessionRegistry sessionRegistry = OAuth2ClientConfigurerUtils.getOidcSessionRegistry(http);
+		SessionManagementConfigurer<B> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
+		if (sessionConfigurer != null) {
+			OidcSessionRegistryAuthenticationStrategy sessionAuthenticationStrategy = new OidcSessionRegistryAuthenticationStrategy();
+			sessionAuthenticationStrategy.setSessionRegistry(sessionRegistry);
+			sessionConfigurer.addSessionAuthenticationStrategy(sessionAuthenticationStrategy);
+		}
+		OidcClientSessionEventListener listener = new OidcClientSessionEventListener();
+		listener.setSessionRegistry(sessionRegistry);
+		registerDelegateApplicationListener(listener);
+	}
+
+	private void registerDelegateApplicationListener(ApplicationListener<?> delegate) {
+		DelegatingApplicationListener delegating = getBeanOrNull(
+				ResolvableType.forType(DelegatingApplicationListener.class));
+		if (delegating == null) {
+			return;
+		}
+		SmartApplicationListener smartListener = new GenericApplicationListenerAdapter(delegate);
+		delegating.addListener(smartListener);
 	}
 
 	/**
@@ -789,6 +846,85 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		@Override
 		public boolean supports(Class<?> authentication) {
 			return OAuth2LoginAuthenticationToken.class.isAssignableFrom(authentication);
+		}
+
+	}
+
+	private static final class OidcClientSessionEventListener implements ApplicationListener<AbstractSessionEvent> {
+
+		private final Log logger = LogFactory.getLog(OidcClientSessionEventListener.class);
+
+		private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onApplicationEvent(AbstractSessionEvent event) {
+			if (event instanceof SessionDestroyedEvent destroyed) {
+				this.logger.debug("Received SessionDestroyedEvent");
+				this.sessionRegistry.removeSessionInformation(destroyed.getId());
+				return;
+			}
+			if (event instanceof SessionIdChangedEvent changed) {
+				this.logger.debug("Received SessionIdChangedEvent");
+				OidcSessionInformation information = this.sessionRegistry.removeSessionInformation(changed.getOldSessionId());
+				if (information == null) {
+					this.logger.debug("Failed to register new session id since old session id was not found in registry");
+					return;
+				}
+				this.sessionRegistry.saveSessionInformation(information.withSessionId(changed.getNewSessionId()));
+			}
+		}
+
+		/**
+		 * The registry where OIDC Provider sessions are linked to the Client session.
+		 * Defaults to in-memory storage.
+		 * @param sessionRegistry the {@link OidcSessionRegistry} to use
+		 */
+		void setSessionRegistry(OidcSessionRegistry sessionRegistry) {
+			Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+			this.sessionRegistry = sessionRegistry;
+		}
+
+	}
+
+	private static final class OidcSessionRegistryAuthenticationStrategy implements SessionAuthenticationStrategy {
+
+		private final Log logger = LogFactory.getLog(getClass());
+
+		private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public void onAuthentication(Authentication authentication, HttpServletRequest request, HttpServletResponse response) throws SessionAuthenticationException {
+			HttpSession session = request.getSession(false);
+			if (session == null) {
+				return;
+			}
+			if (!(authentication.getPrincipal() instanceof OidcUser user)) {
+				return;
+			}
+			String sessionId = session.getId();
+			CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
+			Map<String, String> headers = (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken()) : Collections.emptyMap();
+			OidcSessionInformation registration = new OidcSessionInformation(sessionId, headers, user);
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(String.format("Linking a provider [%s] session to this client's session", user.getIssuer()));
+			}
+			this.sessionRegistry.saveSessionInformation(registration);
+		}
+
+		/**
+		 * The registration for linking OIDC Provider Session information to the Client's
+		 * session. Defaults to in-memory storage.
+		 * @param sessionRegistry the {@link OidcSessionRegistry} to use
+		 */
+		void setSessionRegistry(OidcSessionRegistry sessionRegistry) {
+			Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+			this.sessionRegistry = sessionRegistry;
 		}
 
 	}

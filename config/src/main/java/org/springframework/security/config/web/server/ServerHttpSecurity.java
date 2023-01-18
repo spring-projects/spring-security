@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.security.interfaces.RSAPublicKey;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,10 +29,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.ObservationRegistry;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -67,6 +71,9 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.ReactiveOAuth2AccessTokenResponseClient;
 import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeReactiveAuthenticationManager;
+import org.springframework.security.oauth2.client.oidc.server.session.InMemoryReactiveOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.server.session.ReactiveOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -113,6 +120,7 @@ import org.springframework.security.web.server.MatcherSecurityWebFilterChain;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.ServerRedirectStrategy;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.AnonymousAuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.AuthenticationConverterServerWebExchangeMatcher;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
@@ -147,6 +155,7 @@ import org.springframework.security.web.server.context.SecurityContextServerWebE
 import org.springframework.security.web.server.context.ServerSecurityContextRepository;
 import org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository;
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
+import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler;
@@ -193,8 +202,10 @@ import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.DefaultCorsProcessor;
 import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.ServerWebExchangeDecorator;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.server.WebSession;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
@@ -294,6 +305,8 @@ public class ServerHttpSecurity {
 	private OAuth2ResourceServerSpec resourceServer;
 
 	private OAuth2ClientSpec client;
+
+	private OidcLogoutSpec oidcLogout;
 
 	private LogoutSpec logout = new LogoutSpec();
 
@@ -1094,6 +1107,33 @@ public class ServerHttpSecurity {
 	}
 
 	/**
+	 * Configures OIDC Connect 1.0 Logout support.
+	 *
+	 * <pre class="code">
+	 *  &#064;Bean
+	 *  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+	 *      http
+	 *          // ...
+	 *          .oidcLogout((logout) -&gt; logout
+	 *              .backChannel(Customizer.withDefaults())
+	 *          );
+	 *      return http.build();
+	 *  }
+	 * </pre>
+	 * @param oidcLogoutCustomizer the {@link Customizer} to provide more options for the
+	 * {@link OidcLogoutSpec}
+	 * @return the {@link ServerHttpSecurity} to customize
+	 * @since 6.2
+	 */
+	public ServerHttpSecurity oidcLogout(Customizer<OidcLogoutSpec> oidcLogoutCustomizer) {
+		if (this.oidcLogout == null) {
+			this.oidcLogout = new OidcLogoutSpec();
+		}
+		oidcLogoutCustomizer.customize(this.oidcLogout);
+		return this;
+	}
+
+	/**
 	 * Configures HTTP Response Headers. The default headers are:
 	 *
 	 * <pre>
@@ -1536,6 +1576,9 @@ public class ServerHttpSecurity {
 		}
 		if (this.resourceServer != null) {
 			this.resourceServer.configure(this);
+		}
+		if (this.oidcLogout != null) {
+			this.oidcLogout.configure(this);
 		}
 		if (this.client != null) {
 			this.client.configure(this);
@@ -3689,6 +3732,8 @@ public class ServerHttpSecurity {
 
 		private ServerWebExchangeMatcher authenticationMatcher;
 
+		private ReactiveOidcSessionRegistry oidcSessionRegistry;
+
 		private ServerAuthenticationSuccessHandler authenticationSuccessHandler;
 
 		private ServerAuthenticationFailureHandler authenticationFailureHandler;
@@ -3717,6 +3762,20 @@ public class ServerHttpSecurity {
 		 */
 		public OAuth2LoginSpec securityContextRepository(ServerSecurityContextRepository securityContextRepository) {
 			this.securityContextRepository = securityContextRepository;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ReactiveOidcSessionRegistry} to use when logins use OIDC.
+		 * Default is to look the value up as a Bean, or else use an
+		 * {@link InMemoryReactiveOidcSessionRegistry}.
+		 * @param oidcSessionRegistry the registry to use
+		 * @return the {@link OidcLogoutSpec} to customize
+		 * @since 6.2
+		 */
+		public OAuth2LoginSpec oidcSessionRegistry(ReactiveOidcSessionRegistry oidcSessionRegistry) {
+			Assert.notNull(oidcSessionRegistry, "oidcSessionRegistry cannot be null");
+			this.oidcSessionRegistry = oidcSessionRegistry;
 			return this;
 		}
 
@@ -3913,8 +3972,9 @@ public class ServerHttpSecurity {
 			oauthRedirectFilter.setRequestCache(http.requestCache.requestCache);
 
 			ReactiveAuthenticationManager manager = getAuthenticationManager();
-			AuthenticationWebFilter authenticationFilter = new OAuth2LoginAuthenticationWebFilter(manager,
-					authorizedClientRepository);
+			ReactiveOidcSessionRegistry sessionRegistry = getOidcSessionRegistry();
+			AuthenticationWebFilter authenticationFilter = new OidcSessionRegistryAuthenticationWebFilter(manager,
+					authorizedClientRepository, sessionRegistry);
 			authenticationFilter.setRequiresAuthenticationMatcher(getAuthenticationMatcher());
 			authenticationFilter
 					.setServerAuthenticationConverter(getAuthenticationConverter(clientRegistrationRepository));
@@ -3923,6 +3983,8 @@ public class ServerHttpSecurity {
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 
 			setDefaultEntryPoints(http);
+			http.addFilterAfter(new OidcSessionRegistryWebFilter(sessionRegistry),
+					SecurityWebFiltersOrder.HTTP_HEADERS_WRITER);
 			http.addFilterAt(oauthRedirectFilter, SecurityWebFiltersOrder.HTTP_BASIC);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 		}
@@ -3965,6 +4027,16 @@ public class ServerHttpSecurity {
 					defaultLoginPage);
 			defaultEntryPoint.setRequestCache(http.requestCache.requestCache);
 			http.defaultEntryPoints.add(new DelegateEntry(defaultEntryPointMatcher, defaultEntryPoint));
+		}
+
+		private ReactiveOidcSessionRegistry getOidcSessionRegistry() {
+			if (this.oidcSessionRegistry == null) {
+				this.oidcSessionRegistry = getBeanOrNull(ReactiveOidcSessionRegistry.class);
+			}
+			if (this.oidcSessionRegistry == null) {
+				this.oidcSessionRegistry = new InMemoryReactiveOidcSessionRegistry();
+			}
+			return this.oidcSessionRegistry;
 		}
 
 		private ServerAuthenticationSuccessHandler getAuthenticationSuccessHandler(ServerHttpSecurity http) {
@@ -4081,6 +4153,154 @@ public class ServerHttpSecurity {
 				return bean;
 			}
 			return new InMemoryReactiveOAuth2AuthorizedClientService(getClientRegistrationRepository());
+		}
+
+		private static final class OidcSessionRegistryWebFilter implements WebFilter {
+
+			private final ReactiveOidcSessionRegistry oidcSessionRegistry;
+
+			OidcSessionRegistryWebFilter(ReactiveOidcSessionRegistry oidcSessionRegistry) {
+				this.oidcSessionRegistry = oidcSessionRegistry;
+			}
+
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+				return chain.filter(new OidcSessionRegistryServerWebExchange(exchange));
+			}
+
+			private final class OidcSessionRegistryServerWebExchange extends ServerWebExchangeDecorator {
+
+				private final Mono<WebSession> sessionMono;
+
+				protected OidcSessionRegistryServerWebExchange(ServerWebExchange delegate) {
+					super(delegate);
+					this.sessionMono = delegate.getSession().map(OidcSessionRegistryWebSession::new);
+				}
+
+				@Override
+				public Mono<WebSession> getSession() {
+					return this.sessionMono;
+				}
+
+				private final class OidcSessionRegistryWebSession implements WebSession {
+
+					private final WebSession session;
+
+					OidcSessionRegistryWebSession(WebSession session) {
+						this.session = session;
+					}
+
+					@Override
+					public String getId() {
+						return this.session.getId();
+					}
+
+					@Override
+					public Map<String, Object> getAttributes() {
+						return this.session.getAttributes();
+					}
+
+					@Override
+					public void start() {
+						this.session.start();
+					}
+
+					@Override
+					public boolean isStarted() {
+						return this.session.isStarted();
+					}
+
+					@Override
+					public Mono<Void> changeSessionId() {
+						String currentId = this.session.getId();
+						return this.session.changeSessionId()
+								.then(Mono.defer(() -> OidcSessionRegistryWebFilter.this.oidcSessionRegistry
+										.removeSessionInformation(currentId).flatMap((information) -> {
+											information = information.withSessionId(this.session.getId());
+											return OidcSessionRegistryWebFilter.this.oidcSessionRegistry
+													.saveSessionInformation(information);
+										})));
+					}
+
+					@Override
+					public Mono<Void> invalidate() {
+						String currentId = this.session.getId();
+						return this.session.invalidate()
+								.then(Mono.defer(() -> OidcSessionRegistryWebFilter.this.oidcSessionRegistry
+										.removeSessionInformation(currentId).then(Mono.empty())));
+					}
+
+					@Override
+					public Mono<Void> save() {
+						return this.session.save();
+					}
+
+					@Override
+					public boolean isExpired() {
+						return this.session.isExpired();
+					}
+
+					@Override
+					public Instant getCreationTime() {
+						return this.session.getCreationTime();
+					}
+
+					@Override
+					public Instant getLastAccessTime() {
+						return this.session.getLastAccessTime();
+					}
+
+					@Override
+					public void setMaxIdleTime(Duration maxIdleTime) {
+						this.session.setMaxIdleTime(maxIdleTime);
+					}
+
+					@Override
+					public Duration getMaxIdleTime() {
+						return this.session.getMaxIdleTime();
+					}
+
+				}
+
+			}
+
+		}
+
+		private static final class OidcSessionRegistryAuthenticationWebFilter
+				extends OAuth2LoginAuthenticationWebFilter {
+
+			private final Log logger = LogFactory.getLog(getClass());
+
+			private final ReactiveOidcSessionRegistry oidcSessionRegistry;
+
+			OidcSessionRegistryAuthenticationWebFilter(ReactiveAuthenticationManager authenticationManager,
+					ServerOAuth2AuthorizedClientRepository authorizedClientRepository,
+					ReactiveOidcSessionRegistry oidcSessionRegistry) {
+				super(authenticationManager, authorizedClientRepository);
+				this.oidcSessionRegistry = oidcSessionRegistry;
+			}
+
+			@Override
+			protected Mono<Void> onAuthenticationSuccess(Authentication authentication, WebFilterExchange webFilterExchange) {
+				if (!(authentication.getPrincipal() instanceof OidcUser user)) {
+					return super.onAuthenticationSuccess(authentication, webFilterExchange);
+				}
+				return webFilterExchange.getExchange().getSession()
+						.doOnNext((session) -> {
+							if (this.logger.isTraceEnabled()) {
+								this.logger.trace(String.format("Linking a provider [%s] session to this client's session", user.getIssuer()));
+							}
+						})
+						.flatMap((session) -> {
+							Mono<CsrfToken> csrfToken = webFilterExchange.getExchange().getAttribute(CsrfToken.class.getName());
+							return (csrfToken != null) ?
+									csrfToken.map((token) -> new OidcSessionInformation(session.getId(), Map.of(token.getHeaderName(), token.getToken()), user)) :
+									Mono.just(new OidcSessionInformation(session.getId(), Map.of(), user));
+						})
+						.flatMap(this.oidcSessionRegistry::saveSessionInformation)
+						.then(super.onAuthenticationSuccess(authentication, webFilterExchange));
+			}
+
 		}
 
 	}
@@ -4749,6 +4969,129 @@ public class ServerHttpSecurity {
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
 				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
+			}
+
+		}
+
+	}
+
+	/**
+	 * Configures OIDC 1.0 Logout support
+	 *
+	 * @author Josh Cummings
+	 * @since 6.2
+	 */
+	public final class OidcLogoutSpec {
+
+		private ReactiveClientRegistrationRepository clientRegistrationRepository;
+
+		private ReactiveOidcSessionRegistry sessionRegistry;
+
+		private BackChannelLogoutConfigurer backChannel;
+
+		/**
+		 * Configures the {@link ReactiveClientRegistrationRepository}. Default is to look
+		 * the value up as a Bean.
+		 * @param clientRegistrationRepository the repository to use
+		 * @return the {@link OidcLogoutSpec} to customize
+		 */
+		public OidcLogoutSpec clientRegistrationRepository(
+				ReactiveClientRegistrationRepository clientRegistrationRepository) {
+			Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+			this.clientRegistrationRepository = clientRegistrationRepository;
+			return this;
+		}
+
+		/**
+		 * Configures the {@link ReactiveOidcSessionRegistry}. Default is to use the value
+		 * from {@link OAuth2LoginSpec#oidcSessionRegistry}, then look the value up as a
+		 * Bean, or else use an {@link InMemoryReactiveOidcSessionRegistry}.
+		 * @param sessionRegistry the registry to use
+		 * @return the {@link OidcLogoutSpec} to customize
+		 */
+		public OidcLogoutSpec oidcSessionRegistry(ReactiveOidcSessionRegistry sessionRegistry) {
+			Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+			this.sessionRegistry = sessionRegistry;
+			return this;
+		}
+
+		/**
+		 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}
+		 * @return the {@link OidcLogoutSpec} for further configuration
+		 */
+		public OidcLogoutSpec backChannel(Customizer<BackChannelLogoutConfigurer> backChannelLogoutConfigurer) {
+			if (this.backChannel == null) {
+				this.backChannel = new OidcLogoutSpec.BackChannelLogoutConfigurer();
+			}
+			backChannelLogoutConfigurer.customize(this.backChannel);
+			return this;
+		}
+
+		@Deprecated(forRemoval = true, since = "6.2")
+		public ServerHttpSecurity and() {
+			return ServerHttpSecurity.this;
+		}
+
+		void configure(ServerHttpSecurity http) {
+			if (this.backChannel != null) {
+				this.backChannel.configure(http);
+			}
+		}
+
+		private ReactiveClientRegistrationRepository getClientRegistrationRepository() {
+			if (this.clientRegistrationRepository == null) {
+				this.clientRegistrationRepository = getBeanOrNull(ReactiveClientRegistrationRepository.class);
+			}
+			return this.clientRegistrationRepository;
+		}
+
+		private ReactiveOidcSessionRegistry getSessionRegistry() {
+			if (this.sessionRegistry == null && ServerHttpSecurity.this.oauth2Login == null) {
+				return new InMemoryReactiveOidcSessionRegistry();
+			}
+			if (this.sessionRegistry == null) {
+				return ServerHttpSecurity.this.oauth2Login.oidcSessionRegistry;
+			}
+			return this.sessionRegistry;
+		}
+
+		/**
+		 * A configurer for configuring OIDC Back-Channel Logout
+		 */
+		public final class BackChannelLogoutConfigurer {
+
+			private ServerAuthenticationConverter authenticationConverter;
+
+			private final ReactiveAuthenticationManager authenticationManager = new OidcBackChannelLogoutReactiveAuthenticationManager();
+
+			private ServerLogoutHandler logoutHandler;
+
+			private ServerAuthenticationConverter authenticationConverter() {
+				if (this.authenticationConverter == null) {
+					this.authenticationConverter = new OidcLogoutServerAuthenticationConverter(
+							OidcLogoutSpec.this.getClientRegistrationRepository());
+				}
+				return this.authenticationConverter;
+			}
+
+			private ReactiveAuthenticationManager authenticationManager() {
+				return this.authenticationManager;
+			}
+
+			private ServerLogoutHandler logoutHandler() {
+				if (this.logoutHandler == null) {
+					OidcBackChannelServerLogoutHandler logoutHandler = new OidcBackChannelServerLogoutHandler();
+					logoutHandler.setSessionRegistry(OidcLogoutSpec.this.getSessionRegistry());
+					this.logoutHandler = logoutHandler;
+				}
+				return this.logoutHandler;
+			}
+
+			void configure(ServerHttpSecurity http) {
+				OidcBackChannelLogoutWebFilter filter = new OidcBackChannelLogoutWebFilter(authenticationConverter(),
+						authenticationManager());
+				filter.setLogoutHandler(logoutHandler());
+				http.addFilterBefore(filter, SecurityWebFiltersOrder.CSRF);
 			}
 
 		}

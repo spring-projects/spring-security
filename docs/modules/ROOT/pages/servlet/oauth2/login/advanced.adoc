@@ -1037,3 +1037,6 @@ class OAuth2LoginSecurityConfig {
 `OidcClientInitiatedLogoutSuccessHandler` supports the `+{baseUrl}+` placeholder.
 If used, the application's base URL, such as `https://app.example.org`, replaces it at request time.
 ====
+
+[[oauth2login-advanced-oidc-logout]]
+Then, you can proceed to configure xref:reactive/oauth2/login/logout.adoc[logout]

@@ -50,7 +50,7 @@ public final class TestOidcUsers {
 				.expiresAt(expiresAt)
 				.subject("subject")
 				.issuer("http://localhost/issuer")
-				.audience(Collections.unmodifiableSet(new LinkedHashSet<>(Collections.singletonList("client"))))
+				.audience(Collections.unmodifiableSet(new LinkedHashSet<>(Collections.singletonList("client-id"))))
 				.authorizedParty("client")
 				.build();
 		// @formatter:on

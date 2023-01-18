@@ -70,6 +70,7 @@ import org.springframework.security.config.annotation.web.configurers.SessionMan
 import org.springframework.security.config.annotation.web.configurers.X509Configurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2ClientConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.client.OAuth2LoginConfigurer;
+import org.springframework.security.config.annotation.web.configurers.oauth2.client.OidcLogoutConfigurer;
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
@@ -2832,6 +2833,16 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	public HttpSecurity oauth2Login(Customizer<OAuth2LoginConfigurer<HttpSecurity>> oauth2LoginCustomizer)
 			throws Exception {
 		oauth2LoginCustomizer.customize(getOrApply(new OAuth2LoginConfigurer<>()));
+		return HttpSecurity.this;
+	}
+
+	public OidcLogoutConfigurer<HttpSecurity> oidcLogout() throws Exception {
+		return getOrApply(new OidcLogoutConfigurer<>());
+	}
+
+	public HttpSecurity oidcLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcLogoutCustomizer)
+			throws Exception {
+		oidcLogoutCustomizer.customize(getOrApply(new OidcLogoutConfigurer<>()));
 		return HttpSecurity.this;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,32 +14,17 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.core.oidc;
-
-import java.time.Instant;
-import java.util.List;
+package org.springframework.security.config.web.server
 
 /**
- * Test {@link OidcIdToken}s
+ * A Kotlin DSL to configure [ServerHttpSecurity] OIDC 1.0 Back-Channel Logout support using idiomatic Kotlin code.
  *
  * @author Josh Cummings
+ * @since 6.2
  */
-public final class TestOidcIdTokens {
-
-	private TestOidcIdTokens() {
-	}
-
-	public static OidcIdToken.Builder idToken() {
-		// @formatter:off
-		return OidcIdToken.withTokenValue("id-token")
-				.issuer("https://example.com")
-				.audience(List.of("client-id"))
-				.subject("subject")
-				.issuedAt(Instant.now())
-				.expiresAt(Instant.now()
-				.plusSeconds(86400))
-				.claim("id", "id");
-		// @formatter:on
-	}
-
+@ServerSecurityMarker
+class ServerOidcBackChannelLogoutDsl {
+    internal fun get(): (ServerHttpSecurity.OidcLogoutSpec.BackChannelLogoutConfigurer) -> Unit {
+        return { backChannel -> }
+    }
 }

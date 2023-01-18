@@ -717,7 +717,7 @@ public class ServerHttpSecurityTests {
 
 	private <T extends WebFilter> Optional<T> getWebFilter(SecurityWebFilterChain filterChain, Class<T> filterClass) {
 		return (Optional<T>) filterChain.getWebFilters().filter(Objects::nonNull)
-				.filter((filter) -> filter.getClass().isAssignableFrom(filterClass)).singleOrEmpty().blockOptional();
+				.filter((filter) -> filterClass.isAssignableFrom(filter.getClass())).singleOrEmpty().blockOptional();
 	}
 
 	private WebTestClient buildClient() {

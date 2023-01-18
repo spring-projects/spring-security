@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -648,6 +648,38 @@ class ServerHttpSecurityDsl(private val http: ServerHttpSecurity, private val in
     fun oauth2ResourceServer(oauth2ResourceServerConfiguration: ServerOAuth2ResourceServerDsl.() -> Unit) {
         val oauth2ResourceServerCustomizer = ServerOAuth2ResourceServerDsl().apply(oauth2ResourceServerConfiguration).get()
         this.http.oauth2ResourceServer(oauth2ResourceServerCustomizer)
+    }
+
+    /**
+     * Configures logout support using an OpenID Connect 1.0 Provider.
+     * A [ReactiveClientRegistrationRepository] is required and must be registered as a Bean or
+     * configured via [ServerOidcLogoutDsl.clientRegistrationRepository].
+     *
+     * Example:
+     *
+     * ```
+     * @Configuration
+     * @EnableWebFluxSecurity
+     * class SecurityConfig {
+     *
+     *  @Bean
+     *  fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+     *      return http {
+     *          oauth2Login { }
+     *          oidcLogout {
+     *              backChannel { }
+     *          }
+     *       }
+     *   }
+     * }
+     * ```
+     *
+     * @param oidcLogoutConfiguration custom configuration to configure the OIDC 1.0 Logout
+     * @see [ServerOidcLogoutDsl]
+     */
+    fun oidcLogout(oidcLogoutConfiguration: ServerOidcLogoutDsl.() -> Unit) {
+        val oidcLogoutCustomizer = ServerOidcLogoutDsl().apply(oidcLogoutConfiguration).get()
+        this.http.oidcLogout(oidcLogoutCustomizer)
     }
 
     /**
