@@ -19,16 +19,10 @@ jobs:
       with:
         fetch-depth: 5
     - name: Set Up Gradle
-      uses: spring-io/spring-gradle-build-action@v1
+      uses: spring-io/spring-gradle-build-action@v2
       with:
         java-version: '17'
         distribution: temurin
-    - name: Scrub Gradle Cache
-      # Remove some files from the Gradle cache, so they aren't cached by GitHub Actions.
-      # Restoring these files from a GitHub Actions cache might cause problems for future builds.
-      run: |
-        rm -f /home/runner/.gradle/caches/modules-2/modules-2.lock
-        rm -f /home/runner/.gradle/caches/modules-2/gc.properties
     - name: Set up refname build
       if: github.event.inputs.build-refname
       run: |
