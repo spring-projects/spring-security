@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,6 +51,17 @@ class FormLoginDsl {
 
     private var defaultSuccessUrlOption: Pair<String, Boolean>? = null
 
+    private var disabled = false
+
+    /**
+     * Disable FormLogin.
+     *
+     * @since 6.1
+     */
+    fun disable() {
+        disabled = true
+    }
+
     /**
      * Grants access to the urls for [failureUrl] as well as for the [HttpSecurityBuilder], the
      * [loginPage] and [loginProcessingUrl] for every user.
@@ -84,6 +95,9 @@ class FormLoginDsl {
             authenticationSuccessHandler?.also { login.successHandler(authenticationSuccessHandler) }
             authenticationFailureHandler?.also { login.failureHandler(authenticationFailureHandler) }
             authenticationDetailsSource?.also { login.authenticationDetailsSource(authenticationDetailsSource) }
+            if (disabled) {
+                login.disable()
+            }
         }
     }
 }

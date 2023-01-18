@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -31,19 +32,17 @@ import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Controller
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
-import jakarta.servlet.http.HttpServletRequest
-import org.springframework.context.annotation.Bean
-import org.springframework.security.web.SecurityFilterChain
-import org.springframework.security.web.authentication.WebAuthenticationDetails
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
+import org.springframework.web.servlet.config.annotation.EnableWebMvc
 
 /**
  * Tests for [FormLoginDsl]
@@ -88,6 +87,32 @@ class FormLoginDslTests {
                     status().isFound
                     redirectedUrl("/login?error")
                 }
+    }
+
+    @Configuration
+    @EnableWebMvc
+    @EnableWebSecurity
+    open class DisabledConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http.formLogin()
+            http {
+                formLogin {
+                    disable()
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Test
+    fun `request when formLogin disabled does not provide login page`() {
+        this.spring.register(DisabledConfig::class.java, UserConfig::class.java).autowire()
+
+        this.mockMvc.get("/login")
+            .andExpect {
+                status { isNotFound() }
+            }
     }
 
     @Configuration
