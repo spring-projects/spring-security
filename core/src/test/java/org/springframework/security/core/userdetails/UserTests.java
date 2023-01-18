@@ -18,6 +18,8 @@ package org.springframework.security.core.userdetails;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,6 +39,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests {@link User}.
  *
  * @author Ben Alex
+ * @author Ilya Starchenko
  */
 public class UserTests {
 
@@ -66,6 +69,33 @@ public class UserTests {
 	public void testNoArgConstructorDoesntExist() {
 		assertThatExceptionOfType(NoSuchMethodException.class)
 				.isThrownBy(() -> User.class.getDeclaredConstructor((Class[]) null));
+	}
+
+	@Test
+	public void testBuildUserWithNoAuthorities() {
+		UserDetails user = User.builder().username("user").password("password").build();
+		assertThat(user.getAuthorities()).isEmpty();
+	}
+
+	@Test
+	public void testNullWithinUserAuthoritiesIsRejected() {
+		assertThatIllegalArgumentException().isThrownBy(() -> User.builder().username("user").password("password")
+				.authorities((Collection<? extends GrantedAuthority>) null).build());
+		List<GrantedAuthority> authorities = new ArrayList<>();
+		authorities.add(null);
+		authorities.add(null);
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> User.builder().username("user").password("password").authorities(authorities).build());
+
+		assertThatIllegalArgumentException().isThrownBy(() -> User.builder().username("user").password("password")
+				.authorities((GrantedAuthority[]) null).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> User.builder().username("user").password("password")
+				.authorities(new GrantedAuthority[] { null, null }).build());
+
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> User.builder().username("user").password("password").authorities((String[]) null).build());
+		assertThatIllegalArgumentException().isThrownBy(() -> User.builder().username("user").password("password")
+				.authorities(new String[] { null, null }).build());
 	}
 
 	@Test

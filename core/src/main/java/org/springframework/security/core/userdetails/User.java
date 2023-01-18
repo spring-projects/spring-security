@@ -329,7 +329,7 @@ public class User implements UserDetails, CredentialsContainer {
 
 		private String password;
 
-		private List<GrantedAuthority> authorities;
+		private List<GrantedAuthority> authorities = new ArrayList<>();
 
 		private boolean accountExpired;
 
@@ -427,6 +427,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @see #roles(String...)
 		 */
 		public UserBuilder authorities(GrantedAuthority... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
 			return authorities(Arrays.asList(authorities));
 		}
 
@@ -439,7 +440,8 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @see #roles(String...)
 		 */
 		public UserBuilder authorities(Collection<? extends GrantedAuthority> authorities) {
-			this.authorities = new ArrayList<>(authorities);
+			Assert.notNull(authorities, "authorities cannot be null");
+			this.authorities.addAll(authorities);
 			return this;
 		}
 
@@ -452,6 +454,7 @@ public class User implements UserDetails, CredentialsContainer {
 		 * @see #roles(String...)
 		 */
 		public UserBuilder authorities(String... authorities) {
+			Assert.notNull(authorities, "authorities cannot be null");
 			return authorities(AuthorityUtils.createAuthorityList(authorities));
 		}
 
