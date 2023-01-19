@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
@@ -82,6 +83,16 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
 		this.clock = clock;
+	}
+
+	/**
+	 * Use this {@link Converter} to compute the RelayState
+	 * @param relayStateResolver the {@link Converter} to use
+	 * @since 5.8
+	 */
+	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		Assert.notNull(relayStateResolver, "relayStateResolver cannot be null");
+		this.logoutRequestResolver.setRelayStateResolver(relayStateResolver);
 	}
 
 	public static final class LogoutRequestParameters {

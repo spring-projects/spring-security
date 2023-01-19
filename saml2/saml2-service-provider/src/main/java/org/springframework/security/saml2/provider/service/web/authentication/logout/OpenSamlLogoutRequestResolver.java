@@ -39,6 +39,7 @@ import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.w3c.dom.Element;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -75,8 +76,12 @@ final class OpenSamlLogoutRequestResolver {
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
+	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
+
 	/**
 	 * Construct a {@link OpenSamlLogoutRequestResolver}
+	 * @param relyingPartyRegistrationResolver a strategy for resolving the
+	 * {@link RelyingPartyRegistration} from the {@link HttpServletRequest}
 	 */
 	OpenSamlLogoutRequestResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
 		this.relyingPartyRegistrationResolver = relyingPartyRegistrationResolver;
@@ -96,9 +101,13 @@ final class OpenSamlLogoutRequestResolver {
 		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
 	}
 
+	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		this.relayStateResolver = relayStateResolver;
+	}
+
 	/**
 	 * Prepare to create, sign, and serialize a SAML 2.0 Logout Request.
-	 *
+	 * <p>
 	 * By default, includes a {@code NameID} based on the {@link Authentication} instance
 	 * as well as the {@code Destination} and {@code Issuer} based on the
 	 * {@link RelyingPartyRegistration} derived from the {@link Authentication}.
@@ -141,7 +150,7 @@ final class OpenSamlLogoutRequestResolver {
 		if (logoutRequest.getID() == null) {
 			logoutRequest.setID("LR" + UUID.randomUUID());
 		}
-		String relayState = UUID.randomUUID().toString();
+		String relayState = this.relayStateResolver.convert(request);
 		Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 				.id(logoutRequest.getID());
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
