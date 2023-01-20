@@ -264,8 +264,7 @@ public class MapBasedMethodSecurityMetadataSource extends AbstractFallbackMethod
 			if (this == obj) {
 				return true;
 			}
-			if (obj != null && obj instanceof RegisteredMethod) {
-				RegisteredMethod rhs = (RegisteredMethod) obj;
+			if (obj instanceof RegisteredMethod rhs) {
 				return this.method.equals(rhs.method) && this.registeredJavaType.equals(rhs.registeredJavaType);
 			}
 			return false;

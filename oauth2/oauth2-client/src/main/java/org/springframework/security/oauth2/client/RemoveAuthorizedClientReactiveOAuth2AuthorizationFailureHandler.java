@@ -112,9 +112,8 @@ public class RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler
 	@Override
 	public Mono<Void> onAuthorizationFailure(OAuth2AuthorizationException authorizationException,
 			Authentication principal, Map<String, Object> attributes) {
-		if (authorizationException instanceof ClientAuthorizationException
+		if (authorizationException instanceof ClientAuthorizationException clientAuthorizationException
 				&& hasRemovalErrorCode(authorizationException)) {
-			ClientAuthorizationException clientAuthorizationException = (ClientAuthorizationException) authorizationException;
 			return this.delegate.removeAuthorizedClient(clientAuthorizationException.getClientRegistrationId(),
 					principal, attributes);
 		}

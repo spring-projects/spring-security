@@ -60,8 +60,7 @@ public final class MethodInvocationUtils {
 		// Determine the type that declares the requested method,
 		// taking into account proxies
 		Class<?> target = AopUtils.getTargetClass(object);
-		if (object instanceof Advised) {
-			Advised a = (Advised) object;
+		if (object instanceof Advised a) {
 			if (!a.isProxyTargetClass()) {
 				Class<?>[] possibleInterfaces = a.getProxiedInterfaces();
 				for (Class<?> possibleInterface : possibleInterfaces) {

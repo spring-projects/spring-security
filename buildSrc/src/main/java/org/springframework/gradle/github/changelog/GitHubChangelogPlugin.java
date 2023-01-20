@@ -26,7 +26,6 @@ import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.artifacts.repositories.ExclusiveContentRepository;
-import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor;
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository;
 import org.gradle.api.artifacts.repositories.IvyPatternRepositoryLayout;
 import org.gradle.api.tasks.JavaExec;
@@ -91,12 +90,7 @@ public class GitHubChangelogPlugin implements Plugin<Project> {
 			@Override
 			public void execute(ExclusiveContentRepository exclusiveContentRepository) {
 				exclusiveContentRepository.forRepositories(repository);
-				exclusiveContentRepository.filter(new Action<InclusiveRepositoryContentDescriptor>() {
-					@Override
-					public void execute(InclusiveRepositoryContentDescriptor descriptor) {
-						descriptor.includeGroup("spring-io");
-					}
-				});
+				exclusiveContentRepository.filter(descriptor -> descriptor.includeGroup("spring-io"));
 			}
 		});
 	}

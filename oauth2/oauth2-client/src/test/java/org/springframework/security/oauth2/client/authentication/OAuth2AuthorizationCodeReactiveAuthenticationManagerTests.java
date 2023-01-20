@@ -70,13 +70,13 @@ public class OAuth2AuthorizationCodeReactiveAuthenticationManagerTests {
 	@Test
 	public void authenticateWhenErrorThenOAuth2AuthorizationException() {
 		this.authorizationResponse = TestOAuth2AuthorizationResponses.error();
-		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(this::authenticate);
 	}
 
 	@Test
 	public void authenticateWhenStateNotEqualThenOAuth2AuthorizationException() {
 		this.authorizationRequest.state("notequal");
-		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(() -> authenticate());
+		assertThatExceptionOfType(OAuth2AuthorizationException.class).isThrownBy(this::authenticate);
 	}
 
 	@Test

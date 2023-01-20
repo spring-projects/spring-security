@@ -35,9 +35,7 @@ public class CheckClasspathForProhibitedDependenciesPlugin implements Plugin<Pro
 	@Override
 	public void apply(Project project) {
 		project.getPlugins().apply(CheckProhibitedDependenciesLifecyclePlugin.class);
-		project.getPlugins().withType(JavaBasePlugin.class, javaBasePlugin -> {
-			configureProhibitedDependencyChecks(project);
-		});
+		project.getPlugins().withType(JavaBasePlugin.class, javaBasePlugin -> configureProhibitedDependencyChecks(project));
 	}
 
 	private void configureProhibitedDependencyChecks(Project project) {

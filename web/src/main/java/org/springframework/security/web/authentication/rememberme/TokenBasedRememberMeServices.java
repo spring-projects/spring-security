@@ -167,7 +167,7 @@ public class TokenBasedRememberMeServices extends AbstractRememberMeServices {
 
 	private long getTokenExpiryTime(String[] cookieTokens) {
 		try {
-			return new Long(cookieTokens[1]);
+			return Long.valueOf(cookieTokens[1]);
 		}
 		catch (NumberFormatException nfe) {
 			throw new InvalidCookieException(

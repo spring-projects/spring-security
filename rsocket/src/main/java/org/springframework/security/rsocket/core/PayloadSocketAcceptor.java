@@ -83,8 +83,7 @@ class PayloadSocketAcceptor implements SocketAcceptor {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
 			DefaultPayloadExchange exchange = new DefaultPayloadExchange(PayloadExchangeType.SETUP, payload,
 					metadataMimeType, dataMimeType);
-			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
-					.defaultIfEmpty(Context.empty());
+			return chain.next(exchange).then(Mono.fromCallable(chain::getContext)).defaultIfEmpty(Context.empty());
 		});
 	}
 

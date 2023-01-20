@@ -129,8 +129,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 
 	private void setAuthenticationRequestRepositoryIntoAuthenticationConverter(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {
-		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter) {
-			Saml2AuthenticationTokenConverter authenticationTokenConverter = (Saml2AuthenticationTokenConverter) this.authenticationConverter;
+		if (this.authenticationConverter instanceof Saml2AuthenticationTokenConverter authenticationTokenConverter) {
 			authenticationTokenConverter.setAuthenticationRequestRepository(authenticationRequestRepository);
 		}
 	}

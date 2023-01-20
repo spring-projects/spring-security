@@ -94,12 +94,8 @@ public class RememberMeAuthenticationToken extends AbstractAuthenticationToken {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		if (obj instanceof RememberMeAuthenticationToken) {
-			RememberMeAuthenticationToken other = (RememberMeAuthenticationToken) obj;
-			if (this.getKeyHash() != other.getKeyHash()) {
-				return false;
-			}
-			return true;
+		if (obj instanceof RememberMeAuthenticationToken other) {
+			return this.getKeyHash() == other.getKeyHash();
 		}
 		return false;
 	}

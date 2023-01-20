@@ -48,10 +48,9 @@ public class RequestKey {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof RequestKey)) {
+		if (!(obj instanceof RequestKey key)) {
 			return false;
 		}
-		RequestKey key = (RequestKey) obj;
 		if (!this.url.equals(key.url)) {
 			return false;
 		}

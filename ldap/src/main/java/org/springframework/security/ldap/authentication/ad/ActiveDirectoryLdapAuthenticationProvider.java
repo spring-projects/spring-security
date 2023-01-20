@@ -260,43 +260,30 @@ public final class ActiveDirectoryLdapAuthenticationProvider extends AbstractLda
 		String hexString = Integer.toHexString(code);
 		Throwable cause = new ActiveDirectoryAuthenticationException(hexString, exception.getMessage(), exception);
 		switch (code) {
-		case PASSWORD_EXPIRED:
-			throw new CredentialsExpiredException(this.messages.getMessage(
+			case PASSWORD_EXPIRED -> throw new CredentialsExpiredException(this.messages.getMessage(
 					"LdapAuthenticationProvider.credentialsExpired", "User credentials have expired"), cause);
-		case ACCOUNT_DISABLED:
-			throw new DisabledException(
+			case ACCOUNT_DISABLED -> throw new DisabledException(
 					this.messages.getMessage("LdapAuthenticationProvider.disabled", "User is disabled"), cause);
-		case ACCOUNT_EXPIRED:
-			throw new AccountExpiredException(
+			case ACCOUNT_EXPIRED -> throw new AccountExpiredException(
 					this.messages.getMessage("LdapAuthenticationProvider.expired", "User account has expired"), cause);
-		case ACCOUNT_LOCKED:
-			throw new LockedException(
+			case ACCOUNT_LOCKED -> throw new LockedException(
 					this.messages.getMessage("LdapAuthenticationProvider.locked", "User account is locked"), cause);
-		default:
-			throw badCredentials(cause);
+			default -> throw badCredentials(cause);
 		}
 	}
 
 	private String subCodeToLogMessage(int code) {
-		switch (code) {
-		case USERNAME_NOT_FOUND:
-			return "User was not found in directory";
-		case INVALID_PASSWORD:
-			return "Supplied password was invalid";
-		case NOT_PERMITTED:
-			return "User not permitted to logon at this time";
-		case PASSWORD_EXPIRED:
-			return "Password has expired";
-		case ACCOUNT_DISABLED:
-			return "Account is disabled";
-		case ACCOUNT_EXPIRED:
-			return "Account expired";
-		case PASSWORD_NEEDS_RESET:
-			return "User must reset password";
-		case ACCOUNT_LOCKED:
-			return "Account locked";
-		}
-		return "Unknown (error code " + Integer.toHexString(code) + ")";
+		return switch (code) {
+			case USERNAME_NOT_FOUND -> "User was not found in directory";
+			case INVALID_PASSWORD -> "Supplied password was invalid";
+			case NOT_PERMITTED -> "User not permitted to logon at this time";
+			case PASSWORD_EXPIRED -> "Password has expired";
+			case ACCOUNT_DISABLED -> "Account is disabled";
+			case ACCOUNT_EXPIRED -> "Account expired";
+			case PASSWORD_NEEDS_RESET -> "User must reset password";
+			case ACCOUNT_LOCKED -> "Account locked";
+			default -> "Unknown (error code " + Integer.toHexString(code) + ")";
+		};
 	}
 
 	private BadCredentialsException badCredentials() {

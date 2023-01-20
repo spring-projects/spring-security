@@ -382,7 +382,7 @@ public class RequestCacheConfigurerTests {
 						.anyRequest().authenticated()
 				)
 				.formLogin(Customizer.withDefaults())
-				.requestCache((cache) -> cache.disable());
+				.requestCache(RequestCacheConfigurer::disable);
 			// @formatter:on
 			return http.build();
 		}

@@ -68,8 +68,7 @@ public class RsaKeyConversionServicePostProcessor implements BeanFactoryPostProc
 			return;
 		}
 		ConversionService service = beanFactory.getConversionService();
-		if (service instanceof ConverterRegistry) {
-			ConverterRegistry registry = (ConverterRegistry) service;
+		if (service instanceof ConverterRegistry registry) {
 			registry.addConverter(String.class, RSAPrivateKey.class, this.pkcs8);
 			registry.addConverter(String.class, RSAPublicKey.class, this.x509);
 		}

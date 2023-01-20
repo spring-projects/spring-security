@@ -85,8 +85,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		if (!matcher.matches((Message) message)) {
 			return null;
 		}
-		if (matcher instanceof SimpDestinationMessageMatcher) {
-			SimpDestinationMessageMatcher simp = (SimpDestinationMessageMatcher) matcher;
+		if (matcher instanceof SimpDestinationMessageMatcher simp) {
 			return new MessageAuthorizationContext<>(message, simp.extractPathVariables(message));
 		}
 		if (matcher instanceof Builder.LazySimpDestinationMessageMatcher) {
@@ -111,7 +110,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		private final List<Entry<AuthorizationManager<MessageAuthorizationContext<?>>>> mappings = new ArrayList<>();
 
-		private Supplier<PathMatcher> pathMatcher = () -> new AntPathMatcher();
+		private Supplier<PathMatcher> pathMatcher = AntPathMatcher::new;
 
 		public Builder() {
 		}

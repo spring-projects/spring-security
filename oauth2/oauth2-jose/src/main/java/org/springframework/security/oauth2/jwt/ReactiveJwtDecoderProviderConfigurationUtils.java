@@ -87,7 +87,7 @@ final class ReactiveJwtDecoderProviderConfigurationUtils {
 			}
 			Assert.notEmpty(jwsAlgorithms, "Failed to find any algorithms from the JWK set");
 			return jwsAlgorithms;
-		}).onErrorMap(KeySourceException.class, (ex) -> new IllegalStateException(ex));
+		}).onErrorMap(KeySourceException.class, IllegalStateException::new);
 	}
 
 	static Mono<Map<String, Object>> getConfigurationForIssuerLocation(String issuer, WebClient web) {

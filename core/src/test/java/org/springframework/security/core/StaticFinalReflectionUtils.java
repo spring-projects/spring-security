@@ -68,13 +68,7 @@ final class StaticFinalReflectionUtils {
 				field.set(null, newValue);
 			}
 		}
-		catch (SecurityException ex) {
-			throw new RuntimeException(ex);
-		}
-		catch (IllegalAccessException ex) {
-			throw new RuntimeException(ex);
-		}
-		catch (IllegalArgumentException ex) {
+		catch (SecurityException | IllegalAccessException | IllegalArgumentException ex) {
 			throw new RuntimeException(ex);
 		}
 	}

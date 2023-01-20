@@ -46,7 +46,7 @@ public class ServerFormLoginAuthenticationConverter implements Function<ServerWe
 	@Override
 	@Deprecated
 	public Mono<Authentication> apply(ServerWebExchange exchange) {
-		return exchange.getFormData().map((data) -> createAuthentication(data));
+		return exchange.getFormData().map(this::createAuthentication);
 	}
 
 	private UsernamePasswordAuthenticationToken createAuthentication(MultiValueMap<String, String> data) {

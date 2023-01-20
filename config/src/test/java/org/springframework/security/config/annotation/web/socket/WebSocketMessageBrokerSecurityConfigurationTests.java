@@ -627,9 +627,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		public boolean doHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
 			this.attributes = attributes;
-			if (wsHandler instanceof SockJsWebSocketHandler) {
+			if (wsHandler instanceof SockJsWebSocketHandler sockJs) {
 				// work around SPR-12716
-				SockJsWebSocketHandler sockJs = (SockJsWebSocketHandler) wsHandler;
 				WebSocketServerSockJsSession session = (WebSocketServerSockJsSession) ReflectionTestUtils
 						.getField(sockJs, "sockJsSession");
 				this.attributes = session.getAttributes();

@@ -31,7 +31,7 @@ public class SpringTestContextExtension implements BeforeEachCallback, AfterEach
 	@Override
 	public void afterEach(ExtensionContext context) throws Exception {
 		TestSecurityContextHolder.clearContext();
-		getContexts(context.getRequiredTestInstance()).forEach((springTestContext) -> springTestContext.close());
+		getContexts(context.getRequiredTestInstance()).forEach(SpringTestContext::close);
 	}
 
 	@Override
