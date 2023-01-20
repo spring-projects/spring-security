@@ -226,10 +226,9 @@ public final class AntPathRequestMatcher implements RequestMatcher, RequestVaria
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!(obj instanceof AntPathRequestMatcher)) {
+		if (!(obj instanceof AntPathRequestMatcher other)) {
 			return false;
 		}
-		AntPathRequestMatcher other = (AntPathRequestMatcher) obj;
 		return this.pattern.equals(other.pattern) && this.httpMethod == other.httpMethod
 				&& this.caseSensitive == other.caseSensitive;
 	}

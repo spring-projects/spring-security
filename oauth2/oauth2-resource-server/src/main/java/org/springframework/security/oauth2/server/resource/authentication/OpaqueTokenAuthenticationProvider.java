@@ -101,10 +101,9 @@ public final class OpaqueTokenAuthenticationProvider implements AuthenticationPr
 	 */
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		if (!(authentication instanceof BearerTokenAuthenticationToken)) {
+		if (!(authentication instanceof BearerTokenAuthenticationToken bearer)) {
 			return null;
 		}
-		BearerTokenAuthenticationToken bearer = (BearerTokenAuthenticationToken) authentication;
 		OAuth2AuthenticatedPrincipal principal = getOAuth2AuthenticatedPrincipal(bearer);
 		Authentication result = this.authenticationConverter.convert(bearer.getToken(), principal);
 		if (result == null) {

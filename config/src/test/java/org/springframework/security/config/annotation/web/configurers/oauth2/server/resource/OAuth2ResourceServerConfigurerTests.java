@@ -868,8 +868,7 @@ public class OAuth2ResourceServerConfigurerTests {
 		context.registerBean("decoderTwo", JwtDecoder.class, () -> decoder);
 		this.spring.context(context).autowire();
 		OAuth2ResourceServerConfigurer.JwtConfigurer jwtConfigurer = new OAuth2ResourceServerConfigurer(context).jwt();
-		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class)
-				.isThrownBy(() -> jwtConfigurer.getJwtDecoder());
+		assertThatExceptionOfType(NoUniqueBeanDefinitionException.class).isThrownBy(jwtConfigurer::getJwtDecoder);
 	}
 
 	@Test
@@ -1885,9 +1884,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.anyRequest().authenticated()
 				)
 				.oauth2Login(withDefaults())
-				.oauth2ResourceServer((oauth2) -> oauth2
-					.jwt()
-				);
+				.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
 			return http.build();
 			// @formatter:on
 		}

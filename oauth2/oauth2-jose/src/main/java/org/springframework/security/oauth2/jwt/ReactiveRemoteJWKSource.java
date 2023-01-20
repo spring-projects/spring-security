@@ -61,10 +61,10 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	public Mono<List<JWK>> get(JWKSelector jwkSelector) {
 		// @formatter:off
 		return this.cachedJWKSet.get()
-				.switchIfEmpty(Mono.defer(() -> getJWKSet()))
+				.switchIfEmpty(Mono.defer(this::getJWKSet))
 				.flatMap((jwkSet) -> get(jwkSelector, jwkSet))
 				.switchIfEmpty(Mono.defer(() -> getJWKSet()
-						.map((jwkSet) -> jwkSelector.select(jwkSet)))
+						.map(jwkSelector::select))
 				);
 		// @formatter:on
 	}

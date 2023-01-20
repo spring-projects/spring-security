@@ -160,10 +160,9 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 	 */
 	@Override
 	public Authentication authenticate(Authentication auth) throws AuthenticationException {
-		if (!(auth instanceof UsernamePasswordAuthenticationToken)) {
+		if (!(auth instanceof UsernamePasswordAuthenticationToken request)) {
 			return null;
 		}
-		UsernamePasswordAuthenticationToken request = (UsernamePasswordAuthenticationToken) auth;
 		Set<GrantedAuthority> authorities;
 		try {
 			// Create the LoginContext object, and pass our InternallCallbackHandler
@@ -233,8 +232,7 @@ public abstract class AbstractJaasAuthenticationProvider implements Authenticati
 		}
 		for (SecurityContext context : contexts) {
 			Authentication auth = context.getAuthentication();
-			if ((auth != null) && (auth instanceof JaasAuthenticationToken)) {
-				JaasAuthenticationToken token = (JaasAuthenticationToken) auth;
+			if ((auth instanceof JaasAuthenticationToken token)) {
 				try {
 					LoginContext loginContext = token.getLoginContext();
 					logout(token, loginContext);

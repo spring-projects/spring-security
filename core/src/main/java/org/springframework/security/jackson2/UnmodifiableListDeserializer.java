@@ -44,8 +44,7 @@ class UnmodifiableListDeserializer extends JsonDeserializer<List> {
 		JsonNode node = mapper.readTree(jp);
 		List<Object> result = new ArrayList<>();
 		if (node != null) {
-			if (node instanceof ArrayNode) {
-				ArrayNode arrayNode = (ArrayNode) node;
+			if (node instanceof ArrayNode arrayNode) {
 				for (JsonNode elementNode : arrayNode) {
 					result.add(mapper.readValue(elementNode.traverse(mapper), Object.class));
 				}

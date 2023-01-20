@@ -142,7 +142,7 @@ public class KeyBasedPersistenceTokenService implements TokenService, Initializi
 	}
 
 	private String computeServerSecretApplicableAt(long time) {
-		return this.serverSecret + ":" + new Long(time % this.serverInteger).intValue();
+		return this.serverSecret + ":" + Long.valueOf(time % this.serverInteger).intValue();
 	}
 
 	/**

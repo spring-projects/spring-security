@@ -48,7 +48,7 @@ public interface SecurityContextHolderStrategy {
 	 * @since 5.8
 	 */
 	default Supplier<SecurityContext> getDeferredContext() {
-		return () -> getContext();
+		return this::getContext;
 	}
 
 	/**

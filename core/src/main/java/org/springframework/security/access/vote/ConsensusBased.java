@@ -71,14 +71,9 @@ public class ConsensusBased extends AbstractAccessDecisionManager {
 		for (AccessDecisionVoter voter : getDecisionVoters()) {
 			int result = voter.vote(authentication, object, configAttributes);
 			switch (result) {
-			case AccessDecisionVoter.ACCESS_GRANTED:
-				grant++;
-				break;
-			case AccessDecisionVoter.ACCESS_DENIED:
-				deny++;
-				break;
-			default:
-				break;
+				case AccessDecisionVoter.ACCESS_GRANTED -> grant++;
+				case AccessDecisionVoter.ACCESS_DENIED -> deny++;
+				default -> { }
 			}
 		}
 		if (grant > deny) {

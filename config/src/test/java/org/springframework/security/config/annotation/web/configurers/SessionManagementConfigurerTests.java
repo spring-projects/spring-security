@@ -556,9 +556,7 @@ public class SessionManagementConfigurerTests {
 				.sessionManagement((sessionManagement) ->
 					sessionManagement
 						.requireExplicitAuthenticationStrategy(false)
-						.sessionFixation((sessionFixation) ->
-							sessionFixation.newSession()
-						)
+						.sessionFixation(SessionManagementConfigurer.SessionFixationConfigurer::newSession)
 				)
 				.httpBasic(withDefaults());
 			// @formatter:on
