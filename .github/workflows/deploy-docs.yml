@@ -8,6 +8,8 @@ on:
         required: false
   push:
     branches: docs-build
+env:
+  GRADLE_ENTERPRISE_SECRET_ACCESS_KEY: ${{ secrets.GRADLE_ENTERPRISE_SECRET_ACCESS_KEY }}
 permissions: read-all
 jobs:
   build:
