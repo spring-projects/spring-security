@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         # List of active maintenance branches.
-        branch: [ main, 6.0.x, 5.8.x, 5.7.x, 5.6.x ]
+        branch: [ main, 6.0.x, 5.8.x, 5.7.x ]
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
