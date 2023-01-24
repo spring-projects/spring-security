@@ -1,27 +1,69 @@
-= Spring Security Docs Build
+= Spring Security Docs Home
+ifndef::env-github[:toc:]
+ifdef::env-github[]
+:important-caption: :exclamation:
+:note-caption: :paperclip:
+endif::[]
 
-You're currently viewing the Antora playbook branch.
-The playbook branch hosts the docs build that is used to build and publish the production docs site.
-
-The Spring Security reference docs are built using https://antora.org[Antora].
-This README covers how to build the docs in a software branch as well as how to build the production docs site locally.
+This README describes the processes and tools used to build the documentation for production as well as how to generate a local preview of the documentation.
 
 == Overview
 
-To prepare your system for building the documentation, <<prerequisites,install the prerequisites>> and then <<build-main,create your workspace and build the main branch documentation>>.
-Once you've completed those steps, follow the instructions in <<build-branch,Build the 5.8.x branch documentation>> to learn how to build the documentation for a version branch you haven't previously checked out.
+The Spring Security reference docs are generated using Antora.
+The Gradle Antora Plugin is used as the primary interface to Antora.
 
-To build the production site documentation on your computer, follow the instructions in <<prerequisites,Prerequisites>>, <<build-main,Build the main branch documentation>>, and then <<build-production,Build the production documentation site>>.
+You're viewing the playbook branch for the Spring Security project.
+The playbook branch hosts the docs build used to build and publish the production docs site, and is thus the documentation home base.
+If you're a docs developer, you'll mostly work in this branch.
+If you're a writer, you'll mostly work in software branches.
+
+=== Layout
+
+The playbook branch, named *docs-build*, hosts the primary documentation build.
+The documentation itself is located in a dedicated subproject in each software branch (i.e., the docs are stored alongside the code).
+Software branches, also referred to as release line branches or content branches, follow the pattern `major.minor.x` (e.g., 6.0.x), or `main` for the latest release line.
+Software tags follow the pattern `major.minor.patch` (e.g., 6.0.1).
+The latest version of the docs for each release line is always sourced from a tag.
+The release line branches host the prerelease materials for the next version.
+
+=== Builds
+
+The build for the production site is stored at the root of the playbook branch.
+This branch also holds the search crawler configuration and runner for the production site.
+This build is only needed for building the production site (or for developing and testing the docs build itself).
+The build for each content branch is located in a subproject, typically the folder named _docs_.
+This is the build that authors use to preview the docs for a single version when writing content.
+
+Regardless of how the docs site is built, Antora is configured to run a separate command to compute the version of the docs per git reference.
+This command is run by an Antora extension named Antora Collector.
+Using Collector allows the version of the docs to be maintained centrally in the _gradle.properties_ file in each git reference.
+The command also populates a collection of AsciiDoc attributes that provide access to software versions and resource URLs.
+_The docs build will not work without Collector._
+
+=== UI
+
+The UI is developed in a separate project named https://github.com/spring-io/antora-ui-spring[antora-ui-spring].
+That project generates and publishes a UI bundle, which the docs build refers to using its public bundle URL.
+There is one UI for all versions of the documentation.
+
+The UI only shows the latest version in each release line.
+In order to access other versions that are published, the URL must be known in advance.
+
+[#usage]
+== Usage
+
+To prepare your system for building the documentation, <<prerequisites,install the prerequisites>>, then <<prepare-workspace,prepare your workspace>>.
+Then you can build the documentation in either the main branch or 6.0.x branch.
 
 .Branch checkout instead of worktrees
 [NOTE]
 ====
 If you prefer to set up your workspace without worktrees, complete the steps in <<prerequisites,Prerequisites>> and clone the project repository onto your computer.
-Then follow the instructions in each section starting from the `sdk env || sdk env install` step once you've checked out the desired branch.
+Then, check out the desired branch and follow the instructions in each section starting from the `sdk env || sdk env install` step.
 ====
 
 [#prerequisites]
-== Prerequisites (everyone)
+=== Prerequisites (everyone)
 
 These instructions assume you already have basic tools on your system, including bash, zip, unzip, git, and curl.
 In addition to these basic tools, you need https://sdkman.io/install[SDKMAN!] installed so that the correct JDK is set for each branch.
@@ -32,19 +74,19 @@ In addition to these basic tools, you need https://sdkman.io/install[SDKMAN!] in
  $ curl -s "https://get.sdkman.io" | bash
 
 This command downloads and installs SDKMAN!
-Once installation is complete, you should see a command displayed in your terminal that will initiate SDKMAN.
+Once installation is complete, you should see a command displayed in your terminal that will initiate SDKMAN!.
 --
 
 . Copy the command displayed in your terminal and run it.
-`$HOME` is the path unique to your computer (e.g., _home/my-jam/.sdkman/bin/sdkman-init.sh_).
+In the following command, `$HOME` is the path unique to your computer (e.g., _home/username/.sdkman/bin/sdkman-init.sh_).
 
  $ source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-You'll use SDKMAN in the next sections to install and switch to the JDK required for each branch.
-Now you're ready to <<build-main,create your workspace>>.
+You'll use SDKMAN! in the following sections to install and switch to the JDK required for each branch.
+Now you're ready to prepare your workspace.
 
-[#build-main]
-== Build the main branch documentation (writers)
+[#prepare-workspace]
+=== Prepare your workspace (everyone)
 
 Your workspace will be the folder that contains the git worktrees of the project.
 
@@ -53,18 +95,31 @@ Your workspace will be the folder that contains the git worktrees of the project
  $ mkdir spring-security
  $ cd spring-security
 
-. Clone the project repository and create the primary worktree for the main branch.
-Then change into the new _main_ folder.
+. Clone the project repository and create the worktree for the main branch.
+Then change into the new *main* worktree.
 
  $ git clone https://github.com/spring-projects/spring-security main
  $ cd main
 
-. Switch to the required JDK using SDKMAN by running the following command:
+. Set up a worktree for the 6.0.x branch by running the following commands:
+
+ $ git worktree add ../6.0.x 6.0.x --track
+
+. Repeat the last step for all release line branches (e.g., 5.8.x, 5.7.x, etc) you intend to work with.
+
+Now you're ready to build the docs in the main or 6.0.x branches.
+
+=== Build the documentation in the main branch (writers)
+
+NOTE: The instructions in this section assume you've completed the steps in <<prepare-workspace>>.
+
+. First, make sure you're in the *main* worktree.
+. Switch to the required JDK using SDKMAN! by running the following command:
 +
 --
  $ sdk env || sdk env install
 
-SDKMAN will switch to the required JDK or install it if it isn't present.
+SDKMAN! will switch to the required JDK, provisioning it first if it isn't already available on your machine.
 --
 
 . Generate the documentation with Antora using the following command:
@@ -72,50 +127,58 @@ SDKMAN will switch to the required JDK or install it if it isn't present.
 --
  $ ./gradlew -PbuildSrc.skipTests=true :spring-security-docs:antora
 
-This command will build the documentation, including any generated attributes, for the main branch.
+You can also run this command directly from the _docs_ folder:
+
+ $ cd docs
+ $ ../gradlew -PbuildSrc.skipTests=true antora
+
+This command will build the documentation for the *main* branch.
+The Antora playbook is retrieved by the playbook provider from the *docs-build* branch.
+The retrieved playbook file will be cached as _cached-antora-playbook.yml_.
 --
 
-. Navigate to _$HOME/spring-security/main/docs/build/site/index.html_ to view the generated documentation.
+. Navigate to the local file URI shown in the terminal to view the generated documentation.
 
-[#build-branch]
-== Build the 5.8.x branch documentation (writers)
+=== Build the documentation in the 6.0.x branch (writers)
 
-NOTE: The instructions in this section assume you've completed the steps in the <<build-main,previous section>>.
+NOTE: The instructions in this section assume you've completed the steps in <<prepare-workspace>>.
 
-After creating the worktree for the main branch, you can set up a worktree for any other branches you'll work on in the future.
-In this section, you'll create a worktree for the 5.8.x branch in your project workspace.
+. First, change to the *6.0.x* worktree.
 
-. To add a worktree, you have to be in a worktree.
-In your terminal, change to the _main_ folder if you aren't already in it, e.g., _$HOME/spring-security/main_.
-Set up a worktree for the 5.8.x branch and then change into the new directory by running the following commands:
+ $ cd ../6.0.x
 
- $ git worktree add ../5.8.x 5.8.x --track
- $ cd ../5.8.x
-
-. Switch to the required JDK or install it.
-
+. Switch to the required JDK using SDKMAN! by running the following command:
++
+--
  $ sdk env || sdk env install
+
+SDKMAN! will switch to the required JDK, provisioning it first if it isn't already available on your machine.
+--
 
 . Generate the documentation with the following command:
 +
 --
  $ ./gradlew -PbuildSrc.skipTests=true :spring-security-docs:antora
 
-This command will build the documentation, including any generated attributes, for the 5.8.x branch.
+This command will build the documentation for the *6.0.x* branch.
+The Antora playbook is retrieved by the playbook provider from the *docs-build* branch.
+The retrieved playbook file will be cached as _cached-antora-playbook.yml_.
 --
 
-. Navigate to _$HOME/spring-security/5.8.x/docs/build/site/index.html_ to view the generated documentation.
+. Navigate to the local file URI shown in the terminal to view the generated documentation.
 
-[#build-production]
-== Build the production documentation site (docs manager)
+=== Build the documentation for production (docs developer)
 
-NOTE: The instructions in this section assume you've <<build-main,prepared your workspace and created the worktree for the main branch>>.
+NOTE: The instructions in this section assume you've completed the steps in <<prepare-workspace>>.
 
-To build the project's production site, you'll set up a worktree for the docs-build branch of the repository.
+To build the project's production site, you'll set up a worktree for the *docs-build* branch of the repository.
 
-. To add a worktree, you have to be in a worktree.
-In your terminal, change to the _main_ folder if you aren't already in it, e.g., _$HOME/spring-security/main_.
-Run the following command to set up the worktree for the _docs-build_ branch.
+. To add a worktree, you have to be in the main worktree.
+In your terminal, change to the *main* worktree if you aren't already in it.
+
+ $ cd ../main
+
+. Run the following command to set up the worktree for the *docs-build* branch.
 Then change into the new _docs-build_ directory.
 
  $ git worktree add ../docs-build docs-build --track
@@ -130,37 +193,286 @@ Then change into the new _docs-build_ directory.
 --
  $ ./gradlew antora
 
-This command will build all of the documentation included in the project's production site from the repository on GitHub.
+This command will build all of the documentation for the production site from the git repository on GitHub.
 
-To build the documentation from the current clone, using any worktrees that are available, use the following command instead:
+(Optional) To build the documentation using the current clone, using any available worktrees, run the following command instead:
 
  $ ./gradlew antora --playbook local-antora-playbook.yml
 --
 
-. Navigate to _$HOME/spring-security/docs-site/build/site/index.html_ to view the generated documentation.
+. Navigate to the local file URI shown in the terminal to view the generated documentation.
+
+=== Content authoring
+
+We highly recommend relying on the https://intellij-asciidoc-plugin.ahus1.de/docs/users-guide/index.html[IntelliJ AsciiDoc Plugin] while writing.
+It provides assistance and autocompletion for the AsciiDoc syntax, Antora resource IDs, attributes and keys set in the playbook, component version descriptor, etc.
+It also provides single page preview.
+
+Once you've completed your edits, you'll build the branch locally to review and validate the changes.
+*You don't need to build the entire site!*
+*You don't need to create or edit the playbook or gradle.properties file either.*
+Rather, you'll interface with the docs build, and it will automatically set up a playbook for your branch and manage any required extensions, right from the docs subproject in your software (content) branch.
+See <<usage>> to learn how to build the docs.
+
+If the branch you modified has any AsciiDoc or Antora errors, they'll be printed to your terminal.
+Once you've fixed any errors and reviewed your changes, submit a pull request to the relevant software branch.
+If the change applies to multiple versions of the docs, you'll want to submit the pull request to the oldest active software branch.
+The maintainer will then apply that change to each of the release line branches.
+
+== CI workflows
+
+CI workflows are run by GitHub Actions.
+CI workflows are defined in YAML files in the _.github/workflows_ directory.
+The CI workflows in the default (i.e., _main_) branch serve as the primary entry.
+Corresponding CI workflows in a non-default branch may specialize the workflow for that branch.
+However, the CI workflows in non-default branches do not receive all events and often have to be triggered.
+A CI workflow must also be present in the default branch in order for it to appear in the list of workflows in the GitHub Actions web UI.
+
+CI workflows are triggered either by activity, on schedule, by the `gh workflow` call, or manually through the GitHub Actions web UI.
+Scheduled workflows only run on the default branch (i.e., *main*).
+However, a scheduled workflow may trigger a workflow in another branch using the `gh workflow` call.
+Activity on a branch or tag is only picked up by workflows in that reference.
+However, a workflow running in a branch or tag may trigger a workflow in another branch using the `gh workflow` call.
+
+There are two key CI workflows that pertain to the docs:
+
+* Deploy Docs (_.github/workflows/deploy-docs.yml_)
+* Rebuild Search Index (_.github/workflows/rebuild-search-index.yml_)
+
+In both cases, the concrete steps are located in the CI workflow in the *docs-build* branch.
+The CI workflows in the *main* branch only trigger the workflows in the *docs-build* branch.
+
+The production site is only deployed from the CI workflow in the *docs-build* branch.
+Often times, activity in a git reference or a scheduled workflow will trigger the CI workflow in the *docs-build* branch.
+Thus, this workflow is also present in each software branch to pick up on that activity.
+
+The production search index is built from the CI workflow in the *docs-build* branch.
+This CI workflow is triggered once per day by the scheduler on the same workflow in the *main* branch.
+This CI workflow must reside in the *main* branch in order to appear in the list of workflows in the CI branch so it can be triggered manually.
+
+Here's a list of activity that does and does not trigger the Deploy Docs workflow:
+
+pull request:: Does not trigger the Deploy Docs workflow.
+
+push to software branch:: Triggers the Deploy Docs workflow in that branch, which in turn triggers the Deploy Docs workflow in the *docs-build* branch.
+Attempts to run the docs build as partial build, if applicable.
+
+push to docs-build branch:: Triggers the Deploy Docs workflow in that branch.
+Runs the docs build as a full build.
+
+push tag:: Triggers the Deploy Docs workflow in that tag, which in turn triggers the Deploy Docs workflow in the *docs-build* branch.
+Always runs the docs build as a full build.
+
+schedule:: Not configured for the Deploy Docs workflow.
+
+It's possible to trigger the Deploy Docs manually from the GitHub Actions web UI.
+Be sure to select docs-build as the branch so that it will run a full build.
+See <<trigger>> for details.
+
+Note that updating the UI bundle does not currently trigger the Deploy Docs workflow, though it could be configured to do so.
+
+The Rebuild Search Index workflow is only triggered on a schedule, currently once per day.
+
+== Publishing
+
+The project in the *docs-build* branch supports publishing both full and partial builds of the production docs site.
+The project uses a Gradle build to run Antora on the playbook file _antora-playbook.yml_ (i.e., `./gradlew antora`).
+The production docs site is hosted on Linux server running Apache httpd.
+Files are published over SSH to the server by the .github/actions/publish-docs.sh script.
+A CDN (CloudFlare) caches URLs for a brief window of time.
+The publish script attempts to invalidate the cache after publishing the files so new content is available immediately.
+
+=== Full build
+
+In a full build, the entire site is rebuilt from the content sources matched by the patterns listed in the playbook file.
+The UI assets are also published when a full build is run.
+
+[#partial-builds]
+=== Partial builds
+
+A partial build is a single version sources from a single git reference.
+A partial build requested by git reference using the CI workflow variable *build-refname*.
+Here's an example of how to trigger the CI workflow for a partial build:
+
+ $ gh workflow run deploy-docs.yml --repo spring-projects/spring-security --ref docs-build -f build-refname=5.7.x
+
+The partial build is coordinated by the Antora Atlas extension and set up by the @springio/antora-extensions/partial-build-extension extension.
+See https://github.com/spring-io/antora-extensions#partial-build[Partial Build] for a detailed explanation of the partial build extension and how to configure it.
+
+During a partial build, Atlas runs in same site mode, which means it creates relative links (rather than absolute links) to files imported from the site manifest.
+This feature assumes that the built files will be reunited with the previously built files in the published site.
+The @springio/antora-extensions/partial-build-extension reconfigures the playbook to run a partial build if the BUILD_REFNAME environment variable is set, reverting to a full build if it determines a partial build is not appropriate.
+
+During a partial build, only the version folder that was built is published to the web server.
+Files in other folders are untouched.
+The UI assets are not published when a partial build is run.
 
 [#trigger]
-== Trigger the documentation build workflow (docs manager)
+=== Trigger the documentation build workflow (docs developer)
 
-You can either trigger the production document build using the Deploy Docs entry in the GitHub Actions web UI or using the https://cli.github.com/[GitHub CLI].
+You can trigger the production document build using the Deploy Docs entry in the GitHub Actions web UI or using the https://cli.github.com/[GitHub CLI].
 
-=== GitHub Actions web UI
+==== GitHub Actions web UI
 
-In the GitHub Actions web UI, click the Deploy Docs entry.
-Click on the "Run workflow" menu.
-Select the branch `docs-build` and click "Run workflow" to trigger a full build.
-To trigger a partial build, specify a release line branch name in the input field labeled "Enter git refname to build".
+. In the GitHub Actions web UI, click the Deploy Docs entry.
+. Click on the "Run workflow" menu.
+.. *To trigger full build*, select the *docs-build* branch and click "Run workflow".
+.. *To trigger a partial build*, specify a release line branch name in the input field labeled "Enter git refname to build" and click "Run workflow".
 
-=== GitHub CLI
+==== GitHub CLI
 
-Starting from within the cloned repository (ideally the playbook branch), here's how to trigger a full build of the documentation site using the `gh` command:
+*To trigger full build*, start from within the cloned repository (ideally the playbook branch) and enter the `gh` command and options in the GitHub CLI:
 
  $ gh workflow run deploy-docs.yml --ref docs-build
 
-Here's how to trigger a partial build of a single version (based on the release line branch name):
+*To trigger a partial build*, enter the `gh` command and options to build a single version (based on the release line branch name):
 
  $ gh workflow run deploy-docs.yml --ref docs-build -f build-refname=5.7.x
 
 Run `gh help workflow run` to show the docs for this command and other examples of how to use it.
 
 If you're not running the `gh` command from within the cloned repository, you can specify the repository using the `--repo` CLI option (e.g., `--repo spring-projects/spring-security`).
+
+== Extensions
+
+The Spring Security docs have additional requirements above what Antora provides by default.
+To fulfill these requirements, the docs build employs a handful of Antora and Asciidoctor extensions to build successfully.
+You can't build the Spring Security docs using the base distribution of Antora.
+Fortunately, this extra complexity is encapsulated in the Antora playbook and several distributed extensions.
+
+IMPORTANT: The order of Antora extensions in the playbook matters.
+If the order is changed, it could result in files or metadata that an extension relies on not being available at the time it runs.
+
+For the most part, the extensions are retrieved from the npm package registry (npmjs.com).
+There are also several local extensions in _lib/antora/extensions_.
+The local extensions handle logic specific to this project and are only used for the production build.
+
+Below is a summary of the Antora and Asciidoctor extensions used in the docs build.
+
+=== Antora extensions
+
+@springio/antora-extensions/partial-build-extension (prod only):: Configures a partial build, when requested, by setting the `primary-site-url` and `primary-site-manifest-url` AsciiDoc attributes.
+See <<partial-builds>> for more information.
+./lib/antora/extensions/inject-collector-config.js (prod only):: Injects configuration for Antora Collector into tags that predated Antora Collector being introduced.
+See the next extension for details.
+@antora/collector-extension:: Invokes a command (a Gradle task) to set the docs version from _gradle.properties_ and numerous AsciiDoc attributes that provide access to software versions and resource URLs.
+The command that Antora Collector runs is essential for Antora to classify the docs properly.
+./lib/antora/extensions/version-fix.js (prod only):: Fixes invalid metadata in _antora.yml_ and/or _gradle.properties_ in tags.
+@antora/atlas-extension (prod only):: Generates the site manifest (_site-manifest.json_) and publishes it with the site.
+Also coordinates the partial build when requested.
+See <<partial-builds>> for details.
+@opendevise/antora-release-line-extension:: Abbreviates the version segment (in the URL) of the latest version in each release line from major.minor.patch to major.minor.
+The version segment of the latest overall version is still abbreviated to empty string by Antora.
+@springio/antora-extensions/tabs-migration-extension:: Migrates the tabs syntax from Spring Tabs to Asciidoctor Tabs.
+See <<tabs-migration>> for details.
+./lib/antora/extensions/publish-docsearch-config.js (prod only):: Publishes the docsearch config file to the production site so the indexer can use it.
+See <<search>> for details.
+
+=== Asciidoctor extensions
+
+@asciidoctor/tabs:: Enables the tabs block in AsciiDoc.
+See <<tabs-migration>> and the https://github.com/asciidoctor/asciidoctor-tabs[Asciidoctor Tabs README] for details.
+@springio/asciidoctor-extensions (prod only):: Provides various enhancements to the output generated by Asciidoctor, mostly around code blocks.
+See https://github.com/spring-io/asciidoctor-extensions[Spring.io Asciidoctor Extensions] for an inventory of extensions and how to activate and configure them.
+
+[#tabs-migration]
+== Tabs migration
+
+The Spring Security docs contain two variations of the tabs syntax, https://github.com/spring-io/spring-asciidoctor-backends#tabs[Spring Tabs] and https://github.com/asciidoctor/asciidoctor-tabs[Asciidoctor Tabs].
+Moving forward, Asciidoctor Tabs is the syntax that should be used.
+However, since the Spring Security docs include content from tags that were written before Asciidoctor Tabs was introduced, the docs build must still be able to process the Spring Tabs syntax where it is used.
+
+When the docs build runs, the Spring Tabs are automatically converted to Asciidoctor Tabs by the @springio/antora-extensions/tabs-migration-extension extension.
+Spring Tabs are never in the final output (unless the tabs migration extension is switched off).
+This extension also has the ability to unwrap the example block that encloses adjacent tabs, when possible, so only the tabs block remains.
+If Spring Tabs are not detected in a document, the migration will not run on that document.
+See https://github.com/spring-io/antora-extensions#tabs-migration[Tabs Migration] for a detailed explanation of this extension and how to configure it.
+
+For the Spring Security docs, the tabs migration will always have to be used as long as there are tags in the build that contain Spring Tabs.
+However, to reduce the amount of work the tabs migration extension has to do, the migration should be made permanent where possible.
+Thus, we recommend making the migration permanent in release line branches that are active, and thus all future tags.
+
+Saving the result of the tabs migration is done one software branch at a time.
+To start, switch to a branch and run the docs build in that branch (this will retrieve the Antora playbook).
+Next, edit the _cached-antora-playbook.yml_ file and add `save: true` underneath the key `unwrap_example_block`.
+This setting will save the migrated files back to their original location under the _docs_ folder.
+Run the docs build in that branch again to apply the tabs migration.
+Now commit the changed files.
+Once that's done, the tabs migration won't have to run on any documents in that branch.
+
+[#search]
+== Search
+
+The search component in the docs site is powered by Algolia DocSearch (specifically 2.6).
+DocSearch is a documentation-oriented toolchain for using Algolia's search solution.
+It provides both a crawler (aka scraper or indexer) and a search interface.
+The search index is hosted on the Algolia platform and queried from the search interface via a web API.
+
+=== Client
+
+The search interface is integrated into the UI bundle and initialized when the page loads.
+The search interface is configured using a collection of environment variables: `ALGOLIA_API_KEY`, `ALGOLIA_APP_ID`, and `ALGOLIA_INDEX_NAME`.
+For now, these environment variables are defined in _build.gradle_ for the production build.
+The search interface is only activated when all of these values are set.
+
+NOTE: The docsearch.js 2.6 package is marked as deprecated in npmjs.com.
+However, the new client (@docsearch/js 3.x) has a completely different interaction model and search result display that's not compatible with customized client adapter currently in use.
+In other words, switching to it means developing the customizations from scratch.
+Even if that were to be done, the way the new client displays search results is over simplified.
+The search results provided by docsearch.js 2.6 have proven to be clearer and easier to comprehend.
+
+=== Crawler
+
+The search index is created by the crawler component of DocSearch.
+There are two steps involved.
+First, the crawler must be configured.
+Second, the crawler must be run with that configuration.
+
+==== Configure
+
+The behavior of the crawler is configured by a file name _docsearch-config.json_.
+However, this file is not stored directly in the playbook branch.
+Rather, it's generated from a template to account for the versions in the published site.
+
+The generation of the _docsearch-config.js_ file happens during the production build.
+This file is generated by the Antora extension _lib/antora/extensions/publish-docsearch-config.js_.
+The extension generates a docsearch config so that docsearch indexes the latest version in each release line.
+To do so, the extension configures Handlebars to run using a model derived from information in Antora's content catalog.
+It then evaluates the template at _.github/actions/docsearch-config.json.hbs_ to produce a file at the root of the generated site named _docsearch-config.js_.
+That file is published as part of the site.
+
+==== Run
+
+The crawler is periodically run on the production site by the *Rebuild Search Index* workflow.
+The crawler creates a fresh search index and replaces the previous one.
+The name of the index is *spring-security-docs*.
+
+When the crawler runs, it downloads the _docsearch-config.json_ file from the production site and runs the docsearch action on it.
+
+NOTE: The crawler only needs to be run on files that are publicly accessible, so it makes sense that the configuration be located there too.
+
+In order to publish the search records (and thus create the index), the crawler must be configured using a collection of variables: `ALGOLIA_APPLICATION_ID` and `ALGOLIA_WRITE_KEY`.
+These variables must be configured as secrets in GitHub Actions.
+The index name is not required here as it is stored in the docsearch config file.
+
+
+
+== Maintenance
+
+The docs build requires regular maintenance.
+Here's an inventory of the files or software versions to check and keep up to date.
+
+.Playbook branch (i.e., *docs-build*)
+* Gradle Antora Plugin (_build.gradle_)
+* GitHub Actions libraries (_.github/workflows/deploy-docs.yml_, _.github/workflows/rebuild-search-index.yml_)
+* Java version (_.sdkmanrc_)
+* Node.js packages (_build.gradle_ and _lib/antora/templates/per-branch-antora-playbook.yml_)
+* Gradle Wrapper (_gradle/wrapper/gradle-wrapper.properties_)
+* Content sources in playbook (_antora-playbook.yml_ and _local-antora-playbook.yml_; ideally use patterns to minimize maintenance)
+* List of registered extensions (_antora-playbook.yml_, _local-antora-playbook.yml_, and _lib/antora/templates/per-branch-antora-playbook.yml_)
+
+.Content branches (e.g., *6.0.x*)
+* Gradle Antora Plugin (_docs/spring-security-docs.gradle_)
+* GitHub Actions libraries (_.github/workflows/deploy-docs.yml_, _.github/workflows/rebuild-search-index.yml_)
+
+Recall that the playbook used for the local docs preview in content branches is maintained in the *docs-build* branch in _lib/antora/templates/per-branch-antora-playbook.yml_.
