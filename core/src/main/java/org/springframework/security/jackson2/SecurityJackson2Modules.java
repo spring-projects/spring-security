@@ -204,10 +204,12 @@ public final class SecurityJackson2Modules {
 		static {
 			Set<String> names = new HashSet<>();
 			names.add("java.util.ArrayList");
+			names.add("java.util.Collections$EmptySet");
 			names.add("java.util.Collections$EmptyList");
 			names.add("java.util.Collections$EmptyMap");
 			names.add("java.util.Collections$UnmodifiableRandomAccessList");
 			names.add("java.util.Collections$SingletonList");
+			names.add("java.lang.Long");
 			names.add("java.util.Date");
 			names.add("java.time.Instant");
 			names.add("java.net.URL");
