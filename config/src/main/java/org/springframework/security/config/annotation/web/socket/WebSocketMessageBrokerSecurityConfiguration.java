@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ import org.springframework.security.messaging.access.intercept.AuthorizationChan
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.messaging.context.AuthenticationPrincipalArgumentResolver;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
-import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.messaging.web.socket.server.CsrfTokenHandshakeInterceptor;
 import org.springframework.util.Assert;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
@@ -59,6 +59,8 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	private static final String SIMPLE_URL_HANDLER_MAPPING_BEAN_NAME = "stompWebSocketHandlerMapping";
 
+	private static final String CSRF_CHANNEL_INTERCEPTOR_BEAN_NAME = "csrfChannelInterceptor";
+
 	private MessageMatcherDelegatingAuthorizationManager b;
 
 	private static final AuthorizationManager<Message<?>> ANY_MESSAGE_AUTHENTICATED = MessageMatcherDelegatingAuthorizationManager
@@ -69,7 +71,7 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	private final SecurityContextChannelInterceptor securityContextChannelInterceptor = new SecurityContextChannelInterceptor();
 
-	private final ChannelInterceptor csrfChannelInterceptor = new CsrfChannelInterceptor();
+	private ChannelInterceptor csrfChannelInterceptor = new XorCsrfChannelInterceptor();
 
 	private AuthorizationManager<Message<?>> authorizationManager = ANY_MESSAGE_AUTHENTICATED;
 
@@ -90,6 +92,12 @@ final class WebSocketMessageBrokerSecurityConfiguration
 
 	@Override
 	public void configureClientInboundChannel(ChannelRegistration registration) {
+		ChannelInterceptor csrfChannelInterceptor = getBeanOrNull(CSRF_CHANNEL_INTERCEPTOR_BEAN_NAME,
+				ChannelInterceptor.class);
+		if (csrfChannelInterceptor != null) {
+			this.csrfChannelInterceptor = csrfChannelInterceptor;
+		}
+
 		AuthorizationManager<Message<?>> manager = this.authorizationManager;
 		if (!this.observationRegistry.isNoop()) {
 			manager = new ObservationAuthorizationManager<>(this.observationRegistry, manager);
