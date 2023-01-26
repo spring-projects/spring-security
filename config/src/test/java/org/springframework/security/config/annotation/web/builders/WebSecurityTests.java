@@ -122,6 +122,16 @@ public class WebSecurityTests {
 		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
 	}
 
+	// gh-12548
+	@Test
+	public void requestRejectedHandlerInvokedWhenOperationalObservationRegistry() throws ServletException, IOException {
+		loadConfig(ObservationRegistryConfig.class);
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/\u0019path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+	}
+
 	@Test
 	public void ignoringMvcMatcherServletPath() throws Exception {
 		loadConfig(MvcMatcherServletPathConfig.class, LegacyMvcMatchingConfig.class);
