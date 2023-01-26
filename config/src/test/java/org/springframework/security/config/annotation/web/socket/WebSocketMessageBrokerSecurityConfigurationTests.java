@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ import org.springframework.security.messaging.context.SecurityContextChannelInte
 import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -91,6 +92,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 public class WebSocketMessageBrokerSecurityConfigurationTests {
 
@@ -366,7 +368,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
-		assertThat(handshakeHandler.attributes.get(CsrfToken.class.getName())).isSameAs(this.token);
+		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
 		assertThat(handshakeHandler.attributes.get(this.sessionAttr))
 				.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
 	}
@@ -388,7 +390,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		request.setAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE, "/289/tpyx6mde/websocket");
 		request.setRequestURI(mapping + "/289/tpyx6mde/websocket");
 		request.getSession().setAttribute(this.sessionAttr, "sessionValue");
-		request.setAttribute(CsrfToken.class.getName(), this.token);
+		request.setAttribute(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token));
 		return request;
 	}
 

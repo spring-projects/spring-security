@@ -107,6 +107,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		DeferredCsrfToken deferredCsrfToken = this.tokenRepository.loadDeferredToken(request, response);
+		request.setAttribute(DeferredCsrfToken.class.getName(), deferredCsrfToken);
 		this.requestHandler.handle(request, response, deferredCsrfToken::get);
 		if (!this.requireCsrfProtectionMatcher.matches(request)) {
 			if (this.logger.isTraceEnabled()) {
