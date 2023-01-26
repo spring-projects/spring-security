@@ -5,6 +5,7 @@
 * xref:migration/index.adoc[Migrating to 6.0]
 ** xref:migration/servlet/index.adoc[Servlet Migrations]
 *** xref:migration/servlet/session-management.adoc[Session Management]
+*** xref:migration/servlet/exploits.adoc[Exploit Protection]
 *** xref:migration/servlet/authentication.adoc[Authentication]
 *** xref:migration/servlet/authorization.adoc[Authorization]
 ** xref:migration/reactive.adoc[Reactive Migrations]
