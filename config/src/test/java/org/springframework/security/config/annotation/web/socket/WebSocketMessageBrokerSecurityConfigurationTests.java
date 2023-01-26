@@ -66,7 +66,7 @@ import org.springframework.security.messaging.access.intercept.AuthorizationChan
 import org.springframework.security.messaging.access.intercept.MessageAuthorizationContext;
 import org.springframework.security.messaging.access.intercept.MessageMatcherDelegatingAuthorizationManager;
 import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
-import org.springframework.security.messaging.web.csrf.CsrfChannelInterceptor;
+import org.springframework.security.messaging.web.csrf.XorCsrfChannelInterceptor;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.security.web.csrf.DeferredCsrfToken;
@@ -95,6 +95,8 @@ import static org.mockito.Mockito.verify;
 import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 
 public class WebSocketMessageBrokerSecurityConfigurationTests {
+
+	private static final String XOR_CSRF_TOKEN_VALUE = "wpe7zB62-NCpcA==";
 
 	AnnotationConfigWebApplicationContext context;
 
@@ -198,7 +200,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		MessageChannel messageChannel = clientInboundChannel();
 		Stream<Class<? extends ChannelInterceptor>> interceptors = ((AbstractMessageChannel) messageChannel)
 				.getInterceptors().stream().map(ChannelInterceptor::getClass);
-		assertThat(interceptors).contains(CsrfChannelInterceptor.class);
+		assertThat(interceptors).contains(XorCsrfChannelInterceptor.class);
 	}
 
 	@Test
@@ -238,7 +240,7 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 	public void messagesContextWebSocketUseSecurityContextHolderStrategy() {
 		loadConfig(WebSocketSecurityConfig.class, SecurityContextChangedListenerConfig.class);
 		SimpMessageHeaderAccessor headers = SimpMessageHeaderAccessor.create(SimpMessageType.CONNECT);
-		headers.setNativeHeader(this.token.getHeaderName(), this.token.getToken());
+		headers.setNativeHeader(this.token.getHeaderName(), XOR_CSRF_TOKEN_VALUE);
 		Message<?> message = message(headers, "/authenticated");
 		headers.getSessionAttributes().put(CsrfToken.class.getName(), this.token);
 		MessageChannel messageChannel = clientInboundChannel();
