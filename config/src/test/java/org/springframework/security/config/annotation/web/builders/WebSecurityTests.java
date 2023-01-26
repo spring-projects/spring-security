@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.web.builders;
 
 import java.io.IOException;
 
+import io.micrometer.observation.ObservationRegistry;
+import io.micrometer.observation.ObservationTextPublisher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
@@ -104,6 +106,15 @@ public class WebSecurityTests {
 
 	@Test
 	public void requestRejectedHandlerInvoked() throws ServletException, IOException {
+		loadConfig(DefaultConfig.class);
+		this.request.setServletPath("/spring");
+		this.request.setRequestURI("/spring/\u0019path");
+		this.springSecurityFilterChain.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getStatus()).isEqualTo(HttpServletResponse.SC_BAD_REQUEST);
+	}
+
+	@Test
+	public void customRequestRejectedHandlerInvoked() throws ServletException, IOException {
 		loadConfig(RequestRejectedHandlerConfig.class);
 		this.request.setServletPath("/spring");
 		this.request.setRequestURI("/spring/\u0019path");
@@ -141,6 +152,11 @@ public class WebSecurityTests {
 		this.context.setServletContext(new MockServletContext());
 		this.context.refresh();
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
+	}
+
+	@EnableWebSecurity
+	static class DefaultConfig {
+
 	}
 
 	@EnableWebSecurity
@@ -239,6 +255,19 @@ public class WebSecurityTests {
 		WebSecurityCustomizer webSecurityCustomizer() {
 			return (web) -> web
 					.requestRejectedHandler(new HttpStatusRequestRejectedHandler(HttpStatus.BAD_REQUEST.value()));
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ObservationRegistryConfig {
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			ObservationRegistry observationRegistry = ObservationRegistry.create();
+			observationRegistry.observationConfig().observationHandler(new ObservationTextPublisher());
+			return observationRegistry;
 		}
 
 	}
