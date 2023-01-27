@@ -1,10 +1,6 @@
 plugins {
 	id 'base'
-	id 'org.antora' version '1.0.0-alpha.7'
-}
-
-node {
-	version = '19.4.0'
+	id 'org.antora' version '1.0.0'
 }
 
 antora {
