@@ -1,5 +1,5 @@
 plugins {
-	id 'org.antora' version '1.0.0-alpha.7'
+	id 'org.antora' version '1.0.0'
 	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
 }
 
