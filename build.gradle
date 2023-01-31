@@ -11,12 +11,13 @@ antora {
 		'ALGOLIA_APP_ID': '244V8V9FGG',
 		'ALGOLIA_INDEX_NAME': 'spring-security-docs',
 	]
+	// NOTE remember to update the versions in lib/antora/templates/per-branch-antora-playbook.yml as well
 	dependencies = [
 		'@antora/atlas-extension': '1.0.0-alpha.1',
 		'@antora/collector-extension': '1.0.0-alpha.3',
-		'@asciidoctor/tabs': '1.0.0-alpha.12',
-		'@opendevise/antora-release-line-extension': '1.0.0-alpha.2',
-		'@springio/antora-extensions': '1.0.0-alpha.2',
+		'@asciidoctor/tabs': '1.0.0-beta.3',
+		'@opendevise/antora-release-line-extension': '1.0.0',
+		'@springio/antora-extensions': '1.0.0',
 		'@springio/asciidoctor-extensions': '1.0.0-alpha.8',
 	]
 }

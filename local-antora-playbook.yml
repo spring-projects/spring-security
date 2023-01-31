@@ -4,7 +4,7 @@ antora:
   - '@antora/collector-extension'
   - ./lib/antora/extensions/version-fix.js
   - '@opendevise/antora-release-line-extension'
-  - require: '@springio/asciidoctor-extensions/tabs-migration-antora-extension'
+  - require: '@springio/antora-extensions/tabs-migration-extension'
     # uncomment this option to save the migrated content to the worktree
     #save_result: true
     unwrap_example_block: always
