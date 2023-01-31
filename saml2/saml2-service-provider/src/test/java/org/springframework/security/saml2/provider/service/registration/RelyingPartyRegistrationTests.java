@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public class RelyingPartyRegistrationTests {
 	public void withRelyingPartyRegistrationWorks() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
 				.nameIdFormat("format")
+				.authnRequestsSigned(true)
 				.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 				.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
 				.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
@@ -82,6 +83,7 @@ public class RelyingPartyRegistrationTests {
 		assertThat(copy.getAssertingPartyDetails().getSigningAlgorithms())
 				.isEqualTo(registration.getAssertingPartyDetails().getSigningAlgorithms());
 		assertThat(copy.getNameIdFormat()).isEqualTo(registration.getNameIdFormat());
+		assertThat(copy.isAuthnRequestsSigned()).isEqualTo(registration.isAuthnRequestsSigned());
 	}
 
 	@Test

@@ -86,6 +86,8 @@ public class RelyingPartyRegistration {
 
 	private final String nameIdFormat;
 
+	private final boolean authnRequestsSigned;
+
 	private final AssertingPartyDetails assertingPartyDetails;
 
 	private final Collection<Saml2X509Credential> decryptionX509Credentials;
@@ -95,7 +97,7 @@ public class RelyingPartyRegistration {
 	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
-			AssertingPartyDetails assertingPartyDetails, String nameIdFormat,
+			AssertingPartyDetails assertingPartyDetails, String nameIdFormat, boolean authnRequestsSigned,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
@@ -124,6 +126,7 @@ public class RelyingPartyRegistration {
 		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
 		this.nameIdFormat = nameIdFormat;
+		this.authnRequestsSigned = authnRequestsSigned;
 		this.assertingPartyDetails = assertingPartyDetails;
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
 		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
@@ -282,6 +285,15 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
+	 * Get the WantAuthnRequestsSigned setting
+	 * @return the WantAuthnRequestsSigned setting
+	 * @since 6.0
+	 */
+	public boolean isAuthnRequestsSigned() {
+		return authnRequestsSigned;
+	}
+
+	/**
 	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated
 	 * with this relying party
 	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s
@@ -357,6 +369,7 @@ public class RelyingPartyRegistration {
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
 				.nameIdFormat(registration.getNameIdFormat())
+				.authnRequestsSigned(registration.isAuthnRequestsSigned())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -788,6 +801,8 @@ public class RelyingPartyRegistration {
 
 		private String nameIdFormat = null;
 
+		private boolean authnRequestsSigned = false;
+
 		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder;
 
 		protected Builder(String registrationId, AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
@@ -975,6 +990,17 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
+		 * Set the AuthnRequestsSigned setting
+		 * @param authnRequestsSigned
+		 * @return the {@link Builder} for further configuration
+		 * @since 6.0
+		 */
+		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
+			this.authnRequestsSigned = authnRequestsSigned;
+			return this;
+		}
+
+		/**
 		 * Apply this {@link Consumer} to further configure the Asserting Party details
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
@@ -1003,8 +1029,8 @@ public class RelyingPartyRegistration {
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBindings, party, this.nameIdFormat, this.decryptionX509Credentials,
-					this.signingX509Credentials);
+					this.singleLogoutServiceBindings, party, this.nameIdFormat, this.authnRequestsSigned,
+					this.decryptionX509Credentials, this.signingX509Credentials);
 		}
 
 	}
