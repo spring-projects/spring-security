@@ -46,7 +46,7 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * 	&#064;Bean
  * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
- * 		http.authorizeRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
+ * 		http.authorizeHttpRequests().requestMatchers(&quot;/public/**&quot;).permitAll().anyRequest()
  * 				.hasRole(&quot;USER&quot;).and()
  * 				// Possibly more configuration ...
  * 				.formLogin() // enable form based log in
