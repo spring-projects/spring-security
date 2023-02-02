@@ -380,6 +380,9 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 				http.setSharedObject(SecurityContextRepository.class, defaultRepository);
 			}
 		}
+		else {
+			this.sessionManagementSecurityContextRepository = securityContextRepository;
+		}
 		RequestCache requestCache = http.getSharedObject(RequestCache.class);
 		if (requestCache == null) {
 			if (stateless) {
