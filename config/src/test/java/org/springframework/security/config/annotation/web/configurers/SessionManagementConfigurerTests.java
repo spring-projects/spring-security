@@ -126,6 +126,18 @@ public class SessionManagementConfigurerTests {
 	}
 
 	@Test
+	public void sessionManagementWhenSecurityContextRepositoryIsConfiguredThenUseIt() throws Exception {
+		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
+		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
+				.loadDeferredContext(any(HttpServletRequest.class)))
+						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
+		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
+		this.mvc.perform(get("/"));
+		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
+				.containsContext(any(HttpServletRequest.class));
+	}
+
+	@Test
 	public void sessionManagementWhenInvokedTwiceThenUsesOriginalSessionCreationPolicy() throws Exception {
 		this.spring.register(InvokeTwiceDoesNotOverride.class).autowire();
 		MvcResult mvcResult = this.mvc.perform(get("/")).andReturn();
