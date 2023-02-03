@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import org.springframework.security.web.context.SecurityContextHolderFilter;
 import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.test.context.aot.TestRuntimeHintsRegistrar;
+import org.springframework.util.ClassUtils;
 
 /**
  * {@link TestRuntimeHintsRegistrar} implementation that register runtime hints for
@@ -35,6 +36,9 @@ class WebTestUtilsTestRuntimeHints implements TestRuntimeHintsRegistrar {
 
 	@Override
 	public void registerHints(RuntimeHints hints, Class<?> testClass, ClassLoader classLoader) {
+		if (!ClassUtils.isPresent("jakarta.servlet.Filter", classLoader)) {
+			return;
+		}
 		registerFilterChainProxyHints(hints);
 		registerSecurityContextRepositoryHints(hints);
 		registerCsrfTokenRepositoryHints(hints);
