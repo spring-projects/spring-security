@@ -51,8 +51,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * Base class for configuring {@link AbstractAuthenticationFilterConfigurer}. This is
  * intended for internal use only.
  *
- * @param T refers to "this" for returning the current configurer
- * @param F refers to the {@link AbstractAuthenticationProcessingFilter} that is being
+ * @param <T> refers to "this" for returning the current configurer
+ * @param <F> refers to the {@link AbstractAuthenticationProcessingFilter} that is being
  * built
  * @author Rob Winch
  * @since 3.2
