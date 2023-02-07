@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	private final String relyingPartyRegistrationId;
 
-	private Function<Map<String, String>, String> encoder;
+	private transient Function<Map<String, String>, String> encoder;
 
 	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters, String id,
 			String relyingPartyRegistrationId) {
