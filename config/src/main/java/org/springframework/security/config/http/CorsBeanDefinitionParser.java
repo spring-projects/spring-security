@@ -36,11 +36,18 @@ import org.springframework.web.filter.CorsFilter;
  */
 public class CorsBeanDefinitionParser {
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
 	private static final String ATT_SOURCE = "configuration-source-ref";
 
 	private static final String ATT_REF = "ref";
+
+	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
+
+	private static final boolean mvcPresent;
+
+	static {
+		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR,
+				CorsBeanDefinitionParser.class.getClassLoader());
+	}
 
 	public BeanMetadataElement parse(Element element, ParserContext parserContext) {
 		if (element == null) {
@@ -64,7 +71,6 @@ public class CorsBeanDefinitionParser {
 		if (StringUtils.hasText(configurationSourceRef)) {
 			return new RuntimeBeanReference(configurationSourceRef);
 		}
-		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, getClass().getClassLoader());
 		if (!mvcPresent) {
 			return null;
 		}

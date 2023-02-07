@@ -30,9 +30,16 @@ import org.springframework.util.ClassUtils;
  */
 class SpringWebMvcImportSelector implements ImportSelector {
 
+	private static final boolean webMvcPresent;
+
+	static {
+		ClassLoader classLoader = SpringWebMvcImportSelector.class.getClassLoader();
+		webMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", classLoader);
+	}
+
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		if (!ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", getClass().getClassLoader())) {
+		if (!webMvcPresent) {
 			return new String[0];
 		}
 		return new String[] {

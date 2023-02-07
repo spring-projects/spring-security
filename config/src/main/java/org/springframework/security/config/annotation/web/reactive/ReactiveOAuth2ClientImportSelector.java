@@ -47,10 +47,17 @@ import org.springframework.web.reactive.result.method.annotation.ArgumentResolve
  */
 final class ReactiveOAuth2ClientImportSelector implements ImportSelector {
 
+	private static final boolean oauth2ClientPresent;
+
+	static {
+		oauth2ClientPresent = ClassUtils.isPresent(
+				"org.springframework.security.oauth2.client.registration.ClientRegistration",
+				ReactiveOAuth2ClientImportSelector.class.getClassLoader());
+	}
+
 	@Override
 	public String[] selectImports(AnnotationMetadata importingClassMetadata) {
-		if (!ClassUtils.isPresent("org.springframework.security.oauth2.client.registration.ClientRegistration",
-				getClass().getClassLoader())) {
+		if (!oauth2ClientPresent) {
 			return new String[0];
 		}
 		return new String[] { "org.springframework.security.config.annotation.web.reactive."

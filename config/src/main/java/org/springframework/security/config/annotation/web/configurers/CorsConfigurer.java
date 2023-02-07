@@ -40,13 +40,19 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
  */
 public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<CorsConfigurer<H>, H> {
 
-	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
-
 	private static final String CORS_CONFIGURATION_SOURCE_BEAN_NAME = "corsConfigurationSource";
 
 	private static final String CORS_FILTER_BEAN_NAME = "corsFilter";
 
+	private static final String HANDLER_MAPPING_INTROSPECTOR = "org.springframework.web.servlet.handler.HandlerMappingIntrospector";
+
+	private static final boolean mvcPresent;
+
 	private CorsConfigurationSource configurationSource;
+
+	static {
+		mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, CorsConfigurer.class.getClassLoader());
+	}
 
 	/**
 	 * Creates a new instance
@@ -84,7 +90,6 @@ public class CorsConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHt
 					CorsConfigurationSource.class);
 			return new CorsFilter(configurationSource);
 		}
-		boolean mvcPresent = ClassUtils.isPresent(HANDLER_MAPPING_INTROSPECTOR, context.getClassLoader());
 		if (mvcPresent) {
 			return MvcCorsFilter.getMvcCorsFilter(context);
 		}

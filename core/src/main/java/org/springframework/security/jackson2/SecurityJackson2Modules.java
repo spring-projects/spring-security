@@ -89,6 +89,26 @@ public final class SecurityJackson2Modules {
 
 	private static final String saml2Jackson2ModuleClass = "org.springframework.security.saml2.jackson2.Saml2Jackson2Module";
 
+	private static final boolean webServletPresent;
+
+	private static final boolean oauth2ClientPresent;
+
+	private static final boolean javaTimeJacksonPresent;
+
+	private static final boolean ldapJacksonPresent;
+
+	private static final boolean saml2JacksonPresent;
+
+	static {
+		ClassLoader classLoader = SecurityJackson2Modules.class.getClassLoader();
+		webServletPresent = ClassUtils.isPresent("jakarta.servlet.http.Cookie", classLoader);
+		oauth2ClientPresent = ClassUtils.isPresent("org.springframework.security.oauth2.client.OAuth2AuthorizedClient",
+				classLoader);
+		javaTimeJacksonPresent = ClassUtils.isPresent(javaTimeJackson2ModuleClass, classLoader);
+		ldapJacksonPresent = ClassUtils.isPresent(ldapJackson2ModuleClass, classLoader);
+		saml2JacksonPresent = ClassUtils.isPresent(saml2Jackson2ModuleClass, classLoader);
+	}
+
 	private SecurityJackson2Modules() {
 	}
 
@@ -125,19 +145,19 @@ public final class SecurityJackson2Modules {
 		for (String className : securityJackson2ModuleClasses) {
 			addToModulesList(loader, modules, className);
 		}
-		if (ClassUtils.isPresent("jakarta.servlet.http.Cookie", loader)) {
+		if (webServletPresent) {
 			addToModulesList(loader, modules, webServletJackson2ModuleClass);
 		}
-		if (ClassUtils.isPresent("org.springframework.security.oauth2.client.OAuth2AuthorizedClient", loader)) {
+		if (oauth2ClientPresent) {
 			addToModulesList(loader, modules, oauth2ClientJackson2ModuleClass);
 		}
-		if (ClassUtils.isPresent(javaTimeJackson2ModuleClass, loader)) {
+		if (javaTimeJacksonPresent) {
 			addToModulesList(loader, modules, javaTimeJackson2ModuleClass);
 		}
-		if (ClassUtils.isPresent(ldapJackson2ModuleClass, loader)) {
+		if (ldapJacksonPresent) {
 			addToModulesList(loader, modules, ldapJackson2ModuleClass);
 		}
-		if (ClassUtils.isPresent(saml2Jackson2ModuleClass, loader)) {
+		if (saml2JacksonPresent) {
 			addToModulesList(loader, modules, saml2Jackson2ModuleClass);
 		}
 		return modules;
