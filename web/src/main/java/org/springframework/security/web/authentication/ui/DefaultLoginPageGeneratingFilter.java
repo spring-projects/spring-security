@@ -189,15 +189,7 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 	}
 
 	private String generateLoginPageHtml(HttpServletRequest request, boolean loginError, boolean logoutSuccess) {
-		String errorMsg = "Invalid credentials";
-		if (loginError) {
-			HttpSession session = request.getSession(false);
-			if (session != null) {
-				AuthenticationException ex = (AuthenticationException) session
-						.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
-				errorMsg = (ex != null) ? ex.getMessage() : "Invalid credentials";
-			}
-		}
+		String errorMsg = loginError ? getLoginErrorMessage(request) : "Invalid credentials";
 		String contextPath = request.getContextPath();
 		StringBuilder sb = new StringBuilder();
 		sb.append("<!DOCTYPE html>\n");
@@ -270,6 +262,15 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		sb.append("</div>\n");
 		sb.append("</body></html>");
 		return sb.toString();
+	}
+
+	private String getLoginErrorMessage(HttpServletRequest request) {
+		HttpSession session = request.getSession(false);
+		if (session != null &&
+				session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception) {
+			return exception.getMessage();
+		}
+		return "Invalid credentials";
 	}
 
 	private String renderHiddenInputs(HttpServletRequest request) {
