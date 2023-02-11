@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -303,14 +303,14 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		return matches(request, this.failureUrl);
 	}
 
-	private static String createError(boolean isError, String message) {
+	private String createError(boolean isError, String message) {
 		if (!isError) {
 			return "";
 		}
 		return "<div class=\"alert alert-danger\" role=\"alert\">" + HtmlUtils.htmlEscape(message) + "</div>";
 	}
 
-	private static String createLogoutSuccess(boolean isLogoutSuccess) {
+	private String createLogoutSuccess(boolean isLogoutSuccess) {
 		if (!isLogoutSuccess) {
 			return "";
 		}
