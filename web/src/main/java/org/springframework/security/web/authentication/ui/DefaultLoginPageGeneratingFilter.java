@@ -96,8 +96,8 @@ public class DefaultLoginPageGeneratingFilter extends GenericFilterBean {
 		this.formLoginEnabled = true;
 		this.usernameParameter = authFilter.getUsernameParameter();
 		this.passwordParameter = authFilter.getPasswordParameter();
-		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices) {
-			this.rememberMeParameter = ((AbstractRememberMeServices) authFilter.getRememberMeServices()).getParameter();
+		if (authFilter.getRememberMeServices() instanceof AbstractRememberMeServices rememberMeServices) {
+			this.rememberMeParameter = rememberMeServices.getParameter();
 		}
 	}
 
