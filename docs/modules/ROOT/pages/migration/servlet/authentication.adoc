@@ -7,7 +7,7 @@ The following steps relate to how to finish migrating authentication support.
 {security-api-url}org/springframework/security/web/authentication/AuthenticationFilter.html[`AuthenticationFilter`] propagates {security-api-url}org/springframework/security/authentication/AuthenticationServiceException.html[``AuthenticationServiceException``]s to the {security-api-url}org/springframework/security/authentication/AuthenticationEntryPoint.html[`AuthenticationEntryPoint`].
 Because ``AuthenticationServiceException``s represent a server-side error instead of a client-side error, in 6.0, this changes to propagate them to the container.
 
-So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
+So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` to `true`, you can now remove it like so:
 
 ====
 .Java
