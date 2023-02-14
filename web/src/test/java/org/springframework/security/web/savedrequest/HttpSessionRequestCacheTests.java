@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,6 +114,23 @@ public class HttpSessionRequestCacheTests {
 		cache.setMatchingRequestParameterName("success");
 		cache.saveRequest(request, new MockHttpServletResponse());
 		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setQueryString("success"); // gh-12665
+		requestToMatch.setParameter("success", "");
+		requestToMatch.setSession(request.getSession());
+		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
+		assertThat(matchingRequest).isNotNull();
+	}
+
+	// gh-12665
+	@Test
+	public void getMatchingRequestWhenMatchingRequestParameterNameSetAndParameterExistAndQueryThenLookedUp() {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setQueryString("param=true");
+		HttpSessionRequestCache cache = new HttpSessionRequestCache();
+		cache.setMatchingRequestParameterName("success");
+		cache.saveRequest(request, new MockHttpServletResponse());
+		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setQueryString("param=true&success");
 		requestToMatch.setParameter("success", "");
 		requestToMatch.setSession(request.getSession());
 		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
