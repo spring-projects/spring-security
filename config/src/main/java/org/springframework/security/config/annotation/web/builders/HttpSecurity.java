@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -3254,7 +3254,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
-		int order = this.filterOrders.getOrder(registeredFilter) + offset;
+		Integer registeredFilterOrder = this.filterOrders.getOrder(registeredFilter);
+		if (registeredFilterOrder == null) {
+			throw new IllegalArgumentException(
+					"The Filter class " + registeredFilter.getName() + " does not have a registered order");
+		}
+		int order = registeredFilterOrder + offset;
 		this.filters.add(new OrderedFilter(filter, order));
 		this.filterOrders.put(filter.getClass(), order);
 		return this;
