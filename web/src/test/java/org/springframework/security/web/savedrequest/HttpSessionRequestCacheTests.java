@@ -145,6 +145,7 @@ public class HttpSessionRequestCacheTests {
 		cache.saveRequest(request, new MockHttpServletResponse());
 		assertThat(request.getSession().getAttribute(HttpSessionRequestCache.SAVED_REQUEST)).isNotNull();
 		MockHttpServletRequest requestToMatch = new MockHttpServletRequest();
+		requestToMatch.setQueryString("success");
 		requestToMatch.setParameter("success", "");
 		requestToMatch.setSession(request.getSession());
 		HttpServletRequest matchingRequest = cache.getMatchingRequest(requestToMatch, new MockHttpServletResponse());
