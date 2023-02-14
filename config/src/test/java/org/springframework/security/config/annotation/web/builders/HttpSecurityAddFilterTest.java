@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import org.assertj.core.api.ListAssert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import org.springframework.beans.factory.UnsatisfiedDependencyException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -45,11 +46,28 @@ import org.springframework.security.web.context.request.async.WebAsyncManagerInt
 import org.springframework.security.web.header.HeaderWriterFilter;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(SpringTestContextExtension.class)
 public class HttpSecurityAddFilterTest {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
+
+	@Test
+	public void addFilterAfterFilterNotRegisteredYetThenThrowIllegalArgument() {
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+				.isThrownBy(
+						() -> this.spring.register(MyOtherFilterAfterMyFilterNotRegisteredYetConfig.class).autowire())
+				.havingRootCause().isInstanceOf(IllegalArgumentException.class);
+	}
+
+	@Test
+	public void addFilterBeforeFilterNotRegisteredYetThenThrowIllegalArgument() {
+		assertThatExceptionOfType(UnsatisfiedDependencyException.class)
+				.isThrownBy(
+						() -> this.spring.register(MyOtherFilterBeforeMyFilterNotRegisteredYetConfig.class).autowire())
+				.havingRootCause().isInstanceOf(IllegalArgumentException.class);
+	}
 
 	@Test
 	public void addFilterAfterWhenSameFilterDifferentPlacesThenOrderCorrect() {
@@ -203,6 +221,34 @@ public class HttpSecurityAddFilterTest {
 			http
 					.addFilterAfter(new MyFilter(), WebAsyncManagerIntegrationFilter.class)
 					.addFilterAfter(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterAfterMyFilterNotRegisteredYetConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterAfter(new MyOtherFilter(), MyFilter.class);
+			// @formatter:on
+			return http.build();
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class MyOtherFilterBeforeMyFilterNotRegisteredYetConfig {
+
+		@Bean
+		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+					.addFilterBefore(new MyOtherFilter(), MyFilter.class);
 			// @formatter:on
 			return http.build();
 		}
