@@ -21,6 +21,7 @@ import java.util.List;
 
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * @author Luke Taylor
