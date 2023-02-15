@@ -30,6 +30,12 @@ public class ExpressionProtectedBusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public void onlyPreAuthorizeAdminMethod() {
+
+	}
+
+	@Override
 	public int someOther(String s) {
 		return 0;
 	}

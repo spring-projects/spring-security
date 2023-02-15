@@ -49,6 +49,12 @@ public class Jsr250BusinessServiceImpl implements BusinessService {
 	}
 
 	@Override
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public void onlyPreAuthorizeAdminMethod() {
+
+	}
+
+	@Override
 	public int someOther(String input) {
 		return 0;
 	}
