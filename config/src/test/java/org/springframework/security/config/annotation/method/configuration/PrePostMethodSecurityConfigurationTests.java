@@ -45,6 +45,8 @@ import org.springframework.security.access.annotation.ExpressionProtectedBusines
 import org.springframework.security.access.annotation.Jsr250BusinessServiceImpl;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
@@ -416,6 +418,26 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
 		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
 		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
+	}
+
+	// gh-12662
+	@Test
+	@WithMockUser(username = "robert",roles = "SUPER_ADMIN")
+	public void testRoleHierarchy() {
+		this.spring.register(RoleHierarchyConfiguration.class, BusinessServiceConfig.class).autowire();
+		businessService.onlyPreAuthorizeAdminMethod();
+	}
+
+	@Configuration
+	static class RoleHierarchyConfiguration {
+
+		@Bean
+		public RoleHierarchy myRoleHierarchy() {
+			RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+			roleHierarchy.setHierarchy("ROLE_SUPER_ADMIN > ROLE_ADMIN");
+			return roleHierarchy;
+		}
+
 	}
 
 	@Configuration

@@ -35,6 +35,9 @@ public interface BusinessService extends Serializable {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	void someAdminMethod();
 
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	void onlyPreAuthorizeAdminMethod();
+
 	@Secured({ "ROLE_USER", "ROLE_ADMIN" })
 	@RolesAllowed({ "ROLE_USER", "ROLE_ADMIN" })
 	void someUserAndAdminMethod();

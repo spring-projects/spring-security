@@ -25,8 +25,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.authentication.AuthenticationTrustResolver;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
@@ -43,6 +46,7 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
  *
  * @author Evgeniy Cheban
  * @author Josh Cummings
+ * @author Xiangcheng Kuo
  * @since 5.6
  * @see EnableMethodSecurity
  */
@@ -52,26 +56,36 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor preFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static Advisor preFilterAuthorizationMethodInterceptor(
+			ObjectProvider<PermissionEvaluator> permissionEvaluatorProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			ObjectProvider<AuthenticationTrustResolver> trustResolverProvider,
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
 		strategyProvider.ifAvailable(preFilter::setSecurityContextHolderStrategy);
 		preFilter.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(permissionEvaluatorProvider, roleHierarchyProvider, trustResolverProvider, defaultsProvider, context)));
 		return preFilter;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor preAuthorizeAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static Advisor preAuthorizeAuthorizationMethodInterceptor(
+			ObjectProvider<PermissionEvaluator> permissionEvaluatorProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			ObjectProvider<AuthenticationTrustResolver> trustResolverProvider,
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider,
+			ApplicationContext context
+	) {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(permissionEvaluatorProvider, roleHierarchyProvider, trustResolverProvider, defaultsProvider, context)));
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
 				.preAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(preAuthorize::setSecurityContextHolderStrategy);
@@ -82,14 +96,19 @@ final class PrePostMethodSecurityConfiguration {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	static Advisor postAuthorizeAuthorizationMethodInterceptor(
+			ObjectProvider<PermissionEvaluator> permissionEvaluatorProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			ObjectProvider<AuthenticationTrustResolver> trustResolverProvider,
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
-			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
+			ObjectProvider<ObservationRegistry> registryProvider,
+			ApplicationContext context
+	) {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(permissionEvaluatorProvider, roleHierarchyProvider, trustResolverProvider, defaultsProvider, context)));
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
 				.postAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(postAuthorize::setSecurityContextHolderStrategy);
@@ -99,19 +118,33 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor postFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static Advisor postFilterAuthorizationMethodInterceptor(
+			ObjectProvider<PermissionEvaluator> permissionEvaluatorProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			ObjectProvider<AuthenticationTrustResolver> trustResolverProvider,
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
-			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
+			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ApplicationContext context
+	) {
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
 		strategyProvider.ifAvailable(postFilter::setSecurityContextHolderStrategy);
 		postFilter.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(permissionEvaluatorProvider, roleHierarchyProvider, trustResolverProvider, defaultsProvider, context)));
 		return postFilter;
 	}
 
 	private static MethodSecurityExpressionHandler defaultExpressionHandler(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext context) {
+			ObjectProvider<PermissionEvaluator> permissionEvaluatorProvider,
+			ObjectProvider<RoleHierarchy> roleHierarchyProvider,
+			ObjectProvider<AuthenticationTrustResolver> trustResolverProvider,
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+			ApplicationContext context
+	) {
 		DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+		permissionEvaluatorProvider.ifAvailable(handler::setPermissionEvaluator);
+		roleHierarchyProvider.ifAvailable(handler::setRoleHierarchy);
+		trustResolverProvider.ifAvailable(handler::setTrustResolver);
 		defaultsProvider.ifAvailable((d) -> handler.setDefaultRolePrefix(d.getRolePrefix()));
 		handler.setApplicationContext(context);
 		return handler;

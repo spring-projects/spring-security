@@ -18,6 +18,7 @@ package org.springframework.security.access.annotation;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  * @author Joe Scalise
@@ -42,6 +43,12 @@ public class BusinessServiceImpl<E extends Entity> implements BusinessService {
 	@Override
 	@Secured({ "ROLE_ADMIN" })
 	public void someAdminMethod() {
+	}
+
+	@Override
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public void onlyPreAuthorizeAdminMethod() {
+
 	}
 
 	public E someUserMethod3(final E entity) {
