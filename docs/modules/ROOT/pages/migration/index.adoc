@@ -9,7 +9,7 @@ endif::[]
 ifndef::spring-security-version[]
 its preparation steps
 endif::[]
-to simplify updating to 6.0
+to simplify updating to 6.0.
 
 After updating to 5.8, follow this guide to perform any remaining migration or cleanup steps.
 
