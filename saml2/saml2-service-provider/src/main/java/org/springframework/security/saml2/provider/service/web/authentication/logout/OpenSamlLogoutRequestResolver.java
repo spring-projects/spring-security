@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
 import org.opensaml.saml.saml2.core.impl.SessionIndexBuilder;
 import org.w3c.dom.Element;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.Saml2Exception;
 import org.springframework.security.saml2.core.OpenSamlInitializationService;
@@ -74,6 +75,8 @@ final class OpenSamlLogoutRequestResolver {
 
 	private final RelyingPartyRegistrationResolver relyingPartyRegistrationResolver;
 
+	private Converter<HttpServletRequest, String> relayStateResolver = (request) -> UUID.randomUUID().toString();
+
 	/**
 	 * Construct a {@link OpenSamlLogoutRequestResolver}
 	 */
@@ -93,6 +96,10 @@ final class OpenSamlLogoutRequestResolver {
 		this.sessionIndexBuilder = (SessionIndexBuilder) registry.getBuilderFactory()
 				.getBuilder(SessionIndex.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.sessionIndexBuilder, "sessionIndexBuilder must be configured in OpenSAML");
+	}
+
+	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		this.relayStateResolver = relayStateResolver;
 	}
 
 	/**
@@ -140,7 +147,7 @@ final class OpenSamlLogoutRequestResolver {
 		if (logoutRequest.getID() == null) {
 			logoutRequest.setID("LR" + UUID.randomUUID());
 		}
-		String relayState = UUID.randomUUID().toString();
+		String relayState = this.relayStateResolver.convert(request);
 		Saml2LogoutRequest.Builder result = Saml2LogoutRequest.withRelyingPartyRegistration(registration)
 				.id(logoutRequest.getID());
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceBinding() == Saml2MessageBinding.POST) {
