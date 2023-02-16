@@ -16,7 +16,7 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
-import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -38,29 +38,41 @@ import static org.mockito.Mockito.mock;
  */
 public class OpenSaml4LogoutRequestResolverTests {
 
-	RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = mock(RelyingPartyRegistrationResolver.class);
+	RelyingPartyRegistration registration;
+
+	RelyingPartyRegistrationResolver registrationResolver;
+
+	OpenSaml4LogoutRequestResolver logoutRequestResolver;
+
+	@BeforeEach
+	public void setup() {
+		this.registration = TestRelyingPartyRegistrations.full().build();
+		this.registrationResolver = mock(RelyingPartyRegistrationResolver.class);
+		this.logoutRequestResolver = new OpenSaml4LogoutRequestResolver(this.registrationResolver);
+	}
 
 	@Test
 	public void resolveWhenCustomParametersConsumerThenUses() {
-		OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
-				this.relyingPartyRegistrationResolver);
-		logoutRequestResolver.setParametersConsumer((parameters) -> parameters.getLogoutRequest().setID("myid"));
-		HttpServletRequest request = new MockHttpServletRequest();
-		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.assertingPartyDetails((party) -> party.singleLogoutServiceLocation("https://ap.example.com/logout"))
-				.build();
-		Authentication authentication = new TestingAuthenticationToken("user", "password");
-		given(this.relyingPartyRegistrationResolver.resolve(any(), any())).willReturn(registration);
-		Saml2LogoutRequest logoutRequest = logoutRequestResolver.resolve(request, authentication);
+		this.logoutRequestResolver.setParametersConsumer((parameters) -> parameters.getLogoutRequest().setID("myid"));
+		given(this.registrationResolver.resolve(any(), any())).willReturn(this.registration);
+
+		Saml2LogoutRequest logoutRequest = this.logoutRequestResolver.resolve(givenRequest(), givenAuthentication());
+
 		assertThat(logoutRequest.getId()).isEqualTo("myid");
 	}
 
 	@Test
 	public void setParametersConsumerWhenNullThenIllegalArgument() {
-		OpenSaml4LogoutRequestResolver logoutRequestResolver = new OpenSaml4LogoutRequestResolver(
-				this.relyingPartyRegistrationResolver);
 		assertThatExceptionOfType(IllegalArgumentException.class)
-				.isThrownBy(() -> logoutRequestResolver.setParametersConsumer(null));
+				.isThrownBy(() -> this.logoutRequestResolver.setParametersConsumer(null));
+	}
+
+	private static Authentication givenAuthentication() {
+		return new TestingAuthenticationToken("user", "password");
+	}
+
+	private MockHttpServletRequest givenRequest() {
+		return new MockHttpServletRequest();
 	}
 
 }
