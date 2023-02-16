@@ -211,7 +211,7 @@ You could refer to the method using:
 ----
 http
 	.authorizeHttpRequests(authorize -> authorize
-		.requestMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
+		.requestMatchers("/user/{userId}/**").access(new WebExpressionAuthorizationManager("@webSecurity.checkUserId(authentication,#userId)"))
 		...
 	);
 ----
