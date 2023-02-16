@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * Tests for {@link OpenSaml4LogoutRequestResolver}
@@ -65,6 +68,19 @@ public class OpenSaml4LogoutRequestResolverTests {
 	public void setParametersConsumerWhenNullThenIllegalArgument() {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.logoutRequestResolver.setParametersConsumer(null));
+	}
+
+	@Test
+	public void resolveWhenCustomRelayStateThenUses() {
+		given(this.registrationResolver.resolve(any(), any())).willReturn(this.registration);
+		Converter<HttpServletRequest, String> relayState = mock(Converter.class);
+		given(relayState.convert(any())).willReturn("any-state");
+		this.logoutRequestResolver.setRelayStateResolver(relayState);
+
+		Saml2LogoutRequest logoutRequest = this.logoutRequestResolver.resolve(givenRequest(), givenAuthentication());
+
+		assertThat(logoutRequest.getRelayState()).isEqualTo("any-state");
+		verify(relayState).convert(any());
 	}
 
 	private static Authentication givenAuthentication() {
