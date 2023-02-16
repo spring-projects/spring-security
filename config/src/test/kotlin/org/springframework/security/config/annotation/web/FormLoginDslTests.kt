@@ -32,6 +32,7 @@ import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler
@@ -39,6 +40,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Controller
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.web.bind.annotation.GetMapping
@@ -90,16 +92,12 @@ class FormLoginDslTests {
     }
 
     @Configuration
-    @EnableWebMvc
     @EnableWebSecurity
-    open class DisabledConfig {
+    open class FormLoginConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
-            http.formLogin()
             http {
-                formLogin {
-                    disable()
-                }
+                formLogin {}
             }
             return http.build()
         }
@@ -113,15 +111,25 @@ class FormLoginDslTests {
             .andExpect {
                 status { isNotFound() }
             }
+
+        this.mockMvc.post("/login") {
+            with(csrf())
+        }.andExpect {
+            status { isNotFound() }
+        }
     }
 
     @Configuration
+    @EnableWebMvc
     @EnableWebSecurity
-    open class FormLoginConfig {
+    open class DisabledConfig {
         @Bean
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http.formLogin()
             http {
-                formLogin {}
+                formLogin {
+                    disable()
+                }
             }
             return http.build()
         }
