@@ -90,7 +90,7 @@ The latter is also used when configuring an invalid session URL through the name
 [[moving-away-from-sessionmanagementfilter]]
 ==== Moving Away From `SessionManagementFilter`
 
-In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke <<_the_sessionauthenticationstrategy,the `SessionAuthenticationStrategy`>>.
+In Spring Security 5, the default configuration relies on `SessionManagementFilter` to detect if a user just authenticated and invoke {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[the `SessionAuthenticationStrategy`].
 The problem with this is that it means that in a typical setup, the `HttpSession` must be read for every request.
 
 In Spring Security 6, the default is that authentication mechanisms themselves must invoke the `SessionAuthenticationStrategy`.
@@ -161,7 +161,7 @@ In Spring Security 6, if you try to use any of these methods when `requireExplic
 [[customizing-where-authentication-is-stored]]
 == Customizing Where the Authentication Is Stored
 
-By default, Spring Security stores the security context for you in the HTTP session (link to earlier description). However, here are several reasons you may want to customize that:
+By default, Spring Security stores the security context for you in the HTTP session. However, here are several reasons you may want to customize that:
 
 * You may want call individual setters on the `HttpSessionSecurityContextRepository` instance
 * You may want to store the security context in a cache or database to enable horizontal scaling
