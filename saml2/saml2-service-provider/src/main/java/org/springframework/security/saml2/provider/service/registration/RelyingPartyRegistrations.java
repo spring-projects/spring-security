@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,11 @@ package org.springframework.security.saml2.provider.service.registration;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.saml2.Saml2Exception;
-import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration.AssertingPartyDetails;
 
 /**
  * A utility class for constructing instances of {@link RelyingPartyRegistration}
@@ -36,7 +34,7 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
  */
 public final class RelyingPartyRegistrations {
 
-	private static final OpenSamlMetadataAssertingPartyDetailsConverter assertingPartyMetadataConverter = new OpenSamlMetadataAssertingPartyDetailsConverter();
+	private static final OpenSamlMetadataRelyingPartyRegistrationConverter relyingPartyRegistrationConverter = new OpenSamlMetadataRelyingPartyRegistrationConverter();
 
 	private static final ResourceLoader resourceLoader = new DefaultResourceLoader();
 
@@ -215,11 +213,7 @@ public final class RelyingPartyRegistrations {
 	 * @since 5.7
 	 */
 	public static Collection<RelyingPartyRegistration.Builder> collectionFromMetadata(InputStream source) {
-		Collection<RelyingPartyRegistration.Builder> builders = new ArrayList<>();
-		for (AssertingPartyDetails.Builder builder : assertingPartyMetadataConverter.convert(source)) {
-			builders.add(RelyingPartyRegistration.withAssertingPartyDetails(builder.build()));
-		}
-		return builders;
+		return relyingPartyRegistrationConverter.convert(source);
 	}
 
 }
