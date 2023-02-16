@@ -271,6 +271,60 @@ The code below demonstrates how to customize the `RequestCache` implementation t
 
 include::partial$servlet/architecture/request-cache-continue.adoc[]
 
+[[requestcache-prevent-saved-request]]
+==== Prevent the Request From Being Saved
+
+There are a number of reasons you may want to not store the user's unauthenticated request in the session.
+You may want to offload that storage onto the user's browser or store it in a database.
+Or you may want to shut off this feature since you always want to redirect the user to the home page instead of the page they tried to visit before login.
+
+To do that, you can use {security-api-url}org/springframework/security/web/savedrequest/NullRequestCache.html[the `NullRequestCache` implementation].
+
+.Prevent the Request From Being Saved
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+    RequestCache nullRequestCache = new NullRequestCache();
+    http
+        // ...
+        .requestCache((cache) -> cache
+            .requestCache(nullRequestCache)
+        );
+    return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+    val nullRequestCache = NullRequestCache()
+    http {
+        requestCache {
+            requestCache = nullRequestCache
+        }
+    }
+    return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http auto-config="true">
+	<!-- ... -->
+	<request-cache ref="nullRequestCache"/>
+</http>
+
+<b:bean id="nullRequestCache" class="org.springframework.security.web.savedrequest.NullRequestCache"/>
+----
+====
+
+
 [[requestcacheawarefilter]]
 === RequestCacheAwareFilter
 
