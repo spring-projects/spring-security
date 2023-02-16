@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ import java.util.function.Function;
 
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 
@@ -970,6 +971,14 @@ public final class RelyingPartyRegistration {
 
 			private AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
 
+			private Builder() {
+
+			}
+
+			private Builder(AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
+				this.assertingPartyDetailsBuilder = assertingPartyDetailsBuilder;
+			}
+
 			/**
 			 * Set the asserting party's <a href=
 			 * "https://www.oasis-open.org/committees/download.php/51890/SAML%20MD%20simplified%20overview.pdf#2.9%20EntityDescriptor">EntityID</a>.
@@ -1032,7 +1041,7 @@ public final class RelyingPartyRegistration {
 
 	public static final class Builder {
 
-		private String registrationId;
+		private Converter<ProviderDetails, String> registrationId = ProviderDetails::getEntityId;
 
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 
@@ -1052,12 +1061,17 @@ public final class RelyingPartyRegistration {
 
 		private String nameIdFormat = null;
 
-		private ProviderDetails.Builder providerDetails = new ProviderDetails.Builder();
+		private ProviderDetails.Builder providerDetails;
 
 		private Collection<org.springframework.security.saml2.credentials.Saml2X509Credential> credentials = new LinkedHashSet<>();
 
 		private Builder(String registrationId) {
-			this.registrationId = registrationId;
+			this.registrationId = (party) -> registrationId;
+			this.providerDetails = new ProviderDetails.Builder();
+		}
+
+		Builder(AssertingPartyDetails.Builder builder) {
+			this.providerDetails = new ProviderDetails.Builder(builder);
 		}
 
 		/**
@@ -1066,7 +1080,7 @@ public final class RelyingPartyRegistration {
 		 * @return this object
 		 */
 		public Builder registrationId(String id) {
-			this.registrationId = id;
+			this.registrationId = (party) -> id;
 			return this;
 		}
 
@@ -1363,11 +1377,12 @@ public final class RelyingPartyRegistration {
 			if (this.singleLogoutServiceResponseLocation == null) {
 				this.singleLogoutServiceResponseLocation = this.singleLogoutServiceLocation;
 			}
-			return new RelyingPartyRegistration(this.registrationId, this.entityId,
-					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
-					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBinding, this.providerDetails.build(), this.nameIdFormat, this.credentials,
-					this.decryptionX509Credentials, this.signingX509Credentials);
+			ProviderDetails party = this.providerDetails.build();
+			String registrationId = this.registrationId.convert(party);
+			return new RelyingPartyRegistration(registrationId, this.entityId, this.assertionConsumerServiceLocation,
+					this.assertionConsumerServiceBinding, this.singleLogoutServiceLocation,
+					this.singleLogoutServiceResponseLocation, this.singleLogoutServiceBinding, party, this.nameIdFormat,
+					this.credentials, this.decryptionX509Credentials, this.signingX509Credentials);
 		}
 
 	}

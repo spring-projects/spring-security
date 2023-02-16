@@ -1,5 +1,36 @@
 [[servlet-saml2login-metadata]]
-= Producing `<saml2:SPSSODescriptor>` Metadata
+= Saml 2.0 Metadata
+
+Spring Security can <<parsing-asserting-party-metadata,parse asserting party metadata>> to produce an `AssertingPartyDetails` instance as well as <<publishing-relying-party-metadata,publish relying party metadata>> from a `RelyingPartyRegistration` instance.
+
+[[parsing-asserting-party-metadata]]
+== Parsing `<saml2:IDPSSODescriptor>` metadata
+
+You can parse an asserting party's metadata xref:servlet/saml2/login/overview.adoc#servlet-saml2login-relyingpartyregistrationrepository[using `RelyingPartyRegistrations`].
+
+When using the OpenSAML vendor support, the resulting `AssertingPartyDetails` will be of type `OpenSamlAssertingPartyDetails`.
+This means you'll be able to do get the underlying OpenSAML XMLObject by doing the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
+        registration.getAssertingPartyDetails();
+EntityDescriptor openSamlEntityDescriptor = details.getEntityDescriptor();
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+val details: OpenSamlAssertingPartyDetails =
+        registration.getAssertingPartyDetails() as OpenSamlAssertingPartyDetails;
+val openSamlEntityDescriptor: EntityDescriptor = details.getEntityDescriptor();
+----
+====
+
+[[publishing-relying-party-metadata]]
+== Producing `<saml2:SPSSODescriptor>` Metadata
 
 You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the filter chain, as you'll see below:
 
