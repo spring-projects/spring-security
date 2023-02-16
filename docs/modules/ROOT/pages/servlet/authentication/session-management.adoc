@@ -3,49 +3,7 @@
 
 Once you have got an application that is xref:servlet/authentication/index.adoc[authenticating requests], it is important to consider how that resulting authentication will be persisted and restored on future requests.
 
-This is done automatically by default, so no additional code is necessary, though there are some steps you should consider. The first is setting the `requireExplicitSave` property in `HttpSecurity`.
-You can do it like so:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-public SecurityFilterChain filterChain(HttpSecurity http) {
-    http
-        // ...
-        .securityContext((context) -> context
-            .requireExplicitSave(true)
-        );
-    return http.build();
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    http {
-        // ...
-        securityContext {
-            requireExplicitSave = true
-        }
-    }
-    return http.build()
-}
-----
-
-.XML
-[source,xml,role="secondary"]
-----
-<http security-context-explicit-save="true">
-    <!-- ... -->
-</http>
-----
-====
-
-The most straightforward reason for this is that it is xref:migration/servlet/session-management.adoc#_require_explicit_saving_of_securitycontextrepository[becoming the default value in 6.0], so this will make sure you are ready for that.
+This is done automatically by default, so no additional code is necessary, though it is important to know what `requireExplicitSave` means in `HttpSecurity`.
 
 If you like, <<how-it-works-requireexplicitsave,you can read more about what requireExplicitSave is doing>> or <<requireexplicitsave,why it's important>>. Otherwise, in most cases you are done with this section.
 
@@ -96,51 +54,9 @@ The problem with this is that it means that in a typical setup, the `HttpSession
 In Spring Security 6, the default is that authentication mechanisms themselves must invoke the `SessionAuthenticationStrategy`.
 This means that there is no need to detect when `Authentication` is done and thus the `HttpSession` does not need to be read for every request.
 
-To opt into the new Spring Security 6 default, the following configuration should be used.
-
-.Require Explicit `SessionAuthenticationStrategy` Invocation
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
-    http
-        // ...
-        .sessionManagement((sessions) -> sessions
-            .requireExplicitAuthenticationStrategy(true)
-        );
-    return http.build();
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Bean
-open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
-    http {
-        sessionManagement {
-            requireExplicitAuthenticationStrategy = true
-        }
-    }
-    return http.build()
-}
-----
-
-.XML
-[source,xml,role="secondary"]
-----
-<http>
-    <!-- ... -->
-    <session-management authentication-strategy-explicit-invocation="true"/>
-</http>
-----
-====
-
 ==== Things To Consider When Moving Away From `SessionManagementFilter`
 
-When `requireExplicitAuthenticationStrategy = true`, it means that the `SessionManagementFilter` will not be used, therefore, some methods from the `sessionManagement` DSL will not have any effect.
+In Spring Security 6, the `SessionManagementFilter` is not used by default, therefore, some methods from the `sessionManagement` DSL will not have any effect.
 
 |===
 |Method |Replacement
@@ -155,7 +71,7 @@ When `requireExplicitAuthenticationStrategy = true`, it means that the `SessionM
 |Configure an `SessionAuthenticationStrategy` in your authentication mechanism as <<moving-away-from-sessionmanagementfilter,discussed above>>
 |===
 
-In Spring Security 6, if you try to use any of these methods when `requireExplicitAuthenticationStrategy = true` (the default), an exception will be thrown.
+If you try to use any of these methods, an exception will be thrown.
 
 
 [[customizing-where-authentication-is-stored]]
@@ -186,7 +102,6 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
     http
         // ...
         .securityContext((context) -> context
-            .requireExplicitSave(true)
             .securityContextRepository(repo)
         );
     return http.build();
@@ -202,7 +117,6 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     http {
         // ...
         securityContext {
-            requireExplicitSave = true
             securityContextRepository = repo
         }
     }
@@ -213,7 +127,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 .XML
 [source,xml,role="secondary"]
 ----
-<http security-context-explicit-save="true" security-context-repository-ref="repo">
+<http security-context-repository-ref="repo">
     <!-- ... -->
 </http>
 <bean name="repo" class="com.example.MyCustomSecurityContextRepository" />
