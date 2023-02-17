@@ -119,6 +119,12 @@ updateDependenciesSettings {
 					selection.reject("nimbus-jose-jwt gets updated when oauth2-oidc-sdk is updated to ensure consistency");
 				}
 			}
+			components.withModule("io.mockk:mockk") { selection ->
+				ModuleComponentIdentifier candidate = selection.getCandidate();
+				if (!candidate.getVersion().equals(selection.getCurrentVersion())) {
+					selection.reject("mockk updates break tests");
+				}
+			}
 			components.all { selection ->
 				ModuleComponentIdentifier candidate = selection.getCandidate();
 				// Do not compare version due to multiple versions existing
