@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,12 +132,14 @@ public class DefaultLoginPageGeneratingFilterTests {
 		DefaultLoginPageGeneratingFilter filter = new DefaultLoginPageGeneratingFilter(
 				new UsernamePasswordAuthenticationFilter());
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", "/login");
-		request.addParameter("login_error", "true");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		request.setQueryString("error");
 		MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 		String message = messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials",
 				"Bad credentials", Locale.KOREA);
 		request.getSession().setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION, new BadCredentialsException(message));
-		filter.doFilter(request, new MockHttpServletResponse(), this.chain);
+		filter.doFilter(request, response, this.chain);
+		assertThat(response.getContentAsString()).contains(message);
 	}
 
 	// gh-5394
