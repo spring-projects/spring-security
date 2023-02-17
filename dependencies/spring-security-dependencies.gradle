@@ -57,7 +57,7 @@ dependencies {
 		api "org.hamcrest:hamcrest:2.2"
 		api "org.hibernate.orm:hibernate-core:6.1.5.Final"
 		api "org.hsqldb:hsqldb:2.7.1"
-		api "org.apereo.cas.client:cas-client-core:4.0.0"
+		api "org.apereo.cas.client:cas-client-core:4.0.1"
 		api "org.opensaml:opensaml-core:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-api:$openSamlVersion"
 		api "org.opensaml:opensaml-saml-impl:$openSamlVersion"
