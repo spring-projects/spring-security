@@ -15,7 +15,7 @@ dependencies {
 	api platform("org.springframework.data:spring-data-bom:2021.2.6")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4")
-	api platform("com.fasterxml.jackson:jackson-bom:2.13.4.20221013")
+	api platform("com.fasterxml.jackson:jackson-bom:2.13.5")
 	constraints {
 		api "ch.qos.logback:logback-classic:1.2.11"
 		api "com.google.inject:guice:3.0"
