@@ -248,8 +248,7 @@ image:{icondir}/number_4.png[] If authentication is successful, then __Success__
 * `SessionAuthenticationStrategy` is notified of a new login.
 See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface.
 * The <<servlet-authentication-authentication>> is set on the <<servlet-authentication-securitycontextholder>>.
-Later, the `SecurityContextPersistenceFilter` saves the `SecurityContext` to the `HttpSession`.
-See the {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class.
+Later, if you neeed to save `SecurityContext` , `SecurityContextRepository#saveContext` must be explicitly invoked.See the {security-api-url}org/springframework/security/web/context/SecurityContextHolderFilter.html[`SecurityContextHolderFilter`] class.
 * `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
 See the {security-api-url}org/springframework/security/web/authentication/rememberme/package-frame.html[`rememberme`] package.
