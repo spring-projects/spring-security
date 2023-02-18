@@ -86,7 +86,9 @@ public class CasAuthenticationTokenMixinTests {
 			+ "\"validFromDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
 			+ "\"validUntilDate\": [\"java.util.Date\", " + END_DATE.getTime() + "],"
 			+ "\"authenticationDate\": [\"java.util.Date\", " + START_DATE.getTime() + "], "
-			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"}" + "}" + "}";
+			+ "\"attributes\": {\"@class\": \"java.util.Collections$EmptyMap\"},"
+			+ "\"context\": {\"@class\":\"java.util.HashMap\"}"
+			+ "}" + "}";
 
 	private static final String CAS_TOKEN_CLEARED_JSON = CAS_TOKEN_JSON.replaceFirst(PASSWORD, "null");
 
