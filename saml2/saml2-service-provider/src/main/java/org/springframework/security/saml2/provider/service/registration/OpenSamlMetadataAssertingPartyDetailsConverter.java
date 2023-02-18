@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,13 +71,16 @@ class OpenSamlMetadataAssertingPartyDetailsConverter {
 		if (xmlObject instanceof EntitiesDescriptor) {
 			EntitiesDescriptor descriptors = (EntitiesDescriptor) xmlObject;
 			for (EntityDescriptor descriptor : descriptors.getEntityDescriptors()) {
-				builders.add(convert(descriptor));
+				if (descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS) != null) {
+					builders.add(convert(descriptor));
+				}
 			}
 			return builders;
 		}
 		if (xmlObject instanceof EntityDescriptor) {
 			EntityDescriptor descriptor = (EntityDescriptor) xmlObject;
-			return Arrays.asList(convert(descriptor));
+			return descriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS) == null ?
+					Arrays.asList() : Arrays.asList(convert(descriptor));
 		}
 		throw new Saml2Exception("Unsupported element of type " + xmlObject.getClass());
 	}
