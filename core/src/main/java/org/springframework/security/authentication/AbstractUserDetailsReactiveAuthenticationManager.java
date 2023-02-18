@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -99,7 +99,9 @@ public abstract class AbstractUserDetailsReactiveAuthenticationManager
 				.doOnNext(this.preAuthenticationChecks::check)
 				.publishOn(this.scheduler)
 				.filter((userDetails) -> this.passwordEncoder.matches(presentedPassword, userDetails.getPassword()))
-				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException("Invalid Credentials"))))
+				.switchIfEmpty(Mono.defer(() -> Mono.error(new BadCredentialsException(
+						this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials")
+				))))
 				.flatMap((userDetails) -> upgradeEncodingIfNecessary(userDetails, presentedPassword))
 				.doOnNext(this.postAuthenticationChecks::check)
 				.map(this::createUsernamePasswordAuthenticationToken);
