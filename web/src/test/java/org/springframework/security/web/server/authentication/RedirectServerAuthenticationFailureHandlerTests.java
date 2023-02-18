@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,10 @@ import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
+import org.springframework.web.server.WebSession;
 import org.springframework.web.server.handler.DefaultWebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -93,6 +95,20 @@ public class RedirectServerAuthenticationFailureHandlerTests {
 	@Test
 	public void setRedirectStrategyWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setRedirectStrategy(null));
+	}
+
+	@Test
+	public void saveTempAuthenticationExceptionWhenOnAuthenticationFailure() {
+		this.exchange = createExchange();
+		this.handler.onAuthenticationFailure(this.exchange, this.exception).block();
+		WebSession session = this.exchange.getExchange().getSession().block();
+		assertThat(session).isNotNull();
+		Object savedException = session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION);
+		assertThat(savedException).isNotNull();
+		assertThat((Exception) session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION))
+				.isInstanceOf(AuthenticationException.class);
+		assertThat(((AuthenticationException) savedException).getMessage()).isNotNull();
+		assertThat(((AuthenticationException) savedException).getMessage()).isEqualTo(this.exception.getMessage());
 	}
 
 	private WebFilterExchange createExchange() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.net.URI;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -58,7 +59,9 @@ public class RedirectServerAuthenticationFailureHandler implements ServerAuthent
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-		return this.redirectStrategy.sendRedirect(webFilterExchange.getExchange(), this.location);
+		return webFilterExchange.getExchange().getSession()
+				.doOnNext((session) -> session.getAttributes().put(WebAttributes.AUTHENTICATION_EXCEPTION, exception))
+				.flatMap((s) -> this.redirectStrategy.sendRedirect(webFilterExchange.getExchange(), this.location));
 	}
 
 }
