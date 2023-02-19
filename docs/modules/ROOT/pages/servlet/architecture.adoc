@@ -217,7 +217,6 @@ image::{figures}/exceptiontranslationfilter.png[]
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
 ** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
 ** The `HttpServletRequest` is <<savedrequests,saved>> so that it can be used to replay the original request once authentication is successful.
-
 // FIXME: add link to authentication success
 ** The `AuthenticationEntryPoint` is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
