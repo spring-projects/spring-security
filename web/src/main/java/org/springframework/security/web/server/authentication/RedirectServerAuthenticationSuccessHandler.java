@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.net.URI;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -28,6 +29,7 @@ import org.springframework.security.web.server.savedrequest.ServerRequestCache;
 import org.springframework.security.web.server.savedrequest.WebSessionServerRequestCache;
 import org.springframework.util.Assert;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebSession;
 
 /**
  * Performs a redirect on authentication success. The default is to redirect to a saved
@@ -72,8 +74,13 @@ public class RedirectServerAuthenticationSuccessHandler implements ServerAuthent
 	@Override
 	public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
 		ServerWebExchange exchange = webFilterExchange.getExchange();
-		return this.requestCache.getRedirectUri(exchange).defaultIfEmpty(this.location)
+		return exchange.getSession().doOnNext(this::clearAuthenticationAttributes)
+				.flatMap((s) -> this.requestCache.getRedirectUri(exchange).defaultIfEmpty(this.location))
 				.flatMap((location) -> this.redirectStrategy.sendRedirect(exchange, location));
+	}
+
+	private void clearAuthenticationAttributes(WebSession session) {
+		session.getAttributes().remove(WebAttributes.AUTHENTICATION_EXCEPTION);
 	}
 
 	/**
