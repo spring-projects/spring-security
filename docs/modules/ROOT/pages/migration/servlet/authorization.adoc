@@ -104,6 +104,111 @@ should change to:
 ----
 ====
 
+=== Use a Custom `@Bean` instead of subclassing `DefaultMethodSecurityExpressionHandler`
+
+As a performance optimization, a new method was introduced to `MethodSecurityExpressionHandler` that takes a `Supplier<Authentication>` instead of an `Authentication`.
+
+This allows Spring Security to defer the lookup of the `Authentication`, and is taken advantage of automatically when you use `@EnableMethodSecurity` instead of `@EnableGlobalMethodSecurity`.
+
+However, let's say that your code extends `DefaultMethodSecurityExpressionHandler` and overrides `createSecurityExpressionRoot(Authentication, MethodInvocation)` to return a custom `SecurityExpressionRoot` instance.
+This will no longer work because the arrangement that `@EnableMethodSecurity` sets up calls `createEvaluationContext(Supplier<Authentication>, MethodInvocation)` instead.
+
+Happily, such a level of customization is often unnecessary.
+Instead, you can create a custom bean with the authorization methods that you need.
+
+For example, let's say you are wanting a custom evaluation of `@PostAuthorize("hasAuthority('ADMIN')")`.
+You can create a custom `@Bean` like this one:
+
+====
+.Java
+[source,java,role="primary"]
+----
+class MyAuthorizer {
+	boolean isAdmin(MethodSecurityExpressionOperations root) {
+		boolean decision = root.hasAuthority("ADMIN");
+		// custom work ...
+        return decision;
+	}
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+class MyAuthorizer {
+	fun isAdmin(val root: MethodSecurityExpressionOperations): boolean {
+		val decision = root.hasAuthority("ADMIN");
+		// custom work ...
+        return decision;
+	}
+}
+----
+====
+
+and then refer to it in the annotation like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@PreAuthorize("@authz.isAdmin(#root)")
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@PreAuthorize("@authz.isAdmin(#root)")
+----
+====
+
+==== I'd still prefer to subclass `DefaultMethodSecurityExpressionHandler`
+
+If you must continue subclassing `DefaultMethodSecurityExpressionHandler`, you can still do so.
+Instead, override the `createEvaluationContext(Supplier<Authentication>, MethodInvocation)` method like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+class MyExpressionHandler extends DefaultMethodSecurityExpressionHandler {
+    @Override
+    public EvaluationContext createEvaluationContext(
+            Supplier<Authentication> authentication, MethodInvocation mi) {
+		StandardEvaluationContext context = (StandardEvaluationContext) super.createEvaluationContext(authentication, mi);
+        MySecurityExpressionRoot root = new MySecurityExpressionRoot(authentication, invocation);
+	    root.setPermissionEvaluator(getPermissionEvaluator());
+	    root.setTrustResolver(new AuthenticationTrustResolverImpl());
+        root.setRoleHierarchy(getRoleHierarchy());
+        context.setRootObject(root);
+        return context;
+    }
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
+    override fun createEvaluationContext(val authentication: Supplier<Authentication>,
+        val mi: MethodInvocation): EvaluationContext {
+		val context = super.createEvaluationContext(authentication, mi) as StandardEvaluationContext;
+        val root = new MySecurityExpressionRoot(authentication, invocation);
+	    root.setPermissionEvaluator(getPermissionEvaluator());
+	    root.setTrustResolver(new AuthenticationTrustResolverImpl());
+        root.setRoleHierarchy(getRoleHierarchy());
+        context.setRootObject(root);
+        return context;
+    }
+}
+----
+====
+
+==== Opt-out Steps
+
+If you need to opt-out of these changes, you can use `@EnableGlobalMethodSecurity` instead of `@EnableMethodSecurity`
+
 [[servlet-replace-permissionevaluator-bean-with-methodsecurityexpression-handler]]
 === Publish a `MethodSecurityExpressionHandler` instead of a `PermissionEvaluator`
 
