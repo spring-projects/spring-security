@@ -247,12 +247,22 @@ public final class PreAuthorizeAuthorizationManagerAdapter implements Authorizat
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
 
-==== I use a custom `AfterInvocationManager`
+==== I use `AfterInvocationManager` or `AfterInvocationProvider`
 
-{security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] replaces both {security-api-url}org/springframework/security/access/AccessDecisionManager.html[`AccessDecisionManager`] and  {security-api-url}org/springframework/security/access/intercept/AfterInvocationManager.html[`AfterInvocationManager`].
-The difference is that `AuthorizationManager<MethodInvocation>` replaces `AccessDecisionManager` and `AuthorizationManager<MethodInvocationResult>` replaces `AfterInvocationManager`.
+{security-api-url}org/springframework/security/access/intercept/AfterInvocationManager.html;[`AfterInvocationManager`] and {security-api-url}org/springframework/security/access/intercept/AfterInvocationProvider.html[`AfterInvocationProvider`] make an authorization decision about an invocation's result.
+For example, in the case of method invocation, these make an authorization decision about a method's return value.
 
-Given that, <<_i_use_a_custom_accessdecisionvoter,the same rules apply for adaptation>>, where the goal this time is to implement `AuthorizationManager<MethodInvocationResult>` instead of `AuthorizationManager<MethodInvocation>` and use `AuthorizationManagerAfterMethodInterceptor` instead of `AuthorizationManagerBeforeMethodInterceptor`.
+In Spring Security 3.0, authorization decision-making was standardized into the xref:servlet/authorization/method-security.adoc[`@PostAuthorize` and `@PostFilter` annotations].
+`@PostAuthorize` is for deciding whether the return value as a whole was permitted to be returned.
+`@PostFilter` is for filtering individual entries from a returned collection, array, or stream.
+
+These two annotations should serve most needs, and you are encouraged to migrate to one or both of them since `AfterInvocationProvider` and `AfterInvocationManager` are now deprecated.
+
+If you've implemented your own `AfterInvocationManager` or `AfterInvocationProvider`, you should first ask yourself what it is trying to do.
+If it is trying to authorize the return type, <<_i_use_a_custom_accessdecisionvoter,consider implementing `AuthorizationManager<MethodInvocationResult>` and using `AfterMethodAuthorizationManagerInterceptor`>>. Or publishing a custom bean and using `@PostAuthorize("@myBean.authorize(#root)")`.
+
+If it is trying to filter, then consider publishing a custom bean and using `@PostFilter("@mybean.authorize(#root)")`.
+Or, if needed, you can implement your own `MethodInterceptor`, taking a look at `PostFilterAuthorizationMethodInterceptor` and `PrePostMethodSecurityConfiguration` for an example.
 
 ==== I use `RunAsManager`
 
