@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,11 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication.logout;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,6 +80,23 @@ public class HttpSessionLogoutRequestRepositoryTests {
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(request)).isNull();
 		request.setParameter(Saml2ParameterNames.RELAY_STATE, two.getRelayState());
 		assertThat(this.logoutRequestRepository.loadLogoutRequest(request)).isEqualTo(two);
+	}
+
+	@Test
+	void serializeAndDeserializeSaml2LogoutRequest() throws IOException, ClassNotFoundException {
+		Saml2LogoutRequest requestToSerialize = createLogoutRequest().relayState("state-serialized").build();
+		byte[] data;
+		try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+				ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream)) {
+			objectOutputStream.writeObject(requestToSerialize);
+			data = outputStream.toByteArray();
+		}
+
+		try (ByteArrayInputStream inputStream = new ByteArrayInputStream(data);
+				ObjectInputStream objectInputStream = new ObjectInputStream(inputStream)) {
+			Saml2LogoutRequest deserializedRequest = (Saml2LogoutRequest) objectInputStream.readObject();
+			assertThat(requestToSerialize.getRelayState()).isEqualTo(deserializedRequest.getRelayState());
+		}
 	}
 
 	@Test
