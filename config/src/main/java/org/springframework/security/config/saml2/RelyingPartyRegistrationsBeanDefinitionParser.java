@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -208,30 +208,49 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 			ParserContext parserContext) {
 		String registrationId = relyingPartyRegistrationElt.getAttribute(ATT_REGISTRATION_ID);
 		String metadataLocation = relyingPartyRegistrationElt.getAttribute(ATT_METADATA_LOCATION);
+		RelyingPartyRegistration.Builder builder;
+		if (StringUtils.hasText(metadataLocation)) {
+			builder = RelyingPartyRegistrations.fromMetadataLocation(metadataLocation).registrationId(registrationId);
+		}
+		else {
+			builder = RelyingPartyRegistration.withRegistrationId(registrationId)
+					.assertingPartyDetails((apBuilder) -> buildAssertingParty(relyingPartyRegistrationElt,
+							assertingParties, apBuilder, parserContext));
+		}
+		addRemainingProperties(relyingPartyRegistrationElt, builder);
+		return builder;
+	}
+
+	private static void addRemainingProperties(Element relyingPartyRegistrationElt,
+			RelyingPartyRegistration.Builder builder) {
+		String entityId = relyingPartyRegistrationElt.getAttribute(ATT_ENTITY_ID);
 		String singleLogoutServiceLocation = relyingPartyRegistrationElt
 				.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_LOCATION);
 		String singleLogoutServiceResponseLocation = relyingPartyRegistrationElt
 				.getAttribute(ATT_SINGLE_LOGOUT_SERVICE_RESPONSE_LOCATION);
 		Saml2MessageBinding singleLogoutServiceBinding = getSingleLogoutServiceBinding(relyingPartyRegistrationElt);
-		if (StringUtils.hasText(metadataLocation)) {
-			return RelyingPartyRegistrations.fromMetadataLocation(metadataLocation).registrationId(registrationId)
-					.singleLogoutServiceLocation(singleLogoutServiceLocation)
-					.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
-					.singleLogoutServiceBinding(singleLogoutServiceBinding);
-		}
-		String entityId = relyingPartyRegistrationElt.getAttribute(ATT_ENTITY_ID);
 		String assertionConsumerServiceLocation = relyingPartyRegistrationElt
 				.getAttribute(ATT_ASSERTION_CONSUMER_SERVICE_LOCATION);
 		Saml2MessageBinding assertionConsumerServiceBinding = getAssertionConsumerServiceBinding(
 				relyingPartyRegistrationElt);
-		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(entityId)
-				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
-				.assertionConsumerServiceBinding(assertionConsumerServiceBinding)
-				.singleLogoutServiceLocation(singleLogoutServiceLocation)
-				.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation)
-				.singleLogoutServiceBinding(singleLogoutServiceBinding)
-				.assertingPartyDetails((builder) -> buildAssertingParty(relyingPartyRegistrationElt, assertingParties,
-						builder, parserContext));
+		if (StringUtils.hasText(entityId)) {
+			builder.entityId(entityId);
+		}
+		if (StringUtils.hasText(singleLogoutServiceLocation)) {
+			builder.singleLogoutServiceLocation(singleLogoutServiceLocation);
+		}
+		if (StringUtils.hasText(singleLogoutServiceResponseLocation)) {
+			builder.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation);
+		}
+		if (singleLogoutServiceBinding != null) {
+			builder.singleLogoutServiceBinding(singleLogoutServiceBinding);
+		}
+		if (StringUtils.hasText(assertionConsumerServiceLocation)) {
+			builder.assertionConsumerServiceLocation(assertionConsumerServiceLocation);
+		}
+		if (assertionConsumerServiceBinding != null) {
+			builder.assertionConsumerServiceBinding(assertionConsumerServiceBinding);
+		}
 	}
 
 	private static void buildAssertingParty(Element relyingPartyElt, Map<String, Map<String, Object>> assertingParties,
@@ -309,7 +328,7 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 		if (StringUtils.hasText(assertionConsumerServiceBinding)) {
 			return Saml2MessageBinding.valueOf(assertionConsumerServiceBinding);
 		}
-		return Saml2MessageBinding.REDIRECT;
+		return null;
 	}
 
 	private static Saml2MessageBinding getSingleLogoutServiceBinding(Element relyingPartyRegistrationElt) {
@@ -317,7 +336,7 @@ public final class RelyingPartyRegistrationsBeanDefinitionParser implements Bean
 		if (StringUtils.hasText(singleLogoutServiceBinding)) {
 			return Saml2MessageBinding.valueOf(singleLogoutServiceBinding);
 		}
-		return Saml2MessageBinding.POST;
+		return null;
 	}
 
 	private static Saml2X509Credential getSaml2VerificationCredential(String certificateLocation) {
