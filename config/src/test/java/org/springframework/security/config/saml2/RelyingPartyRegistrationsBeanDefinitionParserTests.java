@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,6 +57,27 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 			"  <relying-party-registrations>\n" +
 			"    <relying-party-registration registration-id=\"one\"\n" +
 			"                                metadata-location=\"${metadata-location}\"/>\n" +
+			"  </relying-party-registrations>\n" +
+			"\n" +
+			"</b:beans>\n";
+	// @formatter:on
+
+	// @formatter:off
+	private static final String METADATA_LOCATION_OVERRIDE_PROPERTIES_XML_CONFIG = "<b:beans xmlns:b=\"http://www.springframework.org/schema/beans\"\n" +
+			"         xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
+			"         xmlns=\"http://www.springframework.org/schema/security\"\n" +
+			"         xsi:schemaLocation=\"\n" +
+			"\t\t\thttp://www.springframework.org/schema/security\n" +
+			"\t\t\thttps://www.springframework.org/schema/security/spring-security.xsd\n" +
+			"\t\t\thttp://www.springframework.org/schema/beans\n" +
+			"\t\t\thttps://www.springframework.org/schema/beans/spring-beans.xsd\">\n" +
+			"  \n" +
+			"  <relying-party-registrations>\n" +
+			"    <relying-party-registration registration-id=\"one\"\n" +
+			"                                entity-id=\"https://rp.example.org\"\n" +
+			"                                metadata-location=\"${metadata-location}\"\n" +
+			"                                assertion-consumer-service-location=\"https://rp.example.org/location\"\n" +
+			"                                assertion-consumer-service-binding=\"REDIRECT\"/>"  +
 			"  </relying-party-registrations>\n" +
 			"\n" +
 			"</b:beans>\n";
@@ -131,6 +152,41 @@ public class RelyingPartyRegistrationsBeanDefinitionParserTests {
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceLocation())
 				.isEqualTo("{baseUrl}/login/saml2/sso/{registrationId}");
 		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding()).isEqualTo(Saml2MessageBinding.POST);
+		assertThat(assertingPartyDetails.getEntityId())
+				.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
+		assertThat(assertingPartyDetails.getWantAuthnRequestsSigned()).isFalse();
+		assertThat(assertingPartyDetails.getVerificationX509Credentials()).hasSize(1);
+		assertThat(assertingPartyDetails.getEncryptionX509Credentials()).hasSize(1);
+		assertThat(assertingPartyDetails.getSingleSignOnServiceLocation())
+				.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php");
+		assertThat(assertingPartyDetails.getSingleSignOnServiceBinding()).isEqualTo(Saml2MessageBinding.REDIRECT);
+		assertThat(assertingPartyDetails.getSigningAlgorithms())
+				.containsExactly("http://www.w3.org/2001/04/xmldsig-more#rsa-sha256");
+	}
+
+	@Test
+	public void parseWhenMetadataLocationConfiguredAndRegistrationHasPropertiesThenDoNotOverrideSpecifiedProperties()
+			throws Exception {
+		this.server = new MockWebServer();
+		this.server.start();
+		String serverUrl = this.server.url("/").toString();
+		this.server.enqueue(xmlResponse(METADATA_RESPONSE));
+		String metadataConfig = METADATA_LOCATION_OVERRIDE_PROPERTIES_XML_CONFIG.replace("${metadata-location}",
+				serverUrl);
+		this.spring.context(metadataConfig).autowire();
+		assertThat(this.relyingPartyRegistrationRepository)
+				.isInstanceOf(InMemoryRelyingPartyRegistrationRepository.class);
+		RelyingPartyRegistration relyingPartyRegistration = this.relyingPartyRegistrationRepository
+				.findByRegistrationId("one");
+		RelyingPartyRegistration.AssertingPartyDetails assertingPartyDetails = relyingPartyRegistration
+				.getAssertingPartyDetails();
+		assertThat(relyingPartyRegistration).isNotNull();
+		assertThat(relyingPartyRegistration.getRegistrationId()).isEqualTo("one");
+		assertThat(relyingPartyRegistration.getEntityId()).isEqualTo("https://rp.example.org");
+		assertThat(relyingPartyRegistration.getAssertionConsumerServiceLocation())
+				.isEqualTo("https://rp.example.org/location");
+		assertThat(relyingPartyRegistration.getAssertionConsumerServiceBinding())
+				.isEqualTo(Saml2MessageBinding.REDIRECT);
 		assertThat(assertingPartyDetails.getEntityId())
 				.isEqualTo("https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/metadata.php");
 		assertThat(assertingPartyDetails.getWantAuthnRequestsSigned()).isFalse();
