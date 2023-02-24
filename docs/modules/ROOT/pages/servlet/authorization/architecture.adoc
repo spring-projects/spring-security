@@ -234,6 +234,11 @@ static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHiera
 ----
 ====
 
+[NOTE]
+`RoleHierarchy` bean configuration is not yet ported over to `@EnableMethodSecurity`.
+As such this example is using `AccessDecisionVoter`.
+If you need `RoleHierarchy` support for method security, please continue using `@EnableGlobalMethodSecurity` until https://github.com/spring-projects/spring-security/issues/12783 is complete.
+
 Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
 A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AuthorizationManager` adapted to call the above `RoleHierarchyVoter`.
 The `>` symbol can be thought of as meaning "includes".
