@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import org.springframework.context.annotation.Role;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
-import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterReactiveMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeReactiveMethodInterceptor;
@@ -93,11 +92,7 @@ final class ReactiveAuthorizationManagerMethodSecurityConfiguration {
 
 	static <T> ReactiveAuthorizationManager<T> manager(ReactiveAuthorizationManager<T> delegate,
 			ObjectProvider<ObservationRegistry> registryProvider) {
-		ObservationRegistry registry = registryProvider.getIfAvailable(() -> ObservationRegistry.NOOP);
-		if (registry.isNoop()) {
-			return delegate;
-		}
-		return new ObservationReactiveAuthorizationManager<>(registry, delegate);
+		return new DeferringObservationReactiveAuthorizationManager<>(registryProvider, delegate);
 	}
 
 }
