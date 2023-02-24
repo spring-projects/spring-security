@@ -196,22 +196,25 @@ A typical configuration might look like this:
 [source,java,role="primary"]
 ----
 @Bean
-AccessDecisionVoter hierarchyVoter() {
+static RoleHierarchy roleHierarchy() {
     RoleHierarchy hierarchy = new RoleHierarchyImpl();
     hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
             "ROLE_STAFF > ROLE_USER\n" +
             "ROLE_USER > ROLE_GUEST");
-    return new RoleHierarchyVoter(hierarchy);
+}
+
+// and, if using method security also add
+@Bean
+static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHierarchy roleHierarchy) {
+	DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+	expressionHandler.setRoleHierarchy(roleHierarchy);
+	return expressionHandler;
 }
 ----
 
 .Xml
 [source,java,role="secondary"]
 ----
-
-<bean id="roleVoter" class="org.springframework.security.access.vote.RoleHierarchyVoter">
-	<constructor-arg ref="roleHierarchy" />
-</bean>
 <bean id="roleHierarchy"
 		class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
 	<property name="hierarchy">
@@ -221,6 +224,12 @@ AccessDecisionVoter hierarchyVoter() {
 			ROLE_USER > ROLE_GUEST
 		</value>
 	</property>
+</bean>
+
+<!-- and, if using method security also add -->
+<bean id="methodSecurityExpressionHandler"
+        class="org.springframework.security.access.expression.method.MethodSecurityExpressionHandler">
+    <property ref="roleHierarchy"/>
 </bean>
 ----
 ====
