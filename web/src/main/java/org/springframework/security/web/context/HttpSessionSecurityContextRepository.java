@@ -66,7 +66,7 @@ import org.springframework.web.util.WebUtils;
  * <b>only</b> be created if the supplied {@code SecurityContext} is not equal to an empty
  * {@code SecurityContext} instance. This avoids needless <code>HttpSession</code>
  * creation, but automates the storage of changes made to the context during the request.
- * Note that if {@link SecurityContextPersistenceFilter} is configured to eagerly create
+ * Note that if {@link SecurityContextHolderFilter} is configured to eagerly create
  * sessions, then the session-minimisation logic applied here will not make any
  * difference. If you are using eager session creation, then you should ensure that the
  * <tt>allowSessionCreation</tt> property of this class is set to <tt>true</tt> (the
