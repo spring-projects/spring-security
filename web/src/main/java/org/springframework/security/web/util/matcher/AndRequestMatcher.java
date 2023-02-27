@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
 package org.springframework.security.web.util.matcher;
 
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
@@ -64,6 +66,28 @@ public final class AndRequestMatcher implements RequestMatcher {
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * Returns a {@link MatchResult} for this {@link HttpServletRequest}. In the case of a
+	 * match, request variables are a composition of the request variables in underlying
+	 * matchers. In the event that two matchers have the same key, the last key is the one
+	 * propagated.
+	 * @param request the HTTP request
+	 * @return a {@link MatchResult} based on the given HTTP request
+	 * @since 6.1
+	 */
+	@Override
+	public MatchResult matcher(HttpServletRequest request) {
+		Map<String, String> variables = new LinkedHashMap<>();
+		for (RequestMatcher matcher : this.requestMatchers) {
+			MatchResult result = matcher.matcher(request);
+			if (!result.isMatch()) {
+				return MatchResult.notMatch();
+			}
+			variables.putAll(result.getVariables());
+		}
+		return MatchResult.match(variables);
 	}
 
 	@Override
