@@ -42,4 +42,22 @@ public class InMemoryRelyingPartyRegistrationRepositoryTests {
 		assertThat(registrations.findByRegistrationId(null)).isNull();
 	}
 
+	@Test
+	void findByAssertingPartyEntityIdWhenGivenEntityIdThenReturnsMatchingRegistrations() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+		InMemoryRelyingPartyRegistrationRepository registrations = new InMemoryRelyingPartyRegistrationRepository(
+				registration);
+		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		assertThat(registrations.findUniqueByAssertingPartyEntityId(assertingPartyEntityId)).isEqualTo(registration);
+	}
+
+	@Test
+	void findByAssertingPartyEntityIdWhenGivenWrongEntityIdThenReturnsEmpty() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration().build();
+		InMemoryRelyingPartyRegistrationRepository registrations = new InMemoryRelyingPartyRegistrationRepository(
+				registration);
+		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		assertThat(registrations.findUniqueByAssertingPartyEntityId(assertingPartyEntityId + "wrong")).isNull();
+	}
+
 }
