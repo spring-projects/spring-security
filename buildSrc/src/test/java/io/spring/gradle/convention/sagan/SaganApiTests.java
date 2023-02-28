@@ -42,7 +42,7 @@ public class SaganApiTests {
 	public void setup() throws Exception {
 		this.server = new MockWebServer();
 		this.server.start();
-		this.sagan = new SaganApi("mock-oauth-token");
+		this.sagan = new SaganApi("user", "mock-oauth-token");
 		this.baseUrl = this.server.url("/api").toString();
 		this.sagan.setBaseUrl(this.baseUrl);
 	}
@@ -63,7 +63,7 @@ public class SaganApiTests {
 		RecordedRequest request = this.server.takeRequest(1, TimeUnit.SECONDS);
 		assertThat(request.getRequestUrl().toString()).isEqualTo(this.baseUrl + "/projects/spring-security/releases");
 		assertThat(request.getMethod()).isEqualToIgnoringCase("post");
-		assertThat(request.getHeaders().get("Authorization")).isEqualTo("Basic bm90LXVzZWQ6bW9jay1vYXV0aC10b2tlbg==");
+		assertThat(request.getHeaders().get("Authorization")).isEqualTo("Basic dXNlcjptb2NrLW9hdXRoLXRva2Vu");
 		assertThat(request.getBody().readString(Charset.defaultCharset())).isEqualToIgnoringWhitespace("{\n" +
 				"   \"version\":\"5.6.0-SNAPSHOT\",\n" +
 				"   \"current\":false,\n" +
@@ -79,7 +79,7 @@ public class SaganApiTests {
 		RecordedRequest request = this.server.takeRequest(1, TimeUnit.SECONDS);
 		assertThat(request.getRequestUrl().toString()).isEqualTo(this.baseUrl + "/projects/spring-security/releases/5.6.0-SNAPSHOT");
 		assertThat(request.getMethod()).isEqualToIgnoringCase("delete");
-		assertThat(request.getHeaders().get("Authorization")).isEqualTo("Basic bm90LXVzZWQ6bW9jay1vYXV0aC10b2tlbg==");
+		assertThat(request.getHeaders().get("Authorization")).isEqualTo("Basic dXNlcjptb2NrLW9hdXRoLXRva2Vu");
 		assertThat(request.getBody().readString(Charset.defaultCharset())).isEmpty();
 	}
 }
