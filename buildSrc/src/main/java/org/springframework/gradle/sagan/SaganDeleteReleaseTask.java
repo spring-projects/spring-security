@@ -20,6 +20,9 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
+import org.springframework.gradle.github.user.GitHubUserApi;
+import org.springframework.gradle.github.user.User;
+
 public class SaganDeleteReleaseTask extends DefaultTask {
 
 	@Input
@@ -31,7 +34,10 @@ public class SaganDeleteReleaseTask extends DefaultTask {
 
 	@TaskAction
 	public void saganCreateRelease() {
-		SaganApi sagan = new SaganApi(this.gitHubAccessToken);
+		GitHubUserApi github = new GitHubUserApi(this.gitHubAccessToken);
+		User user = github.getUser();
+
+		SaganApi sagan = new SaganApi(user.getLogin(), this.gitHubAccessToken);
 		sagan.deleteReleaseForProject(this.version, this.projectName);
 	}
 
