@@ -38,6 +38,18 @@ public class RelyingPartyRegistrationTests {
 		compareRegistrations(registration, copy);
 	}
 
+	@Test
+	void mutateWhenInvokedThenCreatesCopy() {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
+				.nameIdFormat("format")
+				.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
+				.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
+				.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
+				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
+		RelyingPartyRegistration copy = registration.mutate().build();
+		compareRegistrations(registration, copy);
+	}
+
 	private void compareRegistrations(RelyingPartyRegistration registration, RelyingPartyRegistration copy) {
 		assertThat(copy.getRegistrationId()).isEqualTo(registration.getRegistrationId()).isEqualTo("simplesamlphp");
 		assertThat(copy.getAssertingPartyDetails().getEntityId())
