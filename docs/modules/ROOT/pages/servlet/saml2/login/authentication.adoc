@@ -1,16 +1,96 @@
 [[servlet-saml2login-authenticate-responses]]
 = Authenticating ``<saml2:Response>``s
 
-To verify SAML 2.0 Responses, Spring Security uses xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[`OpenSaml4AuthenticationProvider`] by default.
+To verify SAML 2.0 Responses, Spring Security uses xref:servlet/saml2/login/overview.adoc#servlet-saml2login-authentication-saml2authenticationtokenconverter[`Saml2AuthenticationTokenConverter`] to populate the `Authentication` request and xref:servlet/saml2/login/overview.adoc#servlet-saml2login-architecture[`OpenSaml4AuthenticationProvider`] to authenticate it.
 
 You can configure this in a number of ways including:
 
-1. Setting a clock skew to timestamp validation
-2. Mapping the response to a list of `GrantedAuthority` instances
-3. Customizing the strategy for validating assertions
-4. Customizing the strategy for decrypting response and assertion elements
+1. Changing the way the `RelyingPartyRegistration` is Looked Up
+2. Setting a clock skew to timestamp validation
+3. Mapping the response to a list of `GrantedAuthority` instances
+4. Customizing the strategy for validating assertions
+5. Customizing the strategy for decrypting response and assertion elements
 
 To configure these, you'll use the `saml2Login#authenticationManager` method in the DSL.
+
+[[relyingpartyregistrationresolver-apply]]
+== Changing `RelyingPartyRegistration` Lookup
+
+`RelyingPartyRegistration` lookup is customized xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-relyingpartyregistrationresolver[in a `RelyingPartyRegistrationResolver`].
+
+To apply a `RelyingPartyRegistrationResolver` when processing `<saml2:Response>` payloads, you should first publish a `Saml2AuthenticationTokenConverter` bean like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+Saml2AuthenticationTokenConverter authenticationConverter(InMemoryRelyingPartyRegistrationRepository registrations) {
+	return new Saml2AuthenticationTokenConverter(new MyRelyingPartyRegistrationResolver(registrations));
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun authenticationConverter(val registrations: InMemoryRelyingPartyRegistrationRepository): Saml2AuthenticationTokenConverter {
+	return Saml2AuthenticationTokenConverter(MyRelyingPartyRegistrationResolver(registrations));
+}
+----
+====
+
+Recall that the Assertion Consumer Service URL is `+/saml2/login/sso/{registrationId}+` by default.
+If you are no longer wanting the `registrationId` in the URL, change it in the filter chain and in your relying party metadata:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain securityFilters(HttpSecurity http) throws Exception {
+	http
+        // ...
+        .saml2Login((saml2) -> saml2.filterProcessingUrl("/saml2/login/sso"))
+        // ...
+
+    return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilters(val http: HttpSecurity): SecurityFilterChain {
+	http {
+        // ...
+        .saml2Login {
+            filterProcessingUrl = "/saml2/login/sso"
+        }
+        // ...
+    }
+
+    return http.build()
+}
+----
+====
+
+and:
+
+====
+.Java
+[source,java,role="primary"]
+----
+relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml2/login/sso")
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml2/login/sso")
+----
+====
 
 [[servlet-saml2login-opensamlauthenticationprovider-clockskew]]
 == Setting a Clock Skew
