@@ -246,15 +246,15 @@ public class RelyingPartyRegistrationsTests {
 
 	@Test
 	public void collectionFromMetadataLocationCanHandleFederationMetadata() {
-		Collection<RelyingPartyRegistration.Builder> federationMetadataWithSkippedSPEntries =
-				RelyingPartyRegistrations.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
+		Collection<RelyingPartyRegistration.Builder> federationMetadataWithSkippedSPEntries = RelyingPartyRegistrations
+				.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
 		assertThat(federationMetadataWithSkippedSPEntries.size()).isEqualTo(1);
 	}
 
 	@Test
 	public void collectionFromMetadataLocationWithoutIdpThenSaml2Exception() {
-		assertThatExceptionOfType(Saml2Exception.class)
-				.isThrownBy(() -> RelyingPartyRegistrations
-						.collectionFromMetadataLocation("classpath:test-metadata-without-idp.xml"));
+		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> RelyingPartyRegistrations
+				.collectionFromMetadataLocation("classpath:test-metadata-without-idp.xml"));
 	}
+
 }
