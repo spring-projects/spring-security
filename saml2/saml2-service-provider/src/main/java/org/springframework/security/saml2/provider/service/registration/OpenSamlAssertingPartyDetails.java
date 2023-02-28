@@ -16,7 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.registration;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.function.Consumer;
+
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
+
+import org.springframework.security.saml2.core.Saml2X509Credential;
 
 /**
  * A {@link RelyingPartyRegistration.AssertingPartyDetails} that contains
@@ -66,10 +72,90 @@ public final class OpenSamlAssertingPartyDetails extends RelyingPartyRegistratio
 	 */
 	public static final class Builder extends RelyingPartyRegistration.AssertingPartyDetails.Builder {
 
-		private final EntityDescriptor descriptor;
+		private EntityDescriptor descriptor;
 
 		private Builder(EntityDescriptor descriptor) {
 			this.descriptor = descriptor;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder entityId(String entityId) {
+			return (Builder) super.entityId(entityId);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder wantAuthnRequestsSigned(boolean wantAuthnRequestsSigned) {
+			return (Builder) super.wantAuthnRequestsSigned(wantAuthnRequestsSigned);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder signingAlgorithms(Consumer<List<String>> signingMethodAlgorithmsConsumer) {
+			return (Builder) super.signingAlgorithms(signingMethodAlgorithmsConsumer);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder verificationX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+			return (Builder) super.verificationX509Credentials(credentialsConsumer);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder encryptionX509Credentials(Consumer<Collection<Saml2X509Credential>> credentialsConsumer) {
+			return (Builder) super.encryptionX509Credentials(credentialsConsumer);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder singleSignOnServiceLocation(String singleSignOnServiceLocation) {
+			return (Builder) super.singleSignOnServiceLocation(singleSignOnServiceLocation);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder singleSignOnServiceBinding(Saml2MessageBinding singleSignOnServiceBinding) {
+			return (Builder) super.singleSignOnServiceBinding(singleSignOnServiceBinding);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder singleLogoutServiceLocation(String singleLogoutServiceLocation) {
+			return (Builder) super.singleLogoutServiceLocation(singleLogoutServiceLocation);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder singleLogoutServiceResponseLocation(String singleLogoutServiceResponseLocation) {
+			return (Builder) super.singleLogoutServiceResponseLocation(singleLogoutServiceResponseLocation);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override
+		public Builder singleLogoutServiceBinding(Saml2MessageBinding singleLogoutServiceBinding) {
+			return (Builder) super.singleLogoutServiceBinding(singleLogoutServiceBinding);
 		}
 
 		/**

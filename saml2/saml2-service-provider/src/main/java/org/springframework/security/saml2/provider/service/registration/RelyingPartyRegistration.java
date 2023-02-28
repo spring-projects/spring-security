@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -69,7 +68,7 @@ import org.springframework.util.CollectionUtils;
  * @author Josh Cummings
  * @since 5.2
  */
-public final class RelyingPartyRegistration {
+public class RelyingPartyRegistration {
 
 	private final String registrationId;
 
@@ -93,7 +92,7 @@ public final class RelyingPartyRegistration {
 
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
-	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
 			AssertingPartyDetails assertingPartyDetails, String nameIdFormat,
