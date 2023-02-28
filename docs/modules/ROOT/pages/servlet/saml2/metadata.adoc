@@ -103,3 +103,45 @@ filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata", "GET"));
 filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata", "GET"))
 ----
 ====
+
+== Changing the Way a `RelyingPartyRegistration` Is Looked Up
+
+To apply a custom `RelyingPartyRegistrationResolver` to the metadata endpoint, you can provide it directly in the filter constructor like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+RelyingPartyRegistrationResolver myRegistrationResolver = ...;
+Saml2MetadataFilter metadata = new Saml2MetadataFilter(myRegistrationResolver, new OpenSamlMetadataResolver());
+
+// ...
+
+http.addFilterBefore(metadata, BasicAuthenticationFilter.class);
+----
+
+.Kotlin
+----
+val myRegistrationResolver: RelyingPartyRegistrationResolver = ...;
+val metadata = new Saml2MetadataFilter(myRegistrationResolver, OpenSamlMetadataResolver());
+
+// ...
+
+http.addFilterBefore(metadata, BasicAuthenticationFilter::class.java);
+----
+====
+
+In the event that you are applying a `RelyingPartyRegistrationResolver` to remove the `registrationId` from the URI, you must also change the URI in the filter like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+metadata.setRequestMatcher("/saml2/metadata")
+----
+
+.Kotlin
+----
+metadata.setRequestMatcher("/saml2/metadata")
+----
+====
