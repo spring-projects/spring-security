@@ -28,6 +28,7 @@ import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
+import org.springframework.util.Assert;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.web.util.UriUtils;
 
@@ -69,6 +70,12 @@ public final class Saml2LogoutRequest implements Serializable {
 
 	private Saml2LogoutRequest(String location, Saml2MessageBinding binding, Map<String, String> parameters, String id,
 			String relyingPartyRegistrationId, Function<Map<String, String>, String> encoder) {
+		Assert.notNull(location, "location cannot be null");
+		Assert.notNull(binding, "binding cannot be null");
+		Assert.notNull(parameters, "parameters cannot be null");
+		Assert.notNull(id, "id cannot be null");
+		Assert.notNull(relyingPartyRegistrationId, "relyingPArtyRegistrationId cannot be null");
+		Assert.notNull(encoder, "encoder cannot be null");
 		this.location = location;
 		this.binding = binding;
 		this.parameters = Collections.unmodifiableMap(new LinkedHashMap<>(parameters));
