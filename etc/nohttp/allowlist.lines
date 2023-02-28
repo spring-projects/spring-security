@@ -8,3 +8,4 @@
 ^http://www.w3.org/2001/10/xml-exc-c14n
 ^http://www.w3.org/2001/04/xmldsig-more
 ^http://www.w3.org/2001/04/xmlenc
+^http://www.springframework.org/schema/security/.*
