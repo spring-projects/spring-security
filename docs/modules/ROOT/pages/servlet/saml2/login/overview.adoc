@@ -641,6 +641,16 @@ which in a deployed application would translate to
 
 `+https://rp.example.com/adfs+`
 
+The prevailing URI patterns are as follows:
+
+* `+/saml2/authenticate/{registrationId}+` - The endpoint that xref:servlet/saml2/login/authentication-requests.adoc[generates a `<saml2:AuthnRequest>`] based on the configurations for that `RelyingPartyRegistration` and sends it to the asserting party
+* `+/saml2/login/sso/{registrationId}+` - The endpoint that xref:servlet/saml2/login/authentication.adoc[authenticates an asserting party's `<saml2:Response>`] based on the configurations for that `RelyingPartyRegistration`
+* `+/saml2/logout/sso+` - The endpoint that xref:servlet/saml2/logout.adoc[processes `<saml2:LogoutRequest>` and `<saml2:LogoutResponse>` payloads]; the `RelyingPartyRegistration` is looked up from previously authenticated state
+* `+/saml2/saml2-service-provider/metadata/{registrationId}+` - The xref:servlet/saml2/metadata.adoc[relying party metadata] for that `RelyingPartyRegistration`
+
+Since the `registrationId` is the primary identifier for a `RelyingPartyRegistration`, it is needed in the URL for unauthenticated scenarios.
+If you wish to remove the `registrationId` from the URL for any reason, you can <<servlet-saml2login-rpr-relyingpartyregistrationresolver,specify a `RelyingPartyRegistrationResolver`>> to tell Spring Security how to look up the `registrationId`.
+
 [[servlet-saml2login-rpr-credentials]]
 === Credentials
 
