@@ -26,14 +26,14 @@ import java.util.Base64;
  * Implements necessary calls to the Sagan API See https://spring.io/restdocs/index.html
  */
 public class SaganApi {
-	private String baseUrl = "https://spring.io/api";
+	private String baseUrl = "https://api.spring.io";
 
 	private OkHttpClient client;
 	private Gson gson = new Gson();
 
-	public SaganApi(String gitHubToken) {
+	public SaganApi(String username, String gitHubToken) {
 		this.client = new OkHttpClient.Builder()
-				.addInterceptor(new BasicInterceptor("not-used", gitHubToken))
+				.addInterceptor(new BasicInterceptor(username, gitHubToken))
 				.build();
 	}
 
