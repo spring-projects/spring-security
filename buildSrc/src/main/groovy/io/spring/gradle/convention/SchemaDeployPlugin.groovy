@@ -86,7 +86,7 @@ public class SchemaDeployPlugin implements Plugin<Project> {
 						 */
 						if (name == "spring-security") {
 							def springSecurityOauthPath = "/var/www/domains/spring.io/docs/htdocs/autorepo/schema/spring-security-oauth/current/security"
-							execute "cp $springSecurityOauthPath/* $extractPath"
+							execute "cp $springSecurityOauthPath/* ${extractPath}security"
 						}
 
 						execute "chmod -R g+w $extractPath"
