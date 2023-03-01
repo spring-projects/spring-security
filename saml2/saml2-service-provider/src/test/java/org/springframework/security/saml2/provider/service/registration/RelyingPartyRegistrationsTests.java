@@ -21,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -241,6 +242,19 @@ public class RelyingPartyRegistrationsTests {
 			assertThatExceptionOfType(Saml2Exception.class)
 					.isThrownBy(() -> RelyingPartyRegistrations.collectionFromMetadata(source));
 		}
+	}
+
+	@Test
+	public void collectionFromMetadataLocationCanHandleFederationMetadata() {
+		Collection<RelyingPartyRegistration.Builder> federationMetadataWithSkippedSPEntries = RelyingPartyRegistrations
+				.collectionFromMetadataLocation("classpath:test-federated-metadata.xml");
+		assertThat(federationMetadataWithSkippedSPEntries.size()).isEqualTo(1);
+	}
+
+	@Test
+	public void collectionFromMetadataLocationWithoutIdpThenSaml2Exception() {
+		assertThatExceptionOfType(Saml2Exception.class).isThrownBy(() -> RelyingPartyRegistrations
+				.collectionFromMetadataLocation("classpath:test-metadata-without-idp.xml"));
 	}
 
 }
