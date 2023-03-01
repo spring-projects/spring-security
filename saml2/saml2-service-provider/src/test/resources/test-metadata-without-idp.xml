@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<md:EntitiesDescriptor xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata" ID="federation_root"
+					   cacheDuration="P0Y0M0DT0H15M0.000S" validUntil="2099-03-04T20:18:29.383Z">
+	<md:EntityDescriptor entityID="https://service.provider.org">
+		<md:SPSSODescriptor AuthnRequestsSigned="true" WantAssertionsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+			<md:Extensions>
+				<idpdisco:DiscoveryResponse xmlns:idpdisco="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Binding="urn:oasis:names:tc:SAML:profiles:SSO:idp-discovery-protocol" Location="https://nomp.se/saml/login?disco=true" index="0"/>
+			</md:Extensions>
+			<md:KeyDescriptor use="signing">
+				<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+					<ds:X509Data>
+						<ds:X509Certificate>MIIDhzCCAm+gAwIBAgIEQ4NWOjANBgkqhkiG9w0BAQsFADB0MQswCQYDVQQGEwJTRTESMBAGA1UE CBMJU3RvY2tob2xtMRMwEQYDVQQHEwpTdW5kYnliZXJnMRQwEgYDVQQKEwtTZWxlc3NpYSBBQjEN MAsGA1UECxMETk9NUDEXMBUGA1UEAxMOU3RlZmFuIE5vcmJlcmcwHhcNMTgwNzAxMTEzODUwWhcN MzgwNjI2MTEzODUwWjB0MQswCQYDVQQGEwJTRTESMBAGA1UECBMJU3RvY2tob2xtMRMwEQYDVQQH EwpTdW5kYnliZXJnMRQwEgYDVQQKEwtTZWxlc3NpYSBBQjENMAsGA1UECxMETk9NUDEXMBUGA1UE AxMOU3RlZmFuIE5vcmJlcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCxGtC9ZwND QipHu5MslBANi/+k9CQPK4uHrfmVl8porr8pUWDlpVIGnfbJSc/glZQXCy/xbi79RfF/sFsTrmlb acMSSwwA0TYjJPBsx/MUBKdYQaei91b2IhP2yLSCWug+/A4fF3l/kUcqtX3SPhXpAESjbapyrKzp n1KWjDl7anV/kelOYdFGDATQWhUnslMml1hSeOgaaKQIbFzUH5yOw4RQ52zQkYP8wXF3h8BSP3LD tlSjP1Owme+UDjD+517zCaYHqV0RexDMU7h30m5a6YQeDdhJU02Ene86WhFfssqC+4HpL5g8KcbF T8vYY7Phe/7NqxUYXCaQlxTYHWWdAgMBAAGjITAfMB0GA1UdDgQWBBTv2MiZukGzYLRO/UsRUjvW AreSATANBgkqhkiG9w0BAQsFAAOCAQEACPkF8vkFWNEJDYsuNINKo3qUD9351gjHXo8ZNBbPzi23 xvMWHObYtkZb8+CGxEzI41hhZDnUSIu3CrpwVkf26hnKC6TyrdPsURN1CkdBwcUzjFdo3ZkZo4Uu RJtDBcn/DdZ86mMkEArojWzgleZCe37+7hEm5K/sRuxdT9wfqzprw9tOp/b7Y8423yGwW3+E+aef pKxbZyLCkabo1CT54PoCuypfNcQsSRDF0rmA0mQwfcmgVVkiNPkvQFO6VuNJsQjesxMN3QXSJf7v yqB3Y0IzGVC669FHsEF178Re0WJn4GwIR2UronR38dVdGEEMesyMPgwbww7U77qUkQLdug==</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</md:KeyDescriptor>
+			<md:KeyDescriptor use="encryption">
+				<ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+					<ds:X509Data>
+						<ds:X509Certificate>MIIDhzCCAm+gAwIBAgIEQ4NWOjANBgkqhkiG9w0BAQsFADB0MQswCQYDVQQGEwJTRTESMBAGA1UE CBMJU3RvY2tob2xtMRMwEQYDVQQHEwpTdW5kYnliZXJnMRQwEgYDVQQKEwtTZWxlc3NpYSBBQjEN MAsGA1UECxMETk9NUDEXMBUGA1UEAxMOU3RlZmFuIE5vcmJlcmcwHhcNMTgwNzAxMTEzODUwWhcN MzgwNjI2MTEzODUwWjB0MQswCQYDVQQGEwJTRTESMBAGA1UECBMJU3RvY2tob2xtMRMwEQYDVQQH EwpTdW5kYnliZXJnMRQwEgYDVQQKEwtTZWxlc3NpYSBBQjENMAsGA1UECxMETk9NUDEXMBUGA1UE AxMOU3RlZmFuIE5vcmJlcmcwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCxGtC9ZwND QipHu5MslBANi/+k9CQPK4uHrfmVl8porr8pUWDlpVIGnfbJSc/glZQXCy/xbi79RfF/sFsTrmlb acMSSwwA0TYjJPBsx/MUBKdYQaei91b2IhP2yLSCWug+/A4fF3l/kUcqtX3SPhXpAESjbapyrKzp n1KWjDl7anV/kelOYdFGDATQWhUnslMml1hSeOgaaKQIbFzUH5yOw4RQ52zQkYP8wXF3h8BSP3LD tlSjP1Owme+UDjD+517zCaYHqV0RexDMU7h30m5a6YQeDdhJU02Ene86WhFfssqC+4HpL5g8KcbF T8vYY7Phe/7NqxUYXCaQlxTYHWWdAgMBAAGjITAfMB0GA1UdDgQWBBTv2MiZukGzYLRO/UsRUjvW AreSATANBgkqhkiG9w0BAQsFAAOCAQEACPkF8vkFWNEJDYsuNINKo3qUD9351gjHXo8ZNBbPzi23 xvMWHObYtkZb8+CGxEzI41hhZDnUSIu3CrpwVkf26hnKC6TyrdPsURN1CkdBwcUzjFdo3ZkZo4Uu RJtDBcn/DdZ86mMkEArojWzgleZCe37+7hEm5K/sRuxdT9wfqzprw9tOp/b7Y8423yGwW3+E+aef pKxbZyLCkabo1CT54PoCuypfNcQsSRDF0rmA0mQwfcmgVVkiNPkvQFO6VuNJsQjesxMN3QXSJf7v yqB3Y0IzGVC669FHsEF178Re0WJn4GwIR2UronR38dVdGEEMesyMPgwbww7U77qUkQLdug==</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</md:KeyDescriptor>
+			<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sp.provider.org/saml/SingleLogout"/>
+			<md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://sp.provider.org/saml/SingleLogout"/>
+			<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://sp.provider.org/saml/SSO" index="0" isDefault="true"/>
+			<md:AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://sp.provider.org/saml/SSO" index="1"/>
+			<md:AttributeConsumingService index="0">
+				<md:ServiceName xml:lang="en">The SP</md:ServiceName>
+				<md:RequestedAttribute FriendlyName="mail" Name="urn:oid:0.9.2342.19200300.100.1.3" isRequired="true"/>
+				<md:RequestedAttribute FriendlyName="eduPersonPrincipalName" Name="urn:oid:1.3.6.1.4.1.5923.1.1.1.6" isRequired="true"/>
+				<md:RequestedAttribute FriendlyName="givenName" Name="urn:oid:2.5.4.42"/>
+				<md:RequestedAttribute FriendlyName="surName" Name="urn:oid:2.5.4.4"/>
+			</md:AttributeConsumingService>
+		</md:SPSSODescriptor>
+		<md:Organization>
+			<md:OrganizationName xml:lang="en">Service Provider</md:OrganizationName>
+			<md:OrganizationDisplayName xml:lang="en">Service Provider</md:OrganizationDisplayName>
+		</md:Organization>
+	</md:EntityDescriptor>
+</md:EntitiesDescriptor>
