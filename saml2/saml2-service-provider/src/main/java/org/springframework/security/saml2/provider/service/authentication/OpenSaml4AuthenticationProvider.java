@@ -69,7 +69,6 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
-import org.opensaml.saml.saml2.core.impl.StatusCodeImpl;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
@@ -628,15 +627,12 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			statusCodes.add(StatusCode.SUCCESS);
 			return statusCodes;
 		}
-		StatusCodeImpl parentStatusCode= (StatusCodeImpl) response.getStatus().getStatusCode();
-		if(parentStatusCode.getStatusCode()==null){
-			statusCodes.add(response.getStatus().getStatusCode().getValue());
-			return statusCodes ;
-		}
-		StatusCodeImpl childStatusCode= (StatusCodeImpl) parentStatusCode.getStatusCode();
+		StatusCode parentStatusCode= response.getStatus().getStatusCode();
+		statusCodes.add(parentStatusCode.getValue());
+		StatusCode childStatusCode= parentStatusCode.getStatusCode();
 		while(childStatusCode!=null){
 			statusCodes.add(childStatusCode.getValue());
-			childStatusCode= (StatusCodeImpl) childStatusCode.getStatusCode();
+			childStatusCode= childStatusCode.getStatusCode();
 		}
 
 		return statusCodes;
