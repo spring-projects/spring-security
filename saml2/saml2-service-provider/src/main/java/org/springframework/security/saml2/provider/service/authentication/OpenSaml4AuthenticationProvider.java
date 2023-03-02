@@ -69,6 +69,7 @@ import org.opensaml.saml.saml2.core.SubjectConfirmation;
 import org.opensaml.saml.saml2.core.SubjectConfirmationData;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestUnmarshaller;
 import org.opensaml.saml.saml2.core.impl.ResponseUnmarshaller;
+import org.opensaml.saml.saml2.core.impl.StatusCodeImpl;
 import org.opensaml.saml.saml2.encryption.Decrypter;
 import org.opensaml.saml.security.impl.SAMLSignatureProfileValidator;
 import org.opensaml.xmlsec.signature.support.SignaturePrevalidator;
@@ -373,13 +374,14 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Response response = responseToken.getResponse();
 			Saml2AuthenticationToken token = responseToken.getToken();
 			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
-			String statusCode = getStatusCode(response);
-			if (!StatusCode.SUCCESS.equals(statusCode)) {
-				String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
-						response.getID());
-				result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+			List<String> statusCodes = getStatusCodes(response);
+			if (!StatusCode.SUCCESS.equals(statusCodes.get(0))) {
+				for( String statusCode : statusCodes ){
+					String message = String.format("Invalid status [%s] for SAML response [%s]",statusCode,
+							response.getID());
+					result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
+				}
 			}
-
 			String inResponseTo = response.getInResponseTo();
 			result = result.concat(validateInResponseTo(token.getAuthenticationRequest(), inResponseTo));
 
@@ -616,14 +618,28 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		};
 	}
 
-	private static String getStatusCode(Response response) {
+	private static List<String> getStatusCodes(Response response) {
+		List<String> statusCodes= new ArrayList<>();
 		if (response.getStatus() == null) {
-			return StatusCode.SUCCESS;
+			statusCodes.add(StatusCode.SUCCESS);
+			return statusCodes;
 		}
 		if (response.getStatus().getStatusCode() == null) {
-			return StatusCode.SUCCESS;
+			statusCodes.add(StatusCode.SUCCESS);
+			return statusCodes;
 		}
-		return response.getStatus().getStatusCode().getValue();
+		StatusCodeImpl parentStatusCode= (StatusCodeImpl) response.getStatus().getStatusCode();
+		if(parentStatusCode.getStatusCode()==null){
+			statusCodes.add(response.getStatus().getStatusCode().getValue());
+			return statusCodes ;
+		}
+		StatusCodeImpl childStatusCode= (StatusCodeImpl) parentStatusCode.getStatusCode();
+		while(childStatusCode!=null){
+			statusCodes.add(childStatusCode.getValue());
+			childStatusCode= (StatusCodeImpl) childStatusCode.getStatusCode();
+		}
+
+		return statusCodes;
 	}
 
 	private Converter<AssertionToken, Saml2ResponseValidatorResult> createDefaultAssertionSignatureValidator() {
