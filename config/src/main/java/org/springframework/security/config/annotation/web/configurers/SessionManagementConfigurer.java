@@ -288,7 +288,7 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Controls the maximum number of sessions for a user. The default is to allow any
-	 * number of users.
+	 * number of sessions.
 	 * @param maximumSessions the maximum number of sessions for a user
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 */
