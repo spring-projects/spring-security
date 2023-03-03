@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,15 @@ public class AuthorityAuthorizationManagerTests {
 	}
 
 	@Test
+	public void hasRoleWhenContainRoleWithRolePrefixThenException() {
+		String ROLE_PREFIX = "ROLE_";
+		String ROLE_USER = ROLE_PREFIX + "USER";
+		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasRole(ROLE_USER))
+				.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
+						+ " is automatically prepended when using hasRole. Consider using hasAuthority instead.");
+	}
+
+	@Test
 	public void hasAuthorityWhenNullThenException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> AuthorityAuthorizationManager.hasAuthority(null))
 				.withMessage("authority cannot be null");
@@ -74,6 +83,16 @@ public class AuthorityAuthorizationManagerTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(null, new String[] { "ADMIN", "USER" }))
 				.withMessage("rolePrefix cannot be null");
+	}
+
+	@Test
+	public void hasAnyRoleWhenContainRoleWithRolePrefixThenException() {
+		String ROLE_PREFIX = "ROLE_";
+		String ROLE_USER = ROLE_PREFIX + "USER";
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> AuthorityAuthorizationManager.hasAnyRole(new String[] { ROLE_USER }))
+				.withMessage(ROLE_USER + " should not start with " + ROLE_PREFIX + " since " + ROLE_PREFIX
+						+ " is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead.");
 	}
 
 	@Test
