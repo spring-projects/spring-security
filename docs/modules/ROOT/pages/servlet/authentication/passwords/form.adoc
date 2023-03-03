@@ -47,17 +47,17 @@ image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 If remember me is not configured, this is a no-op.
 See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
 . `AuthenticationFailureHandler` is invoked.
-See the {security-api-url}springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] class in the Javadoc
+See the {security-api-url}org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] class in the Javadoc
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
 . `SessionAuthenticationStrategy` is notified of a new login.
-See the {security-api-url}springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
+See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
 . The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
-See the {security-api-url}springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
+See the {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
 . `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
 . `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
 . The `AuthenticationSuccessHandler` is invoked. Typically, this is a `SimpleUrlAuthenticationSuccessHandler`, which redirects to a request saved by xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] when we redirect to the login page.
 
