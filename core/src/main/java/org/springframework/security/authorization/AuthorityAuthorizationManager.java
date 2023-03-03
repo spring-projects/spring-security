@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,12 +62,15 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	/**
 	 * Creates an instance of {@link AuthorityAuthorizationManager} with the provided
 	 * authority.
-	 * @param role the authority to check for prefixed with "ROLE_"
+	 * @param role the authority to check for prefixed with "ROLE_". Role should not start
+	 * with "ROLE_" since it is automatically prepended already.
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
 	public static <T> AuthorityAuthorizationManager<T> hasRole(String role) {
 		Assert.notNull(role, "role cannot be null");
+		Assert.isTrue(!role.startsWith(ROLE_PREFIX), () -> role + " should not start with " + ROLE_PREFIX + " since "
+				+ ROLE_PREFIX + " is automatically prepended when using hasRole. Consider using hasAuthority instead.");
 		return hasAuthority(ROLE_PREFIX + role);
 	}
 
@@ -86,7 +89,8 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	/**
 	 * Creates an instance of {@link AuthorityAuthorizationManager} with the provided
 	 * authorities.
-	 * @param roles the authorities to check for prefixed with "ROLE_"
+	 * @param roles the authorities to check for prefixed with "ROLE_". Each role should
+	 * not start with "ROLE_" since it is automatically prepended already.
 	 * @param <T> the type of object being authorized
 	 * @return the new instance
 	 */
@@ -125,7 +129,11 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 	private static String[] toNamedRolesArray(String rolePrefix, String[] roles) {
 		String[] result = new String[roles.length];
 		for (int i = 0; i < roles.length; i++) {
-			result[i] = rolePrefix + roles[i];
+			String role = roles[i];
+			Assert.isTrue(!role.startsWith(rolePrefix), () -> role + " should not start with " + rolePrefix + " since "
+					+ rolePrefix
+					+ " is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead.");
+			result[i] = rolePrefix + role;
 		}
 		return result;
 	}
