@@ -64,7 +64,7 @@ public class LogoutSpecTests {
 				.username("user")
 				.password("invalid")
 				.submit(FormLoginTests.DefaultLoginPage.class)
-				.assertError();
+				.assertBadCredentialsError();
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user")
 				.password("password")
@@ -101,7 +101,7 @@ public class LogoutSpecTests {
 					.username("user")
 					.password("invalid")
 					.submit(FormLoginTests.DefaultLoginPage.class)
-				.assertError();
+				.assertBadCredentialsError();
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user")
 				.password("password")
@@ -138,7 +138,7 @@ public class LogoutSpecTests {
 				.username("user")
 				.password("invalid")
 				.submit(FormLoginTests.DefaultLoginPage.class)
-				.assertError();
+				.assertBadCredentialsError();
 		FormLoginTests.HomePage homePage = loginPage.loginForm()
 				.username("user").password("password")
 				.submit(FormLoginTests.HomePage.class);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 the original author or authors.
+ * Copyright 2019-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,11 +35,13 @@ import reactor.core.publisher.Mono;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.RSocketStrategies;
 import org.springframework.messaging.rsocket.annotation.support.RSocketMessageHandler;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -73,6 +75,8 @@ public class RSocketMessageHandlerITests {
 	private CloseableChannel server;
 
 	private RSocketRequester requester;
+
+	private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
 	@BeforeEach
 	public void setup() {
@@ -120,6 +124,7 @@ public class RSocketMessageHandlerITests {
 	public void retrieveMonoWhenAuthenticationFailedThenException() throws Exception {
 		String data = "rob";
 		UsernamePasswordMetadata credentials = new UsernamePasswordMetadata("invalid", "password");
+		String message = this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials");
 		// @formatter:off
 		assertThatExceptionOfType(ApplicationErrorException.class)
 			.isThrownBy(() -> this.requester.route("secure.retrieve-mono")
@@ -127,7 +132,7 @@ public class RSocketMessageHandlerITests {
 				.retrieveMono(String.class)
 				.block()
 			)
-			.withMessageContaining("Invalid Credentials");
+			.withMessageContaining(message);
 		// @formatter:on
 		assertThat(this.controller.payloads).isEmpty();
 	}

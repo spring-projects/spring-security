@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 import org.springframework.security.web.server.csrf.CsrfToken;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 import org.springframework.util.Assert;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -76,15 +77,28 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 
 	private Mono<DataBuffer> createBuffer(ServerWebExchange exchange) {
 		Mono<CsrfToken> token = exchange.getAttributeOrDefault(CsrfToken.class.getName(), Mono.empty());
-		return token.map(LoginPageGeneratingWebFilter::csrfToken).defaultIfEmpty("").map((csrfTokenHtmlInput) -> {
-			byte[] bytes = createPage(exchange, csrfTokenHtmlInput);
+		boolean loginError = isErrorPage(exchange);
+		boolean logoutSuccess = isLogoutSuccess(exchange);
+		Mono<String> errorMsgMono = loginError ? getLoginErrorMessageMono(exchange) : Mono.just("Invalid credentials");
+		return token.map(this::csrfToken).defaultIfEmpty("").zipWith(errorMsgMono).map((csrfTokenWithErrorMsg) -> {
+			String csrfToken = (String) csrfTokenWithErrorMsg.get(0);
+			String errorMsg = (String) csrfTokenWithErrorMsg.get(1);
+			byte[] bytes = generateLoginPageHtml(exchange, csrfToken, errorMsg, loginError, logoutSuccess);
 			DataBufferFactory bufferFactory = exchange.getResponse().bufferFactory();
 			return bufferFactory.wrap(bytes);
 		});
 	}
 
-	private byte[] createPage(ServerWebExchange exchange, String csrfTokenHtmlInput) {
-		MultiValueMap<String, String> queryParams = exchange.getRequest().getQueryParams();
+	private boolean isLogoutSuccess(ServerWebExchange exchange) {
+		return exchange.getRequest().getQueryParams().containsKey("logout");
+	}
+
+	private boolean isErrorPage(ServerWebExchange exchange) {
+		return exchange.getRequest().getQueryParams().containsKey("error");
+	}
+
+	private byte[] generateLoginPageHtml(ServerWebExchange exchange, String csrfTokenHtmlInput, String errorMsg,
+			boolean loginError, boolean logoutSuccess) {
 		String contextPath = exchange.getRequest().getPath().contextPath().value();
 		StringBuilder page = new StringBuilder();
 		page.append("<!DOCTYPE html>\n");
@@ -103,25 +117,35 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		page.append("  </head>\n");
 		page.append("  <body>\n");
 		page.append("     <div class=\"container\">\n");
-		page.append(formLogin(queryParams, contextPath, csrfTokenHtmlInput));
-		page.append(oauth2LoginLinks(queryParams, contextPath, this.oauth2AuthenticationUrlToClientName));
+		page.append(formLogin(contextPath, csrfTokenHtmlInput, loginError, errorMsg, logoutSuccess));
+		page.append(oauth2LoginLinks(contextPath, this.oauth2AuthenticationUrlToClientName, loginError, errorMsg,
+				logoutSuccess));
 		page.append("    </div>\n");
 		page.append("  </body>\n");
 		page.append("</html>");
 		return page.toString().getBytes(Charset.defaultCharset());
 	}
 
-	private String formLogin(MultiValueMap<String, String> queryParams, String contextPath, String csrfTokenHtmlInput) {
+	private Mono<String> getLoginErrorMessageMono(ServerWebExchange exchange) {
+		return exchange.getSession()
+				.map((session) -> {
+					if (session != null && session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION) instanceof AuthenticationException exception) {
+						return exception.getMessage();
+					}
+					return "Invalid credentials";
+				});
+	}
+
+	private String formLogin(String contextPath, String csrfTokenHtmlInput, boolean loginError, String errorMsg,
+			boolean logoutSuccess) {
 		if (!this.formLoginEnabled) {
 			return "";
 		}
-		boolean isError = queryParams.containsKey("error");
-		boolean isLogoutSuccess = queryParams.containsKey("logout");
 		StringBuilder page = new StringBuilder();
 		page.append("      <form class=\"form-signin\" method=\"post\" action=\"" + contextPath + "/login\">\n");
 		page.append("        <h2 class=\"form-signin-heading\">Please sign in</h2>\n");
-		page.append(createError(isError));
-		page.append(createLogoutSuccess(isLogoutSuccess));
+		page.append(createError(loginError, errorMsg));
+		page.append(createLogoutSuccess(logoutSuccess));
 		page.append("        <p>\n");
 		page.append("          <label for=\"username\" class=\"sr-only\">Username</label>\n");
 		page.append("          <input type=\"text\" id=\"username\" name=\"username\" "
@@ -137,15 +161,15 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		return page.toString();
 	}
 
-	private static String oauth2LoginLinks(MultiValueMap<String, String> queryParams, String contextPath,
-			Map<String, String> oauth2AuthenticationUrlToClientName) {
+	private String oauth2LoginLinks(String contextPath, Map<String, String> oauth2AuthenticationUrlToClientName,
+			boolean isError, String errorMsg, boolean logoutSuccess) {
 		if (oauth2AuthenticationUrlToClientName.isEmpty()) {
 			return "";
 		}
-		boolean isError = queryParams.containsKey("error");
 		StringBuilder sb = new StringBuilder();
 		sb.append("<div class=\"container\"><h2 class=\"form-signin-heading\">Login with OAuth 2.0</h2>");
-		sb.append(createError(isError));
+		sb.append(createError(isError, errorMsg));
+		sb.append(createLogoutSuccess(logoutSuccess));
 		sb.append("<table class=\"table table-striped\">\n");
 		for (Map.Entry<String, String> clientAuthenticationUrlToClientName : oauth2AuthenticationUrlToClientName
 				.entrySet()) {
@@ -161,16 +185,16 @@ public class LoginPageGeneratingWebFilter implements WebFilter {
 		return sb.toString();
 	}
 
-	private static String csrfToken(CsrfToken token) {
+	private String csrfToken(CsrfToken token) {
 		return "          <input type=\"hidden\" name=\"" + token.getParameterName() + "\" value=\"" + token.getToken()
 				+ "\">\n";
 	}
 
-	private static String createError(boolean isError) {
-		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">Invalid credentials</div>" : "";
+	private String createError(boolean isError, String message) {
+		return isError ? "<div class=\"alert alert-danger\" role=\"alert\">" + message + "</div>" : "";
 	}
 
-	private static String createLogoutSuccess(boolean isLogoutSuccess) {
+	private String createLogoutSuccess(boolean isLogoutSuccess) {
 		return isLogoutSuccess ? "<div class=\"alert alert-success\" role=\"alert\">You have been signed out</div>"
 				: "";
 	}

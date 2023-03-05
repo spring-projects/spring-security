@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,12 +25,19 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import reactor.core.publisher.Mono;
 
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.web.reactive.ServerHttpSecurityConfigurationBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.SpringSecurityMessageSource;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.htmlunit.server.WebTestClientHtmlUnitDriverBuilder;
 import org.springframework.security.test.web.reactive.server.WebTestClientBuilder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
@@ -88,7 +95,7 @@ public class FormLoginTests {
 					.username("user")
 					.password("invalid")
 					.submit(DefaultLoginPage.class)
-				.assertError();
+				.assertBadCredentialsError();
 		HomePage homePage = loginPage.loginForm()
 				.username("user")
 				.password("password")
@@ -113,7 +120,7 @@ public class FormLoginTests {
 					.username("user")
 					.password("invalid")
 					.submit(DefaultLoginPage.class)
-				.assertError();
+				.assertBadCredentialsError();
 		HomePage homePage = loginPage.loginForm()
 				.username("user")
 				.password("password")
@@ -335,6 +342,63 @@ public class FormLoginTests {
 		verify(formLoginSecContextRepository).save(any(), any());
 	}
 
+	@Test
+	public void formLoginWithDefaultLoginPageShouldDisplayRightErrorMessageWhenLoginFailed() {
+		ReactiveUserDetailsService userDetailsService = customUserDetailsService();
+		UserDetailsRepositoryReactiveAuthenticationManager authenticationManager = new UserDetailsRepositoryReactiveAuthenticationManager(
+				userDetailsService);
+		// @formatter:off
+		SecurityWebFilterChain securityWebFilter = this.http
+				.authorizeExchange()
+					.anyExchange().authenticated()
+					.and()
+				.formLogin()
+					.authenticationManager(authenticationManager)
+					.and()
+				.build();
+		WebTestClient webTestClient = WebTestClientBuilder.bindToWebFilters(securityWebFilter).build();
+		WebDriver driver = WebTestClientHtmlUnitDriverBuilder.webTestClientSetup(webTestClient).build();
+		// @formatter:on
+		DefaultLoginPage loginPage = HomePage.to(driver, DefaultLoginPage.class).assertAt();
+		// @formatter:off
+		loginPage = loginPage.loginForm()
+					.username("locked_user")
+					.password("password")
+					.submit(DefaultLoginPage.class)
+				.assertLockedUserError();
+		loginPage = loginPage.loginForm()
+					.username("disabled_user")
+					.password("password")
+					.submit(DefaultLoginPage.class)
+				.assertDisabledUserError();
+		loginPage = loginPage.loginForm()
+					.username("expired_user")
+					.password("password")
+					.submit(DefaultLoginPage.class)
+				.assertExpiredUserError();
+
+		HomePage homePage = loginPage.loginForm()
+				.username("user")
+				.password("password")
+				.submit(HomePage.class);
+		// @formatter:on
+		homePage.assertAt();
+		loginPage = DefaultLogoutPage.to(driver).assertAt().logout();
+		loginPage.assertAt().assertLogout();
+	}
+
+	ReactiveUserDetailsService customUserDetailsService() {
+		UserDetails lockedUser = User.withDefaultPasswordEncoder().username("locked_user").password("password")
+				.accountLocked(true).roles("USER").build();
+		UserDetails normalUser = User.withDefaultPasswordEncoder().username("user").password("password").roles("USER")
+				.build();
+		UserDetails disabledUser = User.withDefaultPasswordEncoder().username("disabled_user").password("password")
+				.disabled(true).roles("USER").build();
+		UserDetails expiredUser = User.withDefaultPasswordEncoder().username("expired_user").password("password")
+				.accountExpired(true).roles("USER").build();
+		return new MapReactiveUserDetailsService(lockedUser, normalUser, disabledUser, expiredUser);
+	}
+
 	Mono<SecurityContext> authentication(Authentication authentication) {
 		SecurityContext context = new SecurityContextImpl();
 		context.setAuthentication(authentication);
@@ -397,6 +461,8 @@ public class FormLoginTests {
 
 	public static class DefaultLoginPage {
 
+		private MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
+
 		private WebDriver driver;
 
 		@FindBy(css = "div[role=alert]")
@@ -419,8 +485,27 @@ public class FormLoginTests {
 			return this;
 		}
 
-		public DefaultLoginPage assertError() {
-			assertThat(this.alert.getText()).isEqualTo("Invalid credentials");
+		public DefaultLoginPage assertBadCredentialsError() {
+			assertThat(this.alert.getText())
+					.isEqualTo(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.badCredentials"));
+			return this;
+		}
+
+		public DefaultLoginPage assertDisabledUserError() {
+			assertThat(this.alert.getText())
+					.isEqualTo(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.disabled"));
+			return this;
+		}
+
+		public DefaultLoginPage assertExpiredUserError() {
+			assertThat(this.alert.getText())
+					.isEqualTo(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.expired"));
+			return this;
+		}
+
+		public DefaultLoginPage assertLockedUserError() {
+			assertThat(this.alert.getText())
+					.isEqualTo(this.messages.getMessage("AbstractUserDetailsAuthenticationProvider.locked"));
 			return this;
 		}
 
