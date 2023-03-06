@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,9 @@
 package org.springframework.security.web.server;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.micrometer.common.KeyValues;
@@ -253,46 +252,38 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		class SimpleAroundWebFilterObservation implements AroundWebFilterObservation {
 
-			private final Iterator<Observation> observations;
+			private final ObservationReference before;
 
-			private final Observation before;
+			private final ObservationReference after;
 
-			private final Observation after;
-
-			private final AtomicReference<Observation> currentObservation = new AtomicReference<>(null);
+			private final AtomicReference<ObservationReference> currentObservation = new AtomicReference<>(
+					ObservationReference.NOOP);
 
 			SimpleAroundWebFilterObservation(Observation before, Observation after) {
-				this.before = before;
-				this.after = after;
-				this.observations = Arrays.asList(before, after).iterator();
+				this.before = new ObservationReference(before);
+				this.after = new ObservationReference(after);
 			}
 
 			@Override
 			public void start() {
-				if (this.observations.hasNext()) {
-					stop();
-					Observation observation = this.observations.next();
-					observation.start();
-					this.currentObservation.set(observation);
+				if (this.currentObservation.compareAndSet(ObservationReference.NOOP, this.before)) {
+					this.before.start();
+					return;
+				}
+				if (this.currentObservation.compareAndSet(this.before, this.after)) {
+					this.before.stop();
+					this.after.start();
 				}
 			}
 
 			@Override
 			public void error(Throwable ex) {
-				Observation observation = this.currentObservation.get();
-				if (observation == null) {
-					return;
-				}
-				observation.error(ex);
+				this.currentObservation.get().error(ex);
 			}
 
 			@Override
 			public void stop() {
-				Observation observation = this.currentObservation.getAndSet(null);
-				if (observation == null) {
-					return;
-				}
-				observation.stop();
+				this.currentObservation.get().stop();
 			}
 
 			@Override
@@ -329,12 +320,44 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 			@Override
 			public Observation before() {
-				return this.before;
+				return this.before.observation;
 			}
 
 			@Override
 			public Observation after() {
-				return this.after;
+				return this.after.observation;
+			}
+
+			private static final class ObservationReference {
+
+				private static final ObservationReference NOOP = new ObservationReference(Observation.NOOP);
+
+				private final AtomicInteger state = new AtomicInteger(0);
+
+				private final Observation observation;
+
+				private ObservationReference(Observation observation) {
+					this.observation = observation;
+				}
+
+				private void start() {
+					if (this.state.compareAndSet(0, 1)) {
+						this.observation.start();
+					}
+				}
+
+				private void error(Throwable ex) {
+					if (this.state.get() == 1) {
+						this.observation.error(ex);
+					}
+				}
+
+				private void stop() {
+					if (this.state.compareAndSet(1, 2)) {
+						this.observation.stop();
+					}
+				}
+
 			}
 
 		}
