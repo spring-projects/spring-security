@@ -47,7 +47,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.util.FieldUtils;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -491,10 +491,10 @@ public class SwitchUserFilterTests {
 	}
 
 	@Test
-	void filterWhenDefaultSecurityContextRepositoryThenRequestAttributeRepository() {
+	void filterWhenDefaultSecurityContextRepositoryThenHttpSessionRepository() {
 		SwitchUserFilter switchUserFilter = new SwitchUserFilter();
 		assertThat(ReflectionTestUtils.getField(switchUserFilter, "securityContextRepository"))
-				.isInstanceOf(RequestAttributeSecurityContextRepository.class);
+				.isInstanceOf(HttpSessionSecurityContextRepository.class);
 	}
 
 	@Test
