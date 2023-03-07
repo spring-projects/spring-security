@@ -26,6 +26,10 @@ import java.util.Map;
 import org.springframework.util.Assert;
 
 /**
+ * An in-memory implementation of {@link RelyingPartyRegistrationRepository}.
+ * Also implements {@link Iterable} to simplify the default login page.
+ *
+ * @author Filip Hanik
  * @since 5.2
  */
 public class InMemoryRelyingPartyRegistrationRepository
