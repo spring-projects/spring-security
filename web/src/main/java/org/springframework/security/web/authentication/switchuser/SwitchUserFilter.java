@@ -59,6 +59,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.UrlUtils;
@@ -148,7 +149,7 @@ public class SwitchUserFilter extends GenericFilterBean implements ApplicationEv
 
 	private AuthenticationFailureHandler failureHandler;
 
-	private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	@Override
 	public void afterPropertiesSet() {
