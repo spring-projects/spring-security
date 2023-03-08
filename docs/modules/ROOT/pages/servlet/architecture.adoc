@@ -152,7 +152,7 @@ Assuming that no other `SecurityFilterChain` instances match, `SecurityFilterCha
 // FIXME: add link to pattern matching
 
 Notice that `SecurityFilterChain~0~` has only three security `Filter` instances configured.
-However, `SecurityFilterChain~n~` has four security `Filter` instanes configured.
+However, `SecurityFilterChain~n~` has four security `Filter` instances configured.
 It is important to note that each `SecurityFilterChain` can be unique and can be configured in isolation.
 In fact, a `SecurityFilterChain` might have zero security `Filter` instances if the application wants Spring Security to ignore certain requests.
 // FIXME: add link to configuring multiple `SecurityFilterChain` instances
