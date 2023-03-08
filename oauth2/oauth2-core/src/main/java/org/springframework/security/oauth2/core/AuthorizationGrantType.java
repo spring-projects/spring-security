@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,12 @@ public final class AuthorizationGrantType implements Serializable {
 	 */
 	public static final AuthorizationGrantType JWT_BEARER = new AuthorizationGrantType(
 			"urn:ietf:params:oauth:grant-type:jwt-bearer");
+
+	/**
+	 * @since 6.1
+	 */
+	public static final AuthorizationGrantType DEVICE_CODE = new AuthorizationGrantType(
+			"urn:ietf:params:oauth:grant-type:device_code");
 
 	private final String value;
 
