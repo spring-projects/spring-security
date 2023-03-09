@@ -93,7 +93,6 @@ public final class Saml2AuthenticationTokenConverter implements AuthenticationCo
 	 * request.
 	 * @param authenticationRequestRepository the
 	 * {@link Saml2AuthenticationRequestRepository} to use
-	 * @since 5.6
 	 */
 	public void setAuthenticationRequestRepository(
 			Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authenticationRequestRepository) {

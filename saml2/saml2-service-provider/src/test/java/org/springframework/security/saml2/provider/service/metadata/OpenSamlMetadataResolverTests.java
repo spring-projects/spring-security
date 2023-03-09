@@ -100,8 +100,8 @@ public class OpenSamlMetadataResolverTests {
 		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
 		String metadata = openSamlMetadataResolver.resolve(List.of(one, two));
 		assertThat(metadata).contains("<md:EntitiesDescriptor").contains("<md:EntityDescriptor")
-				.contains("entityID=\"rp-entity-id\"").contains("two").contains("<md:KeyDescriptor use=\"signing\">")
-				.contains("<md:KeyDescriptor use=\"encryption\">")
+				.contains("entityID=\"rp-entity-id\"").contains("entityID=\"two\"")
+				.contains("<md:KeyDescriptor use=\"signing\">").contains("<md:KeyDescriptor use=\"encryption\">")
 				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
 				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
 				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
