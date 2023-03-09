@@ -73,6 +73,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.saml2.Saml2MetadataConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -2423,6 +2424,102 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 */
 	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
 		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
+	}
+
+	/**
+	 * Configures a SAML 2.0 metadata endpoint that presents relying party configurations
+	 * in an {@code <md:EntityDescriptor>} payload.
+	 *
+	 * <p>
+	 * By default, the endpoints are {@code /saml2/metadata} and
+	 * {@code /saml2/metadata/{registrationId}} though note that also
+	 * {@code /saml2/service-provider-metadata/{registrationId}} is recognized for
+	 * backward compatibility purposes.
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+	 *				.saml2Metadata(Customizer.withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 * @param saml2MetadataConfigurer the {@link Customizer} to provide more options for
+	 * the {@link Saml2MetadataConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 6.1
+	 */
+	public HttpSecurity saml2Metadata(Customizer<Saml2MetadataConfigurer<HttpSecurity>> saml2MetadataConfigurer)
+			throws Exception {
+		saml2MetadataConfigurer.customize(getOrApply(new Saml2MetadataConfigurer<>(getContext())));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures a SAML 2.0 metadata endpoint that presents relying party configurations
+	 * in an {@code <md:EntityDescriptor>} payload.
+	 *
+	 * <p>
+	 * By default, the endpoints are {@code /saml2/metadata} and
+	 * {@code /saml2/metadata/{registrationId}} though note that also
+	 * {@code /saml2/service-provider-metadata/{registrationId}} is recognized for
+	 * backward compatibility purposes.
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+	 *				.saml2Metadata(Customizer.withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 * @return the {@link Saml2MetadataConfigurer} for further customizations
+	 * @throws Exception
+	 * @since 6.1
+	 */
+	public Saml2MetadataConfigurer<HttpSecurity> saml2Metadata() throws Exception {
+		return getOrApply(new Saml2MetadataConfigurer<>(getContext()));
 	}
 
 	/**
