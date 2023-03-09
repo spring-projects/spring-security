@@ -30,11 +30,13 @@ import org.opensaml.core.xml.XMLObjectBuilder;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.AssertionConsumerService;
+import org.opensaml.saml.saml2.metadata.EntitiesDescriptor;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
 import org.opensaml.saml.saml2.metadata.KeyDescriptor;
 import org.opensaml.saml.saml2.metadata.NameIDFormat;
 import org.opensaml.saml.saml2.metadata.SPSSODescriptor;
 import org.opensaml.saml.saml2.metadata.SingleLogoutService;
+import org.opensaml.saml.saml2.metadata.impl.EntitiesDescriptorMarshaller;
 import org.opensaml.saml.saml2.metadata.impl.EntityDescriptorMarshaller;
 import org.opensaml.security.credential.UsageType;
 import org.opensaml.xmlsec.signature.KeyInfo;
@@ -65,6 +67,8 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	private final EntityDescriptorMarshaller entityDescriptorMarshaller;
 
+	private final EntitiesDescriptorMarshaller entitiesDescriptorMarshaller;
+
 	private Consumer<EntityDescriptorParameters> entityDescriptorCustomizer = (parameters) -> {
 	};
 
@@ -72,17 +76,38 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 		this.entityDescriptorMarshaller = (EntityDescriptorMarshaller) XMLObjectProviderRegistrySupport
 				.getMarshallerFactory().getMarshaller(EntityDescriptor.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.entityDescriptorMarshaller, "entityDescriptorMarshaller cannot be null");
+		this.entitiesDescriptorMarshaller = (EntitiesDescriptorMarshaller) XMLObjectProviderRegistrySupport
+				.getMarshallerFactory().getMarshaller(EntitiesDescriptor.DEFAULT_ELEMENT_NAME);
+		Assert.notNull(this.entitiesDescriptorMarshaller, "entitiesDescriptorMarshaller cannot be null");
 	}
 
 	@Override
 	public String resolve(RelyingPartyRegistration relyingPartyRegistration) {
-		EntityDescriptor entityDescriptor = build(EntityDescriptor.DEFAULT_ELEMENT_NAME);
-		entityDescriptor.setEntityID(relyingPartyRegistration.getEntityId());
-		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(relyingPartyRegistration);
-		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
-		this.entityDescriptorCustomizer
-				.accept(new EntityDescriptorParameters(entityDescriptor, relyingPartyRegistration));
+		EntityDescriptor entityDescriptor = entityDescriptor(relyingPartyRegistration);
 		return serialize(entityDescriptor);
+	}
+
+	public String resolve(Iterable<RelyingPartyRegistration> relyingPartyRegistrations) {
+		Collection<EntityDescriptor> entityDescriptors = new ArrayList<>();
+		for (RelyingPartyRegistration registration : relyingPartyRegistrations) {
+			EntityDescriptor entityDescriptor = entityDescriptor(registration);
+			entityDescriptors.add(entityDescriptor);
+		}
+		if (entityDescriptors.size() == 1) {
+			return serialize(entityDescriptors.iterator().next());
+		}
+		EntitiesDescriptor entities = build(EntitiesDescriptor.DEFAULT_ELEMENT_NAME);
+		entities.getEntityDescriptors().addAll(entityDescriptors);
+		return serialize(entities);
+	}
+
+	private EntityDescriptor entityDescriptor(RelyingPartyRegistration registration) {
+		EntityDescriptor entityDescriptor = build(EntityDescriptor.DEFAULT_ELEMENT_NAME);
+		entityDescriptor.setEntityID(registration.getEntityId());
+		SPSSODescriptor spSsoDescriptor = buildSpSsoDescriptor(registration);
+		entityDescriptor.getRoleDescriptors(SPSSODescriptor.DEFAULT_ELEMENT_NAME).add(spSsoDescriptor);
+		this.entityDescriptorCustomizer.accept(new EntityDescriptorParameters(entityDescriptor, registration));
+		return entityDescriptor;
 	}
 
 	/**
@@ -177,6 +202,16 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 	private String serialize(EntityDescriptor entityDescriptor) {
 		try {
 			Element element = this.entityDescriptorMarshaller.marshall(entityDescriptor);
+			return SerializeSupport.prettyPrintXML(element);
+		}
+		catch (Exception ex) {
+			throw new Saml2Exception(ex);
+		}
+	}
+
+	private String serialize(EntitiesDescriptor entities) {
+		try {
+			Element element = this.entitiesDescriptorMarshaller.marshall(entities);
 			return SerializeSupport.prettyPrintXML(element);
 		}
 		catch (Exception ex) {

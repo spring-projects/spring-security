@@ -35,4 +35,8 @@ public interface Saml2MetadataResolver {
 	 */
 	String resolve(RelyingPartyRegistration relyingPartyRegistration);
 
+	default String resolve(Iterable<RelyingPartyRegistration> relyingPartyRegistrations) {
+		return resolve(relyingPartyRegistrations.iterator().next());
+	}
+
 }

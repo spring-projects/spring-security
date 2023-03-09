@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.metadata;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -87,6 +89,23 @@ public class OpenSamlMetadataResolverTests {
 				(parameters) -> parameters.getEntityDescriptor().setEntityID("overriddenEntityId"));
 		String metadata = openSamlMetadataResolver.resolve(relyingPartyRegistration);
 		assertThat(metadata).contains("<md:EntityDescriptor").contains("entityID=\"overriddenEntityId\"");
+	}
+
+	@Test
+	public void resolveIterableWhenRelyingPartiesThenMetadataMatches() {
+		RelyingPartyRegistration one = TestRelyingPartyRegistrations.full()
+				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
+		RelyingPartyRegistration two = TestRelyingPartyRegistrations.full().entityId("two")
+				.assertionConsumerServiceBinding(Saml2MessageBinding.REDIRECT).build();
+		OpenSamlMetadataResolver openSamlMetadataResolver = new OpenSamlMetadataResolver();
+		String metadata = openSamlMetadataResolver.resolve(List.of(one, two));
+		assertThat(metadata).contains("<md:EntitiesDescriptor").contains("<md:EntityDescriptor")
+				.contains("entityID=\"rp-entity-id\"").contains("two").contains("<md:KeyDescriptor use=\"signing\">")
+				.contains("<md:KeyDescriptor use=\"encryption\">")
+				.contains("<ds:X509Certificate>MIICgTCCAeoCCQCuVzyqFgMSyDANBgkqhkiG9w0BAQsFADCBhDELMAkGA1UEBh")
+				.contains("Binding=\"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect\"")
+				.contains("Location=\"https://rp.example.org/acs\" index=\"1\"")
+				.contains("ResponseLocation=\"https://rp.example.org/logout/saml2/response\"");
 	}
 
 }
