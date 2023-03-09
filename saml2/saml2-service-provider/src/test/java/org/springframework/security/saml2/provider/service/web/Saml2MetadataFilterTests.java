@@ -33,7 +33,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -141,7 +140,7 @@ public class Saml2MetadataFilterTests {
 	public void doFilterWhenResolverConstructorAndPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any())).willReturn("metadata");
+		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
 		RelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
 				(id) -> this.repository.findByRegistrationId("registration-id"));
 		this.filter = new Saml2MetadataFilter(resolver, this.resolver);
@@ -156,7 +155,7 @@ public class Saml2MetadataFilterTests {
 			throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any())).willReturn("metadata");
+		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
 		this.filter = new Saml2MetadataFilter((id) -> this.repository.findByRegistrationId("registration-id"),
 				this.resolver);
 		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
@@ -199,12 +198,11 @@ public class Saml2MetadataFilterTests {
 	}
 
 	@Test
-	public void constructorWhenRelyingPartyRegistrationRepositoryThenUses() {
+	public void constructorWhenRelyingPartyRegistrationRepositoryThenUses() throws Exception {
 		RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
 		this.filter = new Saml2MetadataFilter(repository, this.resolver);
-		DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver = (DefaultRelyingPartyRegistrationResolver) ReflectionTestUtils
-				.getField(this.filter, "relyingPartyRegistrationResolver");
-		relyingPartyRegistrationResolver.resolve(this.request, "one");
+		this.request.setPathInfo("/saml2/service-provider-metadata/one");
+		this.filter.doFilter(this.request, this.response, this.chain);
 		verify(repository).findByRegistrationId("one");
 	}
 
