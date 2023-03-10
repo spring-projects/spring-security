@@ -47,6 +47,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlSigningUtils.QueryParametersPartial;
 import org.springframework.util.Assert;
@@ -127,10 +129,12 @@ final class OpenSamlLogoutRequestResolver {
 		if (registration.getAssertingPartyDetails().getSingleLogoutServiceLocation() == null) {
 			return null;
 		}
+		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+		String entityId = uriResolver.resolve(registration.getEntityId());
 		LogoutRequest logoutRequest = this.logoutRequestBuilder.buildObject();
 		logoutRequest.setDestination(registration.getAssertingPartyDetails().getSingleLogoutServiceLocation());
 		Issuer issuer = this.issuerBuilder.buildObject();
-		issuer.setValue(registration.getEntityId());
+		issuer.setValue(entityId);
 		logoutRequest.setIssuer(issuer);
 		NameID nameId = this.nameIdBuilder.buildObject();
 		nameId.setValue(authentication.getName());

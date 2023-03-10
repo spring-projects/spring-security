@@ -130,9 +130,9 @@ To add other values, you can use delegation, like so:
 [source,java]
 ----
 @Bean
-Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationResolver registrationResolver) {
-	OpenSaml4LogoutRequestResolver logoutRequestResolver
-			new OpenSaml4LogoutRequestResolver(registrationResolver);
+Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
+	OpenSaml4LogoutRequestResolver logoutRequestResolver =
+			new OpenSaml4LogoutRequestResolver(registrations);
 	logoutRequestResolver.setParametersConsumer((parameters) -> {
 		String name = ((Saml2AuthenticatedPrincipal) parameters.getAuthentication().getPrincipal()).getFirstAttribute("CustomAttribute");
 		String format = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
@@ -173,9 +173,9 @@ To add other values, you can use delegation, like so:
 [source,java]
 ----
 @Bean
-public Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationResolver registrationResolver) {
+public Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
 	OpenSaml4LogoutResponseResolver logoutRequestResolver =
-			new OpenSaml3LogoutResponseResolver(relyingPartyRegistrationResolver);
+			new OpenSaml4LogoutResponseResolver(registrations);
 	logoutRequestResolver.setParametersConsumer((parameters) -> {
 		if (checkOtherPrevailingConditions(parameters.getRequest())) {
 			parameters.getLogoutRequest().getStatus().getStatusCode().setCode(StatusCode.PARTIAL_LOGOUT);
