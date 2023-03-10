@@ -27,6 +27,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.util.Assert;
 
@@ -46,6 +47,15 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	};
 
 	private Clock clock = Clock.systemUTC();
+
+	public OpenSaml4LogoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
+		this((request, id) -> {
+			if (id == null) {
+				return null;
+			}
+			return registrations.findByRegistrationId(id);
+		});
+	}
 
 	/**
 	 * Construct a {@link OpenSaml4LogoutRequestResolver}

@@ -26,6 +26,7 @@ import org.opensaml.saml.saml2.core.LogoutResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponse;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.util.Assert;
 
@@ -45,11 +46,20 @@ public final class OpenSaml4LogoutResponseResolver implements Saml2LogoutRespons
 
 	private Clock clock = Clock.systemUTC();
 
+	public OpenSaml4LogoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
+		this.logoutResponseResolver = new OpenSamlLogoutResponseResolver(registrations, (request, id) -> {
+			if (id == null) {
+				return null;
+			}
+			return registrations.findByRegistrationId(id);
+		});
+	}
+
 	/**
 	 * Construct a {@link OpenSaml4LogoutResponseResolver}
 	 */
 	public OpenSaml4LogoutResponseResolver(RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		this.logoutResponseResolver = new OpenSamlLogoutResponseResolver(relyingPartyRegistrationResolver);
+		this.logoutResponseResolver = new OpenSamlLogoutResponseResolver(null, relyingPartyRegistrationResolver);
 	}
 
 	/**
