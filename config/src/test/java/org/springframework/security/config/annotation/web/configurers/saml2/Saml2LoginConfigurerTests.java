@@ -31,7 +31,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 
-import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -91,7 +90,6 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
@@ -308,12 +306,9 @@ public class Saml2LoginConfigurerTests {
 	}
 
 	@Test
-	public void saml2LoginWhenLoginProcessingUrlWithoutRegistrationIdAndDefaultAuthenticationConverterThenValidates() {
-		assertThatExceptionOfType(BeanCreationException.class)
-				.isThrownBy(() -> this.spring.register(CustomLoginProcessingUrlDefaultAuthenticationConverter.class)
-						.autowire())
-				.havingRootCause().isInstanceOf(IllegalStateException.class)
-				.withMessage("loginProcessingUrl must contain {registrationId} path variable");
+	public void saml2LoginWhenLoginProcessingUrlWithoutRegistrationIdAndDefaultAuthenticationConverterThenAutowires()
+			throws Exception {
+		this.spring.register(CustomLoginProcessingUrlDefaultAuthenticationConverter.class).autowire();
 	}
 
 	@Test
