@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2013 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,6 +72,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  */
 public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<RequestCacheConfigurer<H>, H> {
+
+	private static final MediaType TEXT_CSS = new MediaType("text", "css");
 
 	public RequestCacheConfigurer() {
 	}
@@ -154,6 +156,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 			matchers.add(0, getRequests);
 		}
 		matchers.add(notFavIcon);
+		matchers.add(notMatchingMediaType(http, TEXT_CSS));
 		matchers.add(notMatchingMediaType(http, MediaType.APPLICATION_JSON));
 		matchers.add(notXRequestedWith);
 		matchers.add(notMatchingMediaType(http, MediaType.MULTIPART_FORM_DATA));
