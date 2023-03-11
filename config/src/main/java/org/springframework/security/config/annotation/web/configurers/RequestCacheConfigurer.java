@@ -112,7 +112,7 @@ public final class RequestCacheConfigurer<H extends HttpSecurityBuilder<H>>
 	 * {@link #requestCache(org.springframework.security.web.savedrequest.RequestCache)},
 	 * then it is used. Otherwise, an attempt to find a {@link RequestCache} shared object
 	 * is made. If that fails, an {@link HttpSessionRequestCache} is used
-	 * @param http the {@link HttpSecurity} to attempt to fined the shared object
+	 * @param http the {@link HttpSecurity} to attempt to find the shared object
 	 * @return the {@link RequestCache} to use
 	 */
 	private RequestCache getRequestCache(H http) {
