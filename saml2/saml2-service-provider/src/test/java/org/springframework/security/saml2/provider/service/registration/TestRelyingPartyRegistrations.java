@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public final class TestRelyingPartyRegistrations {
 		Saml2X509Credential verificationCertificate = TestSaml2X509Credentials.relyingPartyVerifyingCredential();
 		String singleSignOnServiceLocation = "https://simplesaml-for-spring-saml.apps.pcfone.io/saml2/idp/SSOService.php";
 		String singleLogoutServiceLocation = "{baseUrl}/logout/saml2/slo";
-		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId)
+		return RelyingPartyRegistration.withRegistrationId(registrationId).entityId(rpEntityId).nameIdFormat("format")
 				.assertionConsumerServiceLocation(assertionConsumerServiceLocation)
 				.singleLogoutServiceLocation(singleLogoutServiceLocation).credentials((c) -> c.add(signingCredential))
 				.providerDetails((c) -> c.entityId(apEntityId).webSsoUrl(singleSignOnServiceLocation))
