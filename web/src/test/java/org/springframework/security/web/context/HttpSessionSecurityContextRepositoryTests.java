@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.context.TransientSecurityContext;
+import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -761,6 +762,53 @@ public class HttpSessionSecurityContextRepositoryTests {
 		repo.saveContext(context, holder.getRequest(), holder.getResponse());
 		MockHttpSession session = (MockHttpSession) request.getSession(false);
 		assertThat(session).isNull();
+	}
+
+	@Test
+	public void saveContextWhenSecurityContextEmptyThenRemoveAttributeFromSession() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+		MockHttpSession session = (MockHttpSession) request.getSession(true);
+		session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, emptyContext);
+		repo.saveContext(emptyContext, request, response);
+		Object attributeAfterSave = session
+				.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+		assertThat(attributeAfterSave).isNull();
+	}
+
+	@Test
+	public void saveContextWhenSecurityContextEmptyAndNoSessionThenDoesNotCreateSession() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+		repo.saveContext(emptyContext, request, response);
+		assertThat(request.getSession(false)).isNull();
+	}
+
+	@Test
+	public void saveContextWhenSecurityContextThenSaveInSession() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SecurityContext context = createSecurityContext(PasswordEncodedUser.user());
+		repo.saveContext(context, request, response);
+		Object savedContext = request.getSession()
+				.getAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+		assertThat(savedContext).isEqualTo(context);
+	}
+
+	@Test
+	public void saveContextWhenTransientAuthenticationThenDoNotSave() {
+		HttpSessionSecurityContextRepository repo = new HttpSessionSecurityContextRepository();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		SecurityContext context = SecurityContextHolder.createEmptyContext();
+		context.setAuthentication(new SomeTransientAuthentication());
+		repo.saveContext(context, request, response);
+		assertThat(request.getSession(false)).isNull();
 	}
 
 	private SecurityContext createSecurityContext(UserDetails userDetails) {

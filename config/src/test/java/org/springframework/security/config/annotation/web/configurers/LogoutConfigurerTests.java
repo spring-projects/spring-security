@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,9 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +26,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -31,9 +37,12 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -42,6 +51,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -300,6 +310,80 @@ public class LogoutConfigurerTests {
 	public void logoutWhenDisabledThenLogoutUrlNotFound() throws Exception {
 		this.spring.register(LogoutDisabledConfig.class).autowire();
 		this.mvc.perform(post("/logout").with(csrf())).andExpect(status().isNotFound());
+	}
+
+	@Test
+	public void logoutWhenCustomSecurityContextRepositoryThenUses() throws Exception {
+		CustomSecurityContextRepositoryConfig.repository = mock(SecurityContextRepository.class);
+		this.spring.register(CustomSecurityContextRepositoryConfig.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE);
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"));
+		// @formatter:on
+		int invocationCount = 2; // 1 from user() post processor and 1 from
+									// SecurityContextLogoutHandler
+		verify(CustomSecurityContextRepositoryConfig.repository, times(invocationCount)).saveContext(any(),
+				any(HttpServletRequest.class), any(HttpServletResponse.class));
+	}
+
+	@Test
+	public void logoutWhenNoSecurityContextRepositoryThenHttpSessionSecurityContextRepository() throws Exception {
+		this.spring.register(InvalidateHttpSessionFalseConfig.class).autowire();
+		MockHttpSession session = mock(MockHttpSession.class);
+		// @formatter:off
+		MockHttpServletRequestBuilder logoutRequest = post("/logout")
+				.with(csrf())
+				.with(user("user"))
+				.session(session)
+				.header(HttpHeaders.ACCEPT, MediaType.TEXT_HTML_VALUE);
+		this.mvc.perform(logoutRequest)
+				.andExpect(status().isFound())
+				.andExpect(redirectedUrl("/login?logout"))
+				.andReturn();
+		// @formatter:on
+		verify(session).removeAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY);
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class InvalidateHttpSessionFalseConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout((logout) -> logout.invalidateHttpSession(false))
+				.securityContext((context) -> context.requireExplicitSave(true));
+			return http.build();
+			// @formatter:on
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CustomSecurityContextRepositoryConfig {
+
+		static SecurityContextRepository repository;
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.logout(Customizer.withDefaults())
+				.securityContext((context) -> context
+					.requireExplicitSave(true)
+					.securityContextRepository(repository)
+				);
+			return http.build();
+			// @formatter:on
+		}
+
 	}
 
 	@EnableWebSecurity

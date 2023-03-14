@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ import org.springframework.security.web.authentication.logout.LogoutSuccessHandl
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.security.web.authentication.logout.SimpleUrlLogoutSuccessHandler;
 import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -325,6 +327,7 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link LogoutFilter} to use.
 	 */
 	private LogoutFilter createLogoutFilter(H http) {
+		this.contextLogoutHandler.setSecurityContextRepository(getSecurityContextRepository(http));
 		this.logoutHandlers.add(this.contextLogoutHandler);
 		this.logoutHandlers.add(postProcess(new LogoutSuccessEventPublishingLogoutHandler()));
 		LogoutHandler[] handlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
@@ -332,6 +335,14 @@ public final class LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		result.setLogoutRequestMatcher(getLogoutRequestMatcher(http));
 		result = postProcess(result);
 		return result;
+	}
+
+	private SecurityContextRepository getSecurityContextRepository(H http) {
+		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
+		if (securityContextRepository == null) {
+			securityContextRepository = new HttpSessionSecurityContextRepository();
+		}
+		return securityContextRepository;
 	}
 
 	private RequestMatcher getLogoutRequestMatcher(H http) {
