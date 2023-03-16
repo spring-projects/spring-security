@@ -61,7 +61,11 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 	private UserDetailsPasswordService userDetailsPasswordService;
 
 	public DaoAuthenticationProvider() {
-		setPasswordEncoder(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+		this(PasswordEncoderFactories.createDelegatingPasswordEncoder());
+	}
+
+	public DaoAuthenticationProvider(PasswordEncoder passwordEncoder) {
+		setPasswordEncoder(passwordEncoder);
 	}
 
 	@Override
