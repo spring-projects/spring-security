@@ -20,7 +20,7 @@ If you are using Spring Security, the `Principal` on the `HttpServletRequest` is
 
 More concretely, to ensure a user has authenticated to your WebSocket application, all that is necessary is to ensure that you setup Spring Security to authenticate your HTTP based web application.
 
-[[websocket-configuration]]
+[[websocket-authorization]]
 == WebSocket Authorization
 
 Spring Security 4.0 has introduced authorization support for WebSockets through the Spring Messaging abstraction.
