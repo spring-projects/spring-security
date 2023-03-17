@@ -110,7 +110,7 @@ jobs:
           DOCS_HOST: ${{ secrets.DOCS_HOST }}
   deploy_schema:
     name: Deploy Schema
-    needs: [build_jdk_8, snapshot_tests]
+    needs: [build_jdk_8]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
