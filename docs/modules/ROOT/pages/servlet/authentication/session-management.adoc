@@ -157,7 +157,7 @@ public void login(@RequestBody LoginRequest loginRequest, HttpServletRequest req
     Authentication authentication = authenticationManager.authenticate(token); <4>
     SecurityContext context = securityContextHolderStrategy.createEmptyContext();
     context.setAuthentication(authentication); <5>
-    securityContextHolderStrategy.setContext(authentication);
+    securityContextHolderStrategy.setContext(context);
     securityContextRepository.saveContext(context, request, response); <6>
 }
 
