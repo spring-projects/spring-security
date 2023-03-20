@@ -152,33 +152,32 @@ public final class OAuth2ParameterNames {
 	public static final String TOKEN_TYPE_HINT = "token_type_hint";
 
 	/**
-	 * {@code device_code} - used in Device Authorization Request and Device Authorization
-	 * Response.
+	 * {@code device_code} - used in Device Authorization Response and Device Access Token
+	 * Request.
 	 * @since 6.1
 	 */
 	public static final String DEVICE_CODE = "device_code";
 
 	/**
-	 * {@code user_code} - used in Device Authorization Request and Device Authorization
-	 * Response.
+	 * {@code user_code} - used in Device Authorization Response.
 	 * @since 6.1
 	 */
 	public static final String USER_CODE = "user_code";
 
 	/**
-	 * {@code verification_uri} - Used in Device Authorization Response.
+	 * {@code verification_uri} - used in Device Authorization Response.
 	 * @since 6.1
 	 */
 	public static final String VERIFICATION_URI = "verification_uri";
 
 	/**
-	 * {@code verification_uri_complete} - Used in Device Authorization Response.
+	 * {@code verification_uri_complete} - used in Device Authorization Response.
 	 * @since 6.1
 	 */
 	public static final String VERIFICATION_URI_COMPLETE = "verification_uri_complete";
 
 	/**
-	 * {@code interval} - Used in Device Authorization Response.
+	 * {@code interval} - used in Device Authorization Response.
 	 * @since 6.1
 	 */
 	public static final String INTERVAL = "interval";

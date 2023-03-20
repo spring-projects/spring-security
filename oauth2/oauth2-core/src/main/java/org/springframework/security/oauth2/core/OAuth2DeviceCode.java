@@ -28,7 +28,7 @@ import java.time.Instant;
  * @see <a target="_blank" href= "https://tools.ietf.org/html/rfc8628#section-3.2">Section
  * 3.2 Device Authorization Response</a>
  */
-public final class OAuth2DeviceCode extends AbstractOAuth2Token {
+public class OAuth2DeviceCode extends AbstractOAuth2Token {
 
 	/**
 	 * Constructs an {@code OAuth2DeviceCode} using the provided parameters.
