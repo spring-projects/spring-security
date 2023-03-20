@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Steve Riesenberg
  */
-public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTest {
+public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 
 	private OAuth2DeviceAuthorizationResponseHttpMessageConverter messageConverter;
 
