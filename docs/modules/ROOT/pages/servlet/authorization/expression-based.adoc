@@ -210,7 +210,7 @@ You could then refer to the method as follows:
 ----
 http
 	.authorizeHttpRequests(authorize -> authorize
-		.requestMatchers("/user/{userId}/**").access("@webSecurity.checkUserId(authentication,#userId)")
+		.requestMatchers("/user/{userId}/**").access(new WebExpressionAuthorizationManager("@webSecurity.checkUserId(authentication,#userId)"))
 		...
 	);
 ----
