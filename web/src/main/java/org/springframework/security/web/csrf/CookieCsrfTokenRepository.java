@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2016 the original author or authors.
+ * Copyright 2012-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 package org.springframework.security.web.csrf;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 import org.springframework.web.util.WebUtils;
@@ -33,6 +35,8 @@ import org.springframework.web.util.WebUtils;
  * AngularJS. When using with AngularJS be sure to use {@link #withHttpOnlyFalse()}.
  *
  * @author Rob Winch
+ * @author Steve Riesenberg
+ * @author Alex Montoya
  * @since 4.1
  */
 public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
@@ -42,6 +46,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	static final String DEFAULT_CSRF_PARAMETER_NAME = "_csrf";
 
 	static final String DEFAULT_CSRF_HEADER_NAME = "X-XSRF-TOKEN";
+
+	private static final String CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME = CookieCsrfTokenRepository.class.getName()
+			.concat(".REMOVED");
 
 	private String parameterName = DEFAULT_CSRF_PARAMETER_NAME;
 
@@ -59,7 +66,18 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 
 	private int cookieMaxAge = -1;
 
-	public CookieCsrfTokenRepository() {
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {
+	};
+
+	/**
+	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked for
+	 * each cookie being built, just before the call to {@code build()}.
+	 * @param cookieCustomizer consumer for a cookie builder
+	 * @since 6.1
+	 */
+	public void setCookieCustomizer(Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer) {
+		Assert.notNull(cookieCustomizer, "cookieCustomizer must not be null");
+		this.cookieCustomizer = cookieCustomizer;
 	}
 
 	@Override
@@ -70,19 +88,34 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	@Override
 	public void saveToken(CsrfToken token, HttpServletRequest request, HttpServletResponse response) {
 		String tokenValue = (token != null) ? token.getToken() : "";
-		Cookie cookie = new Cookie(this.cookieName, tokenValue);
-		cookie.setSecure((this.secure != null) ? this.secure : request.isSecure());
-		cookie.setPath(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request));
-		cookie.setMaxAge((token != null) ? this.cookieMaxAge : 0);
-		cookie.setHttpOnly(this.cookieHttpOnly);
-		if (StringUtils.hasLength(this.cookieDomain)) {
-			cookie.setDomain(this.cookieDomain);
+
+		ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(this.cookieName, tokenValue)
+				.secure((this.secure != null) ? this.secure : request.isSecure())
+				.path(StringUtils.hasLength(this.cookiePath) ? this.cookiePath : this.getRequestContext(request))
+				.maxAge((token != null) ? this.cookieMaxAge : 0).httpOnly(this.cookieHttpOnly)
+				.domain(this.cookieDomain);
+
+		this.cookieCustomizer.accept(cookieBuilder);
+
+		response.setHeader(HttpHeaders.SET_COOKIE, cookieBuilder.build().toString());
+
+		// Set request attribute to signal that response has blank cookie value,
+		// which allows loadToken to return null when token has been removed
+		if (!StringUtils.hasLength(tokenValue)) {
+			request.setAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME, Boolean.TRUE);
 		}
-		response.addCookie(cookie);
+		else {
+			request.removeAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME);
+		}
 	}
 
 	@Override
 	public CsrfToken loadToken(HttpServletRequest request) {
+		// Return null when token has been removed during the current request
+		// which allows loadDeferredToken to re-generate the token
+		if (Boolean.TRUE.equals(request.getAttribute(CSRF_TOKEN_REMOVED_ATTRIBUTE_NAME))) {
+			return null;
+		}
 		Cookie cookie = WebUtils.getCookie(request, this.cookieName);
 		if (cookie == null) {
 			return null;
@@ -125,11 +158,9 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the HttpOnly attribute on the cookie containing the CSRF token. Defaults to
-	 * <code>true</code>.
-	 * @param cookieHttpOnly <code>true</code> sets the HttpOnly attribute,
-	 * <code>false</code> does not set it
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
 		this.cookieHttpOnly = cookieHttpOnly;
 	}
@@ -140,14 +171,14 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Factory method to conveniently create an instance that has
-	 * {@link #setCookieHttpOnly(boolean)} set to false.
-	 * @return an instance of CookieCsrfTokenRepository with
-	 * {@link #setCookieHttpOnly(boolean)} set to false
+	 * Factory method to conveniently create an instance that creates cookies where
+	 * {@link Cookie#isHttpOnly()} is set to false.
+	 * @return an instance of CookieCsrfTokenRepository that creates cookies where
+	 * {@link Cookie#isHttpOnly()} is set to false.
 	 */
 	public static CookieCsrfTokenRepository withHttpOnlyFalse() {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
-		result.setCookieHttpOnly(false);
+		result.setCookieCustomizer((cookie) -> cookie.httpOnly(false));
 		return result;
 	}
 
@@ -173,48 +204,28 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	}
 
 	/**
-	 * Sets the domain of the cookie that the expected CSRF token is saved to and read
-	 * from.
-	 * @param cookieDomain the domain of the cookie that the expected CSRF token is saved
-	 * to and read from
 	 * @since 5.2
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
 
 	/**
-	 * Sets secure flag of the cookie that the expected CSRF token is saved to and read
-	 * from. By default secure flag depends on {@link ServletRequest#isSecure()}
-	 * @param secure the secure flag of the cookie that the expected CSRF token is saved
-	 * to and read from
 	 * @since 5.4
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setSecure(Boolean secure) {
 		this.secure = secure;
 	}
 
 	/**
-	 * Sets maximum age in seconds for the cookie that the expected CSRF token is saved to
-	 * and read from. By default maximum age value is -1.
-	 *
-	 * <p>
-	 * A positive value indicates that the cookie will expire after that many seconds have
-	 * passed. Note that the value is the <i>maximum</i> age when the cookie will expire,
-	 * not the cookie's current age.
-	 *
-	 * <p>
-	 * A negative value means that the cookie is not stored persistently and will be
-	 * deleted when the Web browser exits.
-	 *
-	 * <p>
-	 * A zero value causes the cookie to be deleted immediately therefore it is not a
-	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
-	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
-	 * if negative, means the cookie is not stored; if zero, the method throws an
-	 * {@link IllegalArgumentException}
 	 * @since 5.5
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieMaxAge(int cookieMaxAge) {
 		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;

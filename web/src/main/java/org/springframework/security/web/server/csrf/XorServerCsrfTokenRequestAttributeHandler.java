@@ -53,7 +53,8 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 		Assert.notNull(exchange, "exchange cannot be null");
 		Assert.notNull(csrfToken, "csrfToken cannot be null");
 		Mono<CsrfToken> updatedCsrfToken = csrfToken.map((token) -> new DefaultCsrfToken(token.getHeaderName(),
-				token.getParameterName(), createXoredCsrfToken(this.secureRandom, token.getToken())));
+				token.getParameterName(), createXoredCsrfToken(this.secureRandom, token.getToken())))
+				.cast(CsrfToken.class).cache();
 		super.handle(exchange, updatedCsrfToken);
 	}
 

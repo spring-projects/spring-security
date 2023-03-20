@@ -16,12 +16,10 @@
 
 package org.springframework.security.web.context;
 
-import java.util.function.Supplier;
-
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -41,8 +39,8 @@ class SecurityContextRepositoryTests {
 	@Test
 	void loadContextHttpRequestResponseHolderWhenInvokeSupplierTwiceThenOnlyInvokesLoadContextOnce() {
 		given(this.repository.loadContext(any(HttpRequestResponseHolder.class))).willReturn(new SecurityContextImpl());
-		Supplier<SecurityContext> deferredContext = this.repository.loadContext(mock(HttpServletRequest.class));
-		verify(this.repository).loadContext(any(HttpServletRequest.class));
+		DeferredSecurityContext deferredContext = this.repository.loadDeferredContext(mock(HttpServletRequest.class));
+		verify(this.repository).loadDeferredContext(any(HttpServletRequest.class));
 		deferredContext.get();
 		verify(this.repository).loadContext(any(HttpRequestResponseHolder.class));
 		deferredContext.get();

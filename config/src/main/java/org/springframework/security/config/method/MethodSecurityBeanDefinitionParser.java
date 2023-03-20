@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
@@ -42,14 +44,18 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerAfterMethodInterceptor;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
 import org.springframework.security.authorization.method.Jsr250AuthorizationManager;
 import org.springframework.security.authorization.method.MethodExpressionAuthorizationManager;
+import org.springframework.security.authorization.method.MethodInvocationResult;
 import org.springframework.security.authorization.method.PostAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PostFilterAuthorizationMethodInterceptor;
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
+import org.springframework.security.authorization.method.SecuredAuthorizationManager;
 import org.springframework.security.config.Elements;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -75,6 +81,8 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 
 	private static final String ATT_AUTHORIZATION_MGR = "authorization-manager-ref";
 
+	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
+
 	private static final String ATT_ACCESS = "access";
 
 	private static final String ATT_EXPRESSION = "expression";
@@ -89,6 +97,7 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 				pc.extractSource(element));
 		pc.pushContainingComponent(compositeDef);
 		BeanMetadataElement securityContextHolderStrategy = getSecurityContextHolderStrategy(element);
+		BeanMetadataElement observationRegistry = getObservationRegistry(element);
 		boolean prePostAnnotationsEnabled = !element.hasAttribute(ATT_USE_PREPOST)
 				|| "true".equals(element.getAttribute(ATT_USE_PREPOST));
 		boolean useAspectJ = "aspectj".equals(element.getAttribute(ATT_MODE));
@@ -100,11 +109,13 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			BeanDefinitionBuilder preAuthorizeInterceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(PreAuthorizeAuthorizationMethodInterceptor.class)
 					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy);
+					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
+					.addPropertyValue("observationRegistry", observationRegistry);
 			BeanDefinitionBuilder postAuthorizeInterceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(PostAuthorizeAuthorizationMethodInterceptor.class)
 					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy);
+					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
+					.addPropertyValue("observationRegistry", observationRegistry);
 			BeanDefinitionBuilder postFilterInterceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(PostFilterAuthorizationMethodInterceptor.class)
 					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
@@ -137,10 +148,10 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		boolean securedEnabled = "true".equals(element.getAttribute(ATT_USE_SECURED));
 		if (securedEnabled) {
 			BeanDefinitionBuilder securedInterceptor = BeanDefinitionBuilder
-					.rootBeanDefinition(AuthorizationManagerBeforeMethodInterceptor.class)
+					.rootBeanDefinition(SecuredAuthorizationMethodInterceptor.class)
 					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
 					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
-					.setFactoryMethod("secured");
+					.addPropertyValue("observationRegistry", observationRegistry);
 			pc.getRegistry().registerBeanDefinition("securedAuthorizationMethodInterceptor",
 					securedInterceptor.getBeanDefinition());
 		}
@@ -149,7 +160,8 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			BeanDefinitionBuilder jsr250Interceptor = BeanDefinitionBuilder
 					.rootBeanDefinition(Jsr250AuthorizationMethodInterceptor.class)
 					.setRole(BeanDefinition.ROLE_INFRASTRUCTURE)
-					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy);
+					.addPropertyValue("securityContextHolderStrategy", securityContextHolderStrategy)
+					.addPropertyValue("observationRegistry", observationRegistry);
 			pc.getRegistry().registerBeanDefinition("jsr250AuthorizationMethodInterceptor",
 					jsr250Interceptor.getBeanDefinition());
 		}
@@ -180,6 +192,14 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		}
 		pc.popAndRegisterContainingComponent();
 		return null;
+	}
+
+	private BeanMetadataElement getObservationRegistry(Element methodSecurityElmt) {
+		String holderStrategyRef = methodSecurityElmt.getAttribute(ATT_OBSERVATION_REGISTRY_REF);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			return new RuntimeBeanReference(holderStrategyRef);
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
 	}
 
 	private BeanMetadataElement getSecurityContextHolderStrategy(Element methodSecurityElmt) {
@@ -295,12 +315,18 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 				.getContextHolderStrategy();
 
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 		private final Jsr250AuthorizationManager manager = new Jsr250AuthorizationManager();
 
 		@Override
 		public AuthorizationManagerBeforeMethodInterceptor getObject() {
+			AuthorizationManager<MethodInvocation> manager = this.manager;
+			if (!this.observationRegistry.isNoop()) {
+				manager = new ObservationAuthorizationManager<>(this.observationRegistry, this.manager);
+			}
 			AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
-					.jsr250(this.manager);
+					.jsr250(manager);
 			interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			return interceptor;
 		}
@@ -325,6 +351,47 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			this.securityContextHolderStrategy = securityContextHolderStrategy;
 		}
 
+		public void setObservationRegistry(ObservationRegistry observationRegistry) {
+			this.observationRegistry = observationRegistry;
+		}
+
+	}
+
+	public static final class SecuredAuthorizationMethodInterceptor
+			implements FactoryBean<AuthorizationManagerBeforeMethodInterceptor> {
+
+		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+				.getContextHolderStrategy();
+
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+		private final SecuredAuthorizationManager manager = new SecuredAuthorizationManager();
+
+		@Override
+		public AuthorizationManagerBeforeMethodInterceptor getObject() {
+			AuthorizationManager<MethodInvocation> manager = this.manager;
+			if (!this.observationRegistry.isNoop()) {
+				manager = new ObservationAuthorizationManager<>(this.observationRegistry, this.manager);
+			}
+			AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
+					.secured(manager);
+			interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+			return interceptor;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return AuthorizationManagerBeforeMethodInterceptor.class;
+		}
+
+		public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
+			this.securityContextHolderStrategy = securityContextHolderStrategy;
+		}
+
+		public void setObservationRegistry(ObservationRegistry observationRegistry) {
+			this.observationRegistry = observationRegistry;
+		}
+
 	}
 
 	public static final class PreAuthorizeAuthorizationMethodInterceptor
@@ -333,12 +400,18 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 				.getContextHolderStrategy();
 
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 		private final PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 
 		@Override
 		public AuthorizationManagerBeforeMethodInterceptor getObject() {
+			AuthorizationManager<MethodInvocation> manager = this.manager;
+			if (!this.observationRegistry.isNoop()) {
+				manager = new ObservationAuthorizationManager<>(this.observationRegistry, this.manager);
+			}
 			AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
-					.preAuthorize(this.manager);
+					.preAuthorize(manager);
 			interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			return interceptor;
 		}
@@ -356,6 +429,10 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			this.manager.setExpressionHandler(expressionHandler);
 		}
 
+		public void setObservationRegistry(ObservationRegistry registry) {
+			this.observationRegistry = registry;
+		}
+
 	}
 
 	public static final class PostAuthorizeAuthorizationMethodInterceptor
@@ -364,12 +441,18 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 				.getContextHolderStrategy();
 
+		private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 		private final PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 
 		@Override
 		public AuthorizationManagerAfterMethodInterceptor getObject() {
+			AuthorizationManager<MethodInvocationResult> manager = this.manager;
+			if (!this.observationRegistry.isNoop()) {
+				manager = new ObservationAuthorizationManager<>(this.observationRegistry, this.manager);
+			}
 			AuthorizationManagerAfterMethodInterceptor interceptor = AuthorizationManagerAfterMethodInterceptor
-					.postAuthorize(this.manager);
+					.postAuthorize(manager);
 			interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
 			return interceptor;
 		}
@@ -387,6 +470,10 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 			this.manager.setExpressionHandler(expressionHandler);
 		}
 
+		public void setObservationRegistry(ObservationRegistry registry) {
+			this.observationRegistry = registry;
+		}
+
 	}
 
 	static class SecurityContextHolderStrategyFactory implements FactoryBean<SecurityContextHolderStrategy> {
@@ -399,6 +486,20 @@ public class MethodSecurityBeanDefinitionParser implements BeanDefinitionParser 
 		@Override
 		public Class<?> getObjectType() {
 			return SecurityContextHolderStrategy.class;
+		}
+
+	}
+
+	static class ObservationRegistryFactory implements FactoryBean<ObservationRegistry> {
+
+		@Override
+		public ObservationRegistry getObject() throws Exception {
+			return ObservationRegistry.NOOP;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return ObservationRegistry.class;
 		}
 
 	}

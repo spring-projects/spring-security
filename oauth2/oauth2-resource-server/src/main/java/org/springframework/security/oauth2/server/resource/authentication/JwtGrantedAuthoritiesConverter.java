@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,13 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 
 	private static final String DEFAULT_AUTHORITY_PREFIX = "SCOPE_";
 
+	private static final String DEFAULT_AUTHORITIES_CLAIM_DELIMITER = " ";
+
 	private static final Collection<String> WELL_KNOWN_AUTHORITIES_CLAIM_NAMES = Arrays.asList("scope", "scp");
 
 	private String authorityPrefix = DEFAULT_AUTHORITY_PREFIX;
+
+	private String authoritiesClaimDelimiter = DEFAULT_AUTHORITIES_CLAIM_DELIMITER;
 
 	private String authoritiesClaimName;
 
@@ -75,6 +79,18 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 	public void setAuthorityPrefix(String authorityPrefix) {
 		Assert.notNull(authorityPrefix, "authorityPrefix cannot be null");
 		this.authorityPrefix = authorityPrefix;
+	}
+
+	/**
+	 * Sets the regex to use for splitting the value of the authorities claim into
+	 * {@link GrantedAuthority authorities}. Defaults to
+	 * {@link JwtGrantedAuthoritiesConverter#DEFAULT_AUTHORITIES_CLAIM_DELIMITER}.
+	 * @param authoritiesClaimDelimiter The regex used to split the authorities
+	 * @since 6.1
+	 */
+	public void setAuthoritiesClaimDelimiter(String authoritiesClaimDelimiter) {
+		Assert.notNull(authoritiesClaimDelimiter, "authoritiesClaimDelimiter cannot be null");
+		this.authoritiesClaimDelimiter = authoritiesClaimDelimiter;
 	}
 
 	/**
@@ -113,7 +129,7 @@ public final class JwtGrantedAuthoritiesConverter implements Converter<Jwt, Coll
 		Object authorities = jwt.getClaim(claimName);
 		if (authorities instanceof String) {
 			if (StringUtils.hasText((String) authorities)) {
-				return Arrays.asList(((String) authorities).split(" "));
+				return Arrays.asList(((String) authorities).split(this.authoritiesClaimDelimiter));
 			}
 			return Collections.emptyList();
 		}

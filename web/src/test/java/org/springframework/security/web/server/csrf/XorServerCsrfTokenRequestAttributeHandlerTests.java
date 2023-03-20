@@ -68,20 +68,29 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 
 	@Test
 	public void setSecureRandomWhenNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.setSecureRandom(null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.handler.setSecureRandom(null))
 				.withMessage("secureRandom cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void handleWhenExchangeIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.handle(null, Mono.just(this.token)))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.handler.handle(null, Mono.just(this.token)))
 				.withMessage("exchange cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void handleWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.handle(this.exchange, null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.handler.handle(this.exchange, null))
 				.withMessage("csrfToken cannot be null");
+		// @formatter:on
 	}
 
 	@Test
@@ -111,15 +120,32 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 	}
 
 	@Test
+	public void handleWhenCsrfTokenRequestedTwiceThenCached() {
+		this.handler.handle(this.exchange, Mono.just(this.token));
+		Mono<CsrfToken> csrfTokenAttribute = this.exchange.getAttribute(CsrfToken.class.getName());
+		assertThat(csrfTokenAttribute).isNotNull();
+		CsrfToken csrfToken1 = csrfTokenAttribute.block();
+		CsrfToken csrfToken2 = csrfTokenAttribute.block();
+		assertThat(csrfToken1.getToken()).isNotEqualTo(this.token.getToken());
+		assertThat(csrfToken1.getToken()).isEqualTo(csrfToken2.getToken());
+	}
+
+	@Test
 	public void resolveCsrfTokenValueWhenExchangeIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.handler.resolveCsrfTokenValue(null, this.token))
 				.withMessage("exchange cannot be null");
+		// @formatter:on
 	}
 
 	@Test
 	public void resolveCsrfTokenValueWhenCsrfTokenIsNullThenThrowsIllegalArgumentException() {
-		assertThatIllegalArgumentException().isThrownBy(() -> this.handler.resolveCsrfTokenValue(this.exchange, null))
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.handler.resolveCsrfTokenValue(this.exchange, null))
 				.withMessage("csrfToken cannot be null");
+		// @formatter:on
 	}
 
 	@Test

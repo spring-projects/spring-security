@@ -16,14 +16,19 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.aop.Advisor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor;
+import org.springframework.security.authorization.method.SecuredAuthorizationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
@@ -39,20 +44,19 @@ import org.springframework.security.core.context.SecurityContextHolderStrategy;
 @Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 final class SecuredMethodSecurityConfiguration {
 
-	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
-			.getContextHolderStrategy();
-
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor securedAuthorizationMethodInterceptor() {
-		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor.secured();
-		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
+	static Advisor securedAuthorizationMethodInterceptor(ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
+			ObjectProvider<ObservationRegistry> registryProvider) {
+		SecuredAuthorizationManager secured = new SecuredAuthorizationManager();
+		SecurityContextHolderStrategy strategy = strategyProvider
+				.getIfAvailable(SecurityContextHolder::getContextHolderStrategy);
+		AuthorizationManager<MethodInvocation> manager = new DeferringObservationAuthorizationManager<>(
+				registryProvider, secured);
+		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
+				.secured(manager);
+		interceptor.setSecurityContextHolderStrategy(strategy);
 		return interceptor;
-	}
-
-	@Autowired(required = false)
-	void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
-		this.securityContextHolderStrategy = securityContextHolderStrategy;
 	}
 
 }

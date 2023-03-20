@@ -23,10 +23,12 @@
 				http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<http pattern="/first/**" create-session="stateless">
+		<intercept-url pattern="/first/**" access="authenticated"/>
 		<http-basic/>
 	</http>
 
 	<http pattern="/second/**">
+		<intercept-url pattern="/second/**" access="authenticated"/>
 		<form-login login-processing-url="/second/login"/>
 	</http>
 

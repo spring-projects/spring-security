@@ -112,7 +112,7 @@ public class RememberMeAuthenticationFilter extends GenericFilterBean implements
 		}
 		Authentication rememberMeAuth = this.rememberMeServices.autoLogin(request, response);
 		if (rememberMeAuth != null) {
-			// Attempt authenticaton via AuthenticationManager
+			// Attempt authentication via AuthenticationManager
 			try {
 				rememberMeAuth = this.authenticationManager.authenticate(rememberMeAuth);
 				// Store to SecurityContextHolder

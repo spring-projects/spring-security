@@ -45,6 +45,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2P
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -120,15 +122,19 @@ class OpenSamlAuthenticationRequestResolver {
 		if (registration == null) {
 			return null;
 		}
+		UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+		String entityId = uriResolver.resolve(registration.getEntityId());
+		String assertionConsumerServiceLocation = uriResolver
+				.resolve(registration.getAssertionConsumerServiceLocation());
 		AuthnRequest authnRequest = this.authnRequestBuilder.buildObject();
 		authnRequest.setForceAuthn(Boolean.FALSE);
 		authnRequest.setIsPassive(Boolean.FALSE);
 		authnRequest.setProtocolBinding(registration.getAssertionConsumerServiceBinding().getUrn());
 		Issuer iss = this.issuerBuilder.buildObject();
-		iss.setValue(registration.getEntityId());
+		iss.setValue(entityId);
 		authnRequest.setIssuer(iss);
 		authnRequest.setDestination(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
-		authnRequest.setAssertionConsumerServiceURL(registration.getAssertionConsumerServiceLocation());
+		authnRequest.setAssertionConsumerServiceURL(assertionConsumerServiceLocation);
 		authnRequestConsumer.accept(registration, authnRequest);
 		if (authnRequest.getID() == null) {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));

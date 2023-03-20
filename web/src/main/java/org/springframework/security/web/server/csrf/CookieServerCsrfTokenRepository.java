@@ -17,6 +17,7 @@
 package org.springframework.security.web.server.csrf;
 
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -36,6 +37,7 @@ import org.springframework.web.server.ServerWebExchange;
  * @author Eric Deandrea
  * @author Thomas Vitale
  * @author Alonso Araya
+ * @author Alex Montoya
  * @since 5.1
  */
 public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRepository {
@@ -60,15 +62,29 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 
 	private int cookieMaxAge = -1;
 
+	private Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer = (builder) -> {
+	};
+
 	/**
-	 * Factory method to conveniently create an instance that has
-	 * {@link #setCookieHttpOnly(boolean)} set to false.
-	 * @return an instance of CookieCsrfTokenRepository with
-	 * {@link #setCookieHttpOnly(boolean)} set to false
+	 * Add a {@link Consumer} for a {@code ResponseCookieBuilder} that will be invoked for
+	 * each cookie being built, just before the call to {@code build()}.
+	 * @param cookieCustomizer consumer for a cookie builder
+	 * @since 6.1
+	 */
+	public void setCookieCustomizer(Consumer<ResponseCookie.ResponseCookieBuilder> cookieCustomizer) {
+		Assert.notNull(cookieCustomizer, "cookieCustomizer must not be null");
+		this.cookieCustomizer = cookieCustomizer;
+	}
+
+	/**
+	 * Factory method to conveniently create an instance that has creates cookies with
+	 * {@link ResponseCookie#isHttpOnly} set to false.
+	 * @return an instance of CookieCsrfTokenRepository that creates cookies with
+	 * {@link ResponseCookie#isHttpOnly} set to false
 	 */
 	public static CookieServerCsrfTokenRepository withHttpOnlyFalse() {
 		CookieServerCsrfTokenRepository result = new CookieServerCsrfTokenRepository();
-		result.setCookieHttpOnly(false);
+		result.setCookieCustomizer((cookie) -> cookie.httpOnly(false));
 		return result;
 	}
 
@@ -82,16 +98,18 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 		return Mono.fromRunnable(() -> {
 			String tokenValue = (token != null) ? token.getToken() : "";
 			// @formatter:off
-			ResponseCookie cookie = ResponseCookie
+			ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie
 					.from(this.cookieName, tokenValue)
 					.domain(this.cookieDomain)
 					.httpOnly(this.cookieHttpOnly)
 					.maxAge(!tokenValue.isEmpty() ? this.cookieMaxAge : 0)
 					.path((this.cookiePath != null) ? this.cookiePath : getRequestContext(exchange.getRequest()))
-					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null))
-					.build();
+					.secure((this.secure != null) ? this.secure : (exchange.getRequest().getSslInfo() != null));
+
+			this.cookieCustomizer.accept(cookieBuilder);
+
 			// @formatter:on
-			exchange.getResponse().addCookie(cookie);
+			exchange.getResponse().addCookie(cookieBuilder.build());
 		});
 	}
 
@@ -107,9 +125,9 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the HttpOnly attribute on the cookie containing the CSRF token
-	 * @param cookieHttpOnly True to mark the cookie as http only. False otherwise.
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieHttpOnly(boolean cookieHttpOnly) {
 		this.cookieHttpOnly = cookieHttpOnly;
 	}
@@ -150,44 +168,27 @@ public final class CookieServerCsrfTokenRepository implements ServerCsrfTokenRep
 	}
 
 	/**
-	 * Sets the cookie domain
-	 * @param cookieDomain The cookie domain
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieDomain(String cookieDomain) {
 		this.cookieDomain = cookieDomain;
 	}
 
 	/**
-	 * Sets the cookie secure flag. If not set, the value depends on
-	 * {@link ServerHttpRequest#getSslInfo()}.
-	 * @param secure The value for the secure flag
 	 * @since 5.5
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setSecure(boolean secure) {
 		this.secure = secure;
 	}
 
 	/**
-	 * Sets maximum age in seconds for the cookie that the expected CSRF token is saved to
-	 * and read from. By default maximum age value is -1.
-	 *
-	 * <p>
-	 * A positive value indicates that the cookie will expire after that many seconds have
-	 * passed. Note that the value is the <i>maximum</i> age when the cookie will expire,
-	 * not the cookie's current age.
-	 *
-	 * <p>
-	 * A negative value means that the cookie is not stored persistently and will be
-	 * deleted when the Web browser exits.
-	 *
-	 * <p>
-	 * A zero value causes the cookie to be deleted immediately therefore it is not a
-	 * valid value and in that case an {@link IllegalArgumentException} will be thrown.
-	 * @param cookieMaxAge an integer specifying the maximum age of the cookie in seconds;
-	 * if negative, means the cookie is not stored; if zero, the method throws an
-	 * {@link IllegalArgumentException}
 	 * @since 5.8
+	 * @deprecated Use {@link #setCookieCustomizer(Consumer)} instead.
 	 */
+	@Deprecated(since = "6.1")
 	public void setCookieMaxAge(int cookieMaxAge) {
 		Assert.isTrue(cookieMaxAge != 0, "cookieMaxAge cannot be zero");
 		this.cookieMaxAge = cookieMaxAge;

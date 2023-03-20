@@ -16,6 +16,14 @@
 
 package org.springframework.security.config.annotation.web.configurers;
 
+import java.io.IOException;
+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -25,8 +33,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockFilterChain;
+import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationTrustResolver;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -54,8 +68,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -103,9 +119,22 @@ public class SessionManagementConfigurerTests {
 	public void sessionManagementWhenConfiguredThenDoesNotOverrideSecurityContextRepository() throws Exception {
 		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
 		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
-				.loadContext(any(HttpServletRequest.class))).willReturn(() -> mock(SecurityContext.class));
+				.loadDeferredContext(any(HttpServletRequest.class)))
+						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
 		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
 		this.mvc.perform(get("/"));
+	}
+
+	@Test
+	public void sessionManagementWhenSecurityContextRepositoryIsConfiguredThenUseIt() throws Exception {
+		SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO = mock(SecurityContextRepository.class);
+		given(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO
+				.loadDeferredContext(any(HttpServletRequest.class)))
+						.willReturn(new TestDeferredSecurityContext(mock(SecurityContext.class), false));
+		this.spring.register(SessionManagementSecurityContextRepositoryConfig.class).autowire();
+		this.mvc.perform(get("/"));
+		verify(SessionManagementSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPO)
+				.containsContext(any(HttpServletRequest.class));
 	}
 
 	@Test
@@ -311,9 +340,7 @@ public class SessionManagementConfigurerTests {
 				HttpServletResponse responseToSpy = spy((HttpServletResponse) response);
 				chain.doFilter(request, responseToSpy);
 				verify(responseToSpy, atLeastOnce()).encodeRedirectURL(any());
-				verify(responseToSpy, atLeastOnce()).encodeRedirectUrl(any());
 				verify(responseToSpy, atLeastOnce()).encodeURL(any());
-				verify(responseToSpy, atLeastOnce()).encodeUrl(any());
 			})
 			.apply(springSecurity())
 			.build();
@@ -331,9 +358,7 @@ public class SessionManagementConfigurerTests {
 				HttpServletResponse responseToSpy = spy((HttpServletResponse) response);
 				chain.doFilter(request, responseToSpy);
 				verify(responseToSpy, never()).encodeRedirectURL(any());
-				verify(responseToSpy, never()).encodeRedirectUrl(any());
 				verify(responseToSpy, never()).encodeURL(any());
-				verify(responseToSpy, never()).encodeUrl(any());
 			})
 			.apply(springSecurity())
 			.build();
@@ -356,6 +381,84 @@ public class SessionManagementConfigurerTests {
 		SecurityContext securityContext = (SecurityContext) mvcResult.getRequest()
 				.getAttribute(RequestAttributeSecurityContextRepository.DEFAULT_REQUEST_ATTR_NAME);
 		assertThat(securityContext).isNotNull();
+	}
+
+	/**
+	 * This ensures that if an ErrorDispatch occurs, then the SecurityContextRepository
+	 * defaulted by SessionManagementConfigurer is correct (looks at both Session and
+	 * Request Attributes).
+	 * @throws Exception
+	 */
+	@Test
+	public void gh12070WhenErrorDispatchSecurityContextRepositoryWorks() throws Exception {
+		Filter errorDispatchFilter = new Filter() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+					throws IOException, ServletException {
+				try {
+					chain.doFilter(request, response);
+				}
+				catch (ServletException ex) {
+					if (request.getDispatcherType() == DispatcherType.ERROR) {
+						throw ex;
+					}
+					MockHttpServletRequest httpRequest = WebUtils.getNativeRequest(request,
+							MockHttpServletRequest.class);
+					httpRequest.setDispatcherType(DispatcherType.ERROR);
+					// necessary to prevent HttpBasicFilter from invoking again
+					httpRequest.setAttribute(WebUtils.ERROR_REQUEST_URI_ATTRIBUTE, "/error");
+					httpRequest.setRequestURI("/error");
+					MockFilterChain mockChain = (MockFilterChain) chain;
+					mockChain.reset();
+					mockChain.doFilter(httpRequest, response);
+				}
+			}
+		};
+		this.spring.addFilter(errorDispatchFilter).register(Gh12070IssueConfig.class).autowire();
+
+		// @formatter:off
+		this.mvc.perform(get("/500").with(httpBasic("user", "password")))
+				.andExpect(status().isInternalServerError());
+		// @formatter:on
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class Gh12070IssueConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize
+					.anyRequest().authenticated()
+				)
+				.httpBasic(Customizer.withDefaults())
+				.formLogin(Customizer.withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+		@RestController
+		static class ErrorController {
+
+			@GetMapping("/500")
+			String error() throws ServletException {
+				throw new ServletException("Error");
+			}
+
+			@GetMapping("/error")
+			ResponseEntity<String> errorHandler() {
+				return new ResponseEntity<>("error", HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+
+		}
+
 	}
 
 	@Configuration
@@ -712,9 +815,7 @@ public class SessionManagementConfigurerTests {
 		@RequestMapping("/")
 		String encoded(HttpServletResponse response) {
 			response.encodeURL("/foo");
-			response.encodeUrl("/foo");
 			response.encodeRedirectURL("/foo");
-			response.encodeRedirectUrl("/foo");
 			return "encoded";
 		}
 

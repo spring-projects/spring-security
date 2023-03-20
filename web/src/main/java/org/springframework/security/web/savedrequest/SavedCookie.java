@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,22 +31,28 @@ public class SavedCookie implements Serializable {
 
 	private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
-	private final java.lang.String name;
+	private final String name;
 
-	private final java.lang.String value;
+	private final String value;
 
-	private final java.lang.String comment;
+	private final String comment;
 
-	private final java.lang.String domain;
+	private final String domain;
 
 	private final int maxAge;
 
-	private final java.lang.String path;
+	private final String path;
 
 	private final boolean secure;
 
 	private final int version;
 
+	/**
+	 * @deprecated use
+	 * {@link org.springframework.security.web.savedrequest.SavedCookie#SavedCookie(String, String, String, int, String, boolean)}
+	 * instead
+	 */
+	@Deprecated(forRemoval = true, since = "6.1")
 	public SavedCookie(String name, String value, String comment, String domain, int maxAge, String path,
 			boolean secure, int version) {
 		this.name = name;
@@ -59,9 +65,13 @@ public class SavedCookie implements Serializable {
 		this.version = version;
 	}
 
+	public SavedCookie(String name, String value, String domain, int maxAge, String path, boolean secure) {
+		this(name, value, null, domain, maxAge, path, secure, 0);
+	}
+
 	public SavedCookie(Cookie cookie) {
-		this(cookie.getName(), cookie.getValue(), cookie.getComment(), cookie.getDomain(), cookie.getMaxAge(),
-				cookie.getPath(), cookie.getSecure(), cookie.getVersion());
+		this(cookie.getName(), cookie.getValue(), cookie.getDomain(), cookie.getMaxAge(), cookie.getPath(),
+				cookie.getSecure());
 	}
 
 	public String getName() {
@@ -72,6 +82,7 @@ public class SavedCookie implements Serializable {
 		return this.value;
 	}
 
+	@Deprecated(forRemoval = true, since = "6.1")
 	public String getComment() {
 		return this.comment;
 	}
@@ -92,6 +103,7 @@ public class SavedCookie implements Serializable {
 		return this.secure;
 	}
 
+	@Deprecated(forRemoval = true, since = "6.1")
 	public int getVersion() {
 		return this.version;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,31 +107,36 @@ public abstract class AbstractAuthenticationTargetUrlRequestHandler {
 		if (isAlwaysUseDefaultTargetUrl()) {
 			return this.defaultTargetUrl;
 		}
-		// Check for the parameter and use that if available
-		String targetUrl = null;
-		if (this.targetUrlParameter != null) {
-			targetUrl = request.getParameter(this.targetUrlParameter);
-			if (StringUtils.hasText(targetUrl)) {
-				if (this.logger.isTraceEnabled()) {
-					this.logger.trace(LogMessage.format("Using url %s from request parameter %s", targetUrl,
-							this.targetUrlParameter));
-				}
-				return targetUrl;
-			}
+		String targetUrlParameterValue = getTargetUrlParameterValue(request);
+		if (StringUtils.hasText(targetUrlParameterValue)) {
+			trace("Using url %s from request parameter %s", targetUrlParameterValue, this.targetUrlParameter);
+			return targetUrlParameterValue;
 		}
-		if (this.useReferer && !StringUtils.hasLength(targetUrl)) {
-			targetUrl = request.getHeader("Referer");
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Using url %s from Referer header", targetUrl));
-			}
+		if (this.useReferer) {
+			trace("Using url %s from Referer header", request.getHeader("Referer"));
+			return request.getHeader("Referer");
 		}
-		if (!StringUtils.hasText(targetUrl)) {
-			targetUrl = this.defaultTargetUrl;
-			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(LogMessage.format("Using default url %s", targetUrl));
-			}
+		return this.defaultTargetUrl;
+	}
+
+	private String getTargetUrlParameterValue(HttpServletRequest request) {
+		if (this.targetUrlParameter == null) {
+			return null;
 		}
-		return targetUrl;
+		String value = request.getParameter(this.targetUrlParameter);
+		if (value == null) {
+			return null;
+		}
+		if (StringUtils.hasText(value)) {
+			return value;
+		}
+		return this.defaultTargetUrl;
+	}
+
+	private void trace(String msg, String... msgParts) {
+		if (this.logger.isTraceEnabled()) {
+			this.logger.trace(LogMessage.format(msg, msgParts));
+		}
 	}
 
 	/**

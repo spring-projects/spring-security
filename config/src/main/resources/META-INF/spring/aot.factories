@@ -1,0 +1,5 @@
+org.springframework.beans.factory.aot.BeanRegistrationAotProcessor=\
+org.springframework.security.config.annotation.authentication.configuration.AuthenticationManagerBeanRegistrationAotProcessor
+
+org.springframework.aot.hint.RuntimeHintsRegistrar=\
+org.springframework.security.config.aot.hint.OAuth2LoginRuntimeHints

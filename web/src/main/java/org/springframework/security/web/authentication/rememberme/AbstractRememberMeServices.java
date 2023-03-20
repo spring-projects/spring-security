@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@ public abstract class AbstractRememberMeServices
 	 * which in turn is used to create a valid authentication token.
 	 */
 	@Override
-	public final Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
+	public Authentication autoLogin(HttpServletRequest request, HttpServletResponse response) {
 		String rememberMeCookie = extractRememberMeCookie(request);
 		if (rememberMeCookie == null) {
 			return null;
@@ -253,7 +253,7 @@ public abstract class AbstractRememberMeServices
 	}
 
 	@Override
-	public final void loginFail(HttpServletRequest request, HttpServletResponse response) {
+	public void loginFail(HttpServletRequest request, HttpServletResponse response) {
 		this.logger.debug("Interactive login attempt was unsuccessful.");
 		cancelCookie(request, response);
 		onLoginFail(request, response);
@@ -268,11 +268,11 @@ public abstract class AbstractRememberMeServices
 	 * <p>
 	 * Examines the incoming request and checks for the presence of the configured
 	 * "remember me" parameter. If it's present, or if <tt>alwaysRemember</tt> is set to
-	 * true, calls <tt>onLoginSucces</tt>.
+	 * true, calls <tt>onLoginSuccess</tt>.
 	 * </p>
 	 */
 	@Override
-	public final void loginSuccess(HttpServletRequest request, HttpServletResponse response,
+	public void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 			Authentication successfulAuthentication) {
 		if (!rememberMeRequested(request, this.parameter)) {
 			this.logger.debug("Remember-me login not requested.");

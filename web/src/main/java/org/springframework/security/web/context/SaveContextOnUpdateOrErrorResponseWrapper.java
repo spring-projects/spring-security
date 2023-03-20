@@ -42,8 +42,8 @@ import org.springframework.util.Assert;
  * @author Marten Algesten
  * @author Rob Winch
  * @since 3.0
- * @deprecated Use {@link SecurityContextRepository#loadContext(HttpServletRequest)}
- * instead.
+ * @deprecated Use
+ * {@link SecurityContextRepository#loadDeferredContext(HttpServletRequest)} instead.
  */
 @Deprecated
 public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommittedResponseWrapper {
@@ -106,27 +106,11 @@ public abstract class SaveContextOnUpdateOrErrorResponseWrapper extends OnCommit
 	}
 
 	@Override
-	public final String encodeRedirectUrl(String url) {
-		if (this.disableUrlRewriting) {
-			return url;
-		}
-		return super.encodeRedirectUrl(url);
-	}
-
-	@Override
 	public final String encodeRedirectURL(String url) {
 		if (this.disableUrlRewriting) {
 			return url;
 		}
 		return super.encodeRedirectURL(url);
-	}
-
-	@Override
-	public final String encodeUrl(String url) {
-		if (this.disableUrlRewriting) {
-			return url;
-		}
-		return super.encodeUrl(url);
 	}
 
 	@Override

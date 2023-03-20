@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Base root object for use in Spring Security expression evaluations.
@@ -86,7 +87,11 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	 * @since 5.8
 	 */
 	public SecurityExpressionRoot(Supplier<Authentication> authentication) {
-		this.authentication = new AuthenticationSupplier(authentication);
+		this.authentication = SingletonSupplier.of(() -> {
+			Authentication value = authentication.get();
+			Assert.notNull(value, "Authentication object cannot be null");
+			return value;
+		});
 	}
 
 	@Override
@@ -153,7 +158,7 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 	@Override
 	public final boolean isFullyAuthenticated() {
 		Authentication authentication = getAuthentication();
-		return !this.trustResolver.isAnonymous(authentication) && !this.trustResolver.isRememberMe(authentication);
+		return this.trustResolver.isFullyAuthenticated(authentication);
 	}
 
 	/**
@@ -234,29 +239,6 @@ public abstract class SecurityExpressionRoot implements SecurityExpressionOperat
 			return role;
 		}
 		return defaultRolePrefix + role;
-	}
-
-	private static final class AuthenticationSupplier implements Supplier<Authentication> {
-
-		private Authentication value;
-
-		private final Supplier<Authentication> delegate;
-
-		private AuthenticationSupplier(Supplier<Authentication> delegate) {
-			Assert.notNull(delegate, "delegate cannot be null");
-			this.delegate = delegate;
-		}
-
-		@Override
-		public Authentication get() {
-			if (this.value == null) {
-				Authentication authentication = this.delegate.get();
-				Assert.notNull(authentication, "Authentication object cannot be null");
-				this.value = authentication;
-			}
-			return this.value;
-		}
-
 	}
 
 }

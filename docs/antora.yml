@@ -6,7 +6,13 @@ nav:
 ext:
   collector:
     run:
-      command: gradlew -q -PbuildSrc.skipTests=true "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError" :spring-security-docs:generateAntora
+      command: gradlew -q -PbuildSrc.skipTests=true "-Dorg.gradle.jvmargs=-Xmx3g -XX:+HeapDumpOnOutOfMemoryError" :spring-security-docs:generateAntoraYml
       local: true
     scan:
-      dir: ./build/generateAntora
+      dir: ./build/generated-antora-resources
+asciidoc:
+  attributes:
+    icondir: icons
+    gh-old-samples-url: 'https://github.com/spring-projects/spring-security/tree/5.4.x/samples'
+    gh-samples-url: "https://github.com/spring-projects/spring-security-samples/tree/{gh-tag}"
+    gh-url: "https://github.com/spring-projects/spring-security/tree/{gh-tag}"

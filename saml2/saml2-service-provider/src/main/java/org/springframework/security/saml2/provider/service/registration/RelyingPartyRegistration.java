@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ import org.springframework.util.CollectionUtils;
  * @author Josh Cummings
  * @since 5.2
  */
-public final class RelyingPartyRegistration {
+public class RelyingPartyRegistration {
 
 	private final String registrationId;
 
@@ -92,7 +92,7 @@ public final class RelyingPartyRegistration {
 
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
-	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
 			AssertingPartyDetails assertingPartyDetails, String nameIdFormat,
@@ -127,6 +127,35 @@ public final class RelyingPartyRegistration {
 		this.assertingPartyDetails = assertingPartyDetails;
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
 		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
+	}
+
+	/**
+	 * Copy the properties in this {@link RelyingPartyRegistration} into a {@link Builder}
+	 * @return a {@link Builder} based off of the properties in this
+	 * {@link RelyingPartyRegistration}
+	 * @since 6.1
+	 */
+	public Builder mutate() {
+		AssertingPartyDetails party = this.assertingPartyDetails;
+		return withRegistrationId(this.registrationId).entityId(this.entityId)
+				.signingX509Credentials((c) -> c.addAll(this.signingX509Credentials))
+				.decryptionX509Credentials((c) -> c.addAll(this.decryptionX509Credentials))
+				.assertionConsumerServiceLocation(this.assertionConsumerServiceLocation)
+				.assertionConsumerServiceBinding(this.assertionConsumerServiceBinding)
+				.singleLogoutServiceLocation(this.singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBindings((c) -> c.addAll(this.singleLogoutServiceBindings))
+				.nameIdFormat(this.nameIdFormat)
+				.assertingPartyDetails((assertingParty) -> assertingParty.entityId(party.getEntityId())
+						.wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
+						.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
+						.verificationX509Credentials((c) -> c.addAll(party.getVerificationX509Credentials()))
+						.encryptionX509Credentials((c) -> c.addAll(party.getEncryptionX509Credentials()))
+						.singleSignOnServiceLocation(party.getSingleSignOnServiceLocation())
+						.singleSignOnServiceBinding(party.getSingleSignOnServiceBinding())
+						.singleLogoutServiceLocation(party.getSingleLogoutServiceLocation())
+						.singleLogoutServiceResponseLocation(party.getSingleLogoutServiceResponseLocation())
+						.singleLogoutServiceBinding(party.getSingleLogoutServiceBinding()));
 	}
 
 	/**
@@ -291,7 +320,7 @@ public final class RelyingPartyRegistration {
 	 */
 	public static Builder withRegistrationId(String registrationId) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
-		return new Builder(registrationId);
+		return new Builder(registrationId, new AssertingPartyDetails.Builder());
 	}
 
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
@@ -314,7 +343,9 @@ public final class RelyingPartyRegistration {
 	 * object
 	 * @param registration the {@code RelyingPartyRegistration}
 	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
+	 * @deprecated Use {@link #mutate()} instead
 	 */
+	@Deprecated(forRemoval = true, since = "6.1")
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
 		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
@@ -735,7 +766,7 @@ public final class RelyingPartyRegistration {
 
 	}
 
-	public static final class Builder {
+	public static class Builder {
 
 		private String registrationId;
 
@@ -757,10 +788,11 @@ public final class RelyingPartyRegistration {
 
 		private String nameIdFormat = null;
 
-		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
+		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder;
 
-		private Builder(String registrationId) {
+		protected Builder(String registrationId, AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
 			this.registrationId = registrationId;
+			this.assertingPartyDetailsBuilder = assertingPartyDetailsBuilder;
 		}
 
 		/**
@@ -967,11 +999,12 @@ public final class RelyingPartyRegistration {
 				this.singleLogoutServiceBindings.add(Saml2MessageBinding.POST);
 			}
 
+			AssertingPartyDetails party = this.assertingPartyDetailsBuilder.build();
 			return new RelyingPartyRegistration(this.registrationId, this.entityId,
 					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
 					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
-					this.singleLogoutServiceBindings, this.assertingPartyDetailsBuilder.build(), this.nameIdFormat,
-					this.decryptionX509Credentials, this.signingX509Credentials);
+					this.singleLogoutServiceBindings, party, this.nameIdFormat, this.decryptionX509Credentials,
+					this.signingX509Credentials);
 		}
 
 	}

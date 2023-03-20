@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
@@ -29,7 +30,9 @@ import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.access.AccessDeniedHandlerImpl;
+import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.access.ObservationMarkingAccessDeniedHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
@@ -221,6 +224,11 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			filter.setRequireCsrfProtectionMatcher(requireCsrfProtectionMatcher);
 		}
 		AccessDeniedHandler accessDeniedHandler = createAccessDeniedHandler(http);
+		ObservationRegistry registry = getObservationRegistry();
+		if (!registry.isNoop()) {
+			ObservationMarkingAccessDeniedHandler observable = new ObservationMarkingAccessDeniedHandler(registry);
+			accessDeniedHandler = new CompositeAccessDeniedHandler(observable, accessDeniedHandler);
+		}
 		if (accessDeniedHandler != null) {
 			filter.setAccessDeniedHandler(accessDeniedHandler);
 		}
@@ -329,6 +337,17 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 			csrfAuthenticationStrategy.setRequestHandler(this.requestHandler);
 		}
 		return csrfAuthenticationStrategy;
+	}
+
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return context.getBean(ObservationRegistry.class);
+		}
+		else {
+			return ObservationRegistry.NOOP;
+		}
 	}
 
 	/**

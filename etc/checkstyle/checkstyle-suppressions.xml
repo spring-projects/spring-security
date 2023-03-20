@@ -37,4 +37,7 @@
 	<suppress files="WithSecurityContextTestExecutionListenerTests\.java" checks="SpringMethodVisibility"/>
 	<suppress files="AbstractOAuth2AuthorizationGrantRequestEntityConverter\.java" checks="SpringMethodVisibility"/>
 	<suppress files="JoseHeader\.java" checks="SpringMethodVisibility"/>
+
+	<!-- Lambdas that we can't replace with a method reference because a closure is required -->
+	<suppress files="BearerTokenAuthenticationFilter\.java" checks="SpringLambda"/>
 </suppressions>

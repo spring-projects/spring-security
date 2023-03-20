@@ -59,12 +59,12 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	}
 
 	private Supplier<CsrfToken> deferCsrfTokenUpdate(Supplier<CsrfToken> csrfTokenSupplier) {
-		return () -> {
+		return new CachedCsrfTokenSupplier(() -> {
 			CsrfToken csrfToken = csrfTokenSupplier.get();
 			Assert.state(csrfToken != null, "csrfToken supplier returned null");
 			String updatedToken = createXoredCsrfToken(this.secureRandom, csrfToken.getToken());
 			return new DefaultCsrfToken(csrfToken.getHeaderName(), csrfToken.getParameterName(), updatedToken);
-		};
+		});
 	}
 
 	@Override
@@ -121,6 +121,26 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 			xoredCsrf[i] ^= randomBytes[i];
 		}
 		return xoredCsrf;
+	}
+
+	private static final class CachedCsrfTokenSupplier implements Supplier<CsrfToken> {
+
+		private final Supplier<CsrfToken> delegate;
+
+		private CsrfToken csrfToken;
+
+		private CachedCsrfTokenSupplier(Supplier<CsrfToken> delegate) {
+			this.delegate = delegate;
+		}
+
+		@Override
+		public CsrfToken get() {
+			if (this.csrfToken == null) {
+				this.csrfToken = this.delegate.get();
+			}
+			return this.csrfToken;
+		}
+
 	}
 
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ import org.springframework.security.test.context.annotation.SecurityTestExecutio
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
+import org.springframework.security.web.csrf.DeferredCsrfToken;
 import org.springframework.security.web.csrf.InvalidCsrfTokenException;
 import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -77,6 +78,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.web.csrf.CsrfTokenAssert.assertThatCsrfToken;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 /**
@@ -381,12 +383,14 @@ public class WebSocketMessageBrokerConfigTests {
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-		MvcResult result = mvc.perform(get("/app").requestAttr(csrfAttributeName, this.token)
-				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
+		MvcResult result = mvc.perform(
+				get("/app").requestAttr(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token))
+						.sessionAttr(customAttributeName, "attributeValue"))
+				.andReturn();
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
+		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
 	}
@@ -398,12 +402,13 @@ public class WebSocketMessageBrokerConfigTests {
 		MockMvc mvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String csrfAttributeName = CsrfToken.class.getName();
 		String customAttributeName = this.getClass().getName();
-		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket").requestAttr(csrfAttributeName, this.token)
+		MvcResult result = mvc.perform(get("/app/289/tpyx6mde/websocket")
+				.requestAttr(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(this.token))
 				.sessionAttr(customAttributeName, "attributeValue")).andReturn();
 		CsrfToken handshakeToken = (CsrfToken) this.testHandshakeHandler.attributes.get(csrfAttributeName);
 		String handshakeValue = (String) this.testHandshakeHandler.attributes.get(customAttributeName);
 		String sessionValue = (String) result.getRequest().getSession().getAttribute(customAttributeName);
-		assertThat(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
+		assertThatCsrfToken(handshakeToken).isEqualTo(this.token).withFailMessage("CsrfToken is populated");
 		assertThat(handshakeValue).isEqualTo(sessionValue)
 				.withFailMessage("Explicitly listed session variables are not overridden");
 	}
@@ -524,6 +529,26 @@ public class WebSocketMessageBrokerConfigTests {
 			return this.spring.getContext().getBean(names[0], SecurityContextHolderStrategy.class);
 		}
 		return SecurityContextHolder.getContextHolderStrategy();
+	}
+
+	private static final class TestDeferredCsrfToken implements DeferredCsrfToken {
+
+		private final CsrfToken csrfToken;
+
+		TestDeferredCsrfToken(CsrfToken csrfToken) {
+			this.csrfToken = csrfToken;
+		}
+
+		@Override
+		public CsrfToken get() {
+			return this.csrfToken;
+		}
+
+		@Override
+		public boolean isGenerated() {
+			return false;
+		}
+
 	}
 
 	@Controller

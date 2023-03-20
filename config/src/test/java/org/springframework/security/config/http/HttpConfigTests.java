@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,20 @@
 
 package org.springframework.security.config.http;
 
+import java.util.Iterator;
+
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.apache.http.HttpStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 
+import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -36,7 +43,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -101,6 +111,24 @@ public class HttpConfigTests {
 		assertThat(response.getRedirectedUrl()).isEqualTo("http://localhost/login");
 	}
 
+	@Test
+	public void getWhenUsingObservationRegistryThenObservesRequest() throws Exception {
+		this.spring.configLocations(this.xml("WithObservationRegistry")).autowire();
+		// @formatter:off
+		this.mvc.perform(get("/").with(httpBasic("user", "password")))
+				.andExpect(status().isNotFound());
+		// @formatter:on
+		ObservationHandler<Observation.Context> handler = this.spring.getContext().getBean(ObservationHandler.class);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(5)).onStart(captor.capture());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain before");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authentications");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.authorizations");
+		assertThat(contexts.next().getName()).isEqualTo("spring.security.http.secured.requests");
+		assertThat(contexts.next().getContextualName()).isEqualTo("security filterchain after");
+	}
+
 	private String xml(String configName) {
 		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
@@ -121,14 +149,27 @@ public class HttpConfigTests {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 
+	}
+
+	public static final class MockObservationRegistry implements FactoryBean<ObservationRegistry> {
+
+		private ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+
 		@Override
-		public String encodeUrl(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
+		public ObservationRegistry getObject() {
+			ObservationRegistry registry = ObservationRegistry.create();
+			registry.observationConfig().observationHandler(this.handler);
+			given(this.handler.supportsContext(any())).willReturn(true);
+			return registry;
 		}
 
 		@Override
-		public String encodeRedirectUrl(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
+		public Class<?> getObjectType() {
+			return ObservationRegistry.class;
+		}
+
+		public void setHandler(ObservationHandler<Observation.Context> handler) {
+			this.handler = handler;
 		}
 
 	}

@@ -143,7 +143,7 @@ public final class AuthenticatedAuthorizationManager<T> implements Authorization
 
 		@Override
 		boolean isGranted(Authentication authentication) {
-			return super.isGranted(authentication) && !this.trustResolver.isRememberMe(authentication);
+			return authentication != null && this.trustResolver.isFullyAuthenticated(authentication);
 		}
 
 	}

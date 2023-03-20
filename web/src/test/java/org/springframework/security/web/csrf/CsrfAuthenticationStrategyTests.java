@@ -35,6 +35,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -81,6 +82,7 @@ public class CsrfAuthenticationStrategyTests {
 
 	@Test
 	public void onAuthenticationWhenCustomRequestHandlerThenUsed() {
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.loadDeferredToken(this.request, this.response))
 				.willReturn(new TestDeferredCsrfToken(this.existingToken, false));
 
@@ -88,23 +90,28 @@ public class CsrfAuthenticationStrategyTests {
 		this.strategy.setRequestHandler(requestHandler);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
+		verify(this.csrfTokenRepository).loadToken(this.request);
+		verify(this.csrfTokenRepository).loadDeferredToken(this.request, this.response);
 		verify(requestHandler).handle(eq(this.request), eq(this.response), any());
 		verifyNoMoreInteractions(requestHandler);
 	}
 
 	@Test
 	public void logoutRemovesCsrfTokenAndLoadsNewDeferredCsrfToken() {
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken);
 		given(this.csrfTokenRepository.loadDeferredToken(this.request, this.response))
 				.willReturn(new TestDeferredCsrfToken(this.generatedToken, false));
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
+		verify(this.csrfTokenRepository).loadToken(this.request);
 		verify(this.csrfTokenRepository).saveToken(null, this.request, this.response);
 		verify(this.csrfTokenRepository).loadDeferredToken(this.request, this.response);
 		// SEC-2404, SEC-2832
 		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
-		assertThat(tokenInRequest.getToken()).isSameAs(this.generatedToken.getToken());
-		assertThat(tokenInRequest.getHeaderName()).isSameAs(this.generatedToken.getHeaderName());
-		assertThat(tokenInRequest.getParameterName()).isSameAs(this.generatedToken.getParameterName());
+		assertThat(tokenInRequest.getToken()).isNotEmpty();
+		assertThat(tokenInRequest.getToken()).isNotEqualTo(this.generatedToken.getToken());
+		assertThat(tokenInRequest.getHeaderName()).isEqualTo(this.generatedToken.getHeaderName());
+		assertThat(tokenInRequest.getParameterName()).isEqualTo(this.generatedToken.getParameterName());
 		assertThat(this.request.getAttribute(this.generatedToken.getParameterName())).isSameAs(tokenInRequest);
 	}
 
@@ -112,6 +119,7 @@ public class CsrfAuthenticationStrategyTests {
 	@Test
 	public void delaySavingCsrf() {
 		this.strategy = new CsrfAuthenticationStrategy(new LazyCsrfTokenRepository(this.csrfTokenRepository));
+		given(this.csrfTokenRepository.loadToken(this.request)).willReturn(this.existingToken, (CsrfToken) null);
 		given(this.csrfTokenRepository.generateToken(this.request)).willReturn(this.generatedToken);
 		this.strategy.onAuthentication(new TestingAuthenticationToken("user", "password", "ROLE_USER"), this.request,
 				this.response);
@@ -120,7 +128,7 @@ public class CsrfAuthenticationStrategyTests {
 				any(HttpServletResponse.class));
 		CsrfToken tokenInRequest = (CsrfToken) this.request.getAttribute(CsrfToken.class.getName());
 		tokenInRequest.getToken();
-		verify(this.csrfTokenRepository).loadToken(this.request);
+		verify(this.csrfTokenRepository, times(2)).loadToken(this.request);
 		verify(this.csrfTokenRepository).generateToken(this.request);
 		verify(this.csrfTokenRepository).saveToken(eq(this.generatedToken), any(HttpServletRequest.class),
 				any(HttpServletResponse.class));

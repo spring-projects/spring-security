@@ -120,7 +120,7 @@ public class InterceptUrlConfigTests {
 		this.spring.configLocations(this.xml("PatchMethodAuthorizationManager")).autowire();
 		// @formatter:off
 		this.mvc.perform(get("/path").with(userCredentials()))
-				.andExpect(status().isOk());
+				.andExpect(status().isForbidden());
 		this.mvc.perform(patch("/path").with(userCredentials()))
 				.andExpect(status().isForbidden());
 		this.mvc.perform(patch("/path").with(adminCredentials()))

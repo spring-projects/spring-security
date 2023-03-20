@@ -26,6 +26,7 @@ import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.provider.service.authentication.AbstractSaml2AuthenticationRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -45,6 +46,20 @@ public final class OpenSaml4AuthenticationRequestResolver implements Saml2Authen
 	};
 
 	private Clock clock = Clock.systemUTC();
+
+	/**
+	 * Construct an {@link OpenSaml4AuthenticationRequestResolver}
+	 * @param registrations a repository for relying and asserting party configuration
+	 * @since 6.1
+	 */
+	public OpenSaml4AuthenticationRequestResolver(RelyingPartyRegistrationRepository registrations) {
+		this.authnRequestResolver = new OpenSamlAuthenticationRequestResolver((request, id) -> {
+			if (id == null) {
+				return null;
+			}
+			return registrations.findByRegistrationId(id);
+		});
+	}
 
 	/**
 	 * Construct a {@link OpenSaml4AuthenticationRequestResolver}

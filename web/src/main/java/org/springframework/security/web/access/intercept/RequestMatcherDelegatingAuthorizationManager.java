@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,11 +44,11 @@ import org.springframework.util.Assert;
  */
 public final class RequestMatcherDelegatingAuthorizationManager implements AuthorizationManager<HttpServletRequest> {
 
+	private static final AuthorizationDecision DENY = new AuthorizationDecision(false);
+
 	private final Log logger = LogFactory.getLog(getClass());
 
 	private final List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings;
-
-	private AuthorizationManager<RequestAuthorizationContext> defaultManager = (authentication, request) -> null;
 
 	private RequestMatcherDelegatingAuthorizationManager(
 			List<RequestMatcherEntry<AuthorizationManager<RequestAuthorizationContext>>> mappings) {
@@ -84,9 +84,9 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 			}
 		}
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(LogMessage.format("Checking authorization on %s using %s", request, this.defaultManager));
+			this.logger.trace(LogMessage.of(() -> "Denying request since did not find matching RequestMatcher"));
 		}
-		return this.defaultManager.check(authentication, new RequestAuthorizationContext(request));
+		return DENY;
 	}
 
 	/**
@@ -95,21 +95,6 @@ public final class RequestMatcherDelegatingAuthorizationManager implements Autho
 	 */
 	public static Builder builder() {
 		return new Builder();
-	}
-
-	/**
-	 * Use this {@link AuthorizationManager} if the request fails to match any other
-	 * configured {@link AuthorizationManager}.
-	 *
-	 * <p>
-	 * This is specifically handy when considering whether to accept or deny requests by
-	 * default. The default is to abstain from deciding on requests that don't match
-	 * configuration.
-	 * @param authorizationManager the {@link AuthorizationManager} to use
-	 * @since 5.8
-	 */
-	public void setDefaultAuthorizationManager(AuthorizationManager<RequestAuthorizationContext> authorizationManager) {
-		this.defaultManager = authorizationManager;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,15 +17,20 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import java.util.List;
+import java.util.function.Supplier;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.context.ApplicationContext;
+import org.springframework.security.access.hierarchicalroles.NullRoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
 import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.ObservationAuthorizationManager;
 import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
@@ -36,6 +41,7 @@ import org.springframework.security.web.access.intercept.RequestMatcherDelegatin
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcherEntry;
 import org.springframework.util.Assert;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Adds a URL based authorization using {@link AuthorizationManager}.
@@ -54,6 +60,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final AuthorizationEventPublisher publisher;
 
+	private final Supplier<RoleHierarchy> roleHierarchy;
+
 	/**
 	 * Creates an instance.
 	 * @param context the {@link ApplicationContext} to use
@@ -66,6 +74,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		else {
 			this.publisher = new SpringAuthorizationEventPublisher(context);
 		}
+		this.roleHierarchy = SingletonSupplier.of(() -> (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
+				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy());
 	}
 
 	/**
@@ -100,6 +110,17 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 			AuthorizationManager<RequestAuthorizationContext> manager) {
 		this.registry.addFirst(matcher, manager);
 		return this.registry;
+	}
+
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return context.getBean(ObservationRegistry.class);
+		}
+		else {
+			return ObservationRegistry.NOOP;
+		}
 	}
 
 	/**
@@ -141,7 +162,12 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 							+ ". Try completing it with something like requestUrls().<something>.hasRole('USER')");
 			Assert.state(this.mappingCount > 0,
 					"At least one mapping is required (for example, authorizeHttpRequests().anyRequest().authenticated())");
-			return postProcess(this.managerBuilder.build());
+			ObservationRegistry registry = getObservationRegistry();
+			RequestMatcherDelegatingAuthorizationManager manager = postProcess(this.managerBuilder.build());
+			if (registry.isNoop()) {
+				return manager;
+			}
+			return new ObservationAuthorizationManager<>(registry, manager);
 		}
 
 		@Override
@@ -233,7 +259,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasRole(String role) {
-			return access(AuthorityAuthorizationManager.hasRole(role));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasRole(role)));
 		}
 
 		/**
@@ -245,7 +271,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAnyRole(String... roles) {
-			return access(AuthorityAuthorizationManager.hasAnyRole(roles));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAnyRole(roles)));
 		}
 
 		/**
@@ -255,7 +281,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAuthority(String authority) {
-			return access(AuthorityAuthorizationManager.hasAuthority(authority));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAuthority(authority)));
 		}
 
 		/**
@@ -266,7 +292,13 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAnyAuthority(String... authorities) {
-			return access(AuthorityAuthorizationManager.hasAnyAuthority(authorities));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAnyAuthority(authorities)));
+		}
+
+		private AuthorityAuthorizationManager<RequestAuthorizationContext> withRoleHierarchy(
+				AuthorityAuthorizationManager<RequestAuthorizationContext> manager) {
+			manager.setRoleHierarchy(AuthorizeHttpRequestsConfigurer.this.roleHierarchy.get());
+			return manager;
 		}
 
 		/**

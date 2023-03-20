@@ -1,0 +1,43 @@
+= Session Management Migrations
+
+The following steps relate to how to finish migrating session management support.
+
+== Require Explicit Saving of SecurityContextRepository
+
+In Spring Security 5, the default behavior is for the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to automatically be saved to the xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] using the xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`].
+Saving must be done just prior to the `HttpServletResponse` being committed and just before `SecurityContextPersistenceFilter`.
+Unfortunately, automatic persistence of the `SecurityContext` can surprise users when it is done prior to the request completing (i.e. just prior to committing the `HttpServletResponse`).
+It also is complex to keep track of the state to determine if a save is necessary causing unnecessary writes to the `SecurityContextRepository` (i.e. `HttpSession`) at times.
+
+In Spring Security 6, the default behavior is that the xref:servlet/authentication/persistence.adoc#securitycontextholderfilter[`SecurityContextHolderFilter`] will only read the `SecurityContext` from  `SecurityContextRepository` and populate it in the `SecurityContextHolder`.
+Users now must explicitly save the `SecurityContext` with the `SecurityContextRepository` if they want the `SecurityContext` to persist between requests.
+This removes ambiguity and improves performance by only requiring writing to the `SecurityContextRepository` (i.e. `HttpSession`) when it is necessary.
+
+If you are explicitly opting into Spring Security 6's new defaults, the following configuration can be removed to accept the Spring Security 6 defaults.
+
+include::partial$servlet/architecture/security-context-explicit.adoc[]
+
+== Multiple SecurityContextRepository
+
+In Spring Security 5, the default xref:servlet/authentication/persistence.adoc#securitycontextrepository[`SecurityContextRepository`] was `HttpSessionSecurityContextRepository`.
+
+In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecurityContextRepository`.
+If you configured the `SecurityContextRepository` only for the purpose of updating to 6.0, you can remove it completely.
+
+== Deprecation in SecurityContextRepository
+
+There are no further migration steps for this deprecation.
+
+[[requestcache-query-optimization]]
+== Optimize Querying of `RequestCache`
+
+In Spring Security 5, the default behavior is to query the xref:servlet/architecture.adoc#savedrequests[saved request] on every request.
+This means that in a typical setup, that in order to use the xref:servlet/architecture.adoc#requestcache[`RequestCache`] the `HttpSession` is queried on every request.
+
+In Spring Security 6, the default is that `RequestCache` will only be queried for a cached request if the HTTP parameter `continue` is defined.
+This allows Spring Security to avoid unnecessarily reading the `HttpSession` with the `RequestCache`.
+
+In Spring Security 5 the default is to use `HttpSessionRequestCache` which will be queried for a cached request on every request.
+If you are not overriding the defaults (i.e. using `NullRequestCache`), then the following configuration can be used to explicitly opt into the Spring Security 6 behavior in Spring Security 5.8:
+
+include::partial$servlet/architecture/request-cache-continue.adoc[]

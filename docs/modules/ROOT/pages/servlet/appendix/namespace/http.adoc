@@ -47,6 +47,9 @@ By default an `AffirmativeBased` implementation is used for with a `RoleVoter` a
 * **authentication-manager-ref**
 A reference to the `AuthenticationManager` used for the `FilterChain` created by this http element.
 
+[[nsa-http-observation-registry-ref]]
+* **observation-registry-ref**
+A reference to the `ObservationRegistry` used for the `FilterChain` and related components
 
 [[nsa-http-auto-config]]
 * **auto-config**

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextChangedListener;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,6 +43,7 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -66,6 +68,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  *
  * @author Rob Winch
  * @author Eleftheria Stein
+ * @author Evgeniy Cheban
  */
 @ExtendWith(SpringTestContextExtension.class)
 public class HttpBasicConfigurerTests {
@@ -143,6 +146,15 @@ public class HttpBasicConfigurerTests {
 		SecurityContextChangedListener listener = this.spring.getContext()
 				.getBean(SecurityContextChangedListener.class);
 		verify(listener).securityContextChanged(setAuthentication(UsernamePasswordAuthenticationToken.class));
+	}
+
+	@Test
+	public void httpBasicWhenUsingCustomSecurityContextRepositoryThenUses() throws Exception {
+		this.spring.register(CustomSecurityContextRepositoryConfig.class, Users.class, Home.class).autowire();
+		this.mvc.perform(get("/").with(httpBasic("user", "password"))).andExpect(status().isOk())
+				.andExpect(content().string("user"));
+		verify(CustomSecurityContextRepositoryConfig.SECURITY_CONTEXT_REPOSITORY)
+				.saveContext(any(SecurityContext.class), any(HttpServletRequest.class), any(HttpServletResponse.class));
 	}
 
 	@Configuration
@@ -316,6 +328,24 @@ public class HttpBasicConfigurerTests {
 			http.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 					.httpBasic(Customizer.withDefaults());
 
+			return http.build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class CustomSecurityContextRepositoryConfig {
+
+		static final SecurityContextRepository SECURITY_CONTEXT_REPOSITORY = mock(SecurityContextRepository.class);
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.httpBasic()
+					.securityContextRepository(SECURITY_CONTEXT_REPOSITORY);
+			// @formatter:on
 			return http.build();
 		}
 

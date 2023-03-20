@@ -20,6 +20,9 @@ import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
+import org.springframework.gradle.github.user.GitHubUserApi;
+import org.springframework.gradle.github.user.User;
+
 public class SaganCreateReleaseTask extends DefaultTask {
 
 	@Input
@@ -35,11 +38,22 @@ public class SaganCreateReleaseTask extends DefaultTask {
 
 	@TaskAction
 	public void saganCreateRelease() {
-		SaganApi sagan = new SaganApi(this.gitHubAccessToken);
+		GitHubUserApi github = new GitHubUserApi(this.gitHubAccessToken);
+		User user = github.getUser();
+
+		// Antora reference docs URLs for snapshots do not contain -SNAPSHOT
+		String referenceDocUrl = this.referenceDocUrl;
+		if (this.version.endsWith("-SNAPSHOT")) {
+			referenceDocUrl = this.referenceDocUrl
+					.replace("{version}", this.version)
+					.replace("-SNAPSHOT", "");
+		}
+
+		SaganApi sagan = new SaganApi(user.getLogin(), this.gitHubAccessToken);
 		Release release = new Release();
 		release.setVersion(this.version);
 		release.setApiDocUrl(this.apiDocUrl);
-		release.setReferenceDocUrl(this.referenceDocUrl);
+		release.setReferenceDocUrl(referenceDocUrl);
 		sagan.createReleaseForProject(release, this.projectName);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,8 +51,8 @@ import org.springframework.web.accept.HeaderContentNegotiationStrategy;
  * Base class for configuring {@link AbstractAuthenticationFilterConfigurer}. This is
  * intended for internal use only.
  *
- * @param T refers to "this" for returning the current configurer
- * @param F refers to the {@link AbstractAuthenticationProcessingFilter} that is being
+ * @param <T> refers to "this" for returning the current configurer
+ * @param <F> refers to the {@link AbstractAuthenticationProcessingFilter} that is being
  * built
  * @author Rob Winch
  * @since 3.2
@@ -122,7 +122,7 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 	 * true. This is a shortcut for calling
 	 * {@link #successHandler(AuthenticationSuccessHandler)}.
 	 * @param defaultSuccessUrl the default success url
-	 * @param alwaysUse true if the {@code defaultSuccesUrl} should be used after
+	 * @param alwaysUse true if the {@code defaultSuccessUrl} should be used after
 	 * authentication despite if a protected page had been previously visited
 	 * @return the {@link FormLoginConfigurer} for additional customization
 	 */

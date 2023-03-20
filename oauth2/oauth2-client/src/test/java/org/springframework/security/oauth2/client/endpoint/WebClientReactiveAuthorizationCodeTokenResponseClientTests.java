@@ -246,7 +246,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 	}
 
 	@Test
-	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseUsingRequestedScope() {
+	public void getTokenResponseWhenSuccessResponseDoesNotIncludeScopeThenReturnAccessTokenResponseWithNoScopes() {
 		// @formatter:off
 		String accessTokenSuccessResponse = "{\n"
 			+ "   \"access_token\": \"access-token-1234\",\n"
@@ -258,8 +258,7 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 		this.clientRegistration.scope("openid", "profile", "email", "address");
 		OAuth2AccessTokenResponse accessTokenResponse = this.tokenResponseClient
 				.getTokenResponse(authorizationCodeGrantRequest()).block();
-		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("openid", "profile", "email",
-				"address");
+		assertThat(accessTokenResponse.getAccessToken().getScopes()).isEmpty();
 	}
 
 	private OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest() {

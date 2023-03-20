@@ -16,11 +16,14 @@
 
 package org.springframework.security.config.annotation.rsocket;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
+import org.springframework.security.authentication.ObservationReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -43,6 +46,8 @@ class RSocketSecurityConfiguration {
 
 	private PasswordEncoder passwordEncoder;
 
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
 	@Autowired(required = false)
 	void setAuthenticationManager(ReactiveAuthenticationManager authenticationManager) {
 		this.authenticationManager = authenticationManager;
@@ -56,6 +61,11 @@ class RSocketSecurityConfiguration {
 	@Autowired(required = false)
 	void setPasswordEncoder(PasswordEncoder passwordEncoder) {
 		this.passwordEncoder = passwordEncoder;
+	}
+
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.observationRegistry = observationRegistry;
 	}
 
 	@Bean(name = RSOCKET_SECURITY_BEAN_NAME)
@@ -75,6 +85,9 @@ class RSocketSecurityConfiguration {
 					this.reactiveUserDetailsService);
 			if (this.passwordEncoder != null) {
 				manager.setPasswordEncoder(this.passwordEncoder);
+			}
+			if (!this.observationRegistry.isNoop()) {
+				return new ObservationReactiveAuthenticationManager(this.observationRegistry, manager);
 			}
 			return manager;
 		}

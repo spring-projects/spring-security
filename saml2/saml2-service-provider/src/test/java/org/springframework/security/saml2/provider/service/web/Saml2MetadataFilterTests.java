@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,9 +64,7 @@ public class Saml2MetadataFilterTests {
 	public void setup() {
 		this.repository = mock(RelyingPartyRegistrationRepository.class);
 		this.resolver = mock(Saml2MetadataResolver.class);
-		RelyingPartyRegistrationResolver relyingPartyRegistrationResolver = new DefaultRelyingPartyRegistrationResolver(
-				this.repository);
-		this.filter = new Saml2MetadataFilter(relyingPartyRegistrationResolver, this.resolver);
+		this.filter = new Saml2MetadataFilter(this.repository, this.resolver);
 		this.request = new MockHttpServletRequest();
 		this.response = new MockHttpServletResponse();
 		this.chain = mock(FilterChain.class);
@@ -139,10 +137,10 @@ public class Saml2MetadataFilterTests {
 	}
 
 	@Test
-	public void doFilterWhenPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
+	public void doFilterWhenResolverConstructorAndPathStartsWithRegistrationIdThenServesMetadata() throws Exception {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
 		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
-		given(this.resolver.resolve(any())).willReturn("metadata");
+		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
 		RelyingPartyRegistrationResolver resolver = new DefaultRelyingPartyRegistrationResolver(
 				(id) -> this.repository.findByRegistrationId("registration-id"));
 		this.filter = new Saml2MetadataFilter(resolver, this.resolver);
@@ -150,6 +148,35 @@ public class Saml2MetadataFilterTests {
 		this.request.setPathInfo("/metadata");
 		this.filter.doFilter(this.request, this.response, new MockFilterChain());
 		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	@Test
+	public void doFilterWhenRelyingPartyRegistrationRepositoryConstructorAndPathStartsWithRegistrationIdThenServesMetadata()
+			throws Exception {
+		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.full().build();
+		given(this.repository.findByRegistrationId("registration-id")).willReturn(registration);
+		given(this.resolver.resolve(any(RelyingPartyRegistration.class))).willReturn("metadata");
+		this.filter = new Saml2MetadataFilter((id) -> this.repository.findByRegistrationId("registration-id"),
+				this.resolver);
+		this.filter.setRequestMatcher(new AntPathRequestMatcher("/metadata"));
+		this.request.setPathInfo("/metadata");
+		this.filter.doFilter(this.request, this.response, new MockFilterChain());
+		verify(this.repository).findByRegistrationId("registration-id");
+	}
+
+	// gh-12026
+	@Test
+	public void doFilterWhenCharacterEncodingThenEncodeSpecialCharactersCorrectly() throws Exception {
+		RelyingPartyRegistration validRegistration = TestRelyingPartyRegistrations.full().build();
+		String testMetadataFilename = "test-{registrationId}-metadata.xml";
+		String generatedMetadata = "<xml>testäöü</xml>";
+		this.request.setPathInfo("/saml2/service-provider-metadata/registration-id");
+		given(this.resolver.resolve(validRegistration)).willReturn(generatedMetadata);
+		this.filter = new Saml2MetadataFilter((req, id) -> validRegistration, this.resolver);
+		this.filter.setMetadataFilename(testMetadataFilename);
+		this.filter.doFilter(this.request, this.response, this.chain);
+		assertThat(this.response.getCharacterEncoding()).isEqualTo(StandardCharsets.UTF_8.name());
+		assertThat(this.response.getContentAsString(StandardCharsets.UTF_8)).isEqualTo(generatedMetadata);
 	}
 
 	@Test
@@ -168,6 +195,15 @@ public class Saml2MetadataFilterTests {
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.filter.setMetadataFilename("metadata-filename.xml"))
 				.withMessage("metadataFilename must contain a {registrationId} match variable");
+	}
+
+	@Test
+	public void constructorWhenRelyingPartyRegistrationRepositoryThenUses() throws Exception {
+		RelyingPartyRegistrationRepository repository = mock(RelyingPartyRegistrationRepository.class);
+		this.filter = new Saml2MetadataFilter(repository, this.resolver);
+		this.request.setPathInfo("/saml2/service-provider-metadata/one");
+		this.filter.doFilter(this.request, this.response, this.chain);
+		verify(repository).findByRegistrationId("one");
 	}
 
 }

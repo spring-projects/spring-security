@@ -71,29 +71,26 @@ The following listing shows pseudo code of `DelegatingFilterProxy`:
 .`DelegatingFilterProxy` Pseudo Code
 ====
 .Java
-[source,java,role="primary",subs="+quotes,+macros"]
+[source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
-	// Lazily get Filter that was registered as a Spring Bean
-	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
-	Filter delegate = getFilterBean(someBeanName);
-	// delegate work to the Spring Bean
-	delegate.doFilter(request, response);
+	Filter delegate = getFilterBean(someBeanName); // <1>
+	delegate.doFilter(request, response); // <2>
 }
 ----
 
 .Kotlin
-[source,kotlin,role="secondary",subs="+quotes,+macros"]
+[source,kotlin,role="secondary"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
-	// Lazily get Filter that was registered as a Spring Bean
-	// For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__
-	val delegate: Filter = getFilterBean(someBeanName)
-	// delegate work to the Spring Bean
-	delegate.doFilter(request, response)
+	val delegate: Filter = getFilterBean(someBeanName) // <1>
+	delegate.doFilter(request, response) // <2>
 }
 ----
 ====
+<1> Lazily get Filter that was registered as a Spring Bean.
+For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__.
+<2> Delegate work to the Spring Bean.
 
 Another benefit of `DelegatingFilterProxy` is that it allows delaying looking up `Filter` bean instances.
 This is important because the container needs to register the `Filter` instances before the container can start up.
@@ -189,7 +186,7 @@ The following is a comprehensive list of Spring Security Filter ordering:
 * xref:servlet/authentication/passwords/digest.adoc#servlet-authentication-digest[`DigestAuthenticationFilter`]
 * `BearerTokenAuthenticationFilter`
 * xref:servlet/authentication/passwords/basic.adoc#servlet-authentication-basic[`BasicAuthenticationFilter`]
-* `RequestCacheAwareFilter`
+* <<requestcacheawarefilter,RequestCacheAwareFilter>>
 * `SecurityContextHolderAwareRequestFilter`
 * `JaasApiIntegrationFilter`
 * `RememberMeAuthenticationFilter`
@@ -216,8 +213,8 @@ image::{figures}/exceptiontranslationfilter.png[]
 * image:{icondir}/number_1.png[] First, the `ExceptionTranslationFilter` invokes `FilterChain.doFilter(request, response)` to invoke the rest of the application.
 * image:{icondir}/number_2.png[] If the user is not authenticated or it is an `AuthenticationException`, then __Start Authentication__.
 ** The xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder] is cleared out.
-** The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
-When the user successfully authenticates, the `RequestCache` is used to replay the original request.
+** The `HttpServletRequest` is <<savedrequests,saved>> so that it can be used to replay the original request once authentication is successful.
+
 // FIXME: add link to authentication success
 ** The `AuthenticationEntryPoint` is used to request credentials from the client.
 For example, it might redirect to a log in page or send a `WWW-Authenticate` header.
@@ -252,3 +249,80 @@ This means that if another part of the application, (<<servlet-authorization-fil
 <2> If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
 <3> Otherwise, __Access Denied__
 ====
+
+[[savedrequests]]
+== Saving Requests Between Authentication
+
+As illustrated in <<servlet-exceptiontranslationfilter>>, when a request has no authentication and is for a resource that requires authentication, there is a need to save the request for the authenticated resource to re-request after authentication is successful.
+In Spring Security this is done by saving the `HttpServletRequest` using a <<requestcache,`RequestCache`>> implementation.
+
+[[requestcache]]
+=== RequestCache
+
+The `HttpServletRequest` is saved in the {security-api-url}org/springframework/security/web/savedrequest/RequestCache.html[`RequestCache`].
+When the user successfully authenticates, the `RequestCache` is used to replay the original request.
+The <<requestcacheawarefilter,`RequestCacheAwareFilter`>> is what uses the `RequestCache` to save the `HttpServletRequest`.
+
+By default, an `HttpSessionRequestCache` is used.
+The code below demonstrates how to customize the `RequestCache` implementation that is used to check the `HttpSession` for a saved request if the parameter named `continue` is present.
+
+include::partial$servlet/architecture/request-cache-continue.adoc[]
+
+[[requestcache-prevent-saved-request]]
+==== Prevent the Request From Being Saved
+
+There are a number of reasons you may want to not store the user's unauthenticated request in the session.
+You may want to offload that storage onto the user's browser or store it in a database.
+Or you may want to shut off this feature since you always want to redirect the user to the home page instead of the page they tried to visit before login.
+
+To do that, you can use {security-api-url}org/springframework/security/web/savedrequest/NullRequestCache.html[the `NullRequestCache` implementation].
+
+.Prevent the Request From Being Saved
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
+    RequestCache nullRequestCache = new NullRequestCache();
+    http
+        // ...
+        .requestCache((cache) -> cache
+            .requestCache(nullRequestCache)
+        );
+    return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
+    val nullRequestCache = NullRequestCache()
+    http {
+        requestCache {
+            requestCache = nullRequestCache
+        }
+    }
+    return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http auto-config="true">
+	<!-- ... -->
+	<request-cache ref="nullRequestCache"/>
+</http>
+
+<b:bean id="nullRequestCache" class="org.springframework.security.web.savedrequest.NullRequestCache"/>
+----
+====
+
+
+[[requestcacheawarefilter]]
+=== RequestCacheAwareFilter
+
+The {security-api-url}org/springframework/security/web/savedrequest/RequestCacheAwareFilter.html[`RequestCacheAwareFilter`] uses the <<requestcache,`RequestCache`>> to save the `HttpServletRequest`.

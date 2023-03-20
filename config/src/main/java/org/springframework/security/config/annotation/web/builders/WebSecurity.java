@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web.builders;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,6 +46,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.FilterInvocation;
+import org.springframework.security.web.ObservationFilterChainDecorator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AuthorizationManagerWebInvocationPrivilegeEvaluator;
 import org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator;
@@ -54,7 +56,10 @@ import org.springframework.security.web.access.expression.DefaultWebSecurityExpr
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.debug.DebugFilter;
+import org.springframework.security.web.firewall.CompositeRequestRejectedHandler;
 import org.springframework.security.web.firewall.HttpFirewall;
+import org.springframework.security.web.firewall.HttpStatusRequestRejectedHandler;
+import org.springframework.security.web.firewall.ObservationMarkingRequestRejectedHandler;
 import org.springframework.security.web.firewall.RequestRejectedHandler;
 import org.springframework.security.web.firewall.StrictHttpFirewall;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -100,6 +105,8 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 	private boolean debugEnabled;
 
 	private WebInvocationPrivilegeEvaluator privilegeEvaluator;
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
 
 	private DefaultWebSecurityExpressionHandler defaultWebSecurityExpressionHandler = new DefaultWebSecurityExpressionHandler();
 
@@ -303,6 +310,13 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		if (this.requestRejectedHandler != null) {
 			filterChainProxy.setRequestRejectedHandler(this.requestRejectedHandler);
 		}
+		else if (!this.observationRegistry.isNoop()) {
+			CompositeRequestRejectedHandler requestRejectedHandler = new CompositeRequestRejectedHandler(
+					new ObservationMarkingRequestRejectedHandler(this.observationRegistry),
+					new HttpStatusRequestRejectedHandler());
+			filterChainProxy.setRequestRejectedHandler(requestRejectedHandler);
+		}
+		filterChainProxy.setFilterChainDecorator(getFilterChainDecorator());
 		filterChainProxy.afterPropertiesSet();
 
 		Filter result = filterChainProxy;
@@ -314,6 +328,7 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 					+ "********************************************************************\n\n");
 			result = new DebugFilter(filterChainProxy);
 		}
+
 		this.postBuildAction.run();
 		return result;
 	}
@@ -366,11 +381,23 @@ public final class WebSecurity extends AbstractConfiguredSecurityBuilder<Filter,
 		}
 		catch (NoSuchBeanDefinitionException ex) {
 		}
+		try {
+			this.observationRegistry = applicationContext.getBean(ObservationRegistry.class);
+		}
+		catch (NoSuchBeanDefinitionException ex) {
+		}
 	}
 
 	@Override
 	public void setServletContext(ServletContext servletContext) {
 		this.servletContext = servletContext;
+	}
+
+	FilterChainProxy.FilterChainDecorator getFilterChainDecorator() {
+		if (this.observationRegistry.isNoop()) {
+			return new FilterChainProxy.VirtualFilterChainDecorator();
+		}
+		return new ObservationFilterChainDecorator(this.observationRegistry);
 	}
 
 	/**

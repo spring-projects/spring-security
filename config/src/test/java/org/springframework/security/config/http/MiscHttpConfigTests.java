@@ -68,6 +68,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.jaas.AuthorityGranter;
+import org.springframework.security.config.TestDeferredSecurityContext;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -472,7 +473,8 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("SecurityContextRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
+		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
+				.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(get("/protected").with(userCredentials()))
 				.andExpect(status().isOk())
@@ -487,7 +489,8 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("ExplicitSaveAndExplicitRepository")).autowire();
 		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
 		SecurityContext context = new SecurityContextImpl(new TestingAuthenticationToken("user", "password"));
-		given(repository.loadContext(any(HttpServletRequest.class))).willReturn(() -> context);
+		given(repository.loadDeferredContext(any(HttpServletRequest.class)))
+				.willReturn(new TestDeferredSecurityContext(context, false));
 		// @formatter:off
 		MvcResult result = this.mvc.perform(formLogin())
 				.andExpect(status().is3xxRedirection())
@@ -575,16 +578,12 @@ public class MiscHttpConfigTests {
 		FilterChainProxy proxy = this.spring.getContext().getBean(FilterChainProxy.class);
 		proxy.doFilter(request, responseToSpy, (req, resp) -> {
 			HttpServletResponse httpResponse = (HttpServletResponse) resp;
-			httpResponse.encodeUrl("/");
 			httpResponse.encodeURL("/");
-			httpResponse.encodeRedirectUrl("/");
 			httpResponse.encodeRedirectURL("/");
 			httpResponse.getWriter().write("encodeRedirect");
 		});
 		verify(responseToSpy, never()).encodeRedirectURL(any());
-		verify(responseToSpy, never()).encodeRedirectUrl(any());
 		verify(responseToSpy, never()).encodeURL(any());
-		verify(responseToSpy, never()).encodeUrl(any());
 		assertThat(responseToSpy.getContentAsString()).isEqualTo("encodeRedirect");
 	}
 
@@ -1022,16 +1021,6 @@ public class MiscHttpConfigTests {
 
 		@Override
 		public String encodeRedirectURL(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
-		}
-
-		@Override
-		public String encodeUrl(String url) {
-			throw new RuntimeException("Unexpected invocation of encodeURL");
-		}
-
-		@Override
-		public String encodeRedirectUrl(String url) {
 			throw new RuntimeException("Unexpected invocation of encodeURL");
 		}
 

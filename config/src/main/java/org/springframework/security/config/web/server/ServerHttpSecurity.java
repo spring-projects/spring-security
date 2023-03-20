@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import io.micrometer.observation.ObservationRegistry;
 import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
@@ -50,6 +51,7 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.authorization.AuthenticatedReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorityReactiveAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
+import org.springframework.security.authorization.ObservationReactiveAuthorizationManager;
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.core.Authentication;
@@ -147,7 +149,6 @@ import org.springframework.security.web.server.context.WebSessionServerSecurityC
 import org.springframework.security.web.server.csrf.CsrfServerLogoutHandler;
 import org.springframework.security.web.server.csrf.CsrfWebFilter;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRepository;
-import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.server.csrf.ServerCsrfTokenRequestHandler;
 import org.springframework.security.web.server.csrf.WebSessionServerCsrfTokenRepository;
 import org.springframework.security.web.server.header.CacheControlServerHttpHeadersWriter;
@@ -1549,6 +1550,14 @@ public class ServerHttpSecurity {
 		return this.context.getBean(beanClass);
 	}
 
+	private <T> T getBeanOrDefault(Class<T> beanClass, T defaultInstance) {
+		T bean = getBeanOrNull(beanClass);
+		if (bean == null) {
+			return defaultInstance;
+		}
+		return bean;
+	}
+
 	private <T> T getBeanOrNull(Class<T> beanClass) {
 		return getBeanOrNull(ResolvableType.forClass(beanClass));
 	}
@@ -1623,7 +1632,12 @@ public class ServerHttpSecurity {
 		protected void configure(ServerHttpSecurity http) {
 			Assert.state(this.matcher == null,
 					() -> "The matcher " + this.matcher + " does not have an access rule defined");
-			AuthorizationWebFilter result = new AuthorizationWebFilter(this.managerBldr.build());
+			ReactiveAuthorizationManager<ServerWebExchange> manager = this.managerBldr.build();
+			ObservationRegistry registry = getBeanOrDefault(ObservationRegistry.class, ObservationRegistry.NOOP);
+			if (!registry.isNoop()) {
+				manager = new ObservationReactiveAuthorizationManager<>(registry, manager);
+			}
+			AuthorizationWebFilter result = new AuthorizationWebFilter(manager);
 			http.addFilterAt(result, SecurityWebFiltersOrder.AUTHORIZATION);
 		}
 
@@ -1851,22 +1865,6 @@ public class ServerHttpSecurity {
 		}
 
 		/**
-		 * Specifies if {@link CsrfWebFilter} should try to resolve the actual CSRF token
-		 * from the body of multipart data requests.
-		 * @param enabled true if should read from multipart form body, else false.
-		 * Default is false
-		 * @return the {@link CsrfSpec} for additional configuration
-		 * @deprecated Use
-		 * {@link ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled(boolean)}
-		 * instead
-		 */
-		@Deprecated
-		public CsrfSpec tokenFromMultipartDataEnabled(boolean enabled) {
-			this.filter.setTokenFromMultipartDataEnabled(enabled);
-			return this;
-		}
-
-		/**
 		 * Specifies a {@link ServerCsrfTokenRequestHandler} that is used to make the
 		 * {@code CsrfToken} available as an exchange attribute.
 		 * @param requestHandler the {@link ServerCsrfTokenRequestHandler} to use
@@ -2025,6 +2023,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationEntryPoint entryPoint;
 
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
 		private HttpBasicSpec() {
 			List<DelegateEntry> entryPoints = new ArrayList<>();
 			entryPoints
@@ -2073,6 +2073,13 @@ public class ServerHttpSecurity {
 			return this;
 		}
 
+		public HttpBasicSpec authenticationFailureHandler(
+				ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			Assert.notNull(authenticationFailureHandler, "authenticationFailureHandler cannot be null");
+			this.authenticationFailureHandler = authenticationFailureHandler;
+			return this;
+		}
+
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
 		 * @return the {@link ServerHttpSecurity} to continue configuring
@@ -2104,11 +2111,17 @@ public class ServerHttpSecurity {
 					Arrays.asList(this.xhrMatcher, restNotHtmlMatcher));
 			ServerHttpSecurity.this.defaultEntryPoints.add(new DelegateEntry(preferredMatcher, this.entryPoint));
 			AuthenticationWebFilter authenticationFilter = new AuthenticationWebFilter(this.authenticationManager);
-			authenticationFilter
-					.setAuthenticationFailureHandler(new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
+			authenticationFilter.setAuthenticationFailureHandler(authenticationFailureHandler());
 			authenticationFilter.setAuthenticationConverter(new ServerHttpBasicAuthenticationConverter());
 			authenticationFilter.setSecurityContextRepository(this.securityContextRepository);
 			http.addFilterAt(authenticationFilter, SecurityWebFiltersOrder.HTTP_BASIC);
+		}
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler() {
+			if (this.authenticationFailureHandler != null) {
+				return this.authenticationFailureHandler;
+			}
+			return new ServerAuthenticationEntryPointFailureHandler(this.entryPoint);
 		}
 
 	}
@@ -3816,6 +3829,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
+		private ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver;
+
 		private ServerRedirectStrategy authorizationRedirectStrategy;
 
 		private OAuth2ClientSpec() {
@@ -3911,6 +3926,26 @@ public class ServerHttpSecurity {
 		}
 
 		/**
+		 * Sets the resolver used for resolving {@link OAuth2AuthorizationRequest}'s.
+		 * @param authorizationRequestResolver the resolver used for resolving
+		 * {@link OAuth2AuthorizationRequest}'s
+		 * @return the {@link OAuth2ClientSpec} to customize
+		 * @since 6.1
+		 */
+		public OAuth2ClientSpec authorizationRequestResolver(
+				ServerOAuth2AuthorizationRequestResolver authorizationRequestResolver) {
+			this.authorizationRequestResolver = authorizationRequestResolver;
+			return this;
+		}
+
+		private OAuth2AuthorizationRequestRedirectWebFilter getRedirectWebFilter() {
+			if (this.authorizationRequestResolver != null) {
+				return new OAuth2AuthorizationRequestRedirectWebFilter(this.authorizationRequestResolver);
+			}
+			return new OAuth2AuthorizationRequestRedirectWebFilter(getClientRegistrationRepository());
+		}
+
+		/**
 		 * Sets the redirect strategy for Authorization Endpoint redirect URI.
 		 * @param authorizationRedirectStrategy the redirect strategy
 		 * @return the {@link OAuth2ClientSpec} for further configuration
@@ -3936,7 +3971,6 @@ public class ServerHttpSecurity {
 		}
 
 		protected void configure(ServerHttpSecurity http) {
-			ReactiveClientRegistrationRepository clientRegistrationRepository = getClientRegistrationRepository();
 			ServerOAuth2AuthorizedClientRepository authorizedClientRepository = getAuthorizedClientRepository();
 			ServerAuthenticationConverter authenticationConverter = getAuthenticationConverter();
 			ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
@@ -3947,8 +3981,7 @@ public class ServerHttpSecurity {
 				codeGrantWebFilter.setRequestCache(http.requestCache.requestCache);
 			}
 
-			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = new OAuth2AuthorizationRequestRedirectWebFilter(
-					clientRegistrationRepository);
+			OAuth2AuthorizationRequestRedirectWebFilter oauthRedirectFilter = getRedirectWebFilter();
 			oauthRedirectFilter.setAuthorizationRequestRepository(getAuthorizationRequestRepository());
 			oauthRedirectFilter.setAuthorizationRedirectStrategy(getAuthorizationRedirectStrategy());
 			if (http.requestCache != null) {
@@ -3998,6 +4031,8 @@ public class ServerHttpSecurity {
 
 		private ServerAuthenticationEntryPoint entryPoint = new BearerTokenServerAuthenticationEntryPoint();
 
+		private ServerAuthenticationFailureHandler authenticationFailureHandler;
+
 		private ServerAccessDeniedHandler accessDeniedHandler = new BearerTokenServerAccessDeniedHandler();
 
 		private ServerAuthenticationConverter bearerTokenConverter = new ServerBearerTokenAuthenticationConverter();
@@ -4037,6 +4072,12 @@ public class ServerHttpSecurity {
 		public OAuth2ResourceServerSpec authenticationEntryPoint(ServerAuthenticationEntryPoint entryPoint) {
 			Assert.notNull(entryPoint, "entryPoint cannot be null");
 			this.entryPoint = entryPoint;
+			return this;
+		}
+
+		public OAuth2ResourceServerSpec authenticationFailureHandler(
+				ServerAuthenticationFailureHandler authenticationFailureHandler) {
+			this.authenticationFailureHandler = authenticationFailureHandler;
 			return this;
 		}
 
@@ -4129,8 +4170,7 @@ public class ServerHttpSecurity {
 			if (this.authenticationManagerResolver != null) {
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(this.authenticationManagerResolver);
 				oauth2.setServerAuthenticationConverter(this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(this.entryPoint));
+				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 			else if (this.jwt != null) {
@@ -4181,6 +4221,13 @@ public class ServerHttpSecurity {
 						new NegatedServerWebExchangeMatcher(this.authenticationConverterServerWebExchangeMatcher));
 				http.csrf().requireCsrfProtectionMatcher(matcher);
 			}
+		}
+
+		private ServerAuthenticationFailureHandler authenticationFailureHandler() {
+			if (this.authenticationFailureHandler != null) {
+				return this.authenticationFailureHandler;
+			}
+			return new ServerAuthenticationEntryPointFailureHandler(this.entryPoint);
 		}
 
 		public ServerHttpSecurity and() {
@@ -4264,8 +4311,7 @@ public class ServerHttpSecurity {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
+				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 
@@ -4400,8 +4446,7 @@ public class ServerHttpSecurity {
 				ReactiveAuthenticationManager authenticationManager = getAuthenticationManager();
 				AuthenticationWebFilter oauth2 = new AuthenticationWebFilter(authenticationManager);
 				oauth2.setServerAuthenticationConverter(OAuth2ResourceServerSpec.this.bearerTokenConverter);
-				oauth2.setAuthenticationFailureHandler(
-						new ServerAuthenticationEntryPointFailureHandler(OAuth2ResourceServerSpec.this.entryPoint));
+				oauth2.setAuthenticationFailureHandler(authenticationFailureHandler());
 				http.addFilterAt(oauth2, SecurityWebFiltersOrder.AUTHENTICATION);
 			}
 

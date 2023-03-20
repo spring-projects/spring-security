@@ -62,6 +62,33 @@ public class SchemaDeployPlugin implements Plugin<Project> {
 						execute "rm -f $tempPath*.zip"
 						execute "rm -rf $extractPath*"
 						execute "mv $tempPath/* $extractPath"
+
+						/*
+						 * Copy spring-security-oauth schemas so that legacy projects using the "http" scheme can
+						 * resolve the following schema locations:
+						 *
+						 * - http://www.springframework.org/schema/security/spring-security-oauth-1.0.xsd
+						 * - http://www.springframework.org/schema/security/spring-security-oauth2-1.0.xsd
+						 * - http://www.springframework.org/schema/security/spring-security-oauth2-2.0.xsd
+						 *
+						 * Note: The directory:
+						 *   https://www.springframework.org/schema/security/
+						 *
+						 * is a symbolic link pointing to:
+						 *   https://docs.spring.io/autorepo/schema/spring-security/current/security/
+						 *
+						 * which in turn points to the latest:
+						 *   https://docs.spring.io/autorepo/schema/spring-security/$version/security/
+						 *
+						 * with the help of the autoln command which is run regularly via a cron job.
+						 *
+						 * See https://github.com/spring-io/autoln for more info.
+						 */
+						if (name == "spring-security") {
+							def springSecurityOauthPath = "/var/www/domains/spring.io/docs/htdocs/autorepo/schema/spring-security-oauth/current/security"
+							execute "cp $springSecurityOauthPath/* ${extractPath}security"
+						}
+
 						execute "chmod -R g+w $extractPath"
 					}
 				}

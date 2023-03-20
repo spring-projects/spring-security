@@ -22,7 +22,7 @@ import org.springframework.expression.Expression;
  * Represents an {@link AuthorizationDecision} based on a {@link Expression}
  *
  * @author Marcus Da Coregio
- * @since 5.6
+ * @since 5.8
  */
 public class ExpressionAuthorizationDecision extends AuthorizationDecision {
 
@@ -39,8 +39,8 @@ public class ExpressionAuthorizationDecision extends AuthorizationDecision {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() + " [" + "granted=" + isGranted() + ", expressionAttribute=" + this.expression
-				+ ']';
+		return getClass().getSimpleName() + " [" + "granted=" + isGranted() + ", expressionAttribute="
+				+ this.expression.getExpressionString() + ']';
 	}
 
 }

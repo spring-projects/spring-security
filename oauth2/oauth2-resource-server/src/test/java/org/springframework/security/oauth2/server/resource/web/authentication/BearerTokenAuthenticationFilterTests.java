@@ -36,12 +36,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.server.resource.BearerTokenError;
 import org.springframework.security.oauth2.server.resource.BearerTokenErrorCodes;
+import org.springframework.security.oauth2.server.resource.InvalidBearerTokenException;
 import org.springframework.security.oauth2.server.resource.authentication.BearerTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -201,6 +203,19 @@ public class BearerTokenAuthenticationFilterTests {
 				new BearerTokenAuthenticationFilter(this.authenticationManager));
 		assertThatExceptionOfType(AuthenticationServiceException.class)
 				.isThrownBy(() -> filter.doFilter(this.request, this.response, this.filterChain));
+	}
+
+	@Test
+	public void doFilterWhenCustomEntryPointAndAuthenticationErrorThenUses() throws ServletException, IOException {
+		AuthenticationException exception = new InvalidBearerTokenException("message");
+		given(this.bearerTokenResolver.resolve(this.request)).willReturn("token");
+		given(this.authenticationManager.authenticate(any())).willThrow(exception);
+		BearerTokenAuthenticationFilter filter = addMocks(
+				new BearerTokenAuthenticationFilter(this.authenticationManager));
+		AuthenticationEntryPoint entrypoint = mock(AuthenticationEntryPoint.class);
+		filter.setAuthenticationEntryPoint(entrypoint);
+		filter.doFilter(this.request, this.response, this.filterChain);
+		verify(entrypoint).commence(any(), any(), any(InvalidBearerTokenException.class));
 	}
 
 	@Test

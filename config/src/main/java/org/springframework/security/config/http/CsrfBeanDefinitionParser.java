@@ -36,7 +36,9 @@ import org.springframework.beans.factory.xml.ParserContext;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.CompositeAccessDeniedHandler;
 import org.springframework.security.web.access.DelegatingAccessDeniedHandler;
+import org.springframework.security.web.access.ObservationMarkingAccessDeniedHandler;
 import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
@@ -64,13 +66,18 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final String REQUEST_DATA_VALUE_PROCESSOR = "requestDataValueProcessor";
 
-	private static final String DISPATCHER_SERVLET_CLASS_NAME = "org.springframework.web.servlet.DispatcherServlet";
-
 	private static final String ATT_MATCHER = "request-matcher-ref";
 
 	private static final String ATT_REPOSITORY = "token-repository-ref";
 
 	private static final String ATT_REQUEST_HANDLER = "request-handler-ref";
+
+	private static final boolean webMvcPresent;
+
+	static {
+		ClassLoader classLoader = CsrfBeanDefinitionParser.class.getClassLoader();
+		webMvcPresent = ClassUtils.isPresent("org.springframework.web.servlet.DispatcherServlet", classLoader);
+	}
 
 	private String csrfRepositoryRef;
 
@@ -80,14 +87,15 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private String requestHandlerRef;
 
+	private BeanMetadataElement observationRegistry;
+
 	@Override
 	public BeanDefinition parse(Element element, ParserContext pc) {
 		boolean disabled = element != null && "true".equals(element.getAttribute("disabled"));
 		if (disabled) {
 			return null;
 		}
-		boolean webmvcPresent = ClassUtils.isPresent(DISPATCHER_SERVLET_CLASS_NAME, getClass().getClassLoader());
-		if (webmvcPresent) {
+		if (webMvcPresent) {
 			if (!pc.getRegistry().containsBeanDefinition(REQUEST_DATA_VALUE_PROCESSOR)) {
 				RootBeanDefinition beanDefinition = new RootBeanDefinition(CsrfRequestDataValueProcessor.class);
 				BeanComponentDefinition componentDefinition = new BeanComponentDefinition(beanDefinition,
@@ -160,7 +168,16 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 				.rootBeanDefinition(DelegatingAccessDeniedHandler.class);
 		deniedBldr.addConstructorArgValue(handlers);
 		deniedBldr.addConstructorArgValue(defaultDeniedHandler);
-		return deniedBldr.getBeanDefinition();
+		BeanDefinition denied = deniedBldr.getBeanDefinition();
+		ManagedList compositeList = new ManagedList();
+		BeanDefinitionBuilder compositeBldr = BeanDefinitionBuilder
+				.rootBeanDefinition(CompositeAccessDeniedHandler.class);
+		BeanDefinition observing = BeanDefinitionBuilder.rootBeanDefinition(ObservationMarkingAccessDeniedHandler.class)
+				.addConstructorArgValue(this.observationRegistry).getBeanDefinition();
+		compositeList.add(denied);
+		compositeList.add(observing);
+		compositeBldr.addConstructorArgValue(compositeList);
+		return compositeBldr.getBeanDefinition();
 	}
 
 	BeanDefinition getCsrfAuthenticationStrategy() {
@@ -193,6 +210,10 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			and.addConstructorArgValue(ands);
 			this.csrfFilter.getPropertyValues().add("requireCsrfProtectionMatcher", and.getBeanDefinition());
 		}
+	}
+
+	void setObservationRegistry(BeanMetadataElement observationRegistry) {
+		this.observationRegistry = observationRegistry;
 	}
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {

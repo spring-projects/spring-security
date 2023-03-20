@@ -66,11 +66,15 @@ Cookie: SESSION=4c66e474-3f5a-43ed-8e48-cc1d8cb1d1c8
 
 // FIXME: api documentation
 In Spring Security the association of the user to future requests is made using  {security-api-url}org/springframework/security/web/context/SecurityContextRepository.html[`SecurityContextRepository`].
+The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/DelegatingSecurityContextRepository.html[`DelegatingSecurityContextRepository`] which delegates to the following:
+
+* <<httpsecuritycontextrepository,`HttpSessionSecurityContextRepository`>>
+* <<requestattributesecuritycontextrepository,`RequestAttributeSecurityContextRepository`>>
 
 [[httpsecuritycontextrepository]]
-=== HttpSecurityContextRepository
+=== HttpSessionSecurityContextRepository
 
-The default implementation of `SecurityContextRepository` is {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] which associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
+The {security-api-url}org/springframework/security/web/context/HttpSessionSecurityContextRepository.html[`HttpSessionSecurityContextRepository`] associates the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontext[`SecurityContext`] to the `HttpSession`.
 Users can replace `HttpSessionSecurityContextRepository` with another implementation of `SecurityContextRepository` if they wish to associate the user with subsequent requests in another way or not at all.
 
 [[nullsecuritycontextrepository]]
@@ -114,6 +118,72 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 ----
 ====
 
+[[delegatingsecuritycontextrepository]]
+=== DelegatingSecurityContextRepository
+
+The {security-api-url}org/springframework/security/web/context/DelegatingSecurityContextRepository.html[`DelegatingSecurityContextRepository`] saves the `SecurityContext` to multiple `SecurityContextRepository` delegates and allows retrieval from any of the delegates in a specified order.
+
+The most useful arrangement for this is configured with the following example, which allows the use of both xref:requestattributesecuritycontextrepository[`RequestAttributeSecurityContextRepository`] and xref:httpsecuritycontextrepository[`HttpSessionSecurityContextRepository`] simultaneously.
+
+.Configure DelegatingSecurityContextRepository
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+	http
+		// ...
+		.securityContext((securityContext) -> securityContext
+			.securityContextRepository(new DelegatingSecurityContextRepository(
+				new RequestAttributeSecurityContextRepository(),
+				new HttpSessionSecurityContextRepository()
+			))
+		);
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	http {
+		// ...
+		securityContext {
+			securityContextRepository = DelegatingSecurityContextRepository(
+				RequestAttributeSecurityContextRepository(),
+				HttpSessionSecurityContextRepository()
+			)
+		}
+	}
+	return http.build()
+}
+----
+
+.XML
+[source,xml,role="secondary"]
+----
+<http security-context-repository-ref="contextRepository">
+	<!-- ... -->
+</http>
+<bean name="contextRepository"
+	class="org.springframework.security.web.context.DelegatingSecurityContextRepository">
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.RequestAttributeSecurityContextRepository" />
+		</constructor-arg>
+		<constructor-arg>
+			<bean class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
+		</constructor-arg>
+</bean>
+----
+====
+
+[NOTE]
+====
+In Spring Security 6, the example shown above is the default configuration.
+====
 
 [[securitycontextpersistencefilter]]
 == SecurityContextPersistenceFilter
@@ -144,29 +214,8 @@ image::{figures}/securitycontextholderfilter.png[]
 <1> Before running the rest of the application, `SecurityContextHolderFilter` loads the `SecurityContext` from the `SecurityContextRepository` and sets it on the `SecurityContextHolder`.
 <2> Next, the application is ran.
 
-Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersisteneFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
+Unlike, xref:servlet/authentication/persistence.adoc#securitycontextpersistencefilter[`SecurityContextPersistenceFilter`], `SecurityContextHolderFilter` only loads the `SecurityContext` it does not save the `SecurityContext`.
 This means that when using `SecurityContextHolderFilter`, it is required that the `SecurityContext` is explicitly saved.
 
-.Explicit Saving of SecurityContext
-====
-.Java
-[source,java,role="primary"]
-----
-public SecurityFilterChain filterChain(HttpSecurity http) {
-	http
-		// ...
-		.securityContext((securityContext) -> securityContext
-			.requireExplicitSave(true)
-		);
-	return http.build();
-}
-----
 
-.XML
-[source,xml,role="secondary"]
-----
-<http security-context-explicit-save="true">
-	<!-- ... -->
-</http>
-----
-====
+include::partial$servlet/architecture/security-context-explicit.adoc[]

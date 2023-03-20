@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,11 @@ import java.util.function.Consumer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequest;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
+import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.util.Assert;
 
@@ -34,6 +36,7 @@ import org.springframework.util.Assert;
  * OpenSAML 4
  *
  * @author Josh Cummings
+ * @author Gerhard Haege
  * @since 5.6
  */
 public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestResolver {
@@ -44,6 +47,15 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	};
 
 	private Clock clock = Clock.systemUTC();
+
+	public OpenSaml4LogoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
+		this((request, id) -> {
+			if (id == null) {
+				return null;
+			}
+			return registrations.findByRegistrationId(id);
+		});
+	}
 
 	/**
 	 * Construct a {@link OpenSaml4LogoutRequestResolver}
@@ -81,6 +93,16 @@ public final class OpenSaml4LogoutRequestResolver implements Saml2LogoutRequestR
 	public void setClock(Clock clock) {
 		Assert.notNull(clock, "clock must not be null");
 		this.clock = clock;
+	}
+
+	/**
+	 * Use this {@link Converter} to compute the RelayState
+	 * @param relayStateResolver the {@link Converter} to use
+	 * @since 6.1
+	 */
+	public void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
+		Assert.notNull(relayStateResolver, "relayStateResolver cannot be null");
+		this.logoutRequestResolver.setRelayStateResolver(relayStateResolver);
 	}
 
 	public static final class LogoutRequestParameters {

@@ -7,6 +7,7 @@ It provides support for JSR-250 annotation security as well as the framework's o
 From 3.0, you can also make use of new xref:servlet/authorization/expression-based.adoc#el-access[expression-based annotations].
 You can apply security to a single bean, by using the `intercept-methods` element to decorate the bean declaration, or you can secure multiple beans across the entire service layer by using AspectJ style pointcuts.
 
+[[jc-enable-method-security]]
 == EnableMethodSecurity
 
 In Spring Security 5.6, we can enable annotation-based security using the `@EnableMethodSecurity` annotation on any `@Configuration` instance.
@@ -561,7 +562,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	public Advisor customAuthorize(AuthorizationManager<MethodInvocationResult> rules) {
-		AnnotationMethodMatcher pattern = new AnnotationMethodMatcher(MySecurityAnnotation.class);
+		AnnotationMatchingPointcut pattern = new AnnotationMatchingPointcut(MySecurityAnnotation.class);
 		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(pattern, rules);
 		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
 		return interceptor;
@@ -578,7 +579,7 @@ class MethodSecurityConfig {
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 	fun customAuthorize(rules : AuthorizationManager<MethodInvocationResult>) : Advisor {
-		val pattern = AnnotationMethodMatcher(MySecurityAnnotation::class.java);
+		val pattern = AnnotationMatchingPointcut(MySecurityAnnotation::class.java);
 		val interceptor = AuthorizationManagerAfterMethodInterceptor(pattern, rules);
 		interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE_ADVISOR_ORDER.getOrder() + 1);
 		return interceptor;

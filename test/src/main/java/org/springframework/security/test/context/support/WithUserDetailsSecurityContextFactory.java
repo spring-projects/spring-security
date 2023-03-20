@@ -43,13 +43,17 @@ import org.springframework.util.StringUtils;
  */
 final class WithUserDetailsSecurityContextFactory implements WithSecurityContextFactory<WithUserDetails> {
 
-	private static final boolean reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono",
-			WithUserDetailsSecurityContextFactory.class.getClassLoader());
+	private static final boolean reactorPresent;
 
 	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
 			.getContextHolderStrategy();
 
 	private BeanFactory beans;
+
+	static {
+		reactorPresent = ClassUtils.isPresent("reactor.core.publisher.Mono",
+				WithUserDetailsSecurityContextFactory.class.getClassLoader());
+	}
 
 	@Autowired
 	WithUserDetailsSecurityContextFactory(BeanFactory beans) {

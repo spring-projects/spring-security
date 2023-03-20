@@ -23,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -30,6 +31,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.BDDMockito.given;
 
@@ -66,6 +68,21 @@ public class ServerAuthenticationEntryPointFailureHandlerTests {
 		BadCredentialsException e = new BadCredentialsException("Failed");
 		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(result);
 		assertThat(this.handler.onAuthenticationFailure(this.filterExchange, e)).isEqualTo(result);
+	}
+
+	@Test
+	void onAuthenticationFailureWhenRethrownFalseThenAuthenticationServiceExceptionSwallowed() {
+		AuthenticationServiceException e = new AuthenticationServiceException("fail");
+		this.handler.setRethrowAuthenticationServiceException(false);
+		given(this.authenticationEntryPoint.commence(this.exchange, e)).willReturn(Mono.empty());
+		this.handler.onAuthenticationFailure(this.filterExchange, e).block();
+	}
+
+	@Test
+	void handleWhenDefaultsThenAuthenticationServiceExceptionRethrown() {
+		AuthenticationServiceException e = new AuthenticationServiceException("fail");
+		assertThatExceptionOfType(AuthenticationServiceException.class)
+				.isThrownBy(() -> this.handler.onAuthenticationFailure(this.filterExchange, e).block());
 	}
 
 }

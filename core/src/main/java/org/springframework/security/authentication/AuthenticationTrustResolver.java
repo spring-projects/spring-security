@@ -53,4 +53,21 @@ public interface AuthenticationTrustResolver {
 	 */
 	boolean isRememberMe(Authentication authentication);
 
+	/**
+	 * Indicates whether the passed <code>Authentication</code> token represents a fully
+	 * authenticated user (that is, neither anonymous or remember-me). This is a
+	 * composition of <code>isAnonymous</code> and <code>isRememberMe</code>
+	 * implementation
+	 * <p>
+	 * @param authentication to test (may be <code>null</code> in which case the method
+	 * will always return <code>false</code>)
+	 * @return <code>true</code> the passed authentication token represented an anonymous
+	 * principal and is authenticated using a remember-me token, <code>false</code>
+	 * otherwise
+	 * @since 6.1
+	 */
+	default boolean isFullyAuthenticated(Authentication authentication) {
+		return !isAnonymous(authentication) && !isRememberMe(authentication);
+	}
+
 }

@@ -83,7 +83,7 @@ public class CsrfWebFilter implements WebFilter {
 	private ServerAccessDeniedHandler accessDeniedHandler = new HttpStatusServerAccessDeniedHandler(
 			HttpStatus.FORBIDDEN);
 
-	private ServerCsrfTokenRequestHandler requestHandler = new ServerCsrfTokenRequestAttributeHandler();
+	private ServerCsrfTokenRequestHandler requestHandler = new XorServerCsrfTokenRequestAttributeHandler();
 
 	public void setAccessDeniedHandler(ServerAccessDeniedHandler accessDeniedHandler) {
 		Assert.notNull(accessDeniedHandler, "accessDeniedHandler");
@@ -104,30 +104,13 @@ public class CsrfWebFilter implements WebFilter {
 	 * Specifies a {@link ServerCsrfTokenRequestHandler} that is used to make the
 	 * {@code CsrfToken} available as an exchange attribute.
 	 * <p>
-	 * The default is {@link ServerCsrfTokenRequestAttributeHandler}.
+	 * The default is {@link XorServerCsrfTokenRequestAttributeHandler}.
 	 * @param requestHandler the {@link ServerCsrfTokenRequestHandler} to use
 	 * @since 5.8
 	 */
 	public void setRequestHandler(ServerCsrfTokenRequestHandler requestHandler) {
 		Assert.notNull(requestHandler, "requestHandler cannot be null");
 		this.requestHandler = requestHandler;
-	}
-
-	/**
-	 * Specifies if the {@code CsrfWebFilter} should try to resolve the actual CSRF token
-	 * from the body of multipart data requests.
-	 * @param tokenFromMultipartDataEnabled true if should read from multipart form body,
-	 * else false. Default is false
-	 * @deprecated Use
-	 * {@link ServerCsrfTokenRequestAttributeHandler#setTokenFromMultipartDataEnabled(boolean)}
-	 * instead
-	 */
-	@Deprecated
-	public void setTokenFromMultipartDataEnabled(boolean tokenFromMultipartDataEnabled) {
-		if (this.requestHandler instanceof ServerCsrfTokenRequestAttributeHandler) {
-			((ServerCsrfTokenRequestAttributeHandler) this.requestHandler)
-					.setTokenFromMultipartDataEnabled(tokenFromMultipartDataEnabled);
-		}
 	}
 
 	@Override

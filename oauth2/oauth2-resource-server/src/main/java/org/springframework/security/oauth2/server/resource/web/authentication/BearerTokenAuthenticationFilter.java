@@ -27,7 +27,6 @@ import org.springframework.core.log.LogMessage;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationManagerResolver;
-import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
@@ -40,6 +39,7 @@ import org.springframework.security.oauth2.server.resource.web.BearerTokenAuthen
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
 import org.springframework.security.oauth2.server.resource.web.DefaultBearerTokenResolver;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.AuthenticationEntryPointFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -73,12 +73,8 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
 
 	private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
 
-	private AuthenticationFailureHandler authenticationFailureHandler = (request, response, exception) -> {
-		if (exception instanceof AuthenticationServiceException) {
-			throw exception;
-		}
-		this.authenticationEntryPoint.commence(request, response, exception);
-	};
+	private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler(
+			(request, response, exception) -> this.authenticationEntryPoint.commence(request, response, exception));
 
 	private BearerTokenResolver bearerTokenResolver = new DefaultBearerTokenResolver();
 

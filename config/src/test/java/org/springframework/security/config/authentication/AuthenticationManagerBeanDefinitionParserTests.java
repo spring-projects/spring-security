@@ -139,7 +139,10 @@ public class AuthenticationManagerBeanDefinitionParserTests {
 				+ "<user-service>"
 				+ "  <user name='user' password='password' authorities='ROLE_A,ROLE_B' />"
 				+ "</user-service>"
-				+ "<http/>")
+				+ "<http>"
+				+ "  <intercept-url pattern=\"/**\" access=\"authenticated\"/>"
+				+ "  <http-basic />"
+				+ "</http>")
 				.mockMvcAfterSpringSecurityOk()
 				.autowire();
 		this.mockMvc.perform(get("/").with(httpBasic("user", "password")))

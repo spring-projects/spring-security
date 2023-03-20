@@ -41,6 +41,7 @@ import org.springframework.security.authentication.event.AuthenticationFailureLo
 import org.springframework.security.authentication.event.AuthenticationFailureProviderNotFoundEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureProxyUntrustedEvent;
 import org.springframework.security.authentication.event.AuthenticationFailureServiceExceptionEvent;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 
@@ -59,6 +60,7 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 		registerMethodSecurityHints(hints);
 		hints.resources().registerResourceBundle("org.springframework.security.messages");
 		registerDefaultJdbcSchemaFileHint(hints);
+		registerSecurityContextHints(hints);
 	}
 
 	private void registerMethodSecurityHints(RuntimeHints hints) {
@@ -95,6 +97,11 @@ class CoreSecurityRuntimeHints implements RuntimeHintsRegistrar {
 
 	private void registerDefaultJdbcSchemaFileHint(RuntimeHints hints) {
 		hints.resources().registerPattern(JdbcDaoImpl.DEFAULT_USER_SCHEMA_DDL_LOCATION);
+	}
+
+	private void registerSecurityContextHints(RuntimeHints hints) {
+		hints.reflection().registerType(SecurityContextImpl.class,
+				(builder) -> builder.withMembers(MemberCategory.INVOKE_PUBLIC_METHODS));
 	}
 
 }

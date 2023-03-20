@@ -29,6 +29,7 @@
 			<authorization-code-grant
 					authorization-redirect-strategy-ref="authorizationRedirectStrategy"/>
 		</oauth2-client>
+		<intercept-url pattern="/**" access="authenticated"/>
 	</http>
 
 	<b:bean id="authorizationRedirectStrategy" class="org.mockito.Mockito" factory-method="mock">

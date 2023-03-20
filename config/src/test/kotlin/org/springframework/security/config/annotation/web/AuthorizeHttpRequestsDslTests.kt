@@ -512,7 +512,7 @@ class AuthorizeHttpRequestsDslTests {
                 request.servletPath = "/other"
                 request
             })
-            .andExpect(status().isOk)
+            .andExpect(status().isForbidden)
     }
 
     @Configuration
@@ -602,7 +602,7 @@ class AuthorizeHttpRequestsDslTests {
                     servletPath = "/other"
                 }
             })
-            .andExpect(status().isOk)
+            .andExpect(status().isForbidden)
     }
 
     @Configuration

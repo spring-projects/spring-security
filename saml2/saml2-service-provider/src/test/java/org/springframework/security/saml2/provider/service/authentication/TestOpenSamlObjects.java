@@ -101,9 +101,11 @@ public final class TestOpenSamlObjects {
 
 	private static String DESTINATION = "https://localhost/login/saml2/sso/idp-alias";
 
+	private static String LOGOUT_DESTINATION = "http://localhost/logout/saml2/slo";
+
 	public static String RELYING_PARTY_ENTITY_ID = "https://localhost/saml2/service-provider-metadata/idp-alias";
 
-	private static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
+	public static String ASSERTING_PARTY_ENTITY_ID = "https://some.idp.test/saml2/idp";
 
 	private static SecretKey SECRET_KEY = new SecretKeySpec(
 			Base64.getDecoder().decode("shOnwNMoCv88HKMEa91+FlYoD5RNvzMTAL5LGxZKIFk="), "AES");
@@ -111,7 +113,7 @@ public final class TestOpenSamlObjects {
 	private TestOpenSamlObjects() {
 	}
 
-	static Response response() {
+	public static Response response() {
 		return response(DESTINATION, ASSERTING_PARTY_ENTITY_ID);
 	}
 
@@ -202,6 +204,18 @@ public final class TestOpenSamlObjects {
 		authnRequest.setDestination(ASSERTING_PARTY_ENTITY_ID + "/SSO.saml2");
 		authnRequest.setAssertionConsumerServiceURL(DESTINATION);
 		return authnRequest;
+	}
+
+	public static LogoutRequest logoutRequest() {
+		Issuer issuer = build(Issuer.DEFAULT_ELEMENT_NAME);
+		issuer.setValue(ASSERTING_PARTY_ENTITY_ID);
+		NameID nameId = build(NameID.DEFAULT_ELEMENT_NAME);
+		nameId.setValue("user");
+		LogoutRequest logoutRequest = build(LogoutRequest.DEFAULT_ELEMENT_NAME);
+		logoutRequest.setIssuer(issuer);
+		logoutRequest.setDestination(LOGOUT_DESTINATION);
+		logoutRequest.setNameID(nameId);
+		return logoutRequest;
 	}
 
 	static Credential getSigningCredential(Saml2X509Credential credential, String entityId) {

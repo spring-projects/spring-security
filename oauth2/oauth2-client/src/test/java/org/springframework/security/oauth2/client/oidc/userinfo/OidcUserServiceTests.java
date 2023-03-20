@@ -458,12 +458,34 @@ public class OidcUserServiceTests {
 	@Test
 	public void loadUserWhenTokenDoesNotContainScopesThenNoScopeAuthorities() {
 		OidcUserService userService = new OidcUserService();
-		OidcUserRequest request = new OidcUserRequest(TestClientRegistrations.clientRegistration().build(),
-				TestOAuth2AccessTokens.noScopes(), TestOidcIdTokens.idToken().build());
+		OidcUserRequest request = new OidcUserRequest(this.clientRegistrationBuilder.build(),
+				TestOAuth2AccessTokens.noScopes(), this.idToken);
 		OidcUser user = userService.loadUser(request);
 		assertThat(user.getAuthorities()).hasSize(1);
 		Iterator<? extends GrantedAuthority> authorities = user.getAuthorities().iterator();
 		assertThat(authorities.next()).isInstanceOf(OidcUserAuthority.class);
+	}
+
+	@Test
+	public void loadUserWhenTokenDoesNotContainScopesAndUserInfoUriThenUserInfoRequested() {
+		// @formatter:off
+		String userInfoResponse = "{\n"
+				+ "   \"sub\": \"subject1\",\n"
+				+ "   \"name\": \"first last\",\n"
+				+ "   \"given_name\": \"first\",\n"
+				+ "   \"family_name\": \"last\",\n"
+				+ "   \"preferred_username\": \"user1\",\n"
+				+ "   \"email\": \"user1@example.com\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(userInfoResponse));
+		String userInfoUri = this.server.url("/user").toString();
+		ClientRegistration clientRegistration = this.clientRegistrationBuilder.userInfoUri(userInfoUri).build();
+		OidcUserService userService = new OidcUserService();
+		OidcUserRequest request = new OidcUserRequest(clientRegistration, TestOAuth2AccessTokens.noScopes(),
+				this.idToken);
+		OidcUser user = userService.loadUser(request);
+		assertThat(user.getUserInfo()).isNotNull();
 	}
 
 	private MockResponse jsonResponse(String json) {

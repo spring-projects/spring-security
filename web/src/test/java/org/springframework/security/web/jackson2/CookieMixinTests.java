@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,35 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CookieMixinTests extends AbstractMixinTests {
 
 	// @formatter:off
-	private static final String COOKIE_JSON = "{"
-		+ "\"@class\": \"jakarta.servlet.http.Cookie\", "
-		+ "\"name\": \"demo\", "
-		+ "\"value\": \"cookie1\","
-		+ "\"comment\": null, "
-		+ "\"maxAge\": -1, "
-		+ "\"path\": null, "
-		+ "\"secure\": false, "
-		+ "\"version\": 0, "
-		+ "\"isHttpOnly\": false, "
-		+ "\"domain\": null"
-	+ "}";
+	private static final String COOKIE_JSON = "{" +
+		"	\"@class\": \"jakarta.servlet.http.Cookie\"," +
+		"	\"name\": \"demo\"," +
+		"	\"value\": \"cookie1\"," +
+		"	\"attributes\":{\"@class\":\"java.util.Collections$EmptyMap\"}," +
+		"	\"comment\": null," +
+		"	\"maxAge\": -1," +
+		"	\"path\": null," +
+		"	\"secure\": false," +
+		"	\"version\": 0," +
+		"	\"domain\": null" +
+		"}";
 	// @formatter:on
+
+	// @formatter:off
+	private static final String COOKIE_HTTP_ONLY_JSON = "{" +
+		"	\"@class\": \"jakarta.servlet.http.Cookie\"," +
+		"	\"name\": \"demo\"," +
+		"	\"value\": \"cookie1\"," +
+		"	\"attributes\":{\"@class\":\"java.util.Collections$UnmodifiableMap\", \"HttpOnly\": \"true\"}," +
+		"	\"comment\": null," +
+		"	\"maxAge\": -1," +
+		"	\"path\": null," +
+		"	\"secure\": false," +
+		"	\"version\": 0," +
+		"	\"domain\": null" +
+		"}";
+	// @formatter:on
+
 	@Test
 	public void serializeCookie() throws JsonProcessingException, JSONException {
 		Cookie cookie = new Cookie("demo", "cookie1");
@@ -59,7 +75,23 @@ public class CookieMixinTests extends AbstractMixinTests {
 		assertThat(cookie).isNotNull();
 		assertThat(cookie.getName()).isEqualTo("demo");
 		assertThat(cookie.getDomain()).isEqualTo("");
-		assertThat(cookie.isHttpOnly()).isEqualTo(false);
+	}
+
+	@Test
+	public void serializeCookieWithHttpOnly() throws JsonProcessingException, JSONException {
+		Cookie cookie = new Cookie("demo", "cookie1");
+		cookie.setHttpOnly(true);
+		String actualString = this.mapper.writeValueAsString(cookie);
+		JSONAssert.assertEquals(COOKIE_HTTP_ONLY_JSON, actualString, true);
+	}
+
+	@Test
+	public void deserializeCookieWithHttpOnly() throws IOException {
+		Cookie cookie = this.mapper.readValue(COOKIE_HTTP_ONLY_JSON, Cookie.class);
+		assertThat(cookie).isNotNull();
+		assertThat(cookie.getName()).isEqualTo("demo");
+		assertThat(cookie.getDomain()).isEqualTo("");
+		assertThat(cookie.isHttpOnly()).isEqualTo(true);
 	}
 
 }

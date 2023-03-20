@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.core.context.DeferredSecurityContext;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
@@ -76,17 +77,13 @@ public final class RequestAttributeSecurityContextRepository implements Security
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		return getContextOrEmpty(requestResponseHolder.getRequest());
+		return loadDeferredContext(requestResponseHolder.getRequest()).get();
 	}
 
 	@Override
-	public Supplier<SecurityContext> loadContext(HttpServletRequest request) {
-		return () -> getContextOrEmpty(request);
-	}
-
-	private SecurityContext getContextOrEmpty(HttpServletRequest request) {
-		SecurityContext context = getContext(request);
-		return (context != null) ? context : this.securityContextHolderStrategy.createEmptyContext();
+	public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
+		Supplier<SecurityContext> supplier = () -> getContext(request);
+		return new SupplierDeferredSecurityContext(supplier, this.securityContextHolderStrategy);
 	}
 
 	private SecurityContext getContext(HttpServletRequest request) {

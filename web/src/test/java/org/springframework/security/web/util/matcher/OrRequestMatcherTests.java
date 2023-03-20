@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.web.util.matcher;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
@@ -26,10 +27,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.security.web.util.matcher.RequestMatcher.MatchResult;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author Rob Winch
@@ -120,6 +124,28 @@ public class OrRequestMatcherTests {
 		given(this.delegate.matches(this.request)).willReturn(true);
 		this.matcher = new OrRequestMatcher(this.delegate, this.delegate2);
 		assertThat(this.matcher.matches(this.request)).isTrue();
+	}
+
+	@Test
+	public void matcherWhenMatchersHavePlaceholdersThenPropagatesFirstMatch() {
+		this.matcher = new OrRequestMatcher(this.delegate, this.delegate2);
+
+		given(this.delegate.matcher(this.request)).willReturn(MatchResult.match(Map.of("param", "value")));
+		given(this.delegate2.matcher(this.request)).willReturn(MatchResult.match(Map.of("param", "othervalue")));
+		MatchResult result = this.matcher.matcher(this.request);
+		assertThat(result.getVariables()).containsExactlyEntriesOf(Map.of("param", "value"));
+		verifyNoInteractions(this.delegate2);
+
+		given(this.delegate.matcher(this.request)).willReturn(MatchResult.match());
+		given(this.delegate2.matcher(this.request)).willReturn(MatchResult.match(Map.of("param", "value")));
+		result = this.matcher.matcher(this.request);
+		assertThat(result.getVariables()).isEmpty();
+		verifyNoInteractions(this.delegate2);
+
+		given(this.delegate.matcher(this.request)).willReturn(MatchResult.notMatch());
+		given(this.delegate2.matcher(this.request)).willReturn(MatchResult.match(Map.of("param", "value")));
+		result = this.matcher.matcher(this.request);
+		assertThat(result.getVariables()).containsExactlyEntriesOf(Map.of("param", "value"));
 	}
 
 }

@@ -19,6 +19,7 @@ package org.springframework.security.config.http;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.ServletRequest;
 import org.w3c.dom.Element;
 
@@ -105,6 +106,8 @@ class HttpConfigurationBuilder {
 	private static final String ATT_AUTHENTICATION_STRATEGY_EXPLICIT_INVOCATION = "authentication-strategy-explicit-invocation";
 
 	private static final String ATT_INVALID_SESSION_URL = "invalid-session-url";
+
+	private static final String ATT_OBSERVATION_REGISTRY_REF = "observation-registry-ref";
 
 	private static final String ATT_SESSION_AUTH_STRATEGY_REF = "session-authentication-strategy-ref";
 
@@ -211,7 +214,7 @@ class HttpConfigurationBuilder {
 	private boolean addAllAuth;
 
 	HttpConfigurationBuilder(Element element, boolean addAllAuth, ParserContext pc, BeanReference portMapper,
-			BeanReference portResolver, BeanReference authenticationManager) {
+			BeanReference portResolver, BeanReference authenticationManager, BeanMetadataElement observationRegistry) {
 		this.httpElt = element;
 		this.addAllAuth = addAllAuth;
 		this.pc = pc;
@@ -226,7 +229,7 @@ class HttpConfigurationBuilder {
 		createSecurityContextHolderStrategy();
 		createForceEagerSessionCreationFilter();
 		createDisableEncodeUrlFilter();
-		createCsrfFilter();
+		createCsrfFilter(observationRegistry);
 		createSecurityPersistence();
 		createSessionManagementFilters();
 		createWebAsyncManagerFilter();
@@ -812,9 +815,10 @@ class HttpConfigurationBuilder {
 		}
 	}
 
-	private void createCsrfFilter() {
+	private void createCsrfFilter(BeanMetadataElement observationRegistry) {
 		Element elmt = DomUtils.getChildElementByTagName(this.httpElt, Elements.CSRF);
 		this.csrfParser = new CsrfBeanDefinitionParser();
+		this.csrfParser.setObservationRegistry(observationRegistry);
 		this.csrfFilter = this.csrfParser.parse(elmt, this.pc);
 		if (this.csrfFilter == null) {
 			this.csrfParser = null;
@@ -897,6 +901,14 @@ class HttpConfigurationBuilder {
 		return filters;
 	}
 
+	private static BeanMetadataElement getObservationRegistry(Element httpElmt) {
+		String holderStrategyRef = httpElmt.getAttribute(ATT_OBSERVATION_REGISTRY_REF);
+		if (StringUtils.hasText(holderStrategyRef)) {
+			return new RuntimeBeanReference(holderStrategyRef);
+		}
+		return BeanDefinitionBuilder.rootBeanDefinition(ObservationRegistryFactory.class).getBeanDefinition();
+	}
+
 	static class RoleVoterBeanFactory extends AbstractGrantedAuthorityDefaultsBeanFactory {
 
 		private RoleVoter voter = new RoleVoter();
@@ -940,6 +952,20 @@ class HttpConfigurationBuilder {
 		@Override
 		public Class<?> getObjectType() {
 			return SecurityContextHolderStrategy.class;
+		}
+
+	}
+
+	static class ObservationRegistryFactory implements FactoryBean<ObservationRegistry> {
+
+		@Override
+		public ObservationRegistry getObject() throws Exception {
+			return ObservationRegistry.NOOP;
+		}
+
+		@Override
+		public Class<?> getObjectType() {
+			return ObservationRegistry.class;
 		}
 
 	}

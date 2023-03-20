@@ -41,6 +41,7 @@ image::{figures}/saml2webssoauthenticationfilter.png[]
 The figure builds off our xref:servlet/architecture.adoc#servlet-securityfilterchain[`SecurityFilterChain`] diagram.
 ====
 
+[[servlet-saml2login-authentication-saml2authenticationtokenconverter]]
 image:{icondir}/number_1.png[] When the browser submits a `<saml2:Response>` to the application, it xref:servlet/saml2/login/authentication.adoc#servlet-saml2login-authenticate-responses[delegates to `Saml2WebSsoAuthenticationFilter`].
 This filter calls its configured `AuthenticationConverter` to create a `Saml2AuthenticationToken` by extracting the response from the `HttpServletRequest`.
 This converter additionally resolves the <<servlet-saml2login-relyingpartyregistration, `RelyingPartyRegistration`>> and supplies it to `Saml2AuthenticationToken`.
@@ -662,6 +663,16 @@ In a deployed application, that translates to:
 
 `+https://rp.example.com/adfs+`
 
+The prevailing URI patterns are as follows:
+
+* `+/saml2/authenticate/{registrationId}+` - The endpoint that xref:servlet/saml2/login/authentication-requests.adoc[generates a `<saml2:AuthnRequest>`] based on the configurations for that `RelyingPartyRegistration` and sends it to the asserting party
+* `+/login/saml2/sso/+` - The endpoint that xref:servlet/saml2/login/authentication.adoc[authenticates an asserting party's `<saml2:Response>`]; the `RelyingPartyRegistration` is looked up from previously authenticated state or the response's issuer if needed; also supports `+/login/saml2/sso/{registrationId}+`
+* `+/logout/saml2/sso+` - The endpoint that xref:servlet/saml2/logout.adoc[processes `<saml2:LogoutRequest>` and `<saml2:LogoutResponse>` payloads]; the `RelyingPartyRegistration` is looked up from previously authenticated state or the request's issuer if needed; also supports `+/logout/saml2/slo/{registrationId}+`
+* `+/saml2/metadata+` - The xref:servlet/saml2/metadata.adoc[relying party metadata] for the set of `RelyingPartyRegistration`s; also supports `+/saml2/metadata/{registrationId}+` or `+/saml2/service-provider-metadata/{registrationId}+` for a specific `RelyingPartyRegistration`
+
+Since the `registrationId` is the primary identifier for a `RelyingPartyRegistration`, it is needed in the URL for unauthenticated scenarios.
+If you wish to remove the `registrationId` from the URL for any reason, you can <<servlet-saml2login-rpr-relyingpartyregistrationresolver,specify a `RelyingPartyRegistrationResolver`>> to tell Spring Security how to look up the `registrationId`.
+
 [[servlet-saml2login-rpr-credentials]]
 === Credentials
 
@@ -734,58 +745,6 @@ resource.inputStream.use {
 [TIP]
 ====
 When you specify the locations of these files as the appropriate Spring Boot properties, Spring Boot performs these conversions for you.
-====
-
-[[servlet-saml2login-rpr-relyingpartyregistrationresolver]]
-=== Resolving the Relying Party from the Request
-
-As seen so far, Spring Security resolves the `RelyingPartyRegistration` by looking for the registration ID in the URI path.
-
-You may want to customize for a number of reasons, including:
-
-* You may know that your application is never going to be a multi-tenant application and, as a result, want a simpler URL scheme.
-* You may identify tenants in a way other than by the URI path.
-
-To customize the way that a `RelyingPartyRegistration` is resolved, you can configure a custom `RelyingPartyRegistrationResolver`.
-The default looks up the registration ID from the URI's last path element and looks it up in your `RelyingPartyRegistrationRepository`.
-
-You can provide a simpler resolver that, for example, always returns the same relying party:
-
-====
-.Java
-[source,java,role="primary"]
-----
-public class SingleRelyingPartyRegistrationResolver implements RelyingPartyRegistrationResolver {
-
-    private final RelyingPartyRegistrationResolver delegate;
-
-    public SingleRelyingPartyRegistrationResolver(RelyingPartyRegistrationRepository registrations) {
-        this.delegate = new DefaultRelyingPartyRegistrationResolver(registrations);
-    }
-
-    @Override
-    public RelyingPartyRegistration resolve(HttpServletRequest request, String registrationId) {
-        return this.delegate.resolve(request, "single");
-    }
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-class SingleRelyingPartyRegistrationResolver(delegate: RelyingPartyRegistrationResolver) : RelyingPartyRegistrationResolver {
-    override fun resolve(request: HttpServletRequest?, registrationId: String?): RelyingPartyRegistration? {
-        return this.delegate.resolve(request, "single")
-    }
-}
-----
-====
-
-Then you can provide this resolver to the appropriate filters that xref:servlet/saml2/login/authentication-requests.adoc#servlet-saml2login-sp-initiated-factory[produce `<saml2:AuthnRequest>` instances], xref:servlet/saml2/login/authentication.adoc#servlet-saml2login-authenticate-responses[authenticate `<saml2:Response>` instances], and xref:servlet/saml2/metadata.adoc#servlet-saml2login-metadata[produce `<saml2:SPSSODescriptor>` metadata].
-
-[NOTE]
-====
-Remember that if you have any placeholders in your `RelyingPartyRegistration`, your resolver implementation should resolve them.
 ====
 
 [[servlet-saml2login-rpr-duplicated]]
@@ -884,3 +843,73 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
 }
 ----
 ====
+
+[[servlet-saml2login-rpr-relyingpartyregistrationresolver]]
+=== Resolving the `RelyingPartyRegistration` from the Request
+
+As seen so far, Spring Security resolves the `RelyingPartyRegistration` by looking for the registration id in the URI path.
+
+Depending on the use case, a number of other strategies are also employed to derive one.
+For example:
+
+* For processing `<saml2:Response>`s, the `RelyingPartyRegistration` is looked up from the associated `<saml2:AuthRequest>` or from the `<saml2:Response#Issuer>` element
+* For processing `<saml2:LogoutRequest>`s, the `RelyingPartyRegistration` is looked up from the currently logged in user or from the `<saml2:LogoutRequest#Issuer>` element
+* For publishing metadata, the `RelyingPartyRegistration`s are looked up from any repository that also implements `Iterable<RelyingPartyRegistration>`
+
+When this needs adjustment, you can turn to the specific components for each of these endpoints targeted at customizing this:
+
+* For SAML Responses, customize the `AuthenticationConverter`
+* For Logout Requests, customize the `Saml2LogoutRequestValidatorParametersResolver`
+* For Metadata, customize the `Saml2MetadataResponseResolver`
+
+[[federating-saml2-login]]
+=== Federating Login
+
+One common arrangement with SAML 2.0 is an identity provider that has multiple asserting parties.
+In this case, the identity provider's metadata endpoint returns multiple `<md:IDPSSODescriptor>` elements.
+
+These multiple asserting parties can be accessed in a single call to `RelyingPartyRegistrations` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+Collection<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
+        .collectionFromMetadataLocation("https://example.org/saml2/idp/metadata.xml")
+        .stream().map((builder) -> builder
+            .registrationId(UUID.randomUUID().toString())
+            .entityId("https://example.org/saml2/sp")
+            .build()
+        )
+        .collect(Collectors.toList()));
+----
+
+.Kotlin
+[source,java,role="secondary"]
+----
+var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrations
+        .collectionFromMetadataLocation("https://example.org/saml2/idp/metadata.xml")
+        .stream().map { builder : RelyingPartyRegistration.Builder -> builder
+            .registrationId(UUID.randomUUID().toString())
+            .entityId("https://example.org/saml2/sp")
+            .assertionConsumerServiceLocation("{baseUrl}/login/saml2/sso")
+            .build()
+        }
+        .collect(Collectors.toList()));
+----
+====
+
+Note that because the registration id is set to a random value, this will change certain SAML 2.0 endpoints to be unpredictable.
+There are several ways to address this; let's focus on a way that suits the specific use case of federation.
+
+In many federation cases, all the asserting parties share service provider configuration.
+Given that Spring Security will by default include the `registrationId` in the service provider metadata, another step is to change corresponding URIs to exclude the `registrationId`, which you can see has already been done in the above sample where the `entityId` and `assertionConsumerServiceLocation` are configured with a static endpoint.
+
+You can see a completed example of this in {gh-samples-url}/servlet/spring-boot/java/saml2/saml-extension-federation[our `saml-extension-federation` sample].
+
+[[using-spring-security-saml-extension-uris]]
+=== Using Spring Security SAML Extension URIs
+
+In the event that you are migrating from the Spring Security SAML Extension, there may be some benefit to configuring your application to use the SAML Extension URI defaults.
+
+For more information on this, please see {gh-samples-url}/servlet/spring-boot/java/saml2/custom-urls[our `custom-urls` sample] and {gh-samples-url}/servlet/spring-boot/java/saml2/saml-extension-federation[our `saml-extension-federation` sample].

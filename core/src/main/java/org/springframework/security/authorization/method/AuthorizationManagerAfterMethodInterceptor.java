@@ -99,6 +99,20 @@ public final class AuthorizationManagerAfterMethodInterceptor
 	}
 
 	/**
+	 * Creates an interceptor for the {@link PostAuthorize} annotation
+	 * @param authorizationManager the {@link AuthorizationManager} to use
+	 * @return the interceptor
+	 * @since 6.0
+	 */
+	public static AuthorizationManagerAfterMethodInterceptor postAuthorize(
+			AuthorizationManager<MethodInvocationResult> authorizationManager) {
+		AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(
+				AuthorizationMethodPointcuts.forAnnotations(PostAuthorize.class), authorizationManager);
+		interceptor.setOrder(500);
+		return interceptor;
+	}
+
+	/**
 	 * Determine if an {@link Authentication} has access to the {@link MethodInvocation}
 	 * using the {@link AuthorizationManager}.
 	 * @param mi the {@link MethodInvocation} to check

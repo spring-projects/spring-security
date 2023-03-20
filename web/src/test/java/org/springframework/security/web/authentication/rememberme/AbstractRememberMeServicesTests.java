@@ -364,28 +364,6 @@ public class AbstractRememberMeServicesTests {
 
 	// SEC-2791
 	@Test
-	public void setCookieMaxAge0VersionSet() {
-		MockRememberMeServices services = new MockRememberMeServices();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.setCookie(new String[] { "value" }, 0, request, response);
-		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertThat(cookie.getVersion()).isEqualTo(1);
-	}
-
-	// SEC-2791
-	@Test
-	public void setCookieMaxAgeNegativeVersionSet() {
-		MockRememberMeServices services = new MockRememberMeServices();
-		MockHttpServletRequest request = new MockHttpServletRequest();
-		MockHttpServletResponse response = new MockHttpServletResponse();
-		services.setCookie(new String[] { "value" }, -1, request, response);
-		Cookie cookie = response.getCookie(AbstractRememberMeServices.SPRING_SECURITY_REMEMBER_ME_COOKIE_KEY);
-		assertThat(cookie.getVersion()).isEqualTo(1);
-	}
-
-	// SEC-2791
-	@Test
 	public void setCookieMaxAge1VersionSet() {
 		MockRememberMeServices services = new MockRememberMeServices();
 		MockHttpServletRequest request = new MockHttpServletRequest();

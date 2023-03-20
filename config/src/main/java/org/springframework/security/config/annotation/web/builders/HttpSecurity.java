@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,6 +35,7 @@ import org.springframework.core.OrderComparator;
 import org.springframework.core.Ordered;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.ObservationAuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
@@ -71,6 +73,7 @@ import org.springframework.security.config.annotation.web.configurers.oauth2.cli
 import org.springframework.security.config.annotation.web.configurers.oauth2.server.resource.OAuth2ResourceServerConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LoginConfigurer;
 import org.springframework.security.config.annotation.web.configurers.saml2.Saml2LogoutConfigurer;
+import org.springframework.security.config.annotation.web.configurers.saml2.Saml2MetadataConfigurer;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -2424,6 +2427,102 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	/**
+	 * Configures a SAML 2.0 metadata endpoint that presents relying party configurations
+	 * in an {@code <md:EntityDescriptor>} payload.
+	 *
+	 * <p>
+	 * By default, the endpoints are {@code /saml2/metadata} and
+	 * {@code /saml2/metadata/{registrationId}} though note that also
+	 * {@code /saml2/service-provider-metadata/{registrationId}} is recognized for
+	 * backward compatibility purposes.
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+	 *				.saml2Metadata(Customizer.withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 * @param saml2MetadataConfigurer the {@link Customizer} to provide more options for
+	 * the {@link Saml2MetadataConfigurer}
+	 * @return the {@link HttpSecurity} for further customizations
+	 * @throws Exception
+	 * @since 6.1
+	 */
+	public HttpSecurity saml2Metadata(Customizer<Saml2MetadataConfigurer<HttpSecurity>> saml2MetadataConfigurer)
+			throws Exception {
+		saml2MetadataConfigurer.customize(getOrApply(new Saml2MetadataConfigurer<>(getContext())));
+		return HttpSecurity.this;
+	}
+
+	/**
+	 * Configures a SAML 2.0 metadata endpoint that presents relying party configurations
+	 * in an {@code <md:EntityDescriptor>} payload.
+	 *
+	 * <p>
+	 * By default, the endpoints are {@code /saml2/metadata} and
+	 * {@code /saml2/metadata/{registrationId}} though note that also
+	 * {@code /saml2/service-provider-metadata/{registrationId}} is recognized for
+	 * backward compatibility purposes.
+	 *
+	 * <p>
+	 * <h2>Example Configuration</h2>
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * <pre>
+	 *	&#064;EnableWebSecurity
+	 *	&#064;Configuration
+	 *	public class Saml2LogoutSecurityConfig {
+	 *		&#064;Bean
+	 *		public SecurityFilterChain web(HttpSecurity http) throws Exception {
+	 *			http
+	 *				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+	 *				.saml2Metadata(Customizer.withDefaults());
+	 *			return http.build();
+	 *		}
+	 *
+	 *		&#064;Bean
+	 *		public RelyingPartyRegistrationRepository relyingPartyRegistrationRepository() {
+	 *			RelyingPartyRegistration registration = RelyingPartyRegistrations
+	 *					.withMetadataLocation("https://ap.example.org/metadata")
+	 *					.registrationId("simple")
+	 *					.build();
+	 *			return new InMemoryRelyingPartyRegistrationRepository(registration);
+	 *		}
+	 *	}
+	 * </pre>
+	 * @return the {@link Saml2MetadataConfigurer} for further customizations
+	 * @throws Exception
+	 * @since 6.1
+	 */
+	public Saml2MetadataConfigurer<HttpSecurity> saml2Metadata() throws Exception {
+		return getOrApply(new Saml2MetadataConfigurer<>(getContext()));
+	}
+
+	/**
 	 * Configures authentication support using an OAuth 2.0 and/or OpenID Connect 1.0
 	 * Provider. <br>
 	 * <br>
@@ -2994,7 +3093,14 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			setSharedObject(AuthenticationManager.class, this.authenticationManager);
 		}
 		else {
-			setSharedObject(AuthenticationManager.class, getAuthenticationRegistry().build());
+			ObservationRegistry registry = getObservationRegistry();
+			AuthenticationManager manager = getAuthenticationRegistry().build();
+			if (!registry.isNoop()) {
+				setSharedObject(AuthenticationManager.class, new ObservationAuthenticationManager(registry, manager));
+			}
+			else {
+				setSharedObject(AuthenticationManager.class, manager);
+			}
 		}
 	}
 
@@ -3042,7 +3148,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	}
 
 	private HttpSecurity addFilterAtOffsetOf(Filter filter, int offset, Class<? extends Filter> registeredFilter) {
-		int order = this.filterOrders.getOrder(registeredFilter) + offset;
+		Integer registeredFilterOrder = this.filterOrders.getOrder(registeredFilter);
+		if (registeredFilterOrder == null) {
+			throw new IllegalArgumentException(
+					"The Filter class " + registeredFilter.getName() + " does not have a registered order");
+		}
+		int order = registeredFilterOrder + offset;
 		this.filters.add(new OrderedFilter(filter, order));
 		this.filterOrders.put(filter.getClass(), order);
 		return this;
@@ -3416,6 +3527,15 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 			return existingConfig;
 		}
 		return apply(configurer);
+	}
+
+	private ObservationRegistry getObservationRegistry() {
+		ApplicationContext context = getContext();
+		String[] names = context.getBeanNamesForType(ObservationRegistry.class);
+		if (names.length == 1) {
+			return (ObservationRegistry) context.getBean(names[0]);
+		}
+		return ObservationRegistry.NOOP;
 	}
 
 	/**

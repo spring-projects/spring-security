@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.context.ReactorContextWebFilter
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
 
@@ -42,6 +43,7 @@ import org.springframework.security.web.server.context.ServerSecurityContextRepo
 class ServerHttpBasicDsl {
     var authenticationManager: ReactiveAuthenticationManager? = null
     var securityContextRepository: ServerSecurityContextRepository? = null
+    var authenticationFailureHandler: ServerAuthenticationFailureHandler? = null
     var authenticationEntryPoint: ServerAuthenticationEntryPoint? = null
 
     private var disabled = false
@@ -57,6 +59,7 @@ class ServerHttpBasicDsl {
         return { httpBasic ->
             authenticationManager?.also { httpBasic.authenticationManager(authenticationManager) }
             securityContextRepository?.also { httpBasic.securityContextRepository(securityContextRepository) }
+            authenticationFailureHandler?.also { httpBasic.authenticationFailureHandler(authenticationFailureHandler) }
             authenticationEntryPoint?.also { httpBasic.authenticationEntryPoint(authenticationEntryPoint) }
             if (disabled) {
                 httpBasic.disable()

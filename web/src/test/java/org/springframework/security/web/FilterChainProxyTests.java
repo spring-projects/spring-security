@@ -16,19 +16,27 @@
 
 package org.springframework.security.web;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
+import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationHandler;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -50,7 +58,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -270,10 +280,198 @@ public class FilterChainProxyTests {
 		this.fcp.setRequestRejectedHandler(rjh);
 		RequestRejectedException requestRejectedException = new RequestRejectedException("Contains illegal chars");
 		ServletException servletException = new ServletException(requestRejectedException);
-		given(fw.getFirewalledRequest(this.request)).willReturn(mock(FirewalledRequest.class));
+		given(fw.getFirewalledRequest(this.request)).willReturn(new MockFirewalledRequest(this.request));
 		willThrow(servletException).given(this.chain).doFilter(any(), any());
 		this.fcp.doFilter(this.request, this.response, this.chain);
 		verify(rjh).handle(eq(this.request), eq(this.response), eq((requestRejectedException)));
+	}
+
+	@Test
+	public void doFilterWhenMatchesThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		given(this.matcher.matches(any())).willReturn(true);
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter));
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		filter.doFilter(this.request, this.response, this.chain);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(4)).onStart(captor.capture());
+		verify(handler, times(4)).onStop(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertFilterChainObservation(contexts.next(), "before", 1);
+		assertThat(contexts.next().getName()).isEqualTo(ObservationFilterChainDecorator.SECURED_OBSERVATION_NAME);
+		assertFilterChainObservation(contexts.next(), "after", 1);
+	}
+
+	@Test
+	public void doFilterWhenMultipleFiltersThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		given(this.matcher.matches(any())).willReturn(true);
+		Filter one = mockFilter();
+		Filter two = mockFilter();
+		Filter three = mockFilter();
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, one, two, three);
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		filter.doFilter(this.request, this.response, this.chain);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(4)).onStart(captor.capture());
+		verify(handler, times(4)).onStop(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertFilterChainObservation(contexts.next(), "before", 3);
+		assertThat(contexts.next().getName()).isEqualTo(ObservationFilterChainDecorator.SECURED_OBSERVATION_NAME);
+		assertFilterChainObservation(contexts.next(), "after", 3);
+	}
+
+	@Test
+	public void doFilterWhenMismatchesThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter));
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		filter.doFilter(this.request, this.response, this.chain);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(2)).onStart(captor.capture());
+		verify(handler, times(2)).onStop(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertThat(contexts.next().getName()).isEqualTo(ObservationFilterChainDecorator.UNSECURED_OBSERVATION_NAME);
+	}
+
+	@Test
+	public void doFilterWhenFilterExceptionThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		willThrow(IllegalStateException.class).given(this.filter).doFilter(any(), any(), any());
+		given(this.matcher.matches(any())).willReturn(true);
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, Arrays.asList(this.filter));
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		assertThatExceptionOfType(IllegalStateException.class)
+				.isThrownBy(() -> filter.doFilter(this.request, this.response, this.chain));
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(2)).onStart(captor.capture());
+		verify(handler, times(2)).onStop(any());
+		verify(handler, atLeastOnce()).onError(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertFilterChainObservation(contexts.next(), "before", 1);
+	}
+
+	@Test
+	public void doFilterWhenExceptionWithMultipleFiltersThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		given(this.matcher.matches(any())).willReturn(true);
+		Filter one = mockFilter();
+		Filter two = mock(Filter.class);
+		willThrow(IllegalStateException.class).given(two).doFilter(any(), any(), any());
+		Filter three = mockFilter();
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, one, two, three);
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		assertThatExceptionOfType(IllegalStateException.class)
+				.isThrownBy(() -> filter.doFilter(this.request, this.response, this.chain));
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(2)).onStart(captor.capture());
+		verify(handler, times(2)).onStop(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertFilterChainObservation(contexts.next(), "before", 2);
+	}
+
+	@Test
+	public void doFilterWhenOneFilterDoesNotProceedThenObservationRegistryObserves() throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		given(this.matcher.matches(any())).willReturn(true);
+		Filter one = mockFilter();
+		Filter two = mock(Filter.class);
+		Filter three = mockFilter();
+		SecurityFilterChain sec = new DefaultSecurityFilterChain(this.matcher, one, two, three);
+		FilterChainProxy fcp = new FilterChainProxy(sec);
+		fcp.setFilterChainDecorator(new ObservationFilterChainDecorator(registry));
+		Filter filter = ObservationFilterChainDecorator.FilterObservation
+				.create(Observation.createNotStarted("wrap", registry)).wrap(fcp);
+		filter.doFilter(this.request, this.response, this.chain);
+		ArgumentCaptor<Observation.Context> captor = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(3)).onStart(captor.capture());
+		verify(handler, times(3)).onStop(any());
+		Iterator<Observation.Context> contexts = captor.getAllValues().iterator();
+		assertThat(contexts.next().getName()).isEqualTo("wrap");
+		assertFilterChainObservation(contexts.next(), "before", 2);
+		assertFilterChainObservation(contexts.next(), "after", 3);
+	}
+
+	static void assertFilterChainObservation(Observation.Context context, String filterSection, int chainPosition) {
+		assertThat(context).isInstanceOf(ObservationFilterChainDecorator.FilterChainObservationContext.class);
+		ObservationFilterChainDecorator.FilterChainObservationContext filterChainObservationContext = (ObservationFilterChainDecorator.FilterChainObservationContext) context;
+		assertThat(context.getName())
+				.isEqualTo(ObservationFilterChainDecorator.FilterChainObservationConvention.CHAIN_OBSERVATION_NAME);
+		assertThat(context.getContextualName()).endsWith(filterSection);
+		assertThat(filterChainObservationContext.getChainPosition()).isEqualTo(chainPosition);
+	}
+
+	static Filter mockFilter() throws Exception {
+		Filter filter = mock(Filter.class);
+		willAnswer((invocation) -> {
+			HttpServletRequest request = invocation.getArgument(0, HttpServletRequest.class);
+			HttpServletResponse response = invocation.getArgument(1, HttpServletResponse.class);
+			FilterChain chain = invocation.getArgument(2, FilterChain.class);
+			chain.doFilter(request, response);
+			return null;
+		}).given(filter).doFilter(any(), any(), any());
+		return filter;
+	}
+
+	private static class MockFirewalledRequest extends FirewalledRequest {
+
+		MockFirewalledRequest(HttpServletRequest request) {
+			super(request);
+		}
+
+		@Override
+		public void reset() {
+
+		}
+
+	}
+
+	private static class MockFilter implements Filter {
+
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			chain.doFilter(request, response);
+		}
+
 	}
 
 }

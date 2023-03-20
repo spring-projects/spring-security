@@ -1,0 +1,105 @@
+= Authorization Migrations
+
+The following steps relate to how to finish migrating authorization support.
+
+== Use `AuthorizationManager` for Method Security
+
+There are no further migration steps for this feature.
+
+== Use `AuthorizationManager` for Message Security
+
+In 6.0, `<websocket-message-broker>` defaults `use-authorization-manager` to `true`.
+So, to complete migration, remove any `websocket-message-broker@use-authorization-manager=true` attribute.
+
+For example:
+
+====
+.Xml
+[source,xml,role="primary"]
+----
+<websocket-message-broker use-authorization-manager="true"/>
+----
+====
+
+changes to:
+
+====
+.Xml
+[source,xml,role="primary"]
+----
+<websocket-message-broker/>
+----
+====
+
+There are no further migrations steps for Java or Kotlin for this feature.
+
+== Use `AuthorizationManager` for Request Security
+
+In 6.0, `<http>` defaults `once-per-request` to `false`, `filter-all-dispatcher-types` to `true`, and `use-authorization-manager` to `true`.
+Also, xref:servlet/authorization/authorize-requests.adoc#filtersecurityinterceptor-every-request[`authorizeRequests#filterSecurityInterceptorOncePerRequest`] defaults to `false` and xref:servlet/authorization/authorize-http-requests.adoc[`authorizeHttpRequests#filterAllDispatcherTypes`] defaults to `true`.
+So, to complete migration, any defaults values can be removed.
+
+For example, if you opted in to the 6.0 default for `filter-all-dispatcher-types` or `authorizeHttpRequests#filterAllDispatcherTypes` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .filterAllDispatcherTypes(true)
+        // ...
+    )
+----
+
+.Kotlin
+[source,java,role="secondary"]
+----
+http {
+	authorizeHttpRequests {
+		filterAllDispatcherTypes = true
+        // ...
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http use-authorization-manager="true" filter-all-dispatcher-types="true"/>
+----
+====
+
+then the defaults may be removed:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        // ...
+    )
+----
+
+.Kotlin
+[source,java,role="secondary"]
+----
+http {
+	authorizeHttpRequests {
+		// ...
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http/>
+----
+====
+
+[NOTE]
+====
+`once-per-request` applies only when `use-authorization-manager="false"` and `filter-all-dispatcher-types` only applies when `use-authorization-manager="true"`
+====

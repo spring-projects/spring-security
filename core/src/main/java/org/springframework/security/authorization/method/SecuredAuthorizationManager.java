@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,23 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
 import org.aopalliance.intercept.MethodInvocation;
 
 import org.springframework.aop.support.AopUtils;
-import org.springframework.lang.NonNull;
+import org.springframework.core.MethodClassKey;
 import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AuthorizationManager} which can determine if an {@link Authentication} may
@@ -39,7 +45,22 @@ import org.springframework.security.core.Authentication;
  */
 public final class SecuredAuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
-	private final SecuredAuthorizationManagerRegistry registry = new SecuredAuthorizationManagerRegistry();
+	private AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
+
+	private final Map<MethodClassKey, Set<String>> cachedAuthorities = new ConcurrentHashMap<>();
+
+	/**
+	 * Sets an {@link AuthorizationManager} that accepts a collection of authority
+	 * strings.
+	 * @param authoritiesAuthorizationManager the {@link AuthorizationManager} that
+	 * accepts a collection of authority strings to use
+	 * @since 6.1
+	 */
+	public void setAuthoritiesAuthorizationManager(
+			AuthorizationManager<Collection<String>> authoritiesAuthorizationManager) {
+		Assert.notNull(authoritiesAuthorizationManager, "authoritiesAuthorizationManager cannot be null");
+		this.authoritiesAuthorizationManager = authoritiesAuthorizationManager;
+	}
 
 	/**
 	 * Determine if an {@link Authentication} has access to a method by evaluating the
@@ -51,26 +72,28 @@ public final class SecuredAuthorizationManager implements AuthorizationManager<M
 	 */
 	@Override
 	public AuthorizationDecision check(Supplier<Authentication> authentication, MethodInvocation mi) {
-		AuthorizationManager<MethodInvocation> delegate = this.registry.getManager(mi);
-		return delegate.check(authentication, mi);
+		Set<String> authorities = getAuthorities(mi);
+		return authorities.isEmpty() ? null : this.authoritiesAuthorizationManager.check(authentication, authorities);
 	}
 
-	private static final class SecuredAuthorizationManagerRegistry extends AbstractAuthorizationManagerRegistry {
+	private Set<String> getAuthorities(MethodInvocation methodInvocation) {
+		Method method = methodInvocation.getMethod();
+		Object target = methodInvocation.getThis();
+		Class<?> targetClass = (target != null) ? target.getClass() : null;
+		MethodClassKey cacheKey = new MethodClassKey(method, targetClass);
+		return this.cachedAuthorities.computeIfAbsent(cacheKey, (k) -> resolveAuthorities(method, targetClass));
+	}
 
-		@NonNull
-		@Override
-		AuthorizationManager<MethodInvocation> resolveManager(Method method, Class<?> targetClass) {
-			Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
-			Secured secured = findSecuredAnnotation(specificMethod);
-			return (secured != null) ? AuthorityAuthorizationManager.hasAnyAuthority(secured.value()) : NULL_MANAGER;
-		}
+	private Set<String> resolveAuthorities(Method method, Class<?> targetClass) {
+		Method specificMethod = AopUtils.getMostSpecificMethod(method, targetClass);
+		Secured secured = findSecuredAnnotation(specificMethod);
+		return (secured != null) ? Set.of(secured.value()) : Collections.emptySet();
+	}
 
-		private Secured findSecuredAnnotation(Method method) {
-			Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
-			return (secured != null) ? secured
-					: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), Secured.class);
-		}
-
+	private Secured findSecuredAnnotation(Method method) {
+		Secured secured = AuthorizationAnnotationUtils.findUniqueAnnotation(method, Secured.class);
+		return (secured != null) ? secured
+				: AuthorizationAnnotationUtils.findUniqueAnnotation(method.getDeclaringClass(), Secured.class);
 	}
 
 }

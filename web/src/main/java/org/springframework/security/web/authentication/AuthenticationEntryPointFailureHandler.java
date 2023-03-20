@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.util.Assert;
@@ -34,6 +35,8 @@ import org.springframework.util.Assert;
  */
 public class AuthenticationEntryPointFailureHandler implements AuthenticationFailureHandler {
 
+	private boolean rethrowAuthenticationServiceException = true;
+
 	private final AuthenticationEntryPoint authenticationEntryPoint;
 
 	public AuthenticationEntryPointFailureHandler(AuthenticationEntryPoint authenticationEntryPoint) {
@@ -44,7 +47,25 @@ public class AuthenticationEntryPointFailureHandler implements AuthenticationFai
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException exception) throws IOException, ServletException {
-		this.authenticationEntryPoint.commence(request, response, exception);
+		if (!this.rethrowAuthenticationServiceException) {
+			this.authenticationEntryPoint.commence(request, response, exception);
+			return;
+		}
+		if (!AuthenticationServiceException.class.isAssignableFrom(exception.getClass())) {
+			this.authenticationEntryPoint.commence(request, response, exception);
+			return;
+		}
+		throw exception;
+	}
+
+	/**
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
+	 * @param rethrowAuthenticationServiceException whether to rethrow
+	 * {@link AuthenticationServiceException}s
+	 * @since 5.8
+	 */
+	public void setRethrowAuthenticationServiceException(boolean rethrowAuthenticationServiceException) {
+		this.rethrowAuthenticationServiceException = rethrowAuthenticationServiceException;
 	}
 
 }

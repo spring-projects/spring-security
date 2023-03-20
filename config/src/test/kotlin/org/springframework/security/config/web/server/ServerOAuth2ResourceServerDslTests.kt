@@ -19,10 +19,6 @@ package org.springframework.security.config.web.server
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
-import java.math.BigInteger
-import java.security.KeyFactory
-import java.security.interfaces.RSAPublicKey
-import java.security.spec.RSAPublicKeySpec
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,15 +30,22 @@ import org.springframework.security.authentication.ReactiveAuthenticationManager
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.test.SpringTestContext
 import org.springframework.security.config.test.SpringTestContextExtension
+import org.springframework.security.core.AuthenticationException
 import org.springframework.security.oauth2.server.resource.authentication.JwtIssuerReactiveAuthenticationManagerResolver
 import org.springframework.security.oauth2.server.resource.web.server.authentication.ServerBearerTokenAuthenticationConverter
 import org.springframework.security.web.server.SecurityWebFilterChain
+import org.springframework.security.web.server.WebFilterExchange
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.web.reactive.config.EnableWebFlux
 import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.interfaces.RSAPublicKey
+import java.security.spec.RSAPublicKeySpec
 
 /**
  * Tests for [ServerOAuth2ResourceServerDsl]
@@ -127,6 +130,57 @@ class ServerOAuth2ResourceServerDslTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun `http basic when custom authentication failure handler then failure handler used`() {
+        this.spring.register(AuthenticationFailureHandlerConfig::class.java).autowire()
+        mockkObject(AuthenticationFailureHandlerConfig.FAILURE_HANDLER)
+        every {
+            AuthenticationFailureHandlerConfig.FAILURE_HANDLER.onAuthenticationFailure(any(), any())
+        } returns Mono.empty()
+
+        this.client.get()
+            .uri("/")
+            .header("Authorization", "Bearer token")
+            .exchange()
+            .expectStatus().isOk
+
+        verify(exactly = 1) { AuthenticationFailureHandlerConfig.FAILURE_HANDLER.onAuthenticationFailure(any(), any()) }
+    }
+
+    @EnableWebFluxSecurity
+    @EnableWebFlux
+    open class AuthenticationFailureHandlerConfig {
+
+        companion object {
+            val FAILURE_HANDLER: ServerAuthenticationFailureHandler = MockServerAuthenticationFailureHandler()
+        }
+
+        @Bean
+        open fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+            return http {
+                authorizeExchange {
+                    authorize(anyExchange, authenticated)
+                }
+                oauth2ResourceServer {
+                    authenticationFailureHandler = FAILURE_HANDLER
+                    jwt {
+                        publicKey = publicKey()
+                    }
+                }
+            }
+        }
+    }
+
+    open class MockServerAuthenticationFailureHandler: ServerAuthenticationFailureHandler {
+        override fun onAuthenticationFailure(
+            webFilterExchange: WebFilterExchange?,
+            exception: AuthenticationException?
+        ): Mono<Void> {
+            return Mono.empty()
+        }
+
     }
 
     @Test

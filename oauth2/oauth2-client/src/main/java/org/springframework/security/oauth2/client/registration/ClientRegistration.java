@@ -24,9 +24,14 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.springframework.core.log.LogMessage;
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.security.oauth2.core.AuthenticationMethod;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -39,6 +44,7 @@ import org.springframework.util.StringUtils;
  * Provider.
  *
  * @author Joe Grandja
+ * @author Michael Sosa
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-2">Section 2
  * Client Registration</a>
@@ -323,6 +329,12 @@ public final class ClientRegistration implements Serializable {
 
 		private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID;
 
+		private static final Log logger = LogFactory.getLog(Builder.class);
+
+		private static final List<AuthorizationGrantType> AUTHORIZATION_GRANT_TYPES = Arrays.asList(
+				AuthorizationGrantType.AUTHORIZATION_CODE, AuthorizationGrantType.CLIENT_CREDENTIALS,
+				AuthorizationGrantType.REFRESH_TOKEN, AuthorizationGrantType.PASSWORD);
+
 		private String registrationId;
 
 		private String clientId;
@@ -597,6 +609,7 @@ public final class ClientRegistration implements Serializable {
 			else if (AuthorizationGrantType.AUTHORIZATION_CODE.equals(this.authorizationGrantType)) {
 				this.validateAuthorizationCodeGrantType();
 			}
+			this.validateAuthorizationGrantTypes();
 			this.validateScopes();
 			return this.create();
 		}
@@ -662,6 +675,17 @@ public final class ClientRegistration implements Serializable {
 			Assert.hasText(this.registrationId, "registrationId cannot be empty");
 			Assert.hasText(this.clientId, "clientId cannot be empty");
 			Assert.hasText(this.tokenUri, "tokenUri cannot be empty");
+		}
+
+		private void validateAuthorizationGrantTypes() {
+			for (AuthorizationGrantType authorizationGrantType : AUTHORIZATION_GRANT_TYPES) {
+				if (authorizationGrantType.getValue().equalsIgnoreCase(this.authorizationGrantType.getValue())
+						&& !authorizationGrantType.equals(this.authorizationGrantType)) {
+					logger.warn(LogMessage.format(
+							"AuthorizationGrantType: %s does not match the pre-defined constant %s and won't match a valid OAuth2AuthorizedClientProvider",
+							this.authorizationGrantType, authorizationGrantType));
+				}
+			}
 		}
 
 		private void validateScopes() {

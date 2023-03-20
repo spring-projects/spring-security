@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.reactive;
 import java.util.Arrays;
 import java.util.List;
 
+import io.micrometer.observation.ObservationRegistry;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -28,6 +30,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.crypto.RsaKeyConversionServicePostProcessor;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.reactive.result.view.CsrfRequestDataValueProcessor;
+import org.springframework.security.web.server.ObservationWebFilterChainDecorator;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.WebFilterChainProxy;
 import org.springframework.util.ClassUtils;
@@ -50,10 +53,16 @@ class WebFluxSecurityConfiguration {
 
 	public static final String REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME = "org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository";
 
-	private static final boolean isOAuth2Present = ClassUtils.isPresent(
-			REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME, WebFluxSecurityConfiguration.class.getClassLoader());
+	private static final boolean isOAuth2Present;
 
 	private List<SecurityWebFilterChain> securityWebFilterChains;
+
+	private ObservationRegistry observationRegistry = ObservationRegistry.NOOP;
+
+	static {
+		isOAuth2Present = ClassUtils.isPresent(REACTIVE_CLIENT_REGISTRATION_REPOSITORY_CLASSNAME,
+				WebFluxSecurityConfiguration.class.getClassLoader());
+	}
 
 	@Autowired
 	ApplicationContext context;
@@ -63,10 +72,19 @@ class WebFluxSecurityConfiguration {
 		this.securityWebFilterChains = securityWebFilterChains;
 	}
 
+	@Autowired(required = false)
+	void setObservationRegistry(ObservationRegistry observationRegistry) {
+		this.observationRegistry = observationRegistry;
+	}
+
 	@Bean(SPRING_SECURITY_WEBFILTERCHAINFILTER_BEAN_NAME)
 	@Order(WEB_FILTER_CHAIN_FILTER_ORDER)
 	WebFilterChainProxy springSecurityWebFilterChainFilter() {
-		return new WebFilterChainProxy(getSecurityWebFilterChains());
+		WebFilterChainProxy proxy = new WebFilterChainProxy(getSecurityWebFilterChains());
+		if (!this.observationRegistry.isNoop()) {
+			proxy.setFilterChainDecorator(new ObservationWebFilterChainDecorator(this.observationRegistry));
+		}
+		return proxy;
 	}
 
 	@Bean(name = AbstractView.REQUEST_DATA_VALUE_PROCESSOR_BEAN_NAME)

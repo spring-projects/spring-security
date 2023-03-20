@@ -51,6 +51,7 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManagerResolver;
 import org.springframework.security.authentication.TestingAuthenticationToken;
@@ -73,6 +74,7 @@ import org.springframework.security.oauth2.server.resource.introspection.Reactiv
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.ServerAuthenticationConverter;
+import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -345,6 +347,25 @@ public class OAuth2ResourceServerSpecTests {
 				.expectStatus().isUnauthorized()
 				.expectHeader().value(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer error=\"mock-failure\""));
 		// @formatter:on
+	}
+
+	@Test
+	public void getWhenUsingCustomAuthenticationFailureHandlerThenUsesIsAccordingly() {
+		this.spring.register(CustomAuthenticationFailureHandlerConfig.class).autowire();
+		ServerAuthenticationFailureHandler handler = this.spring.getContext()
+				.getBean(ServerAuthenticationFailureHandler.class);
+		ReactiveAuthenticationManager authenticationManager = this.spring.getContext()
+				.getBean(ReactiveAuthenticationManager.class);
+		given(authenticationManager.authenticate(any()))
+				.willReturn(Mono.error(() -> new BadCredentialsException("bad")));
+		given(handler.onAuthenticationFailure(any(), any())).willReturn(Mono.empty());
+		// @formatter:off
+		this.client.get()
+				.headers((headers) -> headers.setBearerAuth(this.messageReadToken))
+				.exchange()
+				.expectStatus().isOk();
+		// @formatter:on
+		verify(handler).onAuthenticationFailure(any(), any());
 	}
 
 	@Test
@@ -903,6 +924,35 @@ public class OAuth2ResourceServerSpecTests {
 	}
 
 	@Configuration
+	@EnableWebFlux
+	@EnableWebFluxSecurity
+	static class CustomAuthenticationFailureHandlerConfig {
+
+		@Bean
+		SecurityWebFilterChain springSecurity(ServerHttpSecurity http) {
+			// @formatter:off
+			http
+				.authorizeExchange((authorize) -> authorize.anyExchange().authenticated())
+				.oauth2ResourceServer((oauth2) -> oauth2
+					.authenticationFailureHandler(authenticationFailureHandler())
+					.jwt((jwt) -> jwt.authenticationManager(authenticationManager()))
+				);
+			// @formatter:on
+			return http.build();
+		}
+
+		@Bean
+		ReactiveAuthenticationManager authenticationManager() {
+			return mock(ReactiveAuthenticationManager.class);
+		}
+
+		@Bean
+		ServerAuthenticationFailureHandler authenticationFailureHandler() {
+			return mock(ServerAuthenticationFailureHandler.class);
+		}
+
+	}
+
 	@EnableWebFlux
 	@EnableWebFluxSecurity
 	static class CustomBearerTokenServerAuthenticationConverter {

@@ -33,9 +33,8 @@ import org.springframework.security.saml2.provider.service.authentication.Abstra
 import org.springframework.security.saml2.provider.service.authentication.OpenSaml4AuthenticationProvider;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.HttpSessionSaml2AuthenticationRequestRepository;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
+import org.springframework.security.saml2.provider.service.web.OpenSamlAuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationRequestRepository;
 import org.springframework.security.saml2.provider.service.web.Saml2AuthenticationTokenConverter;
 import org.springframework.security.saml2.provider.service.web.Saml2WebSsoAuthenticationRequestFilter;
@@ -292,11 +291,6 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 	}
 
-	private RelyingPartyRegistrationResolver relyingPartyRegistrationResolver(B http) {
-		RelyingPartyRegistrationRepository registrations = relyingPartyRegistrationRepository(http);
-		return new DefaultRelyingPartyRegistrationResolver(registrations);
-	}
-
 	RelyingPartyRegistrationRepository relyingPartyRegistrationRepository(B http) {
 		if (this.relyingPartyRegistrationRepository == null) {
 			this.relyingPartyRegistrationRepository = getSharedOrBean(http, RelyingPartyRegistrationRepository.class);
@@ -339,7 +333,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			return bean;
 		}
 		OpenSaml4AuthenticationRequestResolver openSaml4AuthenticationRequestResolver = new OpenSaml4AuthenticationRequestResolver(
-				relyingPartyRegistrationResolver(http));
+				relyingPartyRegistrationRepository(http));
 		openSaml4AuthenticationRequestResolver
 				.setRequestMatcher(new AntPathRequestMatcher(this.authenticationRequestUri));
 		return openSaml4AuthenticationRequestResolver;
@@ -352,10 +346,14 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		AuthenticationConverter authenticationConverterBean = getBeanOrNull(http,
 				Saml2AuthenticationTokenConverter.class);
 		if (authenticationConverterBean == null) {
-			Assert.state(this.loginProcessingUrl.contains("{registrationId}"),
-					"loginProcessingUrl must contain {registrationId} path variable");
-			return new Saml2AuthenticationTokenConverter(
-					new DefaultRelyingPartyRegistrationResolver(this.relyingPartyRegistrationRepository));
+			authenticationConverterBean = getBeanOrNull(http, OpenSamlAuthenticationTokenConverter.class);
+		}
+		if (authenticationConverterBean == null) {
+			OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(
+					this.relyingPartyRegistrationRepository);
+			converter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
+			converter.setRequestMatcher(createLoginProcessingUrlMatcher(this.loginProcessingUrl));
+			return converter;
 		}
 		return authenticationConverterBean;
 	}

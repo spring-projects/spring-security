@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2022 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.web.server.authentication;
 
 import reactor.core.publisher.Mono;
 
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.ServerAuthenticationEntryPoint;
 import org.springframework.security.web.server.WebFilterExchange;
@@ -34,6 +35,8 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 
 	private final ServerAuthenticationEntryPoint authenticationEntryPoint;
 
+	private boolean rethrowAuthenticationServiceException = true;
+
 	public ServerAuthenticationEntryPointFailureHandler(ServerAuthenticationEntryPoint authenticationEntryPoint) {
 		Assert.notNull(authenticationEntryPoint, "authenticationEntryPoint cannot be null");
 		this.authenticationEntryPoint = authenticationEntryPoint;
@@ -41,7 +44,23 @@ public class ServerAuthenticationEntryPointFailureHandler implements ServerAuthe
 
 	@Override
 	public Mono<Void> onAuthenticationFailure(WebFilterExchange webFilterExchange, AuthenticationException exception) {
-		return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		if (!this.rethrowAuthenticationServiceException) {
+			return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		}
+		if (!AuthenticationServiceException.class.isAssignableFrom(exception.getClass())) {
+			return this.authenticationEntryPoint.commence(webFilterExchange.getExchange(), exception);
+		}
+		return Mono.error(exception);
+	}
+
+	/**
+	 * Set whether to rethrow {@link AuthenticationServiceException}s (defaults to true)
+	 * @param rethrowAuthenticationServiceException whether to rethrow
+	 * {@link AuthenticationServiceException}s
+	 * @since 5.8
+	 */
+	public void setRethrowAuthenticationServiceException(boolean rethrowAuthenticationServiceException) {
+		this.rethrowAuthenticationServiceException = rethrowAuthenticationServiceException;
 	}
 
 }
