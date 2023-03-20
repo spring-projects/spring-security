@@ -57,7 +57,7 @@ See also the https://github.com/spring-projects/spring-framework/wiki/Gradle-bui
 
 == Getting Support
 Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
-https://spring.io/services[Commercial support] is available too.
+https://spring.io/support[Commercial support] is available too.
 
 == Contributing
 https://help.github.com/articles/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.
