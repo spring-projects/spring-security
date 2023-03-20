@@ -380,7 +380,6 @@ public abstract class AbstractAuthenticationFilterConfigurer<B extends HttpSecur
 
 	/**
 	 * Updates the default values for authentication.
-	 * @throws Exception
 	 */
 	protected final void updateAuthenticationDefaults() {
 		if (this.loginProcessingUrl == null) {
