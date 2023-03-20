@@ -142,7 +142,8 @@ class OpenSamlAuthenticationRequestResolver {
 		String relayState = this.relayStateResolver.convert(request);
 		Saml2MessageBinding binding = registration.getAssertingPartyDetails().getSingleSignOnServiceBinding();
 		if (binding == Saml2MessageBinding.POST) {
-			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned() || registration.isAuthnRequestsSigned()) {
+			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()
+					|| registration.isAuthnRequestsSigned()) {
 				OpenSamlSigningUtils.sign(authnRequest, registration);
 			}
 			String xml = serialize(authnRequest);
@@ -156,7 +157,8 @@ class OpenSamlAuthenticationRequestResolver {
 			Saml2RedirectAuthenticationRequest.Builder builder = Saml2RedirectAuthenticationRequest
 					.withRelyingPartyRegistration(registration).samlRequest(deflatedAndEncoded).relayState(relayState)
 					.id(authnRequest.getID());
-			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned() || registration.isAuthnRequestsSigned()) {
+			if (registration.getAssertingPartyDetails().getWantAuthnRequestsSigned()
+					|| registration.isAuthnRequestsSigned()) {
 				Map<String, String> parameters = OpenSamlSigningUtils.sign(registration)
 						.param(Saml2ParameterNames.SAML_REQUEST, deflatedAndEncoded)
 						.param(Saml2ParameterNames.RELAY_STATE, relayState).parameters();

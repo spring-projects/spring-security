@@ -148,7 +148,7 @@ public class RelyingPartyRegistration {
 				.singleLogoutServiceLocation(this.singleLogoutServiceLocation)
 				.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
 				.singleLogoutServiceBindings((c) -> c.addAll(this.singleLogoutServiceBindings))
-				.nameIdFormat(this.nameIdFormat)
+				.nameIdFormat(this.nameIdFormat).authnRequestsSigned(this.authnRequestsSigned)
 				.assertingPartyDetails((assertingParty) -> assertingParty.entityId(party.getEntityId())
 						.wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
 						.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
@@ -285,12 +285,20 @@ public class RelyingPartyRegistration {
 	}
 
 	/**
-	 * Get the WantAuthnRequestsSigned setting
-	 * @return the WantAuthnRequestsSigned setting
-	 * @since 6.0
+	 * Get the <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=18">
+	 * AuthnRequestsSigned</a> setting. If {@code true}, the relying party will sign all
+	 * AuthnRequests, regardless of asserting party preference.
+	 *
+	 * <p>
+	 * Note that Spring Security will sign the request if either
+	 * {@link #isAuthnRequestsSigned()} is {@code true} or
+	 * {@link AssertingPartyDetails#getWantAuthnRequestsSigned()} is {@code true}.
+	 * @return the relying-party preference
+	 * @since 6.1
 	 */
 	public boolean isAuthnRequestsSigned() {
-		return authnRequestsSigned;
+		return this.authnRequestsSigned;
 	}
 
 	/**
@@ -368,8 +376,7 @@ public class RelyingPartyRegistration {
 				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
-				.nameIdFormat(registration.getNameIdFormat())
-				.authnRequestsSigned(registration.isAuthnRequestsSigned())
+				.nameIdFormat(registration.getNameIdFormat()).authnRequestsSigned(registration.isAuthnRequestsSigned())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -990,10 +997,17 @@ public class RelyingPartyRegistration {
 		}
 
 		/**
-		 * Set the AuthnRequestsSigned setting
-		 * @param authnRequestsSigned
+		 * Set the <a href=
+		 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=18">
+		 * AuthnRequestsSigned</a> setting. If {@code true}, the relying party will sign
+		 * all AuthnRequests, 301 asserting party preference.
+		 *
+		 * <p>
+		 * Note that Spring Security will sign the request if either
+		 * {@link #isAuthnRequestsSigned()} is {@code true} or
+		 * {@link AssertingPartyDetails#getWantAuthnRequestsSigned()} is {@code true}.
 		 * @return the {@link Builder} for further configuration
-		 * @since 6.0
+		 * @since 6.1
 		 */
 		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
 			this.authnRequestsSigned = authnRequestsSigned;

@@ -29,8 +29,7 @@ public class RelyingPartyRegistrationTests {
 	@Test
 	public void withRelyingPartyRegistrationWorks() {
 		RelyingPartyRegistration registration = TestRelyingPartyRegistrations.relyingPartyRegistration()
-				.nameIdFormat("format")
-				.authnRequestsSigned(true)
+				.nameIdFormat("format").authnRequestsSigned(true)
 				.assertingPartyDetails((a) -> a.singleSignOnServiceBinding(Saml2MessageBinding.POST))
 				.assertingPartyDetails((a) -> a.wantAuthnRequestsSigned(false))
 				.assertingPartyDetails((a) -> a.signingAlgorithms((algs) -> algs.add("alg")))
