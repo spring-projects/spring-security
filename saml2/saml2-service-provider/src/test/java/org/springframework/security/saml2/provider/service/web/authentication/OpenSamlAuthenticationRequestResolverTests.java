@@ -16,6 +16,8 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,8 +37,6 @@ import org.springframework.security.saml2.provider.service.registration.TestRely
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
 import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 
-import java.util.stream.Stream;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -54,13 +54,13 @@ public class OpenSamlAuthenticationRequestResolverTests {
 
 	@ParameterizedTest
 	@MethodSource("provideSignRequestFlags")
-	public void resolveAuthenticationRequestWhenSignedRedirectThenSignsAndRedirects(boolean wantAuthRequestsSigned, boolean authnRequestsSigned) {
+	public void resolveAuthenticationRequestWhenSignedRedirectThenSignsAndRedirects(boolean wantAuthRequestsSigned,
+			boolean authnRequestsSigned) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/saml2/authenticate/registration-id");
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder
 				.authnRequestsSigned(authnRequestsSigned)
-				.assertingPartyDetails(party -> party.wantAuthnRequestsSigned(wantAuthRequestsSigned))
-				.build();
+				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(wantAuthRequestsSigned)).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
@@ -122,10 +122,9 @@ public class OpenSamlAuthenticationRequestResolverTests {
 	public void resolveAuthenticationRequestWhenUnsignedPostThenOnlyPosts() {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/saml2/authenticate/registration-id");
-		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder
-				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST).wantAuthnRequestsSigned(false))
-				.authnRequestsSigned(false)
-				.build();
+		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder.assertingPartyDetails(
+				(party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST).wantAuthnRequestsSigned(false))
+				.authnRequestsSigned(false).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
@@ -146,7 +145,8 @@ public class OpenSamlAuthenticationRequestResolverTests {
 
 	@ParameterizedTest
 	@MethodSource("provideSignRequestFlags")
-	public void resolveAuthenticationRequestWhenSignedPostThenSignsAndPosts(boolean wantAuthRequestsSigned, boolean authnRequestsSigned) {
+	public void resolveAuthenticationRequestWhenSignedPostThenSignsAndPosts(boolean wantAuthRequestsSigned,
+			boolean authnRequestsSigned) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/saml2/authenticate/registration-id");
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder
@@ -195,11 +195,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 	}
 
 	private static Stream<Arguments> provideSignRequestFlags() {
-		return Stream.of(
-				Arguments.of(true, true),
-				Arguments.of(true, false),
-				Arguments.of(false, true)
-		);
+		return Stream.of(Arguments.of(true, true), Arguments.of(true, false), Arguments.of(false, true));
 	}
 
 }
