@@ -17,8 +17,10 @@
 package org.springframework.security.authorization;
 
 import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -36,7 +38,7 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 
 	private final ReactiveAuthorizationManager<T> delegate;
 
-	private final AuthorizationObservationConvention convention = new AuthorizationObservationConvention();
+	private ObservationConvention<AuthorizationObservationContext<?>> convention = new AuthorizationObservationConvention();
 
 	public ObservationReactiveAuthorizationManager(ObservationRegistry registry,
 			ReactiveAuthorizationManager<T> delegate) {
@@ -67,4 +69,15 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 		});
 	}
 
+	/**
+	 * Use the provided convention for reporting observation data
+	 *
+	 * @param convention The provided convention
+	 *
+	 * @since 6.1
+	 */
+	public void setConvention(ObservationConvention<AuthorizationObservationContext<?>> convention) {
+		Assert.notNull(convention, "The observation convention cannot be null");
+		this.convention = convention;
+	}
 }

@@ -93,4 +93,9 @@ public class ObservationAuthenticationManagerTests {
 		assertThat(context.getAuthenticationResult()).isNull();
 	}
 
+	@Test
+	void conventionSetterThrowsWhenNull() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tested.setConvention(null));
+	}
 }

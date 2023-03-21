@@ -17,8 +17,10 @@
 package org.springframework.security.authentication;
 
 import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
+import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
@@ -36,7 +38,7 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 
 	private final ReactiveAuthenticationManager delegate;
 
-	private final AuthenticationObservationConvention convention = new AuthenticationObservationConvention();
+	private ObservationConvention<AuthenticationObservationContext> convention = new AuthenticationObservationConvention();
 
 	public ObservationReactiveAuthenticationManager(ObservationRegistry registry,
 			ReactiveAuthenticationManager delegate) {
@@ -62,4 +64,15 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 		});
 	}
 
+	/**
+	 * Use the provided convention for reporting observation data
+	 *
+	 * @param convention The provided convention
+	 *
+	 * @since 6.1
+	 */
+	public void setConvention(ObservationConvention<AuthenticationObservationContext> convention) {
+		Assert.notNull(convention, "The observation convention cannot be null");
+		this.convention = convention;
+	}
 }

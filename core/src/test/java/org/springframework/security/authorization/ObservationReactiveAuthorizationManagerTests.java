@@ -117,4 +117,9 @@ public class ObservationReactiveAuthorizationManagerTests {
 		assertThat(context.getDecision()).isEqualTo(this.grant);
 	}
 
+	@Test
+	void conventionSetterThrowsWhenNull() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tested.setConvention(null));
+	}
 }
