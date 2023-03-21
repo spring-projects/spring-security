@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 
+import org.springframework.core.log.LogMessage;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -43,6 +44,8 @@ import org.springframework.security.web.authentication.ForwardAuthenticationSucc
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import java.io.IOException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -56,7 +59,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 /**
  * @author Rob Winch
  * @author Tadaya Tsuyukubo
- *
  */
 public class AbstractPreAuthenticatedProcessingFilterTests {
 
@@ -389,20 +391,47 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 		verify(am).authenticate(any(PreAuthenticatedAuthenticationToken.class));
 	}
 
+	@Test
+	public void testDefaultAuthenticationTokenIsPreAuthenticatedAuthenticationToken() throws ServletException, IOException {
+		AbstractPreAuthenticatedProcessingFilter filter = getConcreteFilter(true);
+		MockHttpServletRequest req = new MockHttpServletRequest();
+		MockHttpServletResponse res = new MockHttpServletResponse();
+		filter.doFilter(req, res, new MockFilterChain());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getClass())
+				.isEqualTo(PreAuthenticatedAuthenticationToken.class);
+	}
+
+	@Test
+	public void testAnotherAuthenticationTokenUsingAnotherPreAuthenticatedProcessingFilter() throws ServletException, IOException {
+		AbstractPreAuthenticatedProcessingFilter filter = getAnotherConcreteFilter(true);
+		MockHttpServletRequest req = new MockHttpServletRequest();
+		MockHttpServletResponse res = new MockHttpServletResponse();
+		filter.doFilter(req, res, new MockFilterChain());
+		assertThat(SecurityContextHolder.getContext().getAuthentication().getClass())
+				.isEqualTo(AnotherPreAuthenticatedAuthenticationToken.class);
+	}
+
 	private void testDoFilter(boolean grantAccess) throws Exception {
 		MockHttpServletRequest req = new MockHttpServletRequest();
 		MockHttpServletResponse res = new MockHttpServletResponse();
-		getFilter(grantAccess).doFilter(req, res, new MockFilterChain());
+		getConcreteFilter(grantAccess).doFilter(req, res, new MockFilterChain());
 		assertThat(null != SecurityContextHolder.getContext().getAuthentication()).isEqualTo(grantAccess);
 	}
 
-	private static ConcretePreAuthenticatedProcessingFilter getFilter(boolean grantAccess) {
-		ConcretePreAuthenticatedProcessingFilter filter = new ConcretePreAuthenticatedProcessingFilter();
+	private static AbstractPreAuthenticatedProcessingFilter getConcreteFilter(boolean grantAccess) {
+		return decorateFilter(new ConcretePreAuthenticatedProcessingFilter(), grantAccess);
+	}
+
+	private static AbstractPreAuthenticatedProcessingFilter getAnotherConcreteFilter(boolean grantAccess) {
+		return decorateFilter(new AnotherConcretePreAuthenticatedProcessingFilter(), grantAccess);
+	}
+
+	private static AbstractPreAuthenticatedProcessingFilter decorateFilter(
+			AbstractPreAuthenticatedProcessingFilter filter, boolean grantAccess) {
 		AuthenticationManager am = mock(AuthenticationManager.class);
 		if (!grantAccess) {
 			given(am.authenticate(any(Authentication.class))).willThrow(new BadCredentialsException(""));
-		}
-		else {
+		} else {
 			given(am.authenticate(any(Authentication.class)))
 					.willAnswer((Answer<Authentication>) (invocation) -> (Authentication) invocation.getArguments()[0]);
 		}
@@ -433,6 +462,32 @@ public class AbstractPreAuthenticatedProcessingFilterTests {
 			this.initFilterBeanInvoked = true;
 		}
 
+	}
+
+	private static class AnotherConcretePreAuthenticatedProcessingFilter extends ConcretePreAuthenticatedProcessingFilter {
+
+		public AnotherConcretePreAuthenticatedProcessingFilter() {
+			this.setAuthenticationConverter(request -> {
+				Object principal = getPreAuthenticatedPrincipal(request);
+				if (principal == null) {
+					logger.debug("No pre-authenticated principal found in request");
+					return null;
+				}
+				logger.debug(LogMessage.format("preAuthenticatedPrincipal = %s, trying to authenticate", principal));
+				Object credentials = getPreAuthenticatedCredentials(request);
+				PreAuthenticatedAuthenticationToken authenticationRequest =
+						new AnotherPreAuthenticatedAuthenticationToken(principal, credentials);
+				authenticationRequest.setDetails(getAuthenticationDetailsSource().buildDetails(request));
+				return authenticationRequest;
+			});
+		}
+
+	}
+
+	private static class AnotherPreAuthenticatedAuthenticationToken extends PreAuthenticatedAuthenticationToken {
+		public AnotherPreAuthenticatedAuthenticationToken(Object principal, Object credentials) {
+			super(principal, credentials);
+		}
 	}
 
 }
