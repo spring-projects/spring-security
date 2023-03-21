@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.WebAttributes;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -111,6 +112,8 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	private RequestMatcher requiresAuthenticationRequestMatcher = new PreAuthenticatedProcessingRequestMatcher();
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+
+	private AuthenticationConverter authenticationConverter = this::getPreAuthenticatedAuthenticationToken;
 
 	/**
 	 * Check whether all required properties have been set.
@@ -186,16 +189,11 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	 */
 	private void doAuthenticate(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
-		Object principal = getPreAuthenticatedPrincipal(request);
-		if (principal == null) {
-			this.logger.debug("No pre-authenticated principal found in request");
-			return;
-		}
-		this.logger.debug(LogMessage.format("preAuthenticatedPrincipal = %s, trying to authenticate", principal));
-		Object credentials = getPreAuthenticatedCredentials(request);
 		try {
-			PreAuthenticatedAuthenticationToken authenticationRequest = this.createAuthenticationToken(principal, credentials);
-			authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+			Authentication authenticationRequest = authenticationConverter.convert(request);
+			if (authenticationRequest == null) {
+				return;
+			}
 			Authentication authenticationResult = this.authenticationManager.authenticate(authenticationRequest);
 			successfulAuthentication(request, response, authenticationResult);
 		}
@@ -208,17 +206,23 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	}
 
 	/**
-	 * creates the PreAuthenticatedAuthenticationToken.
- 	 * <p>
-	 * The implementation can override the method createAuthenticationToken, which
-	 * will return the PreAuthenticatedAuthenticationToken or its subclass.
+	 * get the PreAuthenticatedAuthenticationToken from HttpServletRequest.
 	 *
-	 * @param principal The authenticated principal
-	 * @param credentials The authenticated credentials
+	 * @param request HttpServletRequest
 	 * @return the authenticated user token
 	 */
-	protected PreAuthenticatedAuthenticationToken createAuthenticationToken(Object principal, Object credentials) {
-		return new PreAuthenticatedAuthenticationToken(principal, credentials);
+	private Authentication getPreAuthenticatedAuthenticationToken(HttpServletRequest request) {
+		Object principal = getPreAuthenticatedPrincipal(request);
+		if (principal == null) {
+			this.logger.debug("No pre-authenticated principal found in request");
+			return null;
+		}
+		this.logger.debug(LogMessage.format("preAuthenticatedPrincipal = %s, trying to authenticate", principal));
+		Object credentials = getPreAuthenticatedCredentials(request);
+		PreAuthenticatedAuthenticationToken authenticationRequest =
+				new PreAuthenticatedAuthenticationToken(principal, credentials);
+		authenticationRequest.setDetails(this.authenticationDetailsSource.buildDetails(request));
+		return authenticationRequest;
 	}
 
 	/**
@@ -361,6 +365,16 @@ public abstract class AbstractPreAuthenticatedProcessingFilter extends GenericFi
 	public void setSecurityContextHolderStrategy(SecurityContextHolderStrategy securityContextHolderStrategy) {
 		Assert.notNull(securityContextHolderStrategy, "securityContextHolderStrategy cannot be null");
 		this.securityContextHolderStrategy = securityContextHolderStrategy;
+	}
+
+	/**
+	 * @param authenticationConverter The AuthenticationConverter to use
+	 *
+	 * @since 6.1
+	 */
+	public void setAuthenticationConverter(AuthenticationConverter authenticationConverter) {
+		Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+		this.authenticationConverter = authenticationConverter;
 	}
 
 	/**
