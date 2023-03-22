@@ -151,7 +151,7 @@ To achieve this, any interfaces or classes where Spring Security uses OpenSAML i
 This makes it possible for you to switch out OpenSAML for some other library or an unsupported version of OpenSAML.
 
 As a natural outcome of these two goals, Spring Security's SAML API is quite small relative to other modules.
-Instead, such classes as `OpenSamlAuthenticationRequestFactory` and `OpenSamlAuthenticationProvider` expose `Converter` implementationss that customize various steps in the authentication process.
+Instead, such classes as `OpenSamlAuthenticationRequestFactory` and `OpenSamlAuthenticationProvider` expose `Converter` implementations that customize various steps in the authentication process.
 
 For example, once your application receives a `SAMLResponse` and delegates to `Saml2WebSsoAuthenticationFilter`, the filter delegates to `OpenSamlAuthenticationProvider`:
 
