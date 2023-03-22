@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -139,6 +139,66 @@ public class DelegatingSecurityContextRepositoryTests {
 		verify(delegates.get(0)).containsContext(this.request);
 		verifyNoInteractions(delegates.get(1));
 		verifyNoInteractions(delegates.get(2));
+	}
+
+	// gh-12314
+	@Test
+	public void loadContextWhenSecondDelegateReturnsThenContextFromSecondDelegate() {
+		SecurityContextRepository delegate1 = mock(SecurityContextRepository.class);
+		SecurityContextRepository delegate2 = mock(SecurityContextRepository.class);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(this.request, this.response);
+		SecurityContext securityContext1 = mock(SecurityContext.class);
+		SecurityContext securityContext2 = mock(SecurityContext.class);
+
+		given(delegate1.loadContext(holder)).willReturn(securityContext1);
+		given(delegate1.containsContext(holder.getRequest())).willReturn(false);
+		given(delegate2.loadContext(holder)).willReturn(securityContext2);
+		given(delegate2.containsContext(holder.getRequest())).willReturn(true);
+
+		DelegatingSecurityContextRepository repository = new DelegatingSecurityContextRepository(delegate1, delegate2);
+		SecurityContext returnedSecurityContext = repository.loadContext(holder);
+
+		assertThat(returnedSecurityContext).isSameAs(securityContext2);
+	}
+
+	// gh-12314
+	@Test
+	public void loadContextWhenBothDelegateReturnsThenContextFromSecondDelegate() {
+		SecurityContextRepository delegate1 = mock(SecurityContextRepository.class);
+		SecurityContextRepository delegate2 = mock(SecurityContextRepository.class);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(this.request, this.response);
+		SecurityContext securityContext1 = mock(SecurityContext.class);
+		SecurityContext securityContext2 = mock(SecurityContext.class);
+
+		given(delegate1.loadContext(holder)).willReturn(securityContext1);
+		given(delegate1.containsContext(holder.getRequest())).willReturn(true);
+		given(delegate2.loadContext(holder)).willReturn(securityContext2);
+		given(delegate2.containsContext(holder.getRequest())).willReturn(true);
+
+		DelegatingSecurityContextRepository repository = new DelegatingSecurityContextRepository(delegate1, delegate2);
+		SecurityContext returnedSecurityContext = repository.loadContext(holder);
+
+		assertThat(returnedSecurityContext).isSameAs(securityContext2);
+	}
+
+	// gh-12314
+	@Test
+	public void loadContextWhenFirstDelegateReturnsThenContextFromFirstDelegate() {
+		SecurityContextRepository delegate1 = mock(SecurityContextRepository.class);
+		SecurityContextRepository delegate2 = mock(SecurityContextRepository.class);
+		HttpRequestResponseHolder holder = new HttpRequestResponseHolder(this.request, this.response);
+		SecurityContext securityContext1 = mock(SecurityContext.class);
+		SecurityContext securityContext2 = mock(SecurityContext.class);
+
+		given(delegate1.loadContext(holder)).willReturn(securityContext1);
+		given(delegate1.containsContext(holder.getRequest())).willReturn(true);
+		given(delegate2.loadContext(holder)).willReturn(securityContext2);
+		given(delegate2.containsContext(holder.getRequest())).willReturn(false);
+
+		DelegatingSecurityContextRepository repository = new DelegatingSecurityContextRepository(delegate1, delegate2);
+		SecurityContext returnedSecurityContext = repository.loadContext(holder);
+
+		assertThat(returnedSecurityContext).isSameAs(securityContext1);
 	}
 
 }
