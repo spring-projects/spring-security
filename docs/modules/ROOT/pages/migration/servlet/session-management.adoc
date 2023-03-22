@@ -11,6 +11,11 @@ In Spring Security 6, the default behavior is that the xref:servlet/authenticati
 Users now must explicitly save the `SecurityContext` with the `SecurityContextRepository` if they want the `SecurityContext` to persist between requests.
 This removes ambiguity and improves performance by only requiring writing to the `SecurityContextRepository` (i.e. `HttpSession`) when it is necessary.
 
+[NOTE]
+====
+Saving the context is also needed when clearing it out, for example during logout. Refer to this section to xref:servlet/authentication/session-management.adoc#properly-clearing-authentication[know more about that].
+====
+
 To opt into the new Spring Security 6 default, the following configuration can be used.
 
 include::partial$servlet/architecture/security-context-explicit.adoc[]
