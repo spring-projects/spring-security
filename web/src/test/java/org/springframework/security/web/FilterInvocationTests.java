@@ -16,6 +16,9 @@
 
 package org.springframework.security.web;
 
+import java.util.Enumeration;
+import java.util.NoSuchElementException;
+
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -140,6 +143,25 @@ public class FilterInvocationTests {
 		MockServletContext mockServletContext = new MockServletContext();
 		FilterInvocation filterInvocation = new FilterInvocation(contextPath, servletPath, method, mockServletContext);
 		assertThat(filterInvocation.getRequest().getServletContext()).isSameAs(mockServletContext);
+	}
+
+	@Test
+	public void testDummyRequestGetHeaders() {
+		DummyRequest request = new DummyRequest();
+		request.addHeader("known", "val");
+		Enumeration<String> headers = request.getHeaders("known");
+		assertThat(headers.hasMoreElements()).isTrue();
+		assertThat(headers.nextElement()).isEqualTo("val");
+		assertThat(headers.hasMoreElements()).isFalse();
+		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(headers::nextElement);
+	}
+
+	@Test
+	public void testDummyRequestGetHeadersNull() {
+		DummyRequest request = new DummyRequest();
+		Enumeration<String> headers = request.getHeaders("unknown");
+		assertThat(headers.hasMoreElements()).isFalse();
+		assertThatExceptionOfType(NoSuchElementException.class).isThrownBy(headers::nextElement);
 	}
 
 }
