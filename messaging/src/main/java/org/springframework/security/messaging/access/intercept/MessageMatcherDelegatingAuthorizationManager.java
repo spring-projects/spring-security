@@ -18,6 +18,7 @@ package org.springframework.security.messaging.access.intercept;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +38,7 @@ import org.springframework.security.messaging.util.matcher.SimpMessageTypeMatche
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.PathMatcher;
+import org.springframework.util.function.SingletonSupplier;
 
 public final class MessageMatcherDelegatingAuthorizationManager implements AuthorizationManager<Message<?>> {
 
@@ -86,6 +88,10 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		if (matcher instanceof SimpDestinationMessageMatcher) {
 			SimpDestinationMessageMatcher simp = (SimpDestinationMessageMatcher) matcher;
 			return new MessageAuthorizationContext<>(message, simp.extractPathVariables(message));
+		}
+		if (matcher instanceof Builder.LazySimpDestinationMessageMatcher) {
+			Builder.LazySimpDestinationMessageMatcher path = (Builder.LazySimpDestinationMessageMatcher) matcher;
+			return new MessageAuthorizationContext<>(message, path.extractPathVariables(message));
 		}
 		return new MessageAuthorizationContext<>(message);
 	}
@@ -192,8 +198,7 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 		private Builder.Constraint simpDestMatchers(SimpMessageType type, String... patterns) {
 			List<MessageMatcher<?>> matchers = new ArrayList<>(patterns.length);
 			for (String pattern : patterns) {
-				Supplier<MessageMatcher<Object>> supplier = new Builder.PathMatcherMessageMatcherBuilder(pattern, type);
-				MessageMatcher<?> matcher = new Builder.SupplierMessageMatcher(supplier);
+				MessageMatcher<Object> matcher = new LazySimpDestinationMessageMatcher(pattern, type);
 				matchers.add(matcher);
 			}
 			return new Builder.Constraint(matchers);
@@ -375,58 +380,33 @@ public final class MessageMatcherDelegatingAuthorizationManager implements Autho
 
 		}
 
-		private static final class SupplierMessageMatcher implements MessageMatcher<Object> {
+		private final class LazySimpDestinationMessageMatcher implements MessageMatcher<Object> {
 
-			private final Supplier<MessageMatcher<Object>> supplier;
+			private final Supplier<SimpDestinationMessageMatcher> delegate;
 
-			private volatile MessageMatcher<Object> delegate;
-
-			SupplierMessageMatcher(Supplier<MessageMatcher<Object>> supplier) {
-				this.supplier = supplier;
+			private LazySimpDestinationMessageMatcher(String pattern, SimpMessageType type) {
+				this.delegate = SingletonSupplier.of(() -> {
+					PathMatcher pathMatcher = Builder.this.pathMatcher.get();
+					if (type == null) {
+						return new SimpDestinationMessageMatcher(pattern, pathMatcher);
+					}
+					if (SimpMessageType.MESSAGE == type) {
+						return SimpDestinationMessageMatcher.createMessageMatcher(pattern, pathMatcher);
+					}
+					if (SimpMessageType.SUBSCRIBE == type) {
+						return SimpDestinationMessageMatcher.createSubscribeMatcher(pattern, pathMatcher);
+					}
+					throw new IllegalStateException(type + " is not supported since it does not have a destination");
+				});
 			}
 
 			@Override
 			public boolean matches(Message<?> message) {
-				if (this.delegate == null) {
-					synchronized (this.supplier) {
-						if (this.delegate == null) {
-							this.delegate = this.supplier.get();
-						}
-					}
-				}
-				return this.delegate.matches(message);
+				return this.delegate.get().matches(message);
 			}
 
-		}
-
-		private final class PathMatcherMessageMatcherBuilder implements Supplier<MessageMatcher<Object>> {
-
-			private final String pattern;
-
-			private final SimpMessageType type;
-
-			private PathMatcherMessageMatcherBuilder(String pattern, SimpMessageType type) {
-				this.pattern = pattern;
-				this.type = type;
-			}
-
-			private PathMatcher resolvePathMatcher() {
-				return Builder.this.pathMatcher.get();
-			}
-
-			@Override
-			public MessageMatcher<Object> get() {
-				PathMatcher pathMatcher = resolvePathMatcher();
-				if (this.type == null) {
-					return new SimpDestinationMessageMatcher(this.pattern, pathMatcher);
-				}
-				if (SimpMessageType.MESSAGE == this.type) {
-					return SimpDestinationMessageMatcher.createMessageMatcher(this.pattern, pathMatcher);
-				}
-				if (SimpMessageType.SUBSCRIBE == this.type) {
-					return SimpDestinationMessageMatcher.createSubscribeMatcher(this.pattern, pathMatcher);
-				}
-				throw new IllegalStateException(this.type + " is not supported since it does not have a destination");
+			Map<String, String> extractPathVariables(Message<?> message) {
+				return this.delegate.get().extractPathVariables(message);
 			}
 
 		}
