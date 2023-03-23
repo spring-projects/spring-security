@@ -27,6 +27,7 @@ import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.security.authentication.TestingAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
 
@@ -87,8 +88,41 @@ public final class MessageMatcherDelegatingAuthorizationManagerTests {
 		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
 	}
 
+	// gh-12540
+	@Test
+	void checkWhenSimpDestinationMatchesThenVariablesExtracted() {
+		AuthorizationManager<Message<?>> authorizationManager = builder().simpDestMatchers("destination/{id}")
+				.access(variable("id").isEqualTo("3")).anyMessage().denyAll().build();
+		MessageHeaders headers = new MessageHeaders(
+				Map.of(SimpMessageHeaderAccessor.DESTINATION_HEADER, "destination/3"));
+		Message<?> message = new GenericMessage<>(new Object(), headers);
+		assertThat(authorizationManager.check(mock(Supplier.class), message).isGranted()).isTrue();
+	}
+
 	private MessageMatcherDelegatingAuthorizationManager.Builder builder() {
 		return MessageMatcherDelegatingAuthorizationManager.builder();
+	}
+
+	private Builder variable(String name) {
+		return new Builder(name);
+
+	}
+
+	private static final class Builder {
+
+		private final String name;
+
+		private Builder(String name) {
+			this.name = name;
+		}
+
+		AuthorizationManager<MessageAuthorizationContext<?>> isEqualTo(String value) {
+			return (authentication, object) -> {
+				String extracted = object.getVariables().get(this.name);
+				return new AuthorizationDecision(value.equals(extracted));
+			};
+		}
+
 	}
 
 }
