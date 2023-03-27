@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,12 @@ import org.opensaml.core.xml.io.MarshallingException;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.NameID;
+import org.opensaml.saml.saml2.core.NameIDPolicy;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestMarshaller;
 import org.opensaml.saml.saml2.core.impl.IssuerBuilder;
 import org.opensaml.saml.saml2.core.impl.NameIDBuilder;
+import org.opensaml.saml.saml2.core.impl.NameIDPolicyBuilder;
 import org.w3c.dom.Element;
 
 import org.springframework.core.convert.converter.Converter;
@@ -69,6 +71,8 @@ class OpenSamlAuthenticationRequestResolver {
 
 	private final NameIDBuilder nameIdBuilder;
 
+	private final NameIDPolicyBuilder nameIdPolicyBuilder;
+
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(
 			Saml2AuthenticationRequestResolver.DEFAULT_AUTHENTICATION_REQUEST_URI);
 
@@ -94,6 +98,9 @@ class OpenSamlAuthenticationRequestResolver {
 		Assert.notNull(this.issuerBuilder, "issuerBuilder must be configured in OpenSAML");
 		this.nameIdBuilder = (NameIDBuilder) registry.getBuilderFactory().getBuilder(NameID.DEFAULT_ELEMENT_NAME);
 		Assert.notNull(this.nameIdBuilder, "nameIdBuilder must be configured in OpenSAML");
+		this.nameIdPolicyBuilder = (NameIDPolicyBuilder) registry.getBuilderFactory()
+				.getBuilder(NameIDPolicy.DEFAULT_ELEMENT_NAME);
+		Assert.notNull(this.nameIdPolicyBuilder, "nameIdPolicyBuilder must be configured in OpenSAML");
 	}
 
 	void setRelayStateResolver(Converter<HttpServletRequest, String> relayStateResolver) {
@@ -129,6 +136,11 @@ class OpenSamlAuthenticationRequestResolver {
 		authnRequest.setIssuer(iss);
 		authnRequest.setDestination(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
 		authnRequest.setAssertionConsumerServiceURL(registration.getAssertionConsumerServiceLocation());
+		if (registration.getNameIdFormat() != null) {
+			NameIDPolicy nameIdPolicy = this.nameIdPolicyBuilder.buildObject();
+			nameIdPolicy.setFormat(registration.getNameIdFormat());
+			authnRequest.setNameIDPolicy(nameIdPolicy);
+		}
 		authnRequestConsumer.accept(registration, authnRequest);
 		if (authnRequest.getID() == null) {
 			authnRequest.setID("ARQ" + UUID.randomUUID().toString().substring(1));
