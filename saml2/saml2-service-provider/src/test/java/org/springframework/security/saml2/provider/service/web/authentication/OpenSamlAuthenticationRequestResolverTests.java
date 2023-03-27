@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder.build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(registration.getAssertionConsumerServiceLocation());
 			assertThat(authnRequest.getProtocolBinding())
@@ -75,6 +76,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(false)).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(registration.getAssertionConsumerServiceLocation());
 			assertThat(authnRequest.getProtocolBinding())
@@ -110,6 +112,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 				.build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(registration.getAssertionConsumerServiceLocation());
 			assertThat(authnRequest.getProtocolBinding())
@@ -132,6 +135,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(registration.getAssertionConsumerServiceLocation());
 			assertThat(authnRequest.getProtocolBinding())
