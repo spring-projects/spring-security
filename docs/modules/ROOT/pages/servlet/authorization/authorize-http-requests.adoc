@@ -413,3 +413,46 @@ open class SecurityConfig {
 <3> Allow access to URLs that start with `/user/` to users with the `USER` role, using `AntPathRequestMatcher`
 <4> Allow access to URLs that start with `/admin/` to users with the `ADMIN` role, using `RegexRequestMatcher`
 <5> Allow access to URLs that match the `MyCustomRequestMatcher` to users with the `SUPERVISOR` role, using a custom `RequestMatcher`
+
+== Expressions
+
+It is recommended that you use type-safe authorization managers instead of SpEL.
+However, `WebExpressionAuthorizationManager` is available to help migrate legacy SpEL.
+
+To use `WebExpressionAuthorizationManager`, you can construct one with the expression you are trying to migrate, like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+.requestMatchers("/test/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') && hasRole('USER')"))
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+.requestMatchers("/test/**").access(WebExpressionAuthorizationManager("hasRole('ADMIN') && hasRole('USER')"))
+----
+====
+
+If you are referring to a bean in your expression like so: `@webSecurity.check(authentication, request)`, it's recommended that you instead call the bean directly, which will look something like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+.requestMatchers("/test/**").access((authentication, context) ->
+    new AuthorizationDecision(webSecurity.check(authentication.get(), context.getRequest())))
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+.requestMatchers("/test/**").access((authentication, context): AuthorizationManager<RequestAuthorizationContext> ->
+    AuthorizationDecision(webSecurity.check(authentication.get(), context.getRequest())))
+----
+====
+
+For complex instructions that include bean references as well as other expressions, it is recommended that you change those to implement `AuthorizationManager` and refer to them by calling `.access(AuthorizationManager)`.
+
+If you are not able to do that, you can configure a `DefaultHttpSecurityExpressionHandler` with a bean resolver and supply that to `WebExpressionAuthorizationManager#setExpressionhandler`.
