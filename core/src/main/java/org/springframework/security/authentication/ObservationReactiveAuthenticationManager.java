@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
-import org.springframework.util.Assert;
 import reactor.core.publisher.Mono;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.util.Assert;
 
 /**
  * An {@link ReactiveAuthenticationManager} that observes the authentication
@@ -66,7 +66,6 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 
 	/**
 	 * Use the provided convention for reporting observation data
-	 *
 	 * @param convention The provided convention
 	 *
 	 * @since 6.1
@@ -75,4 +74,5 @@ public class ObservationReactiveAuthenticationManager implements ReactiveAuthent
 		Assert.notNull(convention, "The observation convention cannot be null");
 		this.convention = convention;
 	}
+
 }
