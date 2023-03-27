@@ -64,6 +64,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
@@ -89,6 +90,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
@@ -128,6 +130,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
@@ -157,6 +160,7 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
 					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
