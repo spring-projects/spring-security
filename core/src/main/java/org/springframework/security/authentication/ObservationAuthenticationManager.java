@@ -63,7 +63,7 @@ public final class ObservationAuthenticationManager implements AuthenticationMan
 	 *
 	 * @since 6.1
 	 */
-	public void setConvention(ObservationConvention<AuthenticationObservationContext> convention) {
+	public void setObservationConvention(ObservationConvention<AuthenticationObservationContext> convention) {
 		Assert.notNull(convention, "The observation convention cannot be null");
 		this.convention = convention;
 	}

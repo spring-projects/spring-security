@@ -119,8 +119,9 @@ public class ObservationAuthorizationManagerTests {
 	}
 
 	@Test
-	void conventionSetterThrowsWhenNull() {
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.tested.setConvention(null));
+	void setObservationConventionWhenNullThenException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tested.setObservationConvention(null));
 	}
 
 }
