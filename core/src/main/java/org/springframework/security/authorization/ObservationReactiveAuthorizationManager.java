@@ -75,7 +75,7 @@ public final class ObservationReactiveAuthorizationManager<T> implements Reactiv
 	 *
 	 * @since 6.1
 	 */
-	public void setConvention(ObservationConvention<AuthorizationObservationContext<?>> convention) {
+	public void setObservationConvention(ObservationConvention<AuthorizationObservationContext<?>> convention) {
 		Assert.notNull(convention, "The observation convention cannot be null");
 		this.convention = convention;
 	}
