@@ -1157,7 +1157,7 @@ public class SecurityWebApplicationInitializer extends AbstractSecurityWebApplic
 
     @Override
     protected EnumSet<DispatcherType> getSecurityDispatcherTypes() {
-        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.FORWARD,
+        return EnumSet.of(DispatcherType.REQUEST, DispatcherType.ERROR, DispatcherType.ASYNC,
                 DispatcherType.FORWARD, DispatcherType.INCLUDE);
     }
 
