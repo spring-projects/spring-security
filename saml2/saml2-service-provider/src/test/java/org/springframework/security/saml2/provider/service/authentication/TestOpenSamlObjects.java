@@ -364,7 +364,7 @@ public final class TestOpenSamlObjects {
 		Attribute websiteAttr = attributeBuilder.buildObject();
 		websiteAttr.setName("website");
 		XSURI uri = new XSURIBuilder().buildObject(AttributeValue.DEFAULT_ELEMENT_NAME, XSURI.TYPE_NAME);
-		uri.setValue("https://johndoe.com/");
+		uri.setURI("https://johndoe.com/");
 		websiteAttr.getAttributeValues().add(uri);
 		attrStmt2.getAttributes().add(websiteAttr);
 		Attribute registeredAttr = attributeBuilder.buildObject();
