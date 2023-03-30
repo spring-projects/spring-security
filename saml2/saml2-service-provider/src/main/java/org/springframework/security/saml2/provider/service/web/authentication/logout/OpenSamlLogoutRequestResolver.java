@@ -143,7 +143,7 @@ final class OpenSamlLogoutRequestResolver {
 			Saml2AuthenticatedPrincipal principal = (Saml2AuthenticatedPrincipal) authentication.getPrincipal();
 			for (String index : principal.getSessionIndexes()) {
 				SessionIndex sessionIndex = this.sessionIndexBuilder.buildObject();
-				sessionIndex.setSessionIndex(index);
+				sessionIndex.setValue(index);
 				logoutRequest.getSessionIndexes().add(sessionIndex);
 			}
 		}
