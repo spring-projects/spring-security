@@ -28,7 +28,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 
 /**
- * A {@link WithAnonymousUserSecurityContextFactory} that runs with an
+ * A {@link WithSecurityContextFactory} that runs with an
  * {@link AnonymousAuthenticationToken}. .
  *
  * @author Rob Winch
