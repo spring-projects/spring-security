@@ -16,6 +16,8 @@
 
 package org.springframework.security.web;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 
 import io.micrometer.observation.Observation;
@@ -78,6 +80,7 @@ public class ObservationFilterChainDecoratorTests {
 		FilterChain chain = mock(FilterChain.class);
 		Filter filter = mock(Filter.class);
 		FilterChain decorated = decorator.decorate(chain, List.of(filter));
+		assertCompressedName(decorated);
 		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
 		verify(handler, times(2)).onStart(any());
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
@@ -85,6 +88,24 @@ public class ObservationFilterChainDecoratorTests {
 		List<Observation.Event> events = event.getAllValues();
 		assertThat(events.get(0).getName()).isEqualTo(filter.getClass().getSimpleName() + ".before");
 		assertThat(events.get(1).getName()).isEqualTo(filter.getClass().getSimpleName() + ".after");
+	}
+
+	void assertCompressedName(FilterChain filterChain) throws Exception {
+		assertThat(filterChain.getClass().getSimpleName()).isEqualTo("VirtualFilterChain");
+		Field field = filterChain.getClass().getDeclaredField("additionalFilters");
+		field.setAccessible(true);
+		List<ObservationFilterChainDecorator.ObservationFilter> additionalFilters =
+				(List<ObservationFilterChainDecorator.ObservationFilter>) field.get(filterChain);
+		assertThat(additionalFilters.size()).isEqualTo(1);
+		final ObservationFilterChainDecorator.ObservationFilter observationFilter = additionalFilters.get(0);
+		assertThat(observationFilter.getObservationName()).isEqualTo(observationFilter.getName());
+		Method method = observationFilter.getClass().getDeclaredMethod("compressName", String.class);
+		method.setAccessible(true);
+		String compressed = (String) method.invoke(observationFilter, "ObservationFilterChainDecoratorTests");
+		assertThat(compressed).isEqualTo("ObservationFilterChainDecoratorTests");
+		String fakeCompressed = (String) method.invoke(observationFilter,
+				"ObservationFilterChainDecoratorTestsObservationFilterChainDecoratorTests");
+		assertThat(fakeCompressed).isEqualTo("ObserFilteChainDecorTestsObserFilteChainDecorTests");
 	}
 
 }
