@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,17 @@
 
 package org.springframework.security.crypto.factory;
 
+import java.security.NoSuchAlgorithmException;
+
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatNoException;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author Rob Winch
@@ -121,6 +127,16 @@ public class PasswordEncoderFactoriesTests {
 	public void matchesWhenArgon2SpringSecurity_v5_8ThenWorks() {
 		String encodedPassword = "{argon2@SpringSecurity_v5_8}$argon2id$v=19$m=16384,t=2,p=1$v7fN5p91BQbdbA2HfdSPRg$MULpa02CO/6FKfqwuerCFvS7OhMxGFCKUOoWfzt86Rc";
 		assertThat(this.encoder.matches(this.rawPassword, encodedPassword)).isTrue();
+	}
+
+	@Test
+	void constructWhenAlgorithmNotAvailableThenSkip() {
+		try (MockedStatic<Pbkdf2PasswordEncoder> pbkdf2PasswordEncoderMock = mockStatic(Pbkdf2PasswordEncoder.class)) {
+			pbkdf2PasswordEncoderMock.when(Pbkdf2PasswordEncoder::defaultsForSpringSecurity_v5_8)
+					.thenThrow(new IllegalArgumentException(new NoSuchAlgorithmException()));
+
+			assertThatNoException().isThrownBy(PasswordEncoderFactories::createDelegatingPasswordEncoder);
+		}
 	}
 
 }

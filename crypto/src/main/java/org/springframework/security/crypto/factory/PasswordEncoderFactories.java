@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,13 @@
 
 package org.springframework.security.crypto.factory;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -33,6 +38,8 @@ import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
  * @since 5.0
  */
 public final class PasswordEncoderFactories {
+
+	private static final Log logger = LogFactory.getLog(PasswordEncoderFactories.class);
 
 	private PasswordEncoderFactories() {
 	}
@@ -78,7 +85,8 @@ public final class PasswordEncoderFactories {
 		encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
 		encoders.put("noop", org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
 		encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_5());
-		encoders.put("pbkdf2@SpringSecurity_v5_8", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+		putIfAlgorithmSupported("pbkdf2@SpringSecurity_v5_8", Pbkdf2PasswordEncoder::defaultsForSpringSecurity_v5_8,
+				encoders);
 		encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1());
 		encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
 		encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
@@ -88,6 +96,24 @@ public final class PasswordEncoderFactories {
 		encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
 		encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
 		return new DelegatingPasswordEncoder(encodingId, encoders);
+	}
+
+	private static void putIfAlgorithmSupported(String encodingId, Supplier<PasswordEncoder> encoderSupplier,
+			Map<String, PasswordEncoder> encoders) {
+		try {
+			PasswordEncoder passwordEncoder = encoderSupplier.get();
+			encoders.put(encodingId, passwordEncoder);
+		}
+		catch (Exception ex) {
+			if (ex.getCause() instanceof NoSuchAlgorithmException) {
+				logger.warn(String.format(
+						"Cannot create PasswordEncoder with encodingId [%s] because the algorithm is not available",
+						encodingId), ex);
+			}
+			else {
+				throw ex;
+			}
+		}
 	}
 
 }
