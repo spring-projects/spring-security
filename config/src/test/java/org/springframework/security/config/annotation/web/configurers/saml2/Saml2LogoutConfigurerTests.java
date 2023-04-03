@@ -318,6 +318,34 @@ public class Saml2LogoutConfigurerTests {
 		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
 	}
 
+	// gh-12346
+	@Test
+	public void saml2LogoutRequestWhenLowercaseEncodingAndDifferentQueryParamOrderThenLogsOutAndSendsLogoutResponse()
+			throws Exception {
+		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
+		String apLogoutRequest = "nZFNa4QwEIb/iuQeP6K7dYO6FKQg2B622x56G3WwgiY2E8v239fqCksPPfSWIXmfNw+THC9D73yi\r\n"
+				+ "oU6rlAWuzxxUtW461abs5fzAY3bMEoKhF6Msdasne8KPCck6c1KRXK9SNhklNVBHUsGAJG0tn+8f\r\n"
+				+ "SylcX45GW13rnjn5HOwU2KXt3dqRpOeZ0cULDGOPrjat1y8t3gL2zFrGnCJPWXkKcR8KCHY8xmrP\r\n"
+				+ "Iz868OpOVLwO4wohggagmd8STVgosqBsyoQvBPd3XITnIJaRL8PYjcThjTmvm/f8SXa1lEvY3Nr9\r\n"
+				+ "LQdEaH6EWAYjR2U7+8W7JvFucRv8aY4X+b/g03zaoCsmu46/FpN9Aw==";
+		String apLogoutRequestRelayState = "d118dbd5-3853-4268-b3e5-c40fc033fa2f";
+		String apLogoutRequestSignature = "VZ7rWa5u3hIX60fAQs/gBQZWDP2BAIlCMMrNrTHafoKKj0uXWnuITYLuL8NdsWmyQN0+fqWW4X05+BqiLpL80jHLmQR5RVqqL1EtVv1SpPUna938lgz2sOliuYmfQNj4Bmd+Z5G1K6QhbVrtfb7TQHURjUafzfRm8+jGz3dPjVBrn/rD/umfGoSn6RuWngugcMNL4U0A+JcEh1NSfSYNVz7y+MqlW1UhX2kF86rm97ERCrxay7Gh/bI2f3fJPJ1r+EyLjzrDUkqw5cva3rVlFgEQouMVu35lUJn7SFompW8oTxkI23oc/t+AGZqaBupNITNdjyGCBpfukZ69EZrj8g==";
+		DefaultSaml2AuthenticatedPrincipal principal = new DefaultSaml2AuthenticatedPrincipal("user",
+				Collections.emptyMap());
+		principal.setRelyingPartyRegistrationId("get");
+		Saml2Authentication user = new Saml2Authentication(principal, "response",
+				AuthorityUtils.createAuthorityList("ROLE_USER"));
+		MvcResult result = this.mvc
+				.perform(get("/logout/saml2/slo").param("SAMLRequest", apLogoutRequest)
+						.param("SigAlg", this.apLogoutRequestSigAlg).param("RelayState", apLogoutRequestRelayState)
+						.param("Signature", apLogoutRequestSignature)
+						.with(new SamlQueryStringRequestPostProcessor(true)).with(authentication(user)))
+				.andExpect(status().isFound()).andReturn();
+		String location = result.getResponse().getHeader("Location");
+		assertThat(location).startsWith("https://ap.example.org/logout/saml2/response");
+		verify(getBean(LogoutHandler.class)).logout(any(), any(), any());
+	}
+
 	@Test
 	public void saml2LogoutRequestWhenNoRegistrationThen400() throws Exception {
 		this.spring.register(Saml2LogoutDefaultsConfig.class).autowire();
