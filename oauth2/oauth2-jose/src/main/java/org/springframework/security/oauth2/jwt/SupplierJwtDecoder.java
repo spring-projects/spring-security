@@ -18,6 +18,8 @@ package org.springframework.security.oauth2.jwt;
 
 import java.util.function.Supplier;
 
+import org.springframework.util.function.SingletonSupplier;
+
 /**
  * A {@link JwtDecoder} that lazily initializes another {@link JwtDecoder}
  *
@@ -26,12 +28,17 @@ import java.util.function.Supplier;
  */
 public final class SupplierJwtDecoder implements JwtDecoder {
 
-	private final Supplier<JwtDecoder> jwtDecoderSupplier;
-
-	private volatile JwtDecoder delegate;
+	private final Supplier<JwtDecoder> delegate;
 
 	public SupplierJwtDecoder(Supplier<JwtDecoder> jwtDecoderSupplier) {
-		this.jwtDecoderSupplier = jwtDecoderSupplier;
+		this.delegate = SingletonSupplier.of(() -> {
+			try {
+				return jwtDecoderSupplier.get();
+			}
+			catch (Exception ex) {
+				throw wrapException(ex);
+			}
+		});
 	}
 
 	/**
@@ -39,19 +46,7 @@ public final class SupplierJwtDecoder implements JwtDecoder {
 	 */
 	@Override
 	public Jwt decode(String token) throws JwtException {
-		if (this.delegate == null) {
-			synchronized (this.jwtDecoderSupplier) {
-				if (this.delegate == null) {
-					try {
-						this.delegate = this.jwtDecoderSupplier.get();
-					}
-					catch (Exception ex) {
-						throw wrapException(ex);
-					}
-				}
-			}
-		}
-		return this.delegate.decode(token);
+		return this.delegate.get().decode(token);
 	}
 
 	private JwtDecoderInitializationException wrapException(Exception ex) {
