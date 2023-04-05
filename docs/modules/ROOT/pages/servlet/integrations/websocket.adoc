@@ -397,7 +397,7 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 ----
 ====
 
-On the other hand, if you are using the <<legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`,legacy-websocket-configuration>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
+On the other hand, if you are using the <<legacy-websocket-configuration,legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
 ====
