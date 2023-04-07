@@ -734,7 +734,9 @@ public class StrictHttpFirewall implements HttpFirewall {
 				@Override
 				public String nextElement() {
 					String value = headers.nextElement();
-					validateAllowedHeaderValue(value);
+					if (value != null) {
+						validateAllowedHeaderValue(value);
+					}
 					return value;
 				}
 
