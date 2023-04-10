@@ -820,7 +820,7 @@ Authentication authentication = this.authenticationManager.authenticate(token);
 // ...
 SecurityContext context = SecurityContextHolder.createEmptyContext(); <1>
 context.setAuthentication(authentication); <2>
-SecurityContextHolder.setContext(authentication); <3>
+SecurityContextHolder.setContext(context); <3>
 ----
 ====
 
