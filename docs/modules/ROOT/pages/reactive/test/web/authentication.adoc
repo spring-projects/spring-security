@@ -6,6 +6,8 @@ After xref:reactive/test/web/setup.adoc[applying the Spring Security support to 
 .Java
 [source,java,role="primary"]
 ----
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
+
 @Test
 public void messageWhenNotAuthenticated() throws Exception {
 	this.rest
@@ -66,6 +68,7 @@ public void messageWhenMutateWithMockAdminThenOk() throws Exception {
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser
 
 //...
 
