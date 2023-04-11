@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,6 +39,8 @@ import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWKSecurityContext;
@@ -362,6 +364,20 @@ public class NimbusReactiveJwtDecoderTests {
 		assertThatExceptionOfType(BadJwtException.class)
 				.isThrownBy(() -> decoder.decode(this.messageReadToken).block())
 				.havingRootCause().withMessage("Required JOSE header typ (type) parameter is missing");
+		// @formatter:on
+	}
+
+	@Test
+	public void withJwkSetUriWhenJwtProcessorCustomizerSetsJWSKeySelectorThenUseCustomizedJWSKeySelector()
+			throws InvalidKeySpecException {
+		WebClient webClient = mockJwkSetResponse(new JWKSet(new RSAKey.Builder(key()).build()).toString());
+		// @formatter:off
+		NimbusReactiveJwtDecoder decoder = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+				.jwsAlgorithm(SignatureAlgorithm.ES256).webClient(webClient)
+				.jwtProcessorCustomizer((p) -> p
+						.setJWSKeySelector(new JWSVerificationKeySelector<>(JWSAlgorithm.RS512, new JWKSecurityContextJWKSet())))
+				.build();
+		assertThat(decoder.decode(this.rsa512).block()).extracting(Jwt::getSubject).isEqualTo("test-subject");
 		// @formatter:on
 	}
 
