@@ -26,6 +26,7 @@ import java.lang.reflect.Proxy;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.FilterChain;
@@ -257,7 +258,11 @@ public class FilterInvocation {
 
 		@Override
 		public Enumeration<String> getHeaders(String name) {
-			return Collections.enumeration(this.headers.get(name));
+			List<String> headerList = this.headers.get(name);
+			if (headerList == null) {
+				return Collections.emptyEnumeration();
+			}
+			return Collections.enumeration(headerList);
 		}
 
 		@Override
