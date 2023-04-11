@@ -2,6 +2,8 @@
 * xref:prerequisites.adoc[Prerequisites]
 * xref:community.adoc[Community]
 * xref:whats-new.adoc[What's New]
+* xref:migration-7/index.adoc[Preparing for 7.0]
+** xref:migration-7/configuration.adoc[Configuration]
 * xref:migration/index.adoc[Migrating to 6.0]
 ** xref:migration/servlet/index.adoc[Servlet Migrations]
 *** xref:migration/servlet/session-management.adoc[Session Management]
