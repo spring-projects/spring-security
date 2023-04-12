@@ -285,8 +285,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link HeadersConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} instead
 	 * @see HeadersConfigurer
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public HeadersConfigurer<HttpSecurity> headers() throws Exception {
 		return getOrApply(new HeadersConfigurer<>());
 	}
@@ -399,7 +401,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * on the classpath a {@link HandlerMappingIntrospector} is used.
 	 * @return the {@link CorsConfigurer} for customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CorsConfigurer<HttpSecurity> cors() throws Exception {
 		return getOrApply(new CorsConfigurer<>());
 	}
@@ -486,7 +490,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * could return true.
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #sessionManagement(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public SessionManagementConfigurer<HttpSecurity> sessionManagement() throws Exception {
 		return getOrApply(new SessionManagementConfigurer<>());
 	}
@@ -608,8 +614,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link PortMapperConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #portMapper(Customizer)} instead
 	 * @see #requiresChannel()
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public PortMapperConfigurer<HttpSecurity> portMapper() throws Exception {
 		return getOrApply(new PortMapperConfigurer<>());
 	}
@@ -739,7 +747,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Servlet Container's documentation.
 	 * @return the {@link JeeConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #jee(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public JeeConfigurer<HttpSecurity> jee() throws Exception {
 		return getOrApply(new JeeConfigurer<>());
 	}
@@ -850,7 +860,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link X509Configurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public X509Configurer<HttpSecurity> x509() throws Exception {
 		return getOrApply(new X509Configurer<>());
 	}
@@ -928,7 +940,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link RememberMeConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #rememberMe(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public RememberMeConfigurer<HttpSecurity> rememberMe() throws Exception {
 		return getOrApply(new RememberMeConfigurer<>());
 	}
@@ -1072,7 +1086,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link ExpressionUrlAuthorizationConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated Use {@link #authorizeHttpRequests()} instead
+	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests()} instead
 	 */
 	@Deprecated
 	public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests()
@@ -1187,7 +1201,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * for the {@link ExpressionUrlAuthorizationConfigurer.ExpressionInterceptUrlRegistry}
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
-	 * @deprecated Use {@link #authorizeHttpRequests} instead
+	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests} instead
 	 */
 	@Deprecated
 	public HttpSecurity authorizeRequests(
@@ -1302,7 +1316,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link HttpSecurity} for further customizations
 	 * @throws Exception
 	 * @since 5.6
+	 * @deprecated For removal in 7.0. Use {@link #authorizeHttpRequests(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public AuthorizeHttpRequestsConfigurer<HttpSecurity>.AuthorizationManagerRequestMatcherRegistry authorizeHttpRequests()
 			throws Exception {
 		ApplicationContext context = getContext();
@@ -1434,7 +1451,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * when using {@link EnableWebSecurity}.
 	 * @return the {@link RequestCacheConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public RequestCacheConfigurer<HttpSecurity> requestCache() throws Exception {
 		return getOrApply(new RequestCacheConfigurer<>());
 	}
@@ -1485,7 +1504,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link EnableWebSecurity}.
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ExceptionHandlingConfigurer<HttpSecurity> exceptionHandling() throws Exception {
 		return getOrApply(new ExceptionHandlingConfigurer<>());
 	}
@@ -1537,7 +1558,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * automatically applied when using {@link EnableWebSecurity}.
 	 * @return the {@link SecurityContextConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #securityContext(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
 		return getOrApply(new SecurityContextConfigurer<>());
 	}
@@ -1582,7 +1605,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link EnableWebSecurity}.
 	 * @return the {@link ServletApiConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #servletApi(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
 		return getOrApply(new ServletApiConfigurer<>());
 	}
@@ -1638,7 +1663,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
 		ApplicationContext context = getContext();
 		return getOrApply(new CsrfConfigurer<>(context));
@@ -1713,7 +1740,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutConfigurer<HttpSecurity> logout() throws Exception {
 		return getOrApply(new LogoutConfigurer<>());
 	}
@@ -1852,7 +1881,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link AnonymousConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
 		return getOrApply(new AnonymousConfigurer<>());
 	}
@@ -2015,8 +2046,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link FormLoginConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} instead
 	 * @see FormLoginConfigurer#loginPage(String)
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public FormLoginConfigurer<HttpSecurity> formLogin() throws Exception {
 		return getOrApply(new FormLoginConfigurer<>());
 	}
@@ -2191,7 +2224,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.2
+	 * @deprecated For removal in 7.0. Use {@link #saml2Login(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2LoginConfigurer<HttpSecurity> saml2Login() throws Exception {
 		return getOrApply(new Saml2LoginConfigurer<>());
 	}
@@ -2421,7 +2456,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.6
+	 * @deprecated For removal in 7.0. Use {@link #saml2Logout(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
 		return getOrApply(new Saml2LogoutConfigurer<>(getContext()));
 	}
@@ -2517,7 +2554,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2MetadataConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 6.1
+	 * @deprecated For removal in 7.0. Use {@link #saml2Metadata(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2MetadataConfigurer<HttpSecurity> saml2Metadata() throws Exception {
 		return getOrApply(new Saml2MetadataConfigurer<>(getContext()));
 	}
@@ -2608,6 +2647,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.0
+	 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} instead
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
 	 * Grant</a>
@@ -2617,6 +2657,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistration
 	 * @see org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public OAuth2LoginConfigurer<HttpSecurity> oauth2Login() throws Exception {
 		return getOrApply(new OAuth2LoginConfigurer<>());
 	}
@@ -2729,10 +2770,12 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link OAuth2ClientConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.1
+	 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} instead
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
 	 * Framework</a>
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public OAuth2ClientConfigurer<HttpSecurity> oauth2Client() throws Exception {
 		OAuth2ClientConfigurer<HttpSecurity> configurer = getOrApply(new OAuth2ClientConfigurer<>());
 		this.postProcess(configurer);
@@ -2783,10 +2826,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link OAuth2ResourceServerConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.1
+	 * @deprecated For removal in 7.0. Use {@link #oauth2ResourceServer(Customizer)}
+	 * instead
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
 	 * Framework</a>
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public OAuth2ResourceServerConfigurer<HttpSecurity> oauth2ResourceServer() throws Exception {
 		OAuth2ResourceServerConfigurer<HttpSecurity> configurer = getOrApply(
 				new OAuth2ResourceServerConfigurer<>(getContext()));
@@ -2884,7 +2930,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link ChannelSecurityConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #requiresChannel(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel() throws Exception {
 		ApplicationContext context = getContext();
 		return getOrApply(new ChannelSecurityConfigurer<>(context)).getRegistry();
@@ -2979,7 +3027,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link HttpBasicConfigurer} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
 		return getOrApply(new HttpBasicConfigurer<>());
 	}
@@ -3308,7 +3358,9 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * }
 	 * </pre>
 	 * @return the {@link RequestMatcherConfigurer} for further customizations
+	 * @deprecated For removal in 7.0. Use {@link #securityMatchers(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public RequestMatcherConfigurer securityMatchers() {
 		return this.requestMatcherConfigurer;
 	}
@@ -3566,7 +3618,28 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		/**
 		 * Return the {@link HttpSecurity} for further customizations
 		 * @return the {@link HttpSecurity} for further customizations
+		 * @deprecated Use the lambda based configuration instead. For example: <pre>
+		 * &#064;Configuration
+		 * &#064;EnableWebSecurity
+		 * public class SecurityConfig {
+		 *
+		 *     &#064;Bean
+		 *     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		 *         http
+		 *             .securityMatchers((matchers) -&gt; matchers
+		 *                 .requestMatchers(&quot;/api/**&quot;)
+		 *             )
+		 *             .authorizeHttpRequests((authorize) -&gt; authorize
+		 *                 .anyRequest().hasRole(&quot;USER&quot;)
+		 *             )
+		 *             .httpBasic(Customizer.withDefaults());
+		 *         return http.build();
+		 *     }
+		 *
+		 * }
+		 * </pre>
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HttpSecurity and() {
 			return HttpSecurity.this;
 		}
