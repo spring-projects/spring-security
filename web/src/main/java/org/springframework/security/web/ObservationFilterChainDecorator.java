@@ -38,36 +38,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.channel.ChannelProcessingFilter;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
-import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
-import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.LogoutFilter;
-import org.springframework.security.web.authentication.preauth.AbstractPreAuthenticatedProcessingFilter;
-import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
-import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
-import org.springframework.security.web.authentication.switchuser.SwitchUserFilter;
-import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
-import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.web.authentication.www.DigestAuthenticationFilter;
-import org.springframework.security.web.context.SecurityContextHolderFilter;
-import org.springframework.security.web.context.SecurityContextPersistenceFilter;
-import org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter;
-import org.springframework.security.web.csrf.CsrfFilter;
-import org.springframework.security.web.header.HeaderWriterFilter;
-import org.springframework.security.web.jaasapi.JaasApiIntegrationFilter;
-import org.springframework.security.web.savedrequest.RequestCacheAwareFilter;
-import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter;
-import org.springframework.security.web.session.ConcurrentSessionFilter;
-import org.springframework.security.web.session.DisableEncodeUrlFilter;
-import org.springframework.security.web.session.ForceEagerSessionCreationFilter;
-import org.springframework.security.web.session.SessionManagementFilter;
-import org.springframework.util.Assert;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.CorsFilter;
 
 /**
  * A {@link org.springframework.security.web.FilterChainProxy.FilterChainDecorator} that
@@ -79,12 +49,6 @@ import org.springframework.web.filter.CorsFilter;
 public final class ObservationFilterChainDecorator implements FilterChainProxy.FilterChainDecorator {
 
 	private static final Log logger = LogFactory.getLog(FilterChainProxy.class);
-
-	private static final int OPENTELEMETRY_MAX_NAME_LENGTH = 63;
-
-	private static final int MAX_OBSERVATION_NAME_LENGTH = OPENTELEMETRY_MAX_NAME_LENGTH - ".before".length();
-
-	private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
 
 	private static final String ATTRIBUTE = ObservationFilterChainDecorator.class + ".observation";
 
@@ -136,81 +100,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		return observableFilters;
 	}
 
-	static {
-		registerName(DisableEncodeUrlFilter.class, "session.encode-url.disable");
-		registerName(ForceEagerSessionCreationFilter.class, "session.create");
-		registerName(ChannelProcessingFilter.class, "web.request.delivery.ensure");
-		registerName(WebAsyncManagerIntegrationFilter.class, "web-async-manager.join.security-context");
-		registerName(SecurityContextHolderFilter.class, "security-context.hold");
-		registerName(SecurityContextPersistenceFilter.class, "security-context.persist");
-		registerName(HeaderWriterFilter.class, "web.response.header.set");
-		registerName(CorsFilter.class, "cors.process");
-		registerName(CsrfFilter.class, "csrf.protect");
-		registerName(LogoutFilter.class, "principal.logout");
-		registerName("org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestRedirectFilter",
-				"web.request.oauth2.redirect");
-		registerName(
-				"org.springframework.security.saml2.provider.service.web." + "Saml2WebSsoAuthenticationRequestFilter",
-				"web.request.saml2.redirect");
-		registerName(X509AuthenticationFilter.class, "web.request.x509.auth");
-		registerName(AbstractPreAuthenticatedProcessingFilter.class, "web.request.pre-auth.base.process");
-		registerName("org.springframework.security.cas.web.CasAuthenticationFilter", "web.request.sas.auth");
-		registerName("org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter",
-				"web.response.oauth2.process");
-		registerName("org.springframework.security.saml2.provider.service.web.authentication"
-				+ ".Saml2WebSsoAuthenticationFilter", "web.request.saml2.auth");
-		registerName(UsernamePasswordAuthenticationFilter.class, "web.request.username-password.auth");
-		registerName(DefaultLoginPageGeneratingFilter.class, "web.login-page.default.generate");
-		registerName(DefaultLogoutPageGeneratingFilter.class, "web.logout-page.default.generate");
-		registerName(ConcurrentSessionFilter.class, "session.refresh");
-		registerName(DigestAuthenticationFilter.class, "web.request.digest.auth");
-		registerName("org.springframework.security.oauth2.server.resource.web.authentication."
-				+ "BearerTokenAuthenticationFilter", "web.request.bearer.auth");
-		registerName(BasicAuthenticationFilter.class, "web.request.basic.auth");
-		registerName(RequestCacheAwareFilter.class, "web.request.cache.extract");
-		registerName(SecurityContextHolderAwareRequestFilter.class, "web.request.security.wrap");
-		registerName(JaasApiIntegrationFilter.class, "web.request.jass.auth");
-		registerName(RememberMeAuthenticationFilter.class, "web.request.remember-me.auth");
-		registerName(AnonymousAuthenticationFilter.class, "web.request.anonymous.auth");
-		registerName("org.springframework.security.oauth2.client.web.OAuth2AuthorizationCodeGrantFilter",
-				"web.response.oauth2.code-grant.process");
-		registerName(SessionManagementFilter.class, "session.manage");
-		registerName(ExceptionTranslationFilter.class, "exception.translate");
-		registerName(FilterSecurityInterceptor.class, "web.response.security.intercept");
-		registerName(AuthorizationFilter.class, "web.access.auth.restrict");
-		registerName(SwitchUserFilter.class, "session.switch");
-	}
-
-	public static void registerName(Class clazz, String name) {
-		String keyName = clazz.getName();
-		checkAlreadyRegistered(keyName);
-		OBSERVATION_NAMES.put(keyName, limitLength(name));
-	}
-
-	public static void registerName(String className, String name) {
-		checkAlreadyRegistered(className);
-		OBSERVATION_NAMES.put(className, name);
-	}
-
 	static AroundFilterObservation observation(HttpServletRequest request) {
 		return (AroundFilterObservation) request.getAttribute(ATTRIBUTE);
-	}
-
-	private static String getObservationName(String className) {
-		if (OBSERVATION_NAMES.containsKey(className)) {
-			return OBSERVATION_NAMES.get(className);
-		}
-		throw new IllegalArgumentException("Class not registered for observation: " + className);
-	}
-
-	private static String limitLength(String s) {
-		Assert.isTrue(s.length() <= MAX_OBSERVATION_NAME_LENGTH,
-				"The name must be less than MAX_OBSERVATION_NAME_LENGTH=" + MAX_OBSERVATION_NAME_LENGTH);
-		return s;
-	}
-
-	private static void checkAlreadyRegistered(String keyName) {
-		Assert.isTrue(!OBSERVATION_NAMES.containsKey(keyName), "Observation name is registered already: " + keyName);
 	}
 
 	private static final class VirtualFilterChain implements FilterChain {
@@ -248,6 +139,49 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 	static final class ObservationFilter implements Filter {
 
+		private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
+
+		static {
+			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.url-encoding");
+			OBSERVATION_NAMES.put("ForceEagerSessionCreationFilter", "session.eager-create");
+			OBSERVATION_NAMES.put("ChannelProcessingFilter", "access.channel");
+			OBSERVATION_NAMES.put("WebAsyncManagerIntegrationFilter", "context.async");
+			OBSERVATION_NAMES.put("SecurityContextHolderFilter", "context.holder");
+			OBSERVATION_NAMES.put("SecurityContextPersistenceFilter", "context.management");
+			OBSERVATION_NAMES.put("HeaderWriterFilter", "header");
+			OBSERVATION_NAMES.put("CorsFilter", "cors");
+			OBSERVATION_NAMES.put("CsrfFilter", "csrf");
+			OBSERVATION_NAMES.put("LogoutFilter", "logout");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationRequestRedirectFilter", "oauth2.authnrequest");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationRequestFilter", "saml2.authnrequest");
+			OBSERVATION_NAMES.put("X509AuthenticationFilter", "authentication.x509");
+			OBSERVATION_NAMES.put("J2eePreAuthenticatedProcessingFilter", "preauthentication.j2ee");
+			OBSERVATION_NAMES.put("RequestHeaderAuthenticationFilter", "preauthentication.header");
+			OBSERVATION_NAMES.put("RequestAttributeAuthenticationFilter", "preauthentication.attribute");
+			OBSERVATION_NAMES.put("WebSpherePreAuthenticatedProcessingFilter", "preauthentication.websphere");
+			OBSERVATION_NAMES.put("CasAuthenticationFilter", "cas.authentication");
+			OBSERVATION_NAMES.put("OAuth2LoginAuthenticationFilter", "oauth2.authentication");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationFilter", "saml2.authentication");
+			OBSERVATION_NAMES.put("UsernamePasswordAuthenticationFilter", "authentication.form");
+			OBSERVATION_NAMES.put("DefaultLoginPageGeneratingFilter", "page.login");
+			OBSERVATION_NAMES.put("DefaultLogoutPageGeneratingFilter", "page.logout");
+			OBSERVATION_NAMES.put("ConcurrentSessionFilter", "session.concurrent");
+			OBSERVATION_NAMES.put("DigestAuthenticationFilter", "authentication.digest");
+			OBSERVATION_NAMES.put("BearerTokenAuthenticationFilter", "authentication.bearer");
+			OBSERVATION_NAMES.put("BasicAuthenticationFilter", "authentication.basic");
+			OBSERVATION_NAMES.put("RequestCacheAwareFilter", "requestcache");
+			OBSERVATION_NAMES.put("SecurityContextHolderAwareRequestFilter", "context.servlet");
+			OBSERVATION_NAMES.put("JaasApiIntegrationFilter", "jaas");
+			OBSERVATION_NAMES.put("RememberMeAuthenticationFilter", "authentication.rememberme");
+			OBSERVATION_NAMES.put("AnonymousAuthenticationFilter", "authentication.anonymous");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationCodeGrantFilter", "oauth2.client.code");
+			OBSERVATION_NAMES.put("SessionManagementFilter", "session.management");
+			OBSERVATION_NAMES.put("ExceptionTranslationFilter", "access.exceptions");
+			OBSERVATION_NAMES.put("FilterSecurityInterceptor", "access.request");
+			OBSERVATION_NAMES.put("AuthorizationFilter", "authorization");
+			OBSERVATION_NAMES.put("SwitchUserFilter", "authentication.switch");
+		}
+
 		private final ObservationRegistry registry;
 
 		private final FilterChainObservationConvention convention = new FilterChainObservationConvention();
@@ -256,7 +190,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		private final String name;
 
-		private final String observationName;
+		private final String eventName;
 
 		private final int position;
 
@@ -268,28 +202,16 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			this.name = filter.getClass().getSimpleName();
 			this.position = position;
 			this.size = size;
-			String tempObservationName;
-			try {
-				tempObservationName = ObservationFilterChainDecorator.getObservationName(filter.getClass().getName());
-			}
-			catch (IllegalArgumentException ex) {
-				tempObservationName = compressName(this.name);
-				logger.warn(
-						"Class " + filter.getClass().getName()
-								+ " is not registered for observation and will have name " + tempObservationName
-								+ ". Please consider of registering this class with "
-								+ ObservationFilterChainDecorator.class.getSimpleName() + ".registerName(class, name).",
-						ex);
-			}
-			this.observationName = tempObservationName;
+			this.eventName = eventName(this.name);
+		}
+
+		private String eventName(String className) {
+			String eventName = OBSERVATION_NAMES.get(className);
+			return (eventName != null) ? eventName : className;
 		}
 
 		String getName() {
 			return this.name;
-		}
-
-		String getObservationName() {
-			return this.observationName;
 		}
 
 		@Override
@@ -312,8 +234,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentBefore.setFilterName(this.name);
 				parentBefore.setChainPosition(this.position);
 			}
-			parent.before().event(Observation.Event.of(this.observationName + ".before",
-					"before " + this.name));
+			parent.before().event(Observation.Event.of(this.eventName + ".before", "before " + this.name));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
 			if (parent.after().getContext() instanceof FilterChainObservationContext parentAfter) {
@@ -321,8 +242,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentAfter.setFilterName(this.name);
 				parentAfter.setChainPosition(this.size - this.position + 1);
 			}
-			parent.after().event(Observation.Event.of(this.observationName + ".after",
-					"after " + this.name));
+			parent.after().event(Observation.Event.of(this.eventName + ".after", "after " + this.name));
 		}
 
 		private AroundFilterObservation parent(HttpServletRequest request) {
@@ -333,24 +253,6 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			AroundFilterObservation parent = AroundFilterObservation.create(before, after);
 			request.setAttribute(ATTRIBUTE, parent);
 			return parent;
-		}
-
-		private String compressName(String className) {
-			if (className.length() >= MAX_OBSERVATION_NAME_LENGTH) {
-				return maximalCompressClassName(className, MAX_OBSERVATION_NAME_LENGTH);
-			}
-			return className;
-		}
-
-		private String maximalCompressClassName(String className, int maxLength) {
-			String[] names = className.split("(?=\\p{Lu})");
-			for (int j = 0; j < names.length; j++) {
-				final int maxPortionLength = maxLength / names.length;
-				if (names[j].length() > maxPortionLength) {
-					names[j] = names[j].substring(0, maxPortionLength);
-				}
-			}
-			return StringUtils.arrayToDelimitedString(names, "");
 		}
 
 	}
