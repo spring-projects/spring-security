@@ -168,7 +168,9 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Request components
 	 * @return the {@link LogoutRequestConfigurer} for further customizations
+	 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutRequestConfigurer logoutRequest() {
 		return this.logoutRequestConfigurer;
 	}
@@ -188,13 +190,15 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Response components
 	 * @return the {@link LogoutResponseConfigurer} for further customizations
+	 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutResponseConfigurer logoutResponse() {
 		return this.logoutResponseConfigurer;
 	}
 
 	/**
-	 * Configures SAML 2.0 Logout Request components
+	 * Configures SAML 2.0 Logout Response components
 	 * @param logoutResponseConfigurerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link LogoutResponseConfigurer}
 	 * @return the {@link Saml2LogoutConfigurer} for further customizations
@@ -371,6 +375,10 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {
 			return Saml2LogoutConfigurer.this;
 		}
@@ -439,6 +447,10 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {
 			return Saml2LogoutConfigurer.this;
 		}

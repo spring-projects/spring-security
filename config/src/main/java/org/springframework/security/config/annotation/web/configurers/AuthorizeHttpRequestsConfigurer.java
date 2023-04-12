@@ -204,7 +204,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * Return the {@link HttpSecurityBuilder} when done using the
 		 * {@link AuthorizeHttpRequestsConfigurer}. This is useful for method chaining.
 		 * @return the {@link HttpSecurityBuilder} for further customizations
+		 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public H and() {
 			return AuthorizeHttpRequestsConfigurer.this.and();
 		}

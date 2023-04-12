@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -136,7 +136,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link AuthorizationCodeGrantConfigurer} for configuring the OAuth 2.0
 	 * Authorization Code Grant.
 	 * @return the {@link AuthorizationCodeGrantConfigurer}
+	 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public AuthorizationCodeGrantConfigurer authorizationCodeGrant() {
 		return this.authorizationCodeGrantConfigurer;
 	}
@@ -233,7 +236,10 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2ClientConfigurer} for further configuration.
 		 * @return the {@link OAuth2ClientConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #authorizationCodeGrant(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2ClientConfigurer<B> and() {
 			return OAuth2ClientConfigurer.this;
 		}
