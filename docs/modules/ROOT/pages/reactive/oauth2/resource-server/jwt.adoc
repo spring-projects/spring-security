@@ -327,6 +327,7 @@ This is handy when you need deeper configuration, such as <<webflux-oauth2resour
 ==== Exposing a `ReactiveJwtDecoder` `@Bean`
 
 Alternately, exposing a `ReactiveJwtDecoder` `@Bean` has the same effect as `decoder()`:
+You can construct one with a `jwkSetUri` like so:
 
 ====
 .Java
@@ -343,7 +344,51 @@ public ReactiveJwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return ReactiveJwtDecoders.fromIssuerLocation(issuerUri)
+    return NimbusReactiveJwtDecoder.withJwkSetUri(jwkSetUri).build()
+}
+----
+====
+
+or you can use the issuer and have `NimbusReactiveJwtDecoder` look up the `jwkSetUri` when `build()` is invoked, like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveJwtDecoder jwtDecoder() {
+    return NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return NimbusReactiveJwtDecoder.withIssuerLocation(issuer).build()
+}
+----
+====
+
+Or, if the defaults work for you, you can also use `JwtDecoders`, which does the above in addition to configuring the decoder's validator:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public ReactiveJwtDecoder jwtDecoder() {
+    return ReactiveJwtDecoders.fromIssuerLocation(issuer);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): ReactiveJwtDecoder {
+    return ReactiveJwtDecoders.fromIssuerLocation(issuer)
 }
 ----
 ====
@@ -384,7 +429,7 @@ For greater power, though, we can use a builder that ships with `NimbusReactiveJ
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build();
 }
 ----
@@ -394,7 +439,7 @@ ReactiveJwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build()
 }
 ----
@@ -408,7 +453,7 @@ Calling `jwsAlgorithm` more than once configures `NimbusReactiveJwtDecoder` to t
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
 }
 ----
@@ -418,7 +463,7 @@ ReactiveJwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
 }
 ----
@@ -432,7 +477,7 @@ Alternately, you can call `jwsAlgorithms`:
 ----
 @Bean
 ReactiveJwtDecoder jwtDecoder() {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.jwkSetUri)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
                     algorithms.add(ES512);
@@ -445,7 +490,7 @@ ReactiveJwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): ReactiveJwtDecoder {
-    return NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusReactiveJwtDecoder.withIssuerLocation(this.jwkSetUri)
             .jwsAlgorithms {
                 it.add(RS512)
                 it.add(ES512)

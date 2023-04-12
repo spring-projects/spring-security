@@ -41,7 +41,6 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.DefaultJOSEObjectTypeVerifier;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -58,6 +57,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
@@ -598,10 +598,28 @@ public class NimbusReactiveJwtDecoderTests {
 	}
 
 	@Test
+	public void decodeWhenIssuerLocationThenOk() {
+		String issuer = "https://example.org/issuer";
+		WebClient real = WebClient.builder().build();
+		WebClient.RequestHeadersUriSpec spec = spy(real.get());
+		WebClient webClient = spy(WebClient.class);
+		given(webClient.get()).willReturn(spec);
+		WebClient.ResponseSpec responseSpec = mock(WebClient.ResponseSpec.class);
+		given(responseSpec.bodyToMono(String.class)).willReturn(Mono.just(this.jwkSet));
+		given(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
+				.willReturn(Mono.just(Map.of("issuer", issuer, "jwks_uri", issuer + "/jwks")));
+		given(spec.retrieve()).willReturn(responseSpec);
+		ReactiveJwtDecoder jwtDecoder = NimbusReactiveJwtDecoder.withIssuerLocation(issuer).webClient(webClient)
+				.build();
+		Jwt jwt = jwtDecoder.decode(this.messageReadToken).block();
+		assertThat(jwt.hasClaim(JwtClaimNames.EXP)).isNotNull();
+	}
+
+	@Test
 	public void jwsKeySelectorWhenNoAlgorithmThenReturnsRS256Selector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
-				.jwsKeySelector(jwkSource);
+				.jwsKeySelector(jwkSource).block();
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS256)).isTrue();
@@ -609,9 +627,9 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenOneAlgorithmThenReturnsSingleSelector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
-				.jwsAlgorithm(SignatureAlgorithm.RS512).jwsKeySelector(jwkSource);
+				.jwsAlgorithm(SignatureAlgorithm.RS512).jwsKeySelector(jwkSource).block();
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<JWKSecurityContext> jwsVerificationKeySelector = (JWSVerificationKeySelector<JWKSecurityContext>) jwsKeySelector;
 		assertThat(jwsVerificationKeySelector.isAllowed(JWSAlgorithm.RS512)).isTrue();
@@ -619,12 +637,12 @@ public class NimbusReactiveJwtDecoderTests {
 
 	@Test
 	public void jwsKeySelectorWhenMultipleAlgorithmThenReturnsCompositeSelector() {
-		JWKSource<JWKSecurityContext> jwkSource = mock(JWKSource.class);
+		ReactiveRemoteJWKSource jwkSource = mock(ReactiveRemoteJWKSource.class);
 		// @formatter:off
 		JWSKeySelector<JWKSecurityContext> jwsKeySelector = NimbusReactiveJwtDecoder.withJwkSetUri(this.jwkSetUri)
 				.jwsAlgorithm(SignatureAlgorithm.RS256)
 				.jwsAlgorithm(SignatureAlgorithm.RS512)
-				.jwsKeySelector(jwkSource);
+				.jwsKeySelector(jwkSource).block();
 		// @formatter:on
 		assertThat(jwsKeySelector instanceof JWSVerificationKeySelector);
 		JWSVerificationKeySelector<?> jwsAlgorithmMapKeySelector = (JWSVerificationKeySelector<?>) jwsKeySelector;

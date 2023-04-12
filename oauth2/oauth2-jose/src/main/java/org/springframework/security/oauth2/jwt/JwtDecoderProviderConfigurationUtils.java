@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.util.Assert;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -71,12 +72,16 @@ final class JwtDecoderProviderConfigurationUtils {
 	}
 
 	static Map<String, Object> getConfigurationForOidcIssuerLocation(String oidcIssuerLocation) {
-		return getConfiguration(oidcIssuerLocation, oidc(URI.create(oidcIssuerLocation)));
+		return getConfiguration(oidcIssuerLocation, rest, oidc(URI.create(oidcIssuerLocation)));
+	}
+
+	static Map<String, Object> getConfigurationForIssuerLocation(String issuer, RestOperations rest) {
+		URI uri = URI.create(issuer);
+		return getConfiguration(issuer, rest, oidc(uri), oidcRfc8414(uri), oauth(uri));
 	}
 
 	static Map<String, Object> getConfigurationForIssuerLocation(String issuer) {
-		URI uri = URI.create(issuer);
-		return getConfiguration(issuer, oidc(uri), oidcRfc8414(uri), oauth(uri));
+		return getConfigurationForIssuerLocation(issuer, rest);
 	}
 
 	static void validateIssuer(Map<String, Object> configuration, String issuer) {
@@ -142,7 +147,7 @@ final class JwtDecoderProviderConfigurationUtils {
 		return "(unavailable)";
 	}
 
-	private static Map<String, Object> getConfiguration(String issuer, URI... uris) {
+	private static Map<String, Object> getConfiguration(String issuer, RestOperations rest, URI... uris) {
 		String errorMessage = "Unable to resolve the Configuration with the provided Issuer of " + "\"" + issuer + "\"";
 		for (URI uri : uris) {
 			try {
