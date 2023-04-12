@@ -16,8 +16,7 @@
 
 package org.springframework.security.web;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.io.IOException;
 import java.util.List;
 
 import io.micrometer.observation.Observation;
@@ -25,6 +24,9 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -80,7 +82,6 @@ public class ObservationFilterChainDecoratorTests {
 		FilterChain chain = mock(FilterChain.class);
 		Filter filter = mock(Filter.class);
 		FilterChain decorated = decorator.decorate(chain, List.of(filter));
-		assertCompressedName(decorated);
 		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
 		verify(handler, times(2)).onStart(any());
 		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
@@ -90,22 +91,32 @@ public class ObservationFilterChainDecoratorTests {
 		assertThat(events.get(1).getName()).isEqualTo(filter.getClass().getSimpleName() + ".after");
 	}
 
-	void assertCompressedName(FilterChain filterChain) throws Exception {
-		assertThat(filterChain.getClass().getSimpleName()).isEqualTo("VirtualFilterChain");
-		Field field = filterChain.getClass().getDeclaredField("additionalFilters");
-		field.setAccessible(true);
-		List<ObservationFilterChainDecorator.ObservationFilter> additionalFilters =
-				(List<ObservationFilterChainDecorator.ObservationFilter>) field.get(filterChain);
-		assertThat(additionalFilters.size()).isEqualTo(1);
-		final ObservationFilterChainDecorator.ObservationFilter observationFilter = additionalFilters.get(0);
-		assertThat(observationFilter.getObservationName()).isEqualTo(observationFilter.getName());
-		Method method = observationFilter.getClass().getDeclaredMethod("compressName", String.class);
-		method.setAccessible(true);
-		String compressed = (String) method.invoke(observationFilter, "ObservationFilterChainDecoratorTests");
-		assertThat(compressed).isEqualTo("ObservationFilterChainDecoratorTests");
-		String fakeCompressed = (String) method.invoke(observationFilter,
-				"ObservationFilterChainDecoratorTestsObservationFilterChainDecoratorTests");
-		assertThat(fakeCompressed).isEqualTo("ObserFilteChainDecorTestsObserFilteChainDecorTests");
+	@Test
+	void decorateFiltersWhenDefaultsThenUsesEventName() throws Exception {
+		ObservationHandler<?> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationFilterChainDecorator decorator = new ObservationFilterChainDecorator(registry);
+		FilterChain chain = mock(FilterChain.class);
+		Filter filter = new BasicAuthenticationFilter();
+		FilterChain decorated = decorator.decorate(chain, List.of(filter));
+		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
+		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
+		verify(handler, times(2)).onEvent(event.capture(), any());
+		List<Observation.Event> events = event.getAllValues();
+		assertThat(events.get(0).getName()).isEqualTo("authentication.basic.before");
+		assertThat(events.get(1).getName()).isEqualTo("authentication.basic.after");
+	}
+
+	private static class BasicAuthenticationFilter implements Filter {
+
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			chain.doFilter(request, response);
+		}
+
 	}
 
 }
