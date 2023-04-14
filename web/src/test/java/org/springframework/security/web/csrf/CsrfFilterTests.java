@@ -279,7 +279,7 @@ public class CsrfFilterTests {
 		assertThatCsrfToken(this.request.getAttribute(CsrfToken.class.getName())).isNotNull();
 		assertThat(this.request.getAttribute(DeferredCsrfToken.class.getName())).isSameAs(deferredCsrfToken);
 		// LazyCsrfTokenRepository requires the response as an attribute
-		assertThat(this.request.getAttribute(HttpServletResponse.class.getName())).isEqualTo(this.response);
+		assertThat(this.request.getAttribute(LazyCsrfTokenRepository.HTTP_RESPONSE_ATTR)).isEqualTo(this.response);
 		verify(this.filterChain).doFilter(this.request, this.response);
 		verifyNoMoreInteractions(this.deniedHandler);
 	}

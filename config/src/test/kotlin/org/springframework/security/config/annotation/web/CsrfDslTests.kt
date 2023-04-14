@@ -43,6 +43,7 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler
 import org.springframework.security.web.csrf.DefaultCsrfToken
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository
+import org.springframework.security.web.csrf.LazyCsrfTokenRepository
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
@@ -317,7 +318,7 @@ class CsrfDslTests {
             val request: HttpServletRequest = firstArg()
             val response: HttpServletResponse = secondArg()
             // Required for LazyCsrfTokenRepository
-            request.setAttribute(HttpServletResponse::class.java.name, response)
+            request.setAttribute(LazyCsrfTokenRepository.HTTP_RESPONSE_ATTR, response)
         }
         every { RequestHandlerConfig.HANDLER.resolveCsrfTokenValue(any(), any()) } returns "token"
 

@@ -38,7 +38,8 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	 * The {@link HttpServletRequest} attribute name that the {@link HttpServletResponse}
 	 * must be on.
 	 */
-	private static final String HTTP_RESPONSE_ATTR = HttpServletResponse.class.getName();
+	public static final String HTTP_RESPONSE_ATTR = LazyCsrfTokenRepository.class.getSimpleName()
+			+ ".HTTP_SERVLET_RESPONSE";
 
 	private final CsrfTokenRepository delegate;
 
@@ -67,7 +68,7 @@ public final class LazyCsrfTokenRepository implements CsrfTokenRepository {
 	 * Generates a new token
 	 * @param request the {@link HttpServletRequest} to use. The
 	 * {@link HttpServletRequest} must have the {@link HttpServletResponse} as an
-	 * attribute with the name of <code>HttpServletResponse.class.getName()</code>
+	 * attribute with the name of {@link #HTTP_RESPONSE_ATTR}
 	 */
 	@Override
 	public CsrfToken generateToken(HttpServletRequest request) {

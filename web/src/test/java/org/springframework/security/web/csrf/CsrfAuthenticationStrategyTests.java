@@ -63,7 +63,7 @@ public class CsrfAuthenticationStrategyTests {
 	public void setup() {
 		this.response = new MockHttpServletResponse();
 		this.request = new MockHttpServletRequest();
-		this.request.setAttribute(HttpServletResponse.class.getName(), this.response);
+		this.request.setAttribute(LazyCsrfTokenRepository.HTTP_RESPONSE_ATTR, this.response);
 		this.strategy = new CsrfAuthenticationStrategy(this.csrfTokenRepository);
 		this.existingToken = new DefaultCsrfToken("_csrf", "_csrf", "1");
 		this.generatedToken = new DefaultCsrfToken("_csrf", "_csrf", "2");
