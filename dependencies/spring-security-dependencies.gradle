@@ -48,7 +48,7 @@ dependencies {
 		api "org.apache.httpcomponents:httpclient:4.5.14"
 		api "org.aspectj:aspectjrt:$aspectjVersion"
 		api "org.aspectj:aspectjweaver:$aspectjVersion"
-		api "org.assertj:assertj-core:3.23.1"
+		api "org.assertj:assertj-core:3.24.2"
 		api "org.bouncycastle:bcpkix-jdk15on:1.70"
 		api "org.bouncycastle:bcprov-jdk15on:1.70"
 		api "org.eclipse.jetty:jetty-server:11.0.14"
