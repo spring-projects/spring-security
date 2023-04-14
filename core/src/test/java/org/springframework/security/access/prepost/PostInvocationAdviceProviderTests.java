@@ -29,7 +29,7 @@ import org.springframework.security.access.intercept.aspectj.MethodInvocationAda
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
-public class PostInvocationAdviceProviderTest {
+public class PostInvocationAdviceProviderTests {
 
 	@Mock
 	private PostInvocationAuthorizationAdvice authorizationAdvice;
