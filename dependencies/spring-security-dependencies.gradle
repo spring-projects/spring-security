@@ -25,7 +25,7 @@ dependencies {
 		api "com.squareup.okhttp3:okhttp:3.14.9"
 		api "com.unboundid:unboundid-ldapsdk:6.0.8"
 		api "commons-collections:commons-collections:3.2.2"
-		api "io.mockk:mockk:1.13.4"
+		api "io.mockk:mockk:1.13.5"
 		api "io.micrometer:micrometer-observation:$micrometerVersion"
 		api "jakarta.annotation:jakarta.annotation-api:2.1.1"
 		api "jakarta.inject:jakarta.inject-api:2.0.1"
