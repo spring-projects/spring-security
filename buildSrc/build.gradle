@@ -87,7 +87,7 @@ dependencies {
 	implementation localGroovy()
 
 	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
-	implementation 'io.projectreactor:reactor-core:3.5.4'
+	implementation 'io.projectreactor:reactor-core:3.5.5'
 	implementation 'org.gretty:gretty:4.0.3'
 	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
