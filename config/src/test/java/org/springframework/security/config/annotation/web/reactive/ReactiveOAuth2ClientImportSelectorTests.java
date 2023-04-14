@@ -52,7 +52,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  * @author Alavudin Kuttikkattil
  */
 @ExtendWith(SpringTestContextExtension.class)
-public class ReactiveOAuth2ClientImportSelectorTest {
+public class ReactiveOAuth2ClientImportSelectorTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 

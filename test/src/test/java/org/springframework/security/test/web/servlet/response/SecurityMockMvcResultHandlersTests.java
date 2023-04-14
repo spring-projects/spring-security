@@ -42,9 +42,9 @@ import static org.springframework.security.test.web.servlet.setup.SecurityMockMv
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = SecurityMockMvcResultHandlersTest.Config.class)
+@ContextConfiguration(classes = SecurityMockMvcResultHandlersTests.Config.class)
 @WebAppConfiguration
-public class SecurityMockMvcResultHandlersTest {
+public class SecurityMockMvcResultHandlersTests {
 
 	@Autowired
 	private WebApplicationContext context;
