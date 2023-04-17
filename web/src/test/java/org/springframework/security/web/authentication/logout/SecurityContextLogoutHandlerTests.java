@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +27,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 /**
  * @author Rob Winch
- *
  */
 public class SecurityContextLogoutHandlerTests {
 
@@ -74,6 +81,37 @@ public class SecurityContextLogoutHandlerTests {
 		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
 		assertThat(beforeContext.getAuthentication()).isNotNull();
 		assertThat(beforeContext.getAuthentication()).isSameAs(beforeAuthentication);
+	}
+
+	@Test
+	public void logoutWhenSecurityContextRepositoryThenSaveEmptyContext() {
+		SecurityContextRepository repository = mock(SecurityContextRepository.class);
+		this.handler.setSecurityContextRepository(repository);
+		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
+		verify(repository).saveContext(eq(SecurityContextHolder.createEmptyContext()), any(), any());
+	}
+
+	@Test
+	public void logoutWhenClearAuthenticationFalseThenSaveEmptyContext() {
+		SecurityContextRepository repository = mock(SecurityContextRepository.class);
+		this.handler.setSecurityContextRepository(repository);
+		this.handler.setClearAuthentication(false);
+		this.handler.logout(this.request, this.response, SecurityContextHolder.getContext().getAuthentication());
+		verify(repository).saveContext(eq(SecurityContextHolder.createEmptyContext()), any(), any());
+	}
+
+	@Test
+	public void constructorWhenDefaultSecurityContextRepositoryThenHttpSessionSecurityContextRepository() {
+		SecurityContextRepository securityContextRepository = (SecurityContextRepository) ReflectionTestUtils
+				.getField(this.handler, "securityContextRepository");
+		assertThat(securityContextRepository).isInstanceOf(HttpSessionSecurityContextRepository.class);
+	}
+
+	@Test
+	public void setSecurityContextRepositoryWhenNullThenException() {
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.handler.setSecurityContextRepository(null))
+				.withMessage("securityContextRepository cannot be null");
 	}
 
 }
