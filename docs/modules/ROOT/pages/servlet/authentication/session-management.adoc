@@ -186,27 +186,7 @@ If you are not sure what `securityContextHolderStrategy` is in the above example
 === Properly Clearing an Authentication
 
 If you are using Spring Security's xref:servlet/authentication/logout.adoc[Logout Support] then it handles a lot of stuff for you including clearing and saving the context.
-But, let's say you need to manually log users out of your app. In that case, you'll need to make sure you're clearing and saving the context properly.
-
-Now, you might already be familiar with clearing the `SecurityContextHolder` by doing `SecurityContextHolderStrategy#clearContext()`.
-That's great, but if your app requires an xref:migration/servlet/session-management.adoc#_require_explicit_saving_of_securitycontextrepository[explicit save of the context], simply clearing it isn't enough.
-The reason is that it doesn't remove it from the `SecurityContextRepository`, which means the `SecurityContext` could still be available for the next requests, and we definitely don't want that.
-
-To make sure the authentication is properly cleared and saved, you can invoke {security-api-url}/org/springframework/security/web/authentication/logout/SecurityContextLogoutHandler.html[the `SecurityContextLogoutHandler`] which does that for us, like so:
-
-====
-.Java
-[source,java,role="primary"]
-----
-SecurityContextLogoutHandler handler = new SecurityContextLogoutHandler(); <1>
-handler.logout(httpServletRequest, httpServletResponse, null); <2>
-----
-====
-
-<1> Create a new instance of `SecurityContextLogoutHandler`
-<2> Call the `logout` method passing in the `HttpServletRequest`, `HttpServletResponse` and a `null` authentication because it is not required for this handler.
-
-It's important to remember that clearing and saving the context is just one piece of the logout process, therefore we recommend having Spring Security take care of it.
+But, let's say you need to manually log users out of your app. In that case, you'll need to make sure you're xref:servlet/authentication/logout.adoc#creating-custom-logout-endpoint[clearing and saving the context properly].
 
 [[stateless-authentication]]
 === Configuring Persistence for Stateless Authentication
