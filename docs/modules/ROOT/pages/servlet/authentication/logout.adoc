@@ -10,6 +10,7 @@ The default is that accessing the URL `/logout` will log the user out by:
 - Invalidating the HTTP Session
 - Cleaning up any RememberMe authentication that was configured
 - Clearing the `SecurityContextHolder`
+- Clearing the `SecurityContextRepository`
 - Redirect to `/login?logout`
 
 Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
