@@ -19,7 +19,7 @@ The rest of this section covers a number of use cases for you to consider:
 [[logout-java-configuration]]
 == Understanding Logout's Architecture
 
-When you include the `spring-boot-starter-security` dependency or use the `@EnableWebSecurity` annotation, Spring Security will add its logout support and by default respond both to `GET /logout` and `POST /logout`.
+When you include {spring-boot-reference-url}using.html#using.build-systems.starters[the `spring-boot-starter-security` dependency] or use the `@EnableWebSecurity` annotation, Spring Security will add its logout support and by default respond both to `GET /logout` and `POST /logout`.
 
 If you request `GET /logout`, then Spring Security displays a logout confirmation page.
 Aside from providing a valuable double-checking mechanism for the user, it also provides a simple way to provide xref:servlet/exploits/csrf.adoc[the needed CSRF token] to `POST /logout`.
