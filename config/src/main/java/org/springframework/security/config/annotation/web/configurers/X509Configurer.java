@@ -17,7 +17,6 @@
 package org.springframework.security.config.annotation.web.configurers;
 
 import jakarta.servlet.http.HttpServletRequest;
-
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -36,7 +35,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
-import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -193,13 +192,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			if (this.authenticationDetailsSource != null) {
 				this.x509AuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 			}
-			SecurityContextConfigurer<?> securityContextConfigurer = http
-					.getConfigurer(SecurityContextConfigurer.class);
-			if (securityContextConfigurer != null && securityContextConfigurer.isRequireExplicitSave()) {
-				SecurityContextRepository securityContextRepository = securityContextConfigurer
-						.getSecurityContextRepository();
-				this.x509AuthenticationFilter.setSecurityContextRepository(securityContextRepository);
-			}
+			this.x509AuthenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
 			this.x509AuthenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			this.x509AuthenticationFilter = postProcess(this.x509AuthenticationFilter);
 		}
