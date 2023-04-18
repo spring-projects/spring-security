@@ -76,7 +76,7 @@ http {
 and no authorization changes are necessary since it simply adjusts the `LogoutFilter`.
 
 [[permit-logout-endpoints]]
-However, if you stand up your own logout success endpoint (or in a rare case, <<creating-custom-logout-endpoint, your own logout endpoint>>), say using Spring MVC, you will need permit it in Spring Security.
+However, if you stand up your own logout success endpoint (or in a rare case, <<creating-custom-logout-endpoint, your own logout endpoint>>), say using {spring-framework-reference-url}web.html#spring-web[Spring MVC], you will need permit it in Spring Security.
 This is because Spring MVC processes your request after Spring Security does.
 
 You can do this using `authorizeHttpRequests` or `<intercept-url>` like so:
@@ -327,7 +327,7 @@ Since {security-api-url}org/springframework/security/web/authentication/logout/L
 It is strongly recommended that you use the provided `logout` DSL to configure logout.
 One reason is that its easy to forget to call the needed Spring Security components to ensure a proper and complete logout.
 
-In fact, it is often simpler to <<add-logout-handler, register a custom `LogoutHandler`>> than create a Spring MVC endpoint for performing logout.
+In fact, it is often simpler to <<add-logout-handler, register a custom `LogoutHandler`>> than create a {spring-framework-reference-url}web.html#spring-web[Spring MVC] endpoint for performing logout.
 
 That said, if you find yourself in a circumstance where a custom logout endpoint is needed, like the following one:
 
