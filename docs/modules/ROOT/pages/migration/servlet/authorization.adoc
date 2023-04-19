@@ -36,7 +36,7 @@ There are no further migrations steps for Java or Kotlin for this feature.
 == Use `AuthorizationManager` for Request Security
 
 In 6.0, `<http>` defaults `once-per-request` to `false`, `filter-all-dispatcher-types` to `true`, and `use-authorization-manager` to `true`.
-Also, xref:servlet/authorization/authorize-requests.adoc#filtersecurityinterceptor-every-request[`authorizeRequests#filterSecurityInterceptorOncePerRequest`] defaults to `false` and xref:servlet/authorization/authorize-http-requests.adoc[`authorizeHttpRequests#filterAllDispatcherTypes`] defaults to `true`.
+Also, {security-api-url}org/springframework/security/config/annotation/web/configurers/AbstractInterceptUrlConfigurer.AbstractInterceptUrlRegistry.html#filterSecurityInterceptorOncePerRequest(boolean)[`authorizeRequests#filterSecurityInterceptorOncePerRequest`] defaults to `false` and xref:servlet/authorization/authorize-http-requests.adoc[`authorizeHttpRequests#filterAllDispatcherTypes`] defaults to `true`.
 So, to complete migration, any defaults values can be removed.
 
 For example, if you opted in to the 6.0 default for `filter-all-dispatcher-types` or `authorizeHttpRequests#filterAllDispatcherTypes` like so:
