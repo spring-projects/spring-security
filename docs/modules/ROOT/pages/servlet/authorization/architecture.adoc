@@ -197,7 +197,7 @@ A typical configuration might look like this:
 ----
 @Bean
 static RoleHierarchy roleHierarchy() {
-    RoleHierarchy hierarchy = new RoleHierarchyImpl();
+    var hierarchy = new RoleHierarchyImpl();
     hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
             "ROLE_STAFF > ROLE_USER\n" +
             "ROLE_USER > ROLE_GUEST");
