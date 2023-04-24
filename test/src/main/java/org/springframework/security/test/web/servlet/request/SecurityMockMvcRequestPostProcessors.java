@@ -98,7 +98,6 @@ import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.DeferredCsrfToken;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
@@ -518,7 +517,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			CsrfTokenRepository repository = WebTestUtils.getCsrfTokenRepository(request);
 			CsrfTokenRequestHandler handler = WebTestUtils.getCsrfTokenRequestHandler(request);
 			if (!(repository instanceof TestCsrfTokenRepository)) {
-				repository = new TestCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+				repository = new TestCsrfTokenRepository(repository);
 				WebTestUtils.setCsrfTokenRepository(request, repository);
 			}
 			TestCsrfTokenRepository.enable(request);
