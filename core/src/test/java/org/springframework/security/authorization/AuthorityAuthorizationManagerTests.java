@@ -266,4 +266,9 @@ public class AuthorityAuthorizationManagerTests {
 		assertThat(manager.check(authentication, object).isGranted()).isTrue();
 	}
 
+	// gh-13079
+	@Test
+	void hasAnyRoleWhenEmptyRolePrefixThenNoException() {
+		AuthorityAuthorizationManager.hasAnyRole("", new String[] { "USER" });
+	}
 }
