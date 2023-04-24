@@ -206,4 +206,4 @@ Such classes would use `AclService` to retrieve the relevant ACL and then call `
 Alternately, you could use our `AclEntryVoter`, `AclEntryAfterInvocationProvider` or `AclEntryAfterInvocationCollectionFilteringProvider` classes.
 All of these classes provide a declarative-based approach to evaluating ACL information at runtime, freeing you from needing to write any code.
 
-See the https://github.com/spring-projects/spring-security/tree/master/samples[sample applications] to learn how to use these classes.
+See the https://github.com/spring-projects/spring-security-samples[sample applications] to learn how to use these classes.
