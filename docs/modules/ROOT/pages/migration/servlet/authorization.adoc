@@ -278,6 +278,10 @@ Read on to find the best match for your situation.
 If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`] with the default voters, you likely need do nothing since unanimous-based is the default behavior with {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableMethodSecurity.html[`@EnableMethodSecurity`].
 
 However, if you do discover that you cannot accept the default authorization managers, you can use `AuthorizationManagers.allOf` to compose your own arrangement.
+
+Note that there is a difference with `allOf`, which is that if all delegates abstain then it grants authorization.
+If you must deny authorization when all delegates abstain, please implement a composite {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`] that takes the set of delegate ``AuthorizationManager``s into account.
+
 Having done that, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
 
 ==== I use `AffirmativeBased`
