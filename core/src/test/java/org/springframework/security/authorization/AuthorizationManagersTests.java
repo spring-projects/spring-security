@@ -36,12 +36,14 @@ class AuthorizationManagersTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
+	// gh-13069
 	@Test
-	void checkAnyOfWhenOneAbstainedThenAbstainedDecision() {
+	void checkAnyOfWhenAllNonAbstainingDeniesThenDeniedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.anyOf((a, o) -> new AuthorizationDecision(false),
 				(a, o) -> null);
 		AuthorizationDecision decision = composed.check(null, null);
-		assertThat(decision).isNull();
+		assertThat(decision).isNotNull();
+		assertThat(decision.isGranted()).isFalse();
 	}
 
 	@Test
@@ -61,8 +63,9 @@ class AuthorizationManagersTests {
 		assertThat(decision.isGranted()).isTrue();
 	}
 
+	// gh-13069
 	@Test
-	void checkAllOfWhenOneAbstainedThenGrantedDecision() {
+	void checkAllOfWhenAllNonAbstainingGrantsThenGrantedDecision() {
 		AuthorizationManager<?> composed = AuthorizationManagers.allOf((a, o) -> new AuthorizationDecision(true),
 				(a, o) -> null);
 		AuthorizationDecision decision = composed.check(null, null);
