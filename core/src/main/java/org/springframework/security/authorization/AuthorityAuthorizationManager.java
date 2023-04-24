@@ -130,8 +130,8 @@ public final class AuthorityAuthorizationManager<T> implements AuthorizationMana
 		String[] result = new String[roles.length];
 		for (int i = 0; i < roles.length; i++) {
 			String role = roles[i];
-			Assert.isTrue(rolePrefix.isEmpty() || !role.startsWith(rolePrefix), () -> role + " should not start with " + rolePrefix + " since "
-					+ rolePrefix
+			Assert.isTrue(rolePrefix.isEmpty() || !role.startsWith(rolePrefix), () -> role + " should not start with "
+					+ rolePrefix + " since " + rolePrefix
 					+ " is automatically prepended when using hasAnyRole. Consider using hasAnyAuthority instead.");
 			result[i] = rolePrefix + role;
 		}

@@ -271,4 +271,5 @@ public class AuthorityAuthorizationManagerTests {
 	void hasAnyRoleWhenEmptyRolePrefixThenNoException() {
 		AuthorityAuthorizationManager.hasAnyRole("", new String[] { "USER" });
 	}
+
 }
