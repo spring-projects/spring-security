@@ -10,7 +10,7 @@ Please refer to JSON Web Token (JWT) Profile for OAuth 2.0 Client Authentication
 
 The default implementation for JWT Bearer Client Authentication is `NimbusJwtClientAuthenticationParametersConverter`,
 which is a `Converter` that customizes the Token Request parameters by adding
-a signed JSON Web Token (JWS) in the `client_assertion` parameter.
+a signed JSON Web Token (JWT) in the `client_assertion` parameter.
 
 The `java.security.PrivateKey` or `javax.crypto.SecretKey` used for signing the JWS
 is supplied by the `com.nimbusds.jose.jwk.JWK` resolver associated with `NimbusJwtClientAuthenticationParametersConverter`.
