@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMap
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.ldap.authentication.AbstractLdapAuthenticator;
 import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
@@ -33,6 +34,7 @@ import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
  * Creates an {@link AuthenticationManager} that can perform LDAP authentication.
  *
  * @author Eleftheria Stein
+ * @author Roman Zabaluev
  * @since 5.7
  */
 public abstract class AbstractLdapAuthenticationManagerFactory<T extends AbstractLdapAuthenticator> {
@@ -44,6 +46,8 @@ public abstract class AbstractLdapAuthenticationManagerFactory<T extends Abstrac
 	private BaseLdapPathContextSource contextSource;
 
 	private String[] userDnPatterns;
+
+	private LdapAuthenticationProvider customAuthenticationProvider;
 
 	private LdapAuthoritiesPopulator ldapAuthoritiesPopulator;
 
@@ -70,6 +74,16 @@ public abstract class AbstractLdapAuthenticationManagerFactory<T extends Abstrac
 	 */
 	protected final BaseLdapPathContextSource getContextSource() {
 		return this.contextSource;
+	}
+
+	/**
+	 * Set a custom {@link LdapAuthenticationProvider} which will be used
+	 * for creation of {@link LdapAuthenticationProvider} rather than constructed automatically.
+	 * Useful for custom implementations, like {@link ActiveDirectoryLdapAuthenticationProvider}
+	 * @param provider A custom {@link LdapAuthenticationProvider} implementation
+	 */
+	public void customAuthenticationProvider(final LdapAuthenticationProvider provider) {
+		this.customAuthenticationProvider = provider;
 	}
 
 	/**
@@ -145,11 +159,14 @@ public abstract class AbstractLdapAuthenticationManagerFactory<T extends Abstrac
 	private LdapAuthenticationProvider getProvider() {
 		AbstractLdapAuthenticator authenticator = getAuthenticator();
 		LdapAuthenticationProvider provider;
-		if (this.ldapAuthoritiesPopulator != null) {
-			provider = new LdapAuthenticationProvider(authenticator, this.ldapAuthoritiesPopulator);
+
+		if (this.customAuthenticationProvider != null) {
+			provider = this.customAuthenticationProvider;
 		}
 		else {
-			provider = new LdapAuthenticationProvider(authenticator);
+			provider = (this.ldapAuthoritiesPopulator != null)
+			? new LdapAuthenticationProvider(authenticator, this.ldapAuthoritiesPopulator)
+			: new LdapAuthenticationProvider(authenticator);
 		}
 		if (this.authoritiesMapper != null) {
 			provider.setAuthoritiesMapper(this.authoritiesMapper);
