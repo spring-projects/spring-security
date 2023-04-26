@@ -18,9 +18,7 @@ package org.springframework.security.oauth2.core.http.converter;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -131,10 +129,10 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	private static final class DefaultMapOAuth2DeviceAuthorizationResponseConverter
 			implements Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> {
 
-		private static final Set<String> DEVICE_AUTHORIZATION_RESPONSE_PARAMETER_NAMES = new HashSet<>(
-				Arrays.asList(OAuth2ParameterNames.DEVICE_CODE, OAuth2ParameterNames.USER_CODE,
-						OAuth2ParameterNames.VERIFICATION_URI, OAuth2ParameterNames.VERIFICATION_URI_COMPLETE,
-						OAuth2ParameterNames.EXPIRES_IN, OAuth2ParameterNames.INTERVAL));
+		private static final Set<String> DEVICE_AUTHORIZATION_RESPONSE_PARAMETER_NAMES = Set.of(
+				OAuth2ParameterNames.DEVICE_CODE, OAuth2ParameterNames.USER_CODE, OAuth2ParameterNames.VERIFICATION_URI,
+				OAuth2ParameterNames.VERIFICATION_URI_COMPLETE, OAuth2ParameterNames.EXPIRES_IN,
+				OAuth2ParameterNames.INTERVAL);
 
 		@Override
 		public OAuth2DeviceAuthorizationResponse convert(Map<String, Object> parameters) {

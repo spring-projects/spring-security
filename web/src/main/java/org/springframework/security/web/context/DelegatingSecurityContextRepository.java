@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.context;
 
-import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletRequest;

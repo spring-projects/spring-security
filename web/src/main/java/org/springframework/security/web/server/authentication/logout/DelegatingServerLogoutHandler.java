@@ -16,8 +16,6 @@
 
 package org.springframework.security.web.server.authentication.logout;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 

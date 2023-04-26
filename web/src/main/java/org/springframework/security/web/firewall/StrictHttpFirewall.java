@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.firewall;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -115,7 +114,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private Set<String> decodedUrlBlocklist = new HashSet<>();
 
-	private Set<String> allowedHttpMethods = createDefaultAllowedHttpMethods();
+	private Set<String> allowedHttpMethods = Set.copyOf(createDefaultAllowedHttpMethods());
 
 	private Predicate<String> allowedHostnames = (hostname) -> true;
 

@@ -16,7 +16,6 @@
 
 package org.springframework.security.core.authority.mapping;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +38,7 @@ public class SimpleMappableAttributesRetriever implements MappableAttributesRetr
 	public void setMappableAttributes(Set<String> aMappableRoles) {
 		this.mappableAttributes = new HashSet<>();
 		this.mappableAttributes.addAll(aMappableRoles);
-		this.mappableAttributes = Collections.unmodifiableSet(this.mappableAttributes);
+		this.mappableAttributes = Set.copyOf(this.mappableAttributes);
 	}
 
 }

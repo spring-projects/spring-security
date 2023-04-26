@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -87,7 +85,7 @@ public class WebXmlMappableAttributesRetriever
 		Assert.isTrue(webApp.getLength() == 1, () -> "Failed to find 'web-app' element in resource" + webXml);
 		NodeList securityRoles = ((Element) webApp.item(0)).getElementsByTagName("security-role");
 		List<String> roleNames = getRoleNames(webXml, securityRoles);
-		this.mappableAttributes = Collections.unmodifiableSet(new HashSet<>(roleNames));
+		this.mappableAttributes = Set.copyOf(roleNames);
 	}
 
 	private List<String> getRoleNames(Resource webXml, NodeList securityRoles) {

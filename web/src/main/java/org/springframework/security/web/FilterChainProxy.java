@@ -17,7 +17,6 @@
 package org.springframework.security.web;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

@@ -47,13 +47,8 @@ import org.springframework.util.Assert;
  */
 public final class Jsr250AuthorizationManager implements AuthorizationManager<MethodInvocation> {
 
-	private static final Set<Class<? extends Annotation>> JSR250_ANNOTATIONS = new HashSet<>();
-
-	static {
-		JSR250_ANNOTATIONS.add(DenyAll.class);
-		JSR250_ANNOTATIONS.add(PermitAll.class);
-		JSR250_ANNOTATIONS.add(RolesAllowed.class);
-	}
+	private static final Set<Class<? extends Annotation>> JSR250_ANNOTATIONS = Set.of(DenyAll.class, PermitAll.class,
+			RolesAllowed.class);
 
 	private final Jsr250AuthorizationManagerRegistry registry = new Jsr250AuthorizationManagerRegistry();
 

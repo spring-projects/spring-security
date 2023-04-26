@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.server.util.matcher;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;

@@ -16,9 +16,8 @@
 
 package org.springframework.security.config.http;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.w3c.dom.Element;
@@ -218,7 +217,7 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
 
-		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+		private final Set<String> allowedMethods = Set.of("GET", "HEAD", "TRACE", "OPTIONS");
 
 		@Override
 		public boolean matches(HttpServletRequest request) {

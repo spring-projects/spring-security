@@ -17,7 +17,6 @@
 package org.springframework.security.oauth2.client;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -102,8 +101,7 @@ public class RemoveAuthorizedClientOAuth2AuthorizationFailureHandler implements 
 			OAuth2AuthorizedClientRemover authorizedClientRemover, Set<String> removeAuthorizedClientErrorCodes) {
 		Assert.notNull(authorizedClientRemover, "authorizedClientRemover cannot be null");
 		Assert.notNull(removeAuthorizedClientErrorCodes, "removeAuthorizedClientErrorCodes cannot be null");
-		this.removeAuthorizedClientErrorCodes = Collections
-				.unmodifiableSet(new HashSet<>(removeAuthorizedClientErrorCodes));
+		this.removeAuthorizedClientErrorCodes = Set.copyOf(removeAuthorizedClientErrorCodes);
 		this.delegate = authorizedClientRemover;
 	}
 

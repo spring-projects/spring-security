@@ -17,9 +17,7 @@
 package org.springframework.security.oauth2.client.oidc.userinfo;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -70,8 +68,8 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private static final Converter<Map<String, Object>, Map<String, Object>> DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
 			createDefaultClaimTypeConverters());
 
-	private Set<String> accessibleScopes = new HashSet<>(
-			Arrays.asList(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS, OidcScopes.PHONE));
+	private Set<String> accessibleScopes = Set.of(OidcScopes.PROFILE, OidcScopes.EMAIL, OidcScopes.ADDRESS,
+			OidcScopes.PHONE);
 
 	private OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = new DefaultOAuth2UserService();
 

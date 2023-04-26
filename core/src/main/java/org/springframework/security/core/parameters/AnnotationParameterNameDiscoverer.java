@@ -20,8 +20,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.springframework.core.BridgeMethodResolver;
@@ -96,12 +94,12 @@ public class AnnotationParameterNameDiscoverer implements ParameterNameDiscovere
 	private final Set<String> annotationClassesToUse;
 
 	public AnnotationParameterNameDiscoverer(String... annotationClassToUse) {
-		this(new HashSet<>(Arrays.asList(annotationClassToUse)));
+		this(Set.of(annotationClassToUse));
 	}
 
 	public AnnotationParameterNameDiscoverer(Set<String> annotationClassesToUse) {
 		Assert.notEmpty(annotationClassesToUse, "annotationClassesToUse cannot be null or empty");
-		this.annotationClassesToUse = annotationClassesToUse;
+		this.annotationClassesToUse = Set.copyOf(annotationClassesToUse);
 	}
 
 	@Override

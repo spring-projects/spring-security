@@ -18,8 +18,6 @@ package org.springframework.security.web.csrf;
 
 import java.io.IOException;
 import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.servlet.FilterChain;

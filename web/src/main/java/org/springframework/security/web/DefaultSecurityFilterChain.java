@@ -16,8 +16,6 @@
 
 package org.springframework.security.web;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.Filter;

@@ -17,7 +17,6 @@
 package org.springframework.security.web.firewall;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.ServletException;

@@ -37,9 +37,9 @@ import org.springframework.util.StringUtils;
 public final class DefaultMapOAuth2AccessTokenResponseConverter
 		implements Converter<Map<String, Object>, OAuth2AccessTokenResponse> {
 
-	private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = new HashSet<>(
-			Arrays.asList(OAuth2ParameterNames.ACCESS_TOKEN, OAuth2ParameterNames.EXPIRES_IN,
-					OAuth2ParameterNames.REFRESH_TOKEN, OAuth2ParameterNames.SCOPE, OAuth2ParameterNames.TOKEN_TYPE));
+	private static final Set<String> TOKEN_RESPONSE_PARAMETER_NAMES = Set.of(OAuth2ParameterNames.ACCESS_TOKEN,
+			OAuth2ParameterNames.EXPIRES_IN, OAuth2ParameterNames.REFRESH_TOKEN, OAuth2ParameterNames.SCOPE,
+			OAuth2ParameterNames.TOKEN_TYPE);
 
 	@Override
 	public OAuth2AccessTokenResponse convert(Map<String, Object> source) {

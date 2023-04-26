@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.server;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.logging.Log;

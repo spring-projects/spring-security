@@ -17,8 +17,6 @@
 package org.springframework.security.web.access;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 

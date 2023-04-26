@@ -16,7 +16,6 @@
 
 package org.springframework.security.web.header;
 
-import java.util.Arrays;
 import java.util.List;
 
 import jakarta.servlet.http.HttpServletResponse;
