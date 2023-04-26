@@ -44,11 +44,11 @@ public class OrServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	public OrServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
 		Assert.notEmpty(matchers, "matchers cannot be empty");
-		this.matchers = matchers;
+		this.matchers = List.copyOf(matchers);
 	}
 
 	public OrServerWebExchangeMatcher(ServerWebExchangeMatcher... matchers) {
-		this(Arrays.asList(matchers));
+		this(List.of(matchers));
 	}
 
 	@Override

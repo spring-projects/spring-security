@@ -52,12 +52,12 @@ public class DelegatingServerAuthenticationEntryPoint implements ServerAuthentic
 	};
 
 	public DelegatingServerAuthenticationEntryPoint(DelegateEntry... entryPoints) {
-		this(Arrays.asList(entryPoints));
+		this(List.of(entryPoints));
 	}
 
 	public DelegatingServerAuthenticationEntryPoint(List<DelegateEntry> entryPoints) {
 		Assert.notEmpty(entryPoints, "entryPoints cannot be null");
-		this.entryPoints = entryPoints;
+		this.entryPoints = List.copyOf(entryPoints);
 	}
 
 	@Override

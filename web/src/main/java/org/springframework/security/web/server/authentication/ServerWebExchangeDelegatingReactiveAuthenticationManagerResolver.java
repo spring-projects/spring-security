@@ -58,7 +58,7 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 	 */
 	ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver(
 			ServerWebExchangeMatcherEntry<ReactiveAuthenticationManager>... managers) {
-		this(Arrays.asList(managers));
+		this(List.of(managers));
 	}
 
 	/**
@@ -70,7 +70,7 @@ public final class ServerWebExchangeDelegatingReactiveAuthenticationManagerResol
 	ServerWebExchangeDelegatingReactiveAuthenticationManagerResolver(
 			List<ServerWebExchangeMatcherEntry<ReactiveAuthenticationManager>> managers) {
 		Assert.notNull(managers, "entries cannot be null");
-		this.authenticationManagers = managers;
+		this.authenticationManagers = List.copyOf(managers);
 	}
 
 	/**

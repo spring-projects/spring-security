@@ -36,16 +36,16 @@ import org.springframework.util.Assert;
  */
 public class DelegatingServerLogoutHandler implements ServerLogoutHandler {
 
-	private final List<ServerLogoutHandler> delegates = new ArrayList<>();
+	private final List<ServerLogoutHandler> delegates;
 
 	public DelegatingServerLogoutHandler(ServerLogoutHandler... delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
-		this.delegates.addAll(Arrays.asList(delegates));
+		this.delegates = List.of(delegates);
 	}
 
 	public DelegatingServerLogoutHandler(Collection<ServerLogoutHandler> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
-		this.delegates.addAll(delegates);
+		this.delegates = List.copyOf(delegates);
 	}
 
 	@Override

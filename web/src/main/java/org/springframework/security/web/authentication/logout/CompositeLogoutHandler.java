@@ -40,12 +40,12 @@ public final class CompositeLogoutHandler implements LogoutHandler {
 
 	public CompositeLogoutHandler(LogoutHandler... logoutHandlers) {
 		Assert.notEmpty(logoutHandlers, "LogoutHandlers are required");
-		this.logoutHandlers = Arrays.asList(logoutHandlers);
+		this.logoutHandlers = List.of(logoutHandlers);
 	}
 
 	public CompositeLogoutHandler(List<LogoutHandler> logoutHandlers) {
 		Assert.notEmpty(logoutHandlers, "LogoutHandlers are required");
-		this.logoutHandlers = logoutHandlers;
+		this.logoutHandlers = List.copyOf(logoutHandlers);
 	}
 
 	@Override

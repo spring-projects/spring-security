@@ -46,11 +46,11 @@ public class AndServerWebExchangeMatcher implements ServerWebExchangeMatcher {
 
 	public AndServerWebExchangeMatcher(List<ServerWebExchangeMatcher> matchers) {
 		Assert.notEmpty(matchers, "matchers cannot be empty");
-		this.matchers = matchers;
+		this.matchers = List.copyOf(matchers);
 	}
 
 	public AndServerWebExchangeMatcher(ServerWebExchangeMatcher... matchers) {
-		this(Arrays.asList(matchers));
+		this(List.of(matchers));
 	}
 
 	@Override

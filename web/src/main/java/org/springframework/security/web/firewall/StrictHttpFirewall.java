@@ -90,31 +90,26 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 	private static final String PERCENT = "%";
 
-	private static final List<String> FORBIDDEN_ENCODED_PERIOD = Collections
-			.unmodifiableList(Arrays.asList("%2e", "%2E"));
+	private static final List<String> FORBIDDEN_ENCODED_PERIOD = List.of("%2e", "%2E");
 
-	private static final List<String> FORBIDDEN_SEMICOLON = Collections
-			.unmodifiableList(Arrays.asList(";", "%3b", "%3B"));
+	private static final List<String> FORBIDDEN_SEMICOLON = List.of(";", "%3b", "%3B");
 
-	private static final List<String> FORBIDDEN_FORWARDSLASH = Collections
-			.unmodifiableList(Arrays.asList("%2f", "%2F"));
+	private static final List<String> FORBIDDEN_FORWARDSLASH = List.of("%2f", "%2F");
 
-	private static final List<String> FORBIDDEN_DOUBLE_FORWARDSLASH = Collections
-			.unmodifiableList(Arrays.asList("//", "%2f%2f", "%2f%2F", "%2F%2f", "%2F%2F"));
+	private static final List<String> FORBIDDEN_DOUBLE_FORWARDSLASH = List.of("//", "%2f%2f", "%2f%2F", "%2F%2f",
+			"%2F%2F");
 
-	private static final List<String> FORBIDDEN_BACKSLASH = Collections
-			.unmodifiableList(Arrays.asList("\\", "%5c", "%5C"));
+	private static final List<String> FORBIDDEN_BACKSLASH = List.of("\\", "%5c", "%5C");
 
-	private static final List<String> FORBIDDEN_NULL = Collections.unmodifiableList(Arrays.asList("\0", "%00"));
+	private static final List<String> FORBIDDEN_NULL = List.of("\0", "%00");
 
-	private static final List<String> FORBIDDEN_LF = Collections.unmodifiableList(Arrays.asList("\n", "%0a", "%0A"));
+	private static final List<String> FORBIDDEN_LF = List.of("\n", "%0a", "%0A");
 
-	private static final List<String> FORBIDDEN_CR = Collections.unmodifiableList(Arrays.asList("\r", "%0d", "%0D"));
+	private static final List<String> FORBIDDEN_CR = List.of("\r", "%0d", "%0D");
 
-	private static final List<String> FORBIDDEN_LINE_SEPARATOR = Collections.unmodifiableList(Arrays.asList("\u2028"));
+	private static final List<String> FORBIDDEN_LINE_SEPARATOR = List.of("\u2028");
 
-	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = Collections
-			.unmodifiableList(Arrays.asList("\u2029"));
+	private static final List<String> FORBIDDEN_PARAGRAPH_SEPARATOR = List.of("\u2029");
 
 	private Set<String> encodedUrlBlocklist = new HashSet<>();
 

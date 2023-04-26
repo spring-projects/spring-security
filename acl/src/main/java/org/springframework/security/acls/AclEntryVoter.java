@@ -18,7 +18,6 @@ package org.springframework.security.acls;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -119,7 +118,7 @@ public class AclEntryVoter extends AbstractAclVoter {
 		Assert.isTrue(!ObjectUtils.isEmpty(requirePermission), "One or more requirePermission entries is mandatory");
 		this.aclService = aclService;
 		this.processConfigAttribute = processConfigAttribute;
-		this.requirePermission = Arrays.asList(requirePermission);
+		this.requirePermission = List.of(requirePermission);
 	}
 
 	/**

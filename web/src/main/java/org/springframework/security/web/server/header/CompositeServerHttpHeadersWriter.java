@@ -35,11 +35,11 @@ public class CompositeServerHttpHeadersWriter implements ServerHttpHeadersWriter
 	private final List<ServerHttpHeadersWriter> writers;
 
 	public CompositeServerHttpHeadersWriter(ServerHttpHeadersWriter... writers) {
-		this(Arrays.asList(writers));
+		this(List.of(writers));
 	}
 
 	public CompositeServerHttpHeadersWriter(List<ServerHttpHeadersWriter> writers) {
-		this.writers = writers;
+		this.writers = List.copyOf(writers);
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public final class CompositeRequestRejectedHandler implements RequestRejectedHan
 	 */
 	public CompositeRequestRejectedHandler(RequestRejectedHandler... requestRejectedhandlers) {
 		Assert.notEmpty(requestRejectedhandlers, "requestRejectedhandlers cannot be empty");
-		this.requestRejectedhandlers = Arrays.asList(requestRejectedhandlers);
+		this.requestRejectedhandlers = List.of(requestRejectedhandlers);
 	}
 
 	@Override

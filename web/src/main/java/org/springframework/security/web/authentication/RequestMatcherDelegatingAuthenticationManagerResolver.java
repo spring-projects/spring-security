@@ -58,7 +58,7 @@ public final class RequestMatcherDelegatingAuthenticationManagerResolver
 	RequestMatcherDelegatingAuthenticationManagerResolver(
 			RequestMatcherEntry<AuthenticationManager>... authenticationManagers) {
 		Assert.notEmpty(authenticationManagers, "authenticationManagers cannot be empty");
-		this.authenticationManagers = Arrays.asList(authenticationManagers);
+		this.authenticationManagers = List.of(authenticationManagers);
 	}
 
 	/**

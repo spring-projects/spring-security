@@ -180,8 +180,8 @@ public class CsrfWebFilter implements WebFilter {
 
 	private static class DefaultRequireCsrfProtectionMatcher implements ServerWebExchangeMatcher {
 
-		private static final Set<HttpMethod> ALLOWED_METHODS = new HashSet<>(
-				Arrays.asList(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.TRACE, HttpMethod.OPTIONS));
+		private static final Set<HttpMethod> ALLOWED_METHODS = Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.TRACE,
+				HttpMethod.OPTIONS);
 
 		@Override
 		public Mono<MatchResult> matches(ServerWebExchange exchange) {

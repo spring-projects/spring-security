@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,11 +33,11 @@ public final class CompositeAccessDeniedHandler implements AccessDeniedHandler {
 	private Collection<AccessDeniedHandler> handlers;
 
 	public CompositeAccessDeniedHandler(AccessDeniedHandler... handlers) {
-		this(Arrays.asList(handlers));
+		this(List.of(handlers));
 	}
 
 	public CompositeAccessDeniedHandler(Collection<AccessDeniedHandler> handlers) {
-		this.handlers = new ArrayList<>(handlers);
+		this.handlers = List.copyOf(handlers);
 	}
 
 	@Override

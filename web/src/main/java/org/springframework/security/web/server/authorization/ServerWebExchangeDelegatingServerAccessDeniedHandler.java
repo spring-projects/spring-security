@@ -52,7 +52,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 	 * is used. If none match, then the default {@link ServerAccessDeniedHandler} is used.
 	 */
 	public ServerWebExchangeDelegatingServerAccessDeniedHandler(DelegateEntry... handlers) {
-		this(Arrays.asList(handlers));
+		this(List.of(handlers));
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class ServerWebExchangeDelegatingServerAccessDeniedHandler implements Ser
 	 */
 	public ServerWebExchangeDelegatingServerAccessDeniedHandler(List<DelegateEntry> handlers) {
 		Assert.notEmpty(handlers, "handlers cannot be null");
-		this.handlers = handlers;
+		this.handlers = List.copyOf(handlers);
 	}
 
 	@Override

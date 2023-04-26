@@ -166,11 +166,11 @@ public class FilterChainProxy extends GenericFilterBean {
 	}
 
 	public FilterChainProxy(SecurityFilterChain chain) {
-		this(Arrays.asList(chain));
+		this(List.of(chain));
 	}
 
 	public FilterChainProxy(List<SecurityFilterChain> filterChains) {
-		this.filterChains = filterChains;
+		this.filterChains = List.copyOf(filterChains);
 	}
 
 	@Override

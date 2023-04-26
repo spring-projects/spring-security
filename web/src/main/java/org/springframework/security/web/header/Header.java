@@ -42,7 +42,7 @@ public final class Header {
 		Assert.notEmpty(headerValues, "headerValues cannot be null or empty");
 		Assert.noNullElements(headerValues, "headerValues cannot contain null values");
 		this.headerName = headerName;
-		this.headerValues = Arrays.asList(headerValues);
+		this.headerValues = List.of(headerValues);
 	}
 
 	/**

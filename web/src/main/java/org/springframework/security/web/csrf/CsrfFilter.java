@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -202,7 +203,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 
 	private static final class DefaultRequiresCsrfMatcher implements RequestMatcher {
 
-		private final HashSet<String> allowedMethods = new HashSet<>(Arrays.asList("GET", "HEAD", "TRACE", "OPTIONS"));
+		private final Set<String> allowedMethods = Set.of("GET", "HEAD", "TRACE", "OPTIONS");
 
 		@Override
 		public boolean matches(HttpServletRequest request) {

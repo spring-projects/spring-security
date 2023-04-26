@@ -36,12 +36,12 @@ public final class DelegatingSecurityContextRepository implements SecurityContex
 	private final List<SecurityContextRepository> delegates;
 
 	public DelegatingSecurityContextRepository(SecurityContextRepository... delegates) {
-		this(Arrays.asList(delegates));
+		this(List.of(delegates));
 	}
 
 	public DelegatingSecurityContextRepository(List<SecurityContextRepository> delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be empty");
-		this.delegates = delegates;
+		this.delegates = List.copyOf(delegates);
 	}
 
 	@Override

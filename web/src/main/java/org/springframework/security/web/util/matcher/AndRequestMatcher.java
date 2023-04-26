@@ -47,7 +47,7 @@ public final class AndRequestMatcher implements RequestMatcher {
 	public AndRequestMatcher(List<RequestMatcher> requestMatchers) {
 		Assert.notEmpty(requestMatchers, "requestMatchers must contain a value");
 		Assert.noNullElements(requestMatchers, "requestMatchers cannot contain null values");
-		this.requestMatchers = requestMatchers;
+		this.requestMatchers = List.copyOf(requestMatchers);
 	}
 
 	/**

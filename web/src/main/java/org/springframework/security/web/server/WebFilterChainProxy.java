@@ -48,7 +48,7 @@ public class WebFilterChainProxy implements WebFilter {
 	}
 
 	public WebFilterChainProxy(SecurityWebFilterChain... filters) {
-		this.filters = Arrays.asList(filters);
+		this.filters = List.of(filters);
 	}
 
 	@Override

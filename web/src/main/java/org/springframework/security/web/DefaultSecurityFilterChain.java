@@ -43,7 +43,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 	private final List<Filter> filters;
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, Filter... filters) {
-		this(requestMatcher, Arrays.asList(filters));
+		this(requestMatcher, List.of(filters));
 	}
 
 	public DefaultSecurityFilterChain(RequestMatcher requestMatcher, List<Filter> filters) {
@@ -54,7 +54,7 @@ public final class DefaultSecurityFilterChain implements SecurityFilterChain {
 			logger.info(LogMessage.format("Will secure %s with %s", requestMatcher, filters));
 		}
 		this.requestMatcher = requestMatcher;
-		this.filters = new ArrayList<>(filters);
+		this.filters = List.copyOf(filters);
 	}
 
 	public RequestMatcher getRequestMatcher() {

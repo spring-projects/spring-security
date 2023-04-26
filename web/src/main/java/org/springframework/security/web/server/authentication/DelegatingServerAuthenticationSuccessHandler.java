@@ -39,7 +39,7 @@ public class DelegatingServerAuthenticationSuccessHandler implements ServerAuthe
 
 	public DelegatingServerAuthenticationSuccessHandler(ServerAuthenticationSuccessHandler... delegates) {
 		Assert.notEmpty(delegates, "delegates cannot be null or empty");
-		this.delegates = Arrays.asList(delegates);
+		this.delegates = List.of(delegates);
 	}
 
 	@Override
