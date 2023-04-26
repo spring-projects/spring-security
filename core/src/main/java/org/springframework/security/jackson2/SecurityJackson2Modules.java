@@ -222,7 +222,21 @@ public final class SecurityJackson2Modules {
 
 		private static final Set<String> ALLOWLIST_CLASS_NAMES;
 		static {
-			ALLOWLIST_CLASS_NAMES = Set.of("java.util.ArrayList", "java.util.Collections$EmptyList", "java.util.Collections$EmptyMap", "java.util.Collections$UnmodifiableRandomAccessList", "java.util.Collections$SingletonList", "java.util.Date", "java.time.Instant", "java.net.URL", "java.util.TreeMap", "java.util.HashMap", "java.util.LinkedHashMap", "org.springframework.security.core.context.SecurityContextImpl", "java.util.Arrays$ArrayList");
+			Set<String> names = new HashSet<>();
+			names.add("java.util.ArrayList");
+			names.add("java.util.Collections$EmptyList");
+			names.add("java.util.Collections$EmptyMap");
+			names.add("java.util.Collections$UnmodifiableRandomAccessList");
+			names.add("java.util.Collections$SingletonList");
+			names.add("java.util.Date");
+			names.add("java.time.Instant");
+			names.add("java.net.URL");
+			names.add("java.util.TreeMap");
+			names.add("java.util.HashMap");
+			names.add("java.util.LinkedHashMap");
+			names.add("org.springframework.security.core.context.SecurityContextImpl");
+			names.add("java.util.Arrays$ArrayList");
+			ALLOWLIST_CLASS_NAMES = Collections.unmodifiableSet(names);
 		}
 
 		private final TypeIdResolver delegate;

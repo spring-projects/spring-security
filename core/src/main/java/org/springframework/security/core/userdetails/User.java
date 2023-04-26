@@ -115,7 +115,7 @@ public class User implements UserDetails, CredentialsContainer {
 		this.accountNonExpired = accountNonExpired;
 		this.credentialsNonExpired = credentialsNonExpired;
 		this.accountNonLocked = accountNonLocked;
-		this.authorities = Set.copyOf(sortAuthorities(authorities));
+		this.authorities = Collections.unmodifiableSet(sortAuthorities(authorities));
 	}
 
 	@Override
