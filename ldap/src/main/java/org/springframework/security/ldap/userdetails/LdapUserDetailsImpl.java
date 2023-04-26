@@ -213,7 +213,7 @@ public class LdapUserDetailsImpl implements LdapUserDetails, PasswordPolicyData 
 			Assert.notNull(this.instance, "Essence can only be used to create a single instance");
 			Assert.notNull(this.instance.username, "username must not be null");
 			Assert.notNull(this.instance.getDn(), "Distinguished name must not be null");
-			this.instance.authorities = Collections.unmodifiableList(this.mutableAuthorities);
+			this.instance.authorities = List.copyOf(this.mutableAuthorities);
 			LdapUserDetails newInstance = this.instance;
 			this.instance = null;
 			return newInstance;

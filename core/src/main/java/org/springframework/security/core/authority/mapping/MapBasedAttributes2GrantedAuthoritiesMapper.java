@@ -84,7 +84,7 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 		Assert.notEmpty(attributes2grantedAuthoritiesMap,
 				"A non-empty attributes2grantedAuthoritiesMap must be supplied");
 		this.attributes2grantedAuthoritiesMap = preProcessMap(attributes2grantedAuthoritiesMap);
-		this.mappableAttributes = Collections.unmodifiableSet(this.attributes2grantedAuthoritiesMap.keySet());
+		this.mappableAttributes = Set.copyOf(this.attributes2grantedAuthoritiesMap.keySet());
 	}
 
 	/**

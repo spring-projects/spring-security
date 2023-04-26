@@ -69,11 +69,7 @@ public final class OidcIdTokenDecoderFactory implements JwtDecoderFactory<Client
 
 	private static final Map<JwsAlgorithm, String> JCA_ALGORITHM_MAPPINGS;
 	static {
-		Map<JwsAlgorithm, String> mappings = new HashMap<>();
-		mappings.put(MacAlgorithm.HS256, "HmacSHA256");
-		mappings.put(MacAlgorithm.HS384, "HmacSHA384");
-		mappings.put(MacAlgorithm.HS512, "HmacSHA512");
-		JCA_ALGORITHM_MAPPINGS = Collections.unmodifiableMap(mappings);
+		JCA_ALGORITHM_MAPPINGS = Map.of(MacAlgorithm.HS256, "HmacSHA256", MacAlgorithm.HS384, "HmacSHA384", MacAlgorithm.HS512, "HmacSHA512");
 	};
 
 	private static final ClaimTypeConverter DEFAULT_CLAIM_TYPE_CONVERTER = new ClaimTypeConverter(
