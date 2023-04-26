@@ -6,8 +6,6 @@ The following steps relate to changes around how to configure `HttpSecurity`, `W
 
 The Lambda DSL is present in Spring Security since version 5.2, and it allows HTTP security to be configured using lambdas.
 
-The prior configuration style will not be valid in Spring Security 7 where the usage of the Lambda DSL will be required.
-
 You may have seen this style of configuration in the Spring Security documentation or samples.
 Let us take a look at how a lambda configuration of HTTP security compares to the previous configuration style.
 
@@ -64,6 +62,16 @@ public class SecurityConfig {
 }
 ----
 ====
+
+The Lambda DSL is the preferred way to configure Spring Security, the prior configuration style will not be valid in Spring Security 7 where the usage of the Lambda DSL will be required.
+This has been done mainly for a couple of reasons:
+
+- The previous way it was not clear what object was getting configured without knowing what the return type was.
+The deeper the nesting the more confusing it became.
+Even experienced users would think that their configuration was doing one thing when in fact, it was doing something else.
+
+- Consistency.
+Many code bases switched between the two styles which caused inconsistencies that made understanding the configuration difficult and often led to misconfigurations.
 
 === Lambda DSL Configuration Tips
 
