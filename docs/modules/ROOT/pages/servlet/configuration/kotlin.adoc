@@ -16,6 +16,8 @@ It is configured with the following default implementation:
 
 [source,kotlin]
 ----
+import org.springframework.security.config.annotation.web.invoke
+
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
    http {
@@ -28,6 +30,9 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
+
+[NOTE]
+Make sure that import the `invoke` function in your class, sometimes the IDE will not auto-import it causing compilation issues.
 
 The default configuration above:
 
@@ -54,6 +59,8 @@ For example, the following is an example of having a different configuration for
 
 [source,kotlin]
 ----
+import org.springframework.security.config.annotation.web.invoke
+
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
     @Bean                                                            <1>
