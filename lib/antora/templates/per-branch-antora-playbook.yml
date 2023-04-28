@@ -31,5 +31,5 @@ urls:
   latest_version_segment: ''
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.1.1/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.2.2/ui-bundle.zip
     snapshot: true
