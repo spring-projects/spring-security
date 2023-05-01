@@ -25,7 +25,9 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * @author Rob Winch
  * @since 5.0
+ * @deprecated For removal in 7.0. Use {@link ContentTypeOptionsServerHttpHeadersWriter} instead.
  */
+@Deprecated(since = "6.2", forRemoval = true)
 public class XContentTypeOptionsServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
 	public static final String X_CONTENT_OPTIONS = "X-Content-Options";
