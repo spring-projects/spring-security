@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,21 @@ public class PrePostMethodSecurityConfigurationTests {
 
 	@Autowired(required = false)
 	BusinessService businessService;
+
+	@WithMockUser
+	@Test
+	public void customMethodSecurityPreAuthorizeAdminWhenRoleUserThenAccessDeniedException() {
+		this.spring.register(CustomMethodSecurityServiceConfig.class).autowire();
+		assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(this.methodSecurityService::preAuthorizeAdmin)
+				.withMessage("Access Denied");
+	}
+
+	@WithMockUser(roles = "ADMIN")
+	@Test
+	public void customMethodSecurityPreAuthorizeAdminWhenRoleAdminThenPasses() {
+		this.spring.register(CustomMethodSecurityServiceConfig.class).autowire();
+		this.methodSecurityService.preAuthorizeAdmin();
+	}
 
 	@WithMockUser(roles = "ADMIN")
 	@Test
@@ -416,6 +431,17 @@ public class PrePostMethodSecurityConfigurationTests {
 		assertThat(this.spring.getContext().containsBean("postAuthorizeAspect$0")).isTrue();
 		assertThat(this.spring.getContext().containsBean("securedAspect$0")).isTrue();
 		assertThat(this.spring.getContext().containsBean("annotationSecurityAspect$0")).isFalse();
+	}
+
+	@Configuration
+	@EnableCustomMethodSecurity
+	static class CustomMethodSecurityServiceConfig {
+
+		@Bean
+		MethodSecurityService methodSecurityService() {
+			return new MethodSecurityServiceImpl();
+		}
+
 	}
 
 	@Configuration
