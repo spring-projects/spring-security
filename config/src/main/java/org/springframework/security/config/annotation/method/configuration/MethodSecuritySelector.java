@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,8 @@ final class MethodSecuritySelector implements ImportSelector {
 
 	@Override
 	public String[] selectImports(@NonNull AnnotationMetadata importMetadata) {
-		if (!importMetadata.hasAnnotation(EnableMethodSecurity.class.getName())) {
+		if (!importMetadata.hasAnnotation(EnableMethodSecurity.class.getName())
+				&& !importMetadata.hasMetaAnnotation(EnableMethodSecurity.class.getName())) {
 			return new String[0];
 		}
 		EnableMethodSecurity annotation = importMetadata.getAnnotations().get(EnableMethodSecurity.class).synthesize();
