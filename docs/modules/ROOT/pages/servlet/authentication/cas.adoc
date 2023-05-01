@@ -381,8 +381,8 @@ protected fun doGet(request: HttpServletRequest, response: HttpServletResponse?)
 [[cas-pt]]
 === Proxy Ticket Authentication
 The `CasAuthenticationProvider` distinguishes between stateful and stateless clients.
-A stateful client is considered any that submits to the `filterProcessUrl` of the `CasAuthenticationFilter`.
-A stateless client is any that presents an authentication request to `CasAuthenticationFilter` on a URL other than the `filterProcessUrl`.
+A stateful client is considered any that submits to the `filterProcessesUrl` of the `CasAuthenticationFilter`.
+A stateless client is any that presents an authentication request to `CasAuthenticationFilter` on a URL other than the `filterProcessesUrl`.
 
 Because remoting protocols have no way of presenting themselves within the context of an `HttpSession`, it isn't possible to rely on the default practice of storing the security context in the session between requests.
 Furthermore, because the CAS server invalidates a ticket after it has been validated by the `TicketValidator`, presenting the same proxy ticket on subsequent requests will not work.
@@ -408,7 +408,7 @@ The first step is to specify to authenticate all artifacts as shown below.
 ----
 
 The next step is to specify `serviceProperties` and the `authenticationDetailsSource` for the `CasAuthenticationFilter`.
-The `serviceProperties` property instructs the `CasAuthenticationFilter` to attempt to authenticate all artifacts instead of only ones present on the `filterProcessUrl`.
+The `serviceProperties` property instructs the `CasAuthenticationFilter` to attempt to authenticate all artifacts instead of only ones present on the `filterProcessesUrl`.
 The `ServiceAuthenticationDetailsSource` creates a `ServiceAuthenticationDetails` that ensures the current URL, based upon the `HttpServletRequest`, is used as the service URL when validating the ticket.
 The method for generating the service URL can be customized by injecting a custom `AuthenticationDetailsSource` that returns a custom `ServiceAuthenticationDetails`.
 
