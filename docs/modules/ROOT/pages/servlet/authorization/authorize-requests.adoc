@@ -163,8 +163,9 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
+
 .XML
-[source,xml]
+[source,xml,role="secondary"]
 ----
 <http once-per-request="false">
     <intercept-url pattern="/**" access="authenticated"/>
@@ -193,7 +194,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 }
 ----
 .XML
-[source,xml]
+[source,xml,role="secondary"]
 ----
 <http auto-config="true" once-per-request="false">
     <intercept-url request-matcher-ref="dispatcherTypeMatcher" access="permitAll" />
