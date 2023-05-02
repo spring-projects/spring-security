@@ -168,7 +168,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 }
 ----
 .XML
-[source,xml]
+[source,xml,role="secondary"]
 ----
 <http auto-config="true">
     <intercept-url request-matcher-ref="dispatcherTypeMatcher" access="permitAll" />
