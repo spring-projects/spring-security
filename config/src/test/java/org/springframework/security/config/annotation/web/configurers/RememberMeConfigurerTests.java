@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package org.springframework.security.config.annotation.web.configurers;
 import java.util.Collections;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.junit.jupiter.api.Test;
@@ -38,6 +40,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
 import org.springframework.security.core.userdetails.User;
@@ -48,6 +51,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
+import org.springframework.security.web.context.HttpRequestResponseHolder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -60,6 +66,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -301,6 +308,24 @@ public class RememberMeConfigurerTests {
 				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
 		// @formatter:on
 		this.mvc.perform(requestWithRememberme).andExpect(remembermeAuthentication);
+	}
+
+	// gh-13104
+	@Test
+	public void getWhenCustomSecurityContextRepositoryThenUses() throws Exception {
+		this.spring.register(SecurityContextRepositoryConfig.class).autowire();
+		SecurityContextRepository repository = this.spring.getContext().getBean(SecurityContextRepository.class);
+		MvcResult mvcResult = this.mvc.perform(post("/login").with(csrf()).param("username", "user")
+				.param("password", "password").param("remember-me", "true")).andReturn();
+		Cookie rememberMeCookie = mvcResult.getResponse().getCookie("remember-me");
+		reset(repository);
+		// @formatter:off
+		MockHttpServletRequestBuilder request = get("/abc").cookie(rememberMeCookie);
+		SecurityMockMvcResultMatchers.AuthenticatedMatcher remembermeAuthentication = authenticated()
+				.withAuthentication((auth) -> assertThat(auth).isInstanceOf(RememberMeAuthenticationToken.class));
+		// @formatter:on
+		this.mvc.perform(request).andExpect(remembermeAuthentication);
+		verify(repository).saveContext(any(), any(), any());
 	}
 
 	@EnableWebSecurity
@@ -578,6 +603,59 @@ public class RememberMeConfigurerTests {
 			http.rememberMe()
 					.rememberMeServices(new TokenBasedRememberMeServices("key", userDetailsService()));
 			// @formatter:on
+		}
+
+	}
+
+	@EnableWebSecurity
+	static class SecurityContextRepositoryConfig {
+
+		private SecurityContextRepository repository = spy(new SpySecurityContextRepository());
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			// @formatter:off
+			http
+				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
+				.securityContext((context) -> context
+					.requireExplicitSave(true)
+					.securityContextRepository(this.repository)
+				)
+				.formLogin(withDefaults())
+				.rememberMe(withDefaults());
+			return http.build();
+			// @formatter:on
+		}
+
+		@Bean
+		SecurityContextRepository securityContextRepository() {
+			return this.repository;
+		}
+
+		@Bean
+		UserDetailsService userDetailsService() {
+			return new InMemoryUserDetailsManager(PasswordEncodedUser.user());
+		}
+
+		private static class SpySecurityContextRepository implements SecurityContextRepository {
+
+			SecurityContextRepository delegate = new HttpSessionSecurityContextRepository();
+
+			@Override
+			public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
+				return this.delegate.loadContext(requestResponseHolder);
+			}
+
+			@Override
+			public void saveContext(SecurityContext context, HttpServletRequest request, HttpServletResponse response) {
+				this.delegate.saveContext(context, request, response);
+			}
+
+			@Override
+			public boolean containsContext(HttpServletRequest request) {
+				return this.delegate.containsContext(request);
+			}
+
 		}
 
 	}
