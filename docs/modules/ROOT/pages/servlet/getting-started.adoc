@@ -173,4 +173,4 @@ In case none of those match what you are looking for, consider thinking about yo
 For servlet-based applications, Spring Security supports HTTP as well as xref:servlet/integrations/websocket.adoc[Websockets].
 2. *Authentication*: Next, consider how users will xref:servlet/authentication/index.adoc[authenticate] and if that authentication will be stateful or stateless
 3. *Authorization*: Then, consider how you will determine xref:servlet/authorization/index.adoc[what a user is authorized to do]
-4. *Defense*: Finally, xref:servlet/exploits/csrf.adoc#servlet-csrf-considerations[integrate with Spring Security's default protections] and consider xref:servlet/exploits/headers.adoc[which additional protections you need]
+4. *Defense*: Finally, xref:servlet/exploits/csrf.adoc#csrf-considerations[integrate with Spring Security's default protections] and consider xref:servlet/exploits/headers.adoc[which additional protections you need]
