@@ -3145,7 +3145,7 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		else {
 			ObservationRegistry registry = getObservationRegistry();
 			AuthenticationManager manager = getAuthenticationRegistry().build();
-			if (!registry.isNoop()) {
+			if (!registry.isNoop() && manager != null) {
 				setSharedObject(AuthenticationManager.class, new ObservationAuthenticationManager(registry, manager));
 			}
 			else {
