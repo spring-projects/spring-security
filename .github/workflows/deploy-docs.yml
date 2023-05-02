@@ -34,4 +34,9 @@ jobs:
     - name: Run Antora
       run: ./gradlew antora
     - name: Publish Docs
-      run: $GITHUB_WORKSPACE/.github/actions/publish-docs.sh "${{ secrets.DOCS_USERNAME }}@${{ secrets.DOCS_HOST }}" /opt/www/domains/spring.io/docs/htdocs/spring-security/reference/ "${{ secrets.DOCS_SSH_KEY }}" "${{ secrets.DOCS_SSH_HOST_KEY }}" "${{ secrets.CLOUDFLARE_ZONE_ID }}" "${{ secrets.CLOUDFLARE_CACHE_TOKEN }}"
+      uses: spring-io/spring-doc-actions/rsync-antora-reference@v0.0.1
+      with:
+        docs-username: ${{ secrets.DOCS_USERNAME }}
+        docs-host: ${{ secrets.DOCS_HOST }}
+        docs-ssh-key: ${{ secrets.DOCS_SSH_KEY }}
+        docs-ssh-host-key: ${{ secrets.DOCS_SSH_HOST_KEY }}
