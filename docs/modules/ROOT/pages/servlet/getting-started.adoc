@@ -63,7 +63,6 @@ A summary of the features follows:
 ** https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
 ** https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
 ** Cache Control (can be overridden later by your application to allow caching of your static resources)
-** https://msdn.microsoft.com/en-us/library/dd565647(v=vs.85).aspx[X-XSS-Protection] integration
 ** X-Frame-Options integration to help prevent https://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
 * Integrate with the following Servlet API methods:
 ** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
