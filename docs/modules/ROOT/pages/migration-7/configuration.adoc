@@ -1,0 +1,124 @@
+= Configuration Migrations
+
+The following steps relate to changes around how to configure `HttpSecurity`, `WebSecurity` and related components.
+
+== Use the Lambda DSL
+
+The Lambda DSL is present in Spring Security since version 5.2, and it allows HTTP security to be configured using lambdas.
+
+You may have seen this style of configuration in the Spring Security documentation or samples.
+Let us take a look at how a lambda configuration of HTTP security compares to the previous configuration style.
+
+====
+[source,java]
+.Configuration using lambdas
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/blog/**").permitAll()
+                .anyRequest().authenticated()
+            )
+            .formLogin(formLogin -> formLogin
+                .loginPage("/login")
+                .permitAll()
+            )
+            .rememberMe(Customizer.withDefaults());
+
+        return http.build();
+    }
+}
+----
+====
+
+====
+[source,java]
+.Equivalent configuration without using lambdas
+----
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeHttpRequests()
+                .requestMatchers("/blog/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+            .formLogin()
+                .loginPage("/login")
+                .permitAll()
+                .and()
+            .rememberMe();
+
+        return http.build();
+    }
+}
+----
+====
+
+The Lambda DSL is the preferred way to configure Spring Security, the prior configuration style will not be valid in Spring Security 7 where the usage of the Lambda DSL will be required.
+This has been done mainly for a couple of reasons:
+
+- The previous way it was not clear what object was getting configured without knowing what the return type was.
+The deeper the nesting the more confusing it became.
+Even experienced users would think that their configuration was doing one thing when in fact, it was doing something else.
+
+- Consistency.
+Many code bases switched between the two styles which caused inconsistencies that made understanding the configuration difficult and often led to misconfigurations.
+
+=== Lambda DSL Configuration Tips
+
+When comparing the two samples above, you will notice some key differences:
+
+- In the Lambda DSL there is no need to chain configuration options using the `.and()` method.
+The `HttpSecurity` instance is automatically returned for further configuration after the call to the lambda method.
+
+- `Customizer.withDefaults()` enables a security feature using the defaults provided by Spring Security.
+This is a shortcut for the lambda expression `it -> {}`.
+
+=== WebFlux Security
+
+You may also configure WebFlux security using lambdas in a similar manner.
+Below is an example configuration using lambdas.
+
+====
+[source,java]
+.WebFlux configuration using lambdas
+----
+@Configuration
+@EnableWebFluxSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+        http
+            .authorizeExchange(exchanges -> exchanges
+                .pathMatchers("/blog/**").permitAll()
+                .anyExchange().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(formLogin -> formLogin
+                .loginPage("/login")
+            );
+
+        return http.build();
+    }
+
+}
+----
+====
+
+=== Goals of the Lambda DSL
+
+The Lambda DSL was created to accomplish to following goals:
+
+- Automatic indentation makes the configuration more readable.
+- The is no need to chain configuration options using `.and()`
+- The Spring Security DSL has a similar configuration style to other Spring DSLs such as Spring Integration and Spring Cloud Gateway.

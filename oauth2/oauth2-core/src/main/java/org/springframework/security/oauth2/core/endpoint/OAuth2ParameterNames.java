@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ package org.springframework.security.oauth2.core.endpoint;
  * endpoint.
  *
  * @author Joe Grandja
+ * @author Steve Riesenberg
  * @since 5.0
  * @see <a target="_blank" href="https://tools.ietf.org/html/rfc6749#section-11.2">11.2
  * OAuth Parameters Registry</a>
@@ -149,6 +150,37 @@ public final class OAuth2ParameterNames {
 	 * @since 5.5
 	 */
 	public static final String TOKEN_TYPE_HINT = "token_type_hint";
+
+	/**
+	 * {@code device_code} - used in Device Authorization Response and Device Access Token
+	 * Request.
+	 * @since 6.1
+	 */
+	public static final String DEVICE_CODE = "device_code";
+
+	/**
+	 * {@code user_code} - used in Device Authorization Response.
+	 * @since 6.1
+	 */
+	public static final String USER_CODE = "user_code";
+
+	/**
+	 * {@code verification_uri} - used in Device Authorization Response.
+	 * @since 6.1
+	 */
+	public static final String VERIFICATION_URI = "verification_uri";
+
+	/**
+	 * {@code verification_uri_complete} - used in Device Authorization Response.
+	 * @since 6.1
+	 */
+	public static final String VERIFICATION_URI_COMPLETE = "verification_uri_complete";
+
+	/**
+	 * {@code interval} - used in Device Authorization Response.
+	 * @since 6.1
+	 */
+	public static final String INTERVAL = "interval";
 
 	private OAuth2ParameterNames() {
 	}

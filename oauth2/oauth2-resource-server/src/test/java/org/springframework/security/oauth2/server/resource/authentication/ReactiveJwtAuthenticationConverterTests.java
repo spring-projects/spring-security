@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
  * Tests for {@link ReactiveJwtAuthenticationConverter}
  *
  * @author Eric Deandrea
+ * @author Marcus Kainth
  * @since 5.2
  */
 public class ReactiveJwtAuthenticationConverterTests {
@@ -66,6 +67,49 @@ public class ReactiveJwtAuthenticationConverterTests {
 		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
 		Collection<GrantedAuthority> authorities = authentication.getAuthorities();
 		assertThat(authorities).containsExactly(new SimpleGrantedAuthority("blah"));
+	}
+
+	@Test
+	public void whenSettingNullPrincipalClaimName() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(null))
+				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
+	}
+
+	@Test
+	public void whenSettingEmptyPrincipalClaimName() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(""))
+				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
+	}
+
+	@Test
+	public void whenSettingBlankPrincipalClaimName() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> this.jwtAuthenticationConverter.setPrincipalClaimName(" "))
+				.withMessage("principalClaimName cannot be empty");
+		// @formatter:on
+	}
+
+	@Test
+	public void convertWhenPrincipalClaimNameSet() {
+		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
+		Jwt jwt = TestJwts.jwt().claim("user_id", "100").build();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
+		assertThat(authentication.getName()).isEqualTo("100");
+	}
+
+	@Test
+	public void convertWhenPrincipalClaimNameSetAndClaimValueIsNotString() {
+		this.jwtAuthenticationConverter.setPrincipalClaimName("user_id");
+		Jwt jwt = TestJwts.jwt().claim("user_id", 100).build();
+		AbstractAuthenticationToken authentication = this.jwtAuthenticationConverter.convert(jwt).block();
+		assertThat(authentication.getName()).isEqualTo("100");
 	}
 
 }

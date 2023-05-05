@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import com.google.common.net.HttpHeaders;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,8 @@ import org.springframework.core.io.support.SpringFactoriesLoader;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationEventPublisher;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.TestingAuthenticationProvider;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.authentication.event.AbstractAuthenticationEvent;
 import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
@@ -46,6 +49,7 @@ import org.springframework.security.authentication.event.AuthenticationSuccessEv
 import org.springframework.security.config.annotation.SecurityContextChangedListenerConfig;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.AnonymousConfigurer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -325,6 +329,13 @@ public class HttpSecurityConfigurationTests {
 				.resolveMediaTypes(any(NativeWebRequest.class));
 	}
 
+	// gh-13084
+	@Test
+	public void configureWhenNoAuthenticationManagerAndObservationRegistryNotNoOpThenConfigure() throws Exception {
+		this.spring.register(ObservationConfig.class, NoAuthenticationManagerConfig.class).autowire();
+		this.mockMvc.perform(get("/"));
+	}
+
 	@RestController
 	static class NameController {
 
@@ -528,6 +539,38 @@ public class HttpSecurityConfigurationTests {
 		@Bean
 		static ContentNegotiationStrategy cns() {
 			return CNS;
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class NoAuthenticationManagerConfig {
+
+		@Bean
+		SecurityFilterChain apiSecurity(HttpSecurity http) throws Exception {
+			http.anonymous(AnonymousConfigurer::disable);
+			return http.build();
+		}
+
+		@Bean
+		AuthenticationProvider authenticationProvider1() {
+			return new TestingAuthenticationProvider();
+		}
+
+		@Bean
+		AuthenticationProvider authenticationProvider2() {
+			return new TestingAuthenticationProvider();
+		}
+
+	}
+
+	@Configuration
+	static class ObservationConfig {
+
+		@Bean
+		ObservationRegistry observationRegistry() {
+			return ObservationRegistry.create();
 		}
 
 	}

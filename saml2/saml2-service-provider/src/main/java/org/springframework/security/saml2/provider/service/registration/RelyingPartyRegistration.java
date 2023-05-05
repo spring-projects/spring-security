@@ -26,7 +26,6 @@ import java.util.function.Consumer;
 
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
-import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.saml2.core.Saml2X509Credential;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -69,7 +68,7 @@ import org.springframework.util.CollectionUtils;
  * @author Josh Cummings
  * @since 5.2
  */
-public final class RelyingPartyRegistration {
+public class RelyingPartyRegistration {
 
 	private final String registrationId;
 
@@ -87,16 +86,18 @@ public final class RelyingPartyRegistration {
 
 	private final String nameIdFormat;
 
+	private final boolean authnRequestsSigned;
+
 	private final AssertingPartyDetails assertingPartyDetails;
 
 	private final Collection<Saml2X509Credential> decryptionX509Credentials;
 
 	private final Collection<Saml2X509Credential> signingX509Credentials;
 
-	private RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
+	protected RelyingPartyRegistration(String registrationId, String entityId, String assertionConsumerServiceLocation,
 			Saml2MessageBinding assertionConsumerServiceBinding, String singleLogoutServiceLocation,
 			String singleLogoutServiceResponseLocation, Collection<Saml2MessageBinding> singleLogoutServiceBindings,
-			AssertingPartyDetails assertingPartyDetails, String nameIdFormat,
+			AssertingPartyDetails assertingPartyDetails, String nameIdFormat, boolean authnRequestsSigned,
 			Collection<Saml2X509Credential> decryptionX509Credentials,
 			Collection<Saml2X509Credential> signingX509Credentials) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
@@ -125,9 +126,39 @@ public final class RelyingPartyRegistration {
 		this.singleLogoutServiceResponseLocation = singleLogoutServiceResponseLocation;
 		this.singleLogoutServiceBindings = Collections.unmodifiableList(new LinkedList<>(singleLogoutServiceBindings));
 		this.nameIdFormat = nameIdFormat;
+		this.authnRequestsSigned = authnRequestsSigned;
 		this.assertingPartyDetails = assertingPartyDetails;
 		this.decryptionX509Credentials = Collections.unmodifiableList(new LinkedList<>(decryptionX509Credentials));
 		this.signingX509Credentials = Collections.unmodifiableList(new LinkedList<>(signingX509Credentials));
+	}
+
+	/**
+	 * Copy the properties in this {@link RelyingPartyRegistration} into a {@link Builder}
+	 * @return a {@link Builder} based off of the properties in this
+	 * {@link RelyingPartyRegistration}
+	 * @since 6.1
+	 */
+	public Builder mutate() {
+		AssertingPartyDetails party = this.assertingPartyDetails;
+		return withRegistrationId(this.registrationId).entityId(this.entityId)
+				.signingX509Credentials((c) -> c.addAll(this.signingX509Credentials))
+				.decryptionX509Credentials((c) -> c.addAll(this.decryptionX509Credentials))
+				.assertionConsumerServiceLocation(this.assertionConsumerServiceLocation)
+				.assertionConsumerServiceBinding(this.assertionConsumerServiceBinding)
+				.singleLogoutServiceLocation(this.singleLogoutServiceLocation)
+				.singleLogoutServiceResponseLocation(this.singleLogoutServiceResponseLocation)
+				.singleLogoutServiceBindings((c) -> c.addAll(this.singleLogoutServiceBindings))
+				.nameIdFormat(this.nameIdFormat).authnRequestsSigned(this.authnRequestsSigned)
+				.assertingPartyDetails((assertingParty) -> assertingParty.entityId(party.getEntityId())
+						.wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
+						.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
+						.verificationX509Credentials((c) -> c.addAll(party.getVerificationX509Credentials()))
+						.encryptionX509Credentials((c) -> c.addAll(party.getEncryptionX509Credentials()))
+						.singleSignOnServiceLocation(party.getSingleSignOnServiceLocation())
+						.singleSignOnServiceBinding(party.getSingleSignOnServiceBinding())
+						.singleLogoutServiceLocation(party.getSingleLogoutServiceLocation())
+						.singleLogoutServiceResponseLocation(party.getSingleLogoutServiceResponseLocation())
+						.singleLogoutServiceBinding(party.getSingleLogoutServiceBinding()));
 	}
 
 	/**
@@ -254,6 +285,23 @@ public final class RelyingPartyRegistration {
 	}
 
 	/**
+	 * Get the <a href=
+	 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=18">
+	 * AuthnRequestsSigned</a> setting. If {@code true}, the relying party will sign all
+	 * AuthnRequests, regardless of asserting party preference.
+	 *
+	 * <p>
+	 * Note that Spring Security will sign the request if either
+	 * {@link #isAuthnRequestsSigned()} is {@code true} or
+	 * {@link AssertingPartyDetails#getWantAuthnRequestsSigned()} is {@code true}.
+	 * @return the relying-party preference
+	 * @since 6.1
+	 */
+	public boolean isAuthnRequestsSigned() {
+		return this.authnRequestsSigned;
+	}
+
+	/**
 	 * Get the {@link Collection} of decryption {@link Saml2X509Credential}s associated
 	 * with this relying party
 	 * @return the {@link Collection} of decryption {@link Saml2X509Credential}s
@@ -292,7 +340,7 @@ public final class RelyingPartyRegistration {
 	 */
 	public static Builder withRegistrationId(String registrationId) {
 		Assert.hasText(registrationId, "registrationId cannot be empty");
-		return new Builder(registrationId);
+		return new Builder(registrationId, new AssertingPartyDetails.Builder());
 	}
 
 	public static Builder withAssertingPartyDetails(AssertingPartyDetails assertingPartyDetails) {
@@ -315,7 +363,9 @@ public final class RelyingPartyRegistration {
 	 * object
 	 * @param registration the {@code RelyingPartyRegistration}
 	 * @return {@code Builder} to create a {@code RelyingPartyRegistration} object
+	 * @deprecated Use {@link #mutate()} instead
 	 */
+	@Deprecated(forRemoval = true, since = "6.1")
 	public static Builder withRelyingPartyRegistration(RelyingPartyRegistration registration) {
 		Assert.notNull(registration, "registration cannot be null");
 		return withRegistrationId(registration.getRegistrationId()).entityId(registration.getEntityId())
@@ -326,7 +376,7 @@ public final class RelyingPartyRegistration {
 				.singleLogoutServiceLocation(registration.getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(registration.getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBindings((c) -> c.addAll(registration.getSingleLogoutServiceBindings()))
-				.nameIdFormat(registration.getNameIdFormat())
+				.nameIdFormat(registration.getNameIdFormat()).authnRequestsSigned(registration.isAuthnRequestsSigned())
 				.assertingPartyDetails((assertingParty) -> assertingParty
 						.entityId(registration.getAssertingPartyDetails().getEntityId())
 						.wantAuthnRequestsSigned(registration.getAssertingPartyDetails().getWantAuthnRequestsSigned())
@@ -736,9 +786,9 @@ public final class RelyingPartyRegistration {
 
 	}
 
-	public static final class Builder {
+	public static class Builder {
 
-		private Converter<AssertingPartyDetails, String> registrationId = AssertingPartyDetails::getEntityId;
+		private String registrationId;
 
 		private String entityId = "{baseUrl}/saml2/service-provider-metadata/{registrationId}";
 
@@ -758,15 +808,13 @@ public final class RelyingPartyRegistration {
 
 		private String nameIdFormat = null;
 
+		private boolean authnRequestsSigned = false;
+
 		private AssertingPartyDetails.Builder assertingPartyDetailsBuilder;
 
-		private Builder(String registrationId) {
-			this.registrationId = (party) -> registrationId;
-			this.assertingPartyDetailsBuilder = new AssertingPartyDetails.Builder();
-		}
-
-		Builder(AssertingPartyDetails.Builder builder) {
-			this.assertingPartyDetailsBuilder = builder;
+		protected Builder(String registrationId, AssertingPartyDetails.Builder assertingPartyDetailsBuilder) {
+			this.registrationId = registrationId;
+			this.assertingPartyDetailsBuilder = assertingPartyDetailsBuilder;
 		}
 
 		/**
@@ -775,7 +823,7 @@ public final class RelyingPartyRegistration {
 		 * @return this object
 		 */
 		public Builder registrationId(String id) {
-			this.registrationId = (party) -> id;
+			this.registrationId = id;
 			return this;
 		}
 
@@ -949,6 +997,24 @@ public final class RelyingPartyRegistration {
 		}
 
 		/**
+		 * Set the <a href=
+		 * "https://docs.oasis-open.org/security/saml/v2.0/saml-metadata-2.0-os.pdf#page=18">
+		 * AuthnRequestsSigned</a> setting. If {@code true}, the relying party will sign
+		 * all AuthnRequests, 301 asserting party preference.
+		 *
+		 * <p>
+		 * Note that Spring Security will sign the request if either
+		 * {@link #isAuthnRequestsSigned()} is {@code true} or
+		 * {@link AssertingPartyDetails#getWantAuthnRequestsSigned()} is {@code true}.
+		 * @return the {@link Builder} for further configuration
+		 * @since 6.1
+		 */
+		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
+			this.authnRequestsSigned = authnRequestsSigned;
+			return this;
+		}
+
+		/**
 		 * Apply this {@link Consumer} to further configure the Asserting Party details
 		 * @param assertingPartyDetails The {@link Consumer} to apply
 		 * @return the {@link Builder} for further configuration
@@ -974,11 +1040,11 @@ public final class RelyingPartyRegistration {
 			}
 
 			AssertingPartyDetails party = this.assertingPartyDetailsBuilder.build();
-			String registrationId = this.registrationId.convert(party);
-			return new RelyingPartyRegistration(registrationId, this.entityId, this.assertionConsumerServiceLocation,
-					this.assertionConsumerServiceBinding, this.singleLogoutServiceLocation,
-					this.singleLogoutServiceResponseLocation, this.singleLogoutServiceBindings, party,
-					this.nameIdFormat, this.decryptionX509Credentials, this.signingX509Credentials);
+			return new RelyingPartyRegistration(this.registrationId, this.entityId,
+					this.assertionConsumerServiceLocation, this.assertionConsumerServiceBinding,
+					this.singleLogoutServiceLocation, this.singleLogoutServiceResponseLocation,
+					this.singleLogoutServiceBindings, party, this.nameIdFormat, this.authnRequestsSigned,
+					this.decryptionX509Credentials, this.signingX509Credentials);
 		}
 
 	}

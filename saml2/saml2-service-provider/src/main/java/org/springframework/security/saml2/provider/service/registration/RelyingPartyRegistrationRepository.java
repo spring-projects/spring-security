@@ -20,6 +20,7 @@ package org.springframework.security.saml2.provider.service.registration;
  * A repository for {@link RelyingPartyRegistration}s
  *
  * @author Filip Hanik
+ * @author Josh Cummings
  * @since 5.2
  */
 public interface RelyingPartyRegistrationRepository {
@@ -31,5 +32,17 @@ public interface RelyingPartyRegistrationRepository {
 	 * @return the {@link RelyingPartyRegistration} if found, otherwise {@code null}
 	 */
 	RelyingPartyRegistration findByRegistrationId(String registrationId);
+
+	/**
+	 * Returns the unique relying party registration associated with the asserting party's
+	 * {@code entityId} or {@code null} if there is no unique match.
+	 * @param entityId the asserting party's entity id
+	 * @return the unique {@link RelyingPartyRegistration} associated the given asserting
+	 * party; {@code null} of there is no unique match asserting party
+	 * @since 6.1
+	 */
+	default RelyingPartyRegistration findUniqueByAssertingPartyEntityId(String entityId) {
+		return findByRegistrationId(entityId);
+	}
 
 }

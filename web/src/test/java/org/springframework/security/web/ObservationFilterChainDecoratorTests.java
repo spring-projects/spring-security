@@ -16,6 +16,7 @@
 
 package org.springframework.security.web;
 
+import java.io.IOException;
 import java.util.List;
 
 import io.micrometer.observation.Observation;
@@ -23,6 +24,9 @@ import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -85,6 +89,34 @@ public class ObservationFilterChainDecoratorTests {
 		List<Observation.Event> events = event.getAllValues();
 		assertThat(events.get(0).getName()).isEqualTo(filter.getClass().getSimpleName() + ".before");
 		assertThat(events.get(1).getName()).isEqualTo(filter.getClass().getSimpleName() + ".after");
+	}
+
+	@Test
+	void decorateFiltersWhenDefaultsThenUsesEventName() throws Exception {
+		ObservationHandler<?> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationFilterChainDecorator decorator = new ObservationFilterChainDecorator(registry);
+		FilterChain chain = mock(FilterChain.class);
+		Filter filter = new BasicAuthenticationFilter();
+		FilterChain decorated = decorator.decorate(chain, List.of(filter));
+		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
+		ArgumentCaptor<Observation.Event> event = ArgumentCaptor.forClass(Observation.Event.class);
+		verify(handler, times(2)).onEvent(event.capture(), any());
+		List<Observation.Event> events = event.getAllValues();
+		assertThat(events.get(0).getName()).isEqualTo("authentication.basic.before");
+		assertThat(events.get(1).getName()).isEqualTo("authentication.basic.after");
+	}
+
+	private static class BasicAuthenticationFilter implements Filter {
+
+		@Override
+		public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+				throws IOException, ServletException {
+			chain.doFilter(request, response);
+		}
+
 	}
 
 }

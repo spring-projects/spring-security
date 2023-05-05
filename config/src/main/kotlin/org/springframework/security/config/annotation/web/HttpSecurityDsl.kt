@@ -677,6 +677,43 @@ class HttpSecurityDsl(private val http: HttpSecurity, private val init: HttpSecu
         this.http.saml2Login(saml2LoginCustomizer)
     }
 
+	/**
+	 * Configures a SAML 2.0 relying party metadata endpoint.
+	 *
+	 * A [RelyingPartyRegistrationRepository] is required and must be registered with
+	 * the [ApplicationContext] or configured via
+	 * [Saml2Dsl.relyingPartyRegistrationRepository]
+	 *
+	 * Example:
+	 *
+	 * The following example shows the minimal configuration required, using a
+	 * hypothetical asserting party.
+	 *
+	 * ```
+	 * @Configuration
+	 * @EnableWebSecurity
+	 * class SecurityConfig {
+	 *
+	 *     @Bean
+	 *     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+	 *         http {
+	 *             saml2Login { }
+	 *             saml2Metadata { }
+	 *         }
+	 *         return http.build()
+	 *     }
+	 * }
+	 * ```
+	 * @param saml2MetadataConfiguration custom configuration to configure the
+	 * SAML2 relying party metadata endpoint
+	 * @see [Saml2MetadataDsl]
+	 * @since 6.1
+	 */
+	fun saml2Metadata(saml2MetadataConfiguration: Saml2MetadataDsl.() -> Unit) {
+		val saml2MetadataCustomizer = Saml2MetadataDsl().apply(saml2MetadataConfiguration).get()
+		this.http.saml2Metadata(saml2MetadataCustomizer)
+	}
+
     /**
      * Allows configuring how an anonymous user is represented.
      *

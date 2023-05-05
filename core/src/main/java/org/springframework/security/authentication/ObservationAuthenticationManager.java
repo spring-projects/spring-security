@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authentication;
 
 import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 
 import org.springframework.security.core.Authentication;
@@ -35,7 +36,7 @@ public final class ObservationAuthenticationManager implements AuthenticationMan
 
 	private final AuthenticationManager delegate;
 
-	private final AuthenticationObservationConvention convention = new AuthenticationObservationConvention();
+	private ObservationConvention<AuthenticationObservationContext> convention = new AuthenticationObservationConvention();
 
 	public ObservationAuthenticationManager(ObservationRegistry registry, AuthenticationManager delegate) {
 		Assert.notNull(registry, "observationRegistry cannot be null");
@@ -54,6 +55,17 @@ public final class ObservationAuthenticationManager implements AuthenticationMan
 			context.setAuthenticationResult(result);
 			return result;
 		});
+	}
+
+	/**
+	 * Use the provided convention for reporting observation data
+	 * @param convention The provided convention
+	 *
+	 * @since 6.1
+	 */
+	public void setObservationConvention(ObservationConvention<AuthenticationObservationContext> convention) {
+		Assert.notNull(convention, "The observation convention cannot be null");
+		this.convention = convention;
 	}
 
 }

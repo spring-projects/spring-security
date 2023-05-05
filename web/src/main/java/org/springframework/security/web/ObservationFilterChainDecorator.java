@@ -18,9 +18,10 @@ package org.springframework.security.web;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import io.micrometer.common.KeyValues;
@@ -138,6 +139,49 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 	static final class ObservationFilter implements Filter {
 
+		private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
+
+		static {
+			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.url-encoding");
+			OBSERVATION_NAMES.put("ForceEagerSessionCreationFilter", "session.eager-create");
+			OBSERVATION_NAMES.put("ChannelProcessingFilter", "access.channel");
+			OBSERVATION_NAMES.put("WebAsyncManagerIntegrationFilter", "context.async");
+			OBSERVATION_NAMES.put("SecurityContextHolderFilter", "context.holder");
+			OBSERVATION_NAMES.put("SecurityContextPersistenceFilter", "context.management");
+			OBSERVATION_NAMES.put("HeaderWriterFilter", "header");
+			OBSERVATION_NAMES.put("CorsFilter", "cors");
+			OBSERVATION_NAMES.put("CsrfFilter", "csrf");
+			OBSERVATION_NAMES.put("LogoutFilter", "logout");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationRequestRedirectFilter", "oauth2.authnrequest");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationRequestFilter", "saml2.authnrequest");
+			OBSERVATION_NAMES.put("X509AuthenticationFilter", "authentication.x509");
+			OBSERVATION_NAMES.put("J2eePreAuthenticatedProcessingFilter", "preauthentication.j2ee");
+			OBSERVATION_NAMES.put("RequestHeaderAuthenticationFilter", "preauthentication.header");
+			OBSERVATION_NAMES.put("RequestAttributeAuthenticationFilter", "preauthentication.attribute");
+			OBSERVATION_NAMES.put("WebSpherePreAuthenticatedProcessingFilter", "preauthentication.websphere");
+			OBSERVATION_NAMES.put("CasAuthenticationFilter", "cas.authentication");
+			OBSERVATION_NAMES.put("OAuth2LoginAuthenticationFilter", "oauth2.authentication");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationFilter", "saml2.authentication");
+			OBSERVATION_NAMES.put("UsernamePasswordAuthenticationFilter", "authentication.form");
+			OBSERVATION_NAMES.put("DefaultLoginPageGeneratingFilter", "page.login");
+			OBSERVATION_NAMES.put("DefaultLogoutPageGeneratingFilter", "page.logout");
+			OBSERVATION_NAMES.put("ConcurrentSessionFilter", "session.concurrent");
+			OBSERVATION_NAMES.put("DigestAuthenticationFilter", "authentication.digest");
+			OBSERVATION_NAMES.put("BearerTokenAuthenticationFilter", "authentication.bearer");
+			OBSERVATION_NAMES.put("BasicAuthenticationFilter", "authentication.basic");
+			OBSERVATION_NAMES.put("RequestCacheAwareFilter", "requestcache");
+			OBSERVATION_NAMES.put("SecurityContextHolderAwareRequestFilter", "context.servlet");
+			OBSERVATION_NAMES.put("JaasApiIntegrationFilter", "jaas");
+			OBSERVATION_NAMES.put("RememberMeAuthenticationFilter", "authentication.rememberme");
+			OBSERVATION_NAMES.put("AnonymousAuthenticationFilter", "authentication.anonymous");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationCodeGrantFilter", "oauth2.client.code");
+			OBSERVATION_NAMES.put("SessionManagementFilter", "session.management");
+			OBSERVATION_NAMES.put("ExceptionTranslationFilter", "access.exceptions");
+			OBSERVATION_NAMES.put("FilterSecurityInterceptor", "access.request");
+			OBSERVATION_NAMES.put("AuthorizationFilter", "authorization");
+			OBSERVATION_NAMES.put("SwitchUserFilter", "authentication.switch");
+		}
+
 		private final ObservationRegistry registry;
 
 		private final FilterChainObservationConvention convention = new FilterChainObservationConvention();
@@ -145,6 +189,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private final Filter filter;
 
 		private final String name;
+
+		private final String eventName;
 
 		private final int position;
 
@@ -156,6 +202,12 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			this.name = filter.getClass().getSimpleName();
 			this.position = position;
 			this.size = size;
+			this.eventName = eventName(this.name);
+		}
+
+		private String eventName(String className) {
+			String eventName = OBSERVATION_NAMES.get(className);
+			return (eventName != null) ? eventName : className;
 		}
 
 		String getName() {
@@ -182,7 +234,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentBefore.setFilterName(this.name);
 				parentBefore.setChainPosition(this.position);
 			}
-			parent.before().event(Observation.Event.of(this.name + ".before", "before " + this.name));
+			parent.before().event(Observation.Event.of(this.eventName + ".before", "before " + this.name));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
 			if (parent.after().getContext() instanceof FilterChainObservationContext parentAfter) {
@@ -190,7 +242,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentAfter.setFilterName(this.name);
 				parentAfter.setChainPosition(this.size - this.position + 1);
 			}
-			parent.after().event(Observation.Event.of(this.name + ".after", "after " + this.name));
+			parent.after().event(Observation.Event.of(this.eventName + ".after", "after " + this.name));
 		}
 
 		private AroundFilterObservation parent(HttpServletRequest request) {
@@ -227,49 +279,38 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		class SimpleAroundFilterObservation implements AroundFilterObservation {
 
-			private final Iterator<Observation> observations;
+			private final ObservationReference before;
 
-			private final Observation before;
+			private final ObservationReference after;
 
-			private final Observation after;
-
-			private final AtomicReference<Observation.Scope> currentScope = new AtomicReference<>(null);
+			private final AtomicReference<ObservationReference> reference = new AtomicReference<>(
+					ObservationReference.NOOP);
 
 			SimpleAroundFilterObservation(Observation before, Observation after) {
-				this.before = before;
-				this.after = after;
-				this.observations = Arrays.asList(before, after).iterator();
+				this.before = new ObservationReference(before);
+				this.after = new ObservationReference(after);
 			}
 
 			@Override
 			public void start() {
-				if (this.observations.hasNext()) {
-					stop();
-					Observation observation = this.observations.next();
-					observation.start();
-					Observation.Scope scope = observation.openScope();
-					this.currentScope.set(scope);
+				if (this.reference.compareAndSet(ObservationReference.NOOP, this.before)) {
+					this.before.start();
+					return;
+				}
+				if (this.reference.compareAndSet(this.before, this.after)) {
+					this.before.stop();
+					this.after.start();
 				}
 			}
 
 			@Override
 			public void error(Throwable ex) {
-				Observation.Scope scope = this.currentScope.get();
-				if (scope == null) {
-					return;
-				}
-				scope.close();
-				scope.getCurrentObservation().error(ex);
+				this.reference.get().error(ex);
 			}
 
 			@Override
 			public void stop() {
-				Observation.Scope scope = this.currentScope.getAndSet(null);
-				if (scope == null) {
-					return;
-				}
-				scope.close();
-				scope.getCurrentObservation().stop();
+				this.reference.get().stop();
 			}
 
 			@Override
@@ -304,12 +345,50 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 			@Override
 			public Observation before() {
-				return this.before;
+				return this.before.observation;
 			}
 
 			@Override
 			public Observation after() {
-				return this.after;
+				return this.after.observation;
+			}
+
+			private static final class ObservationReference {
+
+				private static final ObservationReference NOOP = new ObservationReference(Observation.NOOP);
+
+				private final AtomicInteger state = new AtomicInteger(0);
+
+				private final Observation observation;
+
+				private volatile Observation.Scope scope;
+
+				private ObservationReference(Observation observation) {
+					this.observation = observation;
+					this.scope = Observation.Scope.NOOP;
+				}
+
+				private void start() {
+					if (this.state.compareAndSet(0, 1)) {
+						this.observation.start();
+						this.scope = this.observation.openScope();
+					}
+				}
+
+				private void error(Throwable error) {
+					if (this.state.get() == 1) {
+						this.scope.close();
+						this.scope.getCurrentObservation().error(error);
+					}
+				}
+
+				private void stop() {
+					if (this.state.compareAndSet(1, 2)) {
+						this.scope.close();
+						this.scope.getCurrentObservation().stop();
+					}
+				}
+
 			}
 
 		}

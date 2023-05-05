@@ -430,7 +430,8 @@ This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validat
 [[oauth2resourceserver-jwt-decoder-bean]]
 === Exposing a `JwtDecoder` `@Bean`
 
-Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
+Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`.
+You can construct one with a `jwkSetUri` like so:
 
 ====
 .Java
@@ -448,6 +449,50 @@ public JwtDecoder jwtDecoder() {
 @Bean
 fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+}
+----
+====
+
+or you can use the issuer and have `NimbusJwtDecoder` look up the `jwkSetUri` when `build()` is invoked, like the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public JwtDecoder jwtDecoder() {
+    return NimbusJwtDecoder.withIssuerLocation(issuer).build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoder {
+    return NimbusJwtDecoder.withIssuerLocation(issuer).build()
+}
+----
+====
+
+Or, if the defaults work for you, you can also use `JwtDecoders`, which does the above in addition to configuring the decoder's validator:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+public JwtDecoders jwtDecoder() {
+    return JwtDecoders.fromIssuerLocation(issuer);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun jwtDecoder(): JwtDecoders {
+    return JwtDecoders.fromIssuerLocation(issuer)
 }
 ----
 ====
@@ -486,7 +531,7 @@ For greater power, though, we can use a builder that ships with `NimbusJwtDecode
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build();
 }
 ----
@@ -496,7 +541,7 @@ JwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).build()
 }
 ----
@@ -510,7 +555,7 @@ Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build();
 }
 ----
@@ -520,7 +565,7 @@ JwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
 }
 ----
@@ -534,7 +579,7 @@ Or, you can call `jwsAlgorithms`:
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithms(algorithms -> {
                     algorithms.add(RS512);
                     algorithms.add(ES512);
@@ -547,7 +592,7 @@ JwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    return NimbusJwtDecoder.withJwkSetUri(this.jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(this.issuer)
             .jwsAlgorithms {
                 it.add(RS512)
                 it.add(ES512)
@@ -1207,7 +1252,7 @@ An individual claim's conversion strategy can be configured using `MappedJwtClai
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
 
     MappedJwtClaimSetConverter converter = MappedJwtClaimSetConverter
             .withDefaults(Collections.singletonMap("sub", this::lookupUserIdBySub));
@@ -1222,7 +1267,7 @@ JwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    val jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+    val jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build()
 
     val converter = MappedJwtClaimSetConverter
             .withDefaults(mapOf("sub" to this::lookupUserIdBySub))
@@ -1319,7 +1364,7 @@ And then, the instance can be supplied like normal:
 ----
 @Bean
 JwtDecoder jwtDecoder() {
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build();
     jwtDecoder.setClaimSetConverter(new UsernameSubClaimAdapter());
     return jwtDecoder;
 }
@@ -1330,7 +1375,7 @@ JwtDecoder jwtDecoder() {
 ----
 @Bean
 fun jwtDecoder(): JwtDecoder {
-    val jwtDecoder: NimbusJwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
+    val jwtDecoder: NimbusJwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).build()
     jwtDecoder.setClaimSetConverter(UsernameSubClaimAdapter())
     return jwtDecoder
 }
@@ -1358,7 +1403,7 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
             .setReadTimeout(Duration.ofSeconds(60))
             .build();
 
-    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build();
+    NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(rest).build();
     return jwtDecoder;
 }
 ----
@@ -1372,7 +1417,7 @@ fun jwtDecoder(builder: RestTemplateBuilder): JwtDecoder {
             .setConnectTimeout(Duration.ofSeconds(60))
             .setReadTimeout(Duration.ofSeconds(60))
             .build()
-    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build()
+    return NimbusJwtDecoder.withIssuerLocation(issuer).restOperations(rest).build()
 }
 ----
 ====
@@ -1388,7 +1433,7 @@ To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder
 ----
 @Bean
 public JwtDecoder jwtDecoder(CacheManager cacheManager) {
-    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(issuer)
             .cache(cacheManager.getCache("jwks"))
             .build();
 }
@@ -1399,7 +1444,7 @@ public JwtDecoder jwtDecoder(CacheManager cacheManager) {
 ----
 @Bean
 fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
-    return NimbusJwtDecoder.withJwkSetUri(jwkSetUri)
+    return NimbusJwtDecoder.withIssuerLocation(issuer)
             .cache(cacheManager.getCache("jwks"))
             .build()
 }

@@ -23,30 +23,76 @@ String getAuthority();
 ----
 ====
 
-This method lets an
-`AccessDecisionManager` instance to obtain a precise `String` representation of the `GrantedAuthority`.
-By returning a representation as a `String`, a `GrantedAuthority` can be easily "`read`" by most `AccessDecisionManager` implementations.
-If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "`complex`" and `getAuthority()` must return `null`.
+This method is used by an
+`AuthorizationManager` instance to obtain a precise `String` representation of the `GrantedAuthority`.
+By returning a representation as a `String`, a `GrantedAuthority` can be easily "read" by most `AuthorizationManager` implementations.
+If a `GrantedAuthority` cannot be precisely represented as a `String`, the `GrantedAuthority` is considered "complex" and `getAuthority()` must return `null`.
 
-An example of a "`complex`" `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers.
+An example of a complex `GrantedAuthority` would be an implementation that stores a list of operations and authority thresholds that apply to different customer account numbers.
 Representing this complex `GrantedAuthority` as a `String` would be quite difficult. As a result, the `getAuthority()` method should return `null`.
-This indicates to any `AccessDecisionManager` that it needs to support the specific `GrantedAuthority` implementation to understand its contents.
+This indicates to any `AuthorizationManager` that it needs to support the specific `GrantedAuthority` implementation to understand its contents.
 
 Spring Security includes one concrete `GrantedAuthority` implementation: `SimpleGrantedAuthority`.
 This implementation lets any user-specified `String` be converted into a `GrantedAuthority`.
 All `AuthenticationProvider` instances included with the security architecture use `SimpleGrantedAuthority` to populate the `Authentication` object.
 
+[[jc-method-security-custom-granted-authority-defaults]]
+By default, role-based authorization rules include `ROLE_` as a prefix.
+This means that if there is an authorization rule that requires a security context to have a role of "USER", Spring Security will by default look for a `GrantedAuthority#getAuthority` that returns "ROLE_USER".
+
+You can customize this with `GrantedAuthorityDefaults`.
+`GrantedAuthorityDefaults` exists to allow customizing the prefix to use for role-based authorization rules.
+
+You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
+
+.Custom MethodSecurityExpressionHandler
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+static GrantedAuthorityDefaults grantedAuthorityDefaults() {
+	return new GrantedAuthorityDefaults("MYPREFIX_");
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+companion object {
+	@Bean
+	fun grantedAuthorityDefaults() : GrantedAuthorityDefaults {
+		return GrantedAuthorityDefaults("MYPREFIX_");
+	}
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<bean id="grantedAuthorityDefaults" class="org.springframework.security.config.core.GrantedAuthorityDefaults">
+	<constructor-arg value="MYPREFIX_"/>
+</bean>
+----
+====
+
+[TIP]
+====
+You expose `GrantedAuthorityDefaults` using a `static` method to ensure that Spring publishes it before it initializes Spring Security's method security `@Configuration` classes
+====
+
 [[authz-pre-invocation]]
-== Pre-Invocation Handling
+== Invocation Handling
 Spring Security provides interceptors that control access to secure objects, such as method invocations or web requests.
-A pre-invocation decision on whether the invocation is allowed to proceed is made by the `AccessDecisionManager`.
+A pre-invocation decision on whether the invocation is allowed to proceed is made by `AuthorizationManager` instances.
+Also post-invocation decisions on whether a given value may be returned is made by `AuthorizationManager` instances.
 
 === The AuthorizationManager
 `AuthorizationManager` supersedes both <<authz-legacy-note,`AccessDecisionManager` and `AccessDecisionVoter`>>.
 
 Applications that customize an `AccessDecisionManager` or `AccessDecisionVoter` are encouraged to <<authz-voter-adaptation,change to using `AuthorizationManager`>>.
 
-``AuthorizationManager``s are called by the xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] and are responsible for making final access control decisions.
+``AuthorizationManager``s are called by Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[request-based], xref:servlet/authorization/method-security.adoc[method-based], and xref:servlet/integrations/websocket.adoc[message-based] authorization components and are responsible for making final access control decisions.
 The `AuthorizationManager` interface contains two methods:
 
 ====
@@ -96,6 +142,10 @@ It will return a negative `AuthorizationDecision` otherwise.
 Another manager is the `AuthenticatedAuthorizationManager`.
 It can be used to differentiate between anonymous, fully-authenticated and remember-me authenticated users.
 Many sites allow certain limited access under remember-me authentication, but require a user to confirm their identity by logging in for full access.
+
+[[authz-authorization-managers]]
+==== AuthorizationManagers
+There are also helpful static factories in `AuthenticationManagers` for composing individual ``AuthenticationManager``s into more sophisticated expressions.
 
 [[authz-custom-authorization-manager]]
 ==== Custom Authorization Managers
@@ -197,7 +247,7 @@ A typical configuration might look like this:
 ----
 @Bean
 static RoleHierarchy roleHierarchy() {
-    RoleHierarchy hierarchy = new RoleHierarchyImpl();
+    var hierarchy = new RoleHierarchyImpl();
     hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
             "ROLE_STAFF > ROLE_USER\n" +
             "ROLE_USER > ROLE_GUEST");

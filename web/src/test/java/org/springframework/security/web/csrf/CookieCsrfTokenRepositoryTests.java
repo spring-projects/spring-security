@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -288,6 +289,17 @@ class CookieCsrfTokenRepositoryTests {
 		this.repository.saveToken(token, this.request, this.response);
 		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
 		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
+	}
+
+	// gh-13075
+	@Test
+	void saveTokenWithExistingSetCookieThenDoesNotOverwrite() {
+		this.response.setHeader(HttpHeaders.SET_COOKIE, "MyCookie=test");
+		this.repository = new CookieCsrfTokenRepository();
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		assertThat(this.response.getCookie("MyCookie")).isNotNull();
+		assertThat(this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME)).isNotNull();
 	}
 
 	@Test

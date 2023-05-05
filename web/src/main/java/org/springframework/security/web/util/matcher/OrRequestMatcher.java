@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,6 +60,25 @@ public final class OrRequestMatcher implements RequestMatcher {
 			}
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a {@link MatchResult} for this {@link HttpServletRequest}. In the case of a
+	 * match, request variables are any request variables from the first underlying
+	 * matcher.
+	 * @param request the HTTP request
+	 * @return a {@link MatchResult} based on the given HTTP request
+	 * @since 6.1
+	 */
+	@Override
+	public MatchResult matcher(HttpServletRequest request) {
+		for (RequestMatcher matcher : this.requestMatchers) {
+			MatchResult result = matcher.matcher(request);
+			if (result.isMatch()) {
+				return result;
+			}
+		}
+		return MatchResult.notMatch();
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
@@ -201,6 +202,31 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	}
 
 	/**
+	 * Use the given <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to derive the needed
+	 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return a {@link JwkSetUriJwtDecoderBuilder} that will derive the JWK Set uri when
+	 * {@link JwkSetUriJwtDecoderBuilder#build} is called
+	 * @since 6.1
+	 * @see JwtDecoders
+	 */
+	public static JwkSetUriJwtDecoderBuilder withIssuerLocation(String issuer) {
+		return new JwkSetUriJwtDecoderBuilder((rest) -> {
+			Map<String, Object> configuration = JwtDecoderProviderConfigurationUtils
+					.getConfigurationForIssuerLocation(issuer, rest);
+			JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
+			return configuration.get("jwks_uri").toString();
+		}, JwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
+	}
+
+	/**
 	 * Use the given <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
 	 * uri.
 	 * @param jwkSetUri the JWK Set uri to use
@@ -235,7 +261,10 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 	 */
 	public static final class JwkSetUriJwtDecoderBuilder {
 
-		private String jwkSetUri;
+		private Function<RestOperations, String> jwkSetUri;
+
+		private Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms = (source) -> Set
+				.of(JWSAlgorithm.RS256);
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
@@ -247,7 +276,17 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
+			this.jwkSetUri = (rest) -> jwkSetUri;
+			this.jwtProcessorCustomizer = (processor) -> {
+			};
+		}
+
+		private JwkSetUriJwtDecoderBuilder(Function<RestOperations, String> jwkSetUri,
+				Function<JWKSource<SecurityContext>, Set<JWSAlgorithm>> defaultAlgorithms) {
+			Assert.notNull(jwkSetUri, "jwkSetUri function cannot be null");
+			Assert.notNull(defaultAlgorithms, "defaultAlgorithms function cannot be null");
 			this.jwkSetUri = jwkSetUri;
+			this.defaultAlgorithms = defaultAlgorithms;
 			this.jwtProcessorCustomizer = (processor) -> {
 			};
 		}
@@ -324,7 +363,7 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		JWSKeySelector<SecurityContext> jwsKeySelector(JWKSource<SecurityContext> jwkSource) {
 			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+				return new JWSVerificationKeySelector<>(this.defaultAlgorithms.apply(jwkSource), jwkSource);
 			}
 			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 			for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
@@ -334,17 +373,18 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 			return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
 		}
 
-		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever) {
+		JWKSource<SecurityContext> jwkSource(ResourceRetriever jwkSetRetriever, String jwkSetUri) {
 			if (this.cache == null) {
-				return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever);
+				return new RemoteJWKSet<>(toURL(jwkSetUri), jwkSetRetriever);
 			}
-			JWKSetCache jwkSetCache = new SpringJWKSetCache(this.jwkSetUri, this.cache);
-			return new RemoteJWKSet<>(toURL(this.jwkSetUri), jwkSetRetriever, jwkSetCache);
+			JWKSetCache jwkSetCache = new SpringJWKSetCache(jwkSetUri, this.cache);
+			return new RemoteJWKSet<>(toURL(jwkSetUri), jwkSetRetriever, jwkSetCache);
 		}
 
 		JWTProcessor<SecurityContext> processor() {
 			ResourceRetriever jwkSetRetriever = new RestOperationsResourceRetriever(this.restOperations);
-			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever);
+			String jwkSetUri = this.jwkSetUri.apply(this.restOperations);
+			JWKSource<SecurityContext> jwkSource = jwkSource(jwkSetRetriever, jwkSetUri);
 			ConfigurableJWTProcessor<SecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
 			jwtProcessor.setJWSKeySelector(jwsKeySelector(jwkSource));
 			// Spring Security validates the claim set independent from Nimbus

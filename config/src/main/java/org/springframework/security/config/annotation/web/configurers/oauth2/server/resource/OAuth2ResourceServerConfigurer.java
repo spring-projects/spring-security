@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -198,6 +198,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
+	/**
+	 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} instead
+	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public JwtConfigurer jwt() {
 		if (this.jwtConfigurer == null) {
 			this.jwtConfigurer = new JwtConfigurer(this.context);
@@ -219,6 +223,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		return this;
 	}
 
+	/**
+	 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} instead
+	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public OpaqueTokenConfigurer opaqueToken() {
 		if (this.opaqueTokenConfigurer == null) {
 			this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
@@ -394,6 +402,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} instead
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2ResourceServerConfigurer<H> and() {
 			return OAuth2ResourceServerConfigurer.this;
 		}

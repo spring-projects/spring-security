@@ -12,6 +12,7 @@ But before you leave, consider if any of these use cases fit your application:
 * I want to <<understanding-session-management-components,Understand Session Management's components>>
 * I want to <<ns-concurrent-sessions,restrict the number of times>> a user can be logged in concurrently
 * I want <<store-authentication-manually,to store the authentication directly>> myself instead of Spring Security doing it for me
+* I am storing the authentication manually and I want <<properly-clearing-authentication,to remove it>>
 * I am using <<the-sessionmanagementfilter, `SessionManagementFilter`>> and I need <<moving-away-from-sessionmanagementfilter,guidance on moving away from that>>
 * I want to store the authentication <<customizing-where-authentication-is-stored,in something other than the session>>
 * I am using a <<stateless-authentication, stateless authentication>>, but <<storing-stateless-authentication-in-the-session,I'd still like to store it in the session>>
@@ -84,12 +85,6 @@ By default, Spring Security stores the security context for you in the HTTP sess
 
 First, you need to create an implementation of `SecurityContextRepository` or use an existing implementation like `HttpSessionSecurityContextRepository`, then you can set it in `HttpSecurity`.
 
-[NOTE]
-====
-The above configuration sets the `SecurityContextRepository` on the `SecurityContextHolderFilter` and **participating** authentication filters, like `UsernamePasswordAuthenticationFilter`.
-To also set it in stateless filters, please see <<storing-stateless-authentication-in-the-session,how to customize the `SecurityContextRepository` for Stateless Authentication>>.
-====
-
 [[customizing-the-securitycontextrepository]]
 .Customizing the `SecurityContextRepository`
 ====
@@ -134,6 +129,12 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 ----
 ====
 
+[NOTE]
+====
+The above configuration sets the `SecurityContextRepository` on the `SecurityContextHolderFilter` and **participating** authentication filters, like `UsernamePasswordAuthenticationFilter`.
+To also set it in stateless filters, please see <<storing-stateless-authentication-in-the-session,how to customize the `SecurityContextRepository` for Stateless Authentication>>.
+====
+
 If you are using a custom authentication mechanism, you might want to <<store-authentication-manually,store the `Authentication` by yourself>>.
 
 [[store-authentication-manually]]
@@ -157,7 +158,7 @@ public void login(@RequestBody LoginRequest loginRequest, HttpServletRequest req
     Authentication authentication = authenticationManager.authenticate(token); <4>
     SecurityContext context = securityContextHolderStrategy.createEmptyContext();
     context.setAuthentication(authentication); <5>
-    securityContextHolderStrategy.setContext(authentication);
+    securityContextHolderStrategy.setContext(context);
     securityContextRepository.saveContext(context, request, response); <6>
 }
 
@@ -180,6 +181,12 @@ class LoginRequest {
 
 And that's it.
 If you are not sure what `securityContextHolderStrategy` is in the above example, you can read more about it in the <<use-securitycontextholderstrategy, Using `SecurityContextStrategy` section>>.
+
+[[properly-clearing-authentication]]
+=== Properly Clearing an Authentication
+
+If you are using Spring Security's xref:servlet/authentication/logout.adoc[Logout Support] then it handles a lot of stuff for you including clearing and saving the context.
+But, let's say you need to manually log users out of your app. In that case, you'll need to make sure you're xref:servlet/authentication/logout.adoc#creating-custom-logout-endpoint[clearing and saving the context properly].
 
 [[stateless-authentication]]
 === Configuring Persistence for Stateless Authentication
@@ -793,7 +800,7 @@ Authentication authentication = this.authenticationManager.authenticate(token);
 // ...
 SecurityContext context = SecurityContextHolder.createEmptyContext(); <1>
 context.setAuthentication(authentication); <2>
-SecurityContextHolder.setContext(authentication); <3>
+SecurityContextHolder.setContext(context); <3>
 ----
 ====
 
@@ -825,7 +832,7 @@ public class SomeClass {
         // ...
         SecurityContext context = this.securityContextHolderStrategy.createEmptyContext(); <1>
         context.setAuthentication(authentication); <2>
-        this.securityContextHolderStrategy.setContext(authentication); <3>
+        this.securityContextHolderStrategy.setContext(context); <3>
     }
 
 }

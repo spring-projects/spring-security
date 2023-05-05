@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,12 @@ package org.springframework.security.authorization;
 import java.util.function.Supplier;
 
 import io.micrometer.observation.Observation;
+import io.micrometer.observation.ObservationConvention;
 import io.micrometer.observation.ObservationRegistry;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.util.Assert;
 
 /**
  * An {@link AuthorizationManager} that observes the authorization
@@ -36,7 +38,7 @@ public final class ObservationAuthorizationManager<T> implements AuthorizationMa
 
 	private final AuthorizationManager<T> delegate;
 
-	private final AuthorizationObservationConvention convention = new AuthorizationObservationConvention();
+	private ObservationConvention<AuthorizationObservationContext<?>> convention = new AuthorizationObservationConvention();
 
 	public ObservationAuthorizationManager(ObservationRegistry registry, AuthorizationManager<T> delegate) {
 		this.registry = registry;
@@ -66,6 +68,17 @@ public final class ObservationAuthorizationManager<T> implements AuthorizationMa
 		finally {
 			observation.stop();
 		}
+	}
+
+	/**
+	 * Use the provided convention for reporting observation data
+	 * @param convention The provided convention
+	 *
+	 * @since 6.1
+	 */
+	public void setObservationConvention(ObservationConvention<AuthorizationObservationContext<?>> convention) {
+		Assert.notNull(convention, "The observation convention cannot be null");
+		this.convention = convention;
 	}
 
 }

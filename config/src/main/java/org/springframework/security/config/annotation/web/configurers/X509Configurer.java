@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import org.springframework.security.web.authentication.preauth.PreAuthenticatedG
 import org.springframework.security.web.authentication.preauth.x509.SubjectDnX509PrincipalExtractor;
 import org.springframework.security.web.authentication.preauth.x509.X509AuthenticationFilter;
 import org.springframework.security.web.authentication.preauth.x509.X509PrincipalExtractor;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 
 /**
  * Adds X509 based pre authentication to an application. Since validating the certificate
@@ -192,6 +193,7 @@ public final class X509Configurer<H extends HttpSecurityBuilder<H>>
 			if (this.authenticationDetailsSource != null) {
 				this.x509AuthenticationFilter.setAuthenticationDetailsSource(this.authenticationDetailsSource);
 			}
+			this.x509AuthenticationFilter.setSecurityContextRepository(new RequestAttributeSecurityContextRepository());
 			this.x509AuthenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 			this.x509AuthenticationFilter = postProcess(this.x509AuthenticationFilter);
 		}

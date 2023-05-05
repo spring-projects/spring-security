@@ -13,35 +13,11 @@ You can configure this in a number of ways including:
 
 To configure these, you'll use the `saml2Login#authenticationManager` method in the DSL.
 
-[[relyingpartyregistrationresolver-apply]]
-== Changing `RelyingPartyRegistration` Lookup
+[[saml2-response-processing-endpoint]]
+== Changing the SAML Response Processing Endpoint
 
-`RelyingPartyRegistration` lookup is customized xref:servlet/saml2/login/overview.adoc#servlet-saml2login-rpr-relyingpartyregistrationresolver[in a `RelyingPartyRegistrationResolver`].
-
-To apply a `RelyingPartyRegistrationResolver` when processing `<saml2:Response>` payloads, you should first publish a `Saml2AuthenticationTokenConverter` bean like so:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@Bean
-Saml2AuthenticationTokenConverter authenticationConverter(InMemoryRelyingPartyRegistrationRepository registrations) {
-	return new Saml2AuthenticationTokenConverter(new MyRelyingPartyRegistrationResolver(registrations));
-}
-----
-
-.Kotlin
-[source,kotlin,role="secondary"]
-----
-@Bean
-fun authenticationConverter(val registrations: InMemoryRelyingPartyRegistrationRepository): Saml2AuthenticationTokenConverter {
-	return Saml2AuthenticationTokenConverter(MyRelyingPartyRegistrationResolver(registrations));
-}
-----
-====
-
-Recall that the Assertion Consumer Service URL is `+/saml2/login/sso/{registrationId}+` by default.
-If you are no longer wanting the `registrationId` in the URL, change it in the filter chain and in your relying party metadata:
+The default endpoint is `+/login/saml2/sso/{registrationId}+`.
+You can change this in the DSL and in the associated metadata like so:
 
 ====
 .Java
@@ -82,13 +58,55 @@ and:
 .Java
 [source,java,role="primary"]
 ----
-relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml2/login/sso")
+relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml/SSO")
 ----
 
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml2/login/sso")
+relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml/SSO")
+----
+====
+
+[[relyingpartyregistrationresolver-apply]]
+== Changing `RelyingPartyRegistration` lookup
+
+By default, this converter will match against any associated `<saml2:AuthnRequest>` or any `registrationId` it finds in the URL.
+Or, if it cannot find one in either of those cases, then it attempts to look it up by the `<saml2:Response#Issuer>` element.
+
+There are a number of circumstances where you might need something more sophisticated, like if you are supporting `ARTIFACT` binding.
+In those cases, you can customize lookup through a custom `AuthenticationConverter`, which you can customize like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+SecurityFilterChain securityFilters(HttpSecurity http, AuthenticationConverter authenticationConverter) throws Exception {
+	http
+        // ...
+        .saml2Login((saml2) -> saml2.authenticationConverter(authenticationConverter))
+        // ...
+
+    return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun securityFilters(val http: HttpSecurity, val converter: AuthenticationConverter): SecurityFilterChain {
+	http {
+        // ...
+        .saml2Login {
+            authenticationConverter = converter
+        }
+        // ...
+    }
+
+    return http.build()
+}
 ----
 ====
 

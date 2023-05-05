@@ -194,7 +194,25 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
 		 * customizations
 		 * @since 5.7
+		 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType}
+		 * instead. <pre>
+		 * &#064;Configuration
+		 * &#064;EnableWebSecurity
+		 * public class SecurityConfig {
+		 *
+		 * 	&#064;Bean
+		 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		 * 		http
+		 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
+		 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+		 * 			 	// ...
+		 * 		 	);
+		 * 		return http.build();
+		 * 	}
+		 * }
+		 * </pre>
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public AuthorizationManagerRequestMatcherRegistry shouldFilterAllDispatcherTypes(boolean shouldFilter) {
 			this.shouldFilterAllDispatcherTypes = shouldFilter;
 			return this;
@@ -204,7 +222,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * Return the {@link HttpSecurityBuilder} when done using the
 		 * {@link AuthorizeHttpRequestsConfigurer}. This is useful for method chaining.
 		 * @return the {@link HttpSecurityBuilder} for further customizations
+		 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public H and() {
 			return AuthorizeHttpRequestsConfigurer.this.and();
 		}

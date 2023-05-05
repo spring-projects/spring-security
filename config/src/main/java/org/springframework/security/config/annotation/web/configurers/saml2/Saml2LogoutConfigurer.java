@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,11 +39,10 @@ import org.springframework.security.saml2.provider.service.authentication.logout
 import org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
-import org.springframework.security.saml2.provider.service.web.DefaultRelyingPartyRegistrationResolver;
-import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.HttpSessionLogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutRequestResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSaml4LogoutResponseResolver;
+import org.springframework.security.saml2.provider.service.web.authentication.logout.OpenSamlLogoutRequestValidatorParametersResolver;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestFilter;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository;
 import org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver;
@@ -169,7 +168,9 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Request components
 	 * @return the {@link LogoutRequestConfigurer} for further customizations
+	 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutRequestConfigurer logoutRequest() {
 		return this.logoutRequestConfigurer;
 	}
@@ -189,13 +190,15 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Response components
 	 * @return the {@link LogoutResponseConfigurer} for further customizations
+	 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutResponseConfigurer logoutResponse() {
 		return this.logoutResponseConfigurer;
 	}
 
 	/**
-	 * Configures SAML 2.0 Logout Request components
+	 * Configures SAML 2.0 Logout Response components
 	 * @param logoutResponseConfigurerCustomizer the {@link Customizer} to provide more
 	 * options for the {@link LogoutResponseConfigurer}
 	 * @return the {@link Saml2LogoutConfigurer} for further customizations
@@ -216,15 +219,10 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			this.logoutHandlers = logout.getLogoutHandlers();
 			this.logoutSuccessHandler = logout.getLogoutSuccessHandler();
 		}
-		RelyingPartyRegistrationResolver registrations = relyingPartyRegistrationResolver(http);
+		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
 		http.addFilterBefore(createLogoutRequestProcessingFilter(registrations), CsrfFilter.class);
 		http.addFilterBefore(createLogoutResponseProcessingFilter(registrations), CsrfFilter.class);
 		http.addFilterBefore(createRelyingPartyLogoutFilter(registrations), LogoutFilter.class);
-	}
-
-	private RelyingPartyRegistrationResolver relyingPartyRegistrationResolver(H http) {
-		RelyingPartyRegistrationRepository registrations = getRelyingPartyRegistrationRepository(http);
-		return new DefaultRelyingPartyRegistrationResolver(registrations);
 	}
 
 	private RelyingPartyRegistrationRepository getRelyingPartyRegistrationRepository(H http) {
@@ -242,18 +240,21 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private Saml2LogoutRequestFilter createLogoutRequestProcessingFilter(
-			RelyingPartyRegistrationResolver registrations) {
+			RelyingPartyRegistrationRepository registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2LogoutResponseResolver logoutResponseResolver = createSaml2LogoutResponseResolver(registrations);
-		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(registrations,
+		RequestMatcher requestMatcher = createLogoutRequestMatcher();
+		OpenSamlLogoutRequestValidatorParametersResolver parameters = new OpenSamlLogoutRequestValidatorParametersResolver(
+				registrations);
+		parameters.setRequestMatcher(requestMatcher);
+		Saml2LogoutRequestFilter filter = new Saml2LogoutRequestFilter(parameters,
 				this.logoutRequestConfigurer.logoutRequestValidator(), logoutResponseResolver, logoutHandlers);
-		filter.setLogoutRequestMatcher(createLogoutRequestMatcher());
 		filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
 		return postProcess(filter);
 	}
 
 	private Saml2LogoutResponseFilter createLogoutResponseProcessingFilter(
-			RelyingPartyRegistrationResolver registrations) {
+			RelyingPartyRegistrationRepository registrations) {
 		Saml2LogoutResponseFilter logoutResponseFilter = new Saml2LogoutResponseFilter(registrations,
 				this.logoutResponseConfigurer.logoutResponseValidator(), this.logoutSuccessHandler);
 		logoutResponseFilter.setLogoutRequestMatcher(createLogoutResponseMatcher());
@@ -261,7 +262,7 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		return postProcess(logoutResponseFilter);
 	}
 
-	private LogoutFilter createRelyingPartyLogoutFilter(RelyingPartyRegistrationResolver registrations) {
+	private LogoutFilter createRelyingPartyLogoutFilter(RelyingPartyRegistrationRepository registrations) {
 		LogoutHandler[] logoutHandlers = this.logoutHandlers.toArray(new LogoutHandler[0]);
 		Saml2RelyingPartyInitiatedLogoutSuccessHandler logoutRequestSuccessHandler = createSaml2LogoutRequestSuccessHandler(
 				registrations);
@@ -290,15 +291,15 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	private Saml2RelyingPartyInitiatedLogoutSuccessHandler createSaml2LogoutRequestSuccessHandler(
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+			RelyingPartyRegistrationRepository registrations) {
 		Saml2LogoutRequestResolver logoutRequestResolver = this.logoutRequestConfigurer
-				.logoutRequestResolver(relyingPartyRegistrationResolver);
+				.logoutRequestResolver(registrations);
 		return new Saml2RelyingPartyInitiatedLogoutSuccessHandler(logoutRequestResolver);
 	}
 
 	private Saml2LogoutResponseResolver createSaml2LogoutResponseResolver(
-			RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
-		return this.logoutResponseConfigurer.logoutResponseResolver(relyingPartyRegistrationResolver);
+			RelyingPartyRegistrationRepository registrations) {
+		return this.logoutResponseConfigurer.logoutResponseResolver(registrations);
 	}
 
 	private <C> C getBeanOrNull(Class<C> clazz) {
@@ -374,6 +375,10 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {
 			return Saml2LogoutConfigurer.this;
 		}
@@ -385,12 +390,11 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this.logoutRequestValidator;
 		}
 
-		private Saml2LogoutRequestResolver logoutRequestResolver(
-				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		private Saml2LogoutRequestResolver logoutRequestResolver(RelyingPartyRegistrationRepository registrations) {
 			if (this.logoutRequestResolver != null) {
 				return this.logoutRequestResolver;
 			}
-			return new OpenSaml4LogoutRequestResolver(relyingPartyRegistrationResolver);
+			return new OpenSaml4LogoutRequestResolver(registrations);
 		}
 
 	}
@@ -443,6 +447,10 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {
 			return Saml2LogoutConfigurer.this;
 		}
@@ -454,10 +462,9 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 			return this.logoutResponseValidator;
 		}
 
-		private Saml2LogoutResponseResolver logoutResponseResolver(
-				RelyingPartyRegistrationResolver relyingPartyRegistrationResolver) {
+		private Saml2LogoutResponseResolver logoutResponseResolver(RelyingPartyRegistrationRepository registrations) {
 			if (this.logoutResponseResolver == null) {
-				return new OpenSaml4LogoutResponseResolver(relyingPartyRegistrationResolver);
+				return new OpenSaml4LogoutResponseResolver(registrations);
 			}
 			return this.logoutResponseResolver;
 		}

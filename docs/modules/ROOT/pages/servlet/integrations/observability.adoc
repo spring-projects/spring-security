@@ -198,7 +198,7 @@ Instead, you can alter the provided `ObservationRegistry` with an `ObservationPr
 @Bean
 ObservationRegistryCustomizer<ObservationRegistry> noSpringSecurityObservations() {
 	ObservationPredicate predicate = (name, context) -> !name.startsWith("spring.security.");
-	return (registry) -> registry.observationConfig().observationPredicate(predicate)
+	return (registry) -> registry.observationConfig().observationPredicate(predicate);
 }
 ----
 

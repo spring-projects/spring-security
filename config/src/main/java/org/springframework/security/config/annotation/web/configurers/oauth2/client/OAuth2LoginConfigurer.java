@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,7 +206,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link AuthorizationEndpointConfig} for configuring the Authorization
 	 * Server's Authorization Endpoint.
 	 * @return the {@link AuthorizationEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public AuthorizationEndpointConfig authorizationEndpoint() {
 		return this.authorizationEndpointConfig;
 	}
@@ -227,7 +230,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's
 	 * Token Endpoint.
 	 * @return the {@link TokenEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public TokenEndpointConfig tokenEndpoint() {
 		return this.tokenEndpointConfig;
 	}
@@ -248,7 +253,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link RedirectionEndpointConfig} for configuring the Client's
 	 * Redirection Endpoint.
 	 * @return the {@link RedirectionEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public RedirectionEndpointConfig redirectionEndpoint() {
 		return this.redirectionEndpointConfig;
 	}
@@ -269,7 +277,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization
 	 * Server's UserInfo Endpoint.
 	 * @return the {@link UserInfoEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public UserInfoEndpointConfig userInfoEndpoint() {
 		return this.userInfoEndpointConfig;
 	}
@@ -590,7 +600,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -624,7 +637,9 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -656,7 +671,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -718,7 +736,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}

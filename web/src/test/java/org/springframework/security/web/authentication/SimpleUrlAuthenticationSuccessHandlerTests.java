@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,15 @@
 
 package org.springframework.security.web.authentication;
 
+import jakarta.servlet.http.HttpSession;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.WebAttributes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -106,6 +110,22 @@ public class SimpleUrlAuthenticationSuccessHandlerTests {
 		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
 		assertThatIllegalArgumentException().isThrownBy(() -> ash.setTargetUrlParameter(""));
 		assertThatIllegalArgumentException().isThrownBy(() -> ash.setTargetUrlParameter("   "));
+	}
+
+	@Test
+	public void shouldRemoveAuthenticationAttributeWhenOnAuthenticationSuccess() throws Exception {
+		SimpleUrlAuthenticationSuccessHandler ash = new SimpleUrlAuthenticationSuccessHandler();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpSession session = request.getSession();
+		assertThat(session).isNotNull();
+		session.setAttribute(WebAttributes.AUTHENTICATION_EXCEPTION,
+				new BadCredentialsException("Invalid credentials"));
+		assertThat(session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isNotNull();
+		assertThat(session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION))
+				.isInstanceOf(AuthenticationException.class);
+		ash.onAuthenticationSuccess(request, response, mock(Authentication.class));
+		assertThat(session.getAttribute(WebAttributes.AUTHENTICATION_EXCEPTION)).isNull();
 	}
 
 }

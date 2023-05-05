@@ -38,7 +38,6 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKMatcher;
 import com.nimbusds.jose.jwk.JWKSelector;
 import com.nimbusds.jose.jwk.source.JWKSecurityContextJWKSet;
-import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWKSecurityContext;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -55,6 +54,8 @@ import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTProcessor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
+import reactor.util.function.Tuples;
 
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -210,6 +211,36 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 	}
 
 	/**
+	 * Use the given <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * by making an <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationRequest">OpenID
+	 * Provider Configuration Request</a> and using the values in the <a href=
+	 * "https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationResponse">OpenID
+	 * Provider Configuration Response</a> to derive the needed
+	 * <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a> uri.
+	 * @param issuer the <a href=
+	 * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a>
+	 * @return a {@link NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder} that will derive the
+	 * JWK Set uri when {@link NimbusJwtDecoder.JwkSetUriJwtDecoderBuilder#build} is
+	 * called
+	 * @since 6.1
+	 * @see JwtDecoders
+	 */
+	public static JwkSetUriReactiveJwtDecoderBuilder withIssuerLocation(String issuer) {
+		return new JwkSetUriReactiveJwtDecoderBuilder((web) -> ReactiveJwtDecoderProviderConfigurationUtils
+				.getConfigurationForIssuerLocation(issuer, web).flatMap((configuration) -> {
+					try {
+						JwtDecoderProviderConfigurationUtils.validateIssuer(configuration, issuer);
+					}
+					catch (IllegalStateException ex) {
+						return Mono.error(ex);
+					}
+					return Mono.just(configuration.get("jwks_uri").toString());
+				}), ReactiveJwtDecoderProviderConfigurationUtils::getJWSAlgorithms);
+	}
+
+	/**
 	 * Use the given <a href="https://tools.ietf.org/html/rfc7517#section-5">JWK Set</a>
 	 * uri to validate JWTs.
 	 * @param jwkSetUri the JWK Set uri to use
@@ -278,7 +309,10 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private static final Duration FOREVER = Duration.ofMillis(Long.MAX_VALUE);
 
-		private final String jwkSetUri;
+		private Function<WebClient, Mono<String>> jwkSetUri;
+
+		private Function<ReactiveRemoteJWKSource, Mono<Set<JWSAlgorithm>>> defaultAlgorithms = (source) -> Mono
+				.just(Set.of(JWSAlgorithm.RS256));
 
 		private Set<SignatureAlgorithm> signatureAlgorithms = new HashSet<>();
 
@@ -288,7 +322,16 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 		private JwkSetUriReactiveJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
+			this.jwkSetUri = (web) -> Mono.just(jwkSetUri);
+			this.jwtProcessorCustomizer = (source, processor) -> Mono.just(processor);
+		}
+
+		private JwkSetUriReactiveJwtDecoderBuilder(Function<WebClient, Mono<String>> jwkSetUri,
+				Function<ReactiveRemoteJWKSource, Mono<Set<JWSAlgorithm>>> defaultAlgorithms) {
+			Assert.notNull(jwkSetUri, "jwkSetUri cannot be null");
+			Assert.notNull(defaultAlgorithms, "defaultAlgorithms cannot be null");
 			this.jwkSetUri = jwkSetUri;
+			this.defaultAlgorithms = defaultAlgorithms;
 			this.jwtProcessorCustomizer = (source, processor) -> Mono.just(processor);
 		}
 
@@ -367,36 +410,42 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 			return new NimbusReactiveJwtDecoder(processor());
 		}
 
-		JWSKeySelector<JWKSecurityContext> jwsKeySelector(JWKSource<JWKSecurityContext> jwkSource) {
+		Mono<JWSKeySelector<JWKSecurityContext>> jwsKeySelector(ReactiveRemoteJWKSource source) {
+			JWKSecurityContextJWKSet jwkSource = new JWKSecurityContextJWKSet();
 			if (this.signatureAlgorithms.isEmpty()) {
-				return new JWSVerificationKeySelector<>(JWSAlgorithm.RS256, jwkSource);
+				return this.defaultAlgorithms.apply(source)
+						.map((algorithms) -> new JWSVerificationKeySelector<>(algorithms, jwkSource));
 			}
 			Set<JWSAlgorithm> jwsAlgorithms = new HashSet<>();
 			for (SignatureAlgorithm signatureAlgorithm : this.signatureAlgorithms) {
 				JWSAlgorithm jwsAlgorithm = JWSAlgorithm.parse(signatureAlgorithm.getName());
 				jwsAlgorithms.add(jwsAlgorithm);
 			}
-			return new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource);
+			return Mono.just(new JWSVerificationKeySelector<>(jwsAlgorithms, jwkSource));
 		}
 
 		Converter<JWT, Mono<JWTClaimsSet>> processor() {
-			JWKSecurityContextJWKSet jwkSource = new JWKSecurityContextJWKSet();
 			DefaultJWTProcessor<JWKSecurityContext> jwtProcessor = new DefaultJWTProcessor<>();
-			JWSKeySelector<JWKSecurityContext> jwsKeySelector = jwsKeySelector(jwkSource);
-			jwtProcessor.setJWSKeySelector(jwsKeySelector);
 			jwtProcessor.setJWTClaimsSetVerifier((claims, context) -> {
 			});
-			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri);
+			ReactiveRemoteJWKSource source = new ReactiveRemoteJWKSource(this.jwkSetUri.apply(this.webClient));
 			source.setWebClient(this.webClient);
-			Function<JWSAlgorithm, Boolean> expectedJwsAlgorithms = getExpectedJwsAlgorithms(jwsKeySelector);
-			Mono<ConfigurableJWTProcessor<JWKSecurityContext>> jwtProcessorMono = this.jwtProcessorCustomizer
-					.apply(source, jwtProcessor)
+			Mono<JWSKeySelector<JWKSecurityContext>> jwsKeySelector = jwsKeySelector(source);
+			Mono<Tuple2<ConfigurableJWTProcessor<JWKSecurityContext>, Function<JWSAlgorithm, Boolean>>> jwtProcessorMono = jwsKeySelector
+					.flatMap((selector) -> {
+						jwtProcessor.setJWSKeySelector(selector);
+						return this.jwtProcessorCustomizer.apply(source, jwtProcessor);
+					}).map((processor) -> Tuples.of(processor, getExpectedJwsAlgorithms(processor.getJWSKeySelector())))
 					.cache((processor) -> FOREVER, (ex) -> Duration.ZERO, () -> Duration.ZERO);
 			return (jwt) -> {
-				JWKSelector selector = createSelector(expectedJwsAlgorithms, jwt.getHeader());
-				return jwtProcessorMono.flatMap((processor) -> source.get(selector)
-						.onErrorMap((ex) -> new IllegalStateException("Could not obtain the keys", ex))
-						.map((jwkList) -> createClaimsSet(processor, jwt, new JWKSecurityContext(jwkList))));
+				return jwtProcessorMono.flatMap((tuple) -> {
+					JWTProcessor<JWKSecurityContext> processor = tuple.getT1();
+					Function<JWSAlgorithm, Boolean> expectedJwsAlgorithms = tuple.getT2();
+					JWKSelector selector = createSelector(expectedJwsAlgorithms, jwt.getHeader());
+					return source.get(selector)
+							.onErrorMap((ex) -> new IllegalStateException("Could not obtain the keys", ex))
+							.map((jwkList) -> createClaimsSet(processor, jwt, new JWKSecurityContext(jwkList)));
+				});
 			};
 		}
 

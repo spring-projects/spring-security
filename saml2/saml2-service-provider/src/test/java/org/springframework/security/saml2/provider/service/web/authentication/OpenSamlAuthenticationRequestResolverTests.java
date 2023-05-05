@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,13 @@
 
 package org.springframework.security.saml2.provider.service.web.authentication;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -29,6 +34,8 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2R
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers;
+import org.springframework.security.saml2.provider.service.web.RelyingPartyRegistrationPlaceholderResolvers.UriResolver;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,20 +52,26 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		this.relyingPartyRegistrationBuilder = TestRelyingPartyRegistrations.relyingPartyRegistration();
 	}
 
-	@Test
-	public void resolveAuthenticationRequestWhenSignedRedirectThenSignsAndRedirects() {
+	@ParameterizedTest
+	@MethodSource("provideSignRequestFlags")
+	public void resolveAuthenticationRequestWhenSignedRedirectThenSignsAndRedirects(boolean wantAuthRequestsSigned,
+			boolean authnRequestsSigned) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/saml2/authenticate/registration-id");
-		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder.build();
+		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder
+				.authnRequestsSigned(authnRequestsSigned)
+				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(wantAuthRequestsSigned)).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
-					.isEqualTo(registration.getAssertionConsumerServiceLocation());
+					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
 					.isEqualTo(registration.getAssertionConsumerServiceBinding().getUrn());
 			assertThat(authnRequest.getDestination())
 					.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
-			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(registration.getEntityId());
+			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(uriResolver.resolve(registration.getEntityId()));
 		});
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isNotNull();
@@ -76,13 +89,15 @@ public class OpenSamlAuthenticationRequestResolverTests {
 				.assertingPartyDetails((party) -> party.wantAuthnRequestsSigned(false)).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2RedirectAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
-					.isEqualTo(registration.getAssertionConsumerServiceLocation());
+					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
 					.isEqualTo(registration.getAssertionConsumerServiceBinding().getUrn());
 			assertThat(authnRequest.getDestination())
 					.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
-			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(registration.getEntityId());
+			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(uriResolver.resolve(registration.getEntityId()));
 		});
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isNotNull();
@@ -111,16 +126,18 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		request.setPathInfo("/saml2/authenticate/registration-id");
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder.assertingPartyDetails(
 				(party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST).wantAuthnRequestsSigned(false))
-				.build();
+				.authnRequestsSigned(false).build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
-					.isEqualTo(registration.getAssertionConsumerServiceLocation());
+					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
 					.isEqualTo(registration.getAssertionConsumerServiceBinding().getUrn());
 			assertThat(authnRequest.getDestination())
 					.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
-			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(registration.getEntityId());
+			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(uriResolver.resolve(registration.getEntityId()));
 		});
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isNotNull();
@@ -129,21 +146,28 @@ public class OpenSamlAuthenticationRequestResolverTests {
 		assertThat(result.getId()).isNotEmpty();
 	}
 
-	@Test
-	public void resolveAuthenticationRequestWhenSignedPostThenSignsAndPosts() {
+	@ParameterizedTest
+	@MethodSource("provideSignRequestFlags")
+	public void resolveAuthenticationRequestWhenSignedPostThenSignsAndPosts(boolean wantAuthRequestsSigned,
+			boolean authnRequestsSigned) {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.setPathInfo("/saml2/authenticate/registration-id");
 		RelyingPartyRegistration registration = this.relyingPartyRegistrationBuilder
-				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)).build();
+				.authnRequestsSigned(authnRequestsSigned)
+				.assertingPartyDetails((party) -> party.singleSignOnServiceBinding(Saml2MessageBinding.POST)
+						.wantAuthnRequestsSigned(wantAuthRequestsSigned))
+				.build();
 		OpenSamlAuthenticationRequestResolver resolver = authenticationRequestResolver(registration);
 		Saml2PostAuthenticationRequest result = resolver.resolve(request, (r, authnRequest) -> {
+			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
+			assertThat(authnRequest.getNameIDPolicy().getFormat()).isEqualTo(registration.getNameIdFormat());
 			assertThat(authnRequest.getAssertionConsumerServiceURL())
-					.isEqualTo(registration.getAssertionConsumerServiceLocation());
+					.isEqualTo(uriResolver.resolve(registration.getAssertionConsumerServiceLocation()));
 			assertThat(authnRequest.getProtocolBinding())
 					.isEqualTo(registration.getAssertionConsumerServiceBinding().getUrn());
 			assertThat(authnRequest.getDestination())
 					.isEqualTo(registration.getAssertingPartyDetails().getSingleSignOnServiceLocation());
-			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(registration.getEntityId());
+			assertThat(authnRequest.getIssuer().getValue()).isEqualTo(uriResolver.resolve(registration.getEntityId()));
 		});
 		assertThat(result.getSamlRequest()).isNotEmpty();
 		assertThat(result.getRelayState()).isNotNull();
@@ -172,6 +196,10 @@ public class OpenSamlAuthenticationRequestResolverTests {
 
 	private OpenSamlAuthenticationRequestResolver authenticationRequestResolver(RelyingPartyRegistration registration) {
 		return new OpenSamlAuthenticationRequestResolver((request, id) -> registration);
+	}
+
+	private static Stream<Arguments> provideSignRequestFlags() {
+		return Stream.of(Arguments.of(true, true), Arguments.of(true, false), Arguments.of(false, true));
 	}
 
 }

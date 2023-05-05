@@ -21,17 +21,27 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.util.Assert;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
 /**
+ * An in-memory implementation of {@link RelyingPartyRegistrationRepository}. Also
+ * implements {@link Iterable} to simplify the default login page.
+ *
+ * @author Filip Hanik
+ * @author Josh Cummings
  * @since 5.2
  */
 public class InMemoryRelyingPartyRegistrationRepository
 		implements RelyingPartyRegistrationRepository, Iterable<RelyingPartyRegistration> {
 
 	private final Map<String, RelyingPartyRegistration> byRegistrationId;
+
+	private final Map<String, List<RelyingPartyRegistration>> byAssertingPartyEntityId;
 
 	public InMemoryRelyingPartyRegistrationRepository(RelyingPartyRegistration... registrations) {
 		this(Arrays.asList(registrations));
@@ -40,6 +50,7 @@ public class InMemoryRelyingPartyRegistrationRepository
 	public InMemoryRelyingPartyRegistrationRepository(Collection<RelyingPartyRegistration> registrations) {
 		Assert.notEmpty(registrations, "registrations cannot be empty");
 		this.byRegistrationId = createMappingToIdentityProvider(registrations);
+		this.byAssertingPartyEntityId = createMappingByAssertingPartyEntityId(registrations);
 	}
 
 	private static Map<String, RelyingPartyRegistration> createMappingToIdentityProvider(
@@ -55,9 +66,30 @@ public class InMemoryRelyingPartyRegistrationRepository
 		return Collections.unmodifiableMap(result);
 	}
 
+	private static Map<String, List<RelyingPartyRegistration>> createMappingByAssertingPartyEntityId(
+			Collection<RelyingPartyRegistration> rps) {
+		MultiValueMap<String, RelyingPartyRegistration> result = new LinkedMultiValueMap<>();
+		for (RelyingPartyRegistration rp : rps) {
+			result.add(rp.getAssertingPartyDetails().getEntityId(), rp);
+		}
+		return Collections.unmodifiableMap(result);
+	}
+
 	@Override
 	public RelyingPartyRegistration findByRegistrationId(String id) {
 		return this.byRegistrationId.get(id);
+	}
+
+	@Override
+	public RelyingPartyRegistration findUniqueByAssertingPartyEntityId(String entityId) {
+		Collection<RelyingPartyRegistration> registrations = this.byAssertingPartyEntityId.get(entityId);
+		if (registrations == null) {
+			return null;
+		}
+		if (registrations.size() > 1) {
+			return null;
+		}
+		return registrations.iterator().next();
 	}
 
 	@Override

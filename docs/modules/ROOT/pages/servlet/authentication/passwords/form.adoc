@@ -16,7 +16,7 @@ The preceding figure builds off our xref:servlet/architecture.adoc#servlet-secur
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource (`/private`) for which it is not authorized.
 
-image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__ and sends a redirect to the login page with the configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`].
 In most cases, the `AuthenticationEntryPoint` is an instance of {security-api-url}org/springframework/security/web/authentication/LoginUrlAuthenticationEntryPoint.html[`LoginUrlAuthenticationEntryPoint`].
@@ -47,17 +47,17 @@ image:{icondir}/number_3.png[] If authentication fails, then __Failure__.
 If remember me is not configured, this is a no-op.
 See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
 . `AuthenticationFailureHandler` is invoked.
-See the {security-api-url}springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] class in the Javadoc
+See the {security-api-url}org/springframework/security/web/authentication/AuthenticationFailureHandler.html[`AuthenticationFailureHandler`] class in the Javadoc
 
 image:{icondir}/number_4.png[] If authentication is successful, then __Success__.
 
 . `SessionAuthenticationStrategy` is notified of a new login.
-See the {security-api-url}springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
+See the {security-api-url}org/springframework/security/web/authentication/session/SessionAuthenticationStrategy.html[`SessionAuthenticationStrategy`] interface in the Javadoc.
 . The xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[Authentication] is set on the xref:servlet/authentication/architecture.adoc#servlet-authentication-securitycontextholder[SecurityContextHolder].
-See the {security-api-url}springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
+See the {security-api-url}org/springframework/security/web/context/SecurityContextPersistenceFilter.html[`SecurityContextPersistenceFilter`] class in the Javadoc.
 . `RememberMeServices.loginSuccess` is invoked.
 If remember me is not configured, this is a no-op.
-See the {security-api-url}springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
+See the {security-api-url}org/springframework/security/web/authentication/RememberMeServices.html[`RememberMeServices`] interface in the Javadoc.
 . `ApplicationEventPublisher` publishes an `InteractiveAuthenticationSuccessEvent`.
 . The `AuthenticationSuccessHandler` is invoked. Typically, this is a `SimpleUrlAuthenticationSuccessHandler`, which redirects to a request saved by xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] when we redirect to the login page.
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2019 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,11 +45,16 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 
 	private WebClient webClient = WebClient.create();
 
-	private final String jwkSetURL;
+	private final Mono<String> jwkSetURL;
 
 	ReactiveRemoteJWKSource(String jwkSetURL) {
 		Assert.hasText(jwkSetURL, "jwkSetURL cannot be empty");
-		this.jwkSetURL = jwkSetURL;
+		this.jwkSetURL = Mono.just(jwkSetURL);
+	}
+
+	ReactiveRemoteJWKSource(Mono<String> jwkSetURL) {
+		Assert.notNull(jwkSetURL, "jwkSetURL cannot be null");
+		this.jwkSetURL = jwkSetURL.cache();
 	}
 
 	@Override
@@ -95,10 +100,10 @@ class ReactiveRemoteJWKSource implements ReactiveJWKSource {
 	 */
 	private Mono<JWKSet> getJWKSet() {
 		// @formatter:off
-		return this.webClient.get()
-				.uri(this.jwkSetURL)
+		return this.jwkSetURL.flatMap((jwkSetURL) -> this.webClient.get()
+				.uri(jwkSetURL)
 				.retrieve()
-				.bodyToMono(String.class)
+				.bodyToMono(String.class))
 				.map(this::parse)
 				.doOnNext((jwkSet) -> this.cachedJWKSet
 						.set(Mono.just(jwkSet))
