@@ -507,7 +507,7 @@ public final class OpenSamlAuthenticationProvider implements AuthenticationProvi
 
 		if (result.hasErrors()) {
 			Collection<Saml2Error> errors = result.getErrors();
-			if (logger.isTraceEnabled()) {
+			if (logger.isDebugEnabled()) {
 				logger.debug("Found " + errors.size() + " validation errors in SAML response [" + response.getID()
 						+ "]: " + errors);
 			}
