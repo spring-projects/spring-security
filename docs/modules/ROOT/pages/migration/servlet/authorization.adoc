@@ -1295,7 +1295,7 @@ If your application uses {security-api-url}org/springframework/security/access/v
 AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
     PolicyAuthorizationManager policy = ...;
     LocalAuthorizationManager local = ...;
-    return AuthorizationMangers.allOf(policy, local);
+    return AuthorizationManagers.allOf(policy, local);
 }
 ----
 
@@ -1306,7 +1306,7 @@ AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
 fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
     val policy: PolicyAuthorizationManager = ...
     val local: LocalAuthorizationManager = ...
-    return AuthorizationMangers.allOf(policy, local)
+    return AuthorizationManagers.allOf(policy, local)
 }
 ----
 
@@ -1372,7 +1372,7 @@ If your application uses {security-api-url}org/springframework/security/access/v
 AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
     PolicyAuthorizationManager policy = ...;
     LocalAuthorizationManager local = ...;
-    return AuthorizationMangers.anyOf(policy, local);
+    return AuthorizationManagers.anyOf(policy, local);
 }
 ----
 
@@ -1383,7 +1383,7 @@ AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
 fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
     val policy: PolicyAuthorizationManager = ...
     val local: LocalAuthorizationManager = ...
-    return AuthorizationMangers.anyOf(policy, local)
+    return AuthorizationManagers.anyOf(policy, local)
 }
 ----
 
