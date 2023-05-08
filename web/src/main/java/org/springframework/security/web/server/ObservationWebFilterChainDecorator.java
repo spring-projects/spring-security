@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
@@ -382,6 +384,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 				private static final ObservationReference NOOP = new ObservationReference(Observation.NOOP);
 
+				private final Lock lock = new ReentrantLock();
+
 				private final AtomicInteger state = new AtomicInteger(0);
 
 				private final Observation observation;
@@ -391,20 +395,38 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				}
 
 				private void start() {
-					if (this.state.compareAndSet(0, 1)) {
-						this.observation.start();
+					try {
+						this.lock.lock();
+						if (this.state.compareAndSet(0, 1)) {
+							this.observation.start();
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
 				private void error(Throwable ex) {
-					if (this.state.get() == 1) {
-						this.observation.error(ex);
+					try {
+						this.lock.lock();
+						if (this.state.get() == 1) {
+							this.observation.error(ex);
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
 				private void stop() {
-					if (this.state.compareAndSet(1, 2)) {
-						this.observation.stop();
+					try {
+						this.lock.lock();
+						if (this.state.compareAndSet(1, 2)) {
+							this.observation.stop();
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
