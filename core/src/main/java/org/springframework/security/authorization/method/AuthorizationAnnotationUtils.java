@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -96,6 +97,10 @@ final class AuthorizationAnnotationUtils {
 			Class<A> annotationType) {
 		boolean alreadyFound = false;
 		for (MergedAnnotation<Annotation> mergedAnnotation : mergedAnnotations) {
+			if (isSynthetic(mergedAnnotation.getSource())) {
+				continue;
+			}
+
 			if (mergedAnnotation.getType() == annotationType) {
 				if (alreadyFound) {
 					return true;
@@ -103,6 +108,14 @@ final class AuthorizationAnnotationUtils {
 				alreadyFound = true;
 			}
 		}
+		return false;
+	}
+
+	private static boolean isSynthetic(Object object) {
+		if (object instanceof Executable) {
+			return ((Executable) object).isSynthetic();
+		}
+
 		return false;
 	}
 
