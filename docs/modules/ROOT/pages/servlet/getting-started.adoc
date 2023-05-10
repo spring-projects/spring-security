@@ -1,30 +1,55 @@
 [[servlet-hello]]
 = Hello Spring Security
 
-This section covers the minimum setup for how to use Spring Security with Spring Boot.
+This section covers the minimum setup for how to use Spring Security with {spring-boot-reference-url}[Spring Boot] and then points you to next steps after that.
 
 [NOTE]
 ====
-The completed application can be found {gh-samples-url}/servlet/spring-boot/java/hello-security[in our samples repository].
-For your convenience, you can download https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[a minimal Spring Boot + Spring Security application].
+The completed starter application can be found {gh-samples-url}/servlet/spring-boot/java/hello-security[in our samples repository].
+For your convenience, you can download a minimal Spring Boot + Spring Security application https://start.spring.io/starter.zip?type=maven-project&language=java&packaging=jar&jvmVersion=1.8&groupId=example&artifactId=hello-security&name=hello-security&description=Hello%20Security&packageName=example.hello-security&dependencies=web,security[prepared by Spring Initializr].
 ====
 
 [[servlet-hello-dependencies]]
 == Updating Dependencies
 
-The only step you need to do is update the dependencies by using xref:getting-spring-security.adoc#getting-maven-boot[Maven] or xref:getting-spring-security.adoc#getting-gradle-boot[Gradle].
+You first need to add Spring Security to your application's classpath; two ways to do this are to xref:getting-spring-security.adoc#getting-maven-boot[use Maven] or xref:getting-spring-security.adoc#getting-gradle-boot[Gradle].
 
 [[servlet-hello-starting]]
 == Starting Hello Spring Security Boot
 
-You can now https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-running-with-the-maven-plugin[run the Spring Boot application] by using the Maven Plugin's `run` goal.
-The following example shows how to do so (and the beginning of the output from doing so):
+With Spring Security <<servlet-hello-dependencies,on the classpath>>, you can now {spring-boot-reference-url}#using.running-your-application[run the Spring Boot application].
+The following snippet shows some of the output that indicates that Spring Security is enabled in your application:
 
 .Running Spring Boot Application
 ====
-[source,bash]
+.Maven
+[source,bash,role="primary"]
 ----
-$ ./mvn spring-boot:run
+$ ./mvnw spring-boot:run
+...
+INFO 23689 --- [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration :
+
+Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
+
+...
+----
+
+.Gradle
+[source,bash,role="secondary"]
+----
+$ ./gradlew :bootRun
+...
+INFO 23689 --- [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration :
+
+Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
+
+...
+----
+
+.Jar
+[source,bash,role="secondary"]
+----
+$ java -jar target/myapplication-0.0.1.jar
 ...
 INFO 23689 --- [  restartedMain] .s.s.UserDetailsServiceAutoConfiguration :
 
@@ -34,40 +59,118 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 ----
 ====
 
+Now that you have it running, you might try hitting an endpoint to see what happens.
+If you hit an endpoint without credentials like so:
 
+.Querying a Secured Boot Application
+====
+[source,bash]
+----
+$ curl -i http://localhost:8080/some/path
+HTTP/1.1 401
+...
+----
+====
+
+then Spring Security denies access with a `401 Unauthorized`.
+
+[TIP]
+If you provide the same URL in a browser, it will redirect to a default login page.
+
+And if you hit an endpoint with credentials (found in the console output) as follows:
+
+.Querying with Credentials
+====
+[source,bash]
+----
+$ curl -i -u user:8e557245-73e2-4286-969a-ff57fe326336 http://localhost:8080/some/path
+HTTP/1.1 404
+...
+----
+====
+
+then Spring Boot will service the request, returning a `404 Not Found` in this case since `/some/path` doesn't exist.
+
+From here, you can:
+
+* Better understand <<hello-expectations,what Spring Boot enables in Spring Security by default>>
+* Read about <<security-use-cases,common use cases>> that Spring Security helps with
+* Start configuring xref:servlet/authentication/index.adoc[authentication]
+
+[[hello-expectations]]
 [[servlet-hello-auto-configuration]]
-== Spring Boot Auto Configuration
+== Runtime Expectations
 
-// FIXME: Link to relevant portions of documentation
-// FIXME: Link to Spring Boot's Security Auto configuration classes
-// FIXME: Add links for what user's should do next
+The default arrangement of Spring Boot and Spring Security affords the following behaviors at runtime:
 
-Spring Boot automatically:
+* Requires an authenticated user xref:servlet/authorization/authorize-http-requests.adoc[for any endpoint] (including Boot's `/error` endpoint)
+* xref:servlet/authentication/passwords/user-details-service.adoc[Registers a default user] with a generated password at startup (the password is logged to the console; in the preceding example, the password is `8e557245-73e2-4286-969a-ff57fe326336`)
+* Protects xref:servlet/authentication/passwords/password-encoder.adoc[password storage with BCrypt] as well as others
+* Provides form-based xref:servlet/authentication/passwords/form.adoc[login] and xref:servlet/authentication/logout.adoc[logout] flows
+* Authenticates xref:servlet/authentication/passwords/form.adoc[form-based login] as well as xref:servlet/authentication/passwords/basic.adoc[HTTP Basic]
+* Provides content negotiation; for web requests, redirects to the login page; for service requests, returns a `401 Unauthorized`
+* xref:servlet/exploits/csrf.adoc[Mitigates CSRF] attacks
+* xref:servlet/authentication/session-management.adoc#ns-session-fixation[Mitigates Session Fixation] attacks
+* Writes xref:servlet/exploits/headers.adoc#servlet-headers-hsts[Strict-Transport-Security] to https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[ensure HTTPS]
+* Writes xref:servlet/exploits/headers.adoc#servlet-headers-content-type-options[X-Content-Type-Options] to mitigate https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-content-type-options[sniffing attacks]
+* Writes xref:servlet/exploits/headers.adoc#servlet-headers-cache-control[Cache Control headers] that protect authenticated resources
+* Writes xref:servlet/exploits/headers.adoc#servlet-headers-frame-options[X-Frame-Options] to mitigate https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html#x-frame-options[Clickjacking]
+* Integrates with xref:servlet/integrations/servlet-api.adoc[``HttpServletRequest``'s authentication methods]
+* Publishes xref:servlet/authentication/events.adoc[authentication success and failure events]
 
-* Enables Spring Security's default configuration, which creates a servlet `Filter` as a bean named `springSecurityFilterChain`.
-This bean is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the login form, and so on) within your application.
-* Creates a `UserDetailsService` bean with a username of `user` and a randomly generated password that is logged to the console.
-* Registers the `Filter` with a bean named `springSecurityFilterChain` with the Servlet container for every request.
+It can be helpful to understand how Spring Boot is coordinating with Spring Security to achieve this.
+Taking a look at {spring-boot-api-url}org/springframework/boot/autoconfigure/security/servlet/SecurityAutoConfiguration.html[Boot's security auto configuration], it does the following (simplified for illustration):
 
-Spring Boot is not configuring much, but it does a lot.
-A summary of the features follows:
+.Spring Boot Security Auto Configuration
+====
+[source,java]
+----
+@EnableWebSecurity <1>
+@Configuration
+public class DefaultSecurityConfig {
+    @Bean
+    @ConditionalOnMissingBean(UserDetailsService.class)
+    InMemoryUserDetailsManager inMemoryUserDetailsManager() { <2>
+        String generatedPassword = // ...;
+        return new InMemoryUserDetailsManager(User.withUsername("user")
+                .password(generatedPassword).roles("ROLE_USER").build());
+    }
 
-* Require an authenticated user for any interaction with the application
-* Generate a default login form for you
-* Let the user with a username of `user` and a password that is logged to the console to authenticate with form-based authentication (in the preceding example, the password is `8e557245-73e2-4286-969a-ff57fe326336`)
-* Protects the password storage with BCrypt
-* Lets the user log out
-* https://en.wikipedia.org/wiki/Cross-site_request_forgery[CSRF attack] prevention
-* https://en.wikipedia.org/wiki/Session_fixation[Session Fixation] protection
-* Security Header integration
-** https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security[HTTP Strict Transport Security] for secure requests
-** https://msdn.microsoft.com/en-us/library/ie/gg622941(v=vs.85).aspx[X-Content-Type-Options] integration
-** Cache Control (can be overridden later by your application to allow caching of your static resources)
-** X-Frame-Options integration to help prevent https://en.wikipedia.org/wiki/Clickjacking[Clickjacking]
-* Integrate with the following Servlet API methods:
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getRemoteUser()[`HttpServletRequest#getRemoteUser()`]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#getUserPrincipal()[`HttpServletRequest.html#getUserPrincipal()`]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#isUserInRole(java.lang.String)[`HttpServletRequest.html#isUserInRole(java.lang.String)`]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login(java.lang.String,%20java.lang.String)[`HttpServletRequest.html#login(java.lang.String, java.lang.String)`]
-** https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#logout()[`HttpServletRequest.html#logout()`]
+    @Bean
+    @ConditionalOnMissingBean(AuthenticationEventPublisher.class)
+    DefaultAuthenticationEventPublisher defaultAuthenticationEventPublisher(ApplicationEventPublisher delegate) { <3>
+        return new DefaultAuthenticationEventPublisher(delegate);
+    }
+}
+----
+====
+1. Adds the `@EnableWebSecurity` annotation. (Among other things, this publishes xref:servlet/architecture.adoc#servlet-securityfilterchain[Spring Security's default `Filter` chain] as a `@Bean`)
+2. Publishes a xref:servlet/authentication/passwords/user-details-service.adoc[`UserDetailsService`] `@Bean` with a username of `user` and a randomly generated password that is logged to the console
+3. Publishes an xref:servlet/authentication/events.adoc[`AuthenticationEventPublisher`] `@Bean` for publishing authentication events
 
+[NOTE]
+Spring Boot adds any `Filter` published as a `@Bean` to the application's filter chain.
+This means that using `@EnableWebSecurity` in conjunction with Spring Boot automatically registers Spring Security's filter chain for every request.
+
+[[security-use-cases]]
+== Security Use Cases
+
+There are a number of places that you may want to go from here.
+To figure out what's next for you and your application, consider these common use cases that Spring Security is built to address:
+
+* I am building a REST API, and I need to xref:servlet/oauth2/resource-server/jwt.adoc[authenticate a JWT] or xref:servlet/oauth2/resource-server/opaque-token.adoc[other bearer token]
+* I am building a Web Application, API Gateway, or BFF and
+** I need to xref:servlet/oauth2/login/core.adoc[login using OAuth 2.0 or OIDC]
+** I need to xref:servlet/saml2/login/index.adoc[login using SAML 2.0]
+** I need to xref:servlet/authentication/cas.adoc[login using CAS]
+* I need to manage
+** Users in xref:servlet/authentication/passwords/ldap.adoc[LDAP] or xref:servlet/authentication/passwords/ldap.adoc#_active_directory[Active Directory], with xref:servlet/integrations/data.adoc[Spring Data], or with xref:servlet/authentication/passwords/jdbc.adoc[JDBC]
+** xref:servlet/authentication/passwords/storage.adoc[Passwords]
+
+In case none of those match what you are looking for, consider thinking about your application in the following order:
+
+1. *Protocol*: First, consider the protocol your application will use to communicate.
+For servlet-based applications, Spring Security supports HTTP as well as xref:servlet/integrations/websocket.adoc[Websockets].
+2. *Authentication*: Next, consider how users will xref:servlet/authentication/index.adoc[authenticate] and if that authentication will be stateful or stateless
+3. *Authorization*: Then, consider how you will determine xref:servlet/authorization/index.adoc[what a user is authorized to do]
+4. *Defense*: Finally, xref:servlet/exploits/csrf.adoc#servlet-csrf-considerations[integrate with Spring Security's default protections] and consider xref:servlet/exploits/headers.adoc[which additional protections you need]
