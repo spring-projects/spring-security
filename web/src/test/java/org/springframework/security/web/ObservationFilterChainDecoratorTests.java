@@ -30,8 +30,10 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,6 +87,23 @@ public class ObservationFilterChainDecoratorTests {
 		List<Observation.Event> events = event.getAllValues();
 		assertThat(events.get(0).getName()).isEqualTo(filter.getClass().getSimpleName() + ".before");
 		assertThat(events.get(1).getName()).isEqualTo(filter.getClass().getSimpleName() + ".after");
+	}
+
+	// gh-12787
+	@Test
+	void decorateFiltersWhenErrorsThenClosesObservationOnlyOnce() throws Exception {
+		ObservationHandler<?> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationFilterChainDecorator decorator = new ObservationFilterChainDecorator(registry);
+		FilterChain chain = mock(FilterChain.class);
+		Filter filter = mock(Filter.class);
+		willThrow(IllegalArgumentException.class).given(filter).doFilter(any(), any(), any());
+		FilterChain decorated = decorator.decorate(chain, List.of(filter));
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse()));
+		verify(handler).onScopeClosed(any());
 	}
 
 }

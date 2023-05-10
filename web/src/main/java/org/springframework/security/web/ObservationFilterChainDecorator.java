@@ -324,7 +324,6 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 				private void error(Throwable error) {
 					if (this.state.get() == 1) {
-						this.scope.close();
 						this.scope.getCurrentObservation().error(error);
 					}
 				}
