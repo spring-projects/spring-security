@@ -110,7 +110,7 @@ image::{figures}/methodsecurity.png[]
 
 1. Spring AOP invokes its proxy method for `readCustomer`. Among the proxy's other advisors, it invokes an {security-api-url}org/springframework/security/authorization/method/AuthorizationManagerBeforeMethodInterceptor/html[`AuthorizationManagerBeforeMethodInterceptor`] that matches <<annotation-method-pointcuts,the `@PreAuthorize` pointcut>>
 2. The interceptor invokes {security-api-url}org/springframework/security/authorization/method/PreAuthorizeAuthorizationManager.html[`PreAuthorizeAuthorizationManager#check`]
-3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's xref:servlet/authorization/expression-based.adoc[SpEL expression] and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
+3. The authorization manager uses a `MethodSecurityExpressionHandler` to parse the annotation's <<authorization-expressions,SpEL expression>> and constructs a corresponding `EvaluationContext` from a `MethodSecurityExpressionRoot` containing xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[a `Supplier<Authentication>`] and `MethodInvocation`.
 4. The interceptor uses this context to evaluate the expression; specifically, it reads xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] from the `Supplier` and checks whether it has `permission:read` in its collection of xref:servlet/authorization/architecture.adoc#authz-authorities[authorities]
 5. If the evaluation passes, then Spring AOP proceeds to invoke the method.
 6. If not, the interceptor publishes an `AuthorizationDeniedEvent` and throws an {security-api-url}org/springframework/security/access/AccessDeniedException.html[`AccessDeniedException`] which xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[the `ExceptionTranslationFilter`] catches and returns a 403 status code to the response
@@ -365,45 +365,10 @@ fun readAccountWithWrongRoleThenAccessDenied() {
 ====
 
 [TIP]
-`@PreAuthorize` also can be a <<meta-annotations, meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use xref:servlet/authorization/expression-based.adoc[SpEL authorization expressions].
+`@PreAuthorize` also can be a <<meta-annotations, meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
-While `@PreAuthorize` is quite helpful for declaring needed authorities, it can also be used to evaluate more complex permissions that involve the method parameters.
-To achieve that, you can use Spring Security's `@P` annotation to remember the parameter name:
-
-====
-.Java
-[source,java,role="primary"]
-----
-@PreAuthorize("#username == authentication.name")
-Collection<Order> findOrders(@P("username") String username) { ... }
-----
-
-.Kotlin
-[source,java,role="secondary"]
-----
-@PreAuthorize("#username == authentication.name")
-fun findOrders(@P("username") val username: String): Collection<Order> { ... }
-----
-====
-
-Or, Spring Security also integrate with {spring-framework-reference-url}web.html#spring-web[Spring MVC] to identify parameters like so:
-
-====
-[source,java,role="primary"]
-----
-@GetMapping("/orders/{username}")
-@PreAuthorize("#username == authentication.name")
-Collection<Order> findOrders(@PathVariable("username") String username) { ... }
-----
-
-[source,kotlin,role="secondary"]
-----
-@GetMapping("/orders/{username}")
-@PreAuthorize("#username == authentication.name")
-fun findOrders(@PathVariable("username") val username: String): Collection<Order> { ... }
-----
-====
-
+While `@PreAuthorize` is quite helpful for declaring needed authorities, it can also be used to evaluate more complex <<using_method_parameters,expressions that involve the method parameters>>.
+asdf
 The above two snippets are ensuring that the user can only request orders that belong to them by comparing the username parameter to xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication#getName`].
 
 The result is that the above method will only be invoked if the `username` in the request path matches the logged-in user's `name`.
@@ -488,7 +453,7 @@ fun readAccountWhenNotOwnedThenAccessDenied() {
 ====
 
 [TIP]
-`@PostAuthorize` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use xref:servlet/authorization/expression-based.adoc[SpEL Authorization Expressions].
+`@PostAuthorize` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
 `@PostAuthorize` is particularly helpful when defending against https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html[Insecure Direct Object Reference].
 In fact, it can be defined as a <<meta-annotations,meta-annotation>> like so:
@@ -591,7 +556,7 @@ void updateAccountsWhenOwnedThenReturns() {
 ====
 
 [TIP]
-`@PreFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use xref:servlet/authorization/expression-based.adoc[SpEL Authorization Expressions].
+`@PreFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
 `@PreFilter` supports arrays, collections, maps, and streams (so long as the stream is still open).
 
@@ -663,7 +628,7 @@ void readAccountsWhenOwnedThenReturns() {
 ====
 
 [TIP]
-`@PostFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use xref:servlet/authorization/expression-based.adoc[SpEL Authorization Expressions].
+`@PostFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
 `@PostFilter` supports arrays, collections, maps, and streams (so long as the stream is still open).
 
@@ -953,7 +918,7 @@ If your needs are more complex than that, <<authorizing-with-annotations,use ann
 [[use-programmatic-authorization]]
 == Authorizing Methods Programmatically
 
-As you've already seen, there are several ways that you can specify non-trivial authorization rules using xref:servlet/authorization/expression-based.adoc[Method Security SpEL expressions].
+As you've already seen, there are several ways that you can specify non-trivial authorization rules using <<authorization-expressions, Method Security SpEL expressions>>.
 
 There are a number of ways that you can instead allow your logic to be Java-based instead of SpEL-based.
 This gives use access the entire Java language for increased testability and flow control.
@@ -1256,6 +1221,179 @@ After setting up AspectJ, you can quite simply state in the `@EnableMethodSecuri
 ====
 
 And the result will be that Spring Security will publish its advisors as AspectJ advice so that they can be woven in accordingly.
+
+[[authorization-expressions]]
+== Expressing Authorization with SpEL
+
+You've already seen several examples using SpEL, so now let's cover the API a bit more in depth.
+
+Spring Security encapsulates all of its authorization fields and methods in a set of root objects.
+The most generic root object is called `SecurityExpressionRoot` and it forms the basis for `MethodSecurityExpressionRoot`.
+Spring Security supplies this root object to `MethodSecurityEvaluationContext` when preparing to evaluate an authorization expression.
+
+[[using-authorization-expression-fields-and-methods]]
+=== Using Authorization Expression Fields and Methods
+
+The first thing this provides is an enhanced set of authorization fields and methods to your SpEL expressions.
+What follows is a quick overview of the most common methods:
+
+* `permitAll` - The method requires no authorization to be invoked; note that in this case, xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] is never retrieved from the session
+* `denyAll` - The method is not allowed under any circumstances; note that in this case, the `Authentication` is never retrieved from the session
+* `hasAuthority` - The method requires that the `Authentication` have xref:servlet/authorization/architecture.adoc#authz-authorities[a `GrantedAuthority`] that matches the given value
+* `hasRole` - A shortcut for `hasAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasAnyAuthority` - The method requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
+* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasPermission` - A hook into your `PermissionEvaluator` instance for doing object-level authorization
+
+And here is a brief look at the most common fields:
+
+* `authentication` - The `Authentication` instance associated with this method invocation
+* `principal` - The `Authentication#getPrincipal` associated with this method invocation
+
+Having now learned the patterns, rules, and how they can be paired together, you should be able to understand what is going on in this more complex example:
+
+.Authorize Requests
+====
+.Java
+[source,java,role="primary"]
+----
+@Component
+public class MyService {
+    @PreAuthorize("denyAll") <1>
+    MyResource myDeprecatedMethod(...);
+
+    @PreAuthorize("hasRole('ADMIN')") <2>
+    MyResource writeResource(...)
+
+    @PreAuthorize("hasAuthority('db') and hasRole('ADMIN')") <3>
+    MyResource deleteResource(...)
+
+    @PreAuthorize("principal.claims['aud'] == 'my-audience'") <4>
+    MyResource readResource(...);
+
+	@PreAuthorize("@authz.check(authentication, #root)")
+    MyResource shareResource(...);
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Component
+open class MyService {
+    @PreAuthorize("denyAll") <1>
+    fun myDeprecatedMethod(...): MyResource
+
+    @PreAuthorize("hasRole('ADMIN')") <2>
+    fun writeResource(...): MyResource
+
+    @PreAuthorize("hasAuthority('db') and hasRole('ADMIN')") <3>
+    fun deleteResource(...): MyResource
+
+    @PreAuthorize("principal.claims['aud'] == 'my-audience'") <4>
+    fun readResource(...): MyResource
+
+    @PreAuthorize("@authz.check(#root)")
+    fun shareResource(...): MyResource;
+}
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<sec:method-security>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.myDeprecatedMethod(..))" access="denyAll"/> <1>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.writeResource(..))" access="hasRole('ADMIN')"/> <2>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.deleteResource(..))" access="hasAuthority('db') and hasRole('ADMIN')"/> <3>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.readResource(..))" access="principal.claims['aud'] == 'my-audience'"/> <4>
+    <protect-pointcut expression="execution(* com.mycompany.*Service.shareResource(..))" access="@authz.check(#root)"/> <5>
+</sec:method-security>
+----
+====
+<1> This method may not be invoked by anyone for any reason
+<2> This method may only be invoked by ``Authentication``s granted the `ROLE_ADMIN` authority
+<3> This method may only be invoked by ``Authentication``s granted the `db` and `ROLE_ADMIN` authorities
+<4> This method may only be invoked by ``Princpal``s with an `aud` claim equal to "my-audience"
+<5> This method may only be invoked if the bean ``authz``'s `check` method returns `true`
+
+[[using_method_parameters]]
+=== Using Method Parameters
+
+Additionally, Spring Security provides a mechanism for discovering method parameters so they can also be accessed in the SpEL expression as well.
+
+For a complete reference, Spring Security uses `DefaultSecurityParameterNameDiscoverer` to discover the parameter names.
+By default, the following options are tried for a method.
+
+1. If Spring Security's `@P` annotation is present on a single argument to the method, the value is used.
+The following example uses the `@P` annotation:
+
++
+
+====
+.Java
+[source,java,role="primary"]
+----
+import org.springframework.security.access.method.P;
+
+...
+
+@PreAuthorize("hasPermission(#c, 'write')")
+public void updateContact(@P("c") Contact contact);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.security.access.method.P
+
+...
+
+@PreAuthorize("hasPermission(#c, 'write')")
+fun doSomething(@P("c") contact: Contact?)
+----
+====
++
+The intention of this expression is to require that the current `Authentication` have `write` permission specifically for this `Contact` instance.
++
+Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
+
+* If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
+The following example uses the `@Param` annotation:
++
+====
+.Java
+[source,java,role="primary"]
+----
+import org.springframework.data.repository.query.Param;
+
+...
+
+@PreAuthorize("#n == authentication.name")
+Contact findContactByName(@Param("n") String name);
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+import org.springframework.data.repository.query.Param
+
+...
+
+@PreAuthorize("#n == authentication.name")
+fun findContactByName(@Param("n") name: String?): Contact?
+----
+====
++
+The intention of this expression is to require that `name` be equal to `Authentication#getName` for the invocation to be authorized.
++
+Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
+
+* If you compile your code with the `-parameters` argument, the standard JDK reflection API is used to discover the parameter names.
+This works on both classes and interfaces.
+
+* Finally, if you compile your code with debug symbols, the parameter names are discovered by using the debug symbols.
+This does not work for interfaces, since they do not have debug information about the parameter names.
+For interfaces, either annotations or the `-parameters` approach must be used.
 
 [[migration-enableglobalmethodsecurity]]
 == Migrating from `@EnableGlobalMethodSecurity`
