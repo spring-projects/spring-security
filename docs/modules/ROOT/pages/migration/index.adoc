@@ -1,11 +1,11 @@
 [[migration]]
 = Preparing for 6.0
-:primary-site-url: https://docs.spring.io/spring-security/reference
+:spring-security-reference-base-url: https://docs.spring.io/spring-security/reference
 
 The Spring Security team has prepared the 5.8 release to simplify upgrading to Spring Security 6.0.
 Use 5.8 and the steps below to minimize changes when
 ifdef::spring-security-version[]
-{primary-site-url}/6.0/migration/index.html[updating to 6.0].
+{spring-security-reference-base-url}/6.0/migration/index.html[updating to 6.0].
 endif::[]
 ifndef::spring-security-version[]
 updating to 6.0.
