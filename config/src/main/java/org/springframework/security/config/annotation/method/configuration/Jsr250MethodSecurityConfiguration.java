@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import org.springframework.aop.Advisor;
+import org.aopalliance.intercept.MethodInterceptor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -47,7 +48,7 @@ final class Jsr250MethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor jsr250AuthorizationMethodInterceptor() {
+	MethodInterceptor jsr250AuthorizationMethodInterceptor() {
 		AuthorizationManagerBeforeMethodInterceptor interceptor = AuthorizationManagerBeforeMethodInterceptor
 				.jsr250(this.jsr250AuthorizationManager);
 		interceptor.setSecurityContextHolderStrategy(this.securityContextHolderStrategy);
