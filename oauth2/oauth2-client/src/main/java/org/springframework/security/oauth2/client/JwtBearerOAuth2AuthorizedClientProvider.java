@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -58,8 +58,9 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	 * {@code context}. Returns {@code null} if authorization (or re-authorization) is not
 	 * supported, e.g. the client's {@link ClientRegistration#getAuthorizationGrantType()
 	 * authorization grant type} is not {@link AuthorizationGrantType#JWT_BEARER
-	 * jwt-bearer} OR the {@link OAuth2AuthorizedClient#getAccessToken() access token} is
-	 * not expired.
+	 * urn:ietf:params:oauth:grant-type:jwt-bearer} OR
+	 * {@link AuthorizationGrantType#JWT_BEARER_COMMON_NOTATION jwt-bearer} OR the
+	 * {@link OAuth2AuthorizedClient#getAccessToken() access token} is not expired.
 	 * @param context the context that holds authorization-specific state for the client
 	 * @return the {@link OAuth2AuthorizedClient} or {@code null} if authorization is not
 	 * supported
@@ -69,7 +70,9 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	public OAuth2AuthorizedClient authorize(OAuth2AuthorizationContext context) {
 		Assert.notNull(context, "context cannot be null");
 		ClientRegistration clientRegistration = context.getClientRegistration();
-		if (!AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType())) {
+		if (!AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType())
+				|| !AuthorizationGrantType.JWT_BEARER_COMMON_NOTATION
+						.equals(clientRegistration.getAuthorizationGrantType())) {
 			return null;
 		}
 		OAuth2AuthorizedClient authorizedClient = context.getAuthorizedClient();
