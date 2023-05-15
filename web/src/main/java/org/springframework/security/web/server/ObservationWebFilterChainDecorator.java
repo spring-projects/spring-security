@@ -686,13 +686,11 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		@Override
 		public KeyValues getLowCardinalityKeyValues(WebFilterChainObservationContext context) {
-			KeyValues kv = KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
+			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection());
-			if (context.getFilterName() != null) {
-				kv = kv.and(FILTER_NAME, context.getFilterName());
-			}
-			return kv;
+					.and(FILTER_SECTION_NAME, context.getFilterSection())
+					.and(FILTER_NAME, (context.getFilterName() != null && !context.getFilterName().isEmpty())
+							? context.getFilterName() : KeyValue.NONE_VALUE);
 		}
 
 		@Override

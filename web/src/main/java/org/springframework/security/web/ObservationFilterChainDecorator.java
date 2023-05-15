@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
@@ -515,13 +516,11 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		@Override
 		public KeyValues getLowCardinalityKeyValues(FilterChainObservationContext context) {
-			KeyValues kv = KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
+			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection());
-			if (context.getFilterName() != null) {
-				kv = kv.and(FILTER_NAME, context.getFilterName());
-			}
-			return kv;
+					.and(FILTER_SECTION_NAME, context.getFilterSection())
+					.and(FILTER_NAME, (context.getFilterName() != null && !context.getFilterName().isEmpty())
+							? context.getFilterName() : KeyValue.NONE_VALUE);
 		}
 
 		@Override
