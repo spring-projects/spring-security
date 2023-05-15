@@ -40,3 +40,4 @@ In our ongoing efforts to update Spring Security's documentation, several additi
 * https://github.com/spring-projects/spring-security/issues/13088[gh-13088] - xref:servlet/authorization/index.adoc[(docs)] - Revisit Authorization documentation
 * https://github.com/spring-projects/spring-security/issues/12681[gh-12681] - xref:servlet/authentication/session-management.adoc[(docs)] - Revisit Session Management documentation
 * https://github.com/spring-projects/spring-security/issues/13062[gh-13062] - xref:servlet/authentication/logout.adoc[(docs)] - Revisit Logout documentation
+* https://github.com/spring-projects/spring-security/issues/13089[gh-13089] - Revisit CSRF Documentation
