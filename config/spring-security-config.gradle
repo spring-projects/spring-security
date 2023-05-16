@@ -68,6 +68,7 @@ dependencies {
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'xml-apis', module: 'xml-apis'
 	}
 	testImplementation "org.apache.directory.server:apacheds-core"
 	testImplementation "org.apache.directory.server:apacheds-core-entry"
@@ -83,6 +84,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-inline"
 	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'xml-apis', module: 'xml-apis'
 	}
 	testImplementation('org.seleniumhq.selenium:selenium-java') {
 		exclude group: 'commons-logging', module: 'commons-logging'
