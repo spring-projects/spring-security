@@ -34,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -689,8 +690,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
 					.and(FILTER_SECTION_NAME, context.getFilterSection())
-					.and(FILTER_NAME, (context.getFilterName() != null && !context.getFilterName().isEmpty())
-							? context.getFilterName() : KeyValue.NONE_VALUE);
+					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
+							: KeyValue.NONE_VALUE);
 		}
 
 		@Override

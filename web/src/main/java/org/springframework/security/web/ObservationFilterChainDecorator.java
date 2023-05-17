@@ -37,6 +37,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link org.springframework.security.web.FilterChainProxy.FilterChainDecorator} that
@@ -519,8 +520,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
 					.and(FILTER_SECTION_NAME, context.getFilterSection())
-					.and(FILTER_NAME, (context.getFilterName() != null && !context.getFilterName().isEmpty())
-							? context.getFilterName() : KeyValue.NONE_VALUE);
+					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
+							: KeyValue.NONE_VALUE);
 		}
 
 		@Override
