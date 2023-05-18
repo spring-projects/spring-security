@@ -18,16 +18,22 @@ package org.springframework.security.web.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
 import io.micrometer.observation.ObservationRegistry;
 import io.micrometer.observation.contextpropagation.ObservationThreadLocalAccessor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
 import reactor.core.publisher.Mono;
 
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest;
 import org.springframework.mock.web.server.MockServerWebExchange;
+import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 
@@ -35,6 +41,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -111,6 +118,51 @@ public class ObservationWebFilterChainDecoratorTests {
 		handler.assertSpanStop(7, "custom");
 		handler.assertSpanStop(8, "security filterchain after");
 		handler.assertSpanStop(9, "http");
+	}
+
+	@ParameterizedTest
+	@MethodSource("decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTagArguments")
+	void decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag(WebFilter filter,
+			String expectedFilterNameTag) {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationWebFilterChainDecorator decorator = new ObservationWebFilterChainDecorator(registry);
+		WebFilterChain chain = mock(WebFilterChain.class);
+		given(chain.filter(any())).willReturn(Mono.empty());
+		WebFilterChain decorated = decorator.decorate(chain, List.of(filter));
+		decorated.filter(MockServerWebExchange.from(MockServerHttpRequest.get("/").build())).block();
+
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(3)).onStop(context.capture());
+
+		assertThat(context.getValue().getLowCardinalityKeyValue("spring.security.reached.filter.name").getValue())
+				.isEqualTo(expectedFilterNameTag);
+	}
+
+	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTagArguments() {
+		WebFilter filterWithName = new BasicAuthenticationFilter();
+
+		// Anonymous class leads to an empty filter-name
+		WebFilter filterWithoutName = new WebFilter() {
+			@Override
+			public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+				return chain.filter(exchange);
+			}
+		};
+
+		return Stream.of(Arguments.of(filterWithName, "BasicAuthenticationFilter"),
+				Arguments.of(filterWithoutName, "none"));
+	}
+
+	static class BasicAuthenticationFilter implements WebFilter {
+
+		@Override
+		public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+			return chain.filter(exchange);
+		}
+
 	}
 
 	static class AccumulatingObservationHandler implements ObservationHandler<Observation.Context> {

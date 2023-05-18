@@ -18,6 +18,7 @@ package org.springframework.security.web;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Stream;
 
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationHandler;
@@ -28,6 +29,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -126,6 +130,40 @@ public class ObservationFilterChainDecoratorTests {
 		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
 				() -> decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse()));
 		verify(handler).onScopeClosed(any());
+	}
+
+	@ParameterizedTest
+	@MethodSource("decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag")
+	void decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag(Filter filter,
+			String expectedFilterNameTag) throws Exception {
+		ObservationHandler<Observation.Context> handler = mock(ObservationHandler.class);
+		given(handler.supportsContext(any())).willReturn(true);
+		ObservationRegistry registry = ObservationRegistry.create();
+		registry.observationConfig().observationHandler(handler);
+		ObservationFilterChainDecorator decorator = new ObservationFilterChainDecorator(registry);
+		FilterChain chain = mock(FilterChain.class);
+		FilterChain decorated = decorator.decorate(chain, List.of(filter));
+		decorated.doFilter(new MockHttpServletRequest("GET", "/"), new MockHttpServletResponse());
+		ArgumentCaptor<Observation.Context> context = ArgumentCaptor.forClass(Observation.Context.class);
+		verify(handler, times(3)).onScopeClosed(context.capture());
+		assertThat(context.getValue().getLowCardinalityKeyValue("spring.security.reached.filter.name").getValue())
+				.isEqualTo(expectedFilterNameTag);
+	}
+
+	static Stream<Arguments> decorateFiltersWhenCompletesThenHasSpringSecurityReachedFilterNameTag() {
+		Filter filterWithName = new BasicAuthenticationFilter();
+
+		// Anonymous class leads to an empty filter-name
+		Filter filterWithoutName = new Filter() {
+			@Override
+			public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
+					throws IOException, ServletException {
+				chain.doFilter(request, response);
+			}
+		};
+
+		return Stream.of(Arguments.of(filterWithName, "BasicAuthenticationFilter"),
+				Arguments.of(filterWithoutName, "none"));
 	}
 
 	private static class BasicAuthenticationFilter implements Filter {
