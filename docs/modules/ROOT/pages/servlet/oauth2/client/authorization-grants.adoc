@@ -302,9 +302,18 @@ public class OAuth2ClientSecurityConfig {
 					.authorizationRequestRepository(this.authorizationRequestRepository())
 					...
 				)
-			);
-		return http.build();
+            .oauth2Login(oauth2 -> oauth2
+                .authorizationEndpoint(endpoint -> endpoint
+                    .authorizationRequestRepository(this.authorizationRequestRepository())
+                    ...
+                )
+            ).build();
 	}
+
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new CustomOAuth2AuthorizationRequestRepository();
+    }
 }
 ----
 
