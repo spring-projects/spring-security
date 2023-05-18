@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,9 +38,9 @@ import org.springframework.util.Assert;
  * {@link AuthorizationGrantType#JWT_BEARER jwt-bearer} grant.
  *
  * @author Joe Grandja
- * @since 5.5
  * @see OAuth2AuthorizedClientProvider
  * @see DefaultJwtBearerTokenResponseClient
+ * @since 5.5
  */
 public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2AuthorizedClientProvider {
 
@@ -51,6 +51,16 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 	private Duration clockSkew = Duration.ofSeconds(60);
 
 	private Clock clock = Clock.systemUTC();
+
+	private AuthorizationGrantType customAuthorizationGrantType;
+
+	public JwtBearerOAuth2AuthorizedClientProvider() {
+	}
+
+	public JwtBearerOAuth2AuthorizedClientProvider(AuthorizationGrantType authorizationGrantType) {
+		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
+		this.customAuthorizationGrantType = authorizationGrantType;
+	}
 
 	/**
 	 * Attempt to authorize (or re-authorize) the
@@ -94,7 +104,14 @@ public final class JwtBearerOAuth2AuthorizedClientProvider implements OAuth2Auth
 		// issued with a reasonably short lifetime. Clients can refresh an
 		// expired access token by requesting a new one using the same
 		// assertion, if it is still valid, or with a new assertion.
-		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, jwt);
+		JwtBearerGrantRequest jwtBearerGrantRequest;
+		if (this.customAuthorizationGrantType != null) {
+			jwtBearerGrantRequest = new JwtBearerGrantRequest(this.customAuthorizationGrantType, clientRegistration,
+					jwt);
+		}
+		else {
+			jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, jwt);
+		}
 		OAuth2AccessTokenResponse tokenResponse = getTokenResponse(clientRegistration, jwtBearerGrantRequest);
 		return new OAuth2AuthorizedClient(clientRegistration, context.getPrincipal().getName(),
 				tokenResponse.getAccessToken());

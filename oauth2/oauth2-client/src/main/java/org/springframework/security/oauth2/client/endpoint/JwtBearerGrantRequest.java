@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,19 @@ public class JwtBearerGrantRequest extends AbstractOAuth2AuthorizationGrantReque
 		super(AuthorizationGrantType.JWT_BEARER, clientRegistration);
 		Assert.isTrue(AuthorizationGrantType.JWT_BEARER.equals(clientRegistration.getAuthorizationGrantType()),
 				"clientRegistration.authorizationGrantType must be AuthorizationGrantType.JWT_BEARER");
+		Assert.notNull(jwt, "jwt cannot be null");
+		this.jwt = jwt;
+	}
+
+	/**
+	 * Constructs a {@code JwtBearerGrantRequest} using the provided parameters.
+	 * @param customAuthorizationGrantType a customized grant type instance
+	 * @param clientRegistration the client registration
+	 * @param jwt the JWT assertion
+	 */
+	public JwtBearerGrantRequest(AuthorizationGrantType customAuthorizationGrantType,
+			ClientRegistration clientRegistration, Jwt jwt) {
+		super(customAuthorizationGrantType, clientRegistration);
 		Assert.notNull(jwt, "jwt cannot be null");
 		this.jwt = jwt;
 	}

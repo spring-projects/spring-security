@@ -60,6 +60,8 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 
 	private JwtBearerReactiveOAuth2AuthorizedClientProvider authorizedClientProvider;
 
+	private final AuthorizationGrantType customGrantType = new AuthorizationGrantType("some-custom-grant-type");
+
 	private ReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> accessTokenResponseClient;
 
 	private ClientRegistration clientRegistration;
@@ -99,6 +101,21 @@ public class JwtBearerReactiveOAuth2AuthorizedClientProviderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> this.authorizedClientProvider.setJwtAssertionResolver(null))
 				.withMessage("jwtAssertionResolver cannot be null");
+	}
+
+	@Test
+	public void constructorWhenAuthorizationGrantTypeIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtBearerReactiveOAuth2AuthorizedClientProvider(null))
+				.withMessage("authorizationGrantType cannot be null");
+
+	}
+
+	@Test
+	public void constructorWhenValidParameterThenCreated() {
+		JwtBearerReactiveOAuth2AuthorizedClientProvider jwtBearerReactiveOAuth2AuthorizedClientProvider =
+				new JwtBearerReactiveOAuth2AuthorizedClientProvider(this.customGrantType);
+		assertThat(jwtBearerReactiveOAuth2AuthorizedClientProvider.getCustomAuthorizationGrantType()).isSameAs(this.customGrantType);
 	}
 
 	@Test

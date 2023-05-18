@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,6 +52,16 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 
 	private Clock clock = Clock.systemUTC();
 
+	private AuthorizationGrantType customAuthorizationGrantType;
+
+	public JwtBearerReactiveOAuth2AuthorizedClientProvider() {
+	}
+
+	public JwtBearerReactiveOAuth2AuthorizedClientProvider(AuthorizationGrantType authorizationGrantType) {
+		Assert.notNull(authorizationGrantType, "authorizationGrantType cannot be null");
+		this.customAuthorizationGrantType = authorizationGrantType;
+	}
+
 	/**
 	 * Attempt to authorize (or re-authorize) the
 	 * {@link OAuth2AuthorizationContext#getClientRegistration() client} in the provided
@@ -93,7 +103,15 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 
 		// @formatter:off
 		return this.jwtAssertionResolver.apply(context)
-				.map((jwt) -> new JwtBearerGrantRequest(clientRegistration, jwt))
+				.map(jwt -> {
+					if (this.customAuthorizationGrantType != null) {
+						return new JwtBearerGrantRequest(this.customAuthorizationGrantType,
+																		  clientRegistration,
+																		  jwt);
+					} else {
+						return new JwtBearerGrantRequest(clientRegistration, jwt);
+					}
+				})
 				.flatMap(this.accessTokenResponseClient::getTokenResponse)
 				.onErrorMap(OAuth2AuthorizationException.class,
 						(ex) -> new ClientAuthorizationException(ex.getError(), clientRegistration.getRegistrationId(),
@@ -113,7 +131,11 @@ public final class JwtBearerReactiveOAuth2AuthorizedClientProvider implements Re
 	}
 
 	private boolean hasTokenExpired(OAuth2Token token) {
-		return this.clock.instant().isAfter(token.getExpiresAt().minus(this.clockSkew));
+		return this.clock
+				.instant()
+				.isAfter(token
+								 .getExpiresAt()
+								 .minus(this.clockSkew));
 	}
 
 	/**

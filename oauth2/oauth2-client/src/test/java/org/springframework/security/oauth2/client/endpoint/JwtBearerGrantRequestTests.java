@@ -39,10 +39,19 @@ public class JwtBearerGrantRequestTests {
 
 	private final Jwt jwtAssertion = TestJwts.jwt().build();
 
+	private final AuthorizationGrantType customGrantType = new AuthorizationGrantType("some-custom-grant-type");
+
 	@Test
 	public void constructorWhenClientRegistrationIsNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> new JwtBearerGrantRequest(null, this.jwtAssertion))
 				.withMessage("clientRegistration cannot be null");
+	}
+
+	@Test
+	public void constructorWhenCustomAuthorizationGrantTypeIsNullThenThrowIllegalArgumentException() {
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> new JwtBearerGrantRequest(null, this.clientRegistration, this.jwtAssertion))
+				.withMessage("authorizationGrantType cannot be null");
 	}
 
 	@Test
@@ -63,9 +72,12 @@ public class JwtBearerGrantRequestTests {
 	public void constructorWhenValidParametersProvidedThenCreated() {
 		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(this.clientRegistration,
 				this.jwtAssertion);
+		JwtBearerGrantRequest jwtBearerGrantRequestWithCustomGrantType =
+				new JwtBearerGrantRequest(this.customGrantType, this.clientRegistration, this.jwtAssertion);
 		assertThat(jwtBearerGrantRequest.getGrantType()).isEqualTo(AuthorizationGrantType.JWT_BEARER);
 		assertThat(jwtBearerGrantRequest.getClientRegistration()).isSameAs(this.clientRegistration);
 		assertThat(jwtBearerGrantRequest.getJwt()).isSameAs(this.jwtAssertion);
+		assertThat(jwtBearerGrantRequestWithCustomGrantType.getGrantType()).isSameAs(this.customGrantType);
 	}
 
 }
