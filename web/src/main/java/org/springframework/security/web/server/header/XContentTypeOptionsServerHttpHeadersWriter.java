@@ -28,7 +28,7 @@ import org.springframework.web.server.ServerWebExchange;
  */
 public class XContentTypeOptionsServerHttpHeadersWriter implements ServerHttpHeadersWriter {
 
-	public static final String X_CONTENT_OPTIONS = "X-Content-Options";
+	public static final String X_CONTENT_OPTIONS = "X-Content-Type-Options";
 
 	public static final String NOSNIFF = "nosniff";
 
