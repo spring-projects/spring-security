@@ -51,9 +51,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
  *
  * <p>
  * Typically the {@link CsrfTokenRepository} implementation chooses to store the
- * {@link CsrfToken} in {@link HttpSession} with {@link HttpSessionCsrfTokenRepository}
- * wrapped by a {@link LazyCsrfTokenRepository}. This is preferred to storing the token in
- * a cookie which can be modified by a client application.
+ * {@link CsrfToken} in {@link HttpSession} with {@link HttpSessionCsrfTokenRepository}.
+ * This is preferred to storing the token in a cookie which can be modified by a client
+ * application.
  * </p>
  *
  * @author Rob Winch
@@ -72,7 +72,7 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	/**
 	 * The attribute name to use when marking a given request as one that should not be
 	 * filtered.
-	 *
+	 * <p>
 	 * To use, set the attribute on your {@link HttpServletRequest}: <pre>
 	 * 	CsrfFilter.skipRequest(request);
 	 * </pre>
