@@ -1,9 +1,9 @@
 package io.spring.gradle.convention
 
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.bundling.Zip
 
 public class SchemaZipPlugin implements Plugin<Project> {
 
@@ -35,6 +35,15 @@ public class SchemaZipPlugin implements Plugin<Project> {
 					schemaZip.into (shortName) {
 						duplicatesStrategy 'exclude'
 						from xsdFile.path
+					}
+				}
+				File symlink = module.sourceSets.main.resources.find {
+					it.path.endsWith('org/springframework/security/config/spring-security.xsd')
+				}
+				if (symlink != null) {
+					schemaZip.into('security') {
+						duplicatesStrategy 'exclude'
+						from symlink.path
 					}
 				}
 			}
