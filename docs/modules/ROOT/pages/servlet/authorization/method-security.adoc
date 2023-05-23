@@ -369,7 +369,7 @@ fun readAccountWithWrongRoleThenAccessDenied() {
 `@PreAuthorize` also can be a <<meta-annotations, meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
 
 While `@PreAuthorize` is quite helpful for declaring needed authorities, it can also be used to evaluate more complex <<using_method_parameters,expressions that involve the method parameters>>.
-asdf
+
 The above two snippets are ensuring that the user can only request orders that belong to them by comparing the username parameter to xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[`Authentication#getName`].
 
 The result is that the above method will only be invoked if the `username` in the request path matches the logged-in user's `name`.
