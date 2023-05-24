@@ -26,41 +26,40 @@ import org.springframework.web.server.ServerWebExchange;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Tests for {@link XContentTypeOptionsServerHttpHeadersWriter}
+ * Tests for {@link ContentTypeOptionsServerHttpHeadersWriter}
  *
- * @author Rob Winch
- * @since 5.0
+ * @author Marcus da Coregio
  */
-public class XContentTypeOptionsServerHttpHeadersWriterTests {
+class ContentTypeOptionsServerHttpHeadersWriterTests {
 
-	XContentTypeOptionsServerHttpHeadersWriter writer = new XContentTypeOptionsServerHttpHeadersWriter();
+	ContentTypeOptionsServerHttpHeadersWriter writer = new ContentTypeOptionsServerHttpHeadersWriter();
 
 	ServerWebExchange exchange = MockServerWebExchange.from(MockServerHttpRequest.get("/").build());
 
 	HttpHeaders headers = this.exchange.getResponse().getHeaders();
 
 	@Test
-	public void writeHeadersWhenNoHeadersThenWriteHeadersForXContentTypeOptionsServerHttpHeadersWriter() {
+	void writeHeadersWhenNoHeadersThenWriteHeaders() {
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
-		assertThat(this.headers.get(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
-				.containsOnly(XContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+				.containsOnly(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF);
 	}
 
 	@Test
-	public void writeHeadersWhenHeaderWrittenThenDoesNotOverrideForXContentTypeOptionsServerHttpHeadersWriter() {
+	void writeHeadersWhenHeaderWrittenThenDoesNotOverride() {
 		String headerValue = "value";
-		this.headers.set(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
+		this.headers.set(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS, headerValue);
 		this.writer.writeHttpHeaders(this.exchange);
 		assertThat(this.headers).hasSize(1);
-		assertThat(this.headers.get(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
+		assertThat(this.headers.get(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS))
 				.containsOnly(headerValue);
 	}
 
 	@Test
-	public void constantsMatchExpectedHeaderAndValueForXContentTypeOptionsServerHttpHeadersWriter() {
-		assertThat(XContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS).isEqualTo("X-Content-Type-Options");
-		assertThat(XContentTypeOptionsServerHttpHeadersWriter.NOSNIFF).isEqualTo("nosniff");
+	void constantsMatchExpectedHeaderAndValue() {
+		assertThat(ContentTypeOptionsServerHttpHeadersWriter.X_CONTENT_OPTIONS).isEqualTo("X-Content-Type-Options");
+		assertThat(ContentTypeOptionsServerHttpHeadersWriter.NOSNIFF).isEqualTo("nosniff");
 	}
 
 }
