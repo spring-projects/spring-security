@@ -150,8 +150,8 @@ public class XsdDocumentedTests {
 				.getParentFile()
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
-		assertThat(schemas.length).isEqualTo(21)
-				.withFailMessage("the count is equal to 21, if not then schemaDocument needs updating");
+		assertThat(schemas.length).isEqualTo(22)
+				.withFailMessage("the count is equal to 22, if not then schemaDocument needs updating");
 	}
 
 	/**
