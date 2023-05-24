@@ -104,6 +104,65 @@ should change to:
 ----
 ====
 
+=== Change the `order` value in `@EnableTransactionManagement`
+
+`@EnableTransactionManagement` and `@EnableGlobalMethodSecurity` have the same `order` value, `Integer.MAX_VALUE`.
+This means that their order in the Spring AOP Advisor chain relative to each other is undefined.
+
+This is often fine since most method security expressions don't require an open transaction to function correctly; however, historically it was sometimes necessary to ensure one happens before the other by setting their `order` values.
+
+`@EnableMethodSecurity` does not have an `order` value since it publishes multiple interceptors.
+Indeed, it cannot attempt backward-compatibility with `@EnableTransactionManagement` since it cannot set all the interceptors to be in the same advisor chain location.
+
+Instead, the values for the `@EnableMethodSecurity` interceptors are based off of an offset of 0.
+The `@PreFilter` interceptor has an order of 100; `@PostAuthorize`, 200; and so on.
+
+So, if after updating you find that your method security expressions are not working due to not having an open transaction, please change your transaction annotation definition from the following:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableTransactionManagement
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableTransactionManagement
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<tx:annotation-driven ref="txManager"/>
+----
+====
+
+to:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableTransactionManagement(order = 0)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableTransactionManagement(order = 0)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<tx:annotation-driven ref="txManager" order="0"/>
+----
+====
+
+In this way, the transaction AOP advice will be placed before Spring Security's advice and the transaction will be open when your authorization SpEL expressions are evaluated.
+
 === Use a Custom `@Bean` instead of subclassing `DefaultMethodSecurityExpressionHandler`
 
 As a performance optimization, a new method was introduced to `MethodSecurityExpressionHandler` that takes a `Supplier<Authentication>` instead of an `Authentication`.
