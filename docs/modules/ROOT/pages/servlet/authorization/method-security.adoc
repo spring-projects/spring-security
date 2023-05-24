@@ -44,6 +44,7 @@ Consider learning about the following use cases:
 * Authorizing methods with <<use-jsr250,JSR-250 annotations>>
 * Authorizing methods with <<use-aspectj,AspectJ expressions>>
 * Integrating with <<weave-aspectj,AspectJ byte-code weaving>>
+* Coordinating with <<changing-the-order,@Transactional and other AOP-based annotations>>
 * Customizing <<customizing-expression-handling,SpEL expression handling>>
 * Integrating with <<custom-authorization-managers,custom authorization systems>>
 
@@ -1221,6 +1222,43 @@ After setting up AspectJ, you can quite simply state in the `@EnableMethodSecuri
 ====
 
 And the result will be that Spring Security will publish its advisors as AspectJ advice so that they can be woven in accordingly.
+
+[[changing-the-order]]
+== Specifying Order
+
+As already noted, there is a Spring AOP method interceptor for each annotation, and each of these has a location in the Spring AOP advisor chain.
+
+Namely, the `@PreFilter` method interceptor's order is 100, ``@PreAuthorize``'s is 200, and so on.
+
+The reason this is important to note is that there are other AOP-based annotations like `@EnableTransactionManagement` that have an order of `Integer.MAX_VALUE`.
+In other words, they are located at the end of the advisor chain by default.
+
+At times, it can be valuable to have other advice execute before Spring Security.
+For example, if you have a method annotated with `@Transactional` and `@PostAuthorize`, you might want the transaction to still be open when `@PostAuthorize` runs so that an `AccessDeniedException` will cause a rollback.
+
+To get `@EnableTransactionManagement` to open a transaction before method authorization advice runs, you can set ``@EnableTransactionManagement``'s order like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+@EnableTransactionManagement(order = 0)
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@EnableTransactionManagement(order = 0)
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<tx:annotation-driven ref="txManager" order="0"/>
+----
+====
+
+Since the earliest method interceptor (`@PreFilter`) is set to an order of 100, a setting of zero means that the transaction advice will run before all Spring Security advice.
 
 [[authorization-expressions]]
 == Expressing Authorization with SpEL
