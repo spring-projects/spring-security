@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -233,6 +233,15 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		assertThat(formParameters)
 				.contains("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
 		assertThat(formParameters).contains("client_assertion=");
+	}
+
+	// gh-13143
+	@Test
+	public void getTokenResponseWhenTokenEndpointReturnsEmptyBodyThenIllegalArgument() {
+		this.server.enqueue(new MockResponse().setResponseCode(302));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest(clientRegistration)));
 	}
 
 	private void configureJwtClientAuthenticationConverter(Function<ClientRegistration, JWK> jwkResolver) {

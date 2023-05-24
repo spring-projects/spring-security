@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,10 @@ public final class DefaultAuthorizationCodeTokenResponseClient
 		// If AccessTokenResponse.scope is empty, then we assume all requested scopes were
 		// granted.
 		// However, we use the explicit scopes returned in the response (if any).
-		return response.getBody();
+		OAuth2AccessTokenResponse tokenResponse = response.getBody();
+		Assert.notNull(tokenResponse,
+				"The authorization server responded to this Authorization Code grant request with an empty body; as such, it cannot be materialized into an OAuth2AccessTokenResponse instance. Please check the HTTP response code in your server logs for more details.");
+		return tokenResponse;
 	}
 
 	private ResponseEntity<OAuth2AccessTokenResponse> getResponse(RequestEntity<?> request) {
