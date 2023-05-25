@@ -1545,6 +1545,53 @@ public final class AnyRequestAuthenticatedAuthorizationManagerAdapter implements
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
 
+[[replace-hasrole-hasauthority]]
+=== Replace `hasRole` with `hasAuthority` if using `GrantedAuthorityDefaults`
+
+Currently, the `hasRole` method inside `authorizeHttpRequests` does not support the `GrantedAuthorityDefaults` bean like the `authorizeRequests` does.
+Therefore, if you are using `GrantedAuthorityDefaults` to change the prefix of your roles, you will need to use `hasAuthority` instead of `hasRole`.
+
+For example, you will have to change from:
+
+====
+.authorizeRequests with custom role prefix
+[source,java]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeRequests((authorize) -> authorize
+            .anyRequest().hasRole("ADMIN")
+        );
+    return http.build();
+}
+
+@Bean
+public GrantedAuthorityDefaults grantedAuthorityDefaults() {
+    return new GrantedAuthorityDefaults("MYPREFIX_");
+}
+----
+====
+
+to:
+
+====
+.authorizeHttpRequests with hasAuthority and custom role prefix
+[source,java]
+----
+@Bean
+public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    http
+        .authorizeHttpRequests((authorize) -> authorize
+            .anyRequest().hasAuthority("MYPREFIX_ADMIN")
+        );
+    return http.build();
+}
+----
+====
+
+This should be supported in the future, see https://github.com/spring-projects/spring-security/issues/13215[gh-13227] for more details.
+
 [[servlet-authorizationmanager-requests-opt-out]]
 === Opt-out Steps
 
