@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -30,7 +31,7 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.core.annotation.AnnotationConfigurationException;
 import org.springframework.lang.NonNull;
-import org.springframework.security.authorization.AuthorityAuthorizationManager;
+import org.springframework.security.authorization.AuthoritiesAuthorizationManager;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationManager;
 import org.springframework.security.core.Authentication;
@@ -57,7 +58,22 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 
 	private final Jsr250AuthorizationManagerRegistry registry = new Jsr250AuthorizationManagerRegistry();
 
+	private AuthorizationManager<Collection<String>> authoritiesAuthorizationManager = new AuthoritiesAuthorizationManager();
+
 	private String rolePrefix = "ROLE_";
+
+	/**
+	 * Sets an {@link AuthorizationManager} that accepts a collection of authority
+	 * strings.
+	 * @param authoritiesAuthorizationManager the {@link AuthorizationManager} that
+	 * accepts a collection of authority strings to use
+	 * @since 6.1
+	 */
+	public void setAuthoritiesAuthorizationManager(
+			AuthorizationManager<Collection<String>> authoritiesAuthorizationManager) {
+		Assert.notNull(authoritiesAuthorizationManager, "authoritiesAuthorizationManager cannot be null");
+		this.authoritiesAuthorizationManager = authoritiesAuthorizationManager;
+	}
 
 	/**
 	 * Sets the role prefix. Defaults to "ROLE_".
@@ -95,10 +111,8 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 			if (annotation instanceof PermitAll) {
 				return (a, o) -> new AuthorizationDecision(true);
 			}
-			if (annotation instanceof RolesAllowed) {
-				RolesAllowed rolesAllowed = (RolesAllowed) annotation;
-				return AuthorityAuthorizationManager.hasAnyRole(Jsr250AuthorizationManager.this.rolePrefix,
-						rolesAllowed.value());
+			if (annotation instanceof RolesAllowed rolesAllowed) {
+				return (a, o) -> Jsr250AuthorizationManager.this.authoritiesAuthorizationManager.check(a, getAllowedRolesWithPrefix(rolesAllowed));
 			}
 			return NULL_MANAGER;
 		}
@@ -143,6 +157,14 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 						"The JSR-250 specification disallows DenyAll, PermitAll, and RolesAllowed from appearing on the same class definition.");
 			}
 			return annotations.iterator().next();
+		}
+
+		private Set<String> getAllowedRolesWithPrefix(RolesAllowed rolesAllowed) {
+			Set<String> roles = new HashSet<>();
+			for (int i = 0; i < rolesAllowed.value().length; i++) {
+				roles.add(Jsr250AuthorizationManager.this.rolePrefix + rolesAllowed.value()[i]);
+			}
+			return roles;
 		}
 
 	}
