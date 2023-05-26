@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
 /**
  * Abstract base class for all of the {@code WebClientReactive*TokenResponseClient}s that
@@ -70,6 +71,8 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 
 	private WebClient webClient = WebClient.builder().build();
 
+	private Converter<T, RequestHeadersSpec<?>> requestEntityConverter = this::validatingPopulateRequest;
+
 	private Converter<T, HttpHeaders> headersConverter = this::populateTokenRequestHeaders;
 
 	private Converter<T, MultiValueMap<String, String>> parametersConverter = this::populateTokenRequestParameters;
@@ -84,15 +87,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	public Mono<OAuth2AccessTokenResponse> getTokenResponse(T grantRequest) {
 		Assert.notNull(grantRequest, "grantRequest cannot be null");
 		// @formatter:off
-		return Mono.defer(() -> this.webClient.post()
-				.uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
-				.headers((headers) -> {
-					HttpHeaders headersToAdd = getHeadersConverter().convert(grantRequest);
-					if (headersToAdd != null) {
-						headers.addAll(headersToAdd);
-					}
-				})
-				.body(createTokenRequestBody(grantRequest))
+		return Mono.defer(() -> this.requestEntityConverter.convert(grantRequest)
 				.exchange()
 				.flatMap((response) -> readTokenResponse(grantRequest, response))
 		);
@@ -105,6 +100,34 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	 * @return the {@link ClientRegistration} for the given {@code grantRequest}.
 	 */
 	abstract ClientRegistration clientRegistration(T grantRequest);
+
+	private RequestHeadersSpec<?> validatingPopulateRequest(T grantRequest) {
+		validateClientAuthenticationMethod(grantRequest);
+		return populateRequest(grantRequest);
+	}
+
+	private void validateClientAuthenticationMethod(T grantRequest) {
+		ClientRegistration clientRegistration = grantRequest.getClientRegistration();
+		ClientAuthenticationMethod clientAuthenticationMethod = clientRegistration.getClientAuthenticationMethod();
+		boolean supportedClientAuthenticationMethod = clientAuthenticationMethod.equals(ClientAuthenticationMethod.NONE)
+				|| clientAuthenticationMethod.equals(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
+				|| clientAuthenticationMethod.equals(ClientAuthenticationMethod.CLIENT_SECRET_POST);
+		if (!supportedClientAuthenticationMethod) {
+			throw new IllegalArgumentException(String.format(
+					"This class supports `client_secret_basic`, `client_secret_post`, and `none` by default. Client [%s] is using [%s] instead. Please use a supported client authentication method, or use `set/addParametersConverter` or `set/addHeadersConverter` to supply an instance that supports [%s].",
+					clientRegistration.getRegistrationId(), clientAuthenticationMethod, clientAuthenticationMethod));
+		}
+	}
+
+	private RequestHeadersSpec<?> populateRequest(T grantRequest) {
+		return this.webClient.post().uri(clientRegistration(grantRequest).getProviderDetails().getTokenUri())
+				.headers((headers) -> {
+					HttpHeaders headersToAdd = getHeadersConverter().convert(grantRequest);
+					if (headersToAdd != null) {
+						headers.addAll(headersToAdd);
+					}
+				}).body(createTokenRequestBody(grantRequest));
+	}
 
 	/**
 	 * Populates the headers for the token request.
@@ -280,6 +303,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	public final void setHeadersConverter(Converter<T, HttpHeaders> headersConverter) {
 		Assert.notNull(headersConverter, "headersConverter cannot be null");
 		this.headersConverter = headersConverter;
+		this.requestEntityConverter = this::populateRequest;
 	}
 
 	/**
@@ -307,6 +331,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			}
 			return headers;
 		};
+		this.requestEntityConverter = this::populateRequest;
 	}
 
 	/**
@@ -331,6 +356,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 	public final void setParametersConverter(Converter<T, MultiValueMap<String, String>> parametersConverter) {
 		Assert.notNull(parametersConverter, "parametersConverter cannot be null");
 		this.parametersConverter = parametersConverter;
+		this.requestEntityConverter = this::populateRequest;
 	}
 
 	/**
@@ -357,6 +383,7 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			}
 			return parameters;
 		};
+		this.requestEntityConverter = this::populateRequest;
 	}
 
 	/**

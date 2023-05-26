@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -377,6 +377,28 @@ public class DefaultClientCredentialsTokenResponseClientTests {
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest))
 				.withMessageContaining(
 						"[invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response");
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest));
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(clientCredentialsGrantRequest));
 	}
 
 	private MockResponse jsonResponse(String json) {

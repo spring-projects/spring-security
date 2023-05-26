@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,7 +56,8 @@ public final class DefaultJwtBearerTokenResponseClient
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter = new JwtBearerGrantRequestEntityConverter();
+	private Converter<JwtBearerGrantRequest, RequestEntity<?>> requestEntityConverter = new ClientAuthenticationMethodValidatingRequestEntityConverter<>(
+			new JwtBearerGrantRequestEntityConverter());
 
 	private RestOperations restOperations;
 
