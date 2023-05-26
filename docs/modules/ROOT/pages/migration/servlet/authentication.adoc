@@ -22,8 +22,8 @@ authenticationFilter.setAuthenticationFailureHandler(handler);
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
-val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+val authenticationFilter: AuthenticationFilter = AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = AuthenticationEntryPointFailureHandler(...)
 handler.setRethrowAuthenticationServiceException(true)
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
@@ -56,8 +56,8 @@ authenticationFilter.setAuthenticationFailureHandler(handler);
 .Kotlin
 [source,kotlin,role="secondary"]
 ----
-val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
-val handler: AuthenticationEntryPointFailureHandler = new AuthenticationEntryPointFailureHandler(...)
+val authenticationFilter: AuthenticationFilter = AuthenticationFilter(...)
+val handler: AuthenticationEntryPointFailureHandler = AuthenticationEntryPointFailureHandler(...)
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
 
