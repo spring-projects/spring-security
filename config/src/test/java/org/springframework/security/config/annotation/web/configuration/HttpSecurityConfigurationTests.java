@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import javax.servlet.Filter;
 import javax.servlet.http.HttpServletRequest;
 
 import com.google.common.net.HttpHeaders;
@@ -45,6 +46,7 @@ import org.springframework.security.authentication.event.AbstractAuthenticationF
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.FormLoginConfigurer;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
@@ -55,6 +57,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter;
+import org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -292,6 +296,16 @@ public class HttpSecurityConfigurationTests {
 		assertThat(configurer.configure).isTrue();
 	}
 
+	// gh-13203
+	@Test
+	public void disableConfigurerWhenAppliedByAnotherConfigurerThenNotApplied() {
+		this.spring.register(ApplyCustomDslConfig.class).autowire();
+		SecurityFilterChain filterChain = this.spring.getContext().getBean(SecurityFilterChain.class);
+		List<Filter> filters = filterChain.getFilters();
+		assertThat(filters).doesNotHaveAnyElementsOfTypes(DefaultLoginPageGeneratingFilter.class,
+				DefaultLogoutPageGeneratingFilter.class);
+	}
+
 	@RestController
 	static class NameController {
 
@@ -466,6 +480,31 @@ public class HttpSecurityConfigurationTests {
 			if (!request.isUserInRole("USER")) {
 				throw new AccessDeniedException("This resource is only available to users");
 			}
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class ApplyCustomDslConfig {
+
+		@Bean
+		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+			http.apply(CustomDsl.customDsl());
+			return http.build();
+		}
+
+	}
+
+	static class CustomDsl extends AbstractHttpConfigurer<CustomDsl, HttpSecurity> {
+
+		@Override
+		public void init(HttpSecurity http) throws Exception {
+			http.formLogin(FormLoginConfigurer::disable);
+		}
+
+		static CustomDsl customDsl() {
+			return new CustomDsl();
 		}
 
 	}
