@@ -132,6 +132,30 @@ We still specify the `issuer-uri` so that Resource Server still validates the `i
 [NOTE]
 This property can also be supplied directly on the <<oauth2resourceserver-jwt-jwkseturi-dsl,DSL>>.
 
+== Supplying Audiences
+
+As already seen, the <<_specifying_the_authorization_server, `issuer-uri` property validates the `iss` claim>>; this is who sent the JWT.
+
+Boot also has the `audiences` property for validating the `aud` claim; this is who the JWT was sent to.
+
+A resource server's audience can be indicated like so:
+
+[source,yaml]
+----
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://idp.example.com
+          audiences: https://my-resource-server.example.com
+----
+
+[NOTE]
+You can also add <<oauth2resourceserver-jwt-validation-custom, the `aud` validation programmatically>>, if needed.
+
+The result will be that if the JWT's `iss` claim is not `https://idp.example.com`, and its `aud` claim does not contain `https://my-resource-server.example.com` in its list, then validation will fail.
+
 [[oauth2resourceserver-jwt-sansboot]]
 == Overriding or Replacing Boot Auto Configuration
 
@@ -1106,7 +1130,7 @@ By default, Resource Server configures a clock skew of 60 seconds.
 [[oauth2resourceserver-jwt-validation-custom]]
 === Configuring a Custom Validator
 
-Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
+Adding a check for <<_supplying_audiences, the `aud` claim>> is simple with the `OAuth2TokenValidator` API:
 
 ====
 .Java
@@ -1213,6 +1237,9 @@ fun jwtDecoder(): JwtDecoder {
 }
 ----
 ====
+
+[TIP]
+As stated earlier, you can instead <<_supplying_audiences, configure `aud` validation in Boot>>.
 
 [[oauth2resourceserver-jwt-claimsetmapping]]
 == Configuring Claim Set Mapping
