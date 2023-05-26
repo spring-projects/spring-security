@@ -221,6 +221,7 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return new ArrayList<>();
 		}
+		removeFromConfigurersAddedInInitializing(clazz);
 		return new ArrayList<>(configs);
 	}
 
@@ -253,9 +254,14 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 		if (configs == null) {
 			return null;
 		}
+		removeFromConfigurersAddedInInitializing(clazz);
 		Assert.state(configs.size() == 1,
 				() -> "Only one configurer expected for type " + clazz + ", but got " + configs);
 		return (C) configs.get(0);
+	}
+
+	private <C extends SecurityConfigurer<O, B>> void removeFromConfigurersAddedInInitializing(Class<C> clazz) {
+		this.configurersAddedInInitializing.removeIf(clazz::isInstance);
 	}
 
 	/**

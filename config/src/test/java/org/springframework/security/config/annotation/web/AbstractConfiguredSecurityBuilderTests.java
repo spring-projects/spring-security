@@ -30,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -84,6 +85,24 @@ public class AbstractConfiguredSecurityBuilderTests {
 	}
 
 	@Test
+	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurerThenNotConfigured() throws Exception {
+		ApplyAndRemoveSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
+		this.builder.apply(new ApplyAndRemoveSecurityConfigurer());
+		this.builder.build();
+		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).init(this.builder);
+		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
+	}
+
+	@Test
+	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurersThenNotConfigured() throws Exception {
+		ApplyAndRemoveAllSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
+		this.builder.apply(new ApplyAndRemoveAllSecurityConfigurer());
+		this.builder.build();
+		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).init(this.builder);
+		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
+	}
+
+	@Test
 	public void getConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
@@ -128,6 +147,32 @@ public class AbstractConfiguredSecurityBuilderTests {
 		assertThat(configurers).hasSize(2);
 		assertThat(configurers).containsExactly(configurer1, configurer2);
 		assertThat(builder.getConfigurers(DelegateSecurityConfigurer.class)).hasSize(2);
+	}
+
+	private static class ApplyAndRemoveSecurityConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.apply(CONFIGURER);
+			builder.removeConfigurer(CONFIGURER.getClass());
+		}
+
+	}
+
+	private static class ApplyAndRemoveAllSecurityConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.apply(CONFIGURER);
+			builder.removeConfigurers(CONFIGURER.getClass());
+		}
+
 	}
 
 	private static class DelegateSecurityConfigurer
