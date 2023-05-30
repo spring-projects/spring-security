@@ -9,7 +9,6 @@ buildscript {
 		classpath "com.netflix.nebula:nebula-project-plugin:8.2.0"
 	}
 	repositories {
-		maven { url 'https://repo.spring.io/plugins-snapshot' }
 		maven { url 'https://plugins.gradle.org/m2/' }
 	}
 }
