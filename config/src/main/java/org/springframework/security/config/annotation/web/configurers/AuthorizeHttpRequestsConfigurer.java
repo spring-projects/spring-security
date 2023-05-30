@@ -35,6 +35,7 @@ import org.springframework.security.authorization.SpringAuthorizationEventPublis
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
@@ -62,11 +63,22 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final Supplier<RoleHierarchy> roleHierarchy;
 
+	private final String rolePrefix;
+
 	/**
 	 * Creates an instance.
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	public AuthorizeHttpRequestsConfigurer(ApplicationContext context) {
+		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaultsBeanNames.length == 1) {
+			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0],
+					GrantedAuthorityDefaults.class);
+			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
+		}
+		else {
+			this.rolePrefix = "ROLE_";
+		}
 		this.registry = new AuthorizationManagerRequestMatcherRegistry(context);
 		if (context.getBeanNamesForType(AuthorizationEventPublisher.class).length > 0) {
 			this.publisher = context.getBean(AuthorizationEventPublisher.class);
@@ -279,7 +291,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasRole(String role) {
-			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasRole(role)));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager
+					.hasAuthority(AuthorizeHttpRequestsConfigurer.this.rolePrefix + role)));
 		}
 
 		/**
