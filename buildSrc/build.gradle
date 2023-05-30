@@ -10,7 +10,6 @@ sourceCompatibility = 1.8
 repositories {
 	gradlePluginPortal()
 	mavenCentral()
-	maven { url 'https://repo.spring.io/plugins-release/' }
 }
 
 sourceSets {
@@ -87,7 +86,7 @@ dependencies {
 	implementation localGroovy()
 
 	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
-	implementation 'io.projectreactor:reactor-core:3.5.0-M1'
+	implementation 'io.projectreactor:reactor-core:3.5.0'
 	implementation 'org.gretty:gretty:3.0.9'
 	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
 	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
