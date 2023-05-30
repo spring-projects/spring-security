@@ -37,6 +37,7 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -476,6 +477,17 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void getWhenRoleUserConfiguredAsGrantedAuthorityDefaultThenRespondsWithOk() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
 	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsLocalhostThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
@@ -555,6 +567,22 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
 		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class GrantedAuthorityDefaultConfig {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
+		}
+
+		@Bean
+		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((c) -> c.anyRequest().hasRole("USER")).build();
+		}
+
 	}
 
 	@Configuration
