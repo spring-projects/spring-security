@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,10 +46,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.DefaultReactiveOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.reactive.result.method.annotation.OAuth2AuthorizedClientArgumentResolver;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
@@ -214,8 +215,8 @@ public final class SecurityMockServerConfigurers {
 	 * tokens to be valid.
 	 *
 	 * <p>
-	 * The support works by associating the authorized client to the ServerWebExchange via
-	 * the {@link WebSessionServerOAuth2AuthorizedClientRepository}
+	 * The support works by associating the authorized client to the ServerWebExchange
+	 * using a {@link ServerOAuth2AuthorizedClientRepository}
 	 * </p>
 	 * @return the {@link OAuth2ClientMutator} to further configure or use
 	 * @since 5.3
@@ -230,8 +231,8 @@ public final class SecurityMockServerConfigurers {
 	 * tokens to be valid.
 	 *
 	 * <p>
-	 * The support works by associating the authorized client to the ServerWebExchange via
-	 * the {@link WebSessionServerOAuth2AuthorizedClientRepository}
+	 * The support works by associating the authorized client to the ServerWebExchange
+	 * using a {@link ServerOAuth2AuthorizedClientRepository}
 	 * </p>
 	 * @param registrationId The registration id associated with the
 	 * {@link OAuth2AuthorizedClient}
@@ -715,8 +716,6 @@ public final class SecurityMockServerConfigurers {
 
 		private Supplier<OAuth2User> oauth2User = this::defaultPrincipal;
 
-		private final ServerOAuth2AuthorizedClientRepository authorizedClientRepository = new WebSessionServerOAuth2AuthorizedClientRepository();
-
 		private OAuth2LoginMutator(OAuth2AccessToken accessToken) {
 			this.accessToken = accessToken;
 			this.clientRegistration = clientRegistrationBuilder().build();
@@ -776,12 +775,8 @@ public final class SecurityMockServerConfigurers {
 		/**
 		 * Use the provided {@link ClientRegistration} as the client to authorize.
 		 * <p>
-		 * The supplied {@link ClientRegistration} will be registered into an
-		 * {@link WebSessionServerOAuth2AuthorizedClientRepository}. Tests relying on
-		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
-		 * annotations should register an
-		 * {@link WebSessionServerOAuth2AuthorizedClientRepository} bean to the
-		 * application context.
+		 * The supplied {@link ClientRegistration} will be registered into a
+		 * {@link ServerOAuth2AuthorizedClientRepository}.
 		 * @param clientRegistration the {@link ClientRegistration} to use
 		 * @return the {@link OAuth2LoginMutator} for further configuration
 		 */
@@ -866,8 +861,6 @@ public final class SecurityMockServerConfigurers {
 
 		private Collection<GrantedAuthority> authorities;
 
-		ServerOAuth2AuthorizedClientRepository authorizedClientRepository = new WebSessionServerOAuth2AuthorizedClientRepository();
-
 		private OidcLoginMutator(OAuth2AccessToken accessToken) {
 			this.accessToken = accessToken;
 			this.clientRegistration = clientRegistrationBuilder().build();
@@ -942,12 +935,8 @@ public final class SecurityMockServerConfigurers {
 		/**
 		 * Use the provided {@link ClientRegistration} as the client to authorize.
 		 * <p>
-		 * The supplied {@link ClientRegistration} will be registered into an
-		 * {@link WebSessionServerOAuth2AuthorizedClientRepository}. Tests relying on
-		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
-		 * annotations should register an
-		 * {@link WebSessionServerOAuth2AuthorizedClientRepository} bean to the
-		 * application context.
+		 * The supplied {@link ClientRegistration} will be registered into a
+		 * {@link ServerOAuth2AuthorizedClientRepository}.
 		 * @param clientRegistration the {@link ClientRegistration} to use
 		 * @return the {@link OidcLoginMutator} for further configuration
 		 */
@@ -1037,8 +1026,6 @@ public final class SecurityMockServerConfigurers {
 		private OAuth2AccessToken accessToken = new OAuth2AccessToken(OAuth2AccessToken.TokenType.BEARER,
 				"access-token", null, null, Collections.singleton("read"));
 
-		private ServerOAuth2AuthorizedClientRepository authorizedClientRepository = new WebSessionServerOAuth2AuthorizedClientRepository();
-
 		private OAuth2ClientMutator() {
 		}
 
@@ -1116,16 +1103,15 @@ public final class SecurityMockServerConfigurers {
 		private Consumer<List<WebFilter>> addAuthorizedClientFilter() {
 			OAuth2AuthorizedClient client = getClient();
 			return (filters) -> filters.add(0, (exchange, chain) -> {
-				ReactiveOAuth2AuthorizedClientManager authorizationClientManager = OAuth2ClientServerTestUtils
-						.getOAuth2AuthorizedClientManager(exchange);
-				if (!(authorizationClientManager instanceof TestReactiveOAuth2AuthorizedClientManager)) {
-					authorizationClientManager = new TestReactiveOAuth2AuthorizedClientManager(
-							authorizationClientManager);
-					OAuth2ClientServerTestUtils.setOAuth2AuthorizedClientManager(exchange, authorizationClientManager);
+				ServerOAuth2AuthorizedClientRepository authorizedClientRepository = OAuth2ClientServerTestUtils
+						.getAuthorizedClientRepository(exchange);
+				if (!(authorizedClientRepository instanceof TestOAuth2AuthorizedClientRepository)) {
+					authorizedClientRepository = new TestOAuth2AuthorizedClientRepository(authorizedClientRepository);
+					OAuth2ClientServerTestUtils.setAuthorizedClientRepository(exchange, authorizedClientRepository);
 				}
-				TestReactiveOAuth2AuthorizedClientManager.enable(exchange);
-				exchange.getAttributes().put(TestReactiveOAuth2AuthorizedClientManager.TOKEN_ATTR_NAME, client);
-				return chain.filter(exchange);
+				TestOAuth2AuthorizedClientRepository.enable(exchange);
+				return authorizedClientRepository.saveAuthorizedClient(client, null, exchange)
+						.then(chain.filter(exchange));
 			});
 		}
 
@@ -1142,21 +1128,19 @@ public final class SecurityMockServerConfigurers {
 		}
 
 		/**
-		 * Used to wrap the {@link OAuth2AuthorizedClientManager} to provide support for
-		 * testing when the request is wrapped
+		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
+		 * for testing when the request is wrapped
 		 */
-		private static final class TestReactiveOAuth2AuthorizedClientManager
-				implements ReactiveOAuth2AuthorizedClientManager {
+		private static final class TestOAuth2AuthorizedClientManager implements ReactiveOAuth2AuthorizedClientManager {
 
-			static final String TOKEN_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
-					.concat(".TOKEN");
-
-			static final String ENABLED_ATTR_NAME = TestReactiveOAuth2AuthorizedClientManager.class.getName()
+			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
 					.concat(".ENABLED");
 
 			private final ReactiveOAuth2AuthorizedClientManager delegate;
 
-			private TestReactiveOAuth2AuthorizedClientManager(ReactiveOAuth2AuthorizedClientManager delegate) {
+			private ServerOAuth2AuthorizedClientRepository authorizedClientRepository;
+
+			TestOAuth2AuthorizedClientManager(ReactiveOAuth2AuthorizedClientManager delegate) {
 				this.delegate = delegate;
 			}
 
@@ -1164,10 +1148,66 @@ public final class SecurityMockServerConfigurers {
 			public Mono<OAuth2AuthorizedClient> authorize(OAuth2AuthorizeRequest authorizeRequest) {
 				ServerWebExchange exchange = authorizeRequest.getAttribute(ServerWebExchange.class.getName());
 				if (isEnabled(exchange)) {
-					OAuth2AuthorizedClient client = exchange.getAttribute(TOKEN_ATTR_NAME);
-					return Mono.just(client);
+					return this.authorizedClientRepository.loadAuthorizedClient(
+							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), exchange);
 				}
 				return this.delegate.authorize(authorizeRequest);
+			}
+
+			static void enable(ServerWebExchange exchange) {
+				exchange.getAttributes().put(ENABLED_ATTR_NAME, Boolean.TRUE);
+			}
+
+			boolean isEnabled(ServerWebExchange exchange) {
+				return Boolean.TRUE.equals(exchange.getAttribute(ENABLED_ATTR_NAME));
+			}
+
+		}
+
+		/**
+		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
+		 * for testing when the request is wrapped
+		 */
+		static final class TestOAuth2AuthorizedClientRepository implements ServerOAuth2AuthorizedClientRepository {
+
+			static final String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName().concat(".TOKEN");
+
+			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName()
+					.concat(".ENABLED");
+
+			private final ServerOAuth2AuthorizedClientRepository delegate;
+
+			TestOAuth2AuthorizedClientRepository(ServerOAuth2AuthorizedClientRepository delegate) {
+				this.delegate = delegate;
+			}
+
+			@Override
+			public <T extends OAuth2AuthorizedClient> Mono<T> loadAuthorizedClient(String clientRegistrationId,
+					Authentication principal, ServerWebExchange exchange) {
+				if (isEnabled(exchange)) {
+					return Mono.just(exchange.getAttribute(TOKEN_ATTR_NAME));
+				}
+				return this.delegate.loadAuthorizedClient(clientRegistrationId, principal, exchange);
+			}
+
+			@Override
+			public Mono<Void> saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+					ServerWebExchange exchange) {
+				if (isEnabled(exchange)) {
+					exchange.getAttributes().put(TOKEN_ATTR_NAME, authorizedClient);
+					return Mono.empty();
+				}
+				return this.delegate.saveAuthorizedClient(authorizedClient, principal, exchange);
+			}
+
+			@Override
+			public Mono<Void> removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+					ServerWebExchange exchange) {
+				if (isEnabled(exchange)) {
+					exchange.getAttributes().remove(TOKEN_ATTR_NAME);
+					return Mono.empty();
+				}
+				return this.delegate.removeAuthorizedClient(clientRegistrationId, principal, exchange);
 			}
 
 			static void enable(ServerWebExchange exchange) {
@@ -1188,7 +1228,7 @@ public final class SecurityMockServerConfigurers {
 			}
 
 			/**
-			 * Gets the {@link ReactiveOAuth2AuthorizedClientManager} for the specified
+			 * Gets the {@link ServerOAuth2AuthorizedClientRepository} for the specified
 			 * {@link ServerWebExchange}. If one is not found, one based off of
 			 * {@link WebSessionServerOAuth2AuthorizedClientRepository} is used.
 			 * @param exchange the {@link ServerWebExchange} to obtain the
@@ -1196,6 +1236,39 @@ public final class SecurityMockServerConfigurers {
 			 * @return the {@link ReactiveOAuth2AuthorizedClientManager} for the specified
 			 * {@link ServerWebExchange}
 			 */
+			static ServerOAuth2AuthorizedClientRepository getAuthorizedClientRepository(ServerWebExchange exchange) {
+				ReactiveOAuth2AuthorizedClientManager manager = getOAuth2AuthorizedClientManager(exchange);
+				if (manager == null) {
+					return DEFAULT_CLIENT_REPO;
+				}
+				if (manager instanceof DefaultReactiveOAuth2AuthorizedClientManager) {
+					return (ServerOAuth2AuthorizedClientRepository) ReflectionTestUtils.getField(manager,
+							"authorizedClientRepository");
+				}
+				if (manager instanceof TestOAuth2AuthorizedClientManager) {
+					return ((TestOAuth2AuthorizedClientManager) manager).authorizedClientRepository;
+				}
+				return DEFAULT_CLIENT_REPO;
+			}
+
+			static void setAuthorizedClientRepository(ServerWebExchange exchange,
+					ServerOAuth2AuthorizedClientRepository repository) {
+				ReactiveOAuth2AuthorizedClientManager manager = getOAuth2AuthorizedClientManager(exchange);
+				if (manager == null) {
+					return;
+				}
+				if (manager instanceof DefaultReactiveOAuth2AuthorizedClientManager) {
+					ReflectionTestUtils.setField(manager, "authorizedClientRepository", repository);
+					return;
+				}
+				if (!(manager instanceof TestOAuth2AuthorizedClientManager)) {
+					manager = new TestOAuth2AuthorizedClientManager(manager);
+					setOAuth2AuthorizedClientManager(exchange, manager);
+				}
+				TestOAuth2AuthorizedClientManager.enable(exchange);
+				((TestOAuth2AuthorizedClientManager) manager).authorizedClientRepository = repository;
+			}
+
 			static ReactiveOAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(ServerWebExchange exchange) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(exchange,
 						OAuth2AuthorizedClientArgumentResolver.class);
