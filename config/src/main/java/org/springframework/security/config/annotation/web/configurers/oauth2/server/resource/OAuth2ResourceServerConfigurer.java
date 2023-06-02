@@ -199,7 +199,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	/**
-	 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
+	 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public JwtConfigurer jwt() {
@@ -224,7 +227,11 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 	}
 
 	/**
-	 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #opaqueToken(Customizer)} or
+	 * {@code opaqueToken(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public OpaqueTokenConfigurer opaqueToken() {
@@ -403,7 +410,10 @@ public final class OAuth2ResourceServerConfigurer<H extends HttpSecurityBuilder<
 		}
 
 		/**
-		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #jwt(Customizer)} or
+		 * {@code jwt(Customizer.withDefaults())} to stick with defaults. See the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2ResourceServerConfigurer<H> and() {
