@@ -283,7 +283,7 @@ There are two ``@Bean``s that Spring Boot generates for a relying party.
 The first is a `SecurityFilterChain` that configures the app as a relying party.
 When including `spring-security-saml2-service-provider`, the `SecurityFilterChain` looks like:
 
-.Default JWT Configuration
+.Default SAML 2.0 Login Configuration
 ====
 .Java
 [source,java,role="primary"]
