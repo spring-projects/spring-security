@@ -81,7 +81,7 @@ If it is not desirable to associate the `SecurityContext` to an `HttpSession` (i
 [[requestattributesecuritycontextrepository]]
 === RequestAttributeSecurityContextRepository
 
-The {security-api-url}org/springframework/security/web/context/RequestAttributeSecurityContextRepository.html[`RequestAttributeSecurityContextRepository`] saves the `SecurityContext` as a request attribute to make sure the `SecurityContext` is avaible for a single request that occurs across dispatch types that may clear out the `SecurityContext`.
+The {security-api-url}org/springframework/security/web/context/RequestAttributeSecurityContextRepository.html[`RequestAttributeSecurityContextRepository`] saves the `SecurityContext` as a request attribute to make sure the `SecurityContext` is available for a single request that occurs across dispatch types that may clear out the `SecurityContext`.
 
 For example, assume that a client makes a request, is authenticated, and then an error occurs.
 Depending on the servlet container implementation, the error means that any `SecurityContext` that was established is cleared out and then the error dispatch is made.
@@ -195,7 +195,7 @@ image:{icondir}/number_2.png[] Next, the application is ran.
 image:{icondir}/number_3.png[] Finally, if the `SecurityContext` has changed, we save the `SecurityContext` using the `SecurityContextPersistenceRepository`.
 This means that when using `SecurityContextPersistenceFilter`, just setting the `SecurityContextHolder` will ensure that the `SecurityContext` is persisted using `SecurityContextRepository`.
 
-In some cases a response is committed and written to the client before the `SecurityContextPersisteneFilter` method completes.
+In some cases a response is committed and written to the client before the `SecurityContextPersistenceFilter` method completes.
 For example, if a redirect is sent to the client the response is immediately written back to the client.
 This means that establishing an `HttpSession` would not be possible in step 3 because the session id could not be included in the already written response.
 Another situation that can happen is that if a client authenticates successfully, the response is committed before `SecurityContextPersistenceFilter` completes, and the client makes a second request before the `SecurityContextPersistenceFilter` completes the wrong authentication could be present in the second request.
