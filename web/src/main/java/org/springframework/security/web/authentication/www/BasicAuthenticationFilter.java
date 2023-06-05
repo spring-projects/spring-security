@@ -81,9 +81,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * <p>
  * Basic authentication is an attractive protocol because it is simple and widely
  * deployed. However, it still transmits a password in clear text and as such is
- * undesirable in many situations. Digest authentication is also provided by Spring
- * Security and should be used instead of Basic authentication wherever possible. See
- * {@link org.springframework.security.web.authentication.www.DigestAuthenticationFilter}.
+ * undesirable in many situations.
  * <p>
  * Note that if a {@link RememberMeServices} is set, this filter will automatically send
  * back remember-me details to the client. Therefore, subsequent requests will not need to
