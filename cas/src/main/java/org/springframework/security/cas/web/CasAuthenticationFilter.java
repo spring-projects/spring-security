@@ -193,7 +193,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	private AuthenticationFailureHandler proxyFailureHandler = new SimpleUrlAuthenticationFailureHandler();
 
-	private SecurityContextRepository securityContextRepository= new HttpSessionSecurityContextRepository();
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
 	public CasAuthenticationFilter() {
 		super("/login/cas");
@@ -214,7 +214,7 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
 		context.setAuthentication(authResult);
 		SecurityContextHolder.setContext(context);
-		this.securityContextRepository.saveContext(context,request,response);
+		this.securityContextRepository.saveContext(context, request, response);
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));
 		}
