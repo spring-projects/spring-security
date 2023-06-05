@@ -230,7 +230,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's
 	 * Token Endpoint.
 	 * @return the {@link TokenEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
+	 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public TokenEndpointConfig tokenEndpoint() {
@@ -277,7 +281,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization
 	 * Server's UserInfo Endpoint.
 	 * @return the {@link UserInfoEndpointConfig}
-	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} or
+	 * {@code userInfoEndpoint(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public UserInfoEndpointConfig userInfoEndpoint() {
@@ -637,7 +645,11 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
-		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
+		 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {

@@ -651,6 +651,82 @@ You will notice that since we are using the `hasRole` expression we do not need 
 <6> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
 
+[[authorization-expressions]]
+== Expressing Authorization with SpEL
+
+While using a concrete `AuthorizationManager` is recommended, there are some cases where an expression is necessary, like with `<intercept-url>` or with JSP Taglibs.
+For that reason, this section will focus on examples from those domains.
+
+Given that, let's cover Spring Security's Web Security Authorization SpEL API a bit more in depth.
+
+Spring Security encapsulates all of its authorization fields and methods in a set of root objects.
+The most generic root object is called `SecurityExpressionRoot` and it forms the basis for `WebSecurityExpressionRoot`.
+Spring Security supplies this root object to `StandardEvaluationContext` when preparing to evaluate an authorization expression.
+
+[[using-authorization-expression-fields-and-methods]]
+=== Using Authorization Expression Fields and Methods
+
+The first thing this provides is an enhanced set of authorization fields and methods to your SpEL expressions.
+What follows is a quick overview of the most common methods:
+
+* `permitAll` - The request requires no authorization to be invoked; note that in this case, xref:servlet/authentication/architecture.adoc#servlet-authentication-authentication[the `Authentication`] is never retrieved from the session
+* `denyAll` - The request is not allowed under any circumstances; note that in this case, the `Authentication` is never retrieved from the session
+* `hasAuthority` - The request requires that the `Authentication` have xref:servlet/authorization/architecture.adoc#authz-authorities[a `GrantedAuthority`] that matches the given value
+* `hasRole` - A shortcut for `hasAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasAnyAuthority` - The request requires that the `Authentication` have a `GrantedAuthority` that matches any of the given values
+* `hasAnyRole` - A shortcut for `hasAnyAuthority` that prefixes `ROLE_` or whatever is configured as the default prefix
+* `hasPermission` - A hook into your `PermissionEvaluator` instance for doing object-level authorization
+
+And here is a brief look at the most common fields:
+
+* `authentication` - The `Authentication` instance associated with this method invocation
+* `principal` - The `Authentication#getPrincipal` associated with this method invocation
+
+Having now learned the patterns, rules, and how they can be paired together, you should be able to understand what is going on in this more complex example:
+
+.Authorize Requests Using SpEL
+====
+.Xml
+[source,java,role="primary"]
+----
+<http>
+    <intercept-url pattern="/static/**" access="permitAll"/> <1>
+    <intercept-url pattern="/admin/**" access="hasRole('ADMIN')"/> <2>
+    <intercept-url pattern="/db/**" access="hasAuthority('db') and hasRole('ADMIN')"/> <3>
+    <intercept-url pattern="/**" access="denyAll"/> <4>
+</http>
+----
+====
+<1> We specified a URL patters that any user can access.
+Specifically, any user can access a request if the URL starts with "/static/".
+<2> Any URL that starts with "/admin/" will be restricted to users who have the role "ROLE_ADMIN".
+You will notice that since we are invoking the `hasRole` method we do not need to specify the "ROLE_" prefix.
+<3> Any URL that starts with "/db/" requires the user to have both been granted the "db" permission as well as be a "ROLE_ADMIN".
+You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
+<4> Any URL that has not already been matched on is denied access.
+This is a good strategy if you do not want to accidentally forget to update your authorization rules.
+
+[[using_path_parameters]]
+=== Using Path Parameters
+
+Additionally, Spring Security provides a mechanism for discovering path parameters so they can also be accessed in the SpEL expression as well.
+
+For example, you can access a path parameter in your SpEL expression in the following way:
+
+.Authorize Request using SpEL path variable
+====
+.Xml
+[source,xml,role="primary"]
+----
+<http>
+    <intercept-url pattern="/resource/{name}" access="#name == authentication.name"/>
+    <intercept-url pattern="/**" access="authenticated"/>
+</http>
+----
+====
+
+This expression refers to the path variable after `/resource/` and requires that it is equal to `Authentication#getName`.
+
 [[remote-authorization-manager]]
 === Use an Authorization Database, Policy Agent, or Other Service
 If you want to configure Spring Security to use a separate service for authorization, you can create your own `AuthorizationManager` and match it to `anyRequest`.

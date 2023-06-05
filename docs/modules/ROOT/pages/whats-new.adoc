@@ -3,3 +3,41 @@
 
 Spring Security 6.1 provides a number of new features.
 Below are the highlights of the release.
+
+== Core
+
+* https://github.com/spring-projects/spring-security/issues/12233[gh-12233] - SecuredAuthorizationManager allows customizing underlying AuthorizationManager
+* https://github.com/spring-projects/spring-security/issues/12231[gh-12231] - Add Authority Collection Authorization Manager
+
+== OAuth 2.0
+
+* https://github.com/spring-projects/spring-security/issues/10309[gh-10309] - xref:servlet/oauth2/resource-server/jwt.adoc[(docs)] - Add Nimbus(Reactive)JwtDecoder#withIssuerLocation
+* https://github.com/spring-projects/spring-security/issues/12907[gh-12907] - Configure principal claim name in ReactiveJwtAuthenticationConverter
+
+== SAML 2.0
+
+* https://github.com/spring-projects/spring-security/issues/12604[gh-12604] - Support AuthnRequestSigned metadata attribute
+* https://github.com/spring-projects/spring-security/issues/12846[gh-12846] - Metadata supports multiple entities and EntitiesDescriptor
+* https://github.com/spring-projects/spring-security/issues/11828[gh-11828] - xref:servlet/saml2/metadata.adoc[(docs)] - Add saml2Metadata to DSL
+* https://github.com/spring-projects/spring-security/issues/12843[gh-12843] - xref:servlet/saml2/logout.adoc[(docs)] - Allow Relying Party to be Deduced from LogoutRequest
+* https://github.com/spring-projects/spring-security/issues/10243[gh-10243] - xref:servlet/saml2/login/authentication.adoc[(docs)] - Allow Relying Party to be Deduced from SAML Response
+* https://github.com/spring-projects/spring-security/issues/12842[gh-12842] - Add RelyingPartyRegistration placeholder resolution component
+* https://github.com/spring-projects/spring-security/issues/12845[gh-12845] - Support issuing LogoutResponse after already logged out
+
+== Observability
+
+* https://github.com/spring-projects/spring-security/issues/12534[gh-12534] - Customize Authentication and Authorization observation conventions
+
+== Web
+
+* https://github.com/spring-projects/spring-security/issues/12751[gh-12751] - Add RequestMatchers factory class
+* https://github.com/spring-projects/spring-security/issues/12847[gh-12847] - Propagate variables through And and OrRequestMatcher
+
+== Docs
+
+In our ongoing efforts to update Spring Security's documentation, several additional sections were fully re-written:
+
+* https://github.com/spring-projects/spring-security/issues/13088[gh-13088] - xref:servlet/authorization/index.adoc[(docs)] - Revisit Authorization documentation
+* https://github.com/spring-projects/spring-security/issues/12681[gh-12681] - xref:servlet/authentication/session-management.adoc[(docs)] - Revisit Session Management documentation
+* https://github.com/spring-projects/spring-security/issues/13062[gh-13062] - xref:servlet/authentication/logout.adoc[(docs)] - Revisit Logout documentation
+* https://github.com/spring-projects/spring-security/issues/13089[gh-13089] - Revisit CSRF Documentation

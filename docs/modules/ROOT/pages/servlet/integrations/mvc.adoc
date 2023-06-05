@@ -534,7 +534,7 @@ Spring Security integrates with Spring MVC to add CSRF protection.
 
 === Automatic Token Inclusion
 
-Spring Security automatically xref:servlet/exploits/csrf.adoc#servlet-csrf-include[include the CSRF Token] within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
+Spring Security automatically xref:servlet/exploits/csrf.adoc#csrf-integration-form[include the CSRF Token] within forms that use the https://docs.spring.io/spring/docs/3.2.x/spring-framework-reference/html/view.html#view-jsp-formtaglib-formtag[Spring MVC form tag].
 Consider the following JSP:
 
 ====

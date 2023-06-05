@@ -27,7 +27,7 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 
 In Spring Security 5.8, this support has been refreshed to use the `AuthorizationManager` API.
 
-To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in XML use the `use-authorization-manager` attribute.
+To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML] use the `use-authorization-manager` attribute.
 One way to do this is by using the `AuthorizationManagerMessageMatcherRegistry` to specify endpoint patterns like so:
 
 ====
@@ -41,7 +41,7 @@ public class WebSocketSecurityConfig {
     @Bean
     AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
         messages
-                .simpDestMatchers("/user/**").authenticated() // <3>
+                .simpDestMatchers("/user/**").hasRole("USER") // <3>
 
         return messages.build();
     }
@@ -56,35 +56,23 @@ public class WebSocketSecurityConfig {
 open class WebSocketSecurityConfig { // <1> <2>
     @Bean
     fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
-        messages.simpDestMatchers("/user/**").authenticated() // <3>
+        messages.simpDestMatchers("/user/**").hasRole("USER") // <3>
         return messages.build()
     }
 }
 ----
-<1> Any inbound CONNECT message requires a valid CSRF token to enforce the <<websocket-sameorigin,Same Origin Policy>>.
-<2> The `SecurityContextHolder` is populated with the user within the `simpUser` header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with `/user/` will requires `ROLE_USER`. You can find additional details on authorization in <<websocket-authorization>>
-====
 
-Spring Security also provides xref:servlet/appendix/namespace/websocket.adoc#nsa-websocket-security[XML Namespace] support for securing WebSockets.
-A comparable XML based configuration looks like the following:
-
-====
-[source,xml]
+.Xml
+[source,xml,role="secondary"]
 ----
-<websocket-message-broker use-authorization-manager="true">
-    <intercept-message pattern="/user/**" access="authenticated"/>
+<websocket-message-broker use-authorization-manager="true"> <1> <2>
+    <intercept-message pattern="/user/**" access="hasRole('USER')"/> <3>
 </websocket-message-broker>
 ----
+<1> Any inbound CONNECT message requires a valid CSRF token to enforce the <<websocket-sameorigin,Same Origin Policy>>.
+<2> The `SecurityContextHolder` is populated with the user within the `simpUser` header attribute for any inbound request.
+<3> Our messages require the proper authorization. Specifically, any inbound message that starts with `/user/` will require `ROLE_USER`. You can find additional details on authorization in <<websocket-authorization>>
 ====
-
-This will ensure that:
-
-<1> Any inbound CONNECT message requires a valid CSRF token to enforce <<websocket-sameorigin,Same Origin Policy>>
-<2> The SecurityContextHolder is populated with the user within the simpUser header attribute for any inbound request.
-<3> Our messages require the proper authorization. Specifically, any inbound message that starts with "/user/" will require ROLE_USER. Additional details on authorization can be found in <<websocket-authorization>>
-====
-
 
 === Custom Authorization
 
@@ -293,7 +281,7 @@ Typically we need to include the CSRF token in an HTTP header or an HTTP paramet
 However, SockJS does not allow for these options.
 Instead, we must include the token in the Stomp headers.
 
-Applications can xref:servlet/exploits/csrf.adoc#servlet-csrf-include[obtain a CSRF token]  by accessing the request attribute named `_csrf`.
+Applications can xref:servlet/exploits/csrf.adoc#csrf-integration[obtain a CSRF token] by accessing the request attribute named `_csrf`.
 For example, the following allows accessing the `CsrfToken` in a JSP:
 
 ====
@@ -410,7 +398,7 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 ----
 ====
 
-On the other hand, if you are using the <<legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`,legacy-websocket-configuration>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
+On the other hand, if you are using the <<legacy-websocket-configuration,legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
 ====

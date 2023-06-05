@@ -10,17 +10,17 @@ dependencies {
 	api platform("org.springframework:spring-framework-bom:$springFrameworkVersion")
 	api platform("io.projectreactor:reactor-bom:$reactorVersion")
 	api platform("io.rsocket:rsocket-bom:1.1.3")
-	api platform("org.junit:junit-bom:5.9.2")
+	api platform("org.junit:junit-bom:5.9.3")
 	api platform("org.mockito:mockito-bom:4.8.1")
-	api platform("org.springframework.data:spring-data-bom:2022.0.4")
+	api platform("org.springframework.data:spring-data-bom:2022.0.6")
 	api platform("org.jetbrains.kotlin:kotlin-bom:$kotlinVersion")
 	api platform("org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.4")
-	api platform("com.fasterxml.jackson:jackson-bom:2.14.2")
+	api platform("com.fasterxml.jackson:jackson-bom:2.14.3")
 	constraints {
-		api "ch.qos.logback:logback-classic:1.4.6"
+		api "ch.qos.logback:logback-classic:1.4.7"
 		api "com.google.inject:guice:3.0"
-		api "com.nimbusds:nimbus-jose-jwt:9.24.4"
-		api "com.nimbusds:oauth2-oidc-sdk:9.43.1"
+		api "com.nimbusds:nimbus-jose-jwt:9.31"
+		api "com.nimbusds:oauth2-oidc-sdk:9.43.2"
 		api "com.squareup.okhttp3:mockwebserver:3.14.9"
 		api "com.squareup.okhttp3:okhttp:3.14.9"
 		api "com.unboundid:unboundid-ldapsdk:6.0.8"
@@ -68,7 +68,7 @@ dependencies {
 		api "org.skyscreamer:jsonassert:1.5.1"
 		api "org.slf4j:log4j-over-slf4j:1.7.36"
 		api "org.slf4j:slf4j-api:2.0.7"
-		api "org.springframework.ldap:spring-ldap-core:3.0.2"
+		api "org.springframework.ldap:spring-ldap-core:3.0.3"
 		api "org.synchronoss.cloud:nio-multipart-parser:1.1.0"
 		api 'org.apache.maven.resolver:maven-resolver-connector-basic:1.8.2'
 		api 'org.apache.maven.resolver:maven-resolver-impl:1.8.2'

@@ -163,7 +163,7 @@ Defaults to `true`.
 
 [[nsa-http-use-expressions]]
 * **use-expressions**
-Enables EL-expressions in the `access` attribute, as described in the chapter on xref:servlet/authorization/expression-based.adoc#el-access-web[expression-based access-control].
+Enables EL-expressions in the `access` attribute, as described in the chapter on xref:servlet/authorization/authorize-http-requests.adoc#authorization-expressions[expression-based access-control].
 The default value is true.
 
 

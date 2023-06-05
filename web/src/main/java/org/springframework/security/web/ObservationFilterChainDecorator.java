@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
@@ -38,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link org.springframework.security.web.FilterChainProxy.FilterChainDecorator} that
@@ -377,7 +379,6 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 				private void error(Throwable error) {
 					if (this.state.get() == 1) {
-						this.scope.close();
 						this.scope.getCurrentObservation().error(error);
 					}
 				}
@@ -569,13 +570,11 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		@Override
 		public KeyValues getLowCardinalityKeyValues(FilterChainObservationContext context) {
-			KeyValues kv = KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
+			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection());
-			if (context.getFilterName() != null) {
-				kv = kv.and(FILTER_NAME, context.getFilterName());
-			}
-			return kv;
+					.and(FILTER_SECTION_NAME, context.getFilterSection())
+					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
+							: KeyValue.NONE_VALUE);
 		}
 
 		@Override

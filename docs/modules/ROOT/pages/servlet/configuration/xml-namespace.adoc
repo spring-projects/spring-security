@@ -147,7 +147,7 @@ The `ROLE_` prefix is a marker that indicates that a simple comparison with the 
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
 We see later how the interpretation can vary. The interpretation of the comma-separated values in the `access` attribute depends on the which implementation of the <<ns-access-manager,`AccessDecisionManager`>> is used.
-Since Spring Security 3.0, you can also populate the attribute with an  xref:servlet/authorization/expression-based.adoc#el-access[EL expression].
+Since Spring Security 3.0, you can also populate the attribute with an  xref:servlet/authorization/authorize-http-requests.adoc#authorization-expressions[EL expression].
 
 
 [NOTE]
@@ -387,7 +387,7 @@ If you replace a namespace filter that requires an authentication entry point (t
 == Method Security
 Since version 2.0, Spring Security has substantial support for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-Since version 3.0, you can also make use of xref:servlet/authorization/expression-based.adoc#el-access[expression-based annotations].
+Since version 3.0, you can also make use of xref:servlet/authorization/method-security.adoc#authorizing-with-annotations[expression-based annotations].
 You can apply security to a single bean (by using the `intercept-methods` element to decorate the bean declaration), or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 [[ns-access-manager]]

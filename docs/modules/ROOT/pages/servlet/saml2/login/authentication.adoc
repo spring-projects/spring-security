@@ -114,7 +114,7 @@ fun securityFilters(val http: HttpSecurity, val converter: AuthenticationConvert
 == Setting a Clock Skew
 
 It's not uncommon for the asserting and relying parties to have system clocks that aren't perfectly synchronized.
-For that reason, you can configure `OpenSaml4AuthenticationProvider` 's default assertion validator with some tolerance:
+For that reason, you can configure ``OpenSaml4AuthenticationProvider``'s default assertion validator with some tolerance:
 
 ====
 .Java
@@ -260,7 +260,7 @@ open class SecurityConfig {
 <3> Third, return a custom authentication that includes the user details
 
 [NOTE]
-It's not required to call `OpenSaml4AuthenticationProvider` 's default authentication converter.
+It's not required to call ``OpenSaml4AuthenticationProvider``'s default authentication converter.
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from ``AttributeStatement``s as well as the single `ROLE_USER` authority.
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
@@ -293,7 +293,7 @@ After verifying the signature, it will:
 1. Validate `<AudienceRestriction>` and `<DelegationRestriction>` conditions
 2. Validate ``<SubjectConfirmation>``s, expect for any IP address information
 
-To perform additional validation, you can configure your own assertion validator that delegates to `OpenSaml4AuthenticationProvider` 's default and then performs its own.
+To perform additional validation, you can configure your own assertion validator that delegates to ``OpenSaml4AuthenticationProvider``'s default and then performs its own.
 
 [[servlet-saml2login-opensamlauthenticationprovider-onetimeuse]]
 For example, you can use OpenSAML's `OneTimeUseConditionValidator` to also validate a `<OneTimeUse>` condition, like so:
@@ -347,7 +347,7 @@ provider.setAssertionValidator { assertionToken ->
 ====
 
 [NOTE]
-While recommended, it's not necessary to call `OpenSaml4AuthenticationProvider` 's default assertion validator.
+While recommended, it's not necessary to call ``OpenSaml4AuthenticationProvider``'s default assertion validator.
 A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
 
 [[servlet-saml2login-opensamlauthenticationprovider-decryption]]
@@ -359,7 +359,7 @@ Spring Security decrypts `<saml2:EncryptedAssertion>`, `<saml2:EncryptedAttribut
 The response decrypter is for decrypting encrypted elements of the `<saml2:Response>`, like `<saml2:EncryptedAssertion>`.
 The assertion decrypter is for decrypting encrypted elements of the `<saml2:Assertion>`, like `<saml2:EncryptedAttribute>` and `<saml2:EncryptedID>`.
 
-You can replace `OpenSaml4AuthenticationProvider`'s default decryption strategy with your own.
+You can replace ``OpenSaml4AuthenticationProvider``'s default decryption strategy with your own.
 For example, if you have a separate service that decrypts the assertions in a `<saml2:Response>`, you can use it instead like so:
 
 ====

@@ -23,7 +23,7 @@ In Spring Security 3.0, it can be used in two ways.
 The legacy options from Spring Security 2.0 are also supported, but discouraged.
 ====
 
-The first approach uses a xref:servlet/authorization/expression-based.adoc#el-access-web[web-security expression], which is specified in the `access` attribute of the tag.
+The first approach uses a xref:servlet/authorization/authorize-http-requests.adoc#authorization-expressions[web-security expression], which is specified in the `access` attribute of the tag.
 The expression evaluation is delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available).
 So, for example, you might have:
 

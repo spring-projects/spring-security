@@ -168,7 +168,11 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Request components
 	 * @return the {@link LogoutRequestConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} or
+	 * {@code logoutRequest(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutRequestConfigurer logoutRequest() {
@@ -190,7 +194,11 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Get configurer for SAML 2.0 Logout Response components
 	 * @return the {@link LogoutResponseConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} or
+	 * {@code logoutResponse(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutResponseConfigurer logoutResponse() {
@@ -376,7 +384,11 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #logoutRequest(Customizer)} or
+		 * {@code logoutRequest(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {
@@ -448,7 +460,11 @@ public final class Saml2LogoutConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #logoutResponse(Customizer)} or
+		 * {@code logoutResponse(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public Saml2LogoutConfigurer<H> and() {

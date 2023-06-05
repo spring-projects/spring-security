@@ -24,6 +24,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -135,7 +136,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * X-Content-Type-Options: nosniff
 	 * </pre>
 	 * @return the {@link ContentTypeOptionsConfig} for additional customizations
-	 * @deprecated For removal in 7.0. Use {@link #contentTypeOptions(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #contentTypeOptions(Customizer)} or
+	 * {@code contentTypeOptions(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public ContentTypeOptionsConfig contentTypeOptions() {
@@ -168,7 +173,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 * @return the {@link XXssConfig} for additional customizations
-	 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} or
+	 * {@code xssProtection(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public XXssConfig xssProtection() {
@@ -201,7 +210,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <li>Expires: 0</li>
 	 * </ul>
 	 * @return the {@link CacheControlConfig} for additional customizations
-	 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} or
+	 * {@code cacheControl(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public CacheControlConfig cacheControl() {
@@ -254,7 +267,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
 	 * @return the {@link FrameOptionsConfig} for additional customizations
-	 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} or
+	 * {@code frameOptions(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public FrameOptionsConfig frameOptions() {
@@ -460,7 +477,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </pre>
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @since 4.2
-	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+	 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see ReferrerPolicyHeaderWriter
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -485,7 +506,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policy is null or empty
 	 * @since 4.2
-	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+	 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see ReferrerPolicyHeaderWriter
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -530,7 +555,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.1
-	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} instead.
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
+	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see ObjectPostProcessorConfiguration FeaturePolicyHeaderWriter
 	 */
 	@Deprecated
@@ -555,7 +584,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </ul>
 	 * @return the {@link PermissionsPolicyConfig} for additional configuration
 	 * @since 5.5
-	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
+	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see PermissionsPolicyHeaderWriter
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -813,7 +846,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of X-XSS-Protection and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
-		 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} or
+		 * {@code xssProtection(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
@@ -854,7 +891,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Cache Control and continuing configuration
 		 * of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
-		 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} or
+		 * {@code cacheControl(Customizer.withDefaults())} to stick with defaults. See the
+		 * <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
@@ -1026,7 +1067,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		/**
 		 * Allows continuing customizing the headers configuration.
 		 * @return the {@link HeadersConfigurer} for additional configuration
-		 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} or
+		 * {@code frameOptions(Customizer.withDefaults())} to stick with defaults. See the
+		 * <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
@@ -1280,7 +1325,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		}
 
 		/**
-		 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} instead
+		 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+		 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
 		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {

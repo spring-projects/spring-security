@@ -183,7 +183,7 @@ The following https://www.thymeleaf.org/[Thymeleaf] template produces an HTML lo
 There are a few key points about the default HTML form:
 
 * The form should perform a `post` to `/login`.
-* The form needs to include a xref:servlet/exploits/csrf.adoc#servlet-csrf[CSRF Token], which is xref:servlet/exploits/csrf.adoc#servlet-csrf-include-form-auto[automatically included] by Thymeleaf.
+* The form needs to include a xref:servlet/exploits/csrf.adoc#servlet-csrf[CSRF Token], which is xref:servlet/exploits/csrf.adoc#csrf-integration-form[automatically included] by Thymeleaf.
 * The form should specify the username in a parameter named `username`.
 * The form should specify the password in a parameter named `password`.
 * If the HTTP parameter named `error` is found, it indicates the user failed to provide a valid username or password.

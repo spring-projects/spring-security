@@ -285,7 +285,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link HeadersConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #headers(Customizer)} or
+	 * {@code headers(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see HeadersConfigurer
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -401,7 +404,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * on the classpath a {@link HandlerMappingIntrospector} is used.
 	 * @return the {@link CorsConfigurer} for customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #cors(Customizer)} or
+	 * {@code cors(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public CorsConfigurer<HttpSecurity> cors() throws Exception {
@@ -490,7 +496,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * could return true.
 	 * @return the {@link SessionManagementConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #sessionManagement(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #sessionManagement(Customizer)} or
+	 * {@code sessionManagement(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public SessionManagementConfigurer<HttpSecurity> sessionManagement() throws Exception {
@@ -614,7 +624,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link PortMapperConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #portMapper(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #portMapper(Customizer)} or
+	 * {@code portMapper(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see #requiresChannel()
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -747,7 +761,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * Servlet Container's documentation.
 	 * @return the {@link JeeConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #jee(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #jee(Customizer)} or
+	 * {@code jee(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public JeeConfigurer<HttpSecurity> jee() throws Exception {
@@ -860,7 +877,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link X509Configurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #x509(Customizer)} or
+	 * {@code x509(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public X509Configurer<HttpSecurity> x509() throws Exception {
@@ -940,7 +960,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link RememberMeConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #rememberMe(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #rememberMe(Customizer)} or
+	 * {@code rememberMe(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public RememberMeConfigurer<HttpSecurity> rememberMe() throws Exception {
@@ -1451,7 +1475,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * when using {@link EnableWebSecurity}.
 	 * @return the {@link RequestCacheConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #requestCache(Customizer)} or
+	 * {@code requestCache(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public RequestCacheConfigurer<HttpSecurity> requestCache() throws Exception {
@@ -1504,7 +1532,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link EnableWebSecurity}.
 	 * @return the {@link ExceptionHandlingConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #exceptionHandling(Customizer)} or
+	 * {@code exceptionHandling(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public ExceptionHandlingConfigurer<HttpSecurity> exceptionHandling() throws Exception {
@@ -1558,7 +1590,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * automatically applied when using {@link EnableWebSecurity}.
 	 * @return the {@link SecurityContextConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #securityContext(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #securityContext(Customizer)} or
+	 * {@code securityContext(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public SecurityContextConfigurer<HttpSecurity> securityContext() throws Exception {
@@ -1605,7 +1641,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * {@link EnableWebSecurity}.
 	 * @return the {@link ServletApiConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #servletApi(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #servletApi(Customizer)} or
+	 * {@code servletApi(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public ServletApiConfigurer<HttpSecurity> servletApi() throws Exception {
@@ -1663,7 +1703,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #csrf(Customizer)} or
+	 * {@code csrf(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public CsrfConfigurer<HttpSecurity> csrf() throws Exception {
@@ -1740,7 +1783,10 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link LogoutConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #logout(Customizer)} or
+	 * {@code logout(Customizer.withDefaults())} to stick with defaults. See the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public LogoutConfigurer<HttpSecurity> logout() throws Exception {
@@ -1881,7 +1927,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link AnonymousConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #anonymous(Customizer)} or
+	 * {@code anonymous(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public AnonymousConfigurer<HttpSecurity> anonymous() throws Exception {
@@ -2046,7 +2096,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link FormLoginConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #formLogin(Customizer)} or
+	 * {@code formLogin(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see FormLoginConfigurer#loginPage(String)
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
@@ -2224,7 +2278,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.2
-	 * @deprecated For removal in 7.0. Use {@link #saml2Login(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #saml2Login(Customizer)} or
+	 * {@code saml2Login(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2LoginConfigurer<HttpSecurity> saml2Login() throws Exception {
@@ -2456,7 +2514,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.6
-	 * @deprecated For removal in 7.0. Use {@link #saml2Logout(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #saml2Logout(Customizer)} or
+	 * {@code saml2Logout(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2LogoutConfigurer<HttpSecurity> saml2Logout() throws Exception {
@@ -2554,7 +2616,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link Saml2MetadataConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 6.1
-	 * @deprecated For removal in 7.0. Use {@link #saml2Metadata(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #saml2Metadata(Customizer)} or
+	 * {@code saml2Metadata(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public Saml2MetadataConfigurer<HttpSecurity> saml2Metadata() throws Exception {
@@ -2647,7 +2713,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link OAuth2LoginConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.0
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #oauth2Login(Customizer)} or
+	 * {@code oauth2Login(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-4.1">Section 4.1 Authorization Code
 	 * Grant</a>
@@ -2770,7 +2840,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * @return the {@link OAuth2ClientConfigurer} for further customizations
 	 * @throws Exception
 	 * @since 5.1
-	 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #oauth2Client(Customizer)} or
+	 * {@code oauth2Client(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see <a target="_blank" href=
 	 * "https://tools.ietf.org/html/rfc6749#section-1.1">OAuth 2.0 Authorization
 	 * Framework</a>
@@ -2930,7 +3004,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link ChannelSecurityConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #requiresChannel(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #requiresChannel(Customizer)} or
+	 * {@code requiresChannel(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public ChannelSecurityConfigurer<HttpSecurity>.ChannelRequestMatcherRegistry requiresChannel() throws Exception {
@@ -3027,7 +3105,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * </pre>
 	 * @return the {@link HttpBasicConfigurer} for further customizations
 	 * @throws Exception
-	 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #httpBasic(Customizer)} or
+	 * {@code httpBasic(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public HttpBasicConfigurer<HttpSecurity> httpBasic() throws Exception {
@@ -3358,7 +3440,11 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 	 * }
 	 * </pre>
 	 * @return the {@link RequestMatcherConfigurer} for further customizations
-	 * @deprecated For removal in 7.0. Use {@link #securityMatchers(Customizer)} instead
+	 * @deprecated For removal in 7.0. Use {@link #securityMatchers(Customizer)} or
+	 * {@code securityMatchers(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
 	@Deprecated(since = "6.1", forRemoval = true)
 	public RequestMatcherConfigurer securityMatchers() {
