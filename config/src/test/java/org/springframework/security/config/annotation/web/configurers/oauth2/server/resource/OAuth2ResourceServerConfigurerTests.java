@@ -1884,7 +1884,7 @@ public class OAuth2ResourceServerConfigurerTests {
 					.anyRequest().authenticated()
 				)
 				.oauth2Login(withDefaults())
-				.oauth2ResourceServer(OAuth2ResourceServerConfigurer::jwt);
+				.oauth2ResourceServer((oauth2) -> oauth2.jwt(withDefaults()));
 			return http.build();
 			// @formatter:on
 		}
