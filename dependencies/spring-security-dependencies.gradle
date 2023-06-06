@@ -38,7 +38,6 @@ dependencies {
 		api "jakarta.websocket:jakarta.websocket-client-api:2.1.0"
 		api "ldapsdk:ldapsdk:4.1"
 		api "net.sourceforge.htmlunit:htmlunit:2.66.0"
-		api "net.sourceforge.nekohtml:nekohtml:1.9.22"
 		api "org.apache.directory.server:apacheds-core-entry:1.5.5"
 		api "org.apache.directory.server:apacheds-core:1.5.5"
 		api "org.apache.directory.server:apacheds-protocol-ldap:1.5.5"
