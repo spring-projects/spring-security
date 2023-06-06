@@ -373,8 +373,8 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			Saml2ResponseValidatorResult result = Saml2ResponseValidatorResult.success();
 			List<String> statusCodes = getStatusCodes(response);
 			if (!StatusCode.SUCCESS.equals(statusCodes.get(0))) {
-				for( String statusCode : statusCodes ){
-					String message = String.format("Invalid status [%s] for SAML response [%s]",statusCode,
+				for (String statusCode : statusCodes) {
+					String message = String.format("Invalid status [%s] for SAML response [%s]", statusCode,
 							response.getID());
 					result = result.concat(new Saml2Error(Saml2ErrorCodes.INVALID_RESPONSE, message));
 				}
@@ -615,7 +615,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	}
 
 	private static List<String> getStatusCodes(Response response) {
-		List<String> statusCodes= new ArrayList<>();
+		List<String> statusCodes = new ArrayList<>();
 		if (response.getStatus() == null) {
 			statusCodes.add(StatusCode.SUCCESS);
 			return statusCodes;
@@ -624,12 +624,12 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 			statusCodes.add(StatusCode.SUCCESS);
 			return statusCodes;
 		}
-		StatusCode parentStatusCode= response.getStatus().getStatusCode();
+		StatusCode parentStatusCode = response.getStatus().getStatusCode();
 		statusCodes.add(parentStatusCode.getValue());
-		StatusCode childStatusCode= parentStatusCode.getStatusCode();
-		while(childStatusCode!=null){
+		StatusCode childStatusCode = parentStatusCode.getStatusCode();
+		while (childStatusCode != null) {
 			statusCodes.add(childStatusCode.getValue());
-			childStatusCode= childStatusCode.getStatusCode();
+			childStatusCode = childStatusCode.getStatusCode();
 		}
 
 		return statusCodes;
