@@ -120,5 +120,5 @@ public class SecurityConfig {
 The Lambda DSL was created to accomplish to following goals:
 
 - Automatic indentation makes the configuration more readable.
-- The is no need to chain configuration options using `.and()`
+- There is no need to chain configuration options using `.and()`
 - The Spring Security DSL has a similar configuration style to other Spring DSLs such as Spring Integration and Spring Cloud Gateway.
