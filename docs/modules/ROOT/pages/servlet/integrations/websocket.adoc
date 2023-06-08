@@ -72,8 +72,8 @@ A comparable XML based configuration looks like the following:
 ====
 [source,xml]
 ----
-<websocket-message-broker use-authorization-manager="true">
-    <intercept-message pattern="/user/**" access="authenticated"/>
+<websocket-message-broker use-authorization-manager="true"> <!--1--> <!--2-->
+    <intercept-message pattern="/user/**" access="authenticated"/> <!--3-->
 </websocket-message-broker>
 ----
 ====
