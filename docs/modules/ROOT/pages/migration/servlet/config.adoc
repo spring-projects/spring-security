@@ -969,6 +969,6 @@ public class SecurityConfig {
 
 And the same applies to every other annotation listed above.
 
-==== Other Scenarios
+=== Other Scenarios
 
 If you are using `AuthenticationManagerBuilder` for something more sophisticated, you can xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationmanager[publish your own `AuthenticationManager` `@Bean`] or wire an `AuthenticationManager` instance into the `HttpSecurity` DSL with {security-api-url}org/springframework/security/config/annotation/web/builders/HttpSecurity.html#authenticationManager(org.springframework.security.authentication.AuthenticationManager)[`HttpSecurity#authenticationManager`].
