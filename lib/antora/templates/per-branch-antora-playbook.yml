@@ -29,6 +29,9 @@ asciidoc:
   sourcemap: true
 urls:
   latest_version_segment: ''
+runtime:
+  log:
+    failure_level: warn
 ui:
   bundle:
     url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.2.2/ui-bundle.zip
