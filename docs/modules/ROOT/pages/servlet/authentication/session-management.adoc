@@ -80,7 +80,7 @@ If you try to use any of these methods, an exception will be thrown.
 
 By default, Spring Security stores the security context for you in the HTTP session. However, here are several reasons you may want to customize that:
 
-* You may want call individual setters on the `HttpSessionSecurityContextRepository` instance
+* You may want to call individual setters on the `HttpSessionSecurityContextRepository` instance
 * You may want to store the security context in a cache or database to enable horizontal scaling
 
 First, you need to create an implementation of `SecurityContextRepository` or use an existing implementation like `HttpSessionSecurityContextRepository`, then you can set it in `HttpSecurity`.
