@@ -177,7 +177,7 @@ public class NimbusOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 					+ contentType + "' is not compatible with JSON");
 		}
 
-		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCodeValue());
+		HTTPResponse response = new HTTPResponse(responseEntity.getStatusCode().value());
 		response.setHeader(HttpHeaders.CONTENT_TYPE, contentType.toString());
 		response.setContent(responseEntity.getBody());
 

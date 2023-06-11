@@ -94,7 +94,7 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 				.rootBeanDefinition(OAuth2AuthorizationRequestRedirectFilter.class);
 		String authorizationRequestResolverRef = (authorizationCodeGrantElt != null)
 				? authorizationCodeGrantElt.getAttribute(ATT_AUTHORIZATION_REQUEST_RESOLVER_REF) : null;
-		if (!StringUtils.isEmpty(authorizationRequestResolverRef)) {
+		if (StringUtils.hasLength(authorizationRequestResolverRef)) {
 			authorizationRequestRedirectFilterBuilder.addConstructorArgReference(authorizationRequestResolverRef);
 		}
 		else {
@@ -122,7 +122,7 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanMetadataElement getAuthorizationRequestRepository(Element element) {
 		String authorizationRequestRepositoryRef = (element != null)
 				? element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF) : null;
-		if (!StringUtils.isEmpty(authorizationRequestRepositoryRef)) {
+		if (StringUtils.hasLength(authorizationRequestRepositoryRef)) {
 			return new RuntimeBeanReference(authorizationRequestRepositoryRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
@@ -143,7 +143,7 @@ final class OAuth2ClientBeanDefinitionParser implements BeanDefinitionParser {
 	private BeanMetadataElement getAccessTokenResponseClient(Element element) {
 		String accessTokenResponseClientRef = (element != null)
 				? element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF) : null;
-		if (!StringUtils.isEmpty(accessTokenResponseClientRef)) {
+		if (StringUtils.hasLength(accessTokenResponseClientRef)) {
 			return new RuntimeBeanReference(accessTokenResponseClientRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(

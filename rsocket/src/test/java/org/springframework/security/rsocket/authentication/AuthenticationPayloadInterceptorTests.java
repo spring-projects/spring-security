@@ -89,8 +89,8 @@ public class AuthenticationPayloadInterceptorTests {
 		interceptor.intercept(exchange, authenticationPayloadChain).block();
 		Authentication authentication = authenticationPayloadChain.getAuthentication();
 		verify(this.authenticationManager).authenticate(this.authenticationArg.capture());
-		assertThat(this.authenticationArg.getValue()).isEqualToComparingFieldByField(
-				UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
+		assertThat(this.authenticationArg.getValue()).usingRecursiveComparison()
+				.isEqualTo(UsernamePasswordAuthenticationToken.unauthenticated("user", "password"));
 		assertThat(authentication).isEqualTo(expectedAuthentication);
 	}
 

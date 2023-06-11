@@ -45,7 +45,7 @@ final class OidcUserRequestUtils {
 	static boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
 		ClientRegistration clientRegistration = userRequest.getClientRegistration();
-		if (StringUtils.isEmpty(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())) {
+		if (!StringUtils.hasLength(clientRegistration.getProviderDetails().getUserInfoEndpoint().getUri())) {
 			return false;
 		}
 		// The Claims requested by the profile, email, address, and phone scope values

@@ -111,7 +111,7 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 	public Object resolveArgument(MethodParameter parameter, @Nullable ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, @Nullable WebDataBinderFactory binderFactory) {
 		String clientRegistrationId = this.resolveClientRegistrationId(parameter);
-		if (StringUtils.isEmpty(clientRegistrationId)) {
+		if (!StringUtils.hasLength(clientRegistrationId)) {
 			throw new IllegalArgumentException("Unable to resolve the Client Registration Identifier. "
 					+ "It must be provided via @RegisteredOAuth2AuthorizedClient(\"client1\") or "
 					+ "@RegisteredOAuth2AuthorizedClient(registrationId = \"client1\").");
@@ -137,10 +137,10 @@ public final class OAuth2AuthorizedClientArgumentResolver implements HandlerMeth
 		RegisteredOAuth2AuthorizedClient authorizedClientAnnotation = AnnotatedElementUtils
 				.findMergedAnnotation(parameter.getParameter(), RegisteredOAuth2AuthorizedClient.class);
 		Authentication principal = this.securityContextHolderStrategy.getContext().getAuthentication();
-		if (!StringUtils.isEmpty(authorizedClientAnnotation.registrationId())) {
+		if (StringUtils.hasLength(authorizedClientAnnotation.registrationId())) {
 			return authorizedClientAnnotation.registrationId();
 		}
-		if (!StringUtils.isEmpty(authorizedClientAnnotation.value())) {
+		if (StringUtils.hasLength(authorizedClientAnnotation.value())) {
 			return authorizedClientAnnotation.value();
 		}
 		if (principal != null && OAuth2AuthenticationToken.class.isAssignableFrom(principal.getClass())) {

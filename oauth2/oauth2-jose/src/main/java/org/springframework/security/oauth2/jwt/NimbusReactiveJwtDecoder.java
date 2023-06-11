@@ -203,7 +203,7 @@ public final class NimbusReactiveJwtDecoder implements ReactiveJwtDecoder {
 
 	private String getJwtValidationExceptionMessage(Collection<OAuth2Error> errors) {
 		for (OAuth2Error oAuth2Error : errors) {
-			if (!StringUtils.isEmpty(oAuth2Error.getDescription())) {
+			if (StringUtils.hasLength(oAuth2Error.getDescription())) {
 				return oAuth2Error.getDescription();
 			}
 		}

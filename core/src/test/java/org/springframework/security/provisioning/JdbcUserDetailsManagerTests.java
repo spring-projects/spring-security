@@ -145,7 +145,7 @@ public class JdbcUserDetailsManagerTests {
 				AuthorityUtils.createAuthorityList("A", "B"));
 		this.manager.createUser(user);
 		UserDetails user2 = this.manager.loadUserByUsername(user.getUsername());
-		assertThat(user2).isEqualToComparingFieldByField(user);
+		assertThat(user2).usingRecursiveComparison().isEqualTo(user);
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class JdbcUserDetailsManagerTests {
 				AuthorityUtils.createAuthorityList("D", "F", "E"));
 		this.manager.updateUser(newJoe);
 		UserDetails joe = this.manager.loadUserByUsername(newJoe.getUsername());
-		assertThat(joe).isEqualToComparingFieldByField(newJoe);
+		assertThat(joe).usingRecursiveComparison().isEqualTo(newJoe);
 		assertThat(this.cache.getUserMap().containsKey(newJoe.getUsername())).isFalse();
 	}
 

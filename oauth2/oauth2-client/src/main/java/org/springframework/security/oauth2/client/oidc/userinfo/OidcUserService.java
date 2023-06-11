@@ -157,7 +157,7 @@ public class OidcUserService implements OAuth2UserService<OidcUserRequest, OidcU
 	private boolean shouldRetrieveUserInfo(OidcUserRequest userRequest) {
 		// Auto-disabled if UserInfo Endpoint URI is not provided
 		ProviderDetails providerDetails = userRequest.getClientRegistration().getProviderDetails();
-		if (StringUtils.isEmpty(providerDetails.getUserInfoEndpoint().getUri())) {
+		if (!StringUtils.hasLength(providerDetails.getUserInfoEndpoint().getUri())) {
 			return false;
 		}
 		// The Claims requested by the profile, email, address, and phone scope values
