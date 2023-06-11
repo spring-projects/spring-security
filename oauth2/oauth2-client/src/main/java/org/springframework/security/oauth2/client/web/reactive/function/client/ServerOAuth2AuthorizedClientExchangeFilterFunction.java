@@ -537,7 +537,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
 			// @formatter:off
 			return Stream.of(wwwAuthenticateHeader)
-					.filter((header) -> !StringUtils.isEmpty(header))
+					.filter((header) -> StringUtils.hasLength(header))
 					.filter((header) -> header.toLowerCase().startsWith("bearer"))
 					.map((header) -> header.substring("bearer".length()))
 					.map((header) -> header.split(","))

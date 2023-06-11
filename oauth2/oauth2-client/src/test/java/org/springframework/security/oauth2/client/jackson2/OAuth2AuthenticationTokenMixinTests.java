@@ -229,7 +229,7 @@ public class OAuth2AuthenticationTokenMixinTests {
 		String authoritiesJson = (oidcUserAuthority != null) ? asJson(oidcUserAuthority)
 				: (oauth2UserAuthority != null) ? asJson(oauth2UserAuthority) : "";
 		if (!simpleAuthorities.isEmpty()) {
-			if (!StringUtils.isEmpty(authoritiesJson)) {
+			if (StringUtils.hasLength(authoritiesJson)) {
 				authoritiesJson += ",";
 			}
 			authoritiesJson += asJson(simpleAuthorities);

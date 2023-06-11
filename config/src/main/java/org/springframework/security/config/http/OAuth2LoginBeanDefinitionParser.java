@@ -175,7 +175,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		}
 		Object source = parserContext.extractSource(element);
 		String loginProcessingUrl = element.getAttribute(ATT_LOGIN_PROCESSING_URL);
-		if (!StringUtils.isEmpty(loginProcessingUrl)) {
+		if (StringUtils.hasLength(loginProcessingUrl)) {
 			WebConfigUtils.validateHttpRedirect(loginProcessingUrl, parserContext, source);
 			oauth2LoginAuthenticationFilterBuilder.addConstructorArgValue(loginProcessingUrl);
 		}
@@ -187,7 +187,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 				.rootBeanDefinition(OAuth2LoginAuthenticationProvider.class)
 				.addConstructorArgValue(accessTokenResponseClient).addConstructorArgValue(oauth2UserService);
 		String userAuthoritiesMapperRef = element.getAttribute(ATT_USER_AUTHORITIES_MAPPER_REF);
-		if (!StringUtils.isEmpty(userAuthoritiesMapperRef)) {
+		if (StringUtils.hasLength(userAuthoritiesMapperRef)) {
 			oauth2LoginAuthenticationProviderBuilder.addPropertyReference("authoritiesMapper",
 					userAuthoritiesMapperRef);
 		}
@@ -197,7 +197,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder oauth2AuthorizationRequestRedirectFilterBuilder = BeanDefinitionBuilder
 				.rootBeanDefinition(OAuth2AuthorizationRequestRedirectFilter.class);
 		String authorizationRequestResolverRef = element.getAttribute(ATT_AUTHORIZATION_REQUEST_RESOLVER_REF);
-		if (!StringUtils.isEmpty(authorizationRequestResolverRef)) {
+		if (StringUtils.hasLength(authorizationRequestResolverRef)) {
 			oauth2AuthorizationRequestRedirectFilterBuilder.addConstructorArgReference(authorizationRequestResolverRef);
 		}
 		else {
@@ -210,7 +210,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		this.oauth2AuthorizationRequestRedirectFilter = oauth2AuthorizationRequestRedirectFilterBuilder
 				.getBeanDefinition();
 		String authenticationSuccessHandlerRef = element.getAttribute(ATT_AUTHENTICATION_SUCCESS_HANDLER_REF);
-		if (!StringUtils.isEmpty(authenticationSuccessHandlerRef)) {
+		if (StringUtils.hasLength(authenticationSuccessHandlerRef)) {
 			oauth2LoginAuthenticationFilterBuilder.addPropertyReference("authenticationSuccessHandler",
 					authenticationSuccessHandlerRef);
 		}
@@ -222,7 +222,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 					successHandlerBuilder.getBeanDefinition());
 		}
 		String loginPage = element.getAttribute(ATT_LOGIN_PAGE);
-		if (!StringUtils.isEmpty(loginPage)) {
+		if (StringUtils.hasLength(loginPage)) {
 			WebConfigUtils.validateHttpRedirect(loginPage, parserContext, source);
 			this.oauth2LoginAuthenticationEntryPoint = BeanDefinitionBuilder
 					.rootBeanDefinition(LoginUrlAuthenticationEntryPoint.class).addConstructorArgValue(loginPage)
@@ -239,7 +239,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 			}
 		}
 		String authenticationFailureHandlerRef = element.getAttribute(ATT_AUTHENTICATION_FAILURE_HANDLER_REF);
-		if (!StringUtils.isEmpty(authenticationFailureHandlerRef)) {
+		if (StringUtils.hasLength(authenticationFailureHandlerRef)) {
 			oauth2LoginAuthenticationFilterBuilder.addPropertyReference("authenticationFailureHandler",
 					authenticationFailureHandlerRef);
 		}
@@ -262,7 +262,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement getAuthorizationRequestRepository(Element element) {
 		String authorizationRequestRepositoryRef = element.getAttribute(ATT_AUTHORIZATION_REQUEST_REPOSITORY_REF);
-		if (!StringUtils.isEmpty(authorizationRequestRepositoryRef)) {
+		if (StringUtils.hasLength(authorizationRequestRepositoryRef)) {
 			return new RuntimeBeanReference(authorizationRequestRepositoryRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(
@@ -290,11 +290,11 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 		BeanDefinitionBuilder oidcAuthProviderBuilder = BeanDefinitionBuilder.rootBeanDefinition(
 				"org.springframework.security.oauth2.client.oidc.authentication.OidcAuthorizationCodeAuthenticationProvider")
 				.addConstructorArgValue(accessTokenResponseClient).addConstructorArgValue(oidcUserService);
-		if (!StringUtils.isEmpty(userAuthoritiesMapperRef)) {
+		if (StringUtils.hasLength(userAuthoritiesMapperRef)) {
 			oidcAuthProviderBuilder.addPropertyReference("authoritiesMapper", userAuthoritiesMapperRef);
 		}
 		String jwtDecoderFactoryRef = element.getAttribute(ATT_JWT_DECODER_FACTORY_REF);
-		if (!StringUtils.isEmpty(jwtDecoderFactoryRef)) {
+		if (StringUtils.hasLength(jwtDecoderFactoryRef)) {
 			oidcAuthProviderBuilder.addPropertyReference("jwtDecoderFactory", jwtDecoderFactoryRef);
 		}
 		return oidcAuthProviderBuilder.getBeanDefinition();
@@ -302,7 +302,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement getOidcUserService(Element element) {
 		String oidcUserServiceRef = element.getAttribute(ATT_OIDC_USER_SERVICE_REF);
-		if (!StringUtils.isEmpty(oidcUserServiceRef)) {
+		if (StringUtils.hasLength(oidcUserServiceRef)) {
 			return new RuntimeBeanReference(oidcUserServiceRef);
 		}
 		return BeanDefinitionBuilder
@@ -312,7 +312,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement getOAuth2UserService(Element element) {
 		String oauth2UserServiceRef = element.getAttribute(ATT_USER_SERVICE_REF);
-		if (!StringUtils.isEmpty(oauth2UserServiceRef)) {
+		if (StringUtils.hasLength(oauth2UserServiceRef)) {
 			return new RuntimeBeanReference(oauth2UserServiceRef);
 		}
 		return BeanDefinitionBuilder
@@ -322,7 +322,7 @@ final class OAuth2LoginBeanDefinitionParser implements BeanDefinitionParser {
 
 	private BeanMetadataElement getAccessTokenResponseClient(Element element) {
 		String accessTokenResponseClientRef = element.getAttribute(ATT_ACCESS_TOKEN_RESPONSE_CLIENT_REF);
-		if (!StringUtils.isEmpty(accessTokenResponseClientRef)) {
+		if (StringUtils.hasLength(accessTokenResponseClientRef)) {
 			return new RuntimeBeanReference(accessTokenResponseClientRef);
 		}
 		return BeanDefinitionBuilder.rootBeanDefinition(

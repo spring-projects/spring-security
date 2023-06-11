@@ -101,7 +101,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				this.clientRegistration.build());
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
-		String body = actualRequest.getUtf8Body();
+		String body = actualRequest.getBody().readUtf8();
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("create");
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION))
@@ -155,7 +155,7 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		RecordedRequest actualRequest = this.server.takeRequest();
-		String body = actualRequest.getUtf8Body();
+		String body = actualRequest.getBody().readUtf8();
 		assertThat(response.getAccessToken()).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).containsExactly("create");
 		assertThat(actualRequest.getHeader(HttpHeaders.AUTHORIZATION)).isNull();
