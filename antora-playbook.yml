@@ -4,6 +4,7 @@ antora:
   - ./lib/antora/extensions/inject-collector-config.js
   - ./lib/antora/extensions/version-fix.js
   - require: '@springio/antora-extensions/latest-version-extension'
+  - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
   - '@antora/collector-extension'
   - '@antora/atlas-extension'
   - require: '@springio/antora-extensions/tabs-migration-extension'
