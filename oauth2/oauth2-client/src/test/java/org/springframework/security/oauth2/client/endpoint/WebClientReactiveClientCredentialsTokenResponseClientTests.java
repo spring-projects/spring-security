@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -446,6 +446,28 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 		OAuth2AccessTokenResponse accessTokenResponse = customClient.getTokenResponse(request).block();
 		assertThat(accessTokenResponse.getAccessToken()).isNotNull();
 
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+		OAuth2ClientCredentialsGrantRequest clientCredentialsGrantRequest = new OAuth2ClientCredentialsGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
 	}
 
 }

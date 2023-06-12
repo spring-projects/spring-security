@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -365,6 +365,26 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
 		assertThat(response).isNotNull();
 		assertThat(response.getAccessToken().getScopes()).isEmpty();
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.client.getTokenResponse(jwtBearerGrantRequest).block());
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.client.getTokenResponse(jwtBearerGrantRequest).block());
 	}
 
 	private void enqueueJson(String body) {
