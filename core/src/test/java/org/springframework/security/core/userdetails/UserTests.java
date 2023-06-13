@@ -18,19 +18,21 @@ package org.springframework.security.core.userdetails;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
-
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
+
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.util.CollectionUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -45,14 +47,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 public class UserTests {
 
 	private static final List<GrantedAuthority> ROLE_12 = AuthorityUtils.createAuthorityList("ROLE_ONE", "ROLE_TWO");
-
-	public static Stream<Arguments> testNewAuthoritiesShouldReplacePreviousAuthorities() {
-		return Stream.of(
-				Arguments.of((Object) new String[0]),
-				Arguments.of((Object) new String[]{"B7", "C12", "role"}),
-				Arguments.of((Object) new String[]{"A1"})
-		);
-	}
 
 	@Test
 	public void equalsReturnsTrueIfUsernamesAreTheSame() {
@@ -107,16 +101,28 @@ public class UserTests {
 				.authorities(new String[] { null, null }).build());
 	}
 
+	// gh-12533
 	@ParameterizedTest
-	@MethodSource
-	public void testNewAuthoritiesShouldReplacePreviousAuthorities(String[] authorities) {
-		UserDetails parent = User.builder().username("user").password("password").authorities("A1", "A2", "B1").build();
-		User.UserBuilder builder = User.withUserDetails(parent).authorities(authorities);
+	@NullSource
+	@ValueSource(strings = { "ROLE_USER,ROLE_ADMIN,read", "read" })
+	public void withUserDetailsWhenAuthoritiesThenOverridesPreviousAuthorities(String arg) {
+		// @formatter:off
+		UserDetails parent = User.builder()
+				.username("user")
+				.password("password")
+				.authorities("one", "two", "three")
+				.build();
+		// @formatter:on
+		String[] authorities = (arg != null) ? arg.split(",") : new String[0];
+		User.UserBuilder builder = User.withUserDetails(parent);
 		UserDetails user = builder.build();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly("one", "two", "three");
+		user = builder.authorities(authorities).build();
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
 		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities)).build();
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
-		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities).toArray(GrantedAuthority[]::new)).build();
+		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities).toArray(GrantedAuthority[]::new))
+				.build();
 		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
 	}
 
