@@ -1,6 +1,6 @@
 name: ROOT
 version: true
-title: Documentation
+title: Spring Security
 nav:
 - modules/ROOT/nav.adoc
 ext:
