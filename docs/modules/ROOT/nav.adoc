@@ -125,6 +125,7 @@
 **** xref:servlet/appendix/namespace/method-security.adoc[Method Security]
 **** xref:servlet/appendix/namespace/ldap.adoc[LDAP Security]
 **** xref:servlet/appendix/namespace/websocket.adoc[WebSocket Security]
+*** xref:servlet/appendix/proxy-server.adoc[Proxy Server Configuration]
 *** xref:servlet/appendix/faq.adoc[FAQ]
 * xref:reactive/index.adoc[Reactive Applications]
 ** xref:reactive/getting-started.adoc[Getting Started]
