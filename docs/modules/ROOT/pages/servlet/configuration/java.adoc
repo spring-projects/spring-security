@@ -304,7 +304,7 @@ public class Config {
 
 The code is invoked in the following order:
 
-* Code in the `Config.configure` method is invoked
+* Code in the `Config.filterChain` method is invoked
 * Code in the `MyCustomDsl.init` method is invoked
 * Code in the `MyCustomDsl.configure` method is invoked
 
