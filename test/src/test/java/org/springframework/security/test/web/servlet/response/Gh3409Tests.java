@@ -78,7 +78,7 @@ public class Gh3409Tests {
 	}
 
 	@Test
-	public void unauthenticatedNullAuthenitcation() throws Exception {
+	public void unauthenticatedNullAuthentication() throws Exception {
 		// @formatter:off
 		this.mockMvc
 			.perform(get("/")
