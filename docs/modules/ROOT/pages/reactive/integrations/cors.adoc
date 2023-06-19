@@ -10,8 +10,10 @@ The easiest way to ensure that CORS is handled first is to use the `CorsWebFilte
 Users can integrate the `CorsWebFilter` with Spring Security by providing a `CorsConfigurationSource`.
 For example, the following will integrate CORS support within Spring Security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -25,7 +27,8 @@ CorsConfigurationSource corsConfigurationSource() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -38,12 +41,14 @@ fun corsConfigurationSource(): CorsConfigurationSource {
     return source
 }
 ----
-====
+======
 
 The following will disable the CORS integration within Spring Security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -55,7 +60,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -68,4 +74,4 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======

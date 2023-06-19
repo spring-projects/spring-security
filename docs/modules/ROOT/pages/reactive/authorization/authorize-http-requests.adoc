@@ -6,8 +6,10 @@ By default, Spring Security’s authorization will require all requests to be au
 The explicit configuration looks like:
 
 .All Requests Require Authenticated User
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -22,7 +24,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -36,14 +39,16 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 
 We can configure Spring Security to have different rules by adding more rules in order of precedence.
 
 .Multiple Authorize Requests Rules
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.authorization.AuthorityReactiveAuthorizationManager.hasRole;
@@ -68,7 +73,8 @@ SecurityWebFilterChain springWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -88,7 +94,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 <1> There are multiple authorization rules specified.
 Each rule is considered in the order they were declared.

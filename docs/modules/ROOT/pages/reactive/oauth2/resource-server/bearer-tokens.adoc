@@ -10,8 +10,10 @@ For example, you may have a need to read the bearer token from a custom header.
 To achieve this, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL, as you can see in the following example:
 
 .Custom Bearer Token Header
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
@@ -22,7 +24,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val converter = ServerBearerTokenAuthenticationConverter()
@@ -33,15 +36,17 @@ return http {
     }
 }
 ----
-====
+======
 
 == Bearer Token Propagation
 
 Now that you're in possession of a bearer token, it might be handy to pass that to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`, which you can see in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -52,7 +57,8 @@ public WebClient rest() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -62,15 +68,17 @@ fun rest(): WebClient {
             .build()
 }
 ----
-====
+======
 
 When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
 Then, it will propagate that token in the `Authorization` header.
 
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -79,7 +87,8 @@ this.rest.get()
         .bodyToMono(String.class)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 this.rest.get()
@@ -87,14 +96,16 @@ this.rest.get()
         .retrieve()
         .bodyToMono<String>()
 ----
-====
+======
 
 Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -104,7 +115,8 @@ this.rest.get()
         .bodyToMono(String.class)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 rest.get()
@@ -113,7 +125,7 @@ rest.get()
         .retrieve()
         .bodyToMono<String>()
 ----
-====
+======
 
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 

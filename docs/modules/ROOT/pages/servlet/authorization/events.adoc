@@ -9,8 +9,10 @@ To listen for these events, you must first publish an `AuthorizationEventPublish
 Spring Security's `SpringAuthorizationEventPublisher` will probably do fine.
 It comes publishes authorization events using Spring's `ApplicationEventPublisher`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -20,7 +22,8 @@ public AuthorizationEventPublisher authorizationEventPublisher
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -29,12 +32,14 @@ fun authorizationEventPublisher
     return SpringAuthorizationEventPublisher(applicationEventPublisher)
 }
 ----
-====
+======
 
 Then, you can use Spring's `@EventListener` support:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -47,7 +52,8 @@ public class AuthenticationEvents {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -59,7 +65,7 @@ class AuthenticationEvents {
     }
 }
 ----
-====
+======
 
 [[authorization-granted-events]]
 == Authorization Granted Events
@@ -71,8 +77,10 @@ In fact, publishing these events will likely require some business logic on your
 You can create your own event publisher that filters success events.
 For example, the following publisher only publishes authorization grants where `ROLE_ADMIN` was required:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -117,7 +125,8 @@ public class MyAuthorizationEventPublisher implements AuthorizationEventPublishe
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -157,4 +166,4 @@ class MyAuthorizationEventPublisher(val publisher: ApplicationEventPublisher,
     }
 }
 ----
-====
+======

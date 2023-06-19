@@ -31,8 +31,10 @@ If it contains a value, then it is used as the currently authenticated user.
 The simplest way to indicate a user is authenticated is to set the `SecurityContextHolder` directly.
 
 .Setting `SecurityContextHolder`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SecurityContext context = SecurityContextHolder.createEmptyContext(); // <1>
@@ -43,7 +45,8 @@ context.setAuthentication(authentication);
 SecurityContextHolder.setContext(context); // <3>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val context: SecurityContext = SecurityContextHolder.createEmptyContext() // <1>
@@ -52,7 +55,7 @@ context.authentication = authentication
 
 SecurityContextHolder.setContext(context) // <3>
 ----
-====
+======
 
 <1> We start by creating an empty `SecurityContext`.
 It is important to create a new `SecurityContext` instance instead of using `SecurityContextHolder.getContext().setAuthentication(authentication)` to avoid race conditions across multiple threads.
@@ -66,8 +69,10 @@ Spring Security will use this information for xref:servlet/authorization/index.a
 If you wish to obtain information about the authenticated principal, you can do so by accessing the `SecurityContextHolder`.
 
 .Access Currently Authenticated User
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SecurityContext context = SecurityContextHolder.getContext();
@@ -77,7 +82,8 @@ Object principal = authentication.getPrincipal();
 Collection<? extends GrantedAuthority> authorities = authentication.getAuthorities();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val context = SecurityContextHolder.getContext()
@@ -86,7 +92,7 @@ val username = authentication.name
 val principal = authentication.principal
 val authorities = authentication.authorities
 ----
-====
+======
 
 // FIXME: add links to HttpServletRequest.getRemoteUser() and @CurrentSecurityContext @AuthenticationPrincipal
 

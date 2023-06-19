@@ -9,8 +9,10 @@ For example, `oauth2Login().authorizationEndpoint()` allows configuring the _Aut
 The following code shows an example:
 
 .Advanced OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -38,7 +40,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -66,7 +69,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 The main goal of the `oauth2Login()` DSL was to closely align with the naming, as defined in the specifications.
 
@@ -90,8 +93,10 @@ These claims are normally represented by a JSON object that contains a collectio
 The following code shows the complete configuration options available for the `oauth2Login()` DSL:
 
 .OAuth2 Login Configuration Options
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -127,7 +132,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -163,14 +169,13 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 In addition to the `oauth2Login()` DSL, XML configuration is also supported.
 
 The following code shows the complete configuration options available in the xref:servlet/appendix/namespace/http.adoc#nsa-oauth2-login[ security namespace]:
 
 .OAuth2 Login XML Configuration Options
-====
 [source,xml]
 ----
 <http>
@@ -190,7 +195,6 @@ The following code shows the complete configuration options available in the xre
 				  jwt-decoder-factory-ref="jwtDecoderFactory"/>
 </http>
 ----
-====
 
 The following sections go into more detail on each of the configuration options available:
 
@@ -227,8 +231,10 @@ To override the default login page, configure `oauth2Login().loginPage()` and (o
 The following listing shows an example:
 
 .OAuth2 Login Page Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -250,7 +256,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -271,7 +278,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -280,7 +288,7 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 [IMPORTANT]
 You need to provide a `@Controller` with a `@RequestMapping("/login/oauth2")` that is capable of rendering the custom login page.
@@ -313,8 +321,10 @@ The default Authorization Response `baseUri` (redirection endpoint) is `*/login/
 If you would like to customize the Authorization Response `baseUri`, configure it as shown in the following example:
 
 .Redirection Endpoint Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -334,7 +344,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -354,7 +365,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -363,7 +375,7 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 [IMPORTANT]
 ====
@@ -371,7 +383,10 @@ You also need to ensure the `ClientRegistration.redirectUri` matches the custom 
 
 The following listing shows an example:
 
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
@@ -381,7 +396,8 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
@@ -390,6 +406,7 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
     .redirectUri("{baseUrl}/login/oauth2/callback/{registrationId}")
     .build()
 ----
+======
 ====
 
 
@@ -423,8 +440,10 @@ There are a couple of options to choose from when mapping user authorities:
 Provide an implementation of `GrantedAuthoritiesMapper` and configure it as shown in the following example:
 
 .Granted Authorities Mapper Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -473,7 +492,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -512,7 +532,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -521,13 +542,15 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 Alternatively, you may register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the configuration, as shown in the following example:
 
 .Granted Authorities Mapper Bean Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -547,7 +570,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -567,7 +591,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
 ==== Delegation-based strategy with OAuth2UserService
@@ -579,8 +603,10 @@ The `OAuth2UserRequest` (and `OidcUserRequest`) provides you access to the assoc
 The following example shows how to implement and configure a delegation-based strategy using an OpenID Connect 1.0 UserService:
 
 .OAuth2UserService Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -621,7 +647,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -662,7 +689,8 @@ class OAuth2LoginSecurityConfig  {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -671,7 +699,7 @@ class OAuth2LoginSecurityConfig  {
     />
 </http>
 ----
-====
+======
 
 
 [[oauth2login-advanced-oauth2-user-service]]
@@ -701,8 +729,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 
 Whether you customize `DefaultOAuth2UserService` or provide your own implementation of `OAuth2UserService`, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -726,7 +756,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -750,7 +781,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-advanced-oidc-user-service]]
@@ -764,8 +795,10 @@ If you need to customize the pre-processing of the UserInfo Request and/or the p
 
 Whether you customize `OidcUserService` or provide your own implementation of `OAuth2UserService` for OpenID Connect 1.0 Provider's, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -789,7 +822,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -813,7 +847,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-advanced-idtoken-verify]]
@@ -830,8 +864,10 @@ The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` a
 
 The following code shows how to configure the `OidcIdTokenDecoderFactory` `@Bean` to default to `MacAlgorithm.HS256` for all `ClientRegistration`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -842,7 +878,8 @@ public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -852,7 +889,7 @@ fun idTokenDecoderFactory(): JwtDecoderFactory<ClientRegistration?> {
     return idTokenDecoderFactory
 }
 ----
-====
+======
 
 [NOTE]
 For MAC based algorithms such as `HS256`, `HS384` or `HS512`, the `client-secret` corresponding to the `client-id` is used as the symmetric key for signature verification.
@@ -888,8 +925,10 @@ spring:
 
 ...and the `OidcClientInitiatedLogoutSuccessHandler`, which implements RP-Initiated Logout, may be configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -924,7 +963,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -956,7 +996,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 NOTE: `OidcClientInitiatedLogoutSuccessHandler` supports the `+{baseUrl}+` placeholder.
 If used, the application's base URL, like `https://app.example.org`, will replace it at request time.
