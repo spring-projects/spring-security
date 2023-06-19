@@ -17,8 +17,8 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import io.micrometer.observation.ObservationRegistry;
-import org.aopalliance.intercept.MethodInterceptor;
 
+import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
@@ -52,8 +52,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	Advisor preFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
@@ -65,8 +64,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	Advisor preAuthorizeAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
@@ -83,8 +81,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	Advisor postAuthorizeAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
@@ -101,8 +98,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
-			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	Advisor postFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
