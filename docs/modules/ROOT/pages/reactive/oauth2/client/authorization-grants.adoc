@@ -111,8 +111,10 @@ OPTIONAL. Space delimited, case sensitive list of ASCII string values that speci
 
 The following example shows how to configure the `DefaultServerOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -155,7 +157,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -196,7 +199,7 @@ class SecurityConfig {
     }
 }
 ----
-====
+======
 
 For the simple use case, where the additional request parameter is always the same for a specific provider, it may be added directly in the `authorization-uri` property.
 
@@ -221,8 +224,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 
 The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example, and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
@@ -232,7 +237,8 @@ private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomi
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationRequest.Builder> {
@@ -245,7 +251,7 @@ private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationReques
     }
 }
 ----
-====
+======
 
 
 === Storing the Authorization Request
@@ -260,8 +266,10 @@ The default implementation of `ServerAuthorizationRequestRepository` is `WebSess
 If you have a custom implementation of `ServerAuthorizationRequestRepository`, you may configure it as shown in the following example:
 
 .ServerAuthorizationRequestRepository Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -280,7 +288,8 @@ public class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -299,7 +308,7 @@ class OAuth2ClientSecurityConfig {
     }
 }
 ----
-====
+======
 
 === Requesting an Access Token
 
@@ -335,8 +344,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 Whether you customize `WebClientReactiveAuthorizationCodeTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
 
 .Access Token Response Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -363,7 +374,8 @@ public class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -389,7 +401,7 @@ class OAuth2ClientSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2Client-refresh-token-grant]]
@@ -433,8 +445,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 Whether you customize `WebClientReactiveRefreshTokenTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you’ll need to configure it as shown in the following example:
 
 .Access Token Response Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -451,7 +465,8 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -466,7 +481,7 @@ val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveO
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().refreshToken()` configures a `RefreshTokenReactiveOAuth2AuthorizedClientProvider`,
@@ -516,8 +531,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 
 Whether you customize `WebClientReactiveClientCredentialsTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -533,7 +550,8 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -547,7 +565,7 @@ val authorizedClientProvider: ReactiveOAuth2AuthorizedClientProvider = ReactiveO
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials()` configures a `ClientCredentialsReactiveOAuth2AuthorizedClientProvider`,
@@ -576,8 +594,10 @@ spring:
 
 ...and the `ReactiveOAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -599,7 +619,8 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -615,12 +636,14 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 You may obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -644,7 +667,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class OAuth2ClientController {
@@ -666,7 +690,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 `ServerWebExchange` is an OPTIONAL attribute.
@@ -713,8 +737,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 
 Whether you customize `WebClientReactivePasswordTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -731,7 +757,8 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val passwordTokenResponseClient: ReactiveOAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> = ...
@@ -745,7 +772,7 @@ val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.bui
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 `ReactiveOAuth2AuthorizedClientProviderBuilder.builder().password()` configures a `PasswordReactiveOAuth2AuthorizedClientProvider`,
@@ -774,8 +801,10 @@ spring:
 
 ...and the `ReactiveOAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -819,7 +848,9 @@ private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttri
 	};
 }
 ----
-.Kotlin
+
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -858,12 +889,14 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, Mono<Mut
     }
 }
 ----
-====
+======
 
 You may obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -887,7 +920,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -909,7 +943,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 `ServerWebExchange` is an OPTIONAL attribute.
@@ -955,8 +989,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 
 Whether you customize `WebClientReactiveJwtBearerTokenResponseClient` or provide your own implementation of `ReactiveOAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -975,7 +1011,8 @@ ReactiveOAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -992,7 +1029,7 @@ val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.bui
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 === Using the Access Token
 
@@ -1017,8 +1054,10 @@ spring:
 
 ...and the `OAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1043,7 +1082,8 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1060,12 +1100,14 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 You may obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @RestController
@@ -1087,7 +1129,8 @@ public class OAuth2ResourceServerController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class OAuth2ResourceServerController {
@@ -1106,7 +1149,7 @@ class OAuth2ResourceServerController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 `JwtBearerReactiveOAuth2AuthorizedClientProvider` resolves the `Jwt` assertion via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.

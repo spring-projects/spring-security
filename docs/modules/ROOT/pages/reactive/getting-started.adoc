@@ -14,8 +14,10 @@ For your convenience, you can download a minimal Reactive Spring Boot + Spring S
 
 You can add Spring Security to your Spring Boot project by adding `spring-boot-starter-security`.
 
-====
-.Maven
+[tabs]
+======
+Maven::
++
 [source,xml,role="primary"]
 ----
 <dependency>
@@ -24,12 +26,13 @@ You can add Spring Security to your Spring Boot project by adding `spring-boot-s
 </dependency>
 ----
 
-.Gradle
+Gradle::
++
 [source,groovy,role="secondary"]
 ----
     implementation 'org.springframework.boot:spring-boot-starter-security'
 ----
-====
+======
 
 
 [[servlet-hello-starting]]
@@ -38,10 +41,12 @@ You can add Spring Security to your Spring Boot project by adding `spring-boot-s
 You can now https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#using-boot-running-with-the-maven-plugin[run the Spring Boot application] by using the Maven Plugin's `run` goal.
 The following example shows how to do so (and the beginning of the output from doing so):
 
-.Running Spring Boot Application
 
-====
-.Maven
+.Running Spring Boot Application
+[tabs]
+======
+Maven::
++
 [source,bash,role="primary"]
 ----
 $ ./mvnw spring-boot:run
@@ -53,7 +58,8 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 ...
 ----
 
-.Gradle
+Gradle::
++
 [source,bash,role="secondary"]
 ----
 $ ./gradlew bootRun
@@ -64,7 +70,7 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 
 ...
 ----
-====
+======
 
 [[authenticating]]
 == Authenticating

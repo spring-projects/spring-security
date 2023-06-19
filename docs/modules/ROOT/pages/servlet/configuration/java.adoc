@@ -19,7 +19,6 @@ The first step is to create our Spring Security Java Configuration.
 The configuration creates a Servlet Filter known as the `springSecurityFilterChain`, which is responsible for all the security (protecting the application URLs, validating submitted username and passwords, redirecting to the log in form, and so on) within your application.
 The following example shows the most basic example of a Spring Security Java Configuration:
 
-====
 [source,java]
 ----
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +39,6 @@ public class WebSecurityConfig {
 	}
 }
 ----
-====
 
 This configuration is not complex or extensive, but it does a lot:
 
@@ -78,7 +76,6 @@ The way in which we use `AbstractSecurityWebApplicationInitializer` differs depe
 
 If you are not using Spring or Spring MVC, you need to pass the `WebSecurityConfig` to the superclass to ensure the configuration is picked up:
 
-====
 [source,java]
 ----
 import org.springframework.security.web.context.*;
@@ -91,7 +88,6 @@ public class SecurityWebApplicationInitializer
 	}
 }
 ----
-====
 
 The `SecurityWebApplicationInitializer`:
 
@@ -106,7 +102,6 @@ If we use the previous configuration, we would get an error.
 Instead, we should register Spring Security with the existing `ApplicationContext`.
 For example, if we use Spring MVC, our `SecurityWebApplicationInitializer` could look something like the following:
 
-====
 [source,java]
 ----
 import org.springframework.security.web.context.*;
@@ -116,14 +111,12 @@ public class SecurityWebApplicationInitializer
 
 }
 ----
-====
 
 This onlys register the `springSecurityFilterChain` for every URL in your application.
 After that, we need to ensure that `WebSecurityConfig` was loaded in our existing `ApplicationInitializer`.
 For example, if we use Spring MVC it is added in the `getRootConfigClasses()`:
 
 [[message-web-application-inititializer-java]]
-====
 [source,java]
 ----
 public class MvcWebApplicationInitializer extends
@@ -137,7 +130,6 @@ public class MvcWebApplicationInitializer extends
 	// ... other overrides ...
 }
 ----
-====
 
 [[jc-httpsecurity]]
 == HttpSecurity
@@ -148,7 +140,6 @@ How does Spring Security know we want to support form-based authentication?
 Actually, there is a configuration class (called `SecurityFilterChain`) that is being invoked behind the scenes.
 It is configured with the following default implementation:
 
-====
 [source,java]
 ----
 @Bean
@@ -162,7 +153,6 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	return http.build();
 }
 ----
-====
 
 The default configuration (shown in the preceding example):
 
@@ -172,7 +162,6 @@ The default configuration (shown in the preceding example):
 
 Note that this configuration is parallels the XML Namespace configuration:
 
-====
 [source,xml]
 ----
 <http>
@@ -181,7 +170,6 @@ Note that this configuration is parallels the XML Namespace configuration:
 	<http-basic />
 </http>
 ----
-====
 
 == Multiple HttpSecurity Instances
 
@@ -189,7 +177,6 @@ We can configure multiple `HttpSecurity` instances just as we can have multiple 
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
 The following example has a different configuration for URL's that start with `/api/`.
 
-====
 [source,java]
 ----
 @Configuration
@@ -234,14 +221,12 @@ public class MultiHttpSecurityConfig {
 <4> Create another instance of `SecurityFilterChain`.
 If the URL does not start with `/api/`, this configuration is used.
 This configuration is considered after `apiFilterChain`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
-====
 
 [[jc-custom-dsls]]
 == Custom DSLs
 
 You can provide your own custom DSLs in Spring Security:
 
-====
 [source,java]
 ----
 public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
@@ -274,7 +259,6 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 	}
 }
 ----
-====
 
 [NOTE]
 ====
@@ -283,7 +267,6 @@ This is actually how methods like `HttpSecurity.authorizeRequests()` are impleme
 
 You can then use the custom DSL:
 
-====
 [source,java]
 ----
 @Configuration
@@ -300,7 +283,6 @@ public class Config {
 	}
 }
 ----
-====
 
 The code is invoked in the following order:
 
@@ -312,16 +294,13 @@ If you want, you can have `HttpSecurity` add `MyCustomDsl` by default by using `
 For example, you can create a resource on the classpath named `META-INF/spring.factories` with the following contents:
 
 .META-INF/spring.factories
-====
 [source]
 ----
 org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer = sample.MyCustomDsl
 ----
-====
 
 You can also explicit disable the default:
 
-====
 [source,java]
 ----
 @Configuration
@@ -336,7 +315,6 @@ public class Config {
 	}
 }
 ----
-====
 
 [[post-processing-configured-objects]]
 == Post Processing Configured Objects
@@ -349,7 +327,6 @@ While there are good reasons to not directly expose every property, users may st
 To address this issue, Spring Security introduces the concept of an `ObjectPostProcessor`, which can be used to modify or replace many of the `Object` instances created by the Java Configuration.
 For example, to configure the `filterSecurityPublishAuthorizationSuccess` property on `FilterSecurityInterceptor`, you can use the following:
 
-====
 [source,java]
 ----
 @Bean
@@ -368,4 +345,3 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	return http.build();
 }
 ----
-====

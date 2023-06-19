@@ -9,7 +9,6 @@ The Lambda DSL is present in Spring Security since version 5.2, and it allows HT
 You may have seen this style of configuration in the Spring Security documentation or samples.
 Let us take a look at how a lambda configuration of HTTP security compares to the previous configuration style.
 
-====
 [source,java]
 .Configuration using lambdas
 ----
@@ -34,9 +33,7 @@ public class SecurityConfig {
     }
 }
 ----
-====
 
-====
 [source,java]
 .Equivalent configuration without using lambdas
 ----
@@ -61,7 +58,6 @@ public class SecurityConfig {
     }
 }
 ----
-====
 
 The Lambda DSL is the preferred way to configure Spring Security, the prior configuration style will not be valid in Spring Security 7 where the usage of the Lambda DSL will be required.
 This has been done mainly for a couple of reasons:
@@ -88,7 +84,6 @@ This is a shortcut for the lambda expression `it -> {}`.
 You may also configure WebFlux security using lambdas in a similar manner.
 Below is an example configuration using lambdas.
 
-====
 [source,java]
 .WebFlux configuration using lambdas
 ----
@@ -113,7 +108,6 @@ public class SecurityConfig {
 
 }
 ----
-====
 
 === Goals of the Lambda DSL
 

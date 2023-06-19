@@ -9,7 +9,6 @@ Using `@PreAuthorize` and `@PostAuthorize` annotations require additional hints 
 
 Let's take an example where you have a custom implementation of `UserDetails` class as follows and that implementation is returned by your `UserDetailsService`:
 
-====
 .Custom Implementation of UserDetails
 [source,java]
 ----
@@ -28,11 +27,9 @@ public class CustomUserDetails implements UserDetails {
     // constructors, getters and setters
 }
 ----
-====
 
 And you want to use the `isAdmin()` method inside a `@PreAuthorize` annotation as follows:
 
-====
 .Using isAdmin() to secure a method
 [source,java]
 ----
@@ -41,7 +38,6 @@ public String hello() {
     return "Hello!";
 }
 ----
-====
 
 [NOTE]
 ====
@@ -68,7 +64,6 @@ In this example we are going to use {spring-framework-reference-url}core.html#co
 You might need to register all your classes that you want to use in your `@PreAuthorize` and `@PostAuthorize` annotations.
 ====
 
-====
 .Using @RegisterReflectionForBinding
 [source,java]
 ----
@@ -78,6 +73,5 @@ public class MyConfiguration {
     //...
 }
 ----
-====
 
 And that's it, now you can run the native image of your application and it should work as expected.

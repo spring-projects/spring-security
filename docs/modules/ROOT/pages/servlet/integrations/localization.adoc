@@ -12,7 +12,6 @@ Your `ApplicationContext` should refer to this, as Spring Security classes imple
 Usually, all you need to do is register a bean inside your application context to refer to the messages.
 The following listing shows an example:
 
-====
 [source,xml]
 ----
 <bean id="messageSource"
@@ -20,7 +19,6 @@ The following listing shows an example:
 <property name="basename" value="classpath:org/springframework/security/messages"/>
 </bean>
 ----
-====
 
 The `messages.properties` is named in accordance with standard resource bundles and represents the default language supported by Spring Security messages.
 This default file is in English.

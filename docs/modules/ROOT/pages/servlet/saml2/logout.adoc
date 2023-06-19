@@ -100,8 +100,10 @@ This URL is customizable in the DSL.
 For example, if you are migrating your existing relying party over to Spring Security, your asserting party may already be pointing to `GET /SLOService.saml2`.
 To reduce changes in configuration for the asserting party, you can configure the filter in the DSL like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -110,7 +112,7 @@ http
         .logoutResponse((response) -> response.logoutUrl("/SLOService.saml2"))
     );
 ----
-====
+======
 
 You should also configure these endpoints in your `RelyingPartyRegistration`.
 

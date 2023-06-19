@@ -11,7 +11,6 @@ You can use these as a guideline for defining the schema for the database you ar
 The standard JDBC implementation of the `UserDetailsService` (`JdbcDaoImpl`) requires tables to load the password, account status (enabled or disabled) and a list of authorities (roles) for the user.
 You can use these as a guideline for defining the schema for the database you use.
 
-====
 [source]
 ----
 
@@ -28,13 +27,11 @@ create table authorities (
 );
 create unique index ix_auth_username on authorities (username,authority);
 ----
-====
 
 === For Oracle database
 
 The following listing shows the Oracle variant of the schema creation commands:
 
-====
 [source]
 ----
 CREATE TABLE USERS (
@@ -51,14 +48,12 @@ CREATE TABLE AUTHORITIES (
 ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_UNIQUE UNIQUE (USERNAME, AUTHORITY);
 ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_FK1 FOREIGN KEY (USERNAME) REFERENCES USERS (USERNAME) ENABLE;
 ----
-====
 
 === Group Authorities
 Spring Security 2.0 introduced support for group authorities in `JdbcDaoImpl`.
 The table structure if groups are enabled is as follows.
 You need to adjust the following schema to match the database dialect you use:
 
-====
 [source]
 ----
 
@@ -80,7 +75,6 @@ create table group_members (
 	constraint fk_group_members_group foreign key(group_id) references groups(id)
 );
 ----
-====
 
 Remember that these tables are required only if you us the provided JDBC `UserDetailsService` implementation.
 If you write your own or choose to implement `AuthenticationProvider` without a `UserDetailsService`, you have complete freedom over how you store the data, as long as the interface contract is satisfied.
@@ -91,7 +85,6 @@ This table is used to store the data used by the more secure <<remember-me-persi
 If you use `JdbcTokenRepositoryImpl` either directly or through the namespace, you need this table.
 Remember to adjust this schema to match the database dialect you use:
 
-====
 [source]
 ----
 
@@ -103,7 +96,6 @@ create table persistent_logins (
 );
 
 ----
-====
 
 [[dbschema-acl]]
 == ACL Schema
@@ -127,7 +119,6 @@ These schemas are also demonstrated in the following sections.
 === HyperSQL
 The default schema works with the embedded HSQLDB database that is used in unit tests within the framework.
 
-====
 [source,ddl]
 ----
 create table acl_sid(
@@ -170,7 +161,6 @@ create table acl_entry(
 	constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
 );
 ----
-====
 
 === PostgreSQL
 
@@ -179,7 +169,6 @@ For PostgreSQL, you have to set the `classIdentityQuery` and `sidIdentityQuery` 
 * `select currval(pg_get_serial_sequence('acl_class', 'id'))`
 * `select currval(pg_get_serial_sequence('acl_sid', 'id'))`
 
-====
 [source,ddl]
 ----
 create table acl_sid(
@@ -222,11 +211,9 @@ create table acl_entry(
 	constraint foreign_fk_5 foreign key(sid) references acl_sid(id)
 );
 ----
-====
 
 === MySQL and MariaDB
 
-====
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
@@ -269,11 +256,9 @@ CREATE TABLE acl_entry (
 	CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
 ) ENGINE=InnoDB;
 ----
-====
 
 === Microsoft SQL Server
 
-====
 [source,ddl]
 ----
 CREATE TABLE acl_sid (
@@ -316,11 +301,9 @@ CREATE TABLE acl_entry (
 	CONSTRAINT fk_acl_entry_acl FOREIGN KEY (sid) REFERENCES acl_sid (id)
 );
 ----
-====
 
 === Oracle Database
 
-====
 [source,ddl]
 ----
 CREATE TABLE ACL_SID (
@@ -386,14 +369,12 @@ BEGIN
     SELECT ACL_ENTRY_SQ.NEXTVAL INTO :NEW.ID FROM DUAL;
 END;
 ----
-====
 
 [[dbschema-oauth2-client]]
 == OAuth 2.0 Client Schema
 The JDBC implementation of xref:servlet/oauth2/client/core.adoc#oauth2Client-authorized-repo-service[ `OAuth2AuthorizedClientService`] (`JdbcOAuth2AuthorizedClientService`) requires a table for persisting `OAuth2AuthorizedClient` instances.
 You will need to adjust this schema to match the database dialect you use.
 
-====
 [source,ddl]
 ----
 CREATE TABLE oauth2_authorized_client (
@@ -410,4 +391,3 @@ CREATE TABLE oauth2_authorized_client (
   PRIMARY KEY (client_registration_id, principal_name)
 );
 ----
-====

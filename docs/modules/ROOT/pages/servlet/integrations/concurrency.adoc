@@ -14,7 +14,6 @@ It wraps a delegate `Runnable` to initialize the `SecurityContextHolder` with a 
 It then invokes the delegate `Runnable`, ensuring to clear the `SecurityContextHolder` afterwards.
 The `DelegatingSecurityContextRunnable` looks something like this:
 
-====
 [source,java]
 ----
 public void run() {
@@ -26,7 +25,6 @@ try {
 }
 }
 ----
-====
 
 While very simple, it makes it seamless to transfer the `SecurityContext` from one `Thread` to another.
 This is important since, in most cases, the `SecurityContextHolder` acts on a per-`Thread` basis.
@@ -34,7 +32,6 @@ For example, you might have used Spring Security's xref:servlet/appendix/namespa
 You can now transfer the `SecurityContext` of the current `Thread` to the `Thread` that invokes the secured service.
 The following example show how you might do so:
 
-====
 [source,java]
 ----
 Runnable originalRunnable = new Runnable() {
@@ -49,7 +46,6 @@ DelegatingSecurityContextRunnable wrappedRunnable =
 
 new Thread(wrappedRunnable).start();
 ----
-====
 
 The preceding code:
 
@@ -63,7 +59,6 @@ Since it is common to create a `DelegatingSecurityContextRunnable` with the `Sec
 The following code has the same effect as the preceding code:
 
 
-====
 [source,java]
 ----
 Runnable originalRunnable = new Runnable() {
@@ -77,7 +72,6 @@ DelegatingSecurityContextRunnable wrappedRunnable =
 
 new Thread(wrappedRunnable).start();
 ----
-====
 
 The code we have is simple to use, but it still requires knowledge that we are using Spring Security.
 In the next section we will take a look at how we can utilize `DelegatingSecurityContextExecutor` to hide the fact that we are using Spring Security.
@@ -90,7 +84,6 @@ Now we look at how `DelegatingSecurityContextExecutor` can shield our code from 
 The design of `DelegatingSecurityContextExecutor` is similar to that of `DelegatingSecurityContextRunnable`, except that it accepts a delegate `Executor` instead of a delegate `Runnable`.
 The following example shows how to use it:
 
-====
 [source,java]
 ----
 SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -111,7 +104,6 @@ public void run() {
 
 executor.execute(originalRunnable);
 ----
-====
 
 This code:
 
@@ -126,7 +118,6 @@ This is nice if we run background tasks that need to be run by a user with eleva
 
 Consider the following example:
 
-====
 [source,java]
 ----
 @Autowired
@@ -141,21 +132,18 @@ Runnable originalRunnable = new Runnable() {
 executor.execute(originalRunnable);
 }
 ----
-====
 
 Now our code is unaware that the `SecurityContext` is being propagated to the `Thread`, the `originalRunnable` is run, and the `SecurityContextHolder` is cleared out.
 In this example, the same user is being used to run each thread.
 What if we wanted to use the user from `SecurityContextHolder` (that is, the currently logged in-user) at the time we invoked `executor.execute(Runnable)` to process `originalRunnable`?
 You can do so by removing the `SecurityContext` argument from our `DelegatingSecurityContextExecutor` constructor:
 
-====
 [source,java]
 ----
 SimpleAsyncTaskExecutor delegateExecutor = new SimpleAsyncTaskExecutor();
 DelegatingSecurityContextExecutor executor =
 	new DelegatingSecurityContextExecutor(delegateExecutor);
 ----
-====
 
 Now, any time `executor.execute(Runnable)` is run, the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`.
 This means that we are running our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.

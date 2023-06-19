@@ -69,20 +69,23 @@ A `ClientRegistration` can be initially configured using discovery of an OpenID 
 
 `ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as can be seen in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ClientRegistration clientRegistration =
 	ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val clientRegistration = ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build()
 ----
-====
+======
 
 The above code will query in series `https://idp.example.com/issuer/.well-known/openid-configuration`, and then `https://idp.example.com/.well-known/openid-configuration/issuer`, and finally `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
 
@@ -106,8 +109,10 @@ The auto-configuration also registers the `ReactiveClientRegistrationRepository`
 
 The following listing shows an example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -125,7 +130,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -142,7 +148,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [[oauth2Client-authorized-client]]
 == OAuth2AuthorizedClient
@@ -163,8 +169,10 @@ From a developer perspective, the `ServerOAuth2AuthorizedClientRepository` or `R
 
 The following listing shows an example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -183,7 +191,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -201,7 +210,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 Spring Boot 2.x auto-configuration registers an `ServerOAuth2AuthorizedClientRepository` and/or `ReactiveOAuth2AuthorizedClientService` `@Bean` in the `ApplicationContext`.
@@ -235,8 +244,10 @@ The `ReactiveOAuth2AuthorizedClientProviderBuilder` may be used to configure and
 
 The following code shows an example of how to configure and build a `ReactiveOAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -261,7 +272,8 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -280,7 +292,7 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 When an authorization attempt succeeds, the `DefaultReactiveOAuth2AuthorizedClientManager` will delegate to the `ReactiveOAuth2AuthorizationSuccessHandler`, which (by default) will save the `OAuth2AuthorizedClient` via the `ServerOAuth2AuthorizedClientRepository`.
 In the case of a re-authorization failure, eg. a refresh token is no longer valid, the previously saved `OAuth2AuthorizedClient` will be removed from the `ServerOAuth2AuthorizedClientRepository` via the `RemoveAuthorizedClientReactiveOAuth2AuthorizationFailureHandler`.
@@ -291,8 +303,10 @@ This can be useful when you need to supply a `ReactiveOAuth2AuthorizedClientProv
 
 The following code shows an example of the `contextAttributesMapper`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -337,7 +351,8 @@ private Function<OAuth2AuthorizeRequest, Mono<Map<String, Object>>> contextAttri
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -376,7 +391,7 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, Mono<Mut
     }
 }
 ----
-====
+======
 
 The `DefaultReactiveOAuth2AuthorizedClientManager` is designed to be used *_within_* the context of a `ServerWebExchange`.
 When operating *_outside_* of a `ServerWebExchange` context, use `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` instead.
@@ -387,8 +402,10 @@ An OAuth 2.0 Client configured with the `client_credentials` grant type can be c
 
 The following code shows an example of how to configure an `AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager` that provides support for the `client_credentials` grant type:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -410,7 +427,8 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -426,4 +444,4 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======

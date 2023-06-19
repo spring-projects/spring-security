@@ -10,8 +10,10 @@ For example, you may have a need to read the bearer token from a custom header.
 To do so, you can wire an instance of `ServerBearerTokenAuthenticationConverter` into the DSL:
 
 .Custom Bearer Token Header
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ServerBearerTokenAuthenticationConverter converter = new ServerBearerTokenAuthenticationConverter();
@@ -22,7 +24,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val converter = ServerBearerTokenAuthenticationConverter()
@@ -33,15 +36,17 @@ return http {
     }
 }
 ----
-====
+======
 
 == Bearer Token Propagation
 
 Now that you have a bearer token, you can pass that to downstream services.
 This is possible with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServerBearerExchangeFilterFunction.html[ServerBearerExchangeFilterFunction]`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -52,7 +57,8 @@ public WebClient rest() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -62,13 +68,15 @@ fun rest(): WebClient {
             .build()
 }
 ----
-====
+======
 
 When the `WebClient` shown in the preceding example performs requests, Spring Security looks up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
 Then, it propagates that token in the `Authorization` header -- for example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -77,7 +85,8 @@ this.rest.get()
         .bodyToMono(String.class)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 this.rest.get()
@@ -85,14 +94,16 @@ this.rest.get()
         .retrieve()
         .bodyToMono<String>()
 ----
-====
+======
 
 The prececing example invokes the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, you can supply the header yourself:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -102,7 +113,8 @@ this.rest.get()
         .bodyToMono(String.class)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 rest.get()
@@ -111,7 +123,7 @@ rest.get()
         .retrieve()
         .bodyToMono<String>()
 ----
-====
+======
 
 In this case, the filter falls back and forwards the request onto the rest of the web filter chain.
 

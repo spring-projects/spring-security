@@ -28,8 +28,10 @@ In this case, the `Filter` typically writes the `HttpServletResponse`.
 The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
 .`FilterChain` Usage Example
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -39,7 +41,8 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
@@ -48,7 +51,7 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
     // do something after the rest of the application
 }
 ----
-====
+======
 
 Since a `Filter` impacts only downstream `Filter` instances and the `Servlet`, the order in which each `Filter` is invoked is extremely important.
 
@@ -69,8 +72,10 @@ image::{figures}/delegatingfilterproxy.png[]
 The following listing shows pseudo code of `DelegatingFilterProxy`:
 
 .`DelegatingFilterProxy` Pseudo Code
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -79,7 +84,8 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
@@ -87,7 +93,7 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 	delegate.doFilter(request, response) // <2>
 }
 ----
-====
+======
 <1> Lazily get Filter that was registered as a Spring Bean.
 For the example in <<servlet-delegatingfilterproxy-figure>> `delegate` is an instance of __Bean Filter~0~__.
 <2> Delegate work to the Spring Bean.
@@ -229,7 +235,6 @@ If the application does not throw an `AccessDeniedException` or an `Authenticati
 
 The pseudocode for `ExceptionTranslationFilter` looks something like this:
 
-====
 .ExceptionTranslationFilter pseudocode
 [source,java]
 ----
@@ -247,7 +252,6 @@ try {
 This means that if another part of the application, (<<servlet-authorization-filtersecurityinterceptor,`FilterSecurityInterceptor`>> or method security) throws an `AuthenticationException` or `AccessDeniedException` it is caught and handled here.
 <2> If the user is not authenticated or it is an `AuthenticationException`, __Start Authentication__.
 <3> Otherwise, __Access Denied__
-====
 
 [[savedrequests]]
 == Saving Requests Between Authentication
@@ -277,8 +281,10 @@ Or you may want to shut off this feature since you always want to redirect the u
 To do that, you can use {security-api-url}org/springframework/security/web/savedrequest/NullRequestCache.html[the `NullRequestCache` implementation].
 
 .Prevent the Request From Being Saved
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -293,7 +299,8 @@ SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -308,7 +315,8 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true">
@@ -318,7 +326,7 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 
 <b:bean id="nullRequestCache" class="org.springframework.security.web.savedrequest.NullRequestCache"/>
 ----
-====
+======
 
 
 [[requestcacheawarefilter]]

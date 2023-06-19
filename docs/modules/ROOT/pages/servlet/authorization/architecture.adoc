@@ -14,14 +14,12 @@ The `GrantedAuthority` objects are inserted into the `Authentication` object by 
 
 The `GrantedAuthority` interface has only one method:
 
-====
 [source,java]
 ----
 
 String getAuthority();
 
 ----
-====
 
 This method is used by an
 `AuthorizationManager` instance to obtain a precise `String` representation of the `GrantedAuthority`.
@@ -46,8 +44,10 @@ You can customize this with `GrantedAuthorityDefaults`.
 You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
 
 .Custom MethodSecurityExpressionHandler
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -56,7 +56,8 @@ static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -67,14 +68,15 @@ companion object {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="grantedAuthorityDefaults" class="org.springframework.security.config.core.GrantedAuthorityDefaults">
 	<constructor-arg value="MYPREFIX_"/>
 </bean>
 ----
-====
+======
 
 [TIP]
 ====
@@ -95,7 +97,6 @@ Applications that customize an `AccessDecisionManager` or `AccessDecisionVoter` 
 ``AuthorizationManager``s are called by Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[request-based], xref:servlet/authorization/method-security.adoc[method-based], and xref:servlet/integrations/websocket.adoc[message-based] authorization components and are responsible for making final access control decisions.
 The `AuthorizationManager` interface contains two methods:
 
-====
 [source,java]
 ----
 AuthorizationDecision check(Supplier<Authentication> authentication, Object secureObject);
@@ -105,7 +106,6 @@ default AuthorizationDecision verify(Supplier<Authentication> authentication, Ob
     // ...
 }
 ----
-====
 
 The ``AuthorizationManager``'s `check` method is passed all the relevant information it needs in order to make an authorization decision.
 In particular, passing the secure `Object` enables those arguments contained in the actual secure object invocation to be inspected.
@@ -167,8 +167,10 @@ In some cases, like migrating an older application, it may be desirable to intro
 To call an existing `AccessDecisionManager`, you can do:
 
 .Adapting an AccessDecisionManager
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -194,15 +196,17 @@ public class AccessDecisionManagerAuthorizationManagerAdapter implements Authori
     }
 }
 ----
-====
+======
 
 And then wire it into your `SecurityFilterChain`.
 
 Or to only call an `AccessDecisionVoter`, you can do:
 
 .Adapting an AccessDecisionVoter
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -224,7 +228,7 @@ public class AccessDecisionVoterAuthorizationManagerAdapter implements Authoriza
     }
 }
 ----
-====
+======
 
 And then wire it into your `SecurityFilterChain`.
 
@@ -241,8 +245,10 @@ An extended version of Spring Security's `RoleVoter`, `RoleHierarchyVoter`, is c
 A typical configuration might look like this:
 
 .Hierarchical Roles Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -262,7 +268,8 @@ static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHiera
 }
 ----
 
-.Xml
+Xml::
++
 [source,java,role="secondary"]
 ----
 <bean id="roleHierarchy"
@@ -282,7 +289,7 @@ static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHiera
     <property ref="roleHierarchy"/>
 </bean>
 ----
-====
+======
 
 [NOTE]
 `RoleHierarchy` bean configuration is not yet ported over to `@EnableMethodSecurity`.
@@ -344,7 +351,6 @@ The `AccessDecisionManager` then decides whether or not to throw an `AccessDenie
 
 The `AccessDecisionVoter` interface has three methods:
 
-====
 [source,java]
 ----
 int vote(Authentication authentication, Object object, Collection<ConfigAttribute> attrs);
@@ -353,7 +359,6 @@ boolean supports(ConfigAttribute attribute);
 
 boolean supports(Class clazz);
 ----
-====
 
 Concrete implementations return an `int`, with possible values being reflected in the `AccessDecisionVoter` static fields named `ACCESS_ABSTAIN`, `ACCESS_DENIED` and `ACCESS_GRANTED`.
 A voting implementation returns `ACCESS_ABSTAIN` if it has no opinion on an authorization decision.

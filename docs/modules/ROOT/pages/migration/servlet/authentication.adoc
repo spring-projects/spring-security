@@ -9,8 +9,10 @@ Because ``AuthenticationServiceException``s represent a server-side error instea
 
 So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` to `true`, you can now remove it like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
@@ -19,7 +21,8 @@ handler.setRethrowAuthenticationServiceException(true);
 authenticationFilter.setAuthenticationFailureHandler(handler);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authenticationFilter: AuthenticationFilter = AuthenticationFilter(...)
@@ -28,7 +31,8 @@ handler.setRethrowAuthenticationServiceException(true)
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
@@ -40,12 +44,14 @@ authenticationFilter.setAuthenticationFailureHandler(handler)
     <property name="rethrowAuthenticationServiceException" value="true"/>
 </bean>
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
@@ -53,7 +59,8 @@ AuthenticationEntryPointFailureHandler handler = new AuthenticationEntryPointFai
 authenticationFilter.setAuthenticationFailureHandler(handler);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authenticationFilter: AuthenticationFilter = AuthenticationFilter(...)
@@ -61,7 +68,8 @@ val handler: AuthenticationEntryPointFailureHandler = AuthenticationEntryPointFa
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
@@ -73,7 +81,7 @@ authenticationFilter.setAuthenticationFailureHandler(handler)
     <!-- ... -->
 </bean>
 ----
-====
+======
 
 [[servlet-opt-in-sha256-rememberme]]
 == Use SHA-256 in Remember Me
@@ -83,8 +91,10 @@ To complete the migration, any default values can be removed.
 
 For example, if you opted in to the 6.0 default for `encodingAlgorithm` and `matchingAlgorithm` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -108,7 +118,9 @@ public class SecurityConfig {
     }
 }
 ----
-.XML
+
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -122,12 +134,14 @@ public class SecurityConfig {
     <property name="encodingAlgorithm" value="SHA256"/>
 </bean>
 ----
-====
+======
 
 then the defaults can be removed:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -148,7 +162,9 @@ public class SecurityConfig {
     }
 }
 ----
-.XML
+
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -160,7 +176,7 @@ public class SecurityConfig {
     <property name="key" value="springRocks"/>
 </bean>
 ----
-====
+======
 
 == Default authorities for oauth2Login()
 

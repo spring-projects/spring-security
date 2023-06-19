@@ -7,35 +7,41 @@ If you have already performed the xref:migration/index.adoc[initial migration st
 In 6.0, `@EnableReactiveMethodSecurity` defaults `useAuthorizationManager` to `true`.
 So, to complete migration, {security-api-url}org/springframework/security/config/annotation/method/configuration/EnableReactiveMethodSecurity.html[`@EnableReactiveMethodSecurity`] remove the `useAuthorizationManager` attribute:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity
 ----
-====
+======
 
 == Propagate ``AuthenticationServiceException``s
 
@@ -44,8 +50,10 @@ Because ``AuthenticationServiceException``s represent a server-side error instea
 
 So, if you opted into this behavior by setting `rethrowAuthenticationServiceException` too `true`, you can now remove it like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
@@ -54,7 +62,8 @@ AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntry
 basicFailureHandler.setRethrowAuthenticationServiceException(true);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
@@ -62,25 +71,28 @@ bearerFailureHandler.setRethrowAuthenticationServiceException(true)
 val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
 basicFailureHandler.setRethrowAuthenticationServiceException(true)
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
 AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntryPointFailureHandler(basicEntryPoint);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
 val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
 ----
-====
+======
 
 [NOTE]
 ====
