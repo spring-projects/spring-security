@@ -18,7 +18,6 @@ If you are using an authentication provider which doesn't use a `UserDetailsServ
 This approach uses hashing to achieve a useful remember-me strategy.
 In essence a cookie is sent to the browser upon successful interactive authentication, with the cookie being composed as follows:
 
-====
 [source,txt]
 ----
 base64(username + ":" + expirationTime + ":" + algorithmName + ":"
@@ -30,7 +29,6 @@ expirationTime:    The date and time when the remember-me token expires, express
 key:               A private key to prevent modification of the remember-me token
 algorithmName:     The algorithm used to generate and to verify the remember-me token signature
 ----
-====
 
 As such the remember-me token is valid only for the period specified, and provided that the username, password and key does not change.
 Notably, this has a potential security issue in that a captured remember-me token will be usable from any user agent until such time as the token expires.
@@ -41,7 +39,6 @@ Alternatively, remember-me services should simply not be used at all.
 
 If you are familiar with the topics discussed in the chapter on xref:servlet/configuration/xml-namespace.adoc#ns-config[namespace configuration], you can enable remember-me authentication just by adding the `<remember-me>` element:
 
-====
 [source,xml]
 ----
 <http>
@@ -49,7 +46,6 @@ If you are familiar with the topics discussed in the chapter on xref:servlet/con
 <remember-me key="myAppKey"/>
 </http>
 ----
-====
 
 The `UserDetailsService` will normally be selected automatically.
 If you have more than one in your application context, you need to specify which one should be used with the `user-service-ref` attribute, where the value is the name of your `UserDetailsService` bean.
@@ -60,7 +56,6 @@ This approach is based on the article https://web.archive.org/web/20180819014446
 There is a discussion on this in the comments section of this article.].
 To use the this approach with namespace configuration, you would supply a datasource reference:
 
-====
 [source,xml]
 ----
 <http>
@@ -68,11 +63,9 @@ To use the this approach with namespace configuration, you would supply a dataso
 <remember-me data-source-ref="someDataSource"/>
 </http>
 ----
-====
 
 The database should contain a `persistent_logins` table, created using the following SQL (or equivalent):
 
-====
 [source,ddl]
 ----
 create table persistent_logins (username varchar(64) not null,
@@ -80,7 +73,6 @@ create table persistent_logins (username varchar(64) not null,
 								token varchar(64) not null,
 								last_used timestamp not null)
 ----
-====
 
 [[remember-me-impls]]
 == Remember-Me Interfaces and Implementations
@@ -89,7 +81,6 @@ It is also used within `BasicAuthenticationFilter`.
 The hooks will invoke a concrete `RememberMeServices` at the appropriate times.
 The interface looks like this:
 
-====
 [source,java]
 ----
 Authentication autoLogin(HttpServletRequest request, HttpServletResponse response);
@@ -99,7 +90,6 @@ void loginFail(HttpServletRequest request, HttpServletResponse response);
 void loginSuccess(HttpServletRequest request, HttpServletResponse response,
 	Authentication successfulAuthentication);
 ----
-====
 
 Please refer to the Javadoc for a fuller discussion on what the methods do, although note at this stage that `AbstractAuthenticationProcessingFilter` only calls the `loginFail()` and `loginSuccess()` methods.
 The `autoLogin()` method is called by `RememberMeAuthenticationFilter` whenever the `SecurityContextHolder` does not contain an `Authentication`.
@@ -122,8 +112,10 @@ If no `algorithmName` is present, the default matching algorithm will be used, w
 You can specify different algorithms for signature encoding and for signature matching, this allows users to safely upgrade to a different encoding algorithm while still able to verify old ones if there is no `algorithmName` present.
 To do that you can specify your customized `TokenBasedRememberMeServices` as a Bean and use it in the configuration.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -146,7 +138,9 @@ RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
 	return rememberMe;
 }
 ----
-.XML
+
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -161,11 +155,10 @@ RememberMeServices rememberMeServices(UserDetailsService userDetailsService) {
     <property name="encodingAlgorithm" value="SHA256"/>
 </bean>
 ----
-====
+======
 
 The following beans are required in an application context to enable remember-me services:
 
-====
 [source,xml]
 ----
 <bean id="rememberMeFilter" class=
@@ -185,7 +178,6 @@ The following beans are required in an application context to enable remember-me
 <property name="key" value="springRocks"/>
 </bean>
 ----
-====
 
 Don't forget to add your `RememberMeServices` implementation to your `UsernamePasswordAuthenticationFilter.setRememberMeServices()` property, include the `RememberMeAuthenticationProvider` in your `AuthenticationManager.setProviders()` list, and add `RememberMeAuthenticationFilter` into your `FilterChainProxy` (typically immediately after your `UsernamePasswordAuthenticationFilter`).
 

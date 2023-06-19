@@ -58,9 +58,11 @@ However, as soon as any servlet based configuration is provided, HTTP Basic must
 A minimal, explicit configuration can be found below:
 
 .Explicit HTTP Basic Configuration
-====
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
-.Java
 ----
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -71,8 +73,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
+XML::
++
 [source,xml,role="secondary"]
-.XML
 ----
 <http>
 	<!-- ... -->
@@ -80,8 +83,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 </http>
 ----
 
+Kotlin::
++
 [source,kotlin,role="secondary"]
-.Kotlin
 ----
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -92,4 +96,4 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	return http.build()
 }
 ----
-====
+======

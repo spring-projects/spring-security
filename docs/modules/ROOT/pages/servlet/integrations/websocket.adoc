@@ -30,8 +30,10 @@ In Spring Security 5.8, this support has been refreshed to use the `Authorizatio
 To configure authorization using Java Configuration, simply include the `@EnableWebSocketSecurity` annotation and publish an `AuthorizationManager<Message<?>>` bean or in XML use the `use-authorization-manager` attribute.
 One way to do this is by using the `AuthorizationManagerMessageMatcherRegistry` to specify endpoint patterns like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -48,7 +50,8 @@ public class WebSocketSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -62,14 +65,15 @@ open class WebSocketSecurityConfig { // <1> <2>
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker use-authorization-manager="true">
     <intercept-message pattern="/user/**" access="authenticated"/>
 </websocket-message-broker>
 ----
-====
+======
 
 This will ensure that:
 
@@ -82,8 +86,10 @@ This will ensure that:
 When using `AuthorizationManager`, customization is quite simple.
 For example, you can publish an `AuthorizationManager` that requires that all messages have a role of "USER" using `AuthorityAuthorizationManager`, as seen below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -97,7 +103,8 @@ public class WebSocketSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -110,19 +117,22 @@ open class WebSocketSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authorizationManager" class="org.example.MyAuthorizationManager"/>
 
 <websocket-message-broker authorization-manager-ref="myAuthorizationManager"/>
 ----
-====
+======
 
 There are several ways to further match messages, as can be seen in a more advanced example below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -143,7 +153,8 @@ public class WebSocketSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -162,7 +173,8 @@ open class WebSocketSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,kotlin,role="secondary"]
 ----
 <websocket-message-broker use-authorization-manager="true">
@@ -185,7 +197,7 @@ open class WebSocketSecurityConfig {
     <intercept-message pattern="/**" access="denyAll" /> <!--6-->
 </websocket-message-broker>
 ----
-====
+======
 
 This will ensure that:
 
@@ -295,8 +307,10 @@ var token = "${_csrf.token}";
 If you are using static HTML, you can expose the `CsrfToken` on a REST endpoint.
 For example, the following would expose the `CsrfToken` on the URL /csrf
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @RestController
@@ -309,7 +323,8 @@ public class CsrfController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @RestController
@@ -320,7 +335,7 @@ class CsrfController {
     }
 }
 ----
-====
+======
 
 The JavaScript can make a REST call to the endpoint and use the response to populate the headerName and the token.
 
@@ -344,8 +359,10 @@ NOTE: At this point, CSRF is not configurable when using `@EnableWebSocketSecuri
 
 To disable CSRF, instead of using `@EnableWebSocketSecurity`, you can use XML support or add the Spring Security components yourself, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -367,7 +384,8 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -388,20 +406,23 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker use-authorization-manager="true" same-origin-disabled="true">
     <intercept-message pattern="/**" access="authenticated"/>
 </websocket-message-broker>
 ----
-====
+======
 
 On the other hand, if you are using the <<legacy-websocket-configuration,legacy `AbstractSecurityWebSocketMessageBrokerConfigurer`>> and you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -416,7 +437,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -429,7 +451,7 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
     }
 }
 ----
-====
+======
 
 [[websocket-expression-handler]]
 === Custom Expression Handler
@@ -495,8 +517,10 @@ For example, the following will instruct Spring Security to use "X-Frame-Options
 
 Similarly, you can customize frame options to use the same origin within Java Configuration using the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -516,7 +540,8 @@ public class WebSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -535,7 +560,7 @@ open class WebSecurityConfig {
     }
 }
 ----
-====
+======
 
 [[websocket-sockjs-csrf]]
 === SockJS & Relaxing CSRF
@@ -554,8 +579,10 @@ We can easily achieve this by providing a CSRF RequestMatcher.
 Our Java Configuration makes this extremely easy.
 For example, if our stomp endpoint is "/chat" we can disable CSRF protection for only URLs that start with "/chat/" using the following configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -581,7 +608,8 @@ public class WebSecurityConfig {
             ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -604,7 +632,7 @@ open class WebSecurityConfig {
             // ...
 
 ----
-====
+======
 
 If we are using XML based configuration, we can use the xref:servlet/appendix/namespace/http.adoc#nsa-csrf-request-matcher-ref[csrf@request-matcher-ref].
 For example:
@@ -640,8 +668,10 @@ For example:
 Before Spring Security 5.8, the way to configure messaging authorization using Java Configuration, was to extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -655,7 +685,8 @@ public class WebSocketSecurityConfig
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -665,7 +696,7 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
     }
 }
 ----
-====
+======
 
 This will ensure that:
 

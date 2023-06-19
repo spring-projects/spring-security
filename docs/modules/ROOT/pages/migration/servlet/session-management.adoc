@@ -28,8 +28,10 @@ In Spring Security 6, the default `SecurityContextRepository` is `DelegatingSecu
 To opt into the new Spring Security 6 default, the following configuration can be used.
 
 .Configure SecurityContextRepository with 6.0 defaults
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -46,7 +48,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -64,7 +67,8 @@ fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http security-context-repository-ref="contextRepository">
@@ -80,7 +84,7 @@ fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
 		</constructor-arg>
 </bean>
 ----
-====
+======
 
 [IMPORTANT]
 ====
@@ -103,8 +107,10 @@ If you have implemented `SecurityContextRepository` yourself and added an implem
 To get started implementing the new method, use the following example to provide a `DeferredSecurityContext`:
 
 .Provide `DeferredSecurityContext`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Override
@@ -135,7 +141,8 @@ public DeferredSecurityContext loadDeferredContext(HttpServletRequest request) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 override fun loadDeferredContext(request: HttpServletRequest): DeferredSecurityContext {
@@ -159,7 +166,7 @@ override fun loadDeferredContext(request: HttpServletRequest): DeferredSecurityC
 	}
 }
 ----
-====
+======
 
 [[requestcache-query-optimization]]
 == Optimize Querying of `RequestCache`
@@ -186,8 +193,10 @@ This means that there is no need to detect when `Authentication` is done and thu
 To opt into the new Spring Security 6 default, the following configuration can be used.
 
 .Require Explicit `SessionAuthenticationStrategy` Invocation
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -201,7 +210,8 @@ DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -215,7 +225,8 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -223,13 +234,15 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 	<session-management authentication-strategy-explicit-invocation="true"/>
 </http>
 ----
-====
+======
 
 If this breaks your application, then you can explicitly opt into the 5.8 defaults using the following configuration:
 
 .Explicit use Spring Security 5.8 defaults for `SessionAuthenticationStrategy`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -243,7 +256,8 @@ DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -257,7 +271,8 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -265,4 +280,4 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 	<session-management authentication-strategy-explicit-invocation="false"/>
 </http>
 ----
-====
+======

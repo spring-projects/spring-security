@@ -110,8 +110,10 @@ In some cases, like migrating an older application, it may be desirable to intro
 To call an existing `AccessDecisionManager`, you can do:
 
 .Adapting an AccessDecisionManager
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -137,15 +139,17 @@ public class AccessDecisionManagerAuthorizationManagerAdapter implements Authori
     }
 }
 ----
-====
+======
 
 And then wire it into your `SecurityFilterChain`.
 
 Or to only call an `AccessDecisionVoter`, you can do:
 
 .Adapting an AccessDecisionVoter
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -167,7 +171,7 @@ public class AccessDecisionVoterAuthorizationManagerAdapter implements Authoriza
     }
 }
 ----
-====
+======
 
 And then wire it into your `SecurityFilterChain`.
 
@@ -184,8 +188,10 @@ An extended version of Spring Security's `RoleVoter`, `RoleHierarchyVoter`, is c
 A typical configuration might look like this:
 
 .Hierarchical Roles Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -198,7 +204,8 @@ AccessDecisionVoter hierarchyVoter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,java,role="secondary"]
 ----
 
@@ -216,7 +223,7 @@ AccessDecisionVoter hierarchyVoter() {
 	</property>
 </bean>
 ----
-====
+======
 
 Here we have four roles in a hierarchy `ROLE_ADMIN => ROLE_STAFF => ROLE_USER => ROLE_GUEST`.
 A user who is authenticated with `ROLE_ADMIN`, will behave as if they have all four roles when security constraints are evaluated against an `AuthorizationManager` adapted to call the above `RoleHierarchyVoter`.

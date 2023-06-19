@@ -9,8 +9,10 @@ As such, Spring Security 6 drops support for it, bumping up its OpenSAML baselin
 
 To prepare for the upgrade, update your pom to depend on OpenSAML 4 instead of 3:
 
-====
-.Maven
+[tabs]
+======
+Maven::
++
 [source,maven,role="primary"]
 ----
 <dependencyManagement>
@@ -32,7 +34,8 @@ To prepare for the upgrade, update your pom to depend on OpenSAML 4 instead of 3
 </dependencyManagement>
 ----
 
-.Gradle
+Gradle::
++
 [source,gradle,role="secondary"]
 ----
 dependencies {
@@ -43,7 +46,7 @@ dependencies {
     }
 }
 ----
-====
+======
 
 You must use at least OpenSAML 4.1.1 to update to Spring Security 6's SAML support.
 
@@ -57,8 +60,10 @@ As such, some adjustment will be required to make the challenge.
 
 Consider the following representative usage of `OpenSamlAuthenticationProvider`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 OpenSamlAuthenticationProvider versionThree = new OpenSamlAuthenticationProvider();
@@ -66,19 +71,22 @@ versionThree.setAuthoritiesExtractor(myAuthoritiesExtractor);
 versionThree.setResponseTimeValidationSkew(myDuration);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val versionThree: OpenSamlAuthenticationProvider = OpenSamlAuthenticationProvider()
 versionThree.setAuthoritiesExtractor(myAuthoritiesExtractor)
 versionThree.setResponseTimeValidationSkew(myDuration)
 ----
-====
+======
 
 This should change to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Converter<ResponseToken, Saml2Authentication> delegate = OpenSaml4AuthenticationProvider
@@ -96,7 +104,8 @@ Converter<AssertionToken, Saml2ResponseValidationResult> validator = OpenSaml4Au
 versionFour.setAssertionValidator(validator);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val delegate = OpenSaml4AuthenticationProvider.createDefaultResponseAuthenticationConverter()
@@ -114,7 +123,7 @@ val validator = OpenSaml4AuthenticationProvider
         .createDefaultAssertionValidatorWithParameters({ p -> p.put(CLOCK_SKEW, myDuration) })
 versionFour.setAssertionValidator(validator)
 ----
-====
+======
 
 == Stop Using SAML 2.0 `Converter` constructors
 
@@ -136,8 +145,10 @@ Most applications need do nothing; however, if you use or configure `Saml2Authen
 
 If you are calling `OpenSaml4AuthenticationReqeustFactory#setAuthenticationRequestContextConverter`, for example, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -167,12 +178,14 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory() {
 	return factory;
 }
 ----
-====
+======
 
 to ensure that ForceAuthn is set to `true`, you can instead do:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -182,7 +195,7 @@ Saml2AuthenticationRequestResolver authenticationRequestResolver(RelyingPartyReg
 	return resolver;
 }
 ----
-====
+======
 
 Also, since `setAuthnRequestCustomizer` has direct access to the `HttpServletRequest`, there is no need for a `Saml2AuthenticationRequestContextResolver`.
 Simply use `setAuthnRequestCustomizer` to read directly from `HttpServletRequest` this information you need.
@@ -191,8 +204,10 @@ Simply use `setAuthnRequestCustomizer` to read directly from `HttpServletRequest
 
 Instead of doing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -202,12 +217,14 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory() {
 	return factory;
 }
 ----
-====
+======
 
 you can do:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -218,7 +235,7 @@ Saml2AuthenticationRequestResolver authenticationRequestResolver() {
 	return resolver;
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -235,37 +252,43 @@ It also is valuable in that it more closely aligns with the design of `OAuth2Log
 Most applications do not construct this class directly since `Saml2WebSsoAuthenticationFilter` does.
 However, in the event that your application constructs one, please change from:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 new Saml2AuthenticationToken(saml2Response, registration.getSingleSignOnServiceLocation(),
     registration.getAssertingParty().getEntityId(), registration.getEntityId(), registration.getCredentials())
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 Saml2AuthenticationToken(saml2Response, registration.getSingleSignOnServiceLocation(),
     registration.getAssertingParty().getEntityId(), registration.getEntityId(), registration.getCredentials())
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 new Saml2AuthenticationToken(saml2Response, registration)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 Saml2AuthenticationToken(saml2Response, registration)
 ----
-====
+======
 
 == Use `RelyingPartyRegistration` updated methods
 
@@ -275,8 +298,10 @@ As more capabilities were added to `RelyingPartyRegistration`, it became necessa
 The deprecated methods in `RelyingPartyRegstration` are removed.
 To prepare for that, consider the following representative usage of `RelyingPartyRegistration`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 String idpEntityId = registration.getRemoteIdpEntityId();
@@ -288,7 +313,8 @@ List<Saml2X509Credential> verifying = registration.getCredentials().stream()
         .collect(Collectors.toList());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val idpEntityId: String = registration.getRemoteIdpEntityId()
@@ -298,12 +324,14 @@ val localEntityId: String = registration.getLocalEntityIdTemplate()
 val verifying: List<Saml2X509Credential> = registration.getCredentials()
         .filter(Saml2X509Credential::isSignatureVerficationCredential)
 ----
-====
+======
 
 This should change to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
@@ -313,7 +341,8 @@ String entityId = registration.getEntityId();
 List<Saml2X509Credential> verifying = registration.getAssertingPartyDetails().getVerificationX509Credentials();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val assertingPartyEntityId: String = registration.getAssertingPartyDetails().getEntityId()
@@ -322,6 +351,6 @@ val singleSignOnServiceLocation: String = registration.getAssertingPartyDetails(
 val entityId: String = registration.getEntityId()
 val verifying: List<Saml2X509Credential> = registration.getAssertingPartyDetails().getVerificationX509Credentials()
 ----
-====
+======
 
 For a complete listing of all changed methods, please see {security-api-url}org/springframework/security/saml2/provider/service/registration/RelyingPartyRegistration.html[``RelyingPartyRegistration``'s JavaDoc].

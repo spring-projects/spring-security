@@ -1,6 +1,8 @@
 .`RequestCache` Only Checks for Saved Requests if `continue` Parameter Present
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -16,7 +18,8 @@ DefaultSecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -32,7 +35,8 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true">
@@ -43,4 +47,4 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 <b:bean id="requestCache" class="org.springframework.security.web.savedrequest.HttpSessionRequestCache"
 	p:matchingRequestParameterName="continue"/>
 ----
-====
+======

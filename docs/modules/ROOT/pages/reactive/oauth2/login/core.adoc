@@ -61,10 +61,8 @@ spring:
 ----
 +
 .OAuth Client properties
-====
 <1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
 <2> Following the base property prefix is the ID for the xref:reactive/oauth2/client/core.adoc#oauth2Client-client-registration[`ClientRegistration`], such as google.
-====
 
 . Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
 
@@ -244,8 +242,10 @@ If you need to override the auto-configuration based on your specific requiremen
 
 The following example shows how to register a `ReactiveClientRegistrationRepository` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
@@ -275,7 +275,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Configuration
@@ -304,7 +305,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-register-securitywebfilterchain-bean]]
@@ -313,8 +314,10 @@ class OAuth2LoginConfig {
 The following example shows how to register a `SecurityWebFilterChain` `@Bean` with `@EnableWebFluxSecurity` and enable OAuth 2.0 login through `serverHttpSecurity.oauth2Login()`:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -333,7 +336,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebFluxSecurity
@@ -350,7 +354,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-completely-override-autoconfiguration]]
@@ -359,8 +363,10 @@ class OAuth2LoginSecurityConfig {
 The following example shows how to completely override the auto-configuration by registering a `ReactiveClientRegistrationRepository` `@Bean` and a `SecurityWebFilterChain` `@Bean`.
 
 .Overriding the auto-configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @EnableWebFluxSecurity
@@ -401,7 +407,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @EnableWebFluxSecurity
@@ -440,7 +447,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-javaconfig-wo-boot]]
@@ -449,8 +456,10 @@ class OAuth2LoginConfig {
 If you are not able to use Spring Boot 2.x and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -493,7 +502,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebFluxSecurity
@@ -536,4 +546,4 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======

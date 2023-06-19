@@ -17,8 +17,10 @@ See the xref:servlet/authentication/rememberme.adoc#_tokenbasedremembermeservice
 
 [[servlet-opt-in-sha256-sha256-encoding]]
 .Use Spring Security 6 defaults for encoding, SHA-256 for encoding and MD5 for matching
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -46,7 +48,8 @@ public class SecurityConfig {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -61,15 +64,17 @@ public class SecurityConfig {
     <property name="encodingAlgorithm" value="SHA256"/>
 </bean>
 ----
-====
+======
 
 At some point, you will want to fully migrate to Spring Security 6 defaults. But how do you know when it is safe to do so?
 Let's suppose that you deployed your application using SHA-256 as the encoding algorithm (as you have done <<servlet-opt-in-sha256-sha256-encoding,here>>) on November 1st, if you have the value for the `tokenValiditySeconds` property set to N days (14 is the default), you can migrate to SHA-256 N days after November 1st (which is November 15th in this example).
 By that time, all the tokens generated with MD5 will have expired.
 
 .Use Spring Security 6 defaults, SHA-256 for both encoding and matching
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -97,7 +102,8 @@ public class SecurityConfig {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -112,13 +118,15 @@ public class SecurityConfig {
     <property name="encodingAlgorithm" value="SHA256"/>
 </bean>
 ----
-====
+======
 
 If you are having problems with the Spring Security 6 defaults, you can explicitly opt into 5.8 defaults using the following configuration:
 
 .Use MD5 for both encoding and matching algorithms
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -146,7 +154,8 @@ public class SecurityConfig {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -161,7 +170,7 @@ public class SecurityConfig {
     <property name="encodingAlgorithm" value="MD5"/>
 </bean>
 ----
-====
+======
 
 == Propagate ``AuthenticationServiceException``s
 
@@ -172,8 +181,10 @@ Because ``AuthenticationServiceException``s represent a server-side error instea
 
 To prepare for the 6.0 default, wire `AuthenticationFilter` instances with a `AuthenticationFailureHandler` that rethrows ``AuthenticationServiceException``s, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
@@ -182,7 +193,8 @@ handler.setRethrowAuthenticationServiceException(true);
 authenticationFilter.setAuthenticationFailureHandler(handler);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
@@ -191,7 +203,8 @@ handler.setRethrowAuthenticationServiceException(true)
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
@@ -203,15 +216,17 @@ authenticationFilter.setAuthenticationFailureHandler(handler)
     <property name="rethrowAuthenticationServiceException" value="true"/>
 </bean>
 ----
-====
+======
 
 [[servlet-authenticationfailurehandler-opt-out]]
 === Opt-out Steps
 
 If rethrowing ``AuthenticationServiceException``s gives you trouble, you can set the value to false instead of taking the 6.0 default, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFilter authenticationFilter = new AuthenticationFilter(...);
@@ -220,7 +235,8 @@ handler.setRethrowAuthenticationServiceException(false);
 authenticationFilter.setAuthenticationFailureHandler(handler);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authenticationFilter: AuthenticationFilter = new AuthenticationFilter(...)
@@ -229,7 +245,8 @@ handler.setRethrowAuthenticationServiceException(false)
 authenticationFilter.setAuthenticationFailureHandler(handler)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authenticationFilter" class="org.springframework.security.web.authentication.AuthenticationFilter">
@@ -241,4 +258,4 @@ authenticationFilter.setAuthenticationFailureHandler(handler)
     <property name="rethrowAuthenticationServiceException" value="false"/>
 </bean>
 ----
-====
+======

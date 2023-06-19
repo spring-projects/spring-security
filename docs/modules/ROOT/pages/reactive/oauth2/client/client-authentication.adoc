@@ -36,8 +36,10 @@ spring:
 
 The following example shows how to configure `WebClientReactiveAuthorizationCodeTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -59,7 +61,8 @@ tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver: Function<ClientRegistration, JWK> =
@@ -81,7 +84,7 @@ tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
 ----
-====
+======
 
 
 === Authenticate using `client_secret_jwt`
@@ -105,8 +108,10 @@ spring:
 
 The following example shows how to configure `WebClientReactiveClientCredentialsTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -127,7 +132,8 @@ tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: ClientRegistration ->
@@ -148,14 +154,16 @@ tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
 ----
-====
+======
 
 === Customizing the JWT assertion
 
 The JWT produced by `NimbusJwtClientAuthenticationParametersConverter` contains the `iss`, `sub`, `aud`, `jti`, `iat` and `exp` claims by default. You can customize the headers and/or claims by providing a `Consumer<NimbusJwtClientAuthenticationParametersConverter.JwtClientAuthenticationContext<T>>` to `setJwtClientAssertionCustomizer()`. The following example shows how to customize claims of the JWT:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = ...
@@ -168,7 +176,8 @@ converter.setJwtClientAssertionCustomizer((context) -> {
 });
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver = ...
@@ -180,4 +189,4 @@ converter.setJwtClientAssertionCustomizer { context ->
     context.claims.claim("custom-claim", "claim-value")
 }
 ----
-====
+======

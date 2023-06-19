@@ -82,8 +82,10 @@ Once a token is authenticated, an instance of `BearerTokenAuthentication` is set
 
 This means that it's available in `@Controller` methods when using `@EnableWebFlux` in your configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/foo")
@@ -92,7 +94,8 @@ public Mono<String> foo(BearerTokenAuthentication authentication) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/foo")
@@ -100,12 +103,14 @@ fun foo(authentication: BearerTokenAuthentication): Mono<String> {
     return Mono.just(authentication.tokenAttributes["sub"].toString() + " is the subject")
 }
 ----
-====
+======
 
 Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it's available to controller methods, too:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/foo")
@@ -114,7 +119,8 @@ public Mono<String> foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal pr
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/foo")
@@ -122,7 +128,7 @@ fun foo(@AuthenticationPrincipal principal: OAuth2AuthenticatedPrincipal): Mono<
     return Mono.just(principal.getAttribute<Any>("sub").toString() + " is the subject")
 }
 ----
-====
+======
 
 === Looking Up Attributes Via SpEL
 
@@ -130,8 +136,10 @@ Of course, this also means that attributes can be accessed via SpEL.
 
 For example, if using `@EnableReactiveMethodSecurity` so that you can use `@PreAuthorize` annotations, you can do:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("principal?.attributes['sub'] = 'foo'")
@@ -140,7 +148,8 @@ public Mono<String> forFoosEyesOnly() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("principal.attributes['sub'] = 'foo'")
@@ -148,7 +157,7 @@ fun forFoosEyesOnly(): Mono<String> {
     return Mono.just("foo")
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-opaque-sansboot]]
 == Overriding or Replacing Boot Auto Configuration
@@ -158,8 +167,10 @@ There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 The first is a `SecurityWebFilterChain` that configures the app as a resource server.
 When use Opaque Token, this `SecurityWebFilterChain` looks like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -173,7 +184,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -188,15 +200,17 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 If the application doesn't expose a `SecurityWebFilterChain` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
 .Replacing SecurityWebFilterChain
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -218,7 +232,8 @@ public class MyCustomSecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -236,7 +251,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -244,8 +259,10 @@ Methods on the `oauth2ResourceServer` DSL will also override or replace auto con
 
 For example, the second `@Bean` Spring Boot creates is a `ReactiveOpaqueTokenIntrospector`, which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -254,7 +271,8 @@ public ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -262,7 +280,7 @@ fun introspector(): ReactiveOpaqueTokenIntrospector {
     return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
 }
 ----
-====
+======
 
 If the application doesn't expose a `ReactiveOpaqueTokenIntrospector` bean, then Spring Boot will expose the above default one.
 
@@ -273,8 +291,10 @@ And its configuration can be overridden using `introspectionUri()` and `introspe
 
 An authorization server's Introspection Uri can be configured <<webflux-oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or it can be supplied in the DSL:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -296,7 +316,8 @@ public class DirectlyConfiguredIntrospectionUri {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -314,7 +335,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 Using `introspectionUri()` takes precedence over any configuration property.
 
@@ -323,8 +344,10 @@ Using `introspectionUri()` takes precedence over any configuration property.
 
 More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of `ReactiveOpaqueTokenIntrospector`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -345,7 +368,8 @@ public class DirectlyConfiguredIntrospector {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -362,7 +386,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 This is handy when deeper configuration, like <<webflux-oauth2resourceserver-opaque-authorization-extraction,authority mapping>>or <<webflux-oauth2resourceserver-opaque-jwt-introspector,JWT revocation>> is necessary.
 
@@ -371,8 +395,10 @@ This is handy when deeper configuration, like <<webflux-oauth2resourceserver-opa
 
 Or, exposing a `ReactiveOpaqueTokenIntrospector` `@Bean` has the same effect as `introspector()`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -381,7 +407,8 @@ public ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -389,7 +416,7 @@ fun introspector(): ReactiveOpaqueTokenIntrospector {
     return NimbusReactiveOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-opaque-authorization]]
 == Configuring Authorization
@@ -402,8 +429,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 
 This means that to protect an endpoint or method with a scope derived from an Opaque Token, the corresponding expressions should include this prefix:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -422,7 +451,8 @@ public class MappedAuthorities {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -439,25 +469,28 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 Or similarly with method security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public Flux<Message> getMessages(...) {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 fun getMessages(): Flux<Message> { }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-opaque-authorization-extraction]]
 === Extracting Authorities Manually
@@ -478,8 +511,10 @@ Then Resource Server would generate an `Authentication` with two authorities, on
 
 This can, of course, be customized using a custom `ReactiveOpaqueTokenIntrospector` that takes a look at the attribute set and converts in its own way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
@@ -501,7 +536,8 @@ public class CustomAuthoritiesOpaqueTokenIntrospector implements ReactiveOpaqueT
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class CustomAuthoritiesOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
@@ -521,12 +557,14 @@ class CustomAuthoritiesOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector
     }
 }
 ----
-====
+======
 
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -535,7 +573,8 @@ public ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -543,7 +582,7 @@ fun introspector(): ReactiveOpaqueTokenIntrospector {
     return CustomAuthoritiesOpaqueTokenIntrospector()
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-opaque-jwt-introspector]]
 == Using Introspection with JWTs
@@ -575,8 +614,10 @@ Now what?
 
 In this case, you can create a custom `ReactiveOpaqueTokenIntrospector` that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
@@ -602,7 +643,8 @@ public class JwtOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospect
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class JwtOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
@@ -625,12 +667,14 @@ class JwtOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -639,7 +683,8 @@ public ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -647,7 +692,7 @@ fun introspector(): ReactiveOpaqueTokenIntrospector {
     return JwtOpaqueTokenIntrospector()
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-opaque-userinfo]]
 == Calling a `/userinfo` Endpoint
@@ -663,8 +708,10 @@ This implementation below does three things:
 * Looks up the appropriate client registration associated with the `/userinfo` endpoint
 * Invokes and returns the response from the `/userinfo` endpoint
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
@@ -693,7 +740,8 @@ public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
@@ -716,13 +764,15 @@ class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 If you aren't using `spring-security-oauth2-client`, it's still quite simple.
 You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntrospector {
@@ -738,7 +788,8 @@ public class UserInfoOpaqueTokenIntrospector implements ReactiveOpaqueTokenIntro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
@@ -751,12 +802,14 @@ class UserInfoOpaqueTokenIntrospector : ReactiveOpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 Either way, having created your `ReactiveOpaqueTokenIntrospector`, you should publish it as a `@Bean` to override the defaults:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -765,7 +818,8 @@ ReactiveOpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -773,4 +827,4 @@ fun introspector(): ReactiveOpaqueTokenIntrospector {
     return UserInfoOpaqueTokenIntrospector()
 }
 ----
-====
+======

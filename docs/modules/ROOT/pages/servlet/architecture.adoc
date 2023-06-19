@@ -28,8 +28,10 @@ In this instance the `Filter` will typically write the `HttpServletResponse`.
 The power of the `Filter` comes from the `FilterChain` that is passed into it.
 
 .`FilterChain` Usage Example
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -39,7 +41,8 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
@@ -48,7 +51,7 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
     // do something after the rest of the application
 }
 ----
-====
+======
 
 Since a `Filter` only impacts downstream ``Filter``s and the `Servlet`, the order each `Filter` is invoked is extremely important.
 
@@ -70,8 +73,10 @@ image::{figures}/delegatingfilterproxy.png[]
 The pseudo code of `DelegatingFilterProxy` can be seen below.
 
 .`DelegatingFilterProxy` Pseudo Code
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",subs="+quotes,+macros"]
 ----
 public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) {
@@ -83,7 +88,8 @@ public void doFilter(ServletRequest request, ServletResponse response, FilterCha
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",subs="+quotes,+macros"]
 ----
 fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
@@ -94,7 +100,7 @@ fun doFilter(request: ServletRequest, response: ServletResponse, chain: FilterCh
 	delegate.doFilter(request, response)
 }
 ----
-====
+======
 
 Another benefit of `DelegatingFilterProxy` is that it allows delaying looking `Filter` bean instances.
 This is important because the container needs to register the `Filter` instances before the container can startup.
@@ -275,8 +281,10 @@ Or you may want to shut off this feature since you always want to redirect the u
 To do that, you can use {security-api-url}org/springframework/security/web/savedrequest/NullRequestCache.html[the `NullRequestCache` implementation].
 
 .Prevent the Request From Being Saved
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -291,7 +299,8 @@ SecurityFilterChain springSecurity(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -306,7 +315,8 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true">
@@ -316,7 +326,7 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 
 <b:bean id="nullRequestCache" class="org.springframework.security.web.savedrequest.NullRequestCache"/>
 ----
-====
+======
 
 
 [[requestcacheawarefilter]]

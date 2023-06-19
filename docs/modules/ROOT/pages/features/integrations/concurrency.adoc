@@ -14,8 +14,10 @@ It wraps a delegate `Runnable` in order to initialize the `SecurityContextHolder
 It then invokes the delegate Runnable ensuring to clear the `SecurityContextHolder` afterwards.
 The `DelegatingSecurityContextRunnable` looks something like this:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public void run() {
@@ -28,7 +30,8 @@ try {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun run() {
@@ -40,7 +43,7 @@ fun run() {
     }
 }
 ----
-====
+======
 
 While very simple, it makes it seamless to transfer the SecurityContext from one Thread to another.
 This is important since, in most cases, the SecurityContextHolder acts on a per Thread basis.
@@ -48,8 +51,10 @@ For example, you might have used Spring Security's xref:servlet/appendix/namespa
 You can now easily transfer the `SecurityContext` of the current `Thread` to the `Thread` that invokes the secured service.
 An example of how you might do this can be found below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Runnable originalRunnable = new Runnable() {
@@ -65,7 +70,8 @@ DelegatingSecurityContextRunnable wrappedRunnable =
 new Thread(wrappedRunnable).start();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val originalRunnable = Runnable {
@@ -76,7 +82,7 @@ val wrappedRunnable = DelegatingSecurityContextRunnable(originalRunnable, contex
 
 Thread(wrappedRunnable).start()
 ----
-====
+======
 
 The code above performs the following steps:
 
@@ -90,8 +96,10 @@ Since it is quite common to create a `DelegatingSecurityContextRunnable` with th
 The following code is the same as the code above:
 
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Runnable originalRunnable = new Runnable() {
@@ -106,7 +114,8 @@ DelegatingSecurityContextRunnable wrappedRunnable =
 new Thread(wrappedRunnable).start();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val originalRunnable = Runnable {
@@ -117,7 +126,7 @@ val wrappedRunnable = DelegatingSecurityContextRunnable(originalRunnable)
 
 Thread(wrappedRunnable).start()
 ----
-====
+======
 
 The code we have is simple to use, but it still requires knowledge that we are using Spring Security.
 In the next section we will take a look at how we can utilize `DelegatingSecurityContextExecutor` to hide the fact that we are using Spring Security.
@@ -131,8 +140,10 @@ The design of `DelegatingSecurityContextExecutor` is very similar to that of `De
 You can see an example of how it might be used below:
 
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SecurityContext context = SecurityContextHolder.createEmptyContext();
@@ -154,7 +165,8 @@ public void run() {
 executor.execute(originalRunnable);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val context: SecurityContext = SecurityContextHolder.createEmptyContext()
@@ -171,7 +183,7 @@ val originalRunnable = Runnable {
 
 executor.execute(originalRunnable)
 ----
-====
+======
 
 The code performs the following steps:
 
@@ -185,8 +197,10 @@ In this instance, the same `SecurityContext` will be used for every Runnable sub
 This is nice if we are running background tasks that need to be run by a user with elevated privileges.
 * At this point you may be asking yourself "How does this shield my code of any knowledge of Spring Security?" Instead of creating the `SecurityContext` and the `DelegatingSecurityContextExecutor` in our own code, we can inject an already initialized instance of `DelegatingSecurityContextExecutor`.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -202,7 +216,8 @@ executor.execute(originalRunnable);
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Autowired
@@ -215,7 +230,7 @@ fun submitRunnable() {
     executor.execute(originalRunnable)
 }
 ----
-====
+======
 
 Now our code is unaware that the `SecurityContext` is being propagated to the `Thread`, then the `originalRunnable` is run, and then the `SecurityContextHolder` is cleared out.
 In this example, the same user is being used to run each thread.
@@ -224,8 +239,10 @@ This can be done by removing the `SecurityContext` argument from our `Delegating
 For example:
 
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SimpleAsyncTaskExecutor delegateExecutor = new SimpleAsyncTaskExecutor();
@@ -233,13 +250,14 @@ DelegatingSecurityContextExecutor executor =
 	new DelegatingSecurityContextExecutor(delegateExecutor);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val delegateExecutor = SimpleAsyncTaskExecutor()
 val executor = DelegatingSecurityContextExecutor(delegateExecutor)
 ----
-====
+======
 
 Now anytime `executor.execute(Runnable)` is executed the `SecurityContext` is first obtained by the `SecurityContextHolder` and then that `SecurityContext` is used to create our `DelegatingSecurityContextRunnable`.
 This means that we are running our `Runnable` with the same user that was used to invoke the `executor.execute(Runnable)` code.

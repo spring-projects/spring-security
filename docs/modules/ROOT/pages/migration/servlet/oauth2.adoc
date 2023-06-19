@@ -20,8 +20,10 @@ If you are using authorization rules or expressions such as `hasRole("USER")` or
 To opt into the new Spring Security 6 defaults, the following configuration can be used.
 
 .Configure oauth2Login() with 6.0 defaults
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -63,7 +65,8 @@ private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -94,14 +97,15 @@ private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
 	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
 </http>
 ----
-====
+======
 
 [[servlet-oauth2-login-authorities-opt-out]]
 === Opt-out Steps
@@ -109,8 +113,10 @@ private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
 If configuring the new authorities gives you trouble, you can opt out and explicitly use the 5.8 authority of `ROLE_USER` with the following configuration.
 
 .Configure oauth2Login() with 5.8 defaults
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -152,7 +158,8 @@ private GrantedAuthoritiesMapper grantedAuthoritiesMapper() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -183,14 +190,15 @@ private fun grantedAuthoritiesMapper(): GrantedAuthoritiesMapper {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
 	<oauth2-login user-authorities-mapper-ref="userAuthoritiesMapper" ... />
 </http>
 ----
-====
+======
 
 == Address OAuth2 Client Deprecations
 

@@ -13,8 +13,10 @@ In Spring Security 5.8, the method `tokenFromMultipartDataEnabled` was deprecate
 To address the deprecation, the following code:
 
 .Configure `tokenFromMultipartDataEnabled` with DSL
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -28,7 +30,8 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -41,13 +44,15 @@ open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChai
 	}
 }
 ----
-====
+======
 
 can be replaced with:
 
 .Configure `tokenFromMultipartDataEnabled` with `ServerCsrfTokenRequestAttributeHandler`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -63,7 +68,8 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -78,15 +84,17 @@ open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChai
 	}
 }
 ----
-====
+======
 
 === Protect against CSRF BREACH
 
 You can opt into Spring Security 6's default support for BREACH protection of the `CsrfToken` using the following configuration:
 
 .`CsrfToken` BREACH Protection
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -102,7 +110,8 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -117,7 +126,7 @@ open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChai
 	}
 }
 ----
-====
+======
 
 [[reactive-csrf-breach-opt-out]]
 === Opt-out Steps
@@ -131,8 +140,10 @@ If you are using AngularJS and the https://angular.io/api/common/http/HttpClient
 In this case, you can configure Spring Security to validate the raw `CsrfToken` from the cookie while keeping CSRF BREACH protection of the response using a custom `ServerCsrfTokenRequestHandler` with delegation, like so:
 
 .Configure `CsrfToken` BREACH Protection to validate raw tokens
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -163,7 +174,8 @@ WebFilter csrfCookieWebFilter() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -192,15 +204,17 @@ fun csrfCookieWebFilter(): WebFilter {
 	}
 }
 ----
-====
+======
 
 ==== I need to opt out of CSRF BREACH protection for another reason
 
 If CSRF BREACH protection does not work for you for another reason, you can opt out using the following configuration:
 
 .Opt out of `CsrfToken` BREACH protection
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -215,7 +229,8 @@ SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -229,7 +244,7 @@ open fun securityWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChai
 	}
 }
 ----
-====
+======
 
 == Use `AuthorizationManager` for Method Security
 
@@ -245,35 +260,41 @@ In Spring Security 5.8, `useAuthorizationManager` was added to {security-api-url
 
 To opt in, change `useAuthorizationManager` to `true` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = true)
 ----
-====
+======
 
 [[reactive-check-for-annotationconfigurationexceptions]]
 === Check for ``AnnotationConfigurationException``s
@@ -286,35 +307,41 @@ If after turning on `useAuthorizationManager` you see ``AnnotationConfigurationE
 
 If you ran into trouble with `AuthorizationManager` for reactive method security, you can opt out by changing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = false)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager = false)
 ----
-====
+======
 
 == Propagate ``AuthenticationServiceException``s
 
@@ -327,21 +354,24 @@ To prepare for the 6.0 default, `httpBasic` and `oauth2ResourceServer` should be
 
 For each, construct the appropriate authentication entry point for `httpBasic` and for `oauth2ResourceServer`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ServerAuthenticationEntryPoint bearerEntryPoint = new BearerTokenServerAuthenticationEntryPoint();
 ServerAuthenticationEntryPoint basicEntryPoint = new HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val bearerEntryPoint: ServerAuthenticationEntryPoint = BearerTokenServerAuthenticationEntryPoint()
 val basicEntryPoint: ServerAuthenticationEntryPoint = HttpStatusServerEntryPoint(HttpStatus.UNAUTHORIZED)
 ----
-====
+======
 
 [NOTE]
 ====
@@ -350,8 +380,10 @@ If you use a custom `AuthenticationEntryPoint` for either or both mechanisms, us
 
 Then, construct and configure a `ServerAuthenticationEntryPointFailureHandler` for each one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthenticationFailureHandler bearerFailureHandler = new ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint);
@@ -360,7 +392,8 @@ AuthenticationFailureHandler basicFailureHandler = new ServerAuthenticationEntry
 basicFailureHandler.setRethrowAuthenticationServiceException(true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val bearerFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(bearerEntryPoint)
@@ -368,12 +401,14 @@ bearerFailureHandler.setRethrowAuthenticationServiceException(true)
 val basicFailureHandler: AuthenticationFailureHandler = ServerAuthenticationEntryPointFailureHandler(basicEntryPoint)
 basicFailureHandler.setRethrowAuthenticationServiceException(true)
 ----
-====
+======
 
 Finally, wire each authentication failure handler into the DSL, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -381,7 +416,8 @@ http
     .oauth2ResourceServer((oauth2) -> oauth2.authenticationFailureHandler(bearerFailureHandler))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -393,7 +429,7 @@ http {
     }
 }
 ----
-====
+======
 
 [[reactive-authenticationfailurehandler-opt-out]]
 === Opt-out Steps
@@ -408,8 +444,10 @@ In 6.0, `@Configuration` is removed from `@EnableWebFluxSecurity` and `@EnableRe
 To prepare for this, wherever you are using one of these annotations, you may need to add `@Configuration`.
 For example, `@EnableReactiveMethodSecurity` changes from:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
@@ -417,8 +455,12 @@ public class MyConfiguration {
 	// ...
 }
 ----
+======
 
-.Kotlin
+[tabs]
+======
+Kotlin::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity
@@ -426,12 +468,14 @@ open class MyConfiguration {
 	// ...
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -440,8 +484,12 @@ public class MyConfiguration {
 	// ...
 }
 ----
+======
 
-.Kotlin
+[tabs]
+======
+Kotlin::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -450,7 +498,7 @@ open class MyConfiguration {
 	// ...
 }
 ----
-====
+======
 
 == Address OAuth2 Client Deprecations
 
@@ -494,8 +542,10 @@ The following annotations had their `@Configuration` removed:
 
 For example, if you are using `@EnableWebFluxSecurity`, you will need to change:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebFluxSecurity
@@ -503,12 +553,14 @@ public class SecurityConfig {
 	// ...
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -517,6 +569,6 @@ public class SecurityConfig {
 	// ...
 }
 ----
-====
+======
 
 And the same applies to every other annotation listed above.

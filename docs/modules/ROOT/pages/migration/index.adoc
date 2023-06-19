@@ -36,8 +36,10 @@ If you are xref:features/authentication/password-storage.adoc#authentication-pas
 
 If you use the default constructor, you should begin by changing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -46,7 +48,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -54,12 +57,14 @@ fun passwordEncoder(): PasswordEncoder {
     return Pbkdf2PasswordEncoder()
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -68,7 +73,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -76,12 +82,14 @@ fun passwordEncoder(): PasswordEncoder {
     return Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_5()
 }
 ----
-====
+======
 
 Or, if you have custom settings, change to the constructor that specifies all settings, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -91,7 +99,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -100,12 +109,14 @@ fun passwordEncoder(): PasswordEncoder {
     return current
 }
 ----
-====
+======
 
 Change them to use the fully-specified constructor, like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -115,7 +126,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -124,15 +136,17 @@ fun passwordEncoder(): PasswordEncoder {
     return current
 }
 ----
-====
+======
 
 ==== Use `DelegatingPasswordEncoder`
 
 Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -146,7 +160,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -159,7 +174,7 @@ fun passwordEncoder(): PasswordEncoder {
     return delegating
 }
 ----
-====
+======
 
 === Update `SCryptPasswordEncoder`
 
@@ -169,8 +184,10 @@ If you are xref:features/authentication/password-storage.adoc#authentication-pas
 
 If you use the default constructor, you should begin by changing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -179,7 +196,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -187,12 +205,14 @@ fun passwordEncoder(): PasswordEncoder {
     return SCryptPasswordEncoder()
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -201,7 +221,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -209,15 +230,17 @@ fun passwordEncoder(): PasswordEncoder {
     return SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1()
 }
 ----
-====
+======
 
 ==== Use `DelegatingPasswordEncoder`
 
 Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -231,7 +254,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -244,7 +268,7 @@ fun passwordEncoder(): PasswordEncoder {
     return delegating
 }
 ----
-====
+======
 
 === Update `Argon2PasswordEncoder`
 
@@ -254,8 +278,10 @@ If you are xref:features/authentication/password-storage.adoc#authentication-pas
 
 If you use the default constructor, you should begin by changing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -264,7 +290,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -272,12 +299,14 @@ fun passwordEncoder(): PasswordEncoder {
 	return Argon2PasswordEncoder()
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -286,7 +315,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -294,15 +324,17 @@ fun passwordEncoder(): PasswordEncoder {
 	return Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2()
 }
 ----
-====
+======
 
 ==== Use `DelegatingPasswordEncoder`
 
 Once you are not using the deprecated constructor, the next step is to prepare your code to upgrade to the latest standards by using `DelegatingPasswordEncoder`.
 The following code configures the delegating encoder to detect passwords that are using `current` and replace them with the latest:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -316,7 +348,8 @@ PasswordEncoder passwordEncoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -329,7 +362,7 @@ fun passwordEncoder(): PasswordEncoder {
 	return delegating
 }
 ----
-====
+======
 
 == Stop using `Encryptors.queryableText`
 
@@ -340,8 +373,10 @@ To upgrade, you will either need to re-encrypt with a supported mechanism or sto
 
 Consider the following pseudocode for reading each encrypted entry from a table, decrypting it, and then re-encrypting it using a supported mechanism:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 TextEncryptor deprecated = Encryptors.queryableText(password, salt);
@@ -353,7 +388,7 @@ for (MyEntry entry : entries) {
 	entryService.save(entry)
 }
 ----
-====
+======
 <1> - The above uses the deprecated `queryableText` to convert the value to plaintext.
 <2> - Then, the value is re-encrypted with a supported Spring Security mechanism.
 

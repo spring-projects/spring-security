@@ -10,8 +10,10 @@ In 6.0, `@Configuration` is removed from `@EnableWebSecurity`, `@EnableMethodSec
 To prepare for this, wherever you are using one of these annotations, you may need to add `@Configuration`.
 For example, `@EnableMethodSecurity` changes from:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity
@@ -19,8 +21,12 @@ public class MyConfiguration {
 	// ...
 }
 ----
+======
 
-.Kotlin
+[tabs]
+======
+Kotlin::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity
@@ -28,12 +34,14 @@ open class MyConfiguration {
 	// ...
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -42,8 +50,12 @@ public class MyConfiguration {
 	// ...
 }
 ----
+======
 
-.Kotlin
+[tabs]
+======
+Kotlin::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -52,7 +64,7 @@ open class MyConfiguration {
 	// ...
 }
 ----
-====
+======
 
 [[use-new-requestmatchers]]
 == Use the new `requestMatchers` methods
@@ -67,8 +79,10 @@ In summary, the new methods choose the `MvcRequestMatcher` implementation if you
 
 To start using the new methods, you can replace the deprecated methods with the new ones. For example, the following application configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -88,12 +102,14 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 can be changed to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -113,13 +129,15 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 If you have Spring MVC in the classpath and are using the `mvcMatchers` methods, you can replace it with the new methods and Spring Security will choose the `MvcRequestMatcher` implementation for you.
 The following configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -139,12 +157,14 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 is equivalent to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -164,12 +184,14 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 If you are customizing the `servletPath` property of the `MvcRequestMatcher`, you can now use the `MvcRequestMatcher.Builder` to create `MvcRequestMatcher` instances that share the same servlet path:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -190,12 +212,14 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 The code above can be rewritten using the `MvcRequestMatcher.Builder` and the `requestMatchers` method:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -217,13 +241,15 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 If you are having problem with the new `requestMatchers` methods, you can always switch back to the `RequestMatcher` implementation that you were using.
 For example, if you still want to use `AntPathRequestMatcher` and `RegexRequestMatcher` implementations, you can use the `requestMatchers` method that accepts a `RequestMatcher` instance:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -247,14 +273,16 @@ public class SecurityConfig {
 
 }
 ----
-====
+======
 
 Note that the above sample uses static factory methods from {security-api-url}org/springframework/security/web/util/matcher/AntPathRequestMatcher.html[`AntPathRequestMatcher`] and {security-api-url}org/springframework/security/web/util/matcher/RegexRequestMatcher.html[`RegexRequestMatcher`] to improve readability.
 
 If you are using the `WebSecurityCustomizer` interface, you can replace the deprecated `antMatchers` methods:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -262,12 +290,14 @@ public WebSecurityCustomizer webSecurityCustomizer() {
 	return (web) -> web.ignoring().antMatchers("/ignore1", "/ignore2");
 }
 ----
-====
+======
 
 with their `requestMatchers` counterparts:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -275,12 +305,14 @@ public WebSecurityCustomizer webSecurityCustomizer() {
 	return (web) -> web.ignoring().requestMatchers("/ignore1", "/ignore2");
 }
 ----
-====
+======
 
 The same way, if you are customizing the CSRF configuration to ignore some paths, you can replace the deprecated methods with the `requestMatchers` methods:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -292,12 +324,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 can be changed to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -309,7 +343,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 [[use-new-security-matchers]]
 == Use the new `securityMatchers` methods
@@ -323,8 +357,10 @@ Another reason for adding the `securityMatchers` methods is to avoid confusion w
 
 The following configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -338,12 +374,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 can be rewritten using the `securityMatchers` methods:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -357,12 +395,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 If you are using a custom `RequestMatcher` in your `HttpSecurity` configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -380,12 +420,14 @@ public class MyCustomRequestMatcher implements RequestMatcher {
 	// ...
 }
 ----
-====
+======
 
 you can do the same using `securityMatcher`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -403,12 +445,14 @@ public class MyCustomRequestMatcher implements RequestMatcher {
 	// ...
 }
 ----
-====
+======
 
 If you are combining multiple `RequestMatcher` implementations in your `HttpSecurity` configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -426,12 +470,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 you can change it by using `securityMatchers`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -448,12 +494,14 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 If you are having problems with the `securityMatchers` methods choosing the `RequestMatcher` implementation for you, you can always choose the `RequestMatcher` implementation yourself:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
@@ -471,7 +519,7 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 == Stop Using `WebSecurityConfigurerAdapter`
 
@@ -481,8 +529,10 @@ Spring Security 5.4 introduced the capability to publish a `SecurityFilterChain`
 In 6.0, `WebSecurityConfigurerAdapter` is removed.
 To prepare for this change, you can replace constructs like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -500,7 +550,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -519,12 +570,14 @@ open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
 
 }
 ----
-====
+======
 
 with:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -543,7 +596,8 @@ public class SecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -562,15 +616,17 @@ open class SecurityConfiguration {
 
 }
 ----
-====
+======
 
 === Publish a `WebSecurityCustomizer` Bean
 
 Spring Security 5.4 https://github.com/spring-projects/spring-security/issues/8978[introduced `WebSecurityCustomizer`] to replace `configure(WebSecurity web)` in `WebSecurityConfigurerAdapter`.
 To prepare for its removal, you can replace code like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -584,7 +640,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -596,12 +653,14 @@ open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
 
 }
 ----
-====
+======
 
 with:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -615,7 +674,8 @@ public class SecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -628,7 +688,7 @@ open class SecurityConfiguration {
 
 }
 ----
-====
+======
 
 === Publish an `AuthenticationManager` Bean
 
@@ -639,8 +699,10 @@ Preparing for its removal will differ based on your reason for using it.
 
 If you are using `auth.ldapAuthentication()` for xref:servlet/authentication/passwords/ldap.adoc[LDAP authentication support], you can replace:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -659,7 +721,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -676,12 +739,14 @@ open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
 
 }
 ----
-====
+======
 
 with:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -705,7 +770,8 @@ public class SecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -727,14 +793,16 @@ open class SecurityConfiguration {
     }
 }
 ----
-====
+======
 
 ==== JDBC Authentication
 
 If you are using `auth.jdbcAuthentication()` for xref:servlet/authentication/passwords/jdbc.adoc[JDBC Authentication support], you can replace:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -761,7 +829,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -786,12 +855,14 @@ open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 with:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -818,7 +889,8 @@ public class SecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -844,14 +916,16 @@ open class SecurityConfiguration {
     }
 }
 ----
-====
+======
 
 ==== In-Memory Authentication
 
 If you are using `auth.inMemoryAuthentication()` for xref:servlet/authentication/passwords/in-memory.adoc[In-Memory Authentication support], you can replace:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -869,7 +943,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -885,12 +960,14 @@ open class SecurityConfiguration: WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 with:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -907,7 +984,8 @@ public class SecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -923,7 +1001,7 @@ open class SecurityConfiguration {
     }
 }
 ----
-====
+======
 
 == Add `@Configuration` to `@Enable*` annotations
 
@@ -942,8 +1020,10 @@ The following annotations had their `@Configuration` removed:
 
 For example, if you are using `@EnableWebSecurity`, you will need to change:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -951,12 +1031,14 @@ public class SecurityConfig {
 	// ...
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -965,7 +1047,7 @@ public class SecurityConfig {
 	// ...
 }
 ----
-====
+======
 
 And the same applies to every other annotation listed above.
 

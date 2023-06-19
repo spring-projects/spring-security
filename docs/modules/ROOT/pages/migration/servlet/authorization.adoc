@@ -16,93 +16,109 @@ The new annotation and XML element activate Spring's xref:servlet/authorization/
 
 This means that the following two listings are functionally equivalent:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <global-method-security pre-post-enabled="true"/>
 ----
-====
+======
 
 and:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <method-security/>
 ----
-====
+======
 
 For applications not using the pre-post annotations, make sure to turn it off to avoid activating unwanted behavior.
 
 For example, a listing like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <global-method-security secured-enabled="true"/>
 ----
-====
+======
 
 should change to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <method-security secured-enabled="true" pre-post-enabled="false"/>
 ----
-====
+======
 
 === Change the `order` value in `@EnableTransactionManagement`
 
@@ -119,47 +135,55 @@ The `@PreFilter` interceptor has an order of 100; `@PostAuthorize`, 200; and so 
 
 So, if after updating you find that your method security expressions are not working due to not having an open transaction, please change your transaction annotation definition from the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableTransactionManagement
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableTransactionManagement
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <tx:annotation-driven ref="txManager"/>
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableTransactionManagement(order = 0)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableTransactionManagement(order = 0)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <tx:annotation-driven ref="txManager" order="0"/>
 ----
-====
+======
 
 In this way, the transaction AOP advice will be placed before Spring Security's advice and the transaction will be open when your authorization SpEL expressions are evaluated.
 
@@ -178,8 +202,10 @@ Instead, you can create a custom bean with the authorization methods that you ne
 For example, let's say you are wanting a custom evaluation of `@PostAuthorize("hasAuthority('ADMIN')")`.
 You can create a custom `@Bean` like this one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 class MyAuthorizer {
@@ -191,7 +217,8 @@ class MyAuthorizer {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyAuthorizer {
@@ -202,31 +229,36 @@ class MyAuthorizer {
 	}
 }
 ----
-====
+======
 
 and then refer to it in the annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("@authz.isAdmin(#root)")
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("@authz.isAdmin(#root)")
 ----
-====
+======
 
 ==== I'd still prefer to subclass `DefaultMethodSecurityExpressionHandler`
 
 If you must continue subclassing `DefaultMethodSecurityExpressionHandler`, you can still do so.
 Instead, override the `createEvaluationContext(Supplier<Authentication>, MethodInvocation)` method like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -245,7 +277,8 @@ class MyExpressionHandler extends DefaultMethodSecurityExpressionHandler {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -262,7 +295,7 @@ class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
     }
 }
 ----
-====
+======
 
 ==== Opt-out Steps
 
@@ -276,8 +309,10 @@ This helps keep its API simple.
 
 If you have a custom {security-api-url}org/springframework/security/access/PermissionEvaluator.html[`PermissionEvaluator`] `@Bean`, please change it from:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -286,7 +321,8 @@ static PermissionEvaluator permissionEvaluator() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -296,12 +332,14 @@ companion object {
 	}
 }
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -312,7 +350,8 @@ static MethodSecurityExpressionHandler expressionHandler() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -324,7 +363,7 @@ companion object {
 	}
 }
 ----
-====
+======
 
 === Replace any custom method-security ``AccessDecisionManager``s
 
@@ -347,8 +386,10 @@ Having done that, please follow the details in the reference manual for xref:ser
 
 If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 AuthorizationManager<MethodInvocation> authorization = AuthorizationManagers.anyOf(
@@ -356,14 +397,15 @@ AuthorizationManager<MethodInvocation> authorization = AuthorizationManagers.any
 )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authorization = AuthorizationManagers.anyOf(
 		// ... your list of authorization managers
 )
 ----
-====
+======
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
 
@@ -381,8 +423,10 @@ You should either change the class to implement {security-api-url}org/springfram
 Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
 By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `@PreAuthorize` would look like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public final class PreAuthorizeAuthorizationManagerAdapter implements AuthorizationManager<MethodInvocation> {
@@ -411,7 +455,7 @@ public final class PreAuthorizeAuthorizationManagerAdapter implements Authorizat
     }
 }
 ----
-====
+======
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
 
@@ -440,8 +484,10 @@ It is quite straightforward to adapt a `RunAsManager`, though, to the `Authoriza
 
 Here is some pseudocode to get you started:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public final class RunAsAuthorizationManagerAdapter<T> implements AuthorizationManager<T> {
@@ -460,7 +506,7 @@ public final class RunAsAuthorizationManagerAdapter<T> implements AuthorizationM
     }
 }
 ----
-====
+======
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/method-security.adoc#jc-method-security-custom-authorization-manager[adding a custom `AuthorizationManager`].
 
@@ -485,8 +531,10 @@ To prepare for this, ensure that authorization rules exist are declared for ever
 
 For example, an application configuration like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Override
@@ -497,7 +545,8 @@ protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
@@ -507,7 +556,8 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker>
@@ -515,12 +565,14 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
     <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
 </websocket-message-broker>
 ----
-====
+======
 
 should change to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Override
@@ -533,7 +585,8 @@ protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
@@ -545,7 +598,8 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker>
@@ -557,7 +611,7 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
     <intercept-message pattern="/**" access="denyAll"/>
 </websocket-message-broker>
 ----
-====
+======
 
 === Add `@EnableWebSocketSecurity`
 
@@ -572,8 +626,10 @@ If you are using Java Configuration, add {security-api-url}org/springframework/s
 
 For example, you can add it to your websocket security configuration class, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSocketSecurity
@@ -583,7 +639,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSocketSecurity
@@ -592,7 +649,7 @@ class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer(
 	// ...
 }
 ----
-====
+======
 
 This will make a prototype instance of `MessageMatcherDelegatingAuthorizationManager.Builder` available to encourage configuration by composition instead of extension.
 
@@ -602,8 +659,10 @@ To start using `AuthorizationManager`, you can set the `use-authorization-manage
 
 For example, the following application configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Override
@@ -616,7 +675,8 @@ protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
@@ -628,7 +688,8 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker>
@@ -640,12 +701,14 @@ override fun configureInbound(messages: MessageSecurityMetadataSourceRegistry) {
     <intercept-message pattern="/**" access="denyAll"/>
 </websocket-message-broker>
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -659,7 +722,8 @@ AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthori
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -673,7 +737,8 @@ fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.B
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker use-authorization-manager="true">
@@ -685,7 +750,7 @@ fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.B
     <intercept-message pattern="/**" access="denyAll"/>
 </websocket-message-broker>
 ----
-====
+======
 
 === Stop Implementing `AbstractSecurityWebSocketMessageBrokerConfigurer`
 
@@ -693,8 +758,10 @@ If you are using Java configuration, you can now simply extend `WebSocketMessage
 
 For example, if your class that extends `AbstractSecurityWebSocketMessageBrokerConfigurer` is called `WebSocketSecurityConfig`, then:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSocketSecurity
@@ -704,7 +771,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSocketSecurity
@@ -713,12 +781,14 @@ class WebSocketSecurityConfig: AbstractSecurityWebSocketMessageBrokerConfigurer(
 	// ...
 }
 ----
-====
+======
 
 changes to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSocketSecurity
@@ -728,7 +798,8 @@ public class WebSocketSecurityConfig implements WebSocketMessageBrokerConfigurer
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSocketSecurity
@@ -737,7 +808,7 @@ class WebSocketSecurityConfig: WebSocketMessageBrokerConfigurer {
 	// ...
 }
 ----
-====
+======
 
 [[servlet-authorizationmanager-messages-opt-out]]
 === Opt-out Steps
@@ -748,8 +819,10 @@ In case you had trouble, take a look at these scenarios for optimal opt out beha
 
 If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/messaging/access/intercept/MessageMatcherDelegatingAuthorizationManager.Builder.Constraint.html#permitAll()[`permitAll`] instead, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -763,7 +836,8 @@ AuthorizationManager<Message<?>> messageSecurity(MessageMatcherDelegatingAuthori
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -777,7 +851,8 @@ fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.B
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <websocket-message-broker use-authorization-manager="true">
@@ -787,7 +862,7 @@ fun messageSecurity(val messages: MessageMatcherDelegatingAuthorizationManager.B
     <intercept-message pattern="/**" access="permitAll"/>
 </websocket-message-broker>
 ----
-====
+======
 
 ==== I cannot get CSRF working, need some other `AbstractSecurityWebSocketMessageBrokerConfigurer` feature, or am having trouble with `AuthorizationManager`
 
@@ -796,7 +871,6 @@ Even though it is deprecated, it will not be removed in 6.0.
 
 In the case of XML, you can opt out of `AuthorizationManager` by setting `use-authorization-manager="false"`:
 
-====
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -805,11 +879,9 @@ In the case of XML, you can opt out of `AuthorizationManager` by setting `use-au
     <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
 </websocket-message-broker>
 ----
-====
 
 to:
 
-====
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -818,7 +890,6 @@ to:
     <intercept-message pattern="/admin/**" access="hasRole('ADMIN')"/>
 </websocket-message-broker>
 ----
-====
 
 == Use `AuthorizationManager` for Request Security
 
@@ -842,8 +913,10 @@ You may already have an `anyRequest` rule defined that you are happy with in whi
 
 Adding `denyAll` to the end looks like changing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -855,7 +928,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -867,7 +941,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http once-per-request="true">
@@ -875,12 +950,14 @@ http {
     <!-- ... -->
 </http>
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -893,7 +970,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -906,7 +984,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http once-per-request="true">
@@ -915,7 +994,7 @@ http {
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
 ----
-====
+======
 
 If you have already migrated to `authorizeHttpRequests`, the recommended change is the same.
 
@@ -925,8 +1004,10 @@ To opt in to using `AuthorizationManager`, you can use `authorizeHttpRequests` o
 
 Change:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -939,7 +1020,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -952,7 +1034,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http once-per-request="true">
@@ -961,12 +1044,14 @@ http {
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -979,7 +1064,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -992,7 +1078,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="false" use-authorization-manager="true">
@@ -1001,7 +1088,7 @@ http {
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
 ----
-====
+======
 
 === Migrate SpEL expressions to `AuthorizationManager`
 
@@ -1014,8 +1101,10 @@ For completeness, both options will be demonstrated.
 
 First, if you have the following SpEL:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1028,7 +1117,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1040,12 +1130,14 @@ http {
     }
 }
 ----
-====
+======
 
 Then you can compose your own `AuthorizationManager` with Spring Security authorization primitives like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1058,7 +1150,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1070,12 +1163,14 @@ http {
     }
 }
 ----
-====
+======
 
 Or you can use `WebExpressionAuthorizationManager` in the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1090,7 +1185,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1104,7 +1200,7 @@ http {
     }
 }
 ----
-====
+======
 
 [[switch-filter-all-dispatcher-types]]
 === Switch to filter all dispatcher types
@@ -1119,8 +1215,10 @@ So, finally, change your authorization rules to filter all dispatcher types.
 
 To do this, you should change:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1133,7 +1231,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1146,7 +1245,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="false" use-authorization-manager="true">
@@ -1155,12 +1255,14 @@ http {
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
 ----
-====
+======
 
 to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1173,7 +1275,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1186,7 +1289,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="true" use-authorization-manager="true">
@@ -1195,23 +1299,27 @@ http {
     <intercept-url pattern="/**" access="denyAll"/>
 </http>
 ----
-====
+======
 
 And, the `FilterChainProxy` should be registered for all dispatcher types as well.
 If you are using Spring Boot, https://docs.spring.io/spring-boot/docs/current/reference/html/application-properties.html#application-properties.security.spring.security.filter.dispatcher-types[you have to change the `spring.security.filter.dispatcher-types` property] to include all dispatcher types:
 
-====
-.application.properties
+[tabs]
+======
+application.properties::
++
 [source,properties,role="primary"]
 ----
 spring.security.filter.dispatcher-types=request,async,error,forward,include
 ----
-====
+======
 
 If you are xref:servlet/configuration/java.adoc#_abstractsecuritywebapplicationinitializer[using the `AbstractSecurityWebApplicationInitializer`] you should override the `getSecurityDispatcherTypes` method and return all dispatcher types:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import org.springframework.security.web.context.*;
@@ -1226,7 +1334,7 @@ public class SecurityWebApplicationInitializer extends AbstractSecurityWebApplic
 
 }
 ----
-====
+======
 
 ==== Permit `FORWARD` when using Spring MVC
 
@@ -1236,8 +1344,10 @@ As we saw on the <<switch-filter-all-dispatcher-types,previous section>>, Spring
 
 Consider the following common configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1255,12 +1365,14 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     return http.build();
 }
 ----
-====
+======
 
 and one of the following equivalents MVC view mapping configurations:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -1273,10 +1385,12 @@ public class MyController {
 
 }
 ----
-====
+======
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -1289,15 +1403,17 @@ public class MyWebMvcConfigurer implements WebMvcConfigurer {
 
 }
 ----
-====
+======
 
 With either configuration, when there is a request to `/login`, Spring MVC will perform a *forward* to the view `login`, which, with the default configuration, is under `src/main/resources/templates/login.html` path.
 The security configuration permits requests to `/login` but every other request will be denied, including the `FORWARD` request to the view under `/templates/login.html`.
 
 To fix this, you should configure Spring Security to permit `FORWARD` requests:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1309,7 +1425,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1321,7 +1438,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="true" use-authorization-manager="true">
@@ -1334,7 +1452,7 @@ http {
     <constructor-arg value="FORWARD"/>
 </bean>
 ----
-====
+======
 
 === Replace any custom filter-security ``AccessDecisionManager``s
 
@@ -1346,8 +1464,10 @@ Read on to find the best match for your situation.
 
 If your application uses {security-api-url}org/springframework/security/access/vote/UnanimousBased.html[`UnanimousBased`], you should first adapt or replace any ``AccessDecisionVoter``s and then you can construct an `AuthorizationManager` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1358,7 +1478,8 @@ AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1369,7 +1490,8 @@ fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
@@ -1382,12 +1504,14 @@ fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
     </constructor-arg>
 </bean>
 ----
-====
+======
 
 then, wire it into the DSL like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1395,7 +1519,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1406,12 +1531,13 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http authorization-manager-ref="requestAuthorization"/>
 ----
-====
+======
 
 [NOTE]
 ====
@@ -1423,8 +1549,10 @@ See xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization
 
 If your application uses {security-api-url}org/springframework/security/access/vote/AffirmativeBased.html[`AffirmativeBased`], then you can construct an equivalent {security-api-url}org/springframework/security/authorization/AuthorizationManager.html[`AuthorizationManager`], like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1435,7 +1563,8 @@ AuthorizationManager<RequestAuthorizationContext> requestAuthorization() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1446,7 +1575,8 @@ fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="requestAuthorization" class="org.springframework.security.authorization.AuthorizationManagers"
@@ -1459,12 +1589,14 @@ fun requestAuthorization(): AuthorizationManager<RequestAuthorizationContext> {
     </constructor-arg>
 </bean>
 ----
-====
+======
 
 then, wire it into the DSL like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1472,7 +1604,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1483,12 +1616,13 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http authorization-manager-ref="requestAuthorization"/>
 ----
-====
+======
 
 [NOTE]
 ====
@@ -1511,8 +1645,10 @@ You should either change the class to implement {security-api-url}org/springfram
 Without knowing what your custom voter is doing, it is impossible to recommend a general-purpose solution.
 By way of example, though, here is what adapting {security-api-url}org/springframework/security/access/SecurityMetadataSource.html[`SecurityMetadataSource`] and {security-api-url}org/springframework/security/access/AccessDecisionVoter.html[`AccessDecisionVoter`] for `anyRequest().authenticated()` would look like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public final class AnyRequestAuthenticatedAuthorizationManagerAdapter implements AuthorizationManager<RequestAuthorizationContext> {
@@ -1541,7 +1677,7 @@ public final class AnyRequestAuthenticatedAuthorizationManagerAdapter implements
     }
 }
 ----
-====
+======
 
 Once you have implemented `AuthorizationManager`, please follow the details in the reference manual for xref:servlet/authorization/authorize-http-requests.adoc#custom-authorization-manager[adding a custom `AuthorizationManager`].
 
@@ -1553,7 +1689,6 @@ Therefore, if you are using `GrantedAuthorityDefaults` to change the prefix of y
 
 For example, you will have to change from:
 
-====
 .authorizeRequests with custom role prefix
 [source,java]
 ----
@@ -1571,11 +1706,9 @@ public GrantedAuthorityDefaults grantedAuthorityDefaults() {
     return new GrantedAuthorityDefaults("MYPREFIX_");
 }
 ----
-====
 
 to:
 
-====
 .authorizeHttpRequests with hasAuthority and custom role prefix
 [source,java]
 ----
@@ -1588,7 +1721,6 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
 
 This should be supported in the future, see https://github.com/spring-projects/spring-security/issues/13215[gh-13227] for more details.
 
@@ -1601,8 +1733,10 @@ In case you had trouble, take a look at these scenarios for optimal opt out beha
 
 If you cannot secure all dispatcher types, first try and declare which dispatcher types should not require authorization like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1616,7 +1750,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1630,7 +1765,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="true" use-authorization-manager="true">
@@ -1649,12 +1785,14 @@ http {
     </constructor-arg>
 </bean>
 ----
-====
+======
 
 Or, if that doesn't work, then you can explicitly opt out of the behavior by setting `filter-all-dispatcher-types` and `filterAllDispatcherTypes` to `false`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1666,7 +1804,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1678,7 +1817,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http filter-all-dispatcher-types="false" use-authorization-manager="true">
@@ -1686,12 +1826,14 @@ http {
     <!-- ... -->
 </http>
 ----
-====
+======
 
 or, if you are still using `authorizeRequests` or `use-authorization-manager="false"`, set `oncePerRequest` to `true`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1703,7 +1845,8 @@ http
     // ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1715,7 +1858,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http once-per-request="true" use-authorization-manager="false">
@@ -1723,14 +1867,16 @@ http {
     <!-- ... -->
 </http>
 ----
-====
+======
 
 ==== I cannot declare an authorization rule for all requests
 
 If you are having trouble setting an `anyRequest` authorization rule of `denyAll`, please use {security-api-url}org/springframework/security/config/annotation/web/configurers/ExpressionUrlAuthorizationConfigurer.AuthorizedUrl.html#permitAll()[`permitAll`] instead, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -1741,7 +1887,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -1753,7 +1900,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -1762,7 +1910,7 @@ http {
     <intercept-url pattern="/**" access="permitAll"/>
 </http>
 ----
-====
+======
 
 ==== I cannot migrate my SpEL or my `AccessDecisionManager`
 
@@ -1772,7 +1920,6 @@ First, if you still need `authorizeRequests`, you are welcome to keep using it. 
 
 Second, if you still need your custom `access-decision-manager-ref` or have some other reason to opt out of `AuthorizationManager`, do:
 
-====
 .Xml
 [source,xml,role="secondary"]
 ----
@@ -1781,4 +1928,3 @@ Second, if you still need your custom `access-decision-manager-ref` or have some
     <!-- ... -->
 </http>
 ----
-====

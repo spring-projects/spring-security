@@ -24,127 +24,147 @@ A few ways to do this are:
 * Manually adding `SecurityContextPersistenceFilter` to the `MockMvc` instance may make sense when using `MockMvcBuilders.standaloneSetup`
 ====
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/").with(user("user")))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/") {
     with(user("user"))
 }
 ----
-====
+======
 
 You can easily make customizations.
 For example, the following will run as a user (which does not need to exist) with the username "admin", the password "pass", and the roles "ROLE_USER" and "ROLE_ADMIN".
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/admin").with(user("admin").password("pass").roles("USER","ADMIN")))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/admin") {
     with(user("admin").password("pass").roles("USER","ADMIN"))
 }
 ----
-====
+======
 
 If you have a custom `UserDetails` that you would like to use, you can easily specify that as well.
 For example, the following will use the specified `UserDetails` (which does not need to exist) to run with a `UsernamePasswordAuthenticationToken` that has a principal of the specified `UserDetails`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/").with(user(userDetails)))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/") {
     with(user(userDetails))
 }
 ----
-====
+======
 
 You can run as anonymous user using the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/").with(anonymous()))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/") {
     with(anonymous())
 }
 ----
-====
+======
 
 This is especially useful if you are running with a default user and wish to process a few requests as an anonymous user.
 
 If you want a custom `Authentication` (which does not need to exist) you can do so using the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/").with(authentication(authentication)))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/") {
     with(authentication(authentication))
 }
 ----
-====
+======
 
 You can even customize the `SecurityContext` using the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc
 	.perform(get("/").with(securityContext(securityContext)))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc.get("/") {
     with(securityContext(securityContext))
 }
 ----
-====
+======
 
 We can also ensure to run as a specific user for every request by using ``MockMvcBuilders``'s default request.
 For example, the following will run as a user (which does not need to exist) with the username "admin", the password "password", and the role "ROLE_ADMIN":
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 mvc = MockMvcBuilders
@@ -154,7 +174,8 @@ mvc = MockMvcBuilders
 		.build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 mvc = MockMvcBuilders
@@ -163,13 +184,15 @@ mvc = MockMvcBuilders
     .apply<DefaultMockMvcBuilder>(springSecurity())
     .build()
 ----
-====
+======
 
 If you find you are using the same user in many of your tests, it is recommended to move the user to a method.
 For example, you can specify the following in your own class named `CustomSecurityMockMvcRequestPostProcessors`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public static RequestPostProcessor rob() {
@@ -177,19 +200,22 @@ public static RequestPostProcessor rob() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun rob(): RequestPostProcessor {
     return user("rob").roles("ADMIN")
 }
 ----
-====
+======
 
 Now you can perform a static import on `CustomSecurityMockMvcRequestPostProcessors` and use that within your tests:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static sample.CustomSecurityMockMvcRequestPostProcessors.*;
@@ -200,7 +226,8 @@ mvc
 	.perform(get("/").with(rob()))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import sample.CustomSecurityMockMvcRequestPostProcessors.*
@@ -211,7 +238,7 @@ mvc.get("/") {
     with(rob())
 }
 ----
-====
+======
 
 [[test-mockmvc-withmockuser]]
 == Running as a User in Spring MVC Test with Annotations
@@ -219,8 +246,10 @@ mvc.get("/") {
 As an alternative to using a `RequestPostProcessor` to create your user, you can use annotations described in xref:servlet/test/method.adoc[Testing Method Security].
 For example, the following will run the test with the user with username "user", password "password", and role "ROLE_USER":
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Test
@@ -232,7 +261,8 @@ mvc
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Test
@@ -243,12 +273,14 @@ fun requestProtectedUrlWithUser() {
         // ...
 }
 ----
-====
+======
 
 Alternatively, the following will run the test with the user with username "user", password "password", and role "ROLE_ADMIN":
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Test
@@ -260,7 +292,8 @@ mvc
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Test
@@ -271,4 +304,4 @@ fun requestProtectedUrlWithUser() {
         // ...
 }
 ----
-====
+======

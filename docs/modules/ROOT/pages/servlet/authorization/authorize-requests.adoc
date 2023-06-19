@@ -30,8 +30,10 @@ The explicit configuration looks like:
 
 [[servlet-authorize-requests-defaults]]
 .Every Request Must be Authenticated
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -45,7 +47,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -54,7 +57,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -68,13 +72,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 
 We can configure Spring Security to have different rules by adding more rules in order of precedence.
 
 .Authorize Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -91,7 +97,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http> <!--1-->
@@ -107,7 +114,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -126,7 +134,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 <1> There are multiple authorization rules specified.
 Each rule is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access.
@@ -147,8 +155,10 @@ In some scenarios, you may want to apply the filter to every request.
 You can configure Spring Security to apply the authorization rules to every request by using the `filterSecurityInterceptorOncePerRequest` method:
 
 .Set filterSecurityInterceptorOncePerRequest to false
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -164,20 +174,23 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http once-per-request="false">
     <intercept-url pattern="/**" access="authenticated"/>
 </http>
 ----
-====
+======
 
 You can also configure authorization based on the request dispatcher type:
 
 .Permit ASYNC dispatcher type
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -193,7 +206,9 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-.XML
+
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true" once-per-request="false">
@@ -205,4 +220,4 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     <b:constructor-arg value="ASYNC"/>
 </b:bean>
 ----
-====
+======
