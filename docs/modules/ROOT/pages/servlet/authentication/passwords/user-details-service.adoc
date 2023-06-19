@@ -13,8 +13,10 @@ This is only used if the `AuthenticationManagerBuilder` has not been populated a
 ====
 
 .Custom UserDetailsService Bean
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -23,18 +25,20 @@ CustomUserDetailsService customUserDetailsService() {
 }
 ----
 
-.XML
+XML::
++
 [source,java,role="secondary"]
 ----
 <b:bean class="example.CustomUserDetailsService"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
 fun customUserDetailsService() = CustomUserDetailsService()
 ----
-====
+======
 
 // FIXME: Add CustomUserDetails example with links to @AuthenticationPrincipal

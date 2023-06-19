@@ -8,8 +8,10 @@ If the request does not contain any cookies and Spring Security is first, the re
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
 Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` that uses the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -37,7 +39,8 @@ public class WebSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -64,11 +67,10 @@ open class WebSecurityConfig {
     }
 }
 ----
-====
+======
 
 The following listing does the same thing in XML:
 
-====
 [source,xml]
 ----
 <http>
@@ -79,12 +81,13 @@ The following listing does the same thing in XML:
 	...
 </b:bean>
 ----
-====
 
 If you use Spring MVC's CORS support, you can omit specifying the `CorsConfigurationSource` and Spring Security uses the CORS configuration provided to Spring MVC:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -103,7 +106,8 @@ public class WebSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -121,11 +125,10 @@ open class WebSecurityConfig {
     }
 }
 ----
-====
+======
 
 The following listing does the same thing in XML:
 
-====
 [source,xml]
 ----
 <http>
@@ -134,4 +137,3 @@ The following listing does the same thing in XML:
 	...
 </http>
 ----
-====

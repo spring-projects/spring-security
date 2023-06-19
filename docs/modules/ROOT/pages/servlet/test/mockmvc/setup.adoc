@@ -10,8 +10,10 @@ To use Spring Security with Spring MVC Test, add the Spring Security `FilterChai
 You also need to add Spring Security's `TestSecurityContextHolderPostProcessor` to support xref:servlet/test/mockmvc/setup.adoc#test-mockmvc-withmockuser[Running as a User in Spring MVC Test with Annotations].
 To do so, use Spring Security's `SecurityMockMvcConfigurers.springSecurity()`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -38,7 +40,8 @@ public class CsrfShowcaseTests {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @ExtendWith(SpringExtension.class)
@@ -61,6 +64,6 @@ class CsrfShowcaseTests {
     // ...
 }
 ----
+======
 <1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test
-====
 

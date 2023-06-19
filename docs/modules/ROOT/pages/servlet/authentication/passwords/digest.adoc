@@ -25,22 +25,22 @@ This is a value the server generates.
 Spring Security's nonce adopts the following format:
 
 .Digest Syntax
-====
 [source,txt]
 ----
 base64(expirationTime + ":" + md5Hex(expirationTime + ":" + key))
 expirationTime:   The date and time when the nonce expires, expressed in milliseconds
 key:              A private key to prevent modification of the nonce token
 ----
-====
 
 You need to ensure that you xref:features/authentication/password-storage.adoc#authentication-password-storage-configuration[configure] insecure plain text xref:features/authentication/password-storage.adoc#authentication-password-storage[Password Storage] using `NoOpPasswordEncoder`.
 (See the {security-api-url}org/springframework/security/crypto/password/NoOpPasswordEncoder.html[`NoOpPasswordEncoder`] class in the Javadoc.)
 The following provides an example of configuring Digest Authentication with Java Configuration:
 
 .Digest Authentication
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -68,7 +68,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <b:bean id="digestFilter"
@@ -88,4 +89,4 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 	<custom-filter ref="userFilter" position="DIGEST_AUTH_FILTER"/>
 </http>
 ----
-====
+======

@@ -20,7 +20,6 @@ Other implementations are used to handle annotation-based configuration.
 === Explicit MethodSecurityInterceptor Configuration
 You can configure a `MethodSecurityInterceptor` directly in your application context for use with one of Spring AOP's proxying mechanisms:
 
-====
 [source,xml]
 ----
 <bean id="bankManagerSecurity" class=
@@ -36,7 +35,6 @@ You can configure a `MethodSecurityInterceptor` directly in your application con
 </property>
 </bean>
 ----
-====
 
 [[aspectj]]
 == AspectJ (JoinPoint) Security Interceptor
@@ -49,7 +47,6 @@ It would not be uncommon to use both types of security interceptors in the same 
 
 We first consider how the `AspectJSecurityInterceptor` is configured in the Spring application context:
 
-====
 [source,xml]
 ----
 <bean id="bankManagerSecurity" class=
@@ -65,14 +62,12 @@ We first consider how the `AspectJSecurityInterceptor` is configured in the Spri
 </property>
 </bean>
 ----
-====
 
 The two interceptors can share the same `securityMetadataSource`, as the `SecurityMetadataSource` works with `java.lang.reflect.Method` instances rather than an AOP library-specific class.
 Your access decisions have access to the relevant AOP library-specific invocation (`MethodInvocation` or `JoinPoint`) and can consider a range of additional criteria (such as method arguments) when making access decisions.
 
 Next, you need to define an AspectJ `aspect`, as the following example shows:
 
-====
 [source,java]
 ----
 
@@ -118,7 +113,6 @@ public aspect DomainObjectInstanceSecurityAspect implements InitializingBean {
 	}
 }
 ----
-====
 
 
 In the preceding example, the security interceptor is applied to every instance of `PersistableEntity`, which is an abstract class not shown (you can use any other class or `pointcut` expression you like).
@@ -128,7 +122,6 @@ The `AspectJSecurityInterceptor` calls this anonymous `AspectJCallback` class wh
 You need to configure Spring to load the aspect and wire it with the `AspectJSecurityInterceptor`.
 The following example shows a bean declaration that achieves this:
 
-====
 [source,xml]
 ----
 
@@ -138,6 +131,5 @@ The following example shows a bean declaration that achieves this:
 <property name="securityInterceptor" ref="bankManagerSecurity"/>
 </bean>
 ----
-====
 
 Now you can create your beans from anywhere within your application, using whatever means you think fit (e.g. `new Person();`), and they have the security interceptor applied.

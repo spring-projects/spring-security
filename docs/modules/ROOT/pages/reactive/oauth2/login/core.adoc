@@ -252,8 +252,10 @@ If you need to override the auto-configuration based on your specific requiremen
 
 The following example shows how to register a `ReactiveClientRegistrationRepository` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
@@ -283,7 +285,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Configuration
@@ -312,7 +315,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-register-securitywebfilterchain-bean]]
@@ -321,8 +324,10 @@ class OAuth2LoginConfig {
 The following example shows how to register a `SecurityWebFilterChain` `@Bean` with `@EnableWebFluxSecurity` and enable OAuth 2.0 login through `serverHttpSecurity.oauth2Login()`:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -342,7 +347,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -362,7 +368,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-completely-override-autoconfiguration]]
@@ -371,8 +377,10 @@ class OAuth2LoginSecurityConfig {
 The following example shows how to completely override the auto-configuration by registering a `ReactiveClientRegistrationRepository` `@Bean` and a `SecurityWebFilterChain` `@Bean`.
 
 .Overriding the auto-configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
@@ -414,7 +422,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Configuration
@@ -456,7 +465,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[webflux-oauth2-login-javaconfig-wo-boot]]
@@ -465,8 +474,10 @@ class OAuth2LoginConfig {
 If you are not able to use Spring Boot 2.x and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -510,7 +521,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -556,4 +568,4 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======

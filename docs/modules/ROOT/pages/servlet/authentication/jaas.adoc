@@ -68,7 +68,6 @@ While the Spring configuration for `InMemoryConfiguration` can be more verbose t
 The next example provides a configuration of `DefaultJaasAuthenticationProvider` that uses `InMemoryConfiguration`.
 Note that custom implementations of `Configuration` can easily be injected into `DefaultJaasAuthenticationProvider` as well.
 
-====
 [source,xml]
 ----
 <bean id="jaasAuthProvider"
@@ -107,7 +106,6 @@ class="org.springframework.security.authentication.jaas.DefaultJaasAuthenticatio
 </property>
 </bean>
 ----
-====
 
 
 [[jaas-jaasauthenticationprovider]]
@@ -118,19 +116,16 @@ The `JaasAuthenticationProvider` then uses the default `Configuration` to create
 
 Assume that we have a JAAS login configuration file, `/WEB-INF/login.conf`, with the following contents:
 
-====
 [source,txt]
 ----
 JAASTest {
 	sample.SampleLoginModule required;
 };
 ----
-====
 
 Like all Spring Security beans, the `JaasAuthenticationProvider` is configured through the application context.
 The following definitions would correspond to the above JAAS login configuration file:
 
-====
 [source,xml]
 ----
 
@@ -153,19 +148,16 @@ class="org.springframework.security.authentication.jaas.JaasAuthenticationProvid
 </property>
 </bean>
 ----
-====
 
 [[jaas-apiprovision]]
 == Running as a Subject
 If configured, the `JaasApiIntegrationFilter` tries to run as the `Subject` on the `JaasAuthenticationToken`.
 This means that the `Subject` can be accessed using:
 
-====
 [source,java]
 ----
 Subject subject = Subject.getSubject(AccessController.getContext());
 ----
-====
 
 You can configure this integration by using the xref:servlet/appendix/namespace/http.adoc#nsa-http-jaas-api-provision[jaas-api-provision] attribute.
 This feature is useful when integrating with legacy or external API's that rely on the JAAS Subject being populated.

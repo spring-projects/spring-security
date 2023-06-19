@@ -29,7 +29,6 @@ The default schema is also exposed as a classpath resource named `org/springfram
 ====
 
 .Default User Schema
-====
 [source,sql]
 ----
 create table users(
@@ -45,12 +44,10 @@ create table authorities (
 );
 create unique index ix_auth_username on authorities (username,authority);
 ----
-====
 
 Oracle is a popular database choice but requires a slightly different schema:
 
 .Default User Schema for Oracle Databases
-====
 [source,sql]
 ----
 CREATE TABLE USERS (
@@ -67,7 +64,6 @@ CREATE TABLE AUTHORITIES (
 ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_UNIQUE UNIQUE (USERNAME, AUTHORITY);
 ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_FK1 FOREIGN KEY (USERNAME) REFERENCES USERS (USERNAME) ENABLE;
 ----
-====
 
 [[servlet-authentication-jdbc-schema-group]]
 === Group Schema
@@ -75,7 +71,6 @@ ALTER TABLE AUTHORITIES ADD CONSTRAINT AUTHORITIES_FK1 FOREIGN KEY (USERNAME) RE
 If your application uses groups, you need to provide the groups schema:
 
 .Default Group Schema
-====
 [source,sql]
 ----
 create table groups (
@@ -96,7 +91,6 @@ create table group_members (
 	constraint fk_group_members_group foreign key(group_id) references groups(id)
 );
 ----
-====
 
 [[servlet-authentication-jdbc-datasource]]
 == Setting up a DataSource
@@ -105,8 +99,10 @@ Before we configure `JdbcUserDetailsManager`, we must create a `DataSource`.
 In our example, we set up an https://docs.spring.io/spring-framework/docs/current/spring-framework-reference/data-access.html#jdbc-embedded-database-support[embedded DataSource] that is initialized with the <<servlet-authentication-jdbc-schema,default user schema>>.
 
 .Embedded Data Source
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -118,7 +114,8 @@ DataSource dataSource() {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <jdbc:embedded-database>
@@ -126,7 +123,8 @@ DataSource dataSource() {
 </jdbc:embedded-database>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -137,7 +135,7 @@ fun dataSource(): DataSource {
         .build()
 }
 ----
-====
+======
 
 In a production environment, you want to ensure that you set up a connection to an external database.
 
@@ -148,9 +146,11 @@ In this sample, we use xref:features/authentication/password-storage.adoc#authen
 See the xref:features/authentication/password-storage.adoc#authentication-password-storage[PasswordEncoder] section for more details about how to store passwords.
 
 .JdbcUserDetailsManager
-====
 
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
@@ -172,7 +172,8 @@ UserDetailsManager users(DataSource dataSource) {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <jdbc-user-service>
@@ -185,7 +186,8 @@ UserDetailsManager users(DataSource dataSource) {
 </jdbc-user-service>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
@@ -206,4 +208,4 @@ fun users(dataSource: DataSource): UserDetailsManager {
     return users
 }
 ----
-====
+======

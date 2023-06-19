@@ -4,8 +4,10 @@
 For example, we can test our example from xref:reactive/authorization/method.adoc#jc-erms[EnableReactiveMethodSecurity] by using the same setup and annotations that we used in xref:servlet/test/method.adoc#test-method[Testing Method Security].
 The following minimal sample shows what we can do:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @ExtendWith(SpringExtension.class)
@@ -39,7 +41,8 @@ public class HelloWorldMessageServiceTests {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @ExtendWith(SpringExtension.class)
@@ -72,4 +75,4 @@ class HelloWorldMessageServiceTests {
     }
 }
 ----
-====
+======

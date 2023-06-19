@@ -18,8 +18,10 @@ The default is that accessing the URL `/logout` logs the user out by:
 Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
 
 .Logout Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -36,7 +38,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -53,7 +56,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     // ...
 }
 -----
-====
+======
 
 <1> Provides logout support.
 <2> The URL that triggers log out to occur (the default is `/logout`).

@@ -32,7 +32,6 @@ There is a corresponding `AnonymousAuthenticationProvider`, which is chained int
 Finally, an `AnonymousAuthenticationFilter` is chained after the normal authentication mechanisms and automatically adds an `AnonymousAuthenticationToken` to the `SecurityContextHolder` if there is no existing `Authentication` held there.
 The filter and authentication provider is defined as follows:
 
-====
 [source,xml]
 ----
 <bean id="anonymousAuthFilter"
@@ -46,7 +45,6 @@ The filter and authentication provider is defined as follows:
 <property name="key" value="foobar"/>
 </bean>
 ----
-====
 
 
 
@@ -66,7 +64,6 @@ The same syntax is used after the equals sign for the `userMap` property of `InM
 
 As explained earlier, the benefit of anonymous authentication is that all URI patterns can have security applied to them, as the following example shows:
 
-====
 [source,xml]
 ----
 <bean id="filterSecurityInterceptor"
@@ -84,7 +81,6 @@ As explained earlier, the benefit of anonymous authentication is that all URI pa
 </property>
 </bean>
 ----
-====
 
 [[anonymous-auth-trust-resolver]]
 == AuthenticationTrustResolver
@@ -107,8 +103,10 @@ https://docs.spring.io/spring-framework/docs/current/reference/html/web.html#mvc
 
 This means that a construct like this one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/")
@@ -121,7 +119,8 @@ public String method(Authentication authentication) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/")
@@ -133,7 +132,7 @@ fun method(authentication: Authentication?): String {
     }
 }
 ----
-====
+======
 
 will always return "not anonymous", even for anonymous requests.
 The reason is that Spring MVC resolves the parameter using `HttpServletRequest#getPrincipal`, which is `null` when the request is anonymous.
@@ -141,8 +140,10 @@ The reason is that Spring MVC resolves the parameter using `HttpServletRequest#g
 If you'd like to obtain the `Authentication` in anonymous requests, use `@CurrentSecurityContext` instead:
 
 .Use CurrentSecurityContext for Anonymous requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/")
@@ -151,11 +152,12 @@ public String method(@CurrentSecurityContext SecurityContext context) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/")
 fun method(@CurrentSecurityContext context : SecurityContext) : String =
 		context!!.authentication!!.name
 ----
-====
+======

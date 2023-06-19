@@ -33,8 +33,10 @@ The following listing shows the explicit configuration:
 
 [[servlet-authorize-requests-defaults]]
 .Every Request Must be Authenticated
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -48,7 +50,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -57,7 +60,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -71,13 +75,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 
 We can configure Spring Security to have different rules by adding more rules in order of precedence:
 
 .Authorize Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -94,7 +100,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http> <!--1-->
@@ -110,7 +117,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -129,7 +137,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 <1> There are multiple authorization rules specified.
 Each rule is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access.
@@ -140,7 +148,6 @@ You will notice that since we are invoking the `hasRole` method we do not need t
 You will notice that since we are using the `hasRole` expression we do not need to specify the "ROLE_" prefix.
 <5> Any URL that has not already been matched on is denied access.
 This is a good strategy if you do not want to accidentally forget to update your authorization rules.
-====
 
 
 [[filtersecurityinterceptor-every-request]]
@@ -151,8 +158,10 @@ This means that if a request is dispatched from a request that was already filte
 In some scenarios, you may not want to apply authorization on some dispatcher types:
 
 .Permit ASYNC and ERROR dispatcher types
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -167,7 +176,9 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-.XML
+
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true">
@@ -180,4 +191,4 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     <b:constructor-arg value="ERROR"/>
 </b:bean>
 ----
-====
+======

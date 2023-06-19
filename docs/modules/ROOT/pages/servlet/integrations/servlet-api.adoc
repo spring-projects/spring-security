@@ -25,8 +25,10 @@ For example, you might have created a custom `UserDetailsService` that returns a
 You could obtain this information with the following:
 
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Authentication auth = httpServletRequest.getUserPrincipal();
@@ -37,7 +39,8 @@ String firstName = userDetails.getFirstName();
 String lastName = userDetails.getLastName();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val auth: Authentication = httpServletRequest.getUserPrincipal()
@@ -47,7 +50,7 @@ val userDetails: MyCustomUserDetails = auth.principal as MyCustomUserDetails
 val firstName: String = userDetails.firstName
 val lastName: String = userDetails.lastName
 ----
-====
+======
 
 [NOTE]
 ====
@@ -61,19 +64,22 @@ https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#
 Typically, users should not pass the `ROLE_` prefix to this method, since it is added automatically.
 For example, if you want to determine if the current user has the authority "ROLE_ADMIN", you could use the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 boolean isAdmin = httpServletRequest.isUserInRole("ADMIN");
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val isAdmin: Boolean = httpServletRequest.isUserInRole("ADMIN")
 ----
-====
+======
 
 This might be useful to determine if certain UI components should be displayed.
 For example, you might display admin links only if the current user is an admin.
@@ -94,8 +100,10 @@ If they are not authenticated, the configured `AuthenticationEntryPoint` is used
 You can use the https://docs.oracle.com/javaee/6/api/javax/servlet/http/HttpServletRequest.html#login%28java.lang.String,%20java.lang.String%29[`HttpServletRequest.login(String,String)`] method to authenticate the user with the current `AuthenticationManager`.
 For example, the following would attempt to authenticate with a username of `user` and a password of `password`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 try {
@@ -105,7 +113,8 @@ httpServletRequest.login("user","password");
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 try {
@@ -114,7 +123,7 @@ try {
     // fail to authenticate
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -136,8 +145,10 @@ The https://docs.oracle.com/javaee/6/api/javax/servlet/AsyncContext.html#start%2
 By using Spring Security's concurrency support, Spring Security overrides `AsyncContext.start(Runnable)` to ensure that the current `SecurityContext` is used when processing the Runnable.
 The following example outputs the current user's Authentication:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 final AsyncContext async = httpServletRequest.startAsync();
@@ -156,7 +167,8 @@ async.start(new Runnable() {
 });
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val async: AsyncContext = httpServletRequest.startAsync()
@@ -172,7 +184,7 @@ async.start {
     }
 }
 ----
-====
+======
 
 [[servletapi-async]]
 === Async Servlet Support
@@ -180,7 +192,6 @@ If you use Java-based configuration, you are ready to go.
 If you use XML configuration, a few updates are necessary.
 The first step is to ensure that you have updated your `web.xml` file to use at least the 3.0 schema:
 
-====
 [source,xml]
 ----
 <web-app xmlns="http://java.sun.com/xml/ns/javaee"
@@ -190,11 +201,9 @@ version="3.0">
 
 </web-app>
 ----
-====
 
 Next, you need to ensure that your `springSecurityFilterChain` is set up for processing asynchronous requests:
 
-====
 [source,xml]
 ----
 <filter>
@@ -211,7 +220,6 @@ Next, you need to ensure that your `springSecurityFilterChain` is set up for pro
 <dispatcher>ASYNC</dispatcher>
 </filter-mapping>
 ----
-====
 
 Now Spring Security ensures that your `SecurityContext` is propagated on asynchronous requests, too.
 
@@ -221,8 +229,10 @@ Prior to Spring Security 3.2, the `SecurityContext` from the `SecurityContextHol
 This can cause issues in an asynchronous environment.
 Consider the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 httpServletRequest.startAsync();
@@ -242,7 +252,8 @@ new Thread("AsyncThread") {
 }.start();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 httpServletRequest.startAsync()
@@ -260,7 +271,7 @@ object : Thread("AsyncThread") {
     }
 }.start()
 ----
-====
+======
 
 The issue is that this `Thread` is not known to Spring Security, so the `SecurityContext` is not propagated to it.
 This means that, when we commit the `HttpServletResponse`, there is no `SecurityContext`.

@@ -67,8 +67,10 @@ However, as soon as any servlet-based configuration is provided, form based logi
 The following example shows a minimal, explicit Java configuration:
 
 .Form Login
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -78,7 +80,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -87,7 +90,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -97,7 +101,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	// ...
 }
 ----
-====
+======
 
 In the preceding configuration, Spring Security renders a default login page.
 Most production applications require a custom login form.
@@ -106,8 +110,10 @@ Most production applications require a custom login form.
 The following configuration demonstrates how to provide a custom login form.
 
 .Custom Login Form Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -120,7 +126,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -130,7 +137,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -143,16 +151,14 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	// ...
 }
 ----
-====
+======
 
 [[servlet-authentication-form-custom-html]]
 When the login page is specified in the Spring Security configuration, you are responsible for rendering the page.
 // FIXME: default login page rendered by Spring Security
 The following https://www.thymeleaf.org/[Thymeleaf] template produces an HTML login form that complies with a login page of `/login`.:
 
-.Login Form
-====
-.src/main/resources/templates/login.html
+.Login Form - src/main/resources/templates/login.html
 [source,xml]
 ----
 <!DOCTYPE html>
@@ -178,7 +184,6 @@ The following https://www.thymeleaf.org/[Thymeleaf] template produces an HTML lo
 	</body>
 </html>
 ----
-====
 
 There are a few key points about the default HTML form:
 
@@ -197,8 +202,10 @@ If you use Spring MVC, you need a controller that maps `GET /login` to the login
 The following example shows a minimal `LoginController`:
 
 .LoginController
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -210,7 +217,8 @@ class LoginController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -221,4 +229,4 @@ class LoginController {
     }
 }
 ----
-====
+======

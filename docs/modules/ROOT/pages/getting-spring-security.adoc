@@ -29,7 +29,6 @@ Alternatively, you can manually add the starter, as the following example shows:
 
 
 .pom.xml
-====
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependencies>
@@ -40,13 +39,11 @@ Alternatively, you can manually add the starter, as the following example shows:
 	</dependency>
 </dependencies>
 ----
-====
 
 Since Spring Boot provides a Maven BOM to manage dependency versions, you do not need to specify a version.
 If you wish to override the Spring Security version, you can do so by providing a Maven property:
 
 .pom.xml
-====
 [source,xml,subs="verbatim,attributes"]
 ----
 <properties>
@@ -54,14 +51,12 @@ If you wish to override the Spring Security version, you can do so by providing 
 	<spring-security.version>{spring-security-version}</spring-security.version>
 </properties>
 ----
-====
 
 Since Spring Security makes breaking changes only in major releases, you can safely use a newer version of Spring Security with Spring Boot.
 However, at times, you may need to update the version of Spring Framework as well.
 You can do so by adding a Maven property:
 
 .pom.xml
-====
 [source,xml,subs="verbatim,attributes"]
 ----
 <properties>
@@ -69,7 +64,6 @@ You can do so by adding a Maven property:
 	<spring.version>{spring-core-version}</spring.version>
 </properties>
 ----
-====
 
 If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
@@ -79,7 +73,6 @@ If you use additional features (such as LDAP, OAuth 2, and others), you need to 
 When you use Spring Security without Spring Boot, the preferred way is to use Spring Security's BOM to ensure that a consistent version of Spring Security is used throughout the entire project. The following example shows how to do so:
 
 .pom.xml
-====
 [source,xml,ubs="verbatim,attributes"]
 ----
 <dependencyManagement>
@@ -95,12 +88,10 @@ When you use Spring Security without Spring Boot, the preferred way is to use Sp
 	</dependencies>
 </dependencyManagement>
 ----
-====
 
 A minimal Spring Security Maven set of dependencies typically looks like the following example:
 
 .pom.xml
-====
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependencies>
@@ -115,7 +106,6 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 	</dependency>
 </dependencies>
 ----
-====
 
 If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
@@ -124,7 +114,6 @@ Many users are likely to run afoul of the fact that Spring Security's transitive
 The easiest way to resolve this is to use the `spring-framework-bom` within the `<dependencyManagement>` section of your `pom.xml`:
 
 .pom.xml
-====
 [source,xml,subs="verbatim,attributes"]
 ----
 <dependencyManagement>
@@ -140,7 +129,6 @@ The easiest way to resolve this is to use the `spring-framework-bom` within the 
 	</dependencies>
 </dependencyManagement>
 ----
-====
 
 The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-core-version} modules.
 
@@ -157,7 +145,6 @@ All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Cen
 If you use a SNAPSHOT version, you need to ensure that you have the Spring Snapshot repository defined:
 
 .pom.xml
-====
 [source,xml]
 ----
 <repositories>
@@ -169,12 +156,10 @@ If you use a SNAPSHOT version, you need to ensure that you have the Spring Snaps
 	</repository>
 </repositories>
 ----
-====
 
 If you use a milestone or release candidate version, you need to ensure that you have the Spring Milestone repository defined, as the following example shows:
 
 .pom.xml
-====
 [source,xml]
 ----
 <repositories>
@@ -186,7 +171,6 @@ If you use a milestone or release candidate version, you need to ensure that you
 	</repository>
 </repositories>
 ----
-====
 
 [[getting-gradle]]
 == Gradle
@@ -203,7 +187,6 @@ The simplest and preferred method to use the starter is to use https://docs.spri
 Alternatively, you can manually add the starter:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -211,32 +194,27 @@ dependencies {
 	compile "org.springframework.boot:spring-boot-starter-security"
 }
 ----
-====
 
 Since Spring Boot provides a Maven BOM to manage dependency versions, you need not specify a version.
 If you wish to override the Spring Security version, you can do so by providing a Gradle property:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
 ext['spring-security.version']='{spring-security-version}'
 ----
-====
 
 Since Spring Security makes breaking changes only in major releases, you can safely use a newer version of Spring Security with Spring Boot.
 However, at times, you may need to update the version of Spring Framework as well.
 You can do so by adding a Gradle property:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
 ext['spring.version']='{spring-core-version}'
 ----
-====
 
 If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
@@ -246,7 +224,6 @@ When you use Spring Security without Spring Boot, the preferred way is to use Sp
 You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin]:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -260,12 +237,10 @@ dependencyManagement {
 	}
 }
 ----
-====
 
 A minimal Spring Security Maven set of dependencies typically looks like the following:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -274,7 +249,6 @@ dependencies {
 	compile "org.springframework.security:spring-security-config"
 }
 ----
-====
 
 If you use additional features (such as LDAP, OAuth 2, and others), you need to also include the appropriate xref:modules.adoc#modules[Project Modules and Dependencies].
 
@@ -284,7 +258,6 @@ The easiest way to resolve this is to use the `spring-framework-bom` within your
 You can do so by using the https://github.com/spring-gradle-plugins/dependency-management-plugin[Dependency Management Plugin]:
 
 .build.gradle
-====
 [source,groovy]
 [subs="verbatim,attributes"]
 ----
@@ -298,7 +271,6 @@ dependencyManagement {
 	}
 }
 ----
-====
 
 The preceding example ensures that all the transitive dependencies of Spring Security use the Spring {spring-core-version} modules.
 
@@ -307,35 +279,29 @@ The preceding example ensures that all the transitive dependencies of Spring Sec
 All GA releases (that is, versions ending in .RELEASE) are deployed to Maven Central, so using the `mavenCentral()` repository is sufficient for GA releases. The following example shows how to do so:
 
 .build.gradle
-====
 [source,groovy]
 ----
 repositories {
 	mavenCentral()
 }
 ----
-====
 
 If you use a SNAPSHOT version, you need to ensure that you have the Spring Snapshot repository defined:
 
 .build.gradle
-====
 [source,groovy]
 ----
 repositories {
 	maven { url 'https://repo.spring.io/snapshot' }
 }
 ----
-====
 
 If you use a milestone or release candidate version, you need to ensure that you have the Spring Milestone repository defined:
 
 .build.gradle
-====
 [source,groovy]
 ----
 repositories {
 	maven { url 'https://repo.spring.io/milestone' }
 }
 ----
-====

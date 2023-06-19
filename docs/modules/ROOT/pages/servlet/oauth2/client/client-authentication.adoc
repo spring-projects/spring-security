@@ -36,8 +36,10 @@ spring:
 
 The following example shows how to configure `DefaultAuthorizationCodeTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -63,7 +65,8 @@ DefaultAuthorizationCodeTokenResponseClient tokenResponseClient =
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver: Function<ClientRegistration, JWK> =
@@ -88,7 +91,7 @@ requestEntityConverter.addParametersConverter(
 val tokenResponseClient = DefaultAuthorizationCodeTokenResponseClient()
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
-====
+======
 
 
 === Authenticate using `client_secret_jwt`
@@ -112,8 +115,10 @@ spring:
 
 The following example shows how to configure `DefaultClientCredentialsTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -138,7 +143,8 @@ DefaultClientCredentialsTokenResponseClient tokenResponseClient =
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: ClientRegistration ->
@@ -162,14 +168,16 @@ requestEntityConverter.addParametersConverter(
 val tokenResponseClient = DefaultClientCredentialsTokenResponseClient()
 tokenResponseClient.setRequestEntityConverter(requestEntityConverter)
 ----
-====
+======
 
 === Customizing the JWT assertion
 
 The JWT produced by `NimbusJwtClientAuthenticationParametersConverter` contains the `iss`, `sub`, `aud`, `jti`, `iat` and `exp` claims by default. You can customize the headers and/or claims by providing a `Consumer<NimbusJwtClientAuthenticationParametersConverter.JwtClientAuthenticationContext<T>>` to `setJwtClientAssertionCustomizer()`. The following example shows how to customize claims of the JWT:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = ...
@@ -182,7 +190,8 @@ converter.setJwtClientAssertionCustomizer((context) -> {
 });
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver = ...
@@ -194,4 +203,4 @@ converter.setJwtClientAssertionCustomizer { context ->
     context.claims.claim("custom-claim", "claim-value")
 }
 ----
-====
+======

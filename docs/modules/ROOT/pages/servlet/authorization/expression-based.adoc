@@ -88,7 +88,6 @@ Spring Security then expects the `access` attributes of the `<intercept-url>` el
 Each expression should evaluate to a Boolean, defining whether access should be allowed or not.
 The following listing shows an example:
 
-====
 [source,xml]
 ----
 <http>
@@ -97,7 +96,6 @@ The following listing shows an example:
 	...
 </http>
 ----
-====
 
 Here, we have defined that the `admin` area of an application (defined by the URL pattern) should be available only to users who have the granted authority (`admin`) and whose IP address matches a local subnet.
 We have already seen the built-in `hasRole` expression in the previous section.
@@ -113,8 +111,10 @@ So, if you do not use the namespace and want to use expressions, you have to add
 If you wish to extend the expressions that are available, you can easily refer to any Spring Bean you expose.
 For example, you could use the following, assuming you have a Bean with the name of `webSecurity` that contains the following method signature:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class WebSecurity {
@@ -124,7 +124,8 @@ public class WebSecurity {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class WebSecurity {
@@ -133,13 +134,15 @@ class WebSecurity {
     }
 }
 ----
-====
+======
 
 You could then refer to the method as follows:
 
 .Refer to method
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -149,7 +152,8 @@ http
     )
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -159,7 +163,8 @@ http
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -168,7 +173,7 @@ http {
     }
 }
 ----
-====
+======
 
 [[el-access-web-path-variables]]
 === Path Variables in Web Security Expressions
@@ -179,8 +184,10 @@ For example, consider a RESTful application that looks up a user by ID from a UR
 You can easily refer to the path variable by placing it in the pattern.
 For example, you could use the following if you had a Bean with the name of `webSecurity` that contains the following method signature:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class WebSecurity {
@@ -190,7 +197,8 @@ public class WebSecurity {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class WebSecurity {
@@ -199,13 +207,15 @@ class WebSecurity {
     }
 }
 ----
-====
+======
 
 You could then refer to the method as follows:
 
 .Path Variables
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 http
@@ -215,7 +225,8 @@ http
 	);
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <http>
@@ -225,7 +236,8 @@ http
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 http {
@@ -234,7 +246,7 @@ http {
     }
 }
 ----
-====
+======
 
 In this configuration, URLs that match would pass in the path variable (and convert it) into the `checkUserId` method.
 For example, if the URL were `/user/123/resource`, the ID passed in would be `123`.
@@ -249,52 +261,56 @@ There are four annotations that support expression attributes to allow pre and p
 They are `@PreAuthorize`, `@PreFilter`, `@PostAuthorize`, and `@PostFilter`.
 Their use is enabled through the `global-method-security` namespace element:
 
-====
 [source,xml]
 ----
 <global-method-security pre-post-annotations="enabled"/>
 ----
-====
 
 ==== Access Control using @PreAuthorize and @PostAuthorize
 The most obviously useful annotation is `@PreAuthorize`, which decides whether a method can actually be invoked or not.
 The following example (from the {gh-samples-url}/servlet/xml/java/contacts["Contacts" sample application]) uses the `@PreAuthorize` annotation:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasRole('USER')")
 public void create(Contact contact);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasRole('USER')")
 fun create(contact: Contact?)
 ----
-====
+======
 
 This means that access is allowed only for users with the `ROLE_USER` role.
 Obviously, the same thing could easily be achieved by using a traditional configuration and a simple configuration attribute for the required role.
 However, consider the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasPermission(#contact, 'admin')")
 public void deletePermission(Contact contact, Sid recipient, Permission permission);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasPermission(#contact, 'admin')")
 fun deletePermission(contact: Contact?, recipient: Sid?, permission: Permission?)
 ----
-====
+======
 
 Here, we actually use a method argument as part of the expression to decide whether the current user has the `admin` permission for the given contact.
 The built-in `hasPermission()` expression is linked into the Spring Security ACL module through the application context, as we <<el-permission-evaluator,see later in this section>>.
@@ -310,8 +326,10 @@ The following example uses the `@P` annotation:
 
 +
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import org.springframework.security.access.method.P;
@@ -322,7 +340,8 @@ import org.springframework.security.access.method.P;
 public void doSomething(@P("c") Contact contact);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.security.access.method.P
@@ -332,7 +351,7 @@ import org.springframework.security.access.method.P
 @PreAuthorize("#c.name == authentication.name")
 fun doSomething(@P("c") contact: Contact?)
 ----
-====
+======
 
 +
 
@@ -342,8 +361,10 @@ Behind the scenes, this is implemented by using `AnnotationParameterNameDiscover
 This is useful for interfaces compiled with a JDK prior to JDK 8 which do not contain any information about the parameter names.
 The following example uses the `@Param` annotation:
 +
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import org.springframework.data.repository.query.Param;
@@ -354,7 +375,8 @@ import org.springframework.data.repository.query.Param;
 Contact findContactByName(@Param("n") String name);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.data.repository.query.Param
@@ -364,7 +386,7 @@ import org.springframework.data.repository.query.Param
 @PreAuthorize("#n == authentication.name")
 fun findContactByName(@Param("n") name: String?): Contact?
 ----
-====
+======
 +
 
 Behind the scenes, this is implemented by using `AnnotationParameterNameDiscoverer`, which you can customize to support the value attribute of any specified annotation.
@@ -380,21 +402,24 @@ For interfaces, annotations or the JDK 8 approach must be used.
 Any SpEL functionality is available within the expression, so you can also access properties on the arguments.
 For example, if you wanted a particular method to allow access only to a user whose username matched that of the contact, you could write
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 public void doSomething(Contact contact);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 fun doSomething(contact: Contact?)
 ----
-====
+======
 
 .[[el-pre-post-annotations-post]]
 Here, we access another built-in expression, `authentication`, which is the `Authentication` stored in the security context.
@@ -406,8 +431,10 @@ Spring Security supports filtering of collections, arrays, maps, and streams by 
 This is most commonly performed on the return value of a method.
 The following example uses `@PostFilter`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasRole('USER')")
@@ -415,14 +442,15 @@ The following example uses `@PostFilter`:
 public List<Contact> getAll();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasRole('USER')")
 @PostFilter("hasPermission(filterObject, 'read') or hasPermission(filterObject, 'admin')")
 fun getAll(): List<Contact?>
 ----
-====
+======
 
 When using the `@PostFilter` annotation, Spring Security iterates through the returned collection or map and removes any elements for which the supplied expression is false.
 For an array, a new array instance that contains filtered elements is returned.
@@ -448,7 +476,6 @@ It is intended to bridge between the expression system and Spring Security's ACL
 It has no explicit dependencies on the ACL module, so you could swap that out for an alternative implementation if required.
 The interface has two methods:
 
-====
 [source,java]
 ----
 boolean hasPermission(Authentication authentication, Object targetDomainObject,
@@ -457,7 +484,6 @@ boolean hasPermission(Authentication authentication, Object targetDomainObject,
 boolean hasPermission(Authentication authentication, Serializable targetId,
 							String targetType, Object permission);
 ----
-====
 
 These methods map directly to the available versions of the expression, with the exception that the first argument (the `Authentication` object) is not supplied.
 The first is used in situations where the domain object, to which access is being controlled, is already loaded.
@@ -469,7 +495,6 @@ This has traditionally been the Java class of the object but does not have to be
 To use `hasPermission()` expressions, you have to explicitly configure a `PermissionEvaluator` in your application context.
 The following example shows how to do so:
 
-====
 [source,xml]
 ----
 <security:global-method-security pre-post-annotations="enabled">
@@ -481,7 +506,6 @@ The following example shows how to do so:
 	<property name="permissionEvaluator" ref="myPermissionEvaluator"/>
 </bean>
 ----
-====
 
 Where `myPermissionEvaluator` is the bean which implements `PermissionEvaluator`.
 Usually, this is the implementation from the ACL module, which is called `AclPermissionEvaluator`.
@@ -493,17 +517,17 @@ You can make use of meta annotations for method security to make your code more 
 This is especially convenient if you find that you repeat the same complex expression throughout your code base.
 For example, consider the following:
 
-====
 [source,java]
 ----
 @PreAuthorize("#contact.name == authentication.name")
 ----
-====
 
 Instead of repeating this everywhere, you can create a meta annotation:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Retention(RetentionPolicy.RUNTIME)
@@ -511,14 +535,15 @@ Instead of repeating this everywhere, you can create a meta annotation:
 public @interface ContactPermission {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Retention(AnnotationRetention.RUNTIME)
 @PreAuthorize("#contact.name == authentication.name")
 annotation class ContactPermission
 ----
-====
+======
 
 You can use meta annotations for any of the Spring Security method security annotations.
 To remain compliant with the specification, JSR-250 annotations do not support meta annotations.

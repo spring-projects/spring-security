@@ -21,7 +21,6 @@ You should get this working before trying it out with Spring Security.
 Enabling X.509 client authentication is very straightforward.
 To do so, add the `<x509/>` element to your http security namespace configuration:
 
-====
 [source,xml]
 ----
 <http>
@@ -29,7 +28,6 @@ To do so, add the `<x509/>` element to your http security namespace configuratio
 	<x509 subject-principal-regex="CN=(.*?)," user-service-ref="userService"/>;
 </http>
 ----
-====
 
 The element has two optional attributes:
 
@@ -60,7 +58,6 @@ You can install these in your browser to enable SSL client authentication.
 
 To run tomcat with SSL support, drop the `server.jks` file into the tomcat `conf` directory and add the following connector to the `server.xml` file:
 
-====
 [source,xml]
 ----
 <Connector port="8443" protocol="HTTP/1.1" SSLEnabled="true" scheme="https" secure="true"
@@ -71,7 +68,6 @@ To run tomcat with SSL support, drop the `server.jks` file into the tomcat `conf
 			truststoreType="JKS" truststorePass="password"
 />
 ----
-====
 
 `clientAuth` can also be set to `want` if you still want SSL connections to succeed even if the client does not provide a certificate.
 Clients that do not present a certificate cannot access any objects secured by Spring Security unless you use a non-X.509 authentication mechanism, such as form authentication.

@@ -9,8 +9,10 @@ For example, `oauth2Login().authorizationEndpoint()` allows configuring the _Aut
 The following code shows an example:
 
 .Advanced OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -39,7 +41,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -68,7 +71,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 The main goal of the `oauth2Login()` DSL was to closely align with the naming, as defined in the specifications.
 
@@ -92,8 +95,10 @@ These claims are normally represented by a JSON object that contains a collectio
 The following code shows the complete configuration options available for the `oauth2Login()` DSL:
 
 .OAuth2 Login Configuration Options
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -130,7 +135,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -167,14 +173,13 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 In addition to the `oauth2Login()` DSL, XML configuration is also supported.
 
 The following code shows the complete configuration options available in the xref:servlet/appendix/namespace/http.adoc#nsa-oauth2-login[ security namespace]:
 
 .OAuth2 Login XML Configuration Options
-====
 [source,xml]
 ----
 <http>
@@ -194,7 +199,6 @@ The following code shows the complete configuration options available in the xre
 				  jwt-decoder-factory-ref="jwtDecoderFactory"/>
 </http>
 ----
-====
 
 The following sections go into more detail on each of the configuration options available:
 
@@ -223,20 +227,20 @@ The link's destination for each OAuth Client defaults to the following:
 
 The following line shows an example:
 
-====
 [source,html]
 ----
 <a href="/oauth2/authorization/google">Google</a>
 ----
-====
 
 To override the default login page, configure `oauth2Login().loginPage()` and (optionally) `oauth2Login().authorizationEndpoint().baseUri()`.
 
 The following listing shows an example:
 
 .OAuth2 Login Page Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -259,7 +263,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -281,7 +286,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -290,7 +296,7 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 [IMPORTANT]
 ====
@@ -303,12 +309,10 @@ As noted earlier, configuring `oauth2Login().authorizationEndpoint().baseUri()` 
 However, if you choose to customize it, ensure the link to each OAuth Client matches the `authorizationEndpoint().baseUri()`.
 
 The following line shows an example:
-====
 [source,html]
 ----
 <a href="/login/oauth2/authorization/google">Google</a>
 ----
-====
 =====
 
 
@@ -328,8 +332,10 @@ The default Authorization Response `baseUri` (redirection endpoint) is `*/login/
 If you would like to customize the Authorization Response `baseUri`, configure it as follows:
 
 .Redirection Endpoint Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -350,7 +356,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -371,7 +378,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -380,7 +388,7 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 [IMPORTANT]
 =====
@@ -388,8 +396,10 @@ You also need to ensure the `ClientRegistration.redirectUri` matches the custom 
 
 The following listing shows an example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",subs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
@@ -399,7 +409,8 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
 	.build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",subs="-attributes"]
 ----
 return CommonOAuth2Provider.GOOGLE.getBuilder("google")
@@ -408,7 +419,7 @@ return CommonOAuth2Provider.GOOGLE.getBuilder("google")
     .redirectUri("{baseUrl}/login/oauth2/callback/{registrationId}")
     .build()
 ----
-====
+======
 =====
 
 
@@ -445,8 +456,10 @@ The `GrantedAuthoritiesMapper` is given a list of granted authorities which cont
 Provide an implementation of `GrantedAuthoritiesMapper` and configure it, as follows:
 
 .Granted Authorities Mapper Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -496,7 +509,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -536,7 +550,8 @@ class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -545,13 +560,15 @@ class OAuth2LoginSecurityConfig {
     />
 </http>
 ----
-====
+======
 
 Alternatively, you can register a `GrantedAuthoritiesMapper` `@Bean` to have it automatically applied to the configuration, as follows:
 
 .Granted Authorities Mapper Bean Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -572,7 +589,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -593,7 +611,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 [[oauth2login-advanced-map-authorities-oauth2userservice]]
 ==== Delegation-based Strategy with OAuth2UserService
@@ -605,8 +623,10 @@ The `OAuth2UserRequest` (and `OidcUserRequest`) provides you access to the assoc
 The following example shows how to implement and configure a delegation-based strategy using an OpenID Connect 1.0 UserService:
 
 .OAuth2UserService Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -648,7 +668,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -690,7 +711,8 @@ class OAuth2LoginSecurityConfig  {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -699,7 +721,7 @@ class OAuth2LoginSecurityConfig  {
     />
 </http>
 ----
-====
+======
 
 
 [[oauth2login-advanced-oauth2-user-service]]
@@ -720,21 +742,21 @@ The default implementation `OAuth2UserRequestEntityConverter` builds a `RequestE
 On the other end, if you need to customize the post-handling of the UserInfo Response, you need to provide `DefaultOAuth2UserService.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
 [source,java]
 ----
 RestTemplate restTemplate = new RestTemplate();
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
-====
 
 `OAuth2ErrorResponseErrorHandler` is a `ResponseErrorHandler` that can handle an OAuth 2.0 Error (400 Bad Request).
 It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error parameters to an `OAuth2Error`.
 
 Whether you customize `DefaultOAuth2UserService` or provide your own implementation of `OAuth2UserService`, you need to configure it as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -759,7 +781,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -784,7 +807,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-advanced-oidc-user-service]]
@@ -798,8 +821,10 @@ If you need to customize the pre-processing of the UserInfo Request or the post-
 
 Whether you customize `OidcUserService` or provide your own implementation of `OAuth2UserService` for OpenID Connect 1.0 Provider's, you need to configure it as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -824,7 +849,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -849,7 +875,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-advanced-idtoken-verify]]
@@ -866,8 +892,10 @@ The JWS algorithm resolver is a `Function` that accepts a `ClientRegistration` a
 
 The following code shows how to configure the `OidcIdTokenDecoderFactory` `@Bean` to default to `MacAlgorithm.HS256` for all `ClientRegistration` instances:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -878,7 +906,8 @@ public JwtDecoderFactory<ClientRegistration> idTokenDecoderFactory() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -888,7 +917,7 @@ fun idTokenDecoderFactory(): JwtDecoderFactory<ClientRegistration?> {
     return idTokenDecoderFactory
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -910,7 +939,6 @@ One of the strategies available is https://openid.net/specs/openid-connect-rpini
 If the OpenID Provider supports both Session Management and https://openid.net/specs/openid-connect-discovery-1_0.html[Discovery], the client can obtain the `end_session_endpoint` `URL` from the OpenID Provider's https://openid.net/specs/openid-connect-session-1_0.html#OPMetadata[Discovery Metadata].
 You can do so by configuring the `ClientRegistration` with the `issuer-uri`, as follows:
 
-====
 [source,yaml]
 ----
 spring:
@@ -926,12 +954,13 @@ spring:
           okta:
             issuer-uri: https://dev-1234.oktapreview.com
 ----
-====
 
 Also, you can configure `OidcClientInitiatedLogoutSuccessHandler`, which implements RP-Initiated Logout, as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -967,7 +996,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -1000,7 +1030,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 [NOTE]
 ====

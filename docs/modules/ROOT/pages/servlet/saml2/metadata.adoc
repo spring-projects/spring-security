@@ -11,8 +11,10 @@ You can parse an asserting party's metadata xref:servlet/saml2/login/overview.ad
 When using the OpenSAML vendor support, the resulting `AssertingPartyDetails` will be of type `OpenSamlAssertingPartyDetails`.
 This means you'll be able to do get the underlying OpenSAML XMLObject by doing the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
@@ -20,22 +22,25 @@ OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
 EntityDescriptor openSamlEntityDescriptor = details.getEntityDescriptor();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val details: OpenSamlAssertingPartyDetails =
         registration.getAssertingPartyDetails() as OpenSamlAssertingPartyDetails;
 val openSamlEntityDescriptor: EntityDescriptor = details.getEntityDescriptor();
 ----
-====
+======
 
 [[publishing-relying-party-metadata]]
 == Producing `<saml2:SPSSODescriptor>` Metadata
 
 You can publish a metadata endpoint by adding the `Saml2MetadataFilter` to the filter chain, as you'll see below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 DefaultRelyingPartyRegistrationResolver relyingPartyRegistrationResolver =
@@ -50,7 +55,8 @@ http
     .addFilterBefore(filter, Saml2WebSsoAuthenticationFilter.class);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val relyingPartyRegistrationResolver: Converter<HttpServletRequest, RelyingPartyRegistration> =
@@ -66,7 +72,7 @@ http {
     addFilterBefore<Saml2WebSsoAuthenticationFilter>(filter)
 }
 ----
-====
+======
 
 You can use this metadata endpoint to register your relying party with your asserting party.
 This is often as simple as finding the correct form field to supply the metadata endpoint.
@@ -74,42 +80,50 @@ This is often as simple as finding the correct form field to supply the metadata
 By default, the metadata endpoint is `+/saml2/service-provider-metadata/{registrationId}+`.
 You can change this by calling the `setRequestMatcher` method on the filter:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata/{registrationId}", "GET"))
 ----
-====
+======
 
 Or, if you have registered a custom relying party registration resolver in the constructor, then you can specify a path without a `registrationId` hint, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 filter.setRequestMatcher(new AntPathRequestMatcher("/saml2/metadata", "GET"));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 filter.setRequestMatcher(AntPathRequestMatcher("/saml2/metadata", "GET"))
 ----
-====
+======
 
 == Changing the Way a `RelyingPartyRegistration` Is Looked Up
 
 To apply a custom `RelyingPartyRegistrationResolver` to the metadata endpoint, you can provide it directly in the filter constructor like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RelyingPartyRegistrationResolver myRegistrationResolver = ...;
@@ -119,6 +133,7 @@ Saml2MetadataFilter metadata = new Saml2MetadataFilter(myRegistrationResolver, n
 
 http.addFilterBefore(metadata, BasicAuthenticationFilter.class);
 ----
+======
 
 .Kotlin
 ----
@@ -129,19 +144,20 @@ val metadata = new Saml2MetadataFilter(myRegistrationResolver, OpenSamlMetadataR
 
 http.addFilterBefore(metadata, BasicAuthenticationFilter::class.java);
 ----
-====
 
 In the event that you are applying a `RelyingPartyRegistrationResolver` to remove the `registrationId` from the URI, you must also change the URI in the filter like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 metadata.setRequestMatcher("/saml2/metadata")
 ----
+======
 
 .Kotlin
 ----
 metadata.setRequestMatcher("/saml2/metadata")
 ----
-====

@@ -29,7 +29,6 @@ The default implementation `DefaultOAuth2AuthorizationRequestResolver` matches o
 
 Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
-====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -48,7 +47,6 @@ spring:
             authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize
             token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
-====
 
 Given the preceding properties, a request with the base path `/oauth2/authorization/okta` initiates the Authorization Request redirect by the `OAuth2AuthorizationRequestRedirectFilter` and ultimately starts the Authorization Code grant flow.
 
@@ -60,7 +58,6 @@ which also initiates the Authorization Request redirect by the `OAuth2Authorizat
 
 If the OAuth 2.0 Client is a https://tools.ietf.org/html/rfc6749#section-2.1[Public Client], configure the OAuth 2.0 Client registration as follows:
 
-====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -75,7 +72,6 @@ spring:
             redirect-uri: "{baseUrl}/authorized/okta"
             ...
 ----
-====
 
 Public Clients are supported by using https://tools.ietf.org/html/rfc7636[Proof Key for Code Exchange] (PKCE).
 If the client is running in an untrusted environment (such as a native application or web browser-based application) and is therefore incapable of maintaining the confidentiality of its credentials, PKCE is automatically used when the following conditions are true:
@@ -91,7 +87,6 @@ The `DefaultOAuth2AuthorizationRequestResolver` also supports `URI` template var
 
 The following configuration uses all the supported `URI` template variables:
 
-====
 [source,yaml,attrs="-attributes"]
 ----
 spring:
@@ -104,7 +99,6 @@ spring:
             redirect-uri: "{baseScheme}://{baseHost}{basePort}{basePath}/authorized/{registrationId}"
             ...
 ----
-====
 
 [NOTE]
 ====
@@ -128,8 +122,10 @@ The `prompt` parameter is optional. Space delimited, case sensitive list of ASCI
 
 The following example shows how to configure the `DefaultOAuth2AuthorizationRequestResolver` with a `Consumer<OAuth2AuthorizationRequest.Builder>` that customizes the Authorization Request for `oauth2Login()`, by including the request parameter `prompt=consent`.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -174,7 +170,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -216,13 +213,12 @@ class SecurityConfig {
     }
 }
 ----
-====
+======
 
 For the simple use case where the additional request parameter is always the same for a specific provider, you can add it directly in the `authorization-uri` property.
 
 For example, if the value for the request parameter `prompt` is always `consent` for the provider `okta`, you can configure it as follows:
 
-====
 [source,yaml]
 ----
 spring:
@@ -233,7 +229,6 @@ spring:
           okta:
             authorization-uri: https://dev-1234.oktapreview.com/oauth2/v1/authorize?prompt=consent
 ----
-====
 
 The preceding example shows the common use case of adding a custom parameter on top of the standard parameters.
 Alternatively, if your requirements are more advanced, you can take full control in building the Authorization Request URI by overriding the `OAuth2AuthorizationRequest.authorizationRequestUri` property.
@@ -245,8 +240,10 @@ Alternatively, if your requirements are more advanced, you can take full control
 
 The following example shows a variation of `authorizationRequestCustomizer()` from the preceding example and instead overrides the `OAuth2AuthorizationRequest.authorizationRequestUri` property:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomizer() {
@@ -256,7 +253,8 @@ private Consumer<OAuth2AuthorizationRequest.Builder> authorizationRequestCustomi
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationRequest.Builder> {
@@ -269,7 +267,7 @@ private fun authorizationRequestCustomizer(): Consumer<OAuth2AuthorizationReques
     }
 }
 ----
-====
+======
 
 
 === Storing the Authorization Request
@@ -286,8 +284,10 @@ The default implementation of `AuthorizationRequestRepository` is `HttpSessionOA
 If you have a custom implementation of `AuthorizationRequestRepository`, you can configure it as follows:
 
 .AuthorizationRequestRepository Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -317,7 +317,8 @@ public class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -338,7 +339,8 @@ class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -347,7 +349,7 @@ class OAuth2ClientSecurityConfig {
 	</oauth2-client>
 </http>
 ----
-====
+======
 
 === Requesting an Access Token
 
@@ -384,8 +386,10 @@ The custom `Converter` must return a valid `RequestEntity` representation of an 
 On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultAuthorizationCodeTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -395,7 +399,8 @@ RestTemplate restTemplate = new RestTemplate(Arrays.asList(
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val restTemplate = RestTemplate(listOf(
@@ -404,7 +409,7 @@ val restTemplate = RestTemplate(listOf(
 
 restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
-====
+======
 
 [TIP]
 ====
@@ -420,8 +425,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 Whether you customize `DefaultAuthorizationCodeTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
 .Access Token Response Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -442,7 +449,8 @@ public class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -463,7 +471,8 @@ class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -472,7 +481,7 @@ class OAuth2ClientSecurityConfig {
 	</oauth2-client>
 </http>
 ----
-====
+======
 
 
 [[oauth2Client-refresh-token-grant]]
@@ -520,8 +529,10 @@ The custom `Converter` must return a valid `RequestEntity` representation of an 
 On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultRefreshTokenTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -531,7 +542,8 @@ RestTemplate restTemplate = new RestTemplate(Arrays.asList(
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val restTemplate = RestTemplate(listOf(
@@ -540,7 +552,7 @@ val restTemplate = RestTemplate(listOf(
 
 restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
-====
+======
 
 [TIP]
 ====
@@ -555,8 +567,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 
 Whether you customize `DefaultRefreshTokenTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -573,7 +587,8 @@ OAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -588,7 +603,7 @@ val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 ====
@@ -643,8 +658,10 @@ The custom `Converter` must return a valid `RequestEntity` representation of an 
 On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultClientCredentialsTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -654,7 +671,8 @@ RestTemplate restTemplate = new RestTemplate(Arrays.asList(
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val restTemplate = RestTemplate(listOf(
@@ -663,7 +681,7 @@ val restTemplate = RestTemplate(listOf(
 
 restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
-====
+======
 
 [TIP]
 ====
@@ -678,8 +696,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` to convert the OAuth 2.0 Error para
 
 Whether you customize `DefaultClientCredentialsTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -695,7 +715,8 @@ OAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -709,7 +730,7 @@ val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 ====
@@ -721,7 +742,6 @@ which is an implementation of an `OAuth2AuthorizedClientProvider` for the Client
 
 Consider the following Spring Boot 2.x properties for an OAuth 2.0 Client registration:
 
-====
 [source,yaml]
 ----
 spring:
@@ -738,12 +758,13 @@ spring:
           okta:
             token-uri: https://dev-1234.oktapreview.com/oauth2/v1/token
 ----
-====
 
 Further consider the following `OAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -765,7 +786,8 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -781,12 +803,14 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 Given the preceding properties and bean, you can obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -818,7 +842,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class OAuth2ClientController {
@@ -846,7 +871,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -897,8 +922,10 @@ The custom `Converter` must return a valid `RequestEntity` representation of an 
 On the other end, if you need to customize the post-handling of the Token Response, you need to provide `DefaultPasswordTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -908,7 +935,8 @@ RestTemplate restTemplate = new RestTemplate(Arrays.asList(
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val restTemplate = RestTemplate(listOf(
@@ -917,7 +945,7 @@ val restTemplate = RestTemplate(listOf(
 
 restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
-====
+======
 
 [TIP]
 ====
@@ -932,8 +960,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` to convert the OAuth 2.0 Error para
 
 Whether you customize `DefaultPasswordTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you need to configure it as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -950,7 +980,8 @@ OAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val passwordTokenResponseClient: OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> = ...
@@ -964,7 +995,7 @@ val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 [NOTE]
 ====
@@ -995,8 +1026,10 @@ spring:
 
 Further consider the `OAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1039,7 +1072,9 @@ private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesM
 	};
 }
 ----
-.Kotlin
+
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1077,12 +1112,14 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, MutableM
     }
 }
 ----
-====
+======
 
 Given the preceding properties and bean, you can obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -1114,7 +1151,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -1142,7 +1180,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -1189,8 +1227,10 @@ If you prefer to only add additional parameters, you can provide `JwtBearerGrant
 On the other end, if you need to customize the post-handling of the Token Response, you will need to provide `DefaultJwtBearerTokenResponseClient.setRestOperations()` with a custom configured `RestOperations`.
 The default `RestOperations` is configured as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RestTemplate restTemplate = new RestTemplate(Arrays.asList(
@@ -1200,7 +1240,8 @@ RestTemplate restTemplate = new RestTemplate(Arrays.asList(
 restTemplate.setErrorHandler(new OAuth2ErrorResponseErrorHandler());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val restTemplate = RestTemplate(listOf(
@@ -1209,7 +1250,7 @@ val restTemplate = RestTemplate(listOf(
 
 restTemplate.errorHandler = OAuth2ErrorResponseErrorHandler()
 ----
-====
+======
 
 [TIP]
 ====
@@ -1224,8 +1265,10 @@ It uses an `OAuth2ErrorHttpMessageConverter` for converting the OAuth 2.0 Error 
 
 Whether you customize `DefaultJwtBearerTokenResponseClient` or provide your own implementation of `OAuth2AccessTokenResponseClient`, you'll need to configure it as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Customize
@@ -1244,7 +1287,8 @@ OAuth2AuthorizedClientProvider authorizedClientProvider =
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 // Customize
@@ -1261,7 +1305,7 @@ val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder.builder()
 
 authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
 ----
-====
+======
 
 === Using the Access Token
 
@@ -1286,8 +1330,10 @@ spring:
 
 ...and the `OAuth2AuthorizedClientManager` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1312,7 +1358,8 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1329,12 +1376,14 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 You may obtain the `OAuth2AccessToken` as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @RestController
@@ -1357,7 +1406,8 @@ public class OAuth2ResourceServerController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class OAuth2ResourceServerController {
@@ -1378,7 +1428,7 @@ class OAuth2ResourceServerController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 `JwtBearerOAuth2AuthorizedClientProvider` resolves the `Jwt` assertion via `OAuth2AuthorizationContext.getPrincipal().getPrincipal()` by default, hence the use of `JwtAuthenticationToken` in the preceding example.

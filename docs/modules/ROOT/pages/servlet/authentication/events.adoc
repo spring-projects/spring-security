@@ -6,8 +6,10 @@ For each authentication that succeeds or fails, a `AuthenticationSuccessEvent` o
 To listen for these events, you must first publish an `AuthenticationEventPublisher`.
 Spring Security's `DefaultAuthenticationEventPublisher` works fine for this purpose:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -17,7 +19,8 @@ public AuthenticationEventPublisher authenticationEventPublisher
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -26,12 +29,14 @@ fun authenticationEventPublisher
     return DefaultAuthenticationEventPublisher(applicationEventPublisher)
 }
 ----
-====
+======
 
 Then you can use Spring's `@EventListener` support:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -48,7 +53,8 @@ public class AuthenticationEvents {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -64,7 +70,7 @@ class AuthenticationEvents {
     }
 }
 ----
-====
+======
 
 While similar to `AuthenticationSuccessHandler` and `AuthenticationFailureHandler`, these are nice in that they can be used independently from the servlet API.
 
@@ -89,8 +95,10 @@ The publisher does an exact `Exception` match, which means that sub-classes of t
 
 To that end, you may want to supply additional mappings to the publisher through the `setAdditionalExceptionMappings` method:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -106,7 +114,8 @@ public AuthenticationEventPublisher authenticationEventPublisher
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -119,14 +128,16 @@ fun authenticationEventPublisher
     return authenticationEventPublisher
 }
 ----
-====
+======
 
 == Default Event
 
 You can also supply a catch-all event to fire in the case of any `AuthenticationException`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -140,7 +151,8 @@ public AuthenticationEventPublisher authenticationEventPublisher
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -151,4 +163,4 @@ fun authenticationEventPublisher
     return authenticationEventPublisher
 }
 ----
-====
+======

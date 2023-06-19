@@ -2,8 +2,10 @@
 
 The basic setup looks like this:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity;
@@ -31,7 +33,8 @@ public class HelloWebfluxMethodApplicationTests {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.springSecurity
@@ -58,4 +61,4 @@ class HelloWebfluxMethodApplicationTests {
     // ...
 }
 ----
-====
+======

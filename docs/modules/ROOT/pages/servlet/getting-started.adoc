@@ -21,7 +21,6 @@ You can now https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle
 The following example shows how to do so (and the beginning of the output from doing so):
 
 .Running Spring Boot Application
-====
 [source,bash]
 ----
 $ ./mvn spring-boot:run
@@ -32,7 +31,6 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 
 ...
 ----
-====
 
 
 [[servlet-hello-auto-configuration]]

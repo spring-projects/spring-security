@@ -13,23 +13,27 @@ So, to complete migration, remove any `websocket-message-broker@use-authorizatio
 
 For example:
 
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <websocket-message-broker use-authorization-manager="true"/>
 ----
-====
+======
 
 changes to:
 
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <websocket-message-broker/>
 ----
-====
+======
 
 There are no further migrations steps for Java or Kotlin for this feature.
 
@@ -41,8 +45,10 @@ So, to complete migration, any defaults values can be removed.
 
 For example, if you opted in to the 6.0 default for `filter-all-dispatcher-types` or `authorizeHttpRequests#filterAllDispatcherTypes` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -52,7 +58,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,java,role="secondary"]
 ----
 http {
@@ -63,17 +70,20 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http use-authorization-manager="true" filter-all-dispatcher-types="true"/>
 ----
-====
+======
 
 then the defaults may be removed:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -82,7 +92,8 @@ http
     )
 ----
 
-.Kotlin
+Kotlin::
++
 [source,java,role="secondary"]
 ----
 http {
@@ -92,12 +103,13 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http/>
 ----
-====
+======
 
 [NOTE]
 ====
