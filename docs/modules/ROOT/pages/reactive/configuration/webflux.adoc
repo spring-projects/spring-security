@@ -14,8 +14,10 @@ You can find a few sample applications that demonstrate the code below:
 You can find a minimal WebFlux Security configuration below:
 
 .Minimal WebFlux Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 -----
 
@@ -34,7 +36,8 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
 @EnableWebFluxSecurity
@@ -51,7 +54,7 @@ class HelloWebfluxSecurityConfig {
     }
 }
 -----
-====
+======
 
 This configuration provides form and http basic authentication, sets up authorization to require an authenticated user for accessing any page, sets up a default log in page and a default log out page, sets up security related HTTP headers, CSRF protection, and more.
 
@@ -60,8 +63,10 @@ This configuration provides form and http basic authentication, sets up authoriz
 You can find an explicit version of the minimal WebFlux Security configuration below:
 
 .Explicit WebFlux Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 -----
 @Configuration
@@ -91,7 +96,8 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
 @Configuration
@@ -120,7 +126,7 @@ class HelloWebfluxSecurityConfig {
     }
 }
 -----
-====
+======
 
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here you can easily make the changes to the defaults.
@@ -134,8 +140,10 @@ You can configure multiple `SecurityWebFilterChain` instances to separate config
 
 For example, you can isolate configuration for URLs that start with `/api`, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -173,7 +181,8 @@ static class MultiSecurityHttpConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -211,7 +220,7 @@ open class MultiSecurityHttpConfig {
     }
 }
 ----
-====
+======
 
 <1> Configure a `SecurityWebFilterChain` with an `@Order` to specify which `SecurityWebFilterChain` Spring Security should consider first
 <2> Use `PathPatternParserServerWebExchangeMatcher` to state that this `SecurityWebFilterChain` will only apply to URL paths that start with `/api/`

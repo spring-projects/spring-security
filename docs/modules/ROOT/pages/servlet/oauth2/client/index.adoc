@@ -25,8 +25,10 @@ In addition, `HttpSecurity.oauth2Client().authorizationCodeGrant()` enables the 
 The following code shows the complete configuration options provided by the `HttpSecurity.oauth2Client()` DSL:
 
 .OAuth2 Client Configuration Options
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -49,7 +51,8 @@ public class OAuth2ClientSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -71,14 +74,13 @@ class OAuth2ClientSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 In addition to the `HttpSecurity.oauth2Client()` DSL, XML configuration is also supported.
 
 The following code shows the complete configuration options available in the xref:servlet/appendix/namespace/http.adoc#nsa-oauth2-client[ security namespace]:
 
 .OAuth2 Client XML Configuration Options
-====
 [source,xml]
 ----
 <http>
@@ -92,14 +94,15 @@ The following code shows the complete configuration options available in the xre
 	</oauth2-client>
 </http>
 ----
-====
 
 The `OAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `OAuth2AuthorizedClientProvider`(s).
 
 The following code shows an example of how to register an `OAuth2AuthorizedClientManager` `@Bean` and associate it with an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -124,7 +127,8 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -143,4 +147,4 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======

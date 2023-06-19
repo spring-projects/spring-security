@@ -15,8 +15,10 @@ The default is that accessing the URL `/logout` will log the user out by:
 Similar to configuring login capabilities, however, you also have various options to further customize your logout requirements:
 
 .Logout Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) throws Exception {
@@ -33,7 +35,8 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
 override fun configure(http: HttpSecurity) {
@@ -49,7 +52,7 @@ override fun configure(http: HttpSecurity) {
     }
 }
 -----
-====
+======
 
 <1> Provides logout support.
 This is automatically applied when using `WebSecurityConfigurerAdapter`.

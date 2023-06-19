@@ -30,8 +30,10 @@ The explicit configuration looks like:
 
 [[servlet-authorize-requests-defaults]]
 .Every Request Must be Authenticated
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) throws Exception {
@@ -43,7 +45,8 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -52,7 +55,8 @@ protected void configure(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun configure(http: HttpSecurity) {
@@ -64,13 +68,15 @@ fun configure(http: HttpSecurity) {
     }
 }
 ----
-====
+======
 
 We can configure Spring Security to have different rules by adding more rules in order of precedence.
 
 .Authorize Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) throws Exception {
@@ -85,7 +91,8 @@ protected void configure(HttpSecurity http) throws Exception {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http> <!--1-->
@@ -101,7 +108,8 @@ protected void configure(HttpSecurity http) throws Exception {
 </http>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun configure(http: HttpSecurity) {
@@ -118,7 +126,7 @@ fun configure(http: HttpSecurity) {
     }
 }
 ----
-====
+======
 <1> There are multiple authorization rules specified.
 Each rule is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access.

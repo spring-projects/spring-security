@@ -106,8 +106,10 @@ Once a token is authenticated, an instance of `BearerTokenAuthentication` is set
 
 This means that it's available in `@Controller` methods when using `@EnableWebMvc` in your configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/foo")
@@ -116,7 +118,8 @@ public String foo(BearerTokenAuthentication authentication) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/foo")
@@ -124,12 +127,14 @@ fun foo(authentication: BearerTokenAuthentication): String {
     return authentication.tokenAttributes["sub"].toString() + " is the subject"
 }
 ----
-====
+======
 
 Since `BearerTokenAuthentication` holds an `OAuth2AuthenticatedPrincipal`, that also means that it's available to controller methods, too:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @GetMapping("/foo")
@@ -138,7 +143,8 @@ public String foo(@AuthenticationPrincipal OAuth2AuthenticatedPrincipal principa
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @GetMapping("/foo")
@@ -146,7 +152,7 @@ fun foo(@AuthenticationPrincipal principal: OAuth2AuthenticatedPrincipal): Strin
     return principal.getAttribute<Any>("sub").toString() + " is the subject"
 }
 ----
-====
+======
 
 === Looking Up Attributes Via SpEL
 
@@ -154,8 +160,10 @@ Of course, this also means that attributes can be accessed via SpEL.
 
 For example, if using `@EnableGlobalMethodSecurity` so that you can use `@PreAuthorize` annotations, you can do:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("principal?.attributes['sub'] == 'foo'")
@@ -164,7 +172,8 @@ public String forFoosEyesOnly() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("principal?.attributes['sub'] == 'foo'")
@@ -172,7 +181,7 @@ fun forFoosEyesOnly(): String {
     return "foo"
 }
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-sansboot]]
 == Overriding or Replacing Boot Auto Configuration
@@ -183,8 +192,10 @@ The first is a `WebSecurityConfigurerAdapter` that configures the app as a resou
 When use Opaque Token, this `WebSecurityConfigurerAdapter` looks like:
 
 .Default Opaque Token Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) {
@@ -196,7 +207,8 @@ protected void configure(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 override fun configure(http: HttpSecurity) {
@@ -210,15 +222,17 @@ override fun configure(http: HttpSecurity) {
     }
 }
 ----
-====
+======
 
 If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
 .Custom Opaque Token Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -238,7 +252,8 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -258,7 +273,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -267,8 +282,10 @@ Methods on the `oauth2ResourceServer` DSL will also override or replace auto con
 [[oauth2resourceserver-opaque-introspector]]
 For example, the second `@Bean` Spring Boot creates is an `OpaqueTokenIntrospector`, <<oauth2resourceserver-opaque-architecture-introspector,which decodes `String` tokens into validated instances of `OAuth2AuthenticatedPrincipal`>>:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -277,7 +294,8 @@ public OpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -285,7 +303,7 @@ fun introspector(): OpaqueTokenIntrospector {
     return NimbusOpaqueTokenIntrospector(introspectionUri, clientId, clientSecret)
 }
 ----
-====
+======
 
 If the application doesn't expose a <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> bean, then Spring Boot will expose the above default one.
 
@@ -296,8 +314,10 @@ Or, if you're not using Spring Boot at all, then both of these components - the 
 The filter chain is specified like so:
 
 .Default Opaque Token Configuration
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <http>
@@ -307,13 +327,15 @@ The filter chain is specified like so:
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> like so:
 
 .Opaque Token Introspector
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <bean id="opaqueTokenIntrospector"
@@ -323,7 +345,7 @@ And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntr
     <constructor-arg value="${spring.security.oauth2.resourceserver.opaquetoken.client_secret}"/>
 </bean>
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-introspectionuri-dsl]]
 === Using `introspectionUri()`
@@ -331,8 +353,10 @@ And the <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntr
 An authorization server's Introspection Uri can be configured <<oauth2resourceserver-opaque-introspectionuri,as a configuration property>> or it can be supplied in the DSL:
 
 .Introspection URI Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -352,7 +376,8 @@ public class DirectlyConfiguredIntrospectionUri extends WebSecurityConfigurerAda
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -373,7 +398,8 @@ class DirectlyConfiguredIntrospectionUri : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="opaqueTokenIntrospector"
@@ -383,7 +409,7 @@ class DirectlyConfiguredIntrospectionUri : WebSecurityConfigurerAdapter() {
     <constructor-arg value="secret"/>
 </bean>
 ----
-====
+======
 
 Using `introspectionUri()` takes precedence over any configuration property.
 
@@ -393,8 +419,10 @@ Using `introspectionUri()` takes precedence over any configuration property.
 More powerful than `introspectionUri()` is `introspector()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>:
 
 .Introspector Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -413,7 +441,8 @@ public class DirectlyConfiguredIntrospector extends WebSecurityConfigurerAdapter
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -433,7 +462,8 @@ class DirectlyConfiguredIntrospector : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -443,7 +473,7 @@ class DirectlyConfiguredIntrospector : WebSecurityConfigurerAdapter() {
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 This is handy when deeper configuration, like <<oauth2resourceserver-opaque-authorization-extraction,authority mapping>>, <<oauth2resourceserver-opaque-jwt-introspector,JWT revocation>>, or <<oauth2resourceserver-opaque-timeouts,request timeouts>>, is necessary.
 
@@ -472,8 +502,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 This means that to protect an endpoint or method with a scope derived from an Opaque Token, the corresponding expressions should include this prefix:
 
 .Authorization Opaque Token Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -490,7 +522,8 @@ public class MappedAuthorities extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -510,7 +543,8 @@ class MappedAuthorities : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -521,25 +555,28 @@ class MappedAuthorities : WebSecurityConfigurerAdapter() {
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 Or similarly with method security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 fun getMessages(): List<Message?> {}
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-authorization-extraction]]
 === Extracting Authorities Manually
@@ -560,8 +597,10 @@ Then Resource Server would generate an `Authentication` with two authorities, on
 
 This can, of course, be customized using a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that takes a look at the attribute set and converts in its own way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class CustomAuthoritiesOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
@@ -583,7 +622,8 @@ public class CustomAuthoritiesOpaqueTokenIntrospector implements OpaqueTokenIntr
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class CustomAuthoritiesOpaqueTokenIntrospector : OpaqueTokenIntrospector {
@@ -601,12 +641,14 @@ class CustomAuthoritiesOpaqueTokenIntrospector : OpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -615,7 +657,8 @@ public OpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -623,7 +666,7 @@ fun introspector(): OpaqueTokenIntrospector {
     return CustomAuthoritiesOpaqueTokenIntrospector()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-timeouts]]
 == Configuring Timeouts
@@ -635,8 +678,10 @@ Further, it doesn't take into account more sophisticated patterns like back-off 
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusOpaqueTokenIntrospector` accepts an instance of `RestOperations`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -651,7 +696,8 @@ public OpaqueTokenIntrospector introspector(RestTemplateBuilder builder, OAuth2R
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -664,7 +710,7 @@ fun introspector(builder: RestTemplateBuilder, properties: OAuth2ResourceServerP
     return NimbusOpaqueTokenIntrospector(introspectionUri, rest)
 }
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-jwt-introspector]]
 == Using Introspection with JWTs
@@ -696,8 +742,10 @@ Now what?
 
 In this case, you can create a custom <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>> that still hits the endpoint, but then updates the returned principal to have the JWTs claims as the attributes:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
@@ -724,7 +772,8 @@ public class JwtOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class JwtOpaqueTokenIntrospector : OpaqueTokenIntrospector {
@@ -747,12 +796,14 @@ class JwtOpaqueTokenIntrospector : OpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 Thereafter, this custom introspector can be configured simply by exposing it as a `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -761,7 +812,8 @@ public OpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -769,7 +821,7 @@ fun introspector(): OpaqueTokenIntrospector {
     return JwtOpaqueTokenIntrospector()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-opaque-userinfo]]
 == Calling a `/userinfo` Endpoint
@@ -785,8 +837,10 @@ This implementation below does three things:
 * Looks up the appropriate client registration associated with the `/userinfo` endpoint
 * Invokes and returns the response from the `/userinfo` endpoint
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
@@ -811,7 +865,8 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
@@ -832,13 +887,15 @@ class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 If you aren't using `spring-security-oauth2-client`, it's still quite simple.
 You will simply need to invoke the `/userinfo` with your own instance of `WebClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector {
@@ -854,7 +911,8 @@ public class UserInfoOpaqueTokenIntrospector implements OpaqueTokenIntrospector 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
@@ -867,12 +925,14 @@ class UserInfoOpaqueTokenIntrospector : OpaqueTokenIntrospector {
     }
 }
 ----
-====
+======
 
 Either way, having created your <<oauth2resourceserver-opaque-architecture-introspector,`OpaqueTokenIntrospector`>>, you should publish it as a `@Bean` to override the defaults:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -881,7 +941,8 @@ OpaqueTokenIntrospector introspector() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -889,4 +950,4 @@ fun introspector(): OpaqueTokenIntrospector {
     return UserInfoOpaqueTokenIntrospector(...)
 }
 ----
-====
+======

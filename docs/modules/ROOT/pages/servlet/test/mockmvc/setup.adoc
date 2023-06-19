@@ -8,8 +8,10 @@ For example:
 
 NOTE: Spring Security's testing support requires spring-test-4.1.3.RELEASE or greater.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -36,7 +38,8 @@ public class CsrfShowcaseTests {
 ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @ExtendWith(SpringExtension.class)
@@ -58,6 +61,6 @@ class CsrfShowcaseTests {
     }
 // ...
 ----
-====
+======
 
 <1> `SecurityMockMvcConfigurers.springSecurity()` will perform all of the initial setup we need to integrate Spring Security with Spring MVC Test

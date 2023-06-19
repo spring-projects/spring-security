@@ -36,8 +36,10 @@ spring:
 
 The following example shows how to configure `WebClientReactiveAuthorizationCodeTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -59,7 +61,8 @@ tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver: Function<ClientRegistration, JWK> =
@@ -81,7 +84,7 @@ tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
 ----
-====
+======
 
 
 === Authenticate using `client_secret_jwt`
@@ -105,8 +108,10 @@ spring:
 
 The following example shows how to configure `WebClientReactiveClientCredentialsTokenResponseClient`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Function<ClientRegistration, JWK> jwkResolver = (clientRegistration) -> {
@@ -127,7 +132,8 @@ tokenResponseClient.addParametersConverter(
 		new NimbusJwtClientAuthenticationParametersConverter<>(jwkResolver));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val jwkResolver = Function<ClientRegistration, JWK?> { clientRegistration: ClientRegistration ->
@@ -148,4 +154,4 @@ tokenResponseClient.addParametersConverter(
     NimbusJwtClientAuthenticationParametersConverter(jwkResolver)
 )
 ----
-====
+======

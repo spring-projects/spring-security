@@ -23,8 +23,10 @@ By default, Spring Security uses an `HttpSessionSaml2AuthenticationRequestReposi
 
 If you have a custom implementation of `Saml2AuthenticationRequestRepository`, you may configure it by exposing it as a `@Bean` as shown in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -33,7 +35,8 @@ Saml2AuthenticationRequestRepository<AbstractSaml2AuthenticationRequest> authent
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -41,7 +44,7 @@ open fun authenticationRequestRepository(): Saml2AuthenticationRequestRepository
     return CustomSaml2AuthenticationRequestRepository()
 }
 ----
-====
+======
 
 [[servlet-saml2login-sp-initiated-factory-signing]]
 == Changing How the `<saml2:AuthnRequest>` Gets Sent
@@ -53,8 +56,10 @@ This can be configured automatically via `RelyingPartyRegistrations`, or you can
 
 
 .Not Requiring Signed AuthnRequests
-====
-.Boot
+[tabs]
+======
+Boot::
++
 [source,yaml,role="primary"]
 ----
 spring:
@@ -67,7 +72,8 @@ spring:
             singlesignon.sign-request: false
 ----
 
-.Java
+Java::
++
 [source,java,role="secondary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
@@ -79,7 +85,8 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,java,role="secondary"]
 ----
 var relyingPartyRegistration: RelyingPartyRegistration =
@@ -91,7 +98,7 @@ var relyingPartyRegistration: RelyingPartyRegistration =
         }
         .build();
 ----
-====
+======
 
 Otherwise, you will need to specify a private key to `RelyingPartyRegistration#signingX509Credentials` so that Spring Security can sign the `<saml2:AuthnRequest>` before sending.
 
@@ -102,8 +109,10 @@ You can configure the algorithm based on the asserting party's xref:servlet/saml
 
 Or, you can provide it manually:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 String metadataLocation = "classpath:asserting-party-metadata.xml";
@@ -116,7 +125,8 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations.fr
         .build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 var metadataLocation = "classpath:asserting-party-metadata.xml"
@@ -133,7 +143,7 @@ var relyingPartyRegistration: RelyingPartyRegistration =
         }
         .build();
 ----
-====
+======
 
 NOTE: The snippet above uses the OpenSAML `SignatureConstants` class to supply the algorithm name.
 But, that's just for convenience.
@@ -143,8 +153,10 @@ Since the datatype is `String`, you can supply the name of the algorithm directl
 Some asserting parties require that the `<saml2:AuthnRequest>` be POSTed.
 This can be configured automatically via `RelyingPartyRegistrations`, or you can supply it manually, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("okta")
@@ -156,7 +168,8 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 var relyingPartyRegistration: RelyingPartyRegistration? =
@@ -168,7 +181,7 @@ var relyingPartyRegistration: RelyingPartyRegistration? =
         }
         .build()
 ----
-====
+======
 
 [[servlet-saml2login-sp-initiated-factory-custom-authnrequest]]
 == Customizing OpenSAML's `AuthnRequest` Instance
@@ -181,8 +194,10 @@ This will give you access to post-process the `AuthnRequest` instance before it'
 
 But, if you do need something from the request, then you can use create a custom `Saml2AuthenticationRequestContext` implementation and then a `Converter<Saml2AuthenticationRequestContext, AuthnRequest>` to build an `AuthnRequest` yourself, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -212,7 +227,8 @@ public class AuthnRequestConverter implements
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -236,12 +252,14 @@ class AuthnRequestConverter : Converter<Saml2AuthenticationRequestContext, Authn
     }
 }
 ----
-====
+======
 
 Then, you can construct your own `Saml2AuthenticationRequestContextResolver` and `Saml2AuthenticationRequestFactory` and publish them as ``@Bean``s:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -265,7 +283,8 @@ Saml2AuthenticationRequestFactory authenticationRequestFactory(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -289,5 +308,5 @@ open fun authenticationRequestFactory(
     return authenticationRequestFactory
 }
 ----
-====
+======
 

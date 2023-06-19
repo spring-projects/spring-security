@@ -97,8 +97,10 @@ uniqueMember: uid=admin,ou=people,dc=springframework,dc=org
 If you wish to use https://ldap.com/unboundid-ldap-sdk-for-java/[UnboundID], then specify the following dependencies:
 
 .UnboundID Dependencies
-====
-.Maven
+[tabs]
+======
+Maven::
++
 [source,xml,role="primary",subs="verbatim,attributes"]
 ----
 <dependency>
@@ -109,20 +111,23 @@ If you wish to use https://ldap.com/unboundid-ldap-sdk-for-java/[UnboundID], the
 </dependency>
 ----
 
-.Gradle
+Gradle::
++
 [source,groovy,role="secondary",subs="verbatim,attributes"]
 ----
 depenendencies {
 	runtimeOnly "com.unboundid:unboundid-ldapsdk:{unboundid-ldapsdk-version}"
 }
 ----
-====
+======
 
 You can then configure the Embedded LDAP Server
 
 .Embedded LDAP Server Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -132,7 +137,8 @@ UnboundIdContainer ldapContainer() {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <b:bean class="org.springframework.security.ldap.server.UnboundIdContainer"
@@ -140,7 +146,8 @@ UnboundIdContainer ldapContainer() {
 	c:ldif="classpath:users.ldif"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -148,7 +155,7 @@ fun ldapContainer(): UnboundIdContainer {
     return UnboundIdContainer("dc=springframework,dc=org","classpath:users.ldif")
 }
 ----
-====
+======
 
 [[servlet-authentication-ldap-apacheds]]
 === Embedded ApacheDS Server
@@ -163,8 +170,10 @@ Once a stable release of ApacheDS 2.x is available, we will consider updating.
 If you wish to use https://directory.apache.org/apacheds/[Apache DS], then specify the following dependencies:
 
 .ApacheDS Dependencies
-====
-.Maven
+[tabs]
+======
+Maven::
++
 [source,xml,role="primary",subs="+attributes"]
 ----
 <dependency>
@@ -181,7 +190,8 @@ If you wish to use https://directory.apache.org/apacheds/[Apache DS], then speci
 </dependency>
 ----
 
-.Gradle
+Gradle::
++
 [source,groovy,role="secondary",subs="+attributes"]
 ----
 depenendencies {
@@ -189,13 +199,15 @@ depenendencies {
 	runtimeOnly "org.apache.directory.server:apacheds-server-jndi:{apacheds-core-version}"
 }
 ----
-====
+======
 
 You can then configure the Embedded LDAP Server
 
 .Embedded LDAP Server Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -205,7 +217,8 @@ ApacheDSContainer ldapContainer() {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <b:bean class="org.springframework.security.ldap.server.ApacheDSContainer"
@@ -213,7 +226,8 @@ ApacheDSContainer ldapContainer() {
 	c:ldif="classpath:users.ldif"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -221,7 +235,7 @@ fun ldapContainer(): ApacheDSContainer {
     return ApacheDSContainer("dc=springframework,dc=org", "classpath:users.ldif")
 }
 ----
-====
+======
 
 [[servlet-authentication-ldap-contextsource]]
 == LDAP ContextSource
@@ -230,8 +244,10 @@ Once you have an LDAP Server to point your configuration to, you need configure 
 This is done by creating an LDAP `ContextSource`, which is the equivalent of a JDBC `DataSource`.
 
 .LDAP Context Source
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ContextSource contextSource(UnboundIdContainer container) {
@@ -239,21 +255,23 @@ ContextSource contextSource(UnboundIdContainer container) {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <ldap-server
 	url="ldap://localhost:53389/dc=springframework,dc=org" />
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun contextSource(container: UnboundIdContainer): ContextSource {
     return DefaultSpringSecurityContextSource("ldap://localhost:53389/dc=springframework,dc=org")
 }
 ----
-====
+======
 
 [[servlet-authentication-ldap-authentication]]
 == Authentication
@@ -282,8 +300,10 @@ The advantage to using bind authentication is that the user's secrets (i.e. pass
 An example of bind authentication configuration can be found below.
 
 .Bind Authentication
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
@@ -299,14 +319,16 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
 	user-dn-pattern="uid={0},ou=people"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
@@ -321,15 +343,17 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
     return LdapAuthenticationProvider(authenticator)
 }
 ----
-====
+======
 
 This simple example would obtain the DN for the user by substituting the user login name in the supplied pattern and attempting to bind as that user with the login password.
 This is OK if all your users are stored under a single node in the directory.
 If instead you wished to configure an LDAP search filter to locate the user, you could use the following:
 
 .Bind Authentication with Search Filter
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
@@ -349,7 +373,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
@@ -357,7 +382,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 	user-search-base="ou=people"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
@@ -375,7 +401,7 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
     return LdapAuthenticationProvider(authenticator)
 }
 ----
-====
+======
 
 If used with the `ContextSource` <<servlet-authentication-ldap-contextsource,definition above>>, this would perform a search under the DN `ou=people,dc=springframework,dc=org` using `+(uid={0})+` as a filter.
 Again the user login name is substituted for the parameter in the filter name, so it will search for an entry with the `uid` attribute equal to the user name.
@@ -389,8 +415,10 @@ This can either be done by retrieving the value of the password attribute and ch
 An LDAP compare cannot be done when the password is properly hashed with a random salt.
 
 .Minimal Password Compare Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -404,7 +432,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
@@ -413,7 +442,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 </ldap-authentication-provider>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -426,13 +456,15 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
     return LdapAuthenticationProvider(authenticator)
 }
 ----
-====
+======
 
 A more advanced configuration with some customizations can be found below.
 
 .Password Compare Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -450,7 +482,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
@@ -463,7 +496,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 	class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -479,7 +513,7 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
     return LdapAuthenticationProvider(authenticator)
 }
 ----
-====
+======
 
 <1> Specify the password attribute as `pwd`
 <2> Use `BCryptPasswordEncoder`
@@ -490,8 +524,10 @@ fun authenticationProvider(authenticator: LdapAuthenticator): LdapAuthentication
 Spring Security's `LdapAuthoritiesPopulator` is used to determine what authorites are returned for the user.
 
 .LdapAuthoritiesPopulator Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
@@ -509,7 +545,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <ldap-authentication-provider
@@ -517,7 +554,8 @@ LdapAuthenticationProvider authenticationProvider(LdapAuthenticator authenticato
 	group-search-filter="member={0}"/>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
@@ -533,7 +571,7 @@ fun authenticationProvider(authenticator: LdapAuthenticator, authorities: LdapAu
     return LdapAuthenticationProvider(authenticator, authorities)
 }
 ----
-====
+======
 
 == Active Directory
 
@@ -547,8 +585,10 @@ This is not currently supported, but hopefully will be in a future version.].
 An example configuration can be seen below:
 
 .Example Active Directory Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -557,7 +597,8 @@ ActiveDirectoryLdapAuthenticationProvider authenticationProvider() {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <bean id="authenticationProvider"
@@ -567,7 +608,8 @@ ActiveDirectoryLdapAuthenticationProvider authenticationProvider() {
 </bean>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -575,4 +617,4 @@ fun authenticationProvider(): ActiveDirectoryLdapAuthenticationProvider {
     return ActiveDirectoryLdapAuthenticationProvider("example.com", "ldap://company.example.com/")
 }
 ----
-====
+======

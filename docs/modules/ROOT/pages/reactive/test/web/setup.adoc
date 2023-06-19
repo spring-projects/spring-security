@@ -2,8 +2,10 @@
 
 The basic setup looks like this:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @ExtendWith(SpringExtension.class)
@@ -28,7 +30,8 @@ public class HelloWebfluxMethodApplicationTests {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @ExtendWith(SpringExtension::class)
@@ -52,4 +55,4 @@ class HelloWebfluxMethodApplicationTests {
     // ...
 }
 ----
-====
+======

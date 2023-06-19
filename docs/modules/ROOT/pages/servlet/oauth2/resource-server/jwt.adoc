@@ -140,8 +140,10 @@ There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 The first is a `WebSecurityConfigurerAdapter` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `WebSecurityConfigurerAdapter` looks like:
 
 .Default JWT Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected void configure(HttpSecurity http) {
@@ -153,7 +155,8 @@ protected void configure(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun configure(http: HttpSecurity) {
@@ -167,15 +170,17 @@ fun configure(http: HttpSecurity) {
     }
 }
 ----
-====
+======
 
 If the application doesn't expose a `WebSecurityConfigurerAdapter` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
 .Custom JWT Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -195,7 +200,8 @@ public class MyCustomSecurityConfiguration extends WebSecurityConfigurerAdapter 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -215,7 +221,7 @@ class MyCustomSecurityConfiguration : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -225,8 +231,10 @@ Methods on the `oauth2ResourceServer` DSL will also override or replace auto con
 For example, the second `@Bean` Spring Boot creates is a `JwtDecoder`, which <<oauth2resourceserver-jwt-architecture-jwtdecoder,decodes `String` tokens into validated instances of `Jwt`>>:
 
 .JWT Decoder
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -235,7 +243,8 @@ public JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -243,7 +252,7 @@ fun jwtDecoder(): JwtDecoder {
     return JwtDecoders.fromIssuerLocation(issuerUri)
 }
 ----
-====
+======
 
 [NOTE]
 Calling `{security-api-url}org/springframework/security/oauth2/jwt/JwtDecoders.html#fromIssuerLocation-java.lang.String-[JwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
@@ -257,8 +266,10 @@ Or, if you're not using Spring Boot at all, then both of these components - the 
 The filter chain is specified like so:
 
 .Default JWT Configuration
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <http>
@@ -268,13 +279,15 @@ The filter chain is specified like so:
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 And the `JwtDecoder` like so:
 
 .JWT Decoder
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <bean id="jwtDecoder"
@@ -283,7 +296,7 @@ And the `JwtDecoder` like so:
     <constructor-arg value="${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}"/>
 </bean>
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-jwkseturi-dsl]]
 === Using `jwkSetUri()`
@@ -291,8 +304,10 @@ And the `JwtDecoder` like so:
 An authorization server's JWK Set Uri can be configured <<oauth2resourceserver-jwt-jwkseturi,as a configuration property>> or it can be supplied in the DSL:
 
 .JWK Set Uri Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -311,7 +326,8 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -331,7 +347,8 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -341,7 +358,7 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 Using `jwkSetUri()` takes precedence over any configuration property.
 
@@ -351,8 +368,10 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>>:
 
 .JWT Decoder Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -371,7 +390,8 @@ public class DirectlyConfiguredJwtDecoder extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -391,7 +411,8 @@ class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -401,7 +422,7 @@ class DirectlyConfiguredJwtDecoder : WebSecurityConfigurerAdapter() {
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validation,validation>>, <<oauth2resourceserver-jwt-claimsetmapping,mapping>>, or <<oauth2resourceserver-jwt-timeouts,request timeouts>>, is necessary.
 
@@ -410,8 +431,10 @@ This is handy when deeper configuration, like <<oauth2resourceserver-jwt-validat
 
 Or, exposing a <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> `@Bean` has the same effect as `decoder()`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -420,7 +443,8 @@ public JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -428,7 +452,7 @@ fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).build()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-decoder-algorithm]]
 == Configuring Trusted Algorithms
@@ -458,8 +482,10 @@ spring:
 
 For greater power, though, we can use a builder that ships with `NimbusJwtDecoder`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -469,7 +495,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -478,12 +505,14 @@ fun jwtDecoder(): JwtDecoder {
             .jwsAlgorithm(RS512).build()
 }
 ----
-====
+======
 
 Calling `jwsAlgorithm` more than once will configure `NimbusJwtDecoder` to trust more than one algorithm, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -493,7 +522,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -502,12 +532,14 @@ fun jwtDecoder(): JwtDecoder {
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
 }
 ----
-====
+======
 
 Or, you can call `jwsAlgorithms`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -520,7 +552,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -532,7 +565,7 @@ fun jwtDecoder(): JwtDecoder {
             }.build()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-decoder-jwk-response]]
 === From JWK Set response
@@ -542,8 +575,10 @@ Since Spring Security's JWT support is based off of Nimbus, you can use all it's
 For example, Nimbus has a `JWSKeySelector` implementation that will select the set of algorithms based on the JWK Set URI response.
 You can use it to generate a `NimbusJwtDecoder` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -560,7 +595,8 @@ public JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -572,7 +608,7 @@ fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder(jwtProcessor)
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-decoder-public-key]]
 == Trusting a Single Asymmetric Key
@@ -598,8 +634,10 @@ spring:
 
 Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -610,7 +648,8 @@ BeanFactoryPostProcessor conversionServiceCustomizer() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -621,7 +660,7 @@ fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
     }
 }
 ----
-====
+======
 
 Specify your key's location:
 
@@ -632,29 +671,34 @@ key.location: hfds://my-key.pub
 
 And then autowire the value:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Value("${key.location}")
 RSAPublicKey key;
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Value("\${key.location}")
 val key: RSAPublicKey? = null
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-decoder-public-key-builder]]
 === Using a Builder
 
 To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusJwtDecoder` builder, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -663,7 +707,8 @@ public JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -671,7 +716,7 @@ fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder.withPublicKey(this.key).build()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-decoder-secret-key]]
 == Trusting a Single Symmetric Key
@@ -679,8 +724,10 @@ fun jwtDecoder(): JwtDecoder {
 Using a single symmetric key is also simple.
 You can simply load in your `SecretKey` and use the appropriate `NimbusJwtDecoder` builder, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -689,7 +736,8 @@ public JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -697,7 +745,7 @@ fun jwtDecoder(): JwtDecoder {
     return NimbusJwtDecoder.withSecretKey(key).build()
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-authorization]]
 == Configuring Authorization
@@ -711,8 +759,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
 .Authorization Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -729,7 +779,8 @@ public class DirectlyConfiguredJwkSetUri extends WebSecurityConfigurerAdapter {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -749,7 +800,8 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -760,25 +812,28 @@ class DirectlyConfiguredJwkSetUri : WebSecurityConfigurerAdapter() {
     </oauth2-resource-server>
 </http>
 ----
-====
+======
 
 Or similarly with method security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public List<Message> getMessages(...) {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 fun getMessages(): List<Message> { }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-authorization-extraction]]
 === Extracting Authorities Manually
@@ -796,8 +851,10 @@ Let's say that that your authorization server communicates authorities in a cust
 In that case, you can configure the claim that <<oauth2resourceserver-jwt-architecture-jwtauthenticationconverter,`JwtAuthenticationConverter`>> should inspect, like so:
 
 .Authorities Claim Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -811,7 +868,8 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -825,7 +883,8 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -847,14 +906,16 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
     <property name="authoritiesClaimName" value="authorities"/>
 </bean>
 ----
-====
+======
 
 You can also configure the authority prefix to be different as well.
 Instead of prefixing each authority with `SCOPE_`, you can change it to `ROLE_` like so:
 
 .Authorities Prefix Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -868,7 +929,8 @@ public JwtAuthenticationConverter jwtAuthenticationConverter() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -882,7 +944,8 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -904,14 +967,16 @@ fun jwtAuthenticationConverter(): JwtAuthenticationConverter {
     <property name="authorityPrefix" value="ROLE_"/>
 </bean>
 ----
-====
+======
 
 Or, you can remove the prefix altogether by calling `JwtGrantedAuthoritiesConverter#setAuthorityPrefix("")`.
 
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, AbstractAuthenticationToken>`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static class CustomAuthenticationConverter implements Converter<Jwt, AbstractAuthenticationToken> {
@@ -938,7 +1003,8 @@ public class CustomAuthenticationConverterConfig extends WebSecurityConfigurerAd
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 internal class CustomAuthenticationConverter : Converter<Jwt, AbstractAuthenticationToken> {
@@ -965,7 +1031,7 @@ class CustomAuthenticationConverterConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-validation]]
 == Configuring Validation
@@ -984,8 +1050,10 @@ This can cause some implementation heartburn as the number of collaborating serv
 
 Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and it can be configured with a `clockSkew` to alleviate the above problem:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1003,7 +1071,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1019,7 +1088,7 @@ fun jwtDecoder(): JwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======
 
 [NOTE]
 By default, Resource Server configures a clock skew of 60 seconds.
@@ -1029,8 +1098,10 @@ By default, Resource Server configures a clock skew of 60 seconds.
 
 Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 OAuth2TokenValidator<Jwt> audienceValidator() {
@@ -1038,19 +1109,22 @@ OAuth2TokenValidator<Jwt> audienceValidator() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun audienceValidator(): OAuth2TokenValidator<Jwt?> {
     return JwtClaimValidator<List<String>>(AUD) { aud -> aud.contains("messaging") }
 }
 ----
-====
+======
 
 Or, for more control you can implement your own `OAuth2TokenValidator`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static class AudienceValidator implements OAuth2TokenValidator<Jwt> {
@@ -1073,7 +1147,8 @@ OAuth2TokenValidator<Jwt> audienceValidator() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 internal class AudienceValidator : OAuth2TokenValidator<Jwt> {
@@ -1094,12 +1169,14 @@ fun audienceValidator(): OAuth2TokenValidator<Jwt> {
     return AudienceValidator()
 }
 ----
-====
+======
 
 Then, to add into a resource server, it's a matter of specifying the <<oauth2resourceserver-jwt-architecture-jwtdecoder,`JwtDecoder`>> instance:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1117,7 +1194,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1133,7 +1211,7 @@ fun jwtDecoder(): JwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-claimsetmapping]]
 == Configuring Claim Set Mapping
@@ -1167,8 +1245,10 @@ By default, `MappedJwtClaimSetConverter` will attempt to coerce claims into the 
 
 An individual claim's conversion strategy can be configured using `MappedJwtClaimSetConverter.withDefaults`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1183,7 +1263,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1197,7 +1278,7 @@ fun jwtDecoder(): JwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======
 This will keep all the defaults, except it will override the default claim converter for `sub`.
 
 [[oauth2resourceserver-jwt-claimsetmapping-add]]
@@ -1205,46 +1286,54 @@ This will keep all the defaults, except it will override the default claim conve
 
 `MappedJwtClaimSetConverter` can also be used to add a custom claim, for example, to adapt to an existing system:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 MappedJwtClaimSetConverter.withDefaults(Collections.singletonMap("custom", custom -> "value"));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 MappedJwtClaimSetConverter.withDefaults(mapOf("custom" to Converter<Any, String> { "value" }))
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-claimsetmapping-remove]]
 === Removing a Claim
 
 And removing a claim is also simple, using the same API:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 MappedJwtClaimSetConverter.withDefaults(Collections.singletonMap("legacyclaim", legacy -> null));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 MappedJwtClaimSetConverter.withDefaults(mapOf("legacyclaim" to Converter<Any, Any> { null }))
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-claimsetmapping-rename]]
 === Renaming a Claim
 
 In more sophisticated scenarios, like consulting multiple claims at once or renaming a claim, Resource Server accepts any class that implements `Converter<Map<String, Object>, Map<String,Object>>`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class UsernameSubClaimAdapter implements Converter<Map<String, Object>, Map<String, Object>> {
@@ -1262,7 +1351,8 @@ public class UsernameSubClaimAdapter implements Converter<Map<String, Object>, M
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class UsernameSubClaimAdapter : Converter<Map<String, Any?>, Map<String, Any?>> {
@@ -1275,12 +1365,14 @@ class UsernameSubClaimAdapter : Converter<Map<String, Any?>, Map<String, Any?>> 
     }
 }
 ----
-====
+======
 
 And then, the instance can be supplied like normal:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1291,7 +1383,8 @@ JwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1301,7 +1394,7 @@ fun jwtDecoder(): JwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======
 
 [[oauth2resourceserver-jwt-timeouts]]
 == Configuring Timeouts
@@ -1313,8 +1406,10 @@ Further, it doesn't take into account more sophisticated patterns like back-off 
 
 To adjust the way in which Resource Server connects to the authorization server, `NimbusJwtDecoder` accepts an instance of `RestOperations`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1329,7 +1424,8 @@ public JwtDecoder jwtDecoder(RestTemplateBuilder builder) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1341,15 +1437,17 @@ fun jwtDecoder(builder: RestTemplateBuilder): JwtDecoder {
     return NimbusJwtDecoder.withJwkSetUri(jwkSetUri).restOperations(rest).build()
 }
 ----
-====
+======
 
 Also by default, Resource Server caches in-memory the authorization server's JWK set for 5 minutes, which you may want to adjust.
 Further, it doesn't take into account more sophisticated caching patterns like eviction or using a shared cache.
 
 To adjust the way in which Resource Server caches the JWK set, `NimbusJwtDecoder` accepts an instance of `Cache`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1360,7 +1458,8 @@ public JwtDecoder jwtDecoder(CacheManager cacheManager) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -1370,7 +1469,7 @@ fun jwtDecoder(cacheManager: CacheManager): JwtDecoder {
             .build()
 }
 ----
-====
+======
 
 When given a `Cache`, Resource Server will use the JWK Set Uri as the key and the JWK Set JSON as the value.
 

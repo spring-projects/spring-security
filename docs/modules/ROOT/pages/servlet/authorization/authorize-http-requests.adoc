@@ -16,8 +16,10 @@ You can override the default when you declare a `SecurityFilterChain`.
 Instead of using xref:servlet/authorization/authorize-http-requests.adoc#servlet-authorize-requests-defaults[`authorizeRequests`], use `authorizeHttpRequests`, like so:
 
 .Use authorizeHttpRequests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -31,7 +33,7 @@ SecurityFilterChain web(HttpSecurity http) throws AuthenticationException {
     return http.build();
 }
 ----
-====
+======
 
 This improves on `authorizeRequests` in a number of ways:
 
@@ -56,8 +58,10 @@ In this case the xref:servlet/architecture.adoc#servlet-exceptiontranslationfilt
 We can configure Spring Security to have different rules by adding more rules in order of precedence.
 
 .Authorize Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -78,7 +82,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
 	return http.build();
 }
 ----
-====
+======
 <1> There are multiple authorization rules specified.
 Each rule is considered in the order they were declared.
 <2> We specified multiple URL patterns that any user can access.
@@ -93,8 +97,10 @@ This is a good strategy if you do not want to accidentally forget to update your
 You can take a bean-based approach by constructing your own xref:servlet/authorization/architecture.adoc#authz-delegate-authorization-manager[`RequestMatcherDelegatingAuthorizationManager`] like so:
 
 .Configure RequestMatcherDelegatingAuthorizationManager
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -128,15 +134,17 @@ AuthorizationManager<RequestAuthorizationContext> requestMatcherAuthorizationMan
     return (context) -> manager.check(context.getRequest());
 }
 ----
-====
+======
 
 You can also wire xref:servlet/authorization/architecture.adoc#authz-custom-authorization-manager[your own custom authorization managers] for any request matcher.
 
 Here is an example of mapping a custom authorization manager to the `my/authorized/endpoint`:
 
 .Custom Authorization Manager
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -150,13 +158,15 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 Or you can provide it for all requests as seen below:
 
 .Custom Authorization Manager for All Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -170,4 +180,4 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======

@@ -3,8 +3,10 @@
 Spring Security also provides support for CSRF testing with `WebTestClient`.
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest
@@ -15,7 +17,8 @@ this.rest
 	...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 this.rest
@@ -25,4 +28,4 @@ this.rest
     .uri("/login")
     ...
 ----
-====
+======

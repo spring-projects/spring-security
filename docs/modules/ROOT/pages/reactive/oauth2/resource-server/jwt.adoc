@@ -112,8 +112,10 @@ There are two ``@Bean``s that Spring Boot generates on Resource Server's behalf.
 The first is a `SecurityWebFilterChain` that configures the app as a resource server. When including `spring-security-oauth2-jose`, this `SecurityWebFilterChain` looks like:
 
 .Resource Server SecurityWebFilterChain
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -127,7 +129,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -142,15 +145,17 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 If the application doesn't expose a `SecurityWebFilterChain` bean, then Spring Boot will expose the above default one.
 
 Replacing this is as simple as exposing the bean within the application:
 
 .Replacing SecurityWebFilterChain
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -167,7 +172,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -183,7 +189,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 The above requires the scope of `message:read` for any URL that starts with `/messages/`.
 
@@ -192,8 +198,10 @@ Methods on the `oauth2ResourceServer` DSL will also override or replace auto con
 For example, the second `@Bean` Spring Boot creates is a `ReactiveJwtDecoder`, which decodes `String` tokens into validated instances of `Jwt`:
 
 .ReactiveJwtDecoder
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -202,7 +210,8 @@ public ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -210,7 +219,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return ReactiveJwtDecoders.fromIssuerLocation(issuerUri)
 }
 ----
-====
+======
 
 [NOTE]
 Calling `{security-api-url}org/springframework/security/oauth2/jwt/ReactiveJwtDecoders.html#fromIssuerLocation-java.lang.String-[ReactiveJwtDecoders#fromIssuerLocation]` is what invokes the Provider Configuration or Authorization Server Metadata endpoint in order to derive the JWK Set Uri.
@@ -223,8 +232,10 @@ And its configuration can be overridden using `jwkSetUri()` or replaced using `d
 
 An authorization server's JWK Set Uri can be configured <<webflux-oauth2resourceserver-jwt-jwkseturi,as a configuration property>> or it can be supplied in the DSL:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -242,7 +253,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -259,7 +271,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 Using `jwkSetUri()` takes precedence over any configuration property.
 
@@ -268,8 +280,10 @@ Using `jwkSetUri()` takes precedence over any configuration property.
 
 More powerful than `jwkSetUri()` is `decoder()`, which will completely replace any Boot auto configuration of `JwtDecoder`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -287,7 +301,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -304,7 +319,7 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 This is handy when deeper configuration, like <<webflux-oauth2resourceserver-jwt-validation,validation>>, is necessary.
 
@@ -313,8 +328,10 @@ This is handy when deeper configuration, like <<webflux-oauth2resourceserver-jwt
 
 Or, exposing a `ReactiveJwtDecoder` `@Bean` has the same effect as `decoder()`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -323,7 +340,8 @@ public ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -331,7 +349,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return ReactiveJwtDecoders.fromIssuerLocation(issuerUri)
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-decoder-algorithm]]
 == Configuring Trusted Algorithms
@@ -361,8 +379,10 @@ spring:
 
 For greater power, though, we can use a builder that ships with `NimbusReactiveJwtDecoder`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -372,7 +392,8 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -381,12 +402,14 @@ fun jwtDecoder(): ReactiveJwtDecoder {
             .jwsAlgorithm(RS512).build()
 }
 ----
-====
+======
 
 Calling `jwsAlgorithm` more than once will configure `NimbusReactiveJwtDecoder` to trust more than one algorithm, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -396,7 +419,8 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -405,12 +429,14 @@ fun jwtDecoder(): ReactiveJwtDecoder {
             .jwsAlgorithm(RS512).jwsAlgorithm(ES512).build()
 }
 ----
-====
+======
 
 Or, you can call `jwsAlgorithms`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -423,7 +449,8 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -436,7 +463,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
             .build()
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-decoder-public-key]]
 === Trusting a Single Asymmetric Key
@@ -463,8 +490,10 @@ spring:
 Or, to allow for a more sophisticated lookup, you can post-process the `RsaKeyConversionServicePostProcessor`:
 
 .BeanFactoryPostProcessor
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -475,7 +504,8 @@ BeanFactoryPostProcessor conversionServiceCustomizer() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -486,7 +516,7 @@ fun conversionServiceCustomizer(): BeanFactoryPostProcessor {
     }
 }
 ----
-====
+======
 
 Specify your key's location:
 
@@ -497,29 +527,34 @@ key.location: hfds://my-key.pub
 
 And then autowire the value:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Value("${key.location}")
 RSAPublicKey key;
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Value("\${key.location}")
 val key: RSAPublicKey? = null
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-decoder-public-key-builder]]
 ==== Using a Builder
 
 To wire an `RSAPublicKey` directly, you can simply use the appropriate `NimbusReactiveJwtDecoder` builder, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -528,7 +563,8 @@ public ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -536,7 +572,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return NimbusReactiveJwtDecoder.withPublicKey(key).build()
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-decoder-secret-key]]
 === Trusting a Single Symmetric Key
@@ -544,8 +580,10 @@ fun jwtDecoder(): ReactiveJwtDecoder {
 Using a single symmetric key is also simple.
 You can simply load in your `SecretKey` and use the appropriate `NimbusReactiveJwtDecoder` builder, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -554,7 +592,8 @@ public ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -562,7 +601,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return NimbusReactiveJwtDecoder.withSecretKey(this.key).build()
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-authorization]]
 === Configuring Authorization
@@ -575,8 +614,10 @@ When this is the case, Resource Server will attempt to coerce these scopes into 
 
 This means that to protect an endpoint or method with a scope derived from a JWT, the corresponding expressions should include this prefix:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -592,7 +633,8 @@ SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -609,25 +651,28 @@ fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain 
     }
 }
 ----
-====
+======
 
 Or similarly with method security:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 public Flux<Message> getMessages(...) {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('SCOPE_messages')")
 fun getMessages(): Flux<Message> { }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-authorization-extraction]]
 ==== Extracting Authorities Manually
@@ -638,8 +683,10 @@ Or, at other times, the resource server may need to adapt the attribute or a com
 
 To this end, the DSL exposes `jwtAuthenticationConverter()`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -665,7 +712,8 @@ Converter<Jwt, Mono<AbstractAuthenticationToken>> grantedAuthoritiesExtractor() 
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -688,15 +736,17 @@ fun grantedAuthoritiesExtractor(): Converter<Jwt, Mono<AbstractAuthenticationTok
     return ReactiveJwtAuthenticationConverterAdapter(jwtAuthenticationConverter)
 }
 ----
-====
+======
 
 which is responsible for converting a `Jwt` into an `Authentication`.
 As part of its configuration, we can supply a subsidiary converter to go from `Jwt` to a `Collection` of granted authorities.
 
 That final converter might be something like `GrantedAuthoritiesExtractor` below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static class GrantedAuthoritiesExtractor
@@ -714,7 +764,8 @@ static class GrantedAuthoritiesExtractor
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 internal class GrantedAuthoritiesExtractor : Converter<Jwt, Collection<GrantedAuthority>> {
@@ -727,12 +778,14 @@ internal class GrantedAuthoritiesExtractor : Converter<Jwt, Collection<GrantedAu
     }
 }
 ----
-====
+======
 
 For more flexibility, the DSL supports entirely replacing the converter with any class that implements `Converter<Jwt, Mono<AbstractAuthenticationToken>>`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static class CustomAuthenticationConverter implements Converter<Jwt, Mono<AbstractAuthenticationToken>> {
@@ -742,7 +795,8 @@ static class CustomAuthenticationConverter implements Converter<Jwt, Mono<Abstra
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 internal class CustomAuthenticationConverter : Converter<Jwt, Mono<AbstractAuthenticationToken>> {
@@ -751,7 +805,7 @@ internal class CustomAuthenticationConverter : Converter<Jwt, Mono<AbstractAuthe
     }
 }
 ----
-====
+======
 
 [[webflux-oauth2resourceserver-jwt-validation]]
 === Configuring Validation
@@ -770,8 +824,10 @@ This can cause some implementation heartburn as the number of collaborating serv
 
 Resource Server uses `JwtTimestampValidator` to verify a token's validity window, and it can be configured with a `clockSkew` to alleviate the above problem:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -789,7 +845,8 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -802,7 +859,7 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======
 
 [NOTE]
 By default, Resource Server configures a clock skew of 60 seconds.
@@ -812,8 +869,10 @@ By default, Resource Server configures a clock skew of 60 seconds.
 
 Adding a check for the `aud` claim is simple with the `OAuth2TokenValidator` API:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
@@ -829,7 +888,8 @@ public class AudienceValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class AudienceValidator : OAuth2TokenValidator<Jwt> {
@@ -843,12 +903,14 @@ class AudienceValidator : OAuth2TokenValidator<Jwt> {
     }
 }
 ----
-====
+======
 
 Then, to add into a resource server, it's a matter of specifying the `ReactiveJwtDecoder` instance:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -866,7 +928,8 @@ ReactiveJwtDecoder jwtDecoder() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -879,4 +942,4 @@ fun jwtDecoder(): ReactiveJwtDecoder {
     return jwtDecoder
 }
 ----
-====
+======

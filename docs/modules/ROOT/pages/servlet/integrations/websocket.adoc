@@ -18,8 +18,10 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -33,7 +35,8 @@ public class WebSocketSecurityConfig
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -43,7 +46,7 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
     }
 }
 ----
-====
+======
 
 This will ensure that:
 
@@ -84,8 +87,10 @@ Spring Security 4.0 has introduced authorization support for WebSockets through 
 To configure authorization using Java Configuration, simply extend the `AbstractSecurityWebSocketMessageBrokerConfigurer` and configure the `MessageSecurityMetadataSourceRegistry`.
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -105,7 +110,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -121,7 +127,7 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
     }
 }
 ----
-====
+======
 
 This will ensure that:
 
@@ -266,8 +272,10 @@ var token = "${_csrf.token}";
 If you are using static HTML, you can expose the `CsrfToken` on a REST endpoint.
 For example, the following would expose the `CsrfToken` on the URL /csrf
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @RestController
@@ -280,7 +288,8 @@ public class CsrfController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @RestController
@@ -291,7 +300,7 @@ class CsrfController {
     }
 }
 ----
-====
+======
 
 The JavaScript can make a REST call to the endpoint and use the response to populate the headerName and the token.
 
@@ -315,8 +324,10 @@ stompClient.connect(headers, function(frame) {
 If you want to allow other domains to access your site, you can disable Spring Security's protection.
 For example, in Java Configuration you can use the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -331,7 +342,8 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -344,7 +356,7 @@ open class WebSocketSecurityConfig : AbstractSecurityWebSocketMessageBrokerConfi
     }
 }
 ----
-====
+======
 
 
 [[websocket-sockjs]]
@@ -377,8 +389,10 @@ For example, the following will instruct Spring Security to use "X-Frame-Options
 
 Similarly, you can customize frame options to use the same origin within Java Configuration using the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableWebSecurity
@@ -398,7 +412,8 @@ public class WebSecurityConfig extends
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableWebSecurity
@@ -415,7 +430,7 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
     }
 }
 ----
-====
+======
 
 [[websocket-sockjs-csrf]]
 === SockJS & Relaxing CSRF
@@ -434,8 +449,10 @@ We can easily achieve this by providing a CSRF RequestMatcher.
 Our Java Configuration makes this extremely easy.
 For example, if our stomp endpoint is "/chat" we can disable CSRF protection for only URLs that start with "/chat/" using the following configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -462,7 +479,8 @@ public class WebSecurityConfig
             ...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -484,7 +502,7 @@ open class WebSecurityConfig : WebSecurityConfigurerAdapter() {
             // ...
 
 ----
-====
+======
 
 If we are using XML based configuration, we can use the xref:servlet/appendix/namespace/http.adoc#nsa-csrf-request-matcher-ref[csrf@request-matcher-ref].
 For example:

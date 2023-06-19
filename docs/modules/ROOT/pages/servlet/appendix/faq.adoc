@@ -108,12 +108,12 @@ If you are using other technologies which you aren't familiar with then you shou
 .. <<appendix-faq-session-listener-missing>>
 .. <<appendix-faq-unwanted-session-creation>>
 . Miscellaneous
+
 .. <<appendix-faq-forbidden-csrf>>
 .. <<appendix-faq-no-security-on-forward>>
 .. <<appendix-faq-method-security-in-web-context>>
 .. <<appendix-faq-no-filters-no-context>>
 .. <<appendix-faq-method-security-with-taglib>>
-
 [[appendix-faq-bad-credentials]]
 === When I try to log in, I get an error message that says "Bad Credentials". What's wrong?
 
@@ -196,8 +196,10 @@ This will be different in different companies, so you have to find it out yourse
 Before adding a Spring Security LDAP configuration to an application, it's a good idea to write a simple test using standard Java LDAP code (without Spring Security involved), and make sure you can get that to work first.
 For example, to authenticate a user, you could use the following code:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -216,7 +218,8 @@ public void ldapAuthenticationIsSuccessful() throws Exception {
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Test
@@ -230,7 +233,7 @@ fun ldapAuthenticationIsSuccessful() {
     val ctx = InitialLdapContext(env, null)
 }
 ----
-====
+======
 
 === Session Management
 
@@ -516,8 +519,10 @@ To load the data from an alternative source, you must be using an explicitly dec
 You can't use the namespace.
 You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation` footnote:[The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision on what the list of returned attributes will contain.]. A very basic outline would look something like this:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -546,7 +551,8 @@ You would then implement `FilterInvocationSecurityMetadataSource` to load the da
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
@@ -569,7 +575,7 @@ class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
     }
 }
 ----
-====
+======
 
 For more information, look at the code for `DefaultFilterInvocationSecurityMetadataSource`.
 
@@ -582,8 +588,10 @@ The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP d
 
 To use JDBC instead, you can implement the interface yourself, using whatever SQL is appropriate for your schema:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -609,7 +617,8 @@ To use JDBC instead, you can implement the interface yourself, using whatever SQ
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
@@ -629,7 +638,7 @@ class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
     }
 }
 ----
-====
+======
 
 You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP using explicit Spring beans in the LDAP chapter of the reference manual.
 Note that you can't use the namespace for configuration in this case.
@@ -647,8 +656,10 @@ More information can be found in the https://docs.spring.io/spring/docs/3.0.x/sp
 Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Let's say that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter`, (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and make use of it while authenticating the user.
 The processor class would look like this:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -674,7 +685,8 @@ public class CustomBeanPostProcessor implements BeanPostProcessor {
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class CustomBeanPostProcessor : BeanPostProcessor {
@@ -692,7 +704,7 @@ class CustomBeanPostProcessor : BeanPostProcessor {
     }
 }
 ----
-====
+======
 
 You would then register this bean in your application context.
 Spring will automatically invoke it on the beans defined in the application context.

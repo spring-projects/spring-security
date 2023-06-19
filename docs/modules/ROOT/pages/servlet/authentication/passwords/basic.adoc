@@ -58,9 +58,11 @@ However, as soon as any servlet based configuration is provided, HTTP Basic must
 A minimal, explicit configuration can be found below:
 
 .Explicit HTTP Basic Configuration
-====
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
-.Java
 ----
 protected void configure(HttpSecurity http) {
 	http
@@ -69,8 +71,9 @@ protected void configure(HttpSecurity http) {
 }
 ----
 
+XML::
++
 [source,xml,role="secondary"]
-.XML
 ----
 <http>
 	<!-- ... -->
@@ -78,8 +81,9 @@ protected void configure(HttpSecurity http) {
 </http>
 ----
 
+Kotlin::
++
 [source,kotlin,role="secondary"]
-.Kotlin
 ----
 fun configure(http: HttpSecurity) {
 	http {
@@ -88,4 +92,4 @@ fun configure(http: HttpSecurity) {
 	}
 }
 ----
-====
+======
