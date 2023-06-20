@@ -1,7 +1,6 @@
 antora:
   extensions:
   - '@springio/antora-extensions/partial-build-extension'
-  - ./lib/antora/extensions/inject-collector-config.js
   - require: '@springio/antora-extensions/latest-version-extension'
   - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
   - '@antora/collector-extension'
