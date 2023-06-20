@@ -6,7 +6,6 @@ antora:
   - require: '@springio/antora-extensions/latest-version-extension'
   - require: '@springio/antora-extensions/inject-collector-cache-config-extension'
   - '@antora/collector-extension'
-  - ./lib/antora/extensions/fix-component-name-display.js
   - '@antora/atlas-extension'
   - require: '@springio/antora-extensions/tabs-migration-extension'
     # uncomment this option to save the migrated content to the worktree
