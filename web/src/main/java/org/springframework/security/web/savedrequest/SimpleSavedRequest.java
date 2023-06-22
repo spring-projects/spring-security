@@ -126,7 +126,7 @@ public class SimpleSavedRequest implements SavedRequest {
 	}
 
 	public void setLocales(List<Locale> locales) {
-		Assert.notNull("locales cannot be null");
+		Assert.notNull(locales, "locales cannot be null");
 		this.locales = locales;
 	}
 
