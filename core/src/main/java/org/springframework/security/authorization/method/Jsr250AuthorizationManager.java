@@ -67,7 +67,7 @@ public final class Jsr250AuthorizationManager implements AuthorizationManager<Me
 	 * strings.
 	 * @param authoritiesAuthorizationManager the {@link AuthorizationManager} that
 	 * accepts a collection of authority strings to use
-	 * @since 6.1
+	 * @since 6.2
 	 */
 	public void setAuthoritiesAuthorizationManager(
 			AuthorizationManager<Collection<String>> authoritiesAuthorizationManager) {
