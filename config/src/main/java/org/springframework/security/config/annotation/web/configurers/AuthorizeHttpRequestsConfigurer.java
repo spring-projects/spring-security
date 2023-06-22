@@ -63,22 +63,13 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final Supplier<RoleHierarchy> roleHierarchy;
 
-	private final String rolePrefix;
+	private String rolePrefix = "ROLE_";
 
 	/**
 	 * Creates an instance.
 	 * @param context the {@link ApplicationContext} to use
 	 */
 	public AuthorizeHttpRequestsConfigurer(ApplicationContext context) {
-		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
-		if (grantedAuthorityDefaultsBeanNames.length == 1) {
-			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(grantedAuthorityDefaultsBeanNames[0],
-					GrantedAuthorityDefaults.class);
-			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
-		}
-		else {
-			this.rolePrefix = "ROLE_";
-		}
 		this.registry = new AuthorizationManagerRequestMatcherRegistry(context);
 		if (context.getBeanNamesForType(AuthorizationEventPublisher.class).length > 0) {
 			this.publisher = context.getBean(AuthorizationEventPublisher.class);
@@ -88,6 +79,11 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 		this.roleHierarchy = SingletonSupplier.of(() -> (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
 				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy());
+		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaultsBeanNames.length > 0) {
+			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(GrantedAuthorityDefaults.class);
+			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
+		}
 	}
 
 	/**
@@ -292,7 +288,7 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasRole(String role) {
 			return access(withRoleHierarchy(AuthorityAuthorizationManager
-					.hasAuthority(AuthorizeHttpRequestsConfigurer.this.rolePrefix + role)));
+					.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, new String[] { role })));
 		}
 
 		/**
@@ -304,7 +300,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAnyRole(String... roles) {
-			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAnyRole(roles)));
+			return access(withRoleHierarchy(
+					AuthorityAuthorizationManager.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, roles)));
 		}
 
 		/**

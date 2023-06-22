@@ -477,14 +477,40 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
-	public void getWhenRoleUserConfiguredAsGrantedAuthorityDefaultThenRespondsWithOk() throws Exception {
-		this.spring.register(GrantedAuthorityDefaultConfig.class, BasicController.class).autowire();
+	public void getWhenCustomRolePrefixAndRoleHasDifferentPrefixThenRespondsWithForbidden() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("ROLE_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenCustomRolePrefixAndHasRoleThenRespondsWithOk() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
 		// @formatter:off
 		MockHttpServletRequestBuilder requestWithUser = get("/")
 				.with(user("user")
 						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
 		// @formatter:on
 		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenCustomRolePrefixAndHasAnyRoleThenRespondsWithOk() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasAnyRoleConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_ADMIN")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
 	}
 
 	@Test
@@ -571,7 +597,7 @@ public class AuthorizeHttpRequestsConfigurerTests {
 
 	@Configuration
 	@EnableWebSecurity
-	static class GrantedAuthorityDefaultConfig {
+	static class GrantedAuthorityDefaultHasRoleConfig {
 
 		@Bean
 		GrantedAuthorityDefaults grantedAuthorityDefaults() {
@@ -581,6 +607,22 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		@Bean
 		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
 			return http.authorizeHttpRequests((c) -> c.anyRequest().hasRole("USER")).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class GrantedAuthorityDefaultHasAnyRoleConfig {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
+		}
+
+		@Bean
+		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((c) -> c.anyRequest().hasAnyRole("USER", "ADMIN")).build();
 		}
 
 	}
