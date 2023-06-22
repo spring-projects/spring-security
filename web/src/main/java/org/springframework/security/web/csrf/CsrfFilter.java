@@ -188,11 +188,11 @@ public final class CsrfFilter extends OncePerRequestFilter {
 	 * @return
 	 */
 	private static boolean equalsConstantTime(String expected, String actual) {
-		if (expected == actual) {
-			return true;
-		}
 		if (expected == null || actual == null) {
 			return false;
+		}
+		if (expected.equals(actual)) {
+			return true;
 		}
 		// Encode after ensure that the string is not null
 		byte[] expectedBytes = Utf8.encode(expected);
