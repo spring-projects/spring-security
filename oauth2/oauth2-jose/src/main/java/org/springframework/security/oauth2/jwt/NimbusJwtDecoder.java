@@ -274,6 +274,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+
 		private JwkSetUriJwtDecoderBuilder(String jwkSetUri) {
 			Assert.hasText(jwkSetUri, "jwkSetUri cannot be empty");
 			this.jwkSetUri = (rest) -> jwkSetUri;
@@ -395,11 +397,25 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Configure the built {@link NimbusJwtDecoder} to use the given
+		 * {@link OAuth2TokenValidator} when validating incoming {@link Jwt}s.
+		 * @param jwtValidator the {@link OAuth2TokenValidator} to use
+		 * @return a {@link JwkSetUriJwtDecoderBuilder} for further configurations
+		 */
+		public JwkSetUriJwtDecoderBuilder jwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+			Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+			this.jwtValidator = jwtValidator;
+			return this;
+		}
+
+		/**
 		 * Build the configured {@link NimbusJwtDecoder}.
 		 * @return the configured {@link NimbusJwtDecoder}
 		 */
 		public NimbusJwtDecoder build() {
-			return new NimbusJwtDecoder(processor());
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor());
+			jwtDecoder.setJwtValidator(this.jwtValidator);
+			return jwtDecoder;
 		}
 
 		private static URL toURL(String url) {
@@ -504,6 +520,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
 
+		private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
+
 		private PublicKeyJwtDecoderBuilder(RSAPublicKey key) {
 			Assert.notNull(key, "key cannot be null");
 			this.jwsAlgorithm = JWSAlgorithm.RS256;
@@ -559,11 +577,25 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Configure the built {@link NimbusJwtDecoder} to use the given
+		 * {@link OAuth2TokenValidator} when validating incoming {@link Jwt}s.
+		 * @param jwtValidator the {@link OAuth2TokenValidator} to use
+		 * @return a {@link PublicKeyJwtDecoderBuilder} for further configurations
+		 */
+		public PublicKeyJwtDecoderBuilder jwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+			Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+			this.jwtValidator = jwtValidator;
+			return this;
+		}
+
+		/**
 		 * Build the configured {@link NimbusJwtDecoder}.
 		 * @return the configured {@link NimbusJwtDecoder}
 		 */
 		public NimbusJwtDecoder build() {
-			return new NimbusJwtDecoder(processor());
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor());
+			jwtDecoder.setJwtValidator(this.jwtValidator);
+			return jwtDecoder;
 		}
 
 	}
@@ -579,6 +611,8 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		private JWSAlgorithm jwsAlgorithm = JWSAlgorithm.HS256;
 
 		private Consumer<ConfigurableJWTProcessor<SecurityContext>> jwtProcessorCustomizer;
+
+		private OAuth2TokenValidator<Jwt> jwtValidator = JwtValidators.createDefault();
 
 		private SecretKeyJwtDecoderBuilder(SecretKey secretKey) {
 			Assert.notNull(secretKey, "secretKey cannot be null");
@@ -620,11 +654,25 @@ public final class NimbusJwtDecoder implements JwtDecoder {
 		}
 
 		/**
+		 * Configure the built {@link NimbusJwtDecoder} to use the given
+		 * {@link OAuth2TokenValidator} when validating incoming {@link Jwt}s.
+		 * @param jwtValidator the {@link OAuth2TokenValidator} to use
+		 * @return a {@link SecretKeyJwtDecoderBuilder} for further configurations
+		 */
+		public SecretKeyJwtDecoderBuilder jwtValidator(OAuth2TokenValidator<Jwt> jwtValidator) {
+			Assert.notNull(jwtValidator, "jwtValidator cannot be null");
+			this.jwtValidator = jwtValidator;
+			return this;
+		}
+
+		/**
 		 * Build the configured {@link NimbusJwtDecoder}.
 		 * @return the configured {@link NimbusJwtDecoder}
 		 */
 		public NimbusJwtDecoder build() {
-			return new NimbusJwtDecoder(processor());
+			NimbusJwtDecoder jwtDecoder = new NimbusJwtDecoder(processor());
+			jwtDecoder.setJwtValidator(this.jwtValidator);
+			return jwtDecoder;
 		}
 
 		JWTProcessor<SecurityContext> processor() {

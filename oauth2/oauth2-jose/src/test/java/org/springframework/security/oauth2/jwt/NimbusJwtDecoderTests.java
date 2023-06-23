@@ -362,6 +362,34 @@ public class NimbusJwtDecoderTests {
 	}
 
 	@Test
+	public void withJwkSetUriWhenJwtValidatorNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).jwtValidator(null))
+				.withMessage("jwtValidator cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withJwkSetUriWhenUsingCustomValidatorThenValidatorIsInvoked() {
+		RestOperations restOperations = mock(RestOperations.class);
+		given(restOperations.exchange(any(RequestEntity.class), eq(String.class)))
+				.willReturn(new ResponseEntity<>(JWK_SET, HttpStatus.OK));
+		OAuth2TokenValidator jwtValidator = mock(OAuth2TokenValidator.class);
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withJwkSetUri(JWK_SET_URI).restOperations(restOperations)
+				.jwtValidator(jwtValidator)
+				.build();
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(SIGNED_JWT))
+				.withMessageContaining("mock-description");
+		// @formatter:on
+	}
+
+	@Test
 	public void withPublicKeyWhenNullThenThrowsException() {
 		// @formatter:off
 		assertThatIllegalArgumentException()
@@ -464,6 +492,31 @@ public class NimbusJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withPublicKey(key()).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withPublicKeyWhenJwtValidatorNullThenThrowsIllegalArgumentException() {
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withPublicKey(key()).jwtValidator(null))
+				.withMessage("jwtValidator cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withPublicKeyWhenUsingCustomValidatorThenValidatorIsInvoked() throws Exception {
+		OAuth2TokenValidator jwtValidator = mock(OAuth2TokenValidator.class);
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withPublicKey(key())
+				.jwtValidator(jwtValidator)
+				.build();
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(RS256_SIGNED_JWT))
+				.withMessageContaining("mock-description");
 		// @formatter:on
 	}
 
@@ -582,6 +635,42 @@ public class NimbusJwtDecoderTests {
 		assertThatIllegalArgumentException()
 				.isThrownBy(() -> NimbusJwtDecoder.withSecretKey(secretKey).jwtProcessorCustomizer(null))
 				.withMessage("jwtProcessorCustomizer cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withSecretKeyWhenJwtValidatorNullThenThrowsIllegalArgumentException() {
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		// @formatter:off
+		assertThatIllegalArgumentException()
+				.isThrownBy(() -> NimbusJwtDecoder.withSecretKey(secretKey).jwtValidator(null))
+				.withMessage("jwtValidator cannot be null");
+		// @formatter:on
+	}
+
+	@Test
+	public void withSecretKeyWhenUsingCustomValidatorThenValidatorIsInvoked() throws Exception {
+		OAuth2TokenValidator jwtValidator = mock(OAuth2TokenValidator.class);
+		OAuth2Error error = new OAuth2Error("mock-error", "mock-description", "mock-uri");
+		OAuth2TokenValidatorResult result = OAuth2TokenValidatorResult.failure(error);
+		given(jwtValidator.validate(any(Jwt.class))).willReturn(result);
+		SecretKey secretKey = TestKeys.DEFAULT_SECRET_KEY;
+		MacAlgorithm macAlgorithm = MacAlgorithm.HS256;
+		// @formatter:off
+		JWTClaimsSet claimsSet = new JWTClaimsSet.Builder()
+				.subject("test-subject")
+				.expirationTime(Date.from(Instant.now().plusSeconds(60)))
+				.build();
+		// @formatter:on
+		SignedJWT signedJWT = signedJwt(secretKey, macAlgorithm, claimsSet);
+		// @formatter:off
+		NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(secretKey)
+				.macAlgorithm(macAlgorithm)
+				.jwtValidator(jwtValidator)
+				.build();
+		assertThatExceptionOfType(JwtValidationException.class)
+				.isThrownBy(() -> decoder.decode(signedJWT.serialize()))
+				.withMessageContaining("mock-description");
 		// @formatter:on
 	}
 
