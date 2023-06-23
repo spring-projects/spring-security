@@ -29,7 +29,7 @@ Java::
 SecurityFilterChain securityFilters(HttpSecurity http) throws Exception {
 	http
         // ...
-        .saml2Login((saml2) -> saml2.filterProcessingUrl("/saml2/login/sso"))
+        .saml2Login((saml2) -> saml2.loginProcessingUrl("/saml2/login/sso"))
         // ...
 
     return http.build();
@@ -45,7 +45,7 @@ fun securityFilters(val http: HttpSecurity): SecurityFilterChain {
 	http {
         // ...
         .saml2Login {
-            filterProcessingUrl = "/saml2/login/sso"
+            loginProcessingUrl = "/saml2/login/sso"
         }
         // ...
     }
