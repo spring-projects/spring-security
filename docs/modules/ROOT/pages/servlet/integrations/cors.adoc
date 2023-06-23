@@ -6,7 +6,8 @@ CORS must be processed before Spring Security, because the pre-flight request do
 If the request does not contain any cookies and Spring Security is first, the request determines that the user is not authenticated (since there are no cookies in the request) and rejects it.
 
 The easiest way to ensure that CORS is handled first is to use the `CorsFilter`.
-Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource` that uses the following:
+Users can integrate the `CorsFilter` with Spring Security by providing a `CorsConfigurationSource`.
+For example, the following will integrate CORS support within Spring Security:
 
 [tabs]
 ======
@@ -14,28 +15,14 @@ Java::
 +
 [source,java,role="primary"]
 ----
-@Configuration
-@EnableWebSecurity
-public class WebSecurityConfig {
-
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		http
-			// by default uses a Bean by the name of corsConfigurationSource
-			.cors(withDefaults())
-			...
-		return http.build();
-	}
-
-	@Bean
-	CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
-		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
-		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-		source.registerCorsConfiguration("/**", configuration);
-		return source;
-	}
+@Bean
+CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
+    configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+    configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
 }
 ----
 
@@ -43,28 +30,14 @@ Kotlin::
 +
 [source,kotlin,role="secondary"]
 ----
-@Configuration
-@EnableWebSecurity
-open class WebSecurityConfig {
-    @Bean
-    open fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http {
-            // by default uses a Bean by the name of corsConfigurationSource
-            cors { }
-            // ...
-        }
-        return http.build()
-    }
-
-    @Bean
-    open fun corsConfigurationSource(): CorsConfigurationSource {
-        val configuration = CorsConfiguration()
-        configuration.allowedOrigins = listOf("https://example.com")
-        configuration.allowedMethods = listOf("GET", "POST")
-        val source = UrlBasedCorsConfigurationSource()
-        source.registerCorsConfiguration("/**", configuration)
-        return source
-    }
+@Bean
+fun corsConfigurationSource(): CorsConfigurationSource {
+    val configuration = CorsConfiguration()
+    configuration.allowedOrigins = listOf("https://example.com")
+    configuration.allowedMethods = listOf("GET", "POST")
+    val source = UrlBasedCorsConfigurationSource()
+    source.registerCorsConfiguration("/**", configuration)
+    return source
 }
 ----
 ======
@@ -137,3 +110,76 @@ The following listing does the same thing in XML:
 	...
 </http>
 ----
+
+If you have more than one `CorsConfigurationSource` bean, Spring Security won't automatically configure CORS support for you, that is because it cannot decide which one to use.
+If you want to specify different `CorsConfigurationSource` for each `SecurityFilterChain`, you can pass it directly into the `.cors()` DSL.
+
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig {
+
+	@Bean
+	@Order(0)
+	public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+		http
+			.securityMatcher("/api/**")
+			.cors((cors) -> cors
+				.configurationSource(apiConfigurationSource())
+			)
+			...
+		return http.build();
+	}
+
+	@Bean
+	@Order(1)
+	public SecurityFilterChain myOtherFilterChain(HttpSecurity http) throws Exception {
+		http
+			.cors((cors) -> cors
+				.configurationSource(myWebsiteConfigurationSource())
+			)
+			...
+		return http.build();
+	}
+
+	CorsConfigurationSource apiConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("https://api.example.com"));
+		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+
+	CorsConfigurationSource myWebsiteConfigurationSource() {
+		CorsConfiguration configuration = new CorsConfiguration();
+		configuration.setAllowedOrigins(Arrays.asList("https://example.com"));
+		configuration.setAllowedMethods(Arrays.asList("GET","POST"));
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", configuration);
+		return source;
+	}
+
+}
+----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun corsConfigurationSource(): CorsConfigurationSource {
+    val configuration = CorsConfiguration()
+    configuration.allowedOrigins = listOf("https://example.com")
+    configuration.allowedMethods = listOf("GET", "POST")
+    val source = UrlBasedCorsConfigurationSource()
+    source.registerCorsConfiguration("/**", configuration)
+    return source
+}
+----
+======
