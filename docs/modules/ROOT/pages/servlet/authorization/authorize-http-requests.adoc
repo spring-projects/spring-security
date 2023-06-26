@@ -80,7 +80,7 @@ This means that Spring Security's xref:servlet/authentication/index.adoc[authent
 If you add filters of your own before the `AuthorizationFilter`, they will also not require authorization; otherwise, they will.
 
 A place where this typically becomes important is when you are adding {spring-framework-reference-url}web.html#spring-web[Spring MVC] endpoints.
-Because they are executed by the {spring-framework-reference-url}web.html#mvc-servlet[`DispatcherServlet`] and this comes after the `AuthorizationFilter`, you're endpoints need to be <<authorizing-endpoints,included in `authorizeHttpRequests` to be permitted>>.
+Because they are executed by the {spring-framework-reference-url}web.html#mvc-servlet[`DispatcherServlet`] and this comes after the `AuthorizationFilter`, your endpoints need to be <<authorizing-endpoints,included in `authorizeHttpRequests` to be permitted>>.
 
 === All Dispatches Are Authorized
 
