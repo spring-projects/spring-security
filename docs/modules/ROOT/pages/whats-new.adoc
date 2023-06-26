@@ -7,3 +7,4 @@ Below are the highlights of the release.
 == Configuration
 
 * https://github.com/spring-projects/spring-security/issues/5011[gh-5011] - xref:servlet/integrations/cors.adoc[(docs)] Automatically enable `.cors()` if `CorsConfigurationSource` bean is present
+* https://github.com/spring-projects/spring-security/issues/13204[gh-13204] - xref:servlet/integrations/cors.adoc[(docs)] Add `AbstractConfiguredSecurityBuilder.with(...)` method to apply configurers returning the builder

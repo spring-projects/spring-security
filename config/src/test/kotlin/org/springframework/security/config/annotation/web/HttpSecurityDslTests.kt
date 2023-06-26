@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web
 import io.mockk.every
 import io.mockk.mockkObject
 import io.mockk.verify
+import jakarta.servlet.Filter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -55,7 +56,6 @@ import org.springframework.test.web.servlet.get
 import org.springframework.test.web.servlet.post
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.web.servlet.config.annotation.EnableWebMvc
-import jakarta.servlet.Filter
 
 /**
  * Tests for [HttpSecurityDsl]
@@ -530,6 +530,18 @@ class HttpSecurityDslTests {
         )
     }
 
+    @Test
+    fun `HTTP security when apply custom security configurer using with then custom filter added to filter chain`() {
+        this.spring.register(CustomSecurityConfigurerConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).contains(
+            CustomFilter::class.java
+        )
+    }
+
     @Configuration
     @EnableWebSecurity
     @EnableWebMvc
@@ -538,6 +550,21 @@ class HttpSecurityDslTests {
         open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
             http {
                 apply(CustomSecurityConfigurer<HttpSecurity>()) {
+                    filter = CustomFilter()
+                }
+            }
+            return http.build()
+        }
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomSecurityConfigurerUsingWithConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                with(CustomSecurityConfigurer<HttpSecurity>()) {
                     filter = CustomFilter()
                 }
             }
@@ -555,4 +582,46 @@ class HttpSecurityDslTests {
             builder.addFilterBefore(CustomFilter(), UsernamePasswordAuthenticationFilter::class.java)
         }
     }
+
+    @Test
+    fun `HTTP security when apply form login using with from custom security configurer then filter added to filter chain`() {
+        this.spring.register(CustomDslUsingWithConfig::class.java).autowire()
+
+        val filterChain = spring.context.getBean(FilterChainProxy::class.java)
+        val filterClasses: List<Class<out Filter>> = filterChain.getFilters("/").map { it.javaClass }
+
+        assertThat(filterClasses).contains(
+            UsernamePasswordAuthenticationFilter::class.java
+        )
+    }
+
+    @Configuration
+    @EnableWebSecurity
+    @EnableWebMvc
+    open class CustomDslUsingWithConfig {
+        @Bean
+        open fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
+            http {
+                with(CustomDslFormLogin()) {
+                    formLogin = true
+                }
+                httpBasic { }
+            }
+            return http.build()
+        }
+    }
+
+    class CustomDslFormLogin: AbstractHttpConfigurer<CustomDslFormLogin, HttpSecurity>() {
+
+        var formLogin = false
+
+        override fun init(builder: HttpSecurity) {
+            if (formLogin) {
+                builder.formLogin {  }
+            }
+        }
+
+    }
+
+
 }
