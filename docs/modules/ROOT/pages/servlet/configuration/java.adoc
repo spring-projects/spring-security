@@ -227,7 +227,11 @@ This configuration is considered after `apiFilterChain`, since it has an `@Order
 
 You can provide your own custom DSLs in Spring Security:
 
-[source,java]
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
 ----
 public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurity> {
 	private boolean flag;
@@ -260,6 +264,38 @@ public class MyCustomDsl extends AbstractHttpConfigurer<MyCustomDsl, HttpSecurit
 }
 ----
 
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+class MyCustomDsl : AbstractHttpConfigurer<MyCustomDsl, HttpSecurity>() {
+    var flag: Boolean = false
+
+    override fun init(http: HttpSecurity) {
+        // any method that adds another configurer
+        // must be done in the init method
+        http.csrf().disable()
+    }
+
+    override fun configure(http: HttpSecurity) {
+        val context: ApplicationContext = http.getSharedObject(ApplicationContext::class.java)
+
+        // here we lookup from the ApplicationContext. You can also just create a new instance.
+        val myFilter: MyFilter = context.getBean(MyFilter::class.java)
+        myFilter.setFlag(flag)
+        http.addFilterBefore(myFilter, UsernamePasswordAuthenticationFilter::class.java)
+    }
+
+    companion object {
+        @JvmStatic
+        fun customDsl(): MyCustomDsl {
+            return MyCustomDsl()
+        }
+    }
+}
+----
+======
+
 [NOTE]
 ====
 This is actually how methods like `HttpSecurity.authorizeRequests()` are implemented.
@@ -267,7 +303,11 @@ This is actually how methods like `HttpSecurity.authorizeRequests()` are impleme
 
 You can then use the custom DSL:
 
-[source,java]
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
 ----
 @Configuration
 @EnableWebSecurity
@@ -275,14 +315,36 @@ public class Config {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.apply(customDsl())
+			.with(MyCustomDsl.customDsl(), (dsl) -> dsl
 				.flag(true)
-				.and()
-			...;
+			)
+			// ...
 		return http.build();
 	}
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class Config {
+
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .with(MyCustomDsl.customDsl()) {
+                flag = true
+            }
+            // ...
+
+        return http.build()
+    }
+}
+----
+======
 
 The code is invoked in the following order:
 
@@ -301,20 +363,49 @@ org.springframework.security.config.annotation.web.configurers.AbstractHttpConfi
 
 You can also explicit disable the default:
 
-[source,java]
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
 ----
+
 @Configuration
 @EnableWebSecurity
 public class Config {
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 		http
-			.apply(customDsl()).disable()
+			.with(MyCustomDsl.customDsl(), (dsl) -> dsl
+				.disable()
+			)
 			...;
 		return http.build();
 	}
 }
 ----
+
+Kotlin::
++
+[source,kotlin,role="secondary"]
+----
+@Configuration
+@EnableWebSecurity
+class Config {
+
+    @Bean
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+        http
+            .with(MyCustomDsl.customDsl()) {
+                disable()
+            }
+            // ...
+        return http.build()
+    }
+
+}
+----
+======
 
 [[post-processing-configured-objects]]
 == Post Processing Configured Objects
