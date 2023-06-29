@@ -61,7 +61,8 @@ final class MethodSecuritySelector implements ImportSelector {
 
 	private static final class AutoProxyRegistrarSelector extends AdviceModeImportSelector<EnableMethodSecurity> {
 
-		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName() };
+		private static final String[] IMPORTS = new String[] { AutoProxyRegistrar.class.getName(),
+				MethodSecurityAdvisorRegistrar.class.getName() };
 
 		private static final String[] ASPECTJ_IMPORTS = new String[] {
 				MethodSecurityAspectJAutoProxyRegistrar.class.getName() };
