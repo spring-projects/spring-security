@@ -17,9 +17,9 @@
 package org.springframework.security.config.annotation.method.configuration;
 
 import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 
-import org.springframework.aop.Advisor;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Bean;
@@ -46,7 +46,8 @@ final class Jsr250MethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	Advisor jsr250AuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static MethodInterceptor jsr250AuthorizationMethodInterceptor(
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<ObservationRegistry> registryProvider) {
 		Jsr250AuthorizationManager jsr250 = new Jsr250AuthorizationManager();
