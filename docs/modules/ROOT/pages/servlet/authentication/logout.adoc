@@ -24,6 +24,8 @@ When you include {spring-boot-reference-url}using.html#using.build-systems.start
 If you request `GET /logout`, then Spring Security displays a logout confirmation page.
 Aside from providing a valuable double-checking mechanism for the user, it also provides a simple way to provide xref:servlet/exploits/csrf.adoc[the needed CSRF token] to `POST /logout`.
 
+Please note that if xref:servlet/exploits/csrf.adoc[CSRF protection] is disabled in configuration, no logout confirmation page is shown to the user and the logout is performed directly.
+
 [TIP]
 In your application it is not necessary to use `GET /logout` to perform a logout.
 So long as xref:servlet/exploits/csrf.adoc[the needed CSRF token] is present in the request, your application can simply `POST /logout` to induce a logout.
