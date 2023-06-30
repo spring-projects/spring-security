@@ -24,6 +24,7 @@ import java.util.Locale;
 import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.security.web.PortResolverImpl;
 
@@ -167,6 +168,15 @@ public class SavedRequestAwareWrapperTests {
 		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest());
 		assertThat(wrapper.getIntHeader("header")).isEqualTo(999);
 		assertThat(wrapper.getIntHeader("nonexistent")).isEqualTo(-1);
+	}
+
+	@Test
+	public void correctContentTypeIsReturned() {
+		MockHttpServletRequest request = new MockHttpServletRequest("PUT", "/notused");
+		request.setContentType(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+
+		SavedRequestAwareWrapper wrapper = createWrapper(request, new MockHttpServletRequest("GET", "/notused"));
+		assertThat(wrapper.getContentType()).isEqualTo(MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 	}
 
 }
