@@ -43,22 +43,21 @@ public class SavedRequestAwareWrapperTests {
 	@Test
 	public void savedRequestCookiesAreIgnored() {
 		MockHttpServletRequest newRequest = new MockHttpServletRequest();
-		newRequest.setCookies(new Cookie[] { new Cookie("cookie", "fromnew") });
+		newRequest.setCookies(new Cookie("cookie", "fromnew"));
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
-		savedRequest.setCookies(new Cookie[] { new Cookie("cookie", "fromsaved") });
+		savedRequest.setCookies(new Cookie("cookie", "fromsaved"));
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, newRequest);
 		assertThat(wrapper.getCookies()).hasSize(1);
 		assertThat(wrapper.getCookies()[0].getValue()).isEqualTo("fromnew");
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void savedRequesthHeaderIsReturnedIfSavedRequestIsSet() {
 		MockHttpServletRequest savedRequest = new MockHttpServletRequest();
 		savedRequest.addHeader("header", "savedheader");
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, new MockHttpServletRequest());
 		assertThat(wrapper.getHeader("nonexistent")).isNull();
-		Enumeration headers = wrapper.getHeaders("nonexistent");
+		Enumeration<String> headers = wrapper.getHeaders("nonexistent");
 		assertThat(headers.hasMoreElements()).isFalse();
 		assertThat(wrapper.getHeader("Header")).isEqualTo("savedheader");
 		headers = wrapper.getHeaders("heaDer");
@@ -98,7 +97,7 @@ public class SavedRequestAwareWrapperTests {
 		SavedRequestAwareWrapper wrapper = createWrapper(savedRequest, wrappedRequest);
 		assertThat(wrapper.getParameterValues("action")).hasSize(1);
 		assertThat(wrapper.getParameterMap()).hasSize(1);
-		assertThat(((String[]) wrapper.getParameterMap().get("action"))).hasSize(1);
+		assertThat(wrapper.getParameterMap().get("action")).hasSize(1);
 	}
 
 	@Test
@@ -128,7 +127,7 @@ public class SavedRequestAwareWrapperTests {
 		wrappedRequest.setParameter("action", "bar");
 		assertThat(wrapper.getParameterValues("action")).isEqualTo(new Object[] { "bar", "foo" });
 		// Check map is consistent
-		String[] valuesFromMap = (String[]) wrapper.getParameterMap().get("action");
+		String[] valuesFromMap = wrapper.getParameterMap().get("action");
 		assertThat(valuesFromMap).hasSize(2);
 		assertThat(valuesFromMap[0]).isEqualTo("bar");
 	}
