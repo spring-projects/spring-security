@@ -32,6 +32,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.http.HttpHeaders;
 
 /**
  * Provides request parameters, headers and cookies from either an original request or a
@@ -139,6 +140,11 @@ class SavedRequestAwareWrapper extends HttpServletRequestWrapper {
 	@Override
 	public String getMethod() {
 		return this.savedRequest.getMethod();
+	}
+
+	@Override
+	public String getContentType() {
+		return getHeader(HttpHeaders.CONTENT_TYPE);
 	}
 
 	/**
