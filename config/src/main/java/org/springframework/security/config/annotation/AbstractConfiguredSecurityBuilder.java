@@ -118,7 +118,10 @@ public abstract class AbstractConfiguredSecurityBuilder<O, B extends SecurityBui
 	 * @param configurer
 	 * @return the {@link SecurityConfigurerAdapter} for further customizations
 	 * @throws Exception
+	 * @deprecated For removal in 7.0. Use
+	 * {@link #with(SecurityConfigurerAdapter, Customizer)} instead.
 	 */
+	@Deprecated(since = "6.2", forRemoval = true)
 	@SuppressWarnings("unchecked")
 	public <C extends SecurityConfigurerAdapter<O, B>> C apply(C configurer) throws Exception {
 		configurer.addObjectPostProcessor(this.objectPostProcessor);
