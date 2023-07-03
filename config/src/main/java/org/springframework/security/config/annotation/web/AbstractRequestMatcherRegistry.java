@@ -262,16 +262,9 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
 		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
-			SecurityUtils securityUtils = new SecurityUtils();
-			String[] securityPassUrls = securityUtils.getSecurityPassUrls();
-
-			// Combine antPatterns and securityPassUrls
-			List<String> combinedPatterns = new ArrayList<>(Arrays.asList(antPatterns));
-			combinedPatterns.addAll(Arrays.asList(securityPassUrls));
-
 			String method = (httpMethod != null) ? httpMethod.toString() : null;
 			List<RequestMatcher> matchers = new ArrayList<>();
-			for (String pattern : combinedPatterns) {
+			for (String pattern : antPatterns) {
 				matchers.add(new AntPathRequestMatcher(pattern, method));
 			}
 			return matchers;
