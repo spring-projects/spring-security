@@ -16,18 +16,28 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.session;
 
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
+import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
 import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.csrf.DefaultCsrfToken;
 
-public final class TestOidcProviderSessionRegistrations {
+public final class TestOidcSessionRegistrations {
 
-	public static OidcProviderSessionRegistration create() {
-		CsrfToken token = new DefaultCsrfToken("header", "parameter", "token");
-		return new OidcProviderSessionRegistration("sessionId", token, TestOidcUsers.create());
+	public static OidcSessionRegistration create() {
+		return create("sessionId");
 	}
 
-	private TestOidcProviderSessionRegistrations() {
+	public static OidcSessionRegistration create(String sessionId) {
+		return create(sessionId, TestOidcUsers.create());
+	}
+
+	public static OidcSessionRegistration create(String sessionId, OidcUser user) {
+		CsrfToken token = new DefaultCsrfToken("header", "parameter", "token");
+		return new OidcSessionRegistration(sessionId, user, new BackchannelLogoutAuthentication(sessionId, token));
+	}
+
+	private TestOidcSessionRegistrations() {
 
 	}
 

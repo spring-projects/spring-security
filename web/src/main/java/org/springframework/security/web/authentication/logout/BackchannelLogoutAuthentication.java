@@ -19,6 +19,7 @@ package org.springframework.security.web.authentication.logout;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.web.csrf.CsrfToken;
+import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.util.Assert;
 
 public class BackchannelLogoutAuthentication extends AbstractAuthenticationToken {
@@ -31,7 +32,14 @@ public class BackchannelLogoutAuthentication extends AbstractAuthenticationToken
 		super(AuthorityUtils.createAuthorityList("BACKCHANNEL_LOGOUT"));
 		Assert.notNull(sessionId, "sessionId cannot be null");
 		this.sessionId = sessionId;
-		this.csrfToken = csrfToken;
+		this.csrfToken = extract(csrfToken);
+	}
+
+	private static CsrfToken extract(CsrfToken token) {
+		if (token == null) {
+			return null;
+		}
+		return new DefaultCsrfToken(token.getHeaderName(), token.getParameterName(), token.getToken());
 	}
 
 	@Override

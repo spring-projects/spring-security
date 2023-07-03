@@ -31,13 +31,12 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
-import org.springframework.security.oauth2.client.oidc.authentication.session.InMemoryOidcProviderSessionRegistry;
-import org.springframework.security.oauth2.client.oidc.authentication.session.OidcProviderSessionRegistrationDetails;
-import org.springframework.security.oauth2.client.oidc.authentication.session.OidcProviderSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.authentication.session.InMemoryOidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistration;
+import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
-import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.web.authentication.logout.BackchannelLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -46,15 +45,17 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * A filter for the Client-side OIDC Backchannel Logout endpoint
+ * A filter for the Client-side OIDC Back-Channel Logout endpoint
  *
  * @author Josh Cummings
  * @since 6.1
  * @see <a target="_blank" href=
- * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Backchannel Logout
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel Logout
  * Spec</a>
  */
 public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
+
+	private static final String DEFAULT_LOGOUT_URI = "/logout/connect/back-channel/{registrationId}";
 
 	private final Log logger = LogFactory.getLog(getClass());
 
@@ -64,10 +65,9 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	private final AuthenticationManager authenticationManager;
 
-	private RequestMatcher requestMatcher = new AntPathRequestMatcher("/logout/connect/back-channel/{registrationId}",
-			"POST");
+	private RequestMatcher requestMatcher = new AntPathRequestMatcher(DEFAULT_LOGOUT_URI, "POST");
 
-	private OidcProviderSessionRegistry providerSessionRegistry = new InMemoryOidcProviderSessionRegistry();
+	private OidcSessionRegistry providerSessionRegistry = new InMemoryOidcSessionRegistry();
 
 	private LogoutHandler logoutHandler = new BackchannelLogoutHandler();
 
@@ -75,8 +75,8 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	 * Construct an {@link OidcBackChannelLogoutFilter}
 	 * @param clients the {@link ClientRegistrationRepository} for deriving Logout Token
 	 * validation
-	 * @param logoutTokenDecoderFactory the {@link JwtDecoderFactory} for constructing
-	 * Logout Token validators
+	 * @param authenticationManager the {@link AuthenticationManager} for authenticating
+	 * Logout Tokens
 	 */
 	public OidcBackChannelLogoutFilter(ClientRegistrationRepository clients,
 			AuthenticationManager authenticationManager) {
@@ -98,15 +98,15 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 		String registrationId = result.getVariables().get("registrationId");
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (registration == null) {
-			this.logger.debug("Did not process OIDC Backchannel Logout since no ClientRegistration was found");
+			this.logger.debug("Did not process OIDC Back-Channel Logout since no ClientRegistration was found");
 			chain.doFilter(request, response);
 			return;
 		}
 		String logoutToken = request.getParameter("logout_token");
 		if (logoutToken == null) {
-			String error = "Failed to process OIDC Backchannel Logout since no logout token was found";
+			String error = "Failed to process OIDC Back-Channel Logout since no logout token was found";
 			this.logger.debug(error);
-			String message = String.format(ERROR_MESSAGE, "invalid_request", error);
+			String message = String.format(ERROR_MESSAGE, OAuth2ErrorCodes.INVALID_REQUEST, error);
 			response.sendError(400, message);
 			return;
 		}
@@ -115,24 +115,22 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 			token = authenticate(logoutToken, registration);
 		}
 		catch (AuthenticationException ex) {
-			this.logger.debug("Failed to process OIDC Backchannel Logout", ex);
-			String message = String.format(ERROR_MESSAGE, "invalid_request", ex.getMessage());
+			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
+			String message = String.format(ERROR_MESSAGE, OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage());
 			response.sendError(400, message);
 			return;
 		}
 		int sessionCount = 0;
 		int loggedOutCount = 0;
 		List<String> messages = new ArrayList<>();
-		Iterable<OidcProviderSessionRegistrationDetails> sessions = this.providerSessionRegistry.deregister(token);
-		for (OidcProviderSessionRegistrationDetails session : sessions) {
-			BackchannelLogoutAuthentication authentication = new BackchannelLogoutAuthentication(
-					session.getClientSessionId(), session.getCsrfToken());
+		Iterable<OidcSessionRegistration> sessions = this.providerSessionRegistry.deregister(token);
+		for (OidcSessionRegistration session : sessions) {
 			try {
 				if (this.logger.isTraceEnabled()) {
 					String message = "Logging out session #%d from result set for issuer [%s]";
 					this.logger.trace(String.format(message, sessionCount, token.getIssuer()));
 				}
-				this.logoutHandler.logout(request, response, authentication);
+				this.logoutHandler.logout(request, response, session.getLogoutAuthenticationToken());
 				loggedOutCount++;
 			}
 			catch (Exception ex) {
@@ -175,7 +173,8 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * The logout endpoint. Defaults to {@code /oauth2/{registrationId}/logout}.
+	 * The logout endpoint. Defaults to
+	 * {@code /logout/connect/back-channel/{registrationId}}.
 	 * @param requestMatcher the {@link RequestMatcher} to use
 	 */
 	public void setRequestMatcher(RequestMatcher requestMatcher) {
@@ -185,9 +184,9 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	/**
 	 * The registry for linking Client sessions to OIDC Provider sessions and End Users
-	 * @param providerSessionRegistry the {@link OidcProviderSessionRegistry} to use
+	 * @param providerSessionRegistry the {@link OidcSessionRegistry} to use
 	 */
-	public void setProviderSessionRegistry(OidcProviderSessionRegistry providerSessionRegistry) {
+	public void setProviderSessionRegistry(OidcSessionRegistry providerSessionRegistry) {
 		Assert.notNull(providerSessionRegistry, "providerSessionRegistry cannot be null");
 		this.providerSessionRegistry = providerSessionRegistry;
 	}

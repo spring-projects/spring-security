@@ -29,14 +29,14 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Oid
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
  * Token</a>
  */
-public interface OidcProviderSessionRegistry {
+public interface OidcSessionRegistry {
 
 	/**
 	 * Register a OIDC Provider session with the provided client session. Generally
 	 * speaking, the client session should be the session tied to the current login.
-	 * @param details the {@link OidcProviderSessionRegistrationDetails} to use
+	 * @param details the {@link OidcSessionRegistration} to use
 	 */
-	void register(OidcProviderSessionRegistrationDetails details);
+	void register(OidcSessionRegistration details);
 
 	/**
 	 * Update the entry for a Client when their session id changes. This is handy, for
@@ -44,23 +44,22 @@ public interface OidcProviderSessionRegistry {
 	 * @param oldClientSessionId the Client's old session id
 	 * @param newClientSessionId the Client's new session id
 	 */
-	void reregister(String oldClientSessionId, String newClientSessionId);
+	void register(String oldClientSessionId, String newClientSessionId);
 
 	/**
 	 * Deregister the OIDC Provider session tied to the provided client session. Generally
 	 * speaking, the client session should be the session tied to the current logout.
 	 * @param clientSessionId the client session
-	 * @return any found {@link OidcProviderSessionRegistrationDetails}, could be
-	 * {@code null}
+	 * @return any found {@link OidcSessionRegistration}, could be {@code null}
 	 */
-	OidcProviderSessionRegistrationDetails deregister(String clientSessionId);
+	OidcSessionRegistration deregister(String clientSessionId);
 
 	/**
 	 * Deregister the OIDC Provider sessions referenced by the provided OIDC Logout Token
 	 * by its session id or its subject.
 	 * @param logoutToken the {@link OidcLogoutToken}
-	 * @return any found {@link OidcProviderSessionRegistrationDetails}s, could be empty
+	 * @return any found {@link OidcSessionRegistration}s, could be empty
 	 */
-	Iterable<OidcProviderSessionRegistrationDetails> deregister(OidcLogoutToken logoutToken);
+	Iterable<OidcSessionRegistration> deregister(OidcLogoutToken logoutToken);
 
 }

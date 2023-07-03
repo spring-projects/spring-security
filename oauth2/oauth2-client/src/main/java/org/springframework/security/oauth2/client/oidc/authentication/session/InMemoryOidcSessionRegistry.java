@@ -29,35 +29,36 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Log
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
 /**
- * An in-memory implementation of {@link OidcProviderSessionRegistry}
+ * An in-memory implementation of {@link OidcSessionRegistry}
  *
  * @author Josh Cummings
  * @since 6.1
  */
-public final class InMemoryOidcProviderSessionRegistry implements OidcProviderSessionRegistry {
+public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 
-	private final Log logger = LogFactory.getLog(InMemoryOidcProviderSessionRegistry.class);
+	private final Log logger = LogFactory.getLog(InMemoryOidcSessionRegistry.class);
 
-	private final Map<String, OidcProviderSessionRegistrationDetails> sessions = new ConcurrentHashMap<>();
+	private final Map<String, OidcSessionRegistration> sessions = new ConcurrentHashMap<>();
 
 	@Override
-	public void register(OidcProviderSessionRegistrationDetails registration) {
+	public void register(OidcSessionRegistration registration) {
 		this.sessions.put(registration.getClientSessionId(), registration);
 	}
 
 	@Override
-	public void reregister(String oldClientSessionId, String newClientSessionId) {
-		OidcProviderSessionRegistrationDetails old = this.sessions.remove(oldClientSessionId);
+	public void register(String oldClientSessionId, String newClientSessionId) {
+		OidcSessionRegistration old = this.sessions.remove(oldClientSessionId);
 		if (old == null) {
 			this.logger.debug("Failed to register new session id since old session id was not found in registry");
 			return;
 		}
-		register(new OidcProviderSessionRegistration(newClientSessionId, old.getCsrfToken(), old.getPrincipal()));
+		register(new OidcSessionRegistration(newClientSessionId, old.getPrincipal(),
+				old.getLogoutAuthenticationToken()));
 	}
 
 	@Override
-	public OidcProviderSessionRegistrationDetails deregister(String clientSessionId) {
-		OidcProviderSessionRegistrationDetails details = this.sessions.remove(clientSessionId);
+	public OidcSessionRegistration deregister(String clientSessionId) {
+		OidcSessionRegistration details = this.sessions.remove(clientSessionId);
 		if (details != null) {
 			this.logger.trace("Removed client session");
 		}
@@ -65,11 +66,11 @@ public final class InMemoryOidcProviderSessionRegistry implements OidcProviderSe
 	}
 
 	@Override
-	public Iterable<OidcProviderSessionRegistrationDetails> deregister(OidcLogoutToken token) {
+	public Iterable<OidcSessionRegistration> deregister(OidcLogoutToken token) {
 		String issuer = token.getIssuer().toString();
 		String subject = token.getSubject();
 		String providerSessionId = token.getSessionId();
-		Predicate<OidcProviderSessionRegistrationDetails> matcher = (providerSessionId != null)
+		Predicate<OidcSessionRegistration> matcher = (providerSessionId != null)
 				? sessionIdMatcher(issuer, providerSessionId) : subjectMatcher(issuer, subject);
 		if (this.logger.isTraceEnabled()) {
 			String message = "Looking up sessions by issuer [%s] and %s [%s]";
@@ -81,7 +82,7 @@ public final class InMemoryOidcProviderSessionRegistry implements OidcProviderSe
 			}
 		}
 		int size = this.sessions.size();
-		Set<OidcProviderSessionRegistrationDetails> infos = new HashSet<>();
+		Set<OidcSessionRegistration> infos = new HashSet<>();
 		this.sessions.values().removeIf((info) -> {
 			boolean result = matcher.test(info);
 			if (result) {
@@ -99,7 +100,7 @@ public final class InMemoryOidcProviderSessionRegistry implements OidcProviderSe
 		return infos;
 	}
 
-	private static Predicate<OidcProviderSessionRegistrationDetails> sessionIdMatcher(String issuer, String sessionId) {
+	private static Predicate<OidcSessionRegistration> sessionIdMatcher(String issuer, String sessionId) {
 		return (session) -> {
 			String thatIssuer = session.getPrincipal().getIssuer().toString();
 			String thatSessionId = session.getPrincipal().getClaimAsString(LogoutTokenClaimNames.SID);
@@ -107,7 +108,7 @@ public final class InMemoryOidcProviderSessionRegistry implements OidcProviderSe
 		};
 	}
 
-	private static Predicate<OidcProviderSessionRegistrationDetails> subjectMatcher(String issuer, String subject) {
+	private static Predicate<OidcSessionRegistration> subjectMatcher(String issuer, String subject) {
 		return (session) -> {
 			String thatIssuer = session.getPrincipal().getIssuer().toString();
 			String thatSubject = session.getPrincipal().getSubject();

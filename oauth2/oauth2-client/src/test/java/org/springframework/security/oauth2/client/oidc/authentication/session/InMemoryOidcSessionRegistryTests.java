@@ -25,57 +25,53 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.TestOidcIdTokens;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class InMemoryOidcProviderSessionRegistryTests {
+public class InMemoryOidcSessionRegistryTests {
 
 	@Test
 	public void registerWhenDefaultsThenStoresSessionInformation() {
-		InMemoryOidcProviderSessionRegistry registry = new InMemoryOidcProviderSessionRegistry();
+		InMemoryOidcSessionRegistry registry = new InMemoryOidcSessionRegistry();
 		String sessionId = "client";
-		OidcUser user = TestOidcUsers.create();
-		OidcProviderSessionRegistrationDetails info = new OidcProviderSessionRegistration(sessionId, null, user);
+		OidcSessionRegistration info = TestOidcSessionRegistrations.create(sessionId);
 		registry.register(info);
-		assertThat(info.getClientSessionId()).isSameAs(sessionId);
-		assertThat(info.getPrincipal()).isSameAs(user);
-		Iterable<OidcProviderSessionRegistrationDetails> infos = registry
-				.deregister(TestOidcLogoutTokens.withUser(user).build());
+		OidcLogoutToken token = TestOidcLogoutTokens.withUser(info.getPrincipal()).build();
+		Iterable<OidcSessionRegistration> infos = registry.deregister(token);
 		assertThat(infos).containsExactly(info);
 	}
 
 	@Test
 	public void registerWhenIdTokenHasSessionIdThenStoresSessionInformation() {
-		InMemoryOidcProviderSessionRegistry registry = new InMemoryOidcProviderSessionRegistry();
+		InMemoryOidcSessionRegistry registry = new InMemoryOidcSessionRegistry();
 		OidcIdToken token = TestOidcIdTokens.idToken().claim("sid", "provider").build();
 		OidcUser user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
-		OidcProviderSessionRegistrationDetails info = new OidcProviderSessionRegistration("client", null, user);
+		OidcSessionRegistration info = TestOidcSessionRegistrations.create("client", user);
 		registry.register(info);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSessionId(token.getIssuer().toString(), "provider")
 				.build();
-		Iterable<OidcProviderSessionRegistrationDetails> infos = registry.deregister(logoutToken);
+		Iterable<OidcSessionRegistration> infos = registry.deregister(logoutToken);
 		assertThat(infos).containsExactly(info);
 	}
 
 	@Test
 	public void unregisterWhenMultipleSessionsThenRemovesAllMatching() {
-		InMemoryOidcProviderSessionRegistry registry = new InMemoryOidcProviderSessionRegistry();
+		InMemoryOidcSessionRegistry registry = new InMemoryOidcSessionRegistry();
 		OidcIdToken token = TestOidcIdTokens.idToken().claim("sid", "providerOne").subject("otheruser").build();
 		OidcUser user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
-		OidcProviderSessionRegistrationDetails one = new OidcProviderSessionRegistration("clientOne", null, user);
+		OidcSessionRegistration one = TestOidcSessionRegistrations.create("clientOne", user);
 		registry.register(one);
 		token = TestOidcIdTokens.idToken().claim("sid", "providerTwo").build();
 		user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
-		OidcProviderSessionRegistrationDetails two = new OidcProviderSessionRegistration("clientTwo", null, user);
+		OidcSessionRegistration two = TestOidcSessionRegistrations.create("clientTwo", user);
 		registry.register(two);
 		token = TestOidcIdTokens.idToken().claim("sid", "providerThree").build();
 		user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
-		OidcProviderSessionRegistrationDetails three = new OidcProviderSessionRegistration("clientThree", null, user);
+		OidcSessionRegistration three = TestOidcSessionRegistrations.create("clientThree", user);
 		registry.register(three);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSubject(token.getIssuer().toString(), token.getSubject())
 				.build();
-		Iterable<OidcProviderSessionRegistrationDetails> infos = registry.deregister(logoutToken);
+		Iterable<OidcSessionRegistration> infos = registry.deregister(logoutToken);
 		assertThat(infos).containsExactlyInAnyOrder(two, three);
 		logoutToken = TestOidcLogoutTokens.withSubject(token.getIssuer().toString(), "otheruser").build();
 		infos = registry.deregister(logoutToken);
@@ -84,10 +80,11 @@ public class InMemoryOidcProviderSessionRegistryTests {
 
 	@Test
 	public void unregisterWhenNoSessionsThenEmptyList() {
-		InMemoryOidcProviderSessionRegistry registry = new InMemoryOidcProviderSessionRegistry();
+		InMemoryOidcSessionRegistry registry = new InMemoryOidcSessionRegistry();
 		OidcIdToken token = TestOidcIdTokens.idToken().claim("sid", "provider").build();
 		OidcUser user = new DefaultOidcUser(AuthorityUtils.NO_AUTHORITIES, token);
-		registry.register(new OidcProviderSessionRegistration("client", null, user));
+		OidcSessionRegistration registration = TestOidcSessionRegistrations.create("client", user);
+		registry.register(registration);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSessionId(token.getIssuer().toString(), "wrong").build();
 		Iterable<?> infos = registry.deregister(logoutToken);
 		assertThat(infos).isNotNull();

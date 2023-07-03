@@ -16,64 +16,45 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.session;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
 
 /**
- * The default implementation for {@link OidcProviderSessionRegistrationDetails}. Handy
- * for in-memory registries.
+ * The default implementation for {@link OidcSessionRegistration}. Handy for in-memory
+ * registries.
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  */
-public class OidcProviderSessionRegistration implements OidcProviderSessionRegistrationDetails {
+public class OidcSessionRegistration {
 
 	private final String clientSessionId;
 
-	private final CsrfToken token;
-
 	private final OidcUser user;
 
+	private final Authentication logoutAuthenticationToken;
+
 	/**
-	 * Construct an {@link OidcProviderSessionRegistration}
+	 * Construct an {@link OidcSessionRegistration}
 	 * @param clientSessionId the Client's session id
-	 * @param token the Client's CSRF token for this session
+	 * @param logoutAuthenticationToken the Client's CSRF logoutAuthenticationToken for
+	 * this session
 	 * @param user the OIDC Provider's session and end user
 	 */
-	public OidcProviderSessionRegistration(String clientSessionId, CsrfToken token, OidcUser user) {
+	public OidcSessionRegistration(String clientSessionId, OidcUser user, Authentication logoutAuthenticationToken) {
 		this.clientSessionId = clientSessionId;
-		this.token = extract(token);
 		this.user = user;
+		this.logoutAuthenticationToken = logoutAuthenticationToken;
 	}
 
-	private static CsrfToken extract(CsrfToken token) {
-		if (token == null) {
-			return null;
-		}
-		return new DefaultCsrfToken(token.getHeaderName(), token.getParameterName(), token.getToken());
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public String getClientSessionId() {
 		return this.clientSessionId;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public CsrfToken getCsrfToken() {
-		return this.token;
+	public Authentication getLogoutAuthenticationToken() {
+		return this.logoutAuthenticationToken;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
 	public OidcUser getPrincipal() {
 		return this.user;
 	}
