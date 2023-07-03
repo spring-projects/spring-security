@@ -30,22 +30,25 @@ import java.util.List;
  */
 @Configuration
 public class SecurityUtils {
-
+	public static final String ALL = "ALL";
     /*
     * GetMapping,PostMapping,PutMapping,PatchMapping의 value return
     * */
-    public String[] getSecurityPassUrls(){
+	public String[] getSecurityPassUrls(){
+		return getSecurityPassUrls(SecurityUtils.ALL);
+	}
+    public String[] getSecurityPassUrls(String roleType){
 
         List<String> auth_whitelists = new ArrayList<>();
         try{
-            auth_whitelists = searchMappingUrls();
+            auth_whitelists = searchMappingUrls(roleType);
         }catch (Exception e){
             e.printStackTrace();
         }
 
         return auth_whitelists.toArray(new String[0]);
     }
-    private List<String> searchMappingUrls() throws ClassNotFoundException,
+    private List<String> searchMappingUrls(String roleType) throws ClassNotFoundException,
             NoSuchMethodException, SecurityException, InvocationTargetException, IllegalAccessException, MalformedURLException {
             List<Class<? extends Annotation>> mappingAnnotations = Arrays.asList(
                     GetMapping.class,
@@ -55,20 +58,25 @@ public class SecurityUtils {
                     PatchMapping.class
             );
 
-            List<Class> classes = findClasses(getTopPackage());
-            List<String> auth_whitelists = new ArrayList<>();
-            for (Class clazz : classes) {
-                for(Method method : clazz.getMethods()){
-                    if (method.isAnnotationPresent(SecurityPass.class)) {
-                        for (Class<? extends Annotation> annotationClass : mappingAnnotations) {
-                            if( method.isAnnotationPresent(annotationClass) ){
-                                String[] values = (String[]) method.getAnnotation(annotationClass).getClass().getMethod("value").invoke(method.getAnnotation(annotationClass));
-                                auth_whitelists.addAll(Arrays.asList(values));
-                            };
-                        }
-                    }
-                }
-            }
+		List<Class> classes = findClasses(getTopPackage());
+		List<String> auth_whitelists = new ArrayList<>();
+		for (Class clazz : classes) {
+			for(Method method : clazz.getMethods()){
+				if (method.isAnnotationPresent(SecurityPass.class)) {
+
+					String[] roles = (String[]) method.getAnnotation(SecurityPass.class).getClass().getMethod("role").invoke(method.getAnnotation(SecurityPass.class));
+					if( Arrays.asList(roles).contains(roleType) ){
+						for (Class<? extends Annotation> annotationClass : mappingAnnotations) {
+							if( method.isAnnotationPresent(annotationClass) ){
+								String[] values = (String[]) method.getAnnotation(annotationClass).getClass().getMethod("value").invoke(method.getAnnotation(annotationClass));
+								auth_whitelists.addAll(Arrays.asList(values));
+							};
+						}
+					}
+
+				}
+			}
+		}
         return auth_whitelists;
     }
     private String getTopPackage(){
