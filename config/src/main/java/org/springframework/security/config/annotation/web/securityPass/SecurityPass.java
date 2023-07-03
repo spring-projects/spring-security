@@ -1,4 +1,4 @@
-package egovframework.com.security.securityPass;
+package org.springframework.security.config.annotation.web.securityPass;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
