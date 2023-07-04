@@ -157,7 +157,39 @@ XML::
 
 The following beans are required in an application context to enable remember-me services:
 
-[source,xml]
+[tabs]
+======
+Java::
++
+[source,java,role="primary"]
+----
+@Bean
+RememberMeAuthenticationFilter rememberMeFilter() {
+    RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter();
+    rememberMeFilter.setRememberMeServices(rememberMeServices);
+    rememberMeFilter.setAuthenticationManager(theAuthenticationManager);
+    return rememberMeFilter;
+}
+
+@Bean
+TokenBasedRememberMeServices rememberMeServices() {
+    TokenBasedRememberMeServices rememberMeServices = new TokenBasedRememberMeServices();
+    rememberMeServices.setUserDetailsService(myUserDetailsService);
+    rememberMeServices.setKey("springRocks");
+    return rememberMeServices;
+}
+
+@Bean
+RememberMeAuthenticationProvider rememberMeAuthenticationProvider() {
+    RememberMeAuthenticationProvider rememberMeAuthenticationProvider = new RememberMeAuthenticationProvider();
+    rememberMeAuthenticationProvider.setKey("springRocks");
+    return rememberMeAuthenticationProvider;
+}
+----
+
+XML::
++
+[source,xml,role="secondary"]
 ----
 <bean id="rememberMeFilter" class=
 "org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
@@ -176,6 +208,7 @@ The following beans are required in an application context to enable remember-me
 <property name="key" value="springRocks"/>
 </bean>
 ----
+======
 
 Remember to add your `RememberMeServices` implementation to your `UsernamePasswordAuthenticationFilter.setRememberMeServices()` property, include the `RememberMeAuthenticationProvider` in your `AuthenticationManager.setProviders()` list, and add `RememberMeAuthenticationFilter` into your `FilterChainProxy` (typically immediately after your `UsernamePasswordAuthenticationFilter`).
 
