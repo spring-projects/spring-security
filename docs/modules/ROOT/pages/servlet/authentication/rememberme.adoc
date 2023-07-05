@@ -166,7 +166,7 @@ Java::
 @Bean
 RememberMeAuthenticationFilter rememberMeFilter() {
     RememberMeAuthenticationFilter rememberMeFilter = new RememberMeAuthenticationFilter();
-    rememberMeFilter.setRememberMeServices(rememberMeServices);
+    rememberMeFilter.setRememberMeServices(rememberMeServices());
     rememberMeFilter.setAuthenticationManager(theAuthenticationManager);
     return rememberMeFilter;
 }
