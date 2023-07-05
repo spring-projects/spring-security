@@ -18,10 +18,16 @@ package org.springframework.security.config.annotation.web;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.DispatcherType;
+import javax.servlet.Servlet;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,6 +40,8 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.DispatcherTypeRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -56,12 +64,17 @@ public class AbstractRequestMatcherRegistryTests {
 
 	private TestRequestMatcherRegistry matcherRegistry;
 
+	private WebApplicationContext context;
+
 	@BeforeEach
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
-		ApplicationContext context = mock(ApplicationContext.class);
-		given(context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
-		this.matcherRegistry.setApplicationContext(context);
+		this.context = mock(WebApplicationContext.class);
+		ServletContext servletContext = new MockServletContext();
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
+		given(this.context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
+		given(this.context.getServletContext()).willReturn(servletContext);
+		this.matcherRegistry.setApplicationContext(this.context);
 	}
 
 	@Test
@@ -184,6 +197,32 @@ public class AbstractRequestMatcherRegistryTests {
 						"Please ensure Spring Security & Spring MVC are configured in a shared ApplicationContext");
 	}
 
+	@Test
+	public void requestMatchersWhenNoDispatcherServletThenAntPathRequestMatcherType() {
+		MockServletContext servletContext = new MockServletContext();
+		given(this.context.getServletContext()).willReturn(servletContext);
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/**");
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+		servletContext.addServlet("servletOne", Servlet.class);
+		servletContext.addServlet("servletTwo", Servlet.class);
+		requestMatchers = this.matcherRegistry.requestMatchers("/**");
+		assertThat(requestMatchers).isNotEmpty();
+		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
+	}
+
+	@Test
+	public void requestMatchersWhenAmbiguousServletsThenException() {
+		MockServletContext servletContext = new MockServletContext();
+		given(this.context.getServletContext()).willReturn(servletContext);
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
+		servletContext.addServlet("servletTwo", Servlet.class);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
+	}
+
 	private void mockMvcIntrospector(boolean isPresent) {
 		ApplicationContext context = this.matcherRegistry.getApplicationContext();
 		given(context.containsBean("mvcHandlerMappingIntrospector")).willReturn(isPresent);
@@ -213,6 +252,27 @@ public class AbstractRequestMatcherRegistryTests {
 		@Override
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
+		}
+
+	}
+
+	private static class MockServletContext extends org.springframework.mock.web.MockServletContext {
+
+		private final Map<String, ServletRegistration> registrations = new LinkedHashMap<>();
+
+		@NotNull
+		@Override
+		public ServletRegistration.Dynamic addServlet(@NotNull String servletName, Class<? extends Servlet> clazz) {
+			ServletRegistration.Dynamic dynamic = mock(ServletRegistration.Dynamic.class);
+			given(dynamic.getClassName()).willReturn(clazz.getName());
+			this.registrations.put(servletName, dynamic);
+			return dynamic;
+		}
+
+		@NotNull
+		@Override
+		public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+			return this.registrations;
 		}
 
 	}

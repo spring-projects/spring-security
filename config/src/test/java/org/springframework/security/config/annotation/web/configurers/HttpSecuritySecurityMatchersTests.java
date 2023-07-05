@@ -18,9 +18,14 @@ package org.springframework.security.config.annotation.web.configurers;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import javax.servlet.Servlet;
+import javax.servlet.ServletRegistration;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,7 +39,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -48,12 +52,15 @@ import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.config.Customizer.withDefaults;
 
 /**
@@ -233,7 +240,9 @@ public class HttpSecuritySecurityMatchersTests {
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
+		MockServletContext servletContext = new MockServletContext();
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
+		this.context.setServletContext(servletContext);
 		this.context.refresh();
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}
@@ -560,6 +569,27 @@ public class HttpSecuritySecurityMatchersTests {
 		public void configurePathMatch(PathMatchConfigurer configurer) {
 			configurer.setUseSuffixPatternMatch(true);
 			configurer.setUseTrailingSlashMatch(true);
+		}
+
+	}
+
+	private static class MockServletContext extends org.springframework.mock.web.MockServletContext {
+
+		private final Map<String, ServletRegistration> registrations = new LinkedHashMap<>();
+
+		@NotNull
+		@Override
+		public ServletRegistration.Dynamic addServlet(@NotNull String servletName, Class<? extends Servlet> clazz) {
+			ServletRegistration.Dynamic dynamic = mock(ServletRegistration.Dynamic.class);
+			given(dynamic.getClassName()).willReturn(clazz.getName());
+			this.registrations.put(servletName, dynamic);
+			return dynamic;
+		}
+
+		@NotNull
+		@Override
+		public Map<String, ? extends ServletRegistration> getServletRegistrations() {
+			return this.registrations;
 		}
 
 	}
