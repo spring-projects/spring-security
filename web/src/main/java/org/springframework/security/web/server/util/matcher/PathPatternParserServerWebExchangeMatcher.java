@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 
 	private static final Log logger = LogFactory.getLog(PathPatternParserServerWebExchangeMatcher.class);
 
-	private static final PathPatternParser DEFAULT_PATTERN_PARSER = new PathPatternParser();
-
 	private final PathPattern pattern;
 
 	private final HttpMethod method;
@@ -60,12 +58,18 @@ public final class PathPatternParserServerWebExchangeMatcher implements ServerWe
 
 	public PathPatternParserServerWebExchangeMatcher(String pattern, HttpMethod method) {
 		Assert.notNull(pattern, "pattern cannot be null");
-		this.pattern = DEFAULT_PATTERN_PARSER.parse(pattern);
+		this.pattern = parse(pattern);
 		this.method = method;
 	}
 
 	public PathPatternParserServerWebExchangeMatcher(String pattern) {
 		this(pattern, null);
+	}
+
+	private PathPattern parse(String pattern) {
+		PathPatternParser parser = PathPatternParser.defaultInstance;
+		pattern = parser.initFullPathPattern(pattern);
+		return parser.parse(pattern);
 	}
 
 	@Override

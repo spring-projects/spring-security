@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.springframework.security.config.web.server;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,8 @@ import org.springframework.security.web.server.util.matcher.OrServerWebExchangeM
 import org.springframework.security.web.server.util.matcher.PathPatternParserServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
+import org.springframework.web.util.pattern.PathPattern;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * @author Rob Winch
@@ -62,7 +65,8 @@ public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 * {@link ServerWebExchangeMatcher}
 	 */
 	public T pathMatchers(HttpMethod method, String... antPatterns) {
-		return matcher(ServerWebExchangeMatchers.pathMatchers(method, antPatterns));
+		List<PathPattern> pathPatterns = parsePatterns(antPatterns);
+		return matcher(ServerWebExchangeMatchers.pathMatchers(method, pathPatterns.toArray(new PathPattern[0])));
 	}
 
 	/**
@@ -74,7 +78,19 @@ public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 * {@link ServerWebExchangeMatcher}
 	 */
 	public T pathMatchers(String... antPatterns) {
-		return matcher(ServerWebExchangeMatchers.pathMatchers(antPatterns));
+		List<PathPattern> pathPatterns = parsePatterns(antPatterns);
+		return matcher(ServerWebExchangeMatchers.pathMatchers(pathPatterns.toArray(new PathPattern[0])));
+	}
+
+	private List<PathPattern> parsePatterns(String[] antPatterns) {
+		PathPatternParser parser = getPathPatternParser();
+		List<PathPattern> pathPatterns = new ArrayList<>(antPatterns.length);
+		for (String pattern : antPatterns) {
+			pattern = parser.initFullPathPattern(pattern);
+			PathPattern pathPattern = parser.parse(pattern);
+			pathPatterns.add(pathPattern);
+		}
+		return pathPatterns;
 	}
 
 	/**
@@ -95,6 +111,10 @@ public abstract class AbstractServerWebExchangeMatcherRegistry<T> {
 	 * else to the {@link ServerWebExchangeMatcher}
 	 */
 	protected abstract T registerMatcher(ServerWebExchangeMatcher matcher);
+
+	protected PathPatternParser getPathPatternParser() {
+		return PathPatternParser.defaultInstance;
+	}
 
 	/**
 	 * Associates a {@link ServerWebExchangeMatcher} instances
