@@ -49,10 +49,6 @@ public class SessionInformation implements Serializable {
 
 	private boolean expired = false;
 
-	public SessionInformation(Object principal, String sessionId) {
-		this(principal, sessionId, new Date());
-	}
-
 	public SessionInformation(Object principal, String sessionId, Date lastRequest) {
 		Assert.notNull(principal, "Principal required");
 		Assert.hasText(sessionId, "SessionId required");
