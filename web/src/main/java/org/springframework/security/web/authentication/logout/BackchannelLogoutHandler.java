@@ -16,6 +16,8 @@
 
 package org.springframework.security.web.authentication.logout;
 
+import java.util.Map;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
@@ -24,8 +26,8 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.util.Assert;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -51,17 +53,21 @@ public final class BackchannelLogoutHandler implements LogoutHandler {
 		}
 		HttpHeaders headers = new HttpHeaders();
 		headers.add(HttpHeaders.COOKIE, this.clientSessionCookieName + "=" + token.getSessionId());
-		CsrfToken csrfToken = token.getCsrfToken();
-		if (csrfToken != null) {
-			headers.add(csrfToken.getHeaderName(), csrfToken.getToken());
+		for (Map.Entry<String, String> credential : token.getCredentials().entrySet()) {
+			headers.add(credential.getKey(), credential.getValue());
 		}
 		String url = request.getRequestURL().toString();
 		String logout = UriComponentsBuilder.fromHttpUrl(url).replacePath(this.logoutEndpointName).build()
 				.toUriString();
 		HttpEntity<?> entity = new HttpEntity<>(null, headers);
-		this.rest.postForEntity(logout, entity, Object.class);
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(String.format("Invalidated session [%s]", token.getSessionId()));
+		try {
+			this.rest.postForEntity(logout, entity, Object.class);
+			if (this.logger.isTraceEnabled()) {
+				this.logger.trace(String.format("Invalidated session", token.getSessionId()));
+			}
+		}
+		catch (RestClientException ex) {
+			this.logger.debug("Failed to invalidate session", ex);
 		}
 	}
 

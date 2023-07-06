@@ -2836,13 +2836,13 @@ public final class HttpSecurity extends AbstractConfiguredSecurityBuilder<Defaul
 		return HttpSecurity.this;
 	}
 
-	public OidcLogoutConfigurer<HttpSecurity> oauth2Logout() throws Exception {
+	public OidcLogoutConfigurer<HttpSecurity> oidcLogout() throws Exception {
 		return getOrApply(new OidcLogoutConfigurer<>());
 	}
 
-	public HttpSecurity oauth2Logout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oauth2LogoutCustomizer)
+	public HttpSecurity oidcLogout(Customizer<OidcLogoutConfigurer<HttpSecurity>> oidcLogoutCustomizer)
 			throws Exception {
-		oauth2LogoutCustomizer.customize(getOrApply(new OidcLogoutConfigurer<>()));
+		oidcLogoutCustomizer.customize(getOrApply(new OidcLogoutConfigurer<>()));
 		return HttpSecurity.this;
 	}
 

@@ -21,15 +21,29 @@ import org.springframework.security.authentication.AuthenticationServiceExceptio
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.jwt.BadJwtException;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.util.Assert;
 
-public class OidcBackChannelLogoutAuthenticationManager implements AuthenticationManager {
+public final class OidcBackChannelLogoutAuthenticationManager implements AuthenticationManager {
 
-	private final JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory = new OidcLogoutTokenDecoderFactory();
+	private JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory;
+
+	public OidcBackChannelLogoutAuthenticationManager() {
+		OidcIdTokenDecoderFactory logoutTokenDecoderFactory = new OidcIdTokenDecoderFactory();
+		logoutTokenDecoderFactory.setJwtValidatorFactory(new DefaultOidcLogoutTokenValidatorFactory());
+		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
+	}
+
+	public void setLogoutTokenDecoderFactory(JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory) {
+		Assert.notNull(logoutTokenDecoderFactory, "logoutTokenDecoderFactory cannot be null");
+		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
+	}
 
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -38,10 +52,16 @@ public class OidcBackChannelLogoutAuthenticationManager implements Authenticatio
 		}
 		String logoutToken = token.getLogoutToken();
 		ClientRegistration registration = token.getClientRegistration();
+		Jwt jwt = decode(registration, logoutToken);
+		OidcLogoutToken oidcLogoutToken = OidcLogoutToken.withTokenValue(logoutToken)
+				.claims((claims) -> claims.putAll(jwt.getClaims())).build();
+		return new OidcBackChannelLogoutAuthentication(oidcLogoutToken, registration);
+	}
+
+	private Jwt decode(ClientRegistration registration, String token) {
 		JwtDecoder logoutTokenDecoder = this.logoutTokenDecoderFactory.createDecoder(registration);
 		try {
-			return new OidcBackChannelLogoutAuthentication(OidcLogoutToken.withTokenValue(logoutToken)
-					.claims((claims) -> claims.putAll(logoutTokenDecoder.decode(logoutToken).getClaims())).build(), registration);
+			return logoutTokenDecoder.decode(token);
 		}
 		catch (BadJwtException failed) {
 			throw new BadCredentialsException(failed.getMessage(), failed);

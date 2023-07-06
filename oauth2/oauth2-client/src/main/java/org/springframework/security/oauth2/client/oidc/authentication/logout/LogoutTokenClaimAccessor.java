@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.oauth2.core.ClaimAccessor;
-import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
 
 /**
  * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in OIDC
@@ -35,7 +34,7 @@ import org.springframework.security.oauth2.jwt.JwtClaimAccessor;
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
  * Token</a>
  */
-public interface LogoutTokenClaimAccessor extends JwtClaimAccessor {
+public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 
 	/**
 	 * Returns the Issuer identifier {@code (iss)}.
@@ -49,7 +48,6 @@ public interface LogoutTokenClaimAccessor extends JwtClaimAccessor {
 	 * Returns the Subject identifier {@code (sub)}.
 	 * @return the Subject identifier
 	 */
-	@Override
 	default String getSubject() {
 		return this.getClaimAsString(LogoutTokenClaimNames.SUB);
 	}

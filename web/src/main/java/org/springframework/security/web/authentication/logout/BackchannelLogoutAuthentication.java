@@ -16,30 +16,25 @@
 
 package org.springframework.security.web.authentication.logout;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.util.Assert;
 
 public class BackchannelLogoutAuthentication extends AbstractAuthenticationToken {
 
 	private final String sessionId;
 
-	private final CsrfToken csrfToken;
+	private final Map<String, String> credentials;
 
-	public BackchannelLogoutAuthentication(String sessionId, CsrfToken csrfToken) {
-		super(AuthorityUtils.createAuthorityList("BACKCHANNEL_LOGOUT"));
+	public BackchannelLogoutAuthentication(String sessionId, Map<String, String> credentials) {
+		super(Collections.emptyList());
 		Assert.notNull(sessionId, "sessionId cannot be null");
 		this.sessionId = sessionId;
-		this.csrfToken = extract(csrfToken);
-	}
-
-	private static CsrfToken extract(CsrfToken token) {
-		if (token == null) {
-			return null;
-		}
-		return new DefaultCsrfToken(token.getHeaderName(), token.getParameterName(), token.getToken());
+		this.credentials = new LinkedHashMap<>(credentials);
+		setAuthenticated(true);
 	}
 
 	@Override
@@ -52,12 +47,8 @@ public class BackchannelLogoutAuthentication extends AbstractAuthenticationToken
 	}
 
 	@Override
-	public CsrfToken getCredentials() {
-		return this.csrfToken;
-	}
-
-	public CsrfToken getCsrfToken() {
-		return this.csrfToken;
+	public Map<String, String> getCredentials() {
+		return this.credentials;
 	}
 
 }

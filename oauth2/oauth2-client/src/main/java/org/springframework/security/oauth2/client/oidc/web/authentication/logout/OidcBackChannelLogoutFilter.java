@@ -17,8 +17,6 @@
 package org.springframework.security.oauth2.client.oidc.web.authentication.logout;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +25,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
@@ -36,7 +36,9 @@ import org.springframework.security.oauth2.client.oidc.authentication.session.Oi
 import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
 import org.springframework.security.web.authentication.logout.BackchannelLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -59,11 +61,11 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private static final String ERROR_MESSAGE = "{ \"error\" : \"%s\", \"error_description\" : \"%s\" }";
-
 	private final ClientRegistrationRepository clientRegistrationRepository;
 
 	private final AuthenticationManager authenticationManager;
+
+	private final OAuth2ErrorHttpMessageConverter errorHttpMessageConverter = new OAuth2ErrorHttpMessageConverter();
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(DEFAULT_LOGOUT_URI, "POST");
 
@@ -73,14 +75,16 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutFilter}
-	 * @param clients the {@link ClientRegistrationRepository} for deriving Logout Token
-	 * validation
+	 * @param clientRegistrationRepository the {@link ClientRegistrationRepository} for
+	 * deriving Logout Token authentication
 	 * @param authenticationManager the {@link AuthenticationManager} for authenticating
 	 * Logout Tokens
 	 */
-	public OidcBackChannelLogoutFilter(ClientRegistrationRepository clients,
+	public OidcBackChannelLogoutFilter(ClientRegistrationRepository clientRegistrationRepository,
 			AuthenticationManager authenticationManager) {
-		this.clientRegistrationRepository = clients;
+		Assert.notNull(clientRegistrationRepository, "clientRegistrationRepository cannot be null");
+		Assert.notNull(authenticationManager, "authenticationManager cannot be null");
+		this.clientRegistrationRepository = clientRegistrationRepository;
 		this.authenticationManager = authenticationManager;
 	}
 
@@ -99,70 +103,45 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
 		if (registration == null) {
 			this.logger.debug("Did not process OIDC Back-Channel Logout since no ClientRegistration was found");
-			chain.doFilter(request, response);
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		String logoutToken = request.getParameter("logout_token");
 		if (logoutToken == null) {
-			String error = "Failed to process OIDC Back-Channel Logout since no logout token was found";
-			this.logger.debug(error);
-			String message = String.format(ERROR_MESSAGE, OAuth2ErrorCodes.INVALID_REQUEST, error);
-			response.sendError(400, message);
+			this.logger.debug("Failed to process OIDC Back-Channel Logout since no logout token was found");
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
 		OidcLogoutToken token;
 		try {
 			token = authenticate(logoutToken, registration);
 		}
+		catch (AuthenticationServiceException ex) {
+			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
+			return;
+		}
 		catch (AuthenticationException ex) {
 			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
-			String message = String.format(ERROR_MESSAGE, OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage());
-			response.sendError(400, message);
+			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, ex.getMessage(),
+					"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			this.errorHttpMessageConverter.write(error, null, new ServletServerHttpResponse(response));
 			return;
 		}
 		int sessionCount = 0;
-		int loggedOutCount = 0;
-		List<String> messages = new ArrayList<>();
 		Iterable<OidcSessionRegistration> sessions = this.providerSessionRegistry.deregister(token);
 		for (OidcSessionRegistration session : sessions) {
-			try {
-				if (this.logger.isTraceEnabled()) {
-					String message = "Logging out session #%d from result set for issuer [%s]";
-					this.logger.trace(String.format(message, sessionCount, token.getIssuer()));
-				}
-				this.logoutHandler.logout(request, response, session.getLogoutAuthenticationToken());
-				loggedOutCount++;
+			if (this.logger.isTraceEnabled()) {
+				String message = "Logging out session #%d from result set for issuer [%s]";
+				this.logger.trace(String.format(message, sessionCount, token.getIssuer()));
 			}
-			catch (Exception ex) {
-				this.providerSessionRegistry.register(session);
-				if (this.logger.isDebugEnabled()) {
-					String message = "Failed to invalidate session #%d from result set for issuer [%s]";
-					this.logger.debug(String.format(message, sessionCount, token.getIssuer()), ex);
-				}
-				messages.add(ex.getMessage());
-			}
+			this.logoutHandler.logout(request, response, session.getLogoutAuthenticationToken());
 			sessionCount++;
 		}
 		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(String.format("Invalidated %d/%d linked sessions for issuer [%s]", loggedOutCount,
-					sessionCount, token.getIssuer()));
-		}
-		if (messages.isEmpty()) {
-			return;
-		}
-		if (messages.size() == sessionCount) {
-			this.logger.trace("Returning a 400 since all linked sessions for issuer [%s] failed termination");
-			String message = String.format(ERROR_MESSAGE, "logout_failed", messages.iterator().next(),
-					token.getIssuer());
-			response.sendError(400, message);
-			return;
-		}
-		if (messages.size() < sessionCount) {
-			this.logger.trace(
-					"Returning a 400 since not all linked sessions for issuer [%s] were successfully terminated");
-			String message = String.format(ERROR_MESSAGE, "incomplete_logout", messages.iterator().next(),
-					token.getIssuer());
-			response.sendError(400, message);
+			this.logger.trace(String.format("Invalidated all %d linked sessions for issuer [%s]", sessionCount,
+					token.getIssuer()));
 		}
 	}
 

@@ -16,11 +16,11 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.session;
 
+import java.util.Map;
+
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
 
 public final class TestOidcSessionRegistrations {
 
@@ -33,8 +33,8 @@ public final class TestOidcSessionRegistrations {
 	}
 
 	public static OidcSessionRegistration create(String sessionId, OidcUser user) {
-		CsrfToken token = new DefaultCsrfToken("header", "parameter", "token");
-		return new OidcSessionRegistration(sessionId, user, new BackchannelLogoutAuthentication(sessionId, token));
+		return new OidcSessionRegistration(sessionId, user,
+				new BackchannelLogoutAuthentication(sessionId, Map.of("_csrf", "token")));
 	}
 
 	private TestOidcSessionRegistrations() {

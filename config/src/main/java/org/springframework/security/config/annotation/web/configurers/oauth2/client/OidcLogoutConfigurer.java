@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -81,7 +83,7 @@ import org.springframework.util.Assert;
  *
  * @author Josh Cummings
  * @since 6.1
- * @see HttpSecurity#oauth2Logout()
+ * @see HttpSecurity#oidcLogout()
  * @see OidcBackChannelLogoutFilter
  * @see ClientRegistrationRepository
  */
@@ -255,7 +257,8 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 				}
 				String sessionId = session.getId();
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-				BackchannelLogoutAuthentication logoutAuthentication = new BackchannelLogoutAuthentication(sessionId, csrfToken);
+				Map<String, String> credentials = (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken()) : Collections.emptyMap();
+				BackchannelLogoutAuthentication logoutAuthentication = new BackchannelLogoutAuthentication(sessionId, credentials);
 				OidcSessionRegistration registration = new OidcSessionRegistration(sessionId, user, logoutAuthentication);
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(String.format("Linking a provider [%s] session to this client's session", user.getIssuer()));

@@ -76,7 +76,7 @@ public class OidcBackChannelLogoutFilterTests {
 	}
 
 	@Test
-	public void doFilterWithNoMatchingClientThenDoesNotRun() throws Exception {
+	public void doFilterWithNoMatchingClientThenBadRequest() throws Exception {
 		ClientRegistrationRepository clients = mock(ClientRegistrationRepository.class);
 		AuthenticationManager factory = mock(AuthenticationManager.class);
 		OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(clients, factory);
@@ -87,8 +87,8 @@ public class OidcBackChannelLogoutFilterTests {
 		FilterChain chain = mock(FilterChain.class);
 		filter.doFilter(request, response, chain);
 		verify(clients).findByRegistrationId("id");
-		verifyNoInteractions(factory);
-		verify(chain).doFilter(request, response);
+		verifyNoInteractions(factory, chain);
+		assertThat(response.getStatus()).isEqualTo(400);
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class OidcBackChannelLogoutFilterTests {
 		filter.doFilter(request, response, chain);
 		verifyNoInteractions(registry, logoutHandler, chain);
 		assertThat(response.getStatus()).isEqualTo(400);
-		assertThat(response.getErrorMessage()).contains("bad");
+		assertThat(response.getContentAsString()).contains("bad");
 	}
 
 }
