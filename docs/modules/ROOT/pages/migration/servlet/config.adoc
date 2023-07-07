@@ -692,7 +692,7 @@ open class SecurityConfiguration {
 
 === Publish an `AuthenticationManager` Bean
 
-As part of `WebSecurityConfigurerAdapeter` removal, `configure(AuthenticationManagerBuilder)` is also removed.
+As part of `WebSecurityConfigurerAdapter` removal, `configure(AuthenticationManagerBuilder)` is also removed.
 Preparing for its removal will differ based on your reason for using it.
 
 ==== LDAP Authentication
