@@ -181,7 +181,7 @@ public class ProviderManager implements AuthenticationManager, MessageSourceAwar
 			try {
 				result = provider.authenticate(authentication);
 				if (result != null) {
-					copyDetails(authentication, result);
+					copyDetails(result, authentication);
 					break;
 				}
 			}
