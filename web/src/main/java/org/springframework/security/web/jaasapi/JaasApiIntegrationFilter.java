@@ -1,5 +1,5 @@
 /*
- * Copyright 2010-2022 the original author or authors.
+ * Copyright 2010-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -127,10 +127,9 @@ public class JaasApiIntegrationFilter extends GenericFilterBean {
 		if (!authentication.isAuthenticated()) {
 			return null;
 		}
-		if (!(authentication instanceof JaasAuthenticationToken)) {
+		if (!(authentication instanceof JaasAuthenticationToken token)) {
 			return null;
 		}
-		JaasAuthenticationToken token = (JaasAuthenticationToken) authentication;
 		LoginContext loginContext = token.getLoginContext();
 		if (loginContext == null) {
 			return null;
