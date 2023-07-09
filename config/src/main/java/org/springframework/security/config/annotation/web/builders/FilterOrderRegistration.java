@@ -127,11 +127,7 @@ final class FilterOrderRegistration {
 	 * @param position the position to associate with the {@link Filter}
 	 */
 	void put(Class<? extends Filter> filter, int position) {
-		String className = filter.getName();
-		if (this.filterToOrder.containsKey(className)) {
-			return;
-		}
-		this.filterToOrder.put(className, position);
+		this.filterToOrder.putIfAbsent(filter.getName(), position);
 	}
 
 	/**
