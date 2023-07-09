@@ -94,7 +94,7 @@ public class ExceptionTranslationFilter extends GenericFilterBean implements Mes
 
 	private ThrowableAnalyzer throwableAnalyzer = new DefaultThrowableAnalyzer();
 
-	private RequestCache requestCache = new HttpSessionRequestCache();
+	private final RequestCache requestCache;
 
 	protected MessageSourceAccessor messages = SpringSecurityMessageSource.getAccessor();
 
