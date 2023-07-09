@@ -206,7 +206,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 	/**
 	 * Sets whether this filter apply only once per request. By default, this is
-	 * <code>false</code>, meaning the filter will execute on every request. Sometimes
+	 * <code>true</code>, meaning the filter will only execute once per request. Sometimes
 	 * users may wish it to execute more than once per request, such as when JSP forwards
 	 * are being used and filter security is desired on each included fragment of the HTTP
 	 * request.
@@ -218,8 +218,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * If set to true, the filter will be applied to error dispatcher. Defaults to
-	 * {@code true}.
+	 * If set to true, the filter will be applied to error dispatcher. Defaults to false.
 	 * @param filterErrorDispatch whether the filter should be applied to error dispatcher
 	 */
 	public void setFilterErrorDispatch(boolean filterErrorDispatch) {
@@ -228,7 +227,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 	/**
 	 * If set to true, the filter will be applied to the async dispatcher. Defaults to
-	 * {@code true}.
+	 * false.
 	 * @param filterAsyncDispatch whether the filter should be applied to async dispatch
 	 */
 	public void setFilterAsyncDispatch(boolean filterAsyncDispatch) {
