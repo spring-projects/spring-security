@@ -38,6 +38,7 @@ import org.springframework.security.web.PortResolver;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * Represents central information from a {@code HttpServletRequest}.
@@ -372,10 +373,8 @@ public class DefaultSavedRequest implements SavedRequest {
 		if (queryString == null || queryString.length() == 0) {
 			return matchingRequestParameterName;
 		}
-		if (queryString.endsWith("&")) {
-			return queryString + matchingRequestParameterName;
-		}
-		return queryString + "&" + matchingRequestParameterName;
+		return UriComponentsBuilder.newInstance().query(queryString).replaceQueryParam(matchingRequestParameterName)
+				.queryParam(matchingRequestParameterName).build().getQuery();
 	}
 
 	/**
