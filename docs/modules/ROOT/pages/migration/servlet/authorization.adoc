@@ -1090,6 +1090,59 @@ Xml::
 ----
 ======
 
+=== Migrate `hasIpAddress` to `access(AuthorizationManager)`
+
+`hasIpAddress` has no DSL equivalent in `authorizeHttpRequests`.
+
+As such, you need to change any called to `hasIpAddress` to using an `AuthorizationManager`.
+
+First, construct an `IpAddressMatcher` like so:
+
+====
+.Java
+[source,java,role="primary"]
+----
+IpAddressMatcher hasIpAddress = new IpAddressMatcher("127.0.0.1");
+----
+====
+
+And then change from this:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeRequests((authorize) -> authorize
+        .mvcMatchers("/app/**").hasIpAddress("127.0.0.1")
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+====
+
+to this:
+
+====
+.Java
+[source,java,role="primary"]
+----
+http
+    .authorizeHttpRequests((authorize) -> authorize
+        .requestMatchers("/app/**").access((authentication, context) ->
+            new AuthorizationDecision(hasIpAddress.matches(context.getRequest()))
+        // ...
+        .anyRequest().denyAll()
+    )
+    // ...
+----
+====
+
+[NOTE]
+Securing by IP Address is quite fragile to begin with.
+For that reason, there are no plans to port this support over to `authorizeHttpRequests`.
+
 === Migrate SpEL expressions to `AuthorizationManager`
 
 For authorization rules, Java tends to be easier to test and maintain than SpEL.
