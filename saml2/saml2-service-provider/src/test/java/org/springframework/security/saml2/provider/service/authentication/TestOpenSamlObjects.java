@@ -17,6 +17,7 @@
 package org.springframework.security.saml2.provider.service.authentication;
 
 import java.security.cert.X509Certificate;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -150,6 +151,7 @@ public final class TestOpenSamlObjects {
 		assertion.setIssuer(issuer(issuerEntityId));
 		assertion.setSubject(subject(username));
 		assertion.setConditions(conditions());
+		assertion.setIssueInstant(Instant.now());
 		SubjectConfirmation subjectConfirmation = subjectConfirmation();
 		subjectConfirmation.setMethod(SubjectConfirmation.METHOD_BEARER);
 		SubjectConfirmationData confirmationData = subjectConfirmationData(recipientEntityId);
