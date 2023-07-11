@@ -48,7 +48,6 @@ import org.springframework.security.oauth2.client.oidc.authentication.session.Oi
 import org.springframework.security.oauth2.client.oidc.web.authentication.logout.OidcBackChannelLogoutFilter;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
 import org.springframework.security.web.authentication.logout.BackchannelLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.session.SessionAuthenticationException;
@@ -93,8 +92,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	private BackChannelLogoutConfigurer backChannel;
 
 	/**
-	 * Sets the repository of client registrations.
-	 * @param clientRegistrationRepository the repository of client registrations
+	 * Configure OIDC Back-Channel Logout using the provided {@link Consumer}
 	 * @return the {@link OidcLogoutConfigurer} for further configuration
 	 */
 	public OidcLogoutConfigurer<B> backChannel(Consumer<BackChannelLogoutConfigurer> backChannelLogoutConfigurer) {
@@ -105,6 +103,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		return this;
 	}
 
+	@Deprecated(forRemoval = true, since = "6.2")
 	public B and() {
 		return getBuilder();
 	}
@@ -142,15 +141,9 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private LogoutHandler logoutHandler = new BackchannelLogoutHandler();
 
-		private AuthenticationManager authenticationManager = new OidcBackChannelLogoutAuthenticationManager();
+		private AuthenticationManager authenticationManager;
 
-		private OidcSessionRegistry providerSessionRegistry = new InMemoryOidcSessionRegistry();
-
-		public BackChannelLogoutConfigurer clientLogoutHandler(LogoutHandler logoutHandler) {
-			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
-			this.logoutHandler = logoutHandler;
-			return this;
-		}
+		private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
 
 		public BackChannelLogoutConfigurer authenticationManager(AuthenticationManager authenticationManager) {
 			Assert.notNull(authenticationManager, "authenticationManager cannot be null");
@@ -158,18 +151,29 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
-		public BackChannelLogoutConfigurer oidcProviderSessionRegistry(OidcSessionRegistry providerSessionRegistry) {
-			Assert.notNull(providerSessionRegistry, "providerSessionRegistry cannot be null");
-			this.providerSessionRegistry = providerSessionRegistry;
+		public BackChannelLogoutConfigurer sessionRegistry(OidcSessionRegistry sessionRegistry) {
+			Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+			this.sessionRegistry = sessionRegistry;
+			return this;
+		}
+
+		public BackChannelLogoutConfigurer logoutHandler(LogoutHandler logoutHandler) {
+			Assert.notNull(logoutHandler, "logoutHandler cannot be null");
+			this.logoutHandler = logoutHandler;
 			return this;
 		}
 
 		private AuthenticationManager authenticationManager() {
+			if (this.authenticationManager == null) {
+				OidcBackChannelLogoutAuthenticationManager authenticationManager = new OidcBackChannelLogoutAuthenticationManager();
+				authenticationManager.setSessionRegistry(sessionRegistry());
+				this.authenticationManager = authenticationManager;
+			}
 			return this.authenticationManager;
 		}
 
-		private OidcSessionRegistry oidcProviderSessionRegistry() {
-			return this.providerSessionRegistry;
+		private OidcSessionRegistry sessionRegistry() {
+			return this.sessionRegistry;
 		}
 
 		private LogoutHandler logoutHandler() {
@@ -178,7 +182,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 
 		private SessionAuthenticationStrategy sessionAuthenticationStrategy() {
 			OidcProviderSessionAuthenticationStrategy strategy = new OidcProviderSessionAuthenticationStrategy();
-			strategy.setProviderSessionRegistry(oidcProviderSessionRegistry());
+			strategy.setSessionRegistry(sessionRegistry());
 			return strategy;
 		}
 
@@ -187,7 +191,6 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 					.getClientRegistrationRepository(http);
 			OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(clientRegistrationRepository,
 					authenticationManager());
-			filter.setProviderSessionRegistry(oidcProviderSessionRegistry());
 			LogoutHandler expiredStrategy = logoutHandler();
 			filter.setLogoutHandler(expiredStrategy);
 			http.addFilterBefore(filter, CsrfFilter.class);
@@ -196,7 +199,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 				sessionConfigurer.addSessionAuthenticationStrategy(sessionAuthenticationStrategy());
 			}
 			OidcClientSessionEventListener listener = new OidcClientSessionEventListener();
-			listener.setProviderSessionRegistry(this.providerSessionRegistry);
+			listener.setSessionRegistry(this.sessionRegistry);
 			registerDelegateApplicationListener(listener);
 		}
 
@@ -204,7 +207,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 
 			private final Log logger = LogFactory.getLog(OidcClientSessionEventListener.class);
 
-			private OidcSessionRegistry providerSessionRegistry = new InMemoryOidcSessionRegistry();
+			private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
 
 			/**
 			 * {@inheritDoc}
@@ -213,23 +216,23 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			public void onApplicationEvent(AbstractSessionEvent event) {
 				if (event instanceof SessionDestroyedEvent destroyed) {
 					this.logger.debug("Received SessionDestroyedEvent");
-					this.providerSessionRegistry.deregister(destroyed.getId());
+					this.sessionRegistry.deregister(destroyed.getId());
 					return;
 				}
 				if (event instanceof SessionIdChangedEvent changed) {
 					this.logger.debug("Received SessionIdChangedEvent");
-					this.providerSessionRegistry.register(changed.getOldSessionId(), changed.getNewSessionId());
+					this.sessionRegistry.register(changed.getOldSessionId(), changed.getNewSessionId());
 				}
 			}
 
 			/**
 			 * The registry where OIDC Provider sessions are linked to the Client session.
 			 * Defaults to in-memory storage.
-			 * @param providerSessionRegistry the {@link OidcSessionRegistry} to use
+			 * @param sessionRegistry the {@link OidcSessionRegistry} to use
 			 */
-			void setProviderSessionRegistry(OidcSessionRegistry providerSessionRegistry) {
-				Assert.notNull(providerSessionRegistry, "providerSessionRegistry cannot be null");
-				this.providerSessionRegistry = providerSessionRegistry;
+			void setSessionRegistry(OidcSessionRegistry sessionRegistry) {
+				Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+				this.sessionRegistry = sessionRegistry;
 			}
 
 		}
@@ -238,7 +241,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 
 			private final Log logger = LogFactory.getLog(getClass());
 
-			private OidcSessionRegistry providerSessionRegistry = new InMemoryOidcSessionRegistry();
+			private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
 
 			/**
 			 * {@inheritDoc}
@@ -258,22 +261,21 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 				String sessionId = session.getId();
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
 				Map<String, String> credentials = (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken()) : Collections.emptyMap();
-				BackchannelLogoutAuthentication logoutAuthentication = new BackchannelLogoutAuthentication(sessionId, credentials);
-				OidcSessionRegistration registration = new OidcSessionRegistration(sessionId, user, logoutAuthentication);
+				OidcSessionRegistration registration = new OidcSessionRegistration(sessionId, credentials, user);
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(String.format("Linking a provider [%s] session to this client's session", user.getIssuer()));
 				}
-				this.providerSessionRegistry.register(registration);
+				this.sessionRegistry.register(registration);
 			}
 
 			/**
 			 * The registration for linking OIDC Provider Session information to the
 			 * Client's session. Defaults to in-memory.
-			 * @param providerSessionRegistry the {@link OidcSessionRegistry} to use
+			 * @param sessionRegistry the {@link OidcSessionRegistry} to use
 			 */
-			void setProviderSessionRegistry(OidcSessionRegistry providerSessionRegistry) {
-				Assert.notNull(providerSessionRegistry, "providerSessionRegistry cannot be null");
-				this.providerSessionRegistry = providerSessionRegistry;
+			void setSessionRegistry(OidcSessionRegistry sessionRegistry) {
+				Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
+				this.sessionRegistry = sessionRegistry;
 			}
 
 		}

@@ -17,38 +17,41 @@
 package org.springframework.security.web.authentication.logout;
 
 import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.util.Assert;
 
 public class BackchannelLogoutAuthentication extends AbstractAuthenticationToken {
 
-	private final String sessionId;
+	private final Object principal;
 
-	private final Map<String, String> credentials;
+	private final Object credentials;
 
-	public BackchannelLogoutAuthentication(String sessionId, Map<String, String> credentials) {
+	private final Iterable<? extends SessionInformation> sessions;
+
+	public BackchannelLogoutAuthentication(Object principal, Object credentials,
+			Iterable<? extends SessionInformation> sessions) {
 		super(Collections.emptyList());
-		Assert.notNull(sessionId, "sessionId cannot be null");
-		this.sessionId = sessionId;
-		this.credentials = new LinkedHashMap<>(credentials);
+		Assert.notNull(sessions, "sessions cannot be null");
+		this.sessions = sessions;
+		this.principal = principal;
+		this.credentials = credentials;
 		setAuthenticated(true);
 	}
 
 	@Override
-	public String getPrincipal() {
-		return this.sessionId;
-	}
-
-	public String getSessionId() {
-		return this.sessionId;
+	public Object getPrincipal() {
+		return this.principal;
 	}
 
 	@Override
-	public Map<String, String> getCredentials() {
+	public Object getCredentials() {
 		return this.credentials;
+	}
+
+	public Iterable<? extends SessionInformation> getSessions() {
+		return this.sessions;
 	}
 
 }

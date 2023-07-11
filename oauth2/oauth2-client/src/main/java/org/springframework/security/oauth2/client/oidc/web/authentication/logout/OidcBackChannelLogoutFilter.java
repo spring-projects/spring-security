@@ -28,12 +28,9 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationToken;
-import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
-import org.springframework.security.oauth2.client.oidc.authentication.session.InMemoryOidcSessionRegistry;
-import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistration;
-import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistry;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.LogoutTokenAuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.OAuth2Error;
@@ -50,7 +47,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * A filter for the Client-side OIDC Back-Channel Logout endpoint
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel Logout
  * Spec</a>
@@ -68,8 +65,6 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	private final OAuth2ErrorHttpMessageConverter errorHttpMessageConverter = new OAuth2ErrorHttpMessageConverter();
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(DEFAULT_LOGOUT_URI, "POST");
-
-	private OidcSessionRegistry providerSessionRegistry = new InMemoryOidcSessionRegistry();
 
 	private LogoutHandler logoutHandler = new BackchannelLogoutHandler();
 
@@ -112,14 +107,14 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		OidcLogoutToken token;
+		LogoutTokenAuthenticationToken token = new LogoutTokenAuthenticationToken(logoutToken, registration);
 		try {
-			token = authenticate(logoutToken, registration);
+			Authentication authentication = this.authenticationManager.authenticate(token);
+			this.logoutHandler.logout(request, response, authentication);
 		}
 		catch (AuthenticationServiceException ex) {
 			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
-			return;
 		}
 		catch (AuthenticationException ex) {
 			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
@@ -127,28 +122,7 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 					"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			this.errorHttpMessageConverter.write(error, null, new ServletServerHttpResponse(response));
-			return;
 		}
-		int sessionCount = 0;
-		Iterable<OidcSessionRegistration> sessions = this.providerSessionRegistry.deregister(token);
-		for (OidcSessionRegistration session : sessions) {
-			if (this.logger.isTraceEnabled()) {
-				String message = "Logging out session #%d from result set for issuer [%s]";
-				this.logger.trace(String.format(message, sessionCount, token.getIssuer()));
-			}
-			this.logoutHandler.logout(request, response, session.getLogoutAuthenticationToken());
-			sessionCount++;
-		}
-		if (this.logger.isTraceEnabled()) {
-			this.logger.trace(String.format("Invalidated all %d linked sessions for issuer [%s]", sessionCount,
-					token.getIssuer()));
-		}
-	}
-
-	private OidcLogoutToken authenticate(String logoutToken, ClientRegistration registration) {
-		OidcBackChannelLogoutAuthenticationToken token = new OidcBackChannelLogoutAuthenticationToken(logoutToken,
-				registration);
-		return (OidcLogoutToken) this.authenticationManager.authenticate(token).getPrincipal();
 	}
 
 	/**
@@ -162,16 +136,7 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * The registry for linking Client sessions to OIDC Provider sessions and End Users
-	 * @param providerSessionRegistry the {@link OidcSessionRegistry} to use
-	 */
-	public void setProviderSessionRegistry(OidcSessionRegistry providerSessionRegistry) {
-		Assert.notNull(providerSessionRegistry, "providerSessionRegistry cannot be null");
-		this.providerSessionRegistry = providerSessionRegistry;
-	}
-
-	/**
-	 * The strategy for expiring each Client session indicated by the logout request.
+	 * The strategy for expiring all Client sessions indicated by the logout request.
 	 * Defaults to {@link BackchannelLogoutHandler}.
 	 * @param logoutHandler the {@link LogoutHandler} to use
 	 */

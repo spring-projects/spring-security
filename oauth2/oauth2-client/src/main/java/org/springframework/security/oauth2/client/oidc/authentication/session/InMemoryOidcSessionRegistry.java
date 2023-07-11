@@ -32,7 +32,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Oid
  * An in-memory implementation of {@link OidcSessionRegistry}
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  */
 public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 
@@ -42,7 +42,7 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 
 	@Override
 	public void register(OidcSessionRegistration registration) {
-		this.sessions.put(registration.getClientSessionId(), registration);
+		this.sessions.put(registration.getSessionId(), registration);
 	}
 
 	@Override
@@ -52,8 +52,7 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 			this.logger.debug("Failed to register new session id since old session id was not found in registry");
 			return;
 		}
-		register(new OidcSessionRegistration(newClientSessionId, old.getPrincipal(),
-				old.getLogoutAuthenticationToken()));
+		register(new OidcSessionRegistration(newClientSessionId, old.getHeaders(), old.getPrincipal()));
 	}
 
 	@Override

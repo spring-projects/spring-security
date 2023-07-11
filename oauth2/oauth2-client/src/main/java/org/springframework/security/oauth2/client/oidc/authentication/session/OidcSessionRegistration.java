@@ -16,7 +16,9 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.session;
 
-import org.springframework.security.core.Authentication;
+import java.util.Map;
+
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 
 /**
@@ -26,37 +28,22 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
  * @author Josh Cummings
  * @since 6.2
  */
-public class OidcSessionRegistration {
-
-	private final String clientSessionId;
-
-	private final OidcUser user;
-
-	private final Authentication logoutAuthenticationToken;
+public class OidcSessionRegistration extends SessionInformation {
 
 	/**
 	 * Construct an {@link OidcSessionRegistration}
-	 * @param clientSessionId the Client's session id
-	 * @param logoutAuthenticationToken the Client's CSRF logoutAuthenticationToken for
-	 * this session
+	 * @param sessionId the Client's session id
+	 * @param additionalHeaders any additional headers needed to authenticate session
+	 * ownership
 	 * @param user the OIDC Provider's session and end user
 	 */
-	public OidcSessionRegistration(String clientSessionId, OidcUser user, Authentication logoutAuthenticationToken) {
-		this.clientSessionId = clientSessionId;
-		this.user = user;
-		this.logoutAuthenticationToken = logoutAuthenticationToken;
+	public OidcSessionRegistration(String sessionId, Map<String, String> additionalHeaders, OidcUser user) {
+		super(user, sessionId, additionalHeaders);
 	}
 
-	public String getClientSessionId() {
-		return this.clientSessionId;
-	}
-
-	public Authentication getLogoutAuthenticationToken() {
-		return this.logoutAuthenticationToken;
-	}
-
+	@Override
 	public OidcUser getPrincipal() {
-		return this.user;
+		return (OidcUser) super.getPrincipal();
 	}
 
 }

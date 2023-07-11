@@ -20,7 +20,6 @@ import java.util.Map;
 
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
-import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
 
 public final class TestOidcSessionRegistrations {
 
@@ -33,8 +32,7 @@ public final class TestOidcSessionRegistrations {
 	}
 
 	public static OidcSessionRegistration create(String sessionId, OidcUser user) {
-		return new OidcSessionRegistration(sessionId, user,
-				new BackchannelLogoutAuthentication(sessionId, Map.of("_csrf", "token")));
+		return new OidcSessionRegistration(sessionId, Map.of("_csrf", "token"), user);
 	}
 
 	private TestOidcSessionRegistrations() {

@@ -18,6 +18,8 @@ package org.springframework.security.core.session;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.springframework.security.core.SpringSecurityCoreVersion;
 import org.springframework.util.Assert;
@@ -49,6 +51,8 @@ public class SessionInformation implements Serializable {
 
 	private boolean expired = false;
 
+	private Map<String, String> headers = new LinkedHashMap<>();
+
 	public SessionInformation(Object principal, String sessionId, Date lastRequest) {
 		Assert.notNull(principal, "Principal required");
 		Assert.hasText(sessionId, "SessionId required");
@@ -56,6 +60,15 @@ public class SessionInformation implements Serializable {
 		this.principal = principal;
 		this.sessionId = sessionId;
 		this.lastRequest = lastRequest;
+	}
+
+	public SessionInformation(Object principal, String sessionId, Map<String, String> headers) {
+		Assert.notNull(principal, "Principal required");
+		Assert.hasText(sessionId, "SessionId required");
+		this.principal = principal;
+		this.sessionId = sessionId;
+		this.lastRequest = new Date();
+		this.headers = headers;
 	}
 
 	public void expireNow() {
@@ -72,6 +85,10 @@ public class SessionInformation implements Serializable {
 
 	public String getSessionId() {
 		return this.sessionId;
+	}
+
+	public Map<String, String> getHeaders() {
+		return this.headers;
 	}
 
 	public boolean isExpired() {

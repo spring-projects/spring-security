@@ -16,36 +16,33 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.logout;
 
-import java.util.Collections;
-
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
-public class OidcBackChannelLogoutAuthentication extends AbstractAuthenticationToken {
+public class LogoutTokenAuthenticationToken extends AbstractAuthenticationToken {
 
-	private final OidcLogoutToken logoutToken;
+	private final String logoutToken;
 
 	private final ClientRegistration clientRegistration;
 
-	public OidcBackChannelLogoutAuthentication(OidcLogoutToken logoutToken, ClientRegistration clientRegistration) {
-		super(Collections.singleton(new SimpleGrantedAuthority("BACKCHANNEL_LOGOUT")));
+	public LogoutTokenAuthenticationToken(String logoutToken, ClientRegistration clientRegistration) {
+		super(AuthorityUtils.NO_AUTHORITIES);
 		this.logoutToken = logoutToken;
 		this.clientRegistration = clientRegistration;
-		setAuthenticated(true);
 	}
 
 	@Override
-	public OidcLogoutToken getPrincipal() {
+	public String getCredentials() {
 		return this.logoutToken;
 	}
 
 	@Override
-	public OidcLogoutToken getCredentials() {
+	public String getPrincipal() {
 		return this.logoutToken;
 	}
 
-	public OidcLogoutToken getLogoutToken() {
+	public String getLogoutToken() {
 		return this.logoutToken;
 	}
 

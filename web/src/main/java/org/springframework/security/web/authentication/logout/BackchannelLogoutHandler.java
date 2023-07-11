@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.session.SessionInformation;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
@@ -51,9 +52,16 @@ public final class BackchannelLogoutHandler implements LogoutHandler {
 			}
 			return;
 		}
+		Iterable<? extends SessionInformation> sessions = token.getSessions();
+		for (SessionInformation session : sessions) {
+			eachLogout(request, session);
+		}
+	}
+
+	private void eachLogout(HttpServletRequest request, SessionInformation session) {
 		HttpHeaders headers = new HttpHeaders();
-		headers.add(HttpHeaders.COOKIE, this.clientSessionCookieName + "=" + token.getSessionId());
-		for (Map.Entry<String, String> credential : token.getCredentials().entrySet()) {
+		headers.add(HttpHeaders.COOKIE, this.clientSessionCookieName + "=" + session.getSessionId());
+		for (Map.Entry<String, String> credential : session.getHeaders().entrySet()) {
 			headers.add(credential.getKey(), credential.getValue());
 		}
 		String url = request.getRequestURL().toString();
@@ -63,7 +71,7 @@ public final class BackchannelLogoutHandler implements LogoutHandler {
 		try {
 			this.rest.postForEntity(logout, entity, Object.class);
 			if (this.logger.isTraceEnabled()) {
-				this.logger.trace(String.format("Invalidated session", token.getSessionId()));
+				this.logger.trace("Invalidated session");
 			}
 		}
 		catch (RestClientException ex) {
