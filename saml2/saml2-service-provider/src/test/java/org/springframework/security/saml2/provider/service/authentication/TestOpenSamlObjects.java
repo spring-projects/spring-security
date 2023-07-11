@@ -118,7 +118,7 @@ public final class TestOpenSamlObjects {
 		return response(DESTINATION, ASSERTING_PARTY_ENTITY_ID);
 	}
 
-	static Response response(String destination, String issuerEntityId) {
+	public static Response response(String destination, String issuerEntityId) {
 		Response response = build(Response.DEFAULT_ELEMENT_NAME);
 		response.setID("R" + UUID.randomUUID().toString());
 		response.setVersion(SAMLVersion.VERSION_20);
@@ -144,7 +144,8 @@ public final class TestOpenSamlObjects {
 		return assertion(USERNAME, ASSERTING_PARTY_ENTITY_ID, RELYING_PARTY_ENTITY_ID, DESTINATION);
 	}
 
-	static Assertion assertion(String username, String issuerEntityId, String recipientEntityId, String recipientUri) {
+	public static Assertion assertion(String username, String issuerEntityId, String recipientEntityId,
+			String recipientUri) {
 		Assertion assertion = build(Assertion.DEFAULT_ELEMENT_NAME);
 		assertion.setID("A" + UUID.randomUUID().toString());
 		assertion.setVersion(SAMLVersion.VERSION_20);
