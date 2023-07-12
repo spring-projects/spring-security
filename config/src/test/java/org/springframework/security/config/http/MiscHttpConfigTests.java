@@ -324,6 +324,13 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void configureWhenOncePerRequestIsTrueThenFilterSecurityInterceptorObserveOncePerRequestIsTrue() {
+		this.spring.configLocations(xml("OncePerRequestTrue")).autowire();
+		FilterSecurityInterceptor filterSecurityInterceptor = getFilter(FilterSecurityInterceptor.class);
+		assertThat(filterSecurityInterceptor.isObserveOncePerRequest()).isTrue();
+	}
+
+	@Test
 	public void requestWhenCustomHttpBasicEntryPointRefThenInvokesOnCommence() throws Exception {
 		this.spring.configLocations(xml("CustomHttpBasicEntryPointRef")).autowire();
 		AuthenticationEntryPoint entryPoint = this.spring.getContext().getBean(AuthenticationEntryPoint.class);
