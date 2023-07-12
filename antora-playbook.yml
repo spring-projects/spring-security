@@ -34,7 +34,7 @@ urls:
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.1/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.2/ui-bundle.zip
     snapshot: true
 runtime:
   log:
