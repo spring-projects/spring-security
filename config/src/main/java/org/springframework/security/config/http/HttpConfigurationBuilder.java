@@ -781,8 +781,8 @@ class HttpConfigurationBuilder {
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(FilterSecurityInterceptor.class);
 		builder.addPropertyReference("accessDecisionManager", accessManagerId);
 		builder.addPropertyValue("authenticationManager", authManager);
-		if ("false".equals(this.httpElt.getAttribute(ATT_ONCE_PER_REQUEST))) {
-			builder.addPropertyValue("observeOncePerRequest", Boolean.FALSE);
+		if ("true".equals(this.httpElt.getAttribute(ATT_ONCE_PER_REQUEST))) {
+			builder.addPropertyValue("observeOncePerRequest", Boolean.TRUE);
 		}
 		builder.addPropertyValue("securityMetadataSource", securityMds);
 		builder.addPropertyValue("securityContextHolderStrategy", this.holderStrategyRef);
