@@ -32,7 +32,7 @@ public final class TestOidcSessionRegistrations {
 	}
 
 	public static OidcSessionRegistration create(String sessionId, OidcUser user) {
-		return new OidcSessionRegistration(sessionId, Map.of("_csrf", "token"), user);
+		return new OidcSessionRegistration("client-id", sessionId, Map.of("_csrf", "token"), user);
 	}
 
 	private TestOidcSessionRegistrations() {

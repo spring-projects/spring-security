@@ -25,8 +25,8 @@ public final class TestOidcLogoutTokens {
 
 	public static OidcLogoutToken.Builder withUser(OidcUser user) {
 		OidcLogoutToken.Builder builder = OidcLogoutToken.withTokenValue("token")
-				.audience(Collections.singleton("audience")).issuedAt(Instant.now()).issuer(user.getIssuer().toString())
-				.jti("id").subject(user.getSubject());
+				.audience(Collections.singleton("client-id")).issuedAt(Instant.now())
+				.issuer(user.getIssuer().toString()).jti("id").subject(user.getSubject());
 		if (user.hasClaim(LogoutTokenClaimNames.SID)) {
 			builder.sessionId(user.getClaimAsString(LogoutTokenClaimNames.SID));
 		}
@@ -34,12 +34,12 @@ public final class TestOidcLogoutTokens {
 	}
 
 	public static OidcLogoutToken.Builder withSessionId(String issuer, String sessionId) {
-		return OidcLogoutToken.withTokenValue("token").audience(Collections.singleton("audience"))
+		return OidcLogoutToken.withTokenValue("token").audience(Collections.singleton("client-id"))
 				.issuedAt(Instant.now()).issuer(issuer).jti("id").sessionId(sessionId);
 	}
 
 	public static OidcLogoutToken.Builder withSubject(String issuer, String subject) {
-		return OidcLogoutToken.withTokenValue("token").audience(Collections.singleton("audience"))
+		return OidcLogoutToken.withTokenValue("token").audience(Collections.singleton("client-id"))
 				.issuedAt(Instant.now()).issuer(issuer).jti("id").subject(subject);
 	}
 

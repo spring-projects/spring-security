@@ -41,11 +41,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.session.AbstractSessionEvent;
 import org.springframework.security.core.session.SessionDestroyedEvent;
 import org.springframework.security.core.session.SessionIdChangedEvent;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationManager;
 import org.springframework.security.oauth2.client.oidc.authentication.session.InMemoryOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistration;
 import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.web.authentication.logout.OidcBackChannelLogoutFilter;
+import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.logout.BackchannelLogoutHandler;
@@ -180,8 +182,10 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			return this.logoutHandler;
 		}
 
-		private SessionAuthenticationStrategy sessionAuthenticationStrategy() {
-			OidcProviderSessionAuthenticationStrategy strategy = new OidcProviderSessionAuthenticationStrategy();
+		private SessionAuthenticationStrategy sessionAuthenticationStrategy(
+				ClientRegistrationRepository clientRegistrationRepository) {
+			OidcSessionRegistryAuthenticationStrategy strategy = new OidcSessionRegistryAuthenticationStrategy(
+					clientRegistrationRepository);
 			strategy.setSessionRegistry(sessionRegistry());
 			return strategy;
 		}
@@ -196,7 +200,8 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			http.addFilterBefore(filter, CsrfFilter.class);
 			SessionManagementConfigurer<B> sessionConfigurer = http.getConfigurer(SessionManagementConfigurer.class);
 			if (sessionConfigurer != null) {
-				sessionConfigurer.addSessionAuthenticationStrategy(sessionAuthenticationStrategy());
+				sessionConfigurer
+						.addSessionAuthenticationStrategy(sessionAuthenticationStrategy(clientRegistrationRepository));
 			}
 			OidcClientSessionEventListener listener = new OidcClientSessionEventListener();
 			listener.setSessionRegistry(this.sessionRegistry);
@@ -237,11 +242,17 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 
 		}
 
-		static final class OidcProviderSessionAuthenticationStrategy implements SessionAuthenticationStrategy {
+		static final class OidcSessionRegistryAuthenticationStrategy implements SessionAuthenticationStrategy {
 
 			private final Log logger = LogFactory.getLog(getClass());
 
+			private final ClientRegistrationRepository clientRegistrationRepository;
+
 			private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
+
+			OidcSessionRegistryAuthenticationStrategy(ClientRegistrationRepository clientRegistrationRepository) {
+				this.clientRegistrationRepository = clientRegistrationRepository;
+			}
 
 			/**
 			 * {@inheritDoc}
@@ -252,16 +263,19 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 				if (session == null) {
 					return;
 				}
-				if (authentication == null) {
+				if (!(authentication instanceof OAuth2AuthenticationToken token)) {
 					return;
 				}
 				if (!(authentication.getPrincipal() instanceof OidcUser user)) {
 					return;
 				}
+				String registrationId = token.getAuthorizedClientRegistrationId();
+				ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+				String clientId = clientRegistration.getClientId();
 				String sessionId = session.getId();
 				CsrfToken csrfToken = (CsrfToken) request.getAttribute(CsrfToken.class.getName());
-				Map<String, String> credentials = (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken()) : Collections.emptyMap();
-				OidcSessionRegistration registration = new OidcSessionRegistration(sessionId, credentials, user);
+				Map<String, String> headers = (csrfToken != null) ? Map.of(csrfToken.getHeaderName(), csrfToken.getToken()) : Collections.emptyMap();
+				OidcSessionRegistration registration = new OidcSessionRegistration(clientId, sessionId, headers, user);
 				if (this.logger.isTraceEnabled()) {
 					this.logger.trace(String.format("Linking a provider [%s] session to this client's session", user.getIssuer()));
 				}

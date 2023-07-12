@@ -30,6 +30,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
  */
 public class OidcSessionRegistration extends SessionInformation {
 
+	private String clientRegistrationId;
+
 	/**
 	 * Construct an {@link OidcSessionRegistration}
 	 * @param sessionId the Client's session id
@@ -37,8 +39,14 @@ public class OidcSessionRegistration extends SessionInformation {
 	 * ownership
 	 * @param user the OIDC Provider's session and end user
 	 */
-	public OidcSessionRegistration(String sessionId, Map<String, String> additionalHeaders, OidcUser user) {
+	public OidcSessionRegistration(String clientId, String sessionId, Map<String, String> additionalHeaders,
+			OidcUser user) {
 		super(user, sessionId, additionalHeaders);
+		this.clientRegistrationId = clientId;
+	}
+
+	public String getClientId() {
+		return this.clientRegistrationId;
 	}
 
 	@Override
