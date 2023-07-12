@@ -52,9 +52,9 @@ public class SaganCreateReleaseTask extends DefaultTask {
 		if (this.version.endsWith("-SNAPSHOT")) {
 			Matcher versionMatcher = VERSION_PATTERN.matcher(this.version);
 			Assert.isTrue(versionMatcher.matches(), "Version " + this.version + " does not match expected pattern");
-			var majorVersion = versionMatcher.group(1);
-			var minorVersion = versionMatcher.group(2);
-			var majorMinorVersion = "%s.%s-SNAPSHOT".formatted(majorVersion, minorVersion);
+			String majorVersion = versionMatcher.group(1);
+			String minorVersion = versionMatcher.group(2);
+			String majorMinorVersion = String.format("%s.%s-SNAPSHOT", majorVersion, minorVersion);
 			referenceDocUrl = this.referenceDocUrl.replace("{version}", majorMinorVersion);
 		}
 
