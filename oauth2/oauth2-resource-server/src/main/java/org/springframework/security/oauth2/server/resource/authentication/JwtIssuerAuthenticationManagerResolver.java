@@ -67,7 +67,9 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers an array of trusted issuers
+	 * @deprecated use {@link #fromTrustedIssuers(String...)}
 	 */
+	@Deprecated(since = "6.2", forRemoval = true)
 	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Set.of(trustedIssuers));
 	}
@@ -76,11 +78,43 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers a collection of trusted issuers
+	 * @deprecated use {@link #fromTrustedIssuers(Collection)}
 	 */
+	@Deprecated(since = "6.2", forRemoval = true)
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.authenticationManager = new ResolvingAuthenticationManager(
 				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers an array of trusted issuers
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
+		return fromTrustedIssuers(Set.of(trustedIssuers));
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a collection of trusted issuers
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Collection<String> trustedIssuers) {
+		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
+		return fromTrustedIssuers(Set.copyOf(trustedIssuers)::contains);
+	}
+
+	/**
+	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
+	 * parameters
+	 * @param trustedIssuers a predicate to validate issuers
+	 */
+	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Predicate<String> trustedIssuers) {
+		Assert.notNull(trustedIssuers, "trustedIssuers cannot be null");
+		return new JwtIssuerAuthenticationManagerResolver(
+				new TrustedIssuerJwtAuthenticationManagerResolver(trustedIssuers));
 	}
 
 	/**
