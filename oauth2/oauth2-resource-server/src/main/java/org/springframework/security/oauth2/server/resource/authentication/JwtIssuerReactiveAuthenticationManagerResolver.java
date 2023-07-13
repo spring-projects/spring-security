@@ -25,10 +25,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 import com.nimbusds.jwt.JWTParser;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.log.LogMessage;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -169,6 +172,8 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	static class TrustedIssuerJwtAuthenticationManagerResolver
 			implements ReactiveAuthenticationManagerResolver<String> {
 
+		private final Log logger = LogFactory.getLog(getClass());
+
 		private final Map<String, Mono<ReactiveAuthenticationManager>> authenticationManagers = new ConcurrentHashMap<>();
 
 		private final Predicate<String> trustedIssuer;
@@ -180,11 +185,14 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		@Override
 		public Mono<ReactiveAuthenticationManager> resolve(String issuer) {
 			if (!this.trustedIssuer.test(issuer)) {
+				this.logger.debug(LogMessage
+						.format("Did not resolve AuthenticationManager since issuer '%s' is not trusted", issuer));
 				return Mono.empty();
 			}
 			// @formatter:off
 			return this.authenticationManagers.computeIfAbsent(issuer,
 					(k) -> Mono.<ReactiveAuthenticationManager>fromCallable(() -> new JwtReactiveAuthenticationManager(ReactiveJwtDecoders.fromIssuerLocation(k)))
+							.doOnNext((manager) -> this.logger.debug(LogMessage.format("Resolved AuthenticationManager for issuer '%s'", issuer)))
 							.subscribeOn(Schedulers.boundedElastic())
 							.cache((manager) -> Duration.ofMillis(Long.MAX_VALUE), (ex) -> Duration.ZERO, () -> Duration.ZERO)
 			);
