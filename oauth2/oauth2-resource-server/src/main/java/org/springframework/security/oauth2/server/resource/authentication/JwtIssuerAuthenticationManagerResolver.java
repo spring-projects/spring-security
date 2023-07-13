@@ -47,10 +47,10 @@ import org.springframework.util.Assert;
  * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> in
  * a signed JWT (JWS).
  *
- * To use, this class must be able to determine whether or not the `iss` claim is trusted.
- * Recall that anyone can stand up an authorization server and issue valid tokens to a
- * resource server. The simplest way to achieve this is to supply a list of trusted
- * issuers in the constructor.
+ * To use, this class must be able to determine whether the `iss` claim is trusted. Recall
+ * that anyone can stand up an authorization server and issue valid tokens to a resource
+ * server. The simplest way to achieve this is to supply a list of trusted issuers in the
+ * constructor.
  *
  * This class derives the Issuer from the `iss` claim found in the
  * {@link HttpServletRequest}'s
@@ -67,7 +67,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
-	 * @param trustedIssuers a list of trusted issuers
+	 * @param trustedIssuers an array of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Arrays.asList(trustedIssuers));
@@ -76,7 +76,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	/**
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
-	 * @param trustedIssuers a list of trusted issuers
+	 * @param trustedIssuers a collection of trusted issuers
 	 */
 	public JwtIssuerAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
@@ -90,8 +90,8 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * parameters
 	 *
 	 * Note that the {@link AuthenticationManagerResolver} provided in this constructor
-	 * will need to verify that the issuer is trusted. This should be done via an
-	 * allowlist.
+	 * will need to verify that the issuer is trusted. This should be done via an allowed
+	 * list of issuers.
 	 *
 	 * One way to achieve this is with a {@link Map} where the keys are the known issuers:
 	 * <pre>

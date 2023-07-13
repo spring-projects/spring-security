@@ -46,10 +46,10 @@ import org.springframework.web.server.ServerWebExchange;
  * "https://openid.net/specs/openid-connect-core-1_0.html#IssuerIdentifier">Issuer</a> in
  * a signed JWT (JWS).
  *
- * To use, this class must be able to determine whether or not the `iss` claim is trusted.
- * Recall that anyone can stand up an authorization server and issue valid tokens to a
- * resource server. The simplest way to achieve this is to supply a list of trusted
- * issuers in the constructor.
+ * To use, this class must be able to determine whether the `iss` claim is trusted. Recall
+ * that anyone can stand up an authorization server and issue valid tokens to a resource
+ * server. The simplest way to achieve this is to supply a list of trusted issuers in the
+ * constructor.
  *
  * This class derives the Issuer from the `iss` claim found in the
  * {@link ServerWebExchange}'s
@@ -68,7 +68,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	/**
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
-	 * @param trustedIssuers a list of trusted issuers
+	 * @param trustedIssuers an array of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
 		this(Arrays.asList(trustedIssuers));
