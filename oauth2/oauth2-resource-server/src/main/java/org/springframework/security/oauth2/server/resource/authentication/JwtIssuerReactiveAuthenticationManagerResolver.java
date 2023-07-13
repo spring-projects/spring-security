@@ -17,10 +17,9 @@
 package org.springframework.security.oauth2.server.resource.authentication;
 
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
@@ -51,7 +50,7 @@ import org.springframework.web.server.ServerWebExchange;
  *
  * To use, this class must be able to determine whether the `iss` claim is trusted. Recall
  * that anyone can stand up an authorization server and issue valid tokens to a resource
- * server. The simplest way to achieve this is to supply a list of trusted issuers in the
+ * server. The simplest way to achieve this is to supply a set of trusted issuers in the
  * constructor.
  *
  * This class derives the Issuer from the `iss` claim found in the
@@ -74,7 +73,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * @param trustedIssuers an array of trusted issuers
 	 */
 	public JwtIssuerReactiveAuthenticationManagerResolver(String... trustedIssuers) {
-		this(Arrays.asList(trustedIssuers));
+		this(Set.of(trustedIssuers));
 	}
 
 	/**
@@ -85,7 +84,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	public JwtIssuerReactiveAuthenticationManagerResolver(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
 		this.authenticationManager = new ResolvingAuthenticationManager(
-				new TrustedIssuerJwtAuthenticationManagerResolver(new ArrayList<>(trustedIssuers)::contains));
+				new TrustedIssuerJwtAuthenticationManagerResolver(Set.copyOf(trustedIssuers)::contains));
 	}
 
 	/**
@@ -94,7 +93,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 *
 	 * Note that the {@link ReactiveAuthenticationManagerResolver} provided in this
 	 * constructor will need to verify that the issuer is trusted. This should be done via
-	 * an allowed list of issuers.
+	 * an allowed set of issuers.
 	 *
 	 * One way to achieve this is with a {@link Map} where the keys are the known issuers:
 	 * <pre>
