@@ -639,7 +639,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.rawStatusCode());
+			return resolveErrorIfPossible(response.statusCode().value());
 		}
 
 		private OAuth2Error resolveErrorIfPossible(int statusCode) {

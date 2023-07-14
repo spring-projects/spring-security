@@ -523,7 +523,7 @@ public final class ServerOAuth2AuthorizedClientExchangeFilterFunction implements
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.rawStatusCode());
+			return resolveErrorIfPossible(response.statusCode().value());
 		}
 
 		private OAuth2Error resolveErrorIfPossible(int statusCode) {

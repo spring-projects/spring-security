@@ -26,8 +26,8 @@ import org.python.core.Py;
 import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
-import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
+import org.springframework.core.StandardReflectionParameterNameDiscoverer;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.security.access.prepost.PreInvocationAttribute;
@@ -37,7 +37,7 @@ import org.springframework.util.ClassUtils;
 
 public class PythonInterpreterPreInvocationAdvice implements PreInvocationAuthorizationAdvice {
 
-	private final ParameterNameDiscoverer parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+	private final ParameterNameDiscoverer parameterNameDiscoverer = new StandardReflectionParameterNameDiscoverer();
 
 	@Override
 	public boolean before(Authentication authentication, MethodInvocation mi, PreInvocationAttribute preAttr) {
