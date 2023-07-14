@@ -201,8 +201,8 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			return ReactiveFlowKt.asFlow(publisher);
 		}
 
-		private static Object awaitSingleOrNull(Publisher<?> publisher, Object continuation) {
-			return MonoKt.awaitSingleOrNull(publisher, (Continuation<?>) continuation);
+		private static Object awaitSingleOrNull(Mono<?> publisher, Object continuation) {
+			return MonoKt.awaitSingleOrNull(publisher, (Continuation<Object>) continuation);
 		}
 
 	}
