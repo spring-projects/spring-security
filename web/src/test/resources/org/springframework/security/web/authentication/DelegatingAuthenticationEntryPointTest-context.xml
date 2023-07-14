@@ -11,15 +11,15 @@
 		</constructor-arg>
 		<property name="defaultEntryPoint" ref="defaultAEP"/>
 	</bean>
-	
+
 	<bean id="firstAEP" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint"/>
-	</bean>
-	
-		
-	<bean id="defaultAEP" class="org.mockito.Mockito" factory-method="mock">
-		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint"/>
+		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint" type="java.lang.Class"/>
 	</bean>
 
-	
+
+	<bean id="defaultAEP" class="org.mockito.Mockito" factory-method="mock">
+		<constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint" type="java.lang.Class"/>
+	</bean>
+
+
 </beans>

@@ -44,7 +44,7 @@
 	</client-registrations>
 
 	<b:bean id="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository"/>
+    	<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:bean name="authorizedClientController" class="org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserTests.AuthorizedClientController" />

@@ -30,8 +30,8 @@
 	</http>
 
 	<b:bean id="clientRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.client.registration.ClientRegistrationRepository"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.oauth2.client.registration.ClientRegistrationRepository" type="java.lang.Class"/>
+</b:bean>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

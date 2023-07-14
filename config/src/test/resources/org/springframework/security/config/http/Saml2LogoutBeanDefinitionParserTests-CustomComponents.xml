@@ -30,27 +30,27 @@
 		<saml2-logout logout-request-resolver-ref="logoutRequestResolver" logout-request-repository-ref="logoutRequestRepository"
 				logout-request-validator-ref="logoutRequestValidator" logout-response-validator-ref="logoutResponseValidator" logout-response-resolver-ref="logoutResponseResolver"/>
 	</http>
-	
+
 	<b:bean id="logoutRequestResolver" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestResolver" type="java.lang.Class"/>
+</b:bean>
+
 	<b:bean id="logoutRequestRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutRequestRepository" type="java.lang.Class"/>
+</b:bean>
+
 	<b:bean id="logoutRequestValidator" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutRequestValidator" type="java.lang.Class"/>
+</b:bean>
+
 	<b:bean id="logoutResponseValidator" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.authentication.logout.Saml2LogoutResponseValidator" type="java.lang.Class"/>
+</b:bean>
+
 	<b:bean id="logoutResponseResolver" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.logout.Saml2LogoutResponseResolver" type="java.lang.Class"/>
+</b:bean>
+
 	<b:import resource="userservice.xml"/>
 	<b:import resource="../saml2/logout-registrations.xml"/>
 </b:beans>

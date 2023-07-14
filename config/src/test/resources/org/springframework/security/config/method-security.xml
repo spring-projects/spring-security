@@ -64,6 +64,6 @@
 	</authentication-manager>
 
 	<b:bean id="authorization-manager" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager" type="java.lang.Class"/>
+</b:bean>
 </b:beans>

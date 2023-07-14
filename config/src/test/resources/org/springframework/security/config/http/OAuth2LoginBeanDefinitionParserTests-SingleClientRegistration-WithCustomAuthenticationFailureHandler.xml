@@ -30,8 +30,8 @@
 	</http>
 
 	<b:bean id="authenticationFailureHandler" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationFailureHandler"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationFailureHandler" type="java.lang.Class"/>
+</b:bean>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>
 	<b:import resource="userservice.xml"/>
