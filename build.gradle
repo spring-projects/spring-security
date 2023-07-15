@@ -34,6 +34,7 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
+	maven { url "https://repo.spring.io/milestone" }
 }
 
 tasks.named("saganCreateRelease") {
@@ -102,7 +103,6 @@ updateDependenciesSettings {
 	})
 	dependencyExcludes {
 		majorVersionBump()
-		minorVersionBump()
 		alphaBetaVersions()
 		snapshotVersions()
 		addRule { components ->
