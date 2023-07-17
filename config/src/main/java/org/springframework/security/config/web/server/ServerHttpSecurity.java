@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,9 +191,11 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.CorsProcessor;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.DefaultCorsProcessor;
+import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 /**
  * A {@link ServerHttpSecurity} is similar to Spring Security's {@code HttpSecurity} but
@@ -1573,6 +1575,18 @@ public class ServerHttpSecurity {
 		return null;
 	}
 
+	private <T> T getBeanOrNull(String beanName, Class<T> requiredClass) {
+		if (this.context == null) {
+			return null;
+		}
+		try {
+			return this.context.getBean(beanName, requiredClass);
+		}
+		catch (Exception ex) {
+			return null;
+		}
+	}
+
 	private <T> String[] getBeanNamesForTypeOrEmpty(Class<T> beanClass) {
 		if (this.context == null) {
 			return new String[0];
@@ -1593,12 +1607,16 @@ public class ServerHttpSecurity {
 	 */
 	public class AuthorizeExchangeSpec extends AbstractServerWebExchangeMatcherRegistry<AuthorizeExchangeSpec.Access> {
 
+		private static final String REQUEST_MAPPING_HANDLER_MAPPING_BEAN_NAME = "requestMappingHandlerMapping";
+
 		private DelegatingReactiveAuthorizationManager.Builder managerBldr = DelegatingReactiveAuthorizationManager
 				.builder();
 
 		private ServerWebExchangeMatcher matcher;
 
 		private boolean anyExchangeRegistered;
+
+		private PathPatternParser pathPatternParser;
 
 		/**
 		 * Allows method chaining to continue configuring the {@link ServerHttpSecurity}
@@ -1617,6 +1635,22 @@ public class ServerHttpSecurity {
 			Access result = super.anyExchange();
 			this.anyExchangeRegistered = true;
 			return result;
+		}
+
+		@Override
+		protected PathPatternParser getPathPatternParser() {
+			if (this.pathPatternParser != null) {
+				return this.pathPatternParser;
+			}
+			RequestMappingHandlerMapping requestMappingHandlerMapping = getBeanOrNull(
+					REQUEST_MAPPING_HANDLER_MAPPING_BEAN_NAME, RequestMappingHandlerMapping.class);
+			if (requestMappingHandlerMapping != null) {
+				this.pathPatternParser = requestMappingHandlerMapping.getPathPatternParser();
+			}
+			if (this.pathPatternParser == null) {
+				this.pathPatternParser = PathPatternParser.defaultInstance;
+			}
+			return this.pathPatternParser;
 		}
 
 		@Override
