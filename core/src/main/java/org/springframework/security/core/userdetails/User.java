@@ -208,7 +208,7 @@ public class User implements UserDetails, CredentialsContainer {
 	}
 
 	/**
-	 * Creates a UserBuilder with a specified user name
+	 * Creates a UserBuilder with a specified username
 	 * @param username the username to use
 	 * @return the UserBuilder
 	 */
