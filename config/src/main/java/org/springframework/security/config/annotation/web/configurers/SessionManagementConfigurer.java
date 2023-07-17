@@ -358,6 +358,12 @@ public final class SessionManagementConfigurer<H extends HttpSecurityBuilder<H>>
 	}
 
 	@Override
+	public H disable() {
+		getBuilder().setSharedObject(RequestCache.class, new NullRequestCache());
+		return super.disable();
+	}
+
+	@Override
 	public void init(H http) {
 		SecurityContextRepository securityContextRepository = http.getSharedObject(SecurityContextRepository.class);
 		boolean stateless = isStateless();
