@@ -19,8 +19,11 @@ package org.springframework.security.config.annotation.web;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.DispatcherType;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletRegistration;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -36,6 +39,7 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 /**
@@ -179,14 +183,47 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 	 * @since 5.8
 	 */
 	public C requestMatchers(HttpMethod method, String... patterns) {
-		List<RequestMatcher> matchers = new ArrayList<>();
-		if (mvcPresent) {
-			matchers.addAll(createMvcMatchers(method, patterns));
+		if (!mvcPresent) {
+			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		else {
-			matchers.addAll(RequestMatchers.antMatchers(method, patterns));
+		if (!(this.context instanceof WebApplicationContext)) {
+			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		return requestMatchers(matchers.toArray(new RequestMatcher[0]));
+		WebApplicationContext context = (WebApplicationContext) this.context;
+		ServletContext servletContext = context.getServletContext();
+		if (servletContext == null) {
+			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
+		}
+		Map<String, ? extends ServletRegistration> registrations = servletContext.getServletRegistrations();
+		if (registrations == null) {
+			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
+		}
+		if (!hasDispatcherServlet(registrations)) {
+			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
+		}
+		Assert.isTrue(registrations.size() == 1,
+				"This method cannot decide whether these patterns are Spring MVC patterns or not. If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); otherwise, please use requestMatchers(AntPathRequestMatcher).");
+		return requestMatchers(createMvcMatchers(method, patterns).toArray(new RequestMatcher[0]));
+	}
+
+	private boolean hasDispatcherServlet(Map<String, ? extends ServletRegistration> registrations) {
+		if (registrations == null) {
+			return false;
+		}
+		Class<?> dispatcherServlet = ClassUtils.resolveClassName("org.springframework.web.servlet.DispatcherServlet",
+				null);
+		for (ServletRegistration registration : registrations.values()) {
+			try {
+				Class<?> clazz = Class.forName(registration.getClassName());
+				if (dispatcherServlet.isAssignableFrom(clazz)) {
+					return true;
+				}
+			}
+			catch (ClassNotFoundException ex) {
+				return false;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -262,12 +299,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
 		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
-			String method = (httpMethod != null) ? httpMethod.toString() : null;
-			List<RequestMatcher> matchers = new ArrayList<>();
-			for (String pattern : antPatterns) {
-				matchers.add(new AntPathRequestMatcher(pattern, method));
-			}
-			return matchers;
+			return Arrays.asList(antMatchersAsArray(httpMethod, antPatterns));
 		}
 
 		/**
@@ -279,6 +311,15 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> antMatchers(String... antPatterns) {
 			return antMatchers(null, antPatterns);
+		}
+
+		static RequestMatcher[] antMatchersAsArray(HttpMethod httpMethod, String... antPatterns) {
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
+			RequestMatcher[] matchers = new RequestMatcher[antPatterns.length];
+			for (int index = 0; index < antPatterns.length; index++) {
+				matchers[index] = new AntPathRequestMatcher(antPatterns[index], method);
+			}
+			return matchers;
 		}
 
 		/**
