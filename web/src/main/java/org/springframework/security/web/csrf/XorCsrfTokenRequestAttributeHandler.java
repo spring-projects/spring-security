@@ -97,7 +97,7 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 		System.arraycopy(actualBytes, randomBytesSize, xoredCsrf, 0, tokenSize);
 
 		byte[] csrfBytes = xorCsrf(randomBytes, xoredCsrf);
-		return Utf8.decode(csrfBytes);
+		return (csrfBytes != null) ? Utf8.decode(csrfBytes) : null;
 	}
 
 	private static String createXoredCsrfToken(SecureRandom secureRandom, String token) {
@@ -114,6 +114,9 @@ public final class XorCsrfTokenRequestAttributeHandler extends CsrfTokenRequestA
 	}
 
 	private static byte[] xorCsrf(byte[] randomBytes, byte[] csrfBytes) {
+		if (csrfBytes.length < randomBytes.length) {
+			return null;
+		}
 		int len = Math.min(randomBytes.length, csrfBytes.length);
 		byte[] xoredCsrf = new byte[len];
 		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, csrfBytes.length);
