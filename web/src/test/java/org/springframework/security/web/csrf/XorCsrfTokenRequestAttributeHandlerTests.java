@@ -208,6 +208,14 @@ public class XorCsrfTokenRequestAttributeHandlerTests {
 		assertThat(tokenValue).isEqualTo(this.token.getToken());
 	}
 
+	@Test
+	public void resolveCsrfTokenIsInvalidThenReturnsNull() {
+		this.request.setParameter(this.token.getParameterName(), XOR_CSRF_TOKEN_VALUE);
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "a");
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.request, csrfToken);
+		assertThat(tokenValue).isNull();
+	}
+
 	private static Answer<Void> fillByteArray() {
 		return (invocation) -> {
 			byte[] bytes = invocation.getArgument(0);
