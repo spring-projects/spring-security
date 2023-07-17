@@ -179,8 +179,8 @@ public class User implements UserDetails, CredentialsContainer {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof User) {
-			return this.username.equals(((User) obj).username);
+		if (obj instanceof User user) {
+			return this.username.equals(user.getUsername());
 		}
 		return false;
 	}
