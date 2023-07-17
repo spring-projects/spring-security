@@ -18,22 +18,18 @@ package org.springframework.security.config.annotation.web;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.MockServletContext;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -70,10 +66,8 @@ public class AbstractRequestMatcherRegistryTests {
 	public void setUp() {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
 		this.context = mock(WebApplicationContext.class);
-		ServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
 		given(this.context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
-		given(this.context.getServletContext()).willReturn(servletContext);
+		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
 		this.matcherRegistry.setApplicationContext(this.context);
 	}
 
@@ -252,27 +246,6 @@ public class AbstractRequestMatcherRegistryTests {
 		@Override
 		protected List<RequestMatcher> chainRequestMatchers(List<RequestMatcher> requestMatchers) {
 			return requestMatchers;
-		}
-
-	}
-
-	private static class MockServletContext extends org.springframework.mock.web.MockServletContext {
-
-		private final Map<String, ServletRegistration> registrations = new LinkedHashMap<>();
-
-		@NotNull
-		@Override
-		public ServletRegistration.Dynamic addServlet(@NotNull String servletName, Class<? extends Servlet> clazz) {
-			ServletRegistration.Dynamic dynamic = mock(ServletRegistration.Dynamic.class);
-			given(dynamic.getClassName()).willReturn(clazz.getName());
-			this.registrations.put(servletName, dynamic);
-			return dynamic;
-		}
-
-		@NotNull
-		@Override
-		public Map<String, ? extends ServletRegistration> getServletRegistrations() {
-			return this.registrations;
 		}
 
 	}

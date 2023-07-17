@@ -29,10 +29,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.config.MockServletContext;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -75,7 +75,7 @@ public class AuthorizeRequestsTests {
 
 	@BeforeEach
 	public void setup() {
-		this.servletContext = spy(new MockServletContext());
+		this.servletContext = spy(MockServletContext.mvc());
 		this.request = new MockHttpServletRequest("GET", "");
 		this.request.setMethod("GET");
 		this.response = new MockHttpServletResponse();
