@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2014 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -113,14 +113,13 @@ public class LdapAuthority implements GrantedAuthority {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof LdapAuthority)) {
+		if (!(obj instanceof LdapAuthority other)) {
 			return false;
 		}
-		LdapAuthority other = (LdapAuthority) obj;
-		if (!this.dn.equals(other.dn)) {
+		if (!this.dn.equals(other.getDn())) {
 			return false;
 		}
-		return this.role.equals(other.role);
+		return this.role.equals(other.getAuthority());
 	}
 
 	@Override
