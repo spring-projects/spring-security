@@ -15,3 +15,9 @@ Next, you should ensure you are on the latest patch release of Spring Security 6
 Typically, the latest patch release of Spring Boot uses the latest patch release of Spring Security.
 
 With those two steps complete, you can now update to Spring Security 6.2.
+
+== Quick Reference
+
+The following list provide a quick reference for the changes that are described in this guide.
+
+- xref:migration/authorization.adoc#compile-with-parameters[You are using method parameter names in `@PreAuthorize`, `@PostAuthorize`, or any other method security annotations]
