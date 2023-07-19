@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.oidc.authentication.session;
+package org.springframework.security.oauth2.client.oidc.session;
 
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 
@@ -24,7 +24,7 @@ import org.springframework.security.oauth2.client.oidc.authentication.logout.Oid
  * session or the End User.
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
  * Token</a>
@@ -34,32 +34,26 @@ public interface OidcSessionRegistry {
 	/**
 	 * Register a OIDC Provider session with the provided client session. Generally
 	 * speaking, the client session should be the session tied to the current login.
-	 * @param details the {@link OidcSessionRegistration} to use
+	 * @param info the {@link OidcSessionInformation} to use
 	 */
-	void register(OidcSessionRegistration details);
-
-	/**
-	 * Update the entry for a Client when their session id changes. This is handy, for
-	 * example, when the id changes for session fixation protection.
-	 * @param oldClientSessionId the Client's old session id
-	 * @param newClientSessionId the Client's new session id
-	 */
-	void register(String oldClientSessionId, String newClientSessionId);
+	void saveSessionInformation(OidcSessionInformation info);
 
 	/**
 	 * Deregister the OIDC Provider session tied to the provided client session. Generally
 	 * speaking, the client session should be the session tied to the current logout.
 	 * @param clientSessionId the client session
-	 * @return any found {@link OidcSessionRegistration}, could be {@code null}
+	 * @return any found {@link OidcSessionInformation}, could be {@code null}
 	 */
-	OidcSessionRegistration deregister(String clientSessionId);
+	OidcSessionInformation removeSessionInformation(String clientSessionId);
 
 	/**
 	 * Deregister the OIDC Provider sessions referenced by the provided OIDC Logout Token
-	 * by its session id or its subject.
+	 * by its session id or its subject. Note that the issuer and audience should also
+	 * match the corresponding values found in each {@link OidcSessionInformation}
+	 * returned.
 	 * @param logoutToken the {@link OidcLogoutToken}
-	 * @return any found {@link OidcSessionRegistration}s, could be empty
+	 * @return any found {@link OidcSessionInformation}s, could be empty
 	 */
-	Iterable<OidcSessionRegistration> deregister(OidcLogoutToken logoutToken);
+	Iterable<OidcSessionInformation> removeSessionInformation(OidcLogoutToken logoutToken);
 
 }

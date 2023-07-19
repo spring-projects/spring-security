@@ -24,12 +24,12 @@ import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtTimestampValidator;
 
-class DefaultOidcLogoutTokenValidatorFactory implements Function<ClientRegistration, OAuth2TokenValidator<Jwt>> {
+final class DefaultOidcLogoutTokenValidatorFactory implements Function<ClientRegistration, OAuth2TokenValidator<Jwt>> {
 
 	@Override
 	public OAuth2TokenValidator<Jwt> apply(ClientRegistration clientRegistration) {
 		return new DelegatingOAuth2TokenValidator<>(new JwtTimestampValidator(),
-				new OidcLogoutTokenValidator(clientRegistration));
+				new OidcBackChannelLogoutTokenValidator(clientRegistration));
 	}
 
 }

@@ -17,17 +17,16 @@
 package org.springframework.security.oauth2.client.oidc.authentication.logout;
 
 /**
- * The names of the &quot;claims&quot; defined by the OpenID Backchannel Logout 1.0
+ * The names of the &quot;claims&quot; defined by the OpenID Back-Channel Logout 1.0
  * specification that can be returned in a Logout Token.
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  * @see OidcLogoutToken
  * @see <a target="_blank" href=
- * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
- * Token</a>
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">OIDC
+ * Back-Channel Logout Token</a>
  */
-
 public final class LogoutTokenClaimNames {
 
 	/**

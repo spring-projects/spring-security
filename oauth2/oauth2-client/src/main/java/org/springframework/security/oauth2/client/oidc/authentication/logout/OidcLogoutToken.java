@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 
 import org.springframework.security.oauth2.core.AbstractOAuth2Token;
 import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
-import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.util.Assert;
 
 /**
@@ -37,7 +36,7 @@ import org.springframework.util.Assert;
  * terminating sessions for a given OIDC Provider session id or End User.
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  * @see AbstractOAuth2Token
  * @see LogoutTokenClaimAccessor
  * @see <a target="_blank" href=
@@ -46,12 +45,12 @@ import org.springframework.util.Assert;
  */
 public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenClaimAccessor {
 
-	private static final String LOGOUT_TOKEN_EVENT_NAME = "http://schemas.openid.net/event/backchannel-logout";
+	private static final String BACKCHANNEL_LOGOUT_TOKEN_EVENT_NAME = "http://schemas.openid.net/event/backchannel-logout";
 
 	private final Map<String, Object> claims;
 
 	/**
-	 * Constructs a {@code OidcLogoutToken} using the provided parameters.
+	 * Constructs a {@link OidcLogoutToken} using the provided parameters.
 	 * @param tokenValue the Logout Token value
 	 * @param issuedAt the time at which the Logout Token was issued {@code (iat)}
 	 * @param claims the claims about the logout statement
@@ -90,11 +89,11 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		private Builder(String tokenValue) {
 			this.tokenValue = tokenValue;
 			this.claims.put(LogoutTokenClaimNames.EVENTS,
-					Collections.singletonMap(LOGOUT_TOKEN_EVENT_NAME, Collections.emptyMap()));
+					Collections.singletonMap(BACKCHANNEL_LOGOUT_TOKEN_EVENT_NAME, Collections.emptyMap()));
 		}
 
 		/**
-		 * Use this token value in the resulting {@link OidcIdToken}
+		 * Use this token value in the resulting {@link OidcLogoutToken}
 		 * @param tokenValue The token value to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -104,7 +103,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this claim in the resulting {@link OidcIdToken}
+		 * Use this claim in the resulting {@link OidcLogoutToken}
 		 * @param name The claim name
 		 * @param value The claim value
 		 * @return the {@link Builder} for further configurations
@@ -126,7 +125,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this audience in the resulting {@link OidcIdToken}
+		 * Use this audience in the resulting {@link OidcLogoutToken}
 		 * @param audience The audience(s) to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -135,7 +134,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this issued-at timestamp in the resulting {@link OidcIdToken}
+		 * Use this issued-at timestamp in the resulting {@link OidcLogoutToken}
 		 * @param issuedAt The issued-at timestamp to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -144,7 +143,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 		}
 
 		/**
-		 * Use this issuer in the resulting {@link OidcIdToken}
+		 * Use this issuer in the resulting {@link OidcLogoutToken}
 		 * @param issuer The issuer to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -152,12 +151,17 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 			return claim(LogoutTokenClaimNames.ISS, issuer);
 		}
 
-		public Builder jti(String id) {
-			return claim(LogoutTokenClaimNames.JTI, id);
+		/**
+		 * Use this id to identify the resulting {@link OidcLogoutToken}
+		 * @param jti The unique identifier to use
+		 * @return the {@link Builder} for further configurations
+		 */
+		public Builder jti(String jti) {
+			return claim(LogoutTokenClaimNames.JTI, jti);
 		}
 
 		/**
-		 * Use this subject in the resulting {@link OidcIdToken}
+		 * Use this subject in the resulting {@link OidcLogoutToken}
 		 * @param subject The subject to use
 		 * @return the {@link Builder} for further configurations
 		 */
@@ -190,8 +194,8 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 			Assert.notEmpty((Collection<?>) this.claims.get(LogoutTokenClaimNames.AUD), "audience must not be empty");
 			Assert.notNull(this.claims.get(LogoutTokenClaimNames.JTI), "jti must not be null");
 			Assert.isTrue(hasLogoutTokenIdentifyingMember(),
-					"logout token must contain an events claim that contains a member called "
-							+ "'http://schemas.openid.net/event/backchannel-logout' whose value is an empty Map");
+					"logout token must contain an events claim that contains a member called " + "'"
+							+ BACKCHANNEL_LOGOUT_TOKEN_EVENT_NAME + "' whose value is an empty Map");
 			Assert.isNull(this.claims.get("nonce"), "logout token must not contain a nonce claim");
 			Instant iat = toInstant(this.claims.get(IdTokenClaimNames.IAT));
 			return new OidcLogoutToken(this.tokenValue, iat, this.claims);
@@ -201,7 +205,7 @@ public class OidcLogoutToken extends AbstractOAuth2Token implements LogoutTokenC
 			if (!(this.claims.get(LogoutTokenClaimNames.EVENTS) instanceof Map<?, ?> events)) {
 				return false;
 			}
-			if (!(events.get("http://schemas.openid.net/event/backchannel-logout") instanceof Map<?, ?> object)) {
+			if (!(events.get(BACKCHANNEL_LOGOUT_TOKEN_EVENT_NAME) instanceof Map<?, ?> object)) {
 				return false;
 			}
 			return object.isEmpty();

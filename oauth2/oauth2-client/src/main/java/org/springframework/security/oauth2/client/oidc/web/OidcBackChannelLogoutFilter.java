@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.oidc.web.authentication.logout;
+package org.springframework.security.oauth2.client.oidc.web;
 
 import java.io.IOException;
 
@@ -30,13 +30,14 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.oauth2.client.oidc.authentication.logout.LogoutTokenAuthenticationToken;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutAuthenticationToken;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcBackChannelLogoutHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
-import org.springframework.security.web.authentication.logout.BackchannelLogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -66,7 +67,7 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	private RequestMatcher requestMatcher = new AntPathRequestMatcher(DEFAULT_LOGOUT_URI, "POST");
 
-	private LogoutHandler logoutHandler = new BackchannelLogoutHandler();
+	private LogoutHandler logoutHandler = new OidcBackChannelLogoutHandler();
 
 	/**
 	 * Construct an {@link OidcBackChannelLogoutFilter}
@@ -95,8 +96,8 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 			return;
 		}
 		String registrationId = result.getVariables().get("registrationId");
-		ClientRegistration registration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
-		if (registration == null) {
+		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId(registrationId);
+		if (clientRegistration == null) {
 			this.logger.debug("Did not process OIDC Back-Channel Logout since no ClientRegistration was found");
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
@@ -107,10 +108,15 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
 			return;
 		}
-		LogoutTokenAuthenticationToken token = new LogoutTokenAuthenticationToken(logoutToken, registration);
+		OidcLogoutAuthenticationToken token = new OidcLogoutAuthenticationToken(logoutToken, clientRegistration);
 		try {
 			Authentication authentication = this.authenticationManager.authenticate(token);
 			this.logoutHandler.logout(request, response, authentication);
+		}
+		catch (OAuth2AuthenticationException ex) {
+			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			this.errorHttpMessageConverter.write(ex.getError(), null, new ServletServerHttpResponse(response));
 		}
 		catch (AuthenticationServiceException ex) {
 			this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
@@ -137,7 +143,7 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 
 	/**
 	 * The strategy for expiring all Client sessions indicated by the logout request.
-	 * Defaults to {@link BackchannelLogoutHandler}.
+	 * Defaults to {@link OidcBackChannelLogoutHandler}.
 	 * @param logoutHandler the {@link LogoutHandler} to use
 	 */
 	public void setLogoutHandler(LogoutHandler logoutHandler) {

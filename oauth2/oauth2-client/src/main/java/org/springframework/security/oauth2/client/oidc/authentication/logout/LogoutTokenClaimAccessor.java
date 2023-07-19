@@ -24,15 +24,15 @@ import java.util.Map;
 import org.springframework.security.oauth2.core.ClaimAccessor;
 
 /**
- * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in OIDC
- * Backchannel Logout Tokens
+ * A {@link ClaimAccessor} for the &quot;claims&quot; that can be returned in OIDC Logout
+ * Tokens
  *
  * @author Josh Cummings
- * @since 6.1
+ * @since 6.2
  * @see OidcLogoutToken
  * @see <a target="_blank" href=
- * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
- * Token</a>
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">OIDC
+ * Back-Channel Logout Token</a>
  */
 public interface LogoutTokenClaimAccessor extends ClaimAccessor {
 

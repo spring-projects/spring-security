@@ -20,32 +20,59 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 
-public class LogoutTokenAuthenticationToken extends AbstractAuthenticationToken {
+/**
+ * An {@link org.springframework.security.core.Authentication} instance that represents a
+ * request to authenticate an OIDC Logout Token.
+ *
+ * @author Josh Cummings
+ * @since 6.2
+ */
+public class OidcLogoutAuthenticationToken extends AbstractAuthenticationToken {
 
 	private final String logoutToken;
 
 	private final ClientRegistration clientRegistration;
 
-	public LogoutTokenAuthenticationToken(String logoutToken, ClientRegistration clientRegistration) {
+	/**
+	 * Construct an {@link OidcLogoutAuthenticationToken}
+	 * @param logoutToken a signed, serialized OIDC Logout token
+	 * @param clientRegistration the {@link ClientRegistration client} associated with
+	 * this token; this is usually derived from material in the logout HTTP request
+	 */
+	public OidcLogoutAuthenticationToken(String logoutToken, ClientRegistration clientRegistration) {
 		super(AuthorityUtils.NO_AUTHORITIES);
 		this.logoutToken = logoutToken;
 		this.clientRegistration = clientRegistration;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getCredentials() {
 		return this.logoutToken;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getPrincipal() {
 		return this.logoutToken;
 	}
 
+	/**
+	 * Get the signed, serialized OIDC Logout token
+	 * @return the logout token
+	 */
 	public String getLogoutToken() {
 		return this.logoutToken;
 	}
 
+	/**
+	 * Get the {@link ClientRegistration} associated with this logout token
+	 * @return the {@link ClientRegistration}
+	 */
 	public ClientRegistration getClientRegistration() {
 		return this.clientRegistration;
 	}

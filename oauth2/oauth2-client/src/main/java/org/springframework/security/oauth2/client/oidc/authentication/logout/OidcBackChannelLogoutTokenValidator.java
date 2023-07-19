@@ -28,10 +28,10 @@ import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.OAuth2TokenValidator;
 import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
 
 /**
- * A {@link JwtDecoderFactory} that decodes and verifies OIDC Logout Tokens.
+ * A {@link OAuth2TokenValidator} that validates OIDC Logout Token claims in conformance
+ * with the OIDC Back-Channel Logout Spec.
  *
  * @author Josh Cummings
  * @since 6.2
@@ -39,8 +39,11 @@ import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
  * @see <a target="_blank" href=
  * "https://openid.net/specs/openid-connect-backchannel-1_0.html#LogoutToken">Logout
  * Token</a>
+ * @see <a target="blank" href=
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation">the OIDC
+ * Back-Channel Logout spec</a>
  */
-public final class OidcLogoutTokenValidator implements OAuth2TokenValidator<Jwt> {
+public final class OidcBackChannelLogoutTokenValidator implements OAuth2TokenValidator<Jwt> {
 
 	private static final String LOGOUT_VALIDATION_URL = "https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation";
 
@@ -50,7 +53,7 @@ public final class OidcLogoutTokenValidator implements OAuth2TokenValidator<Jwt>
 
 	private final String issuer;
 
-	OidcLogoutTokenValidator(ClientRegistration clientRegistration) {
+	public OidcBackChannelLogoutTokenValidator(ClientRegistration clientRegistration) {
 		this.audience = clientRegistration.getClientId();
 		this.issuer = clientRegistration.getProviderDetails().getIssuerUri();
 	}

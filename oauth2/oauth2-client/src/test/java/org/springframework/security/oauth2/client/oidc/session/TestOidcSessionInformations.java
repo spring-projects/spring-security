@@ -14,28 +14,31 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.oidc.authentication.session;
+package org.springframework.security.oauth2.client.oidc.session;
 
 import java.util.Map;
 
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.oidc.user.TestOidcUsers;
 
-public final class TestOidcSessionRegistrations {
+/**
+ * Sample {@link OidcSessionInformation} instances
+ */
+public final class TestOidcSessionInformations {
 
-	public static OidcSessionRegistration create() {
+	public static OidcSessionInformation create() {
 		return create("sessionId");
 	}
 
-	public static OidcSessionRegistration create(String sessionId) {
+	public static OidcSessionInformation create(String sessionId) {
 		return create(sessionId, TestOidcUsers.create());
 	}
 
-	public static OidcSessionRegistration create(String sessionId, OidcUser user) {
-		return new OidcSessionRegistration("client-id", sessionId, Map.of("_csrf", "token"), user);
+	public static OidcSessionInformation create(String sessionId, OidcUser user) {
+		return new OidcSessionInformation(sessionId, Map.of("_csrf", "token"), user);
 	}
 
-	private TestOidcSessionRegistrations() {
+	private TestOidcSessionInformations() {
 
 	}
 

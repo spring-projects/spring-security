@@ -16,39 +16,56 @@
 
 package org.springframework.security.oauth2.client.oidc.authentication.logout;
 
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.AuthenticationServiceException;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
-import org.springframework.security.oauth2.client.oidc.authentication.session.InMemoryOidcSessionRegistry;
-import org.springframework.security.oauth2.client.oidc.authentication.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtDecoderFactory;
-import org.springframework.security.oauth2.jwt.JwtException;
-import org.springframework.security.web.authentication.logout.BackchannelLogoutAuthentication;
 import org.springframework.util.Assert;
 
-public final class OidcBackChannelLogoutAuthenticationManager implements AuthenticationManager {
+/**
+ * An {@link AuthenticationProvider} that authenticates an OIDC Logout Token; namely
+ * deserializing it, verifying its signature, and validating its claims.
+ *
+ * <p>
+ * Intended to be included in a
+ * {@link org.springframework.security.authentication.ProviderManager}
+ *
+ * @author Josh Cummings
+ * @since 6.2
+ * @see OidcLogoutAuthenticationToken
+ * @see org.springframework.security.authentication.ProviderManager
+ * @see <a target="_blank" href=
+ * "https://openid.net/specs/openid-connect-backchannel-1_0.html">OIDC Back-Channel
+ * Logout</a>
+ */
+public final class OidcBackChannelLogoutAuthenticationProvider implements AuthenticationProvider {
 
 	private JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory;
 
-	private OidcSessionRegistry sessionRegistry = new InMemoryOidcSessionRegistry();
-
-	public OidcBackChannelLogoutAuthenticationManager() {
+	/**
+	 * Construct an {@link OidcBackChannelLogoutAuthenticationProvider}
+	 */
+	public OidcBackChannelLogoutAuthenticationProvider() {
 		OidcIdTokenDecoderFactory logoutTokenDecoderFactory = new OidcIdTokenDecoderFactory();
 		logoutTokenDecoderFactory.setJwtValidatorFactory(new DefaultOidcLogoutTokenValidatorFactory());
 		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-		if (!(authentication instanceof LogoutTokenAuthenticationToken token)) {
+		if (!(authentication instanceof OidcLogoutAuthenticationToken token)) {
 			return null;
 		}
 		String logoutToken = token.getLogoutToken();
@@ -56,8 +73,15 @@ public final class OidcBackChannelLogoutAuthenticationManager implements Authent
 		Jwt jwt = decode(registration, logoutToken);
 		OidcLogoutToken oidcLogoutToken = OidcLogoutToken.withTokenValue(logoutToken)
 				.claims((claims) -> claims.putAll(jwt.getClaims())).build();
-		Iterable<? extends SessionInformation> sessions = this.sessionRegistry.deregister(oidcLogoutToken);
-		return new BackchannelLogoutAuthentication(oidcLogoutToken, oidcLogoutToken, sessions);
+		return new OidcBackChannelLogoutAuthentication(oidcLogoutToken);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean supports(Class<?> authentication) {
+		return OidcLogoutAuthenticationToken.class.isAssignableFrom(authentication);
 	}
 
 	private Jwt decode(ClientRegistration registration, String token) {
@@ -66,21 +90,23 @@ public final class OidcBackChannelLogoutAuthenticationManager implements Authent
 			return logoutTokenDecoder.decode(token);
 		}
 		catch (BadJwtException failed) {
-			throw new BadCredentialsException(failed.getMessage(), failed);
+			OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, failed.getMessage(),
+					"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
+			throw new OAuth2AuthenticationException(error, failed);
 		}
-		catch (JwtException failed) {
+		catch (Exception failed) {
 			throw new AuthenticationServiceException(failed.getMessage(), failed);
 		}
 	}
 
+	/**
+	 * Use this {@link JwtDecoderFactory} to generate {@link JwtDecoder}s that correspond
+	 * to the {@link ClientRegistration} associated with the OIDC logout token.
+	 * @param logoutTokenDecoderFactory the {@link JwtDecoderFactory} to use
+	 */
 	public void setLogoutTokenDecoderFactory(JwtDecoderFactory<ClientRegistration> logoutTokenDecoderFactory) {
 		Assert.notNull(logoutTokenDecoderFactory, "logoutTokenDecoderFactory cannot be null");
 		this.logoutTokenDecoderFactory = logoutTokenDecoderFactory;
-	}
-
-	public void setSessionRegistry(OidcSessionRegistry sessionRegistry) {
-		Assert.notNull(sessionRegistry, "sessionRegistry cannot be null");
-		this.sessionRegistry = sessionRegistry;
 	}
 
 }

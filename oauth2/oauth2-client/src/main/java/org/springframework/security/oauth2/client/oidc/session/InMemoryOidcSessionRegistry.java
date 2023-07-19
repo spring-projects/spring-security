@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.oidc.authentication.session;
+package org.springframework.security.oauth2.client.oidc.session;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,40 +40,29 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 
 	private final Log logger = LogFactory.getLog(InMemoryOidcSessionRegistry.class);
 
-	private final Map<String, OidcSessionRegistration> sessions = new ConcurrentHashMap<>();
+	private final Map<String, OidcSessionInformation> sessions = new ConcurrentHashMap<>();
 
 	@Override
-	public void register(OidcSessionRegistration registration) {
-		this.sessions.put(registration.getSessionId(), registration);
+	public void saveSessionInformation(OidcSessionInformation info) {
+		this.sessions.put(info.getSessionId(), info);
 	}
 
 	@Override
-	public void register(String oldClientSessionId, String newClientSessionId) {
-		OidcSessionRegistration old = this.sessions.remove(oldClientSessionId);
-		if (old == null) {
-			this.logger.debug("Failed to register new session id since old session id was not found in registry");
-			return;
-		}
-		register(new OidcSessionRegistration(old.getClientId(), newClientSessionId, old.getHeaders(),
-				old.getPrincipal()));
-	}
-
-	@Override
-	public OidcSessionRegistration deregister(String clientSessionId) {
-		OidcSessionRegistration details = this.sessions.remove(clientSessionId);
-		if (details != null) {
+	public OidcSessionInformation removeSessionInformation(String clientSessionId) {
+		OidcSessionInformation information = this.sessions.remove(clientSessionId);
+		if (information != null) {
 			this.logger.trace("Removed client session");
 		}
-		return details;
+		return information;
 	}
 
 	@Override
-	public Iterable<OidcSessionRegistration> deregister(OidcLogoutToken token) {
+	public Iterable<OidcSessionInformation> removeSessionInformation(OidcLogoutToken token) {
 		List<String> audience = token.getAudience();
 		String issuer = token.getIssuer().toString();
 		String subject = token.getSubject();
 		String providerSessionId = token.getSessionId();
-		Predicate<OidcSessionRegistration> matcher = (providerSessionId != null)
+		Predicate<OidcSessionInformation> matcher = (providerSessionId != null)
 				? sessionIdMatcher(audience, issuer, providerSessionId) : subjectMatcher(audience, issuer, subject);
 		if (this.logger.isTraceEnabled()) {
 			String message = "Looking up sessions by issuer [%s] and %s [%s]";
@@ -84,7 +74,7 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 			}
 		}
 		int size = this.sessions.size();
-		Set<OidcSessionRegistration> infos = new HashSet<>();
+		Set<OidcSessionInformation> infos = new HashSet<>();
 		this.sessions.values().removeIf((info) -> {
 			boolean result = matcher.test(info);
 			if (result) {
@@ -102,24 +92,31 @@ public final class InMemoryOidcSessionRegistry implements OidcSessionRegistry {
 		return infos;
 	}
 
-	private static Predicate<OidcSessionRegistration> sessionIdMatcher(List<String> audience, String issuer,
+	private static Predicate<OidcSessionInformation> sessionIdMatcher(List<String> audience, String issuer,
 			String sessionId) {
 		return (session) -> {
-			String thatRegistrationId = session.getClientId();
+			List<String> thatAudience = session.getPrincipal().getAudience();
 			String thatIssuer = session.getPrincipal().getIssuer().toString();
 			String thatSessionId = session.getPrincipal().getClaimAsString(LogoutTokenClaimNames.SID);
-			return audience.contains(thatRegistrationId) && issuer.equals(thatIssuer)
+			if (thatAudience == null) {
+				return false;
+			}
+			return !Collections.disjoint(audience, thatAudience) && issuer.equals(thatIssuer)
 					&& sessionId.equals(thatSessionId);
 		};
 	}
 
-	private static Predicate<OidcSessionRegistration> subjectMatcher(List<String> audience, String issuer,
+	private static Predicate<OidcSessionInformation> subjectMatcher(List<String> audience, String issuer,
 			String subject) {
 		return (session) -> {
-			String thatRegistrationId = session.getClientId();
+			List<String> thatAudience = session.getPrincipal().getAudience();
 			String thatIssuer = session.getPrincipal().getIssuer().toString();
 			String thatSubject = session.getPrincipal().getSubject();
-			return audience.contains(thatRegistrationId) && issuer.equals(thatIssuer) && subject.equals(thatSubject);
+			if (thatAudience == null) {
+				return false;
+			}
+			return !Collections.disjoint(audience, thatAudience) && issuer.equals(thatIssuer)
+					&& subject.equals(thatSubject);
 		};
 	}
 
