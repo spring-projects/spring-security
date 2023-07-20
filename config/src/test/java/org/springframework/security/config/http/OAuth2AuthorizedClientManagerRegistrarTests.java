@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.config.annotation.web.configuration;
+package org.springframework.security.config.http;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
@@ -33,13 +34,9 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.TestingAuthenticationToken;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.oauth2.client.CommonOAuth2Provider;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.oauth2.client.AuthorizationCodeOAuth2AuthorizedClientProvider;
@@ -59,14 +56,8 @@ import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCo
 import org.springframework.security.oauth2.client.endpoint.OAuth2ClientCredentialsGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2PasswordGrantRequest;
 import org.springframework.security.oauth2.client.endpoint.OAuth2RefreshTokenGrantRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
-import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.registration.InMemoryClientRegistrationRepository;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
@@ -77,13 +68,10 @@ import org.springframework.security.oauth2.core.TestOAuth2RefreshTokens;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.TestOAuth2AccessTokenResponses;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.JoseHeaderNames;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimNames;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.util.StringUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,12 +83,13 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
 /**
- * Tests for {@link OAuth2ClientConfiguration.OAuth2AuthorizedClientManagerConfiguration}.
+ * Tests for {@link OAuth2AuthorizedClientManagerRegistrar}.
  *
- * @author Joe Grandja
  * @author Steve Riesenberg
  */
-public class OAuth2AuthorizedClientManagerConfigurationTests {
+public class OAuth2AuthorizedClientManagerRegistrarTests {
+
+	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/OAuth2AuthorizedClientManagerRegistrarTests";
 
 	private static OAuth2AccessTokenResponseClient<? super AbstractOAuth2AuthorizationGrantRequest> MOCK_RESPONSE_CLIENT;
 
@@ -132,13 +121,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 	@Test
 	public void loadContextWhenOAuth2ClientEnabledThenConfigured() {
-		this.spring.register(MinimalOAuth2ClientConfig.class).autowire();
+		this.spring.configLocations(xml("minimal")).autowire();
 		assertThat(this.authorizedClientManager).isNotNull();
 	}
 
 	@Test
 	public void authorizeWhenAuthorizationCodeAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		this.spring.configLocations(xml("providers")).autowire();
 
 		TestingAuthenticationToken authentication = new TestingAuthenticationToken("user", null);
 		// @formatter:off
@@ -160,13 +149,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 	@Test
 	public void authorizeWhenRefreshTokenAccessTokenResponseClientBeanThenUsed() {
-		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
+		this.spring.configLocations(xml("clients")).autowire();
 		testRefreshTokenGrant();
 	}
 
 	@Test
 	public void authorizeWhenRefreshTokenAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		this.spring.configLocations(xml("providers")).autowire();
 		testRefreshTokenGrant();
 	}
 
@@ -206,13 +195,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 	@Test
 	public void authorizeWhenClientCredentialsAccessTokenResponseClientBeanThenUsed() {
-		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
+		this.spring.configLocations(xml("clients")).autowire();
 		testClientCredentialsGrant();
 	}
 
 	@Test
 	public void authorizeWhenClientCredentialsAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		this.spring.configLocations(xml("providers")).autowire();
 		testClientCredentialsGrant();
 	}
 
@@ -246,13 +235,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 	@Test
 	public void authorizeWhenPasswordAccessTokenResponseClientBeanThenUsed() {
-		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
+		this.spring.configLocations(xml("clients")).autowire();
 		testPasswordGrant();
 	}
 
 	@Test
 	public void authorizeWhenPasswordAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		this.spring.configLocations(xml("providers")).autowire();
 		testPasswordGrant();
 	}
 
@@ -290,13 +279,13 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 
 	@Test
 	public void authorizeWhenJwtBearerAccessTokenResponseClientBeanThenUsed() {
-		this.spring.register(CustomAccessTokenResponseClientsConfig.class).autowire();
+		this.spring.configLocations(xml("clients")).autowire();
 		testJwtBearerGrant();
 	}
 
 	@Test
 	public void authorizeWhenJwtBearerAuthorizedClientProviderBeanThenUsed() {
-		this.spring.register(CustomAuthorizedClientProvidersConfig.class).autowire();
+		this.spring.configLocations(xml("providers")).autowire();
 		testJwtBearerGrant();
 	}
 
@@ -341,157 +330,96 @@ public class OAuth2AuthorizedClientManagerConfigurationTests {
 				Collections.singletonMap(JwtClaimNames.SUB, "user"));
 	}
 
-	@Configuration
-	@EnableWebSecurity
-	static class MinimalOAuth2ClientConfig extends OAuth2ClientBaseConfig {
-
+	private static String xml(String configName) {
+		return CONFIG_LOCATION_PREFIX + "-" + configName + ".xml";
 	}
 
-	@Configuration
-	@EnableWebSecurity
-	static class CustomAccessTokenResponseClientsConfig extends OAuth2ClientBaseConfig {
-
-		@Bean
-		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> authorizationCodeTokenResponseClient() {
-			return new MockAuthorizationCodeClient();
-		}
-
-		@Bean
-		OAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> refreshTokenTokenResponseClient() {
-			return new MockRefreshTokenClient();
-		}
-
-		@Bean
-		OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsTokenResponseClient() {
-			return new MockClientCredentialsClient();
-		}
-
-		@Bean
-		OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordTokenResponseClient() {
-			return new MockPasswordClient();
-		}
-
-		@Bean
-		OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerTokenResponseClient() {
-			return new MockJwtBearerClient();
-		}
-
-		@Bean
-		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {
-			return mock(DefaultOAuth2UserService.class);
-		}
-
-		@Bean
-		OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
-			return mock(OidcUserService.class);
-		}
-
+	public static List<ClientRegistration> getClientRegistrations() {
+		// @formatter:off
+		return Arrays.asList(
+				CommonOAuth2Provider.GOOGLE.getBuilder("google")
+						.clientId("google-client-id")
+						.clientSecret("google-client-secret")
+						.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+						.build(),
+				CommonOAuth2Provider.GITHUB.getBuilder("github")
+						.clientId("github-client-id")
+						.clientSecret("github-client-secret")
+						.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+						.build(),
+				CommonOAuth2Provider.FACEBOOK.getBuilder("facebook")
+						.clientId("facebook-client-id")
+						.clientSecret("facebook-client-secret")
+						.authorizationGrantType(AuthorizationGrantType.PASSWORD)
+						.build(),
+				CommonOAuth2Provider.OKTA.getBuilder("okta")
+						.clientId("okta-client-id")
+						.clientSecret("okta-client-secret")
+						.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
+						.build());
+		// @formatter:on
 	}
 
-	@Configuration
-	@EnableWebSecurity
-	static class CustomAuthorizedClientProvidersConfig extends OAuth2ClientBaseConfig {
+	public static Consumer<DefaultOAuth2AuthorizedClientManager> authorizedClientManagerConsumer() {
+		return (authorizedClientManager) -> authorizedClientManager.setContextAttributesMapper((authorizeRequest) -> {
+			HttpServletRequest request = Objects
+					.requireNonNull(authorizeRequest.getAttribute(HttpServletRequest.class.getName()));
+			String username = request.getParameter(OAuth2ParameterNames.USERNAME);
+			String password = request.getParameter(OAuth2ParameterNames.PASSWORD);
 
-		@Bean
-		AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCodeProvider() {
-			return spy(new AuthorizationCodeOAuth2AuthorizedClientProvider());
-		}
+			Map<String, Object> attributes = Collections.emptyMap();
+			if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
+				attributes = new HashMap<>();
+				attributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
+				attributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
+			}
 
-		@Bean
-		RefreshTokenOAuth2AuthorizedClientProvider refreshTokenProvider() {
-			RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
-			authorizedClientProvider.setAccessTokenResponseClient(new MockRefreshTokenClient());
-			return authorizedClientProvider;
-		}
-
-		@Bean
-		ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsProvider() {
-			ClientCredentialsOAuth2AuthorizedClientProvider authorizedClientProvider = new ClientCredentialsOAuth2AuthorizedClientProvider();
-			authorizedClientProvider.setAccessTokenResponseClient(new MockClientCredentialsClient());
-			return authorizedClientProvider;
-		}
-
-		@Bean
-		PasswordOAuth2AuthorizedClientProvider passwordProvider() {
-			PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
-			authorizedClientProvider.setAccessTokenResponseClient(new MockPasswordClient());
-			return authorizedClientProvider;
-		}
-
-		@Bean
-		JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider() {
-			JwtBearerOAuth2AuthorizedClientProvider authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
-			authorizedClientProvider.setAccessTokenResponseClient(new MockJwtBearerClient());
-			return authorizedClientProvider;
-		}
-
+			return attributes;
+		});
 	}
 
-	abstract static class OAuth2ClientBaseConfig {
+	public static AuthorizationCodeOAuth2AuthorizedClientProvider authorizationCodeAuthorizedClientProvider() {
+		return spy(new AuthorizationCodeOAuth2AuthorizedClientProvider());
+	}
 
-		@Bean
-		SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-			// @formatter:off
-			http
-				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.oauth2Login(Customizer.withDefaults())
-				.oauth2Client(Customizer.withDefaults());
-			return http.build();
-			// @formatter:on
-		}
+	public static RefreshTokenOAuth2AuthorizedClientProvider refreshTokenAuthorizedClientProvider() {
+		RefreshTokenOAuth2AuthorizedClientProvider authorizedClientProvider = new RefreshTokenOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setAccessTokenResponseClient(refreshTokenAccessTokenResponseClient());
+		return authorizedClientProvider;
+	}
 
-		@Bean
-		ClientRegistrationRepository clientRegistrationRepository() {
-			// @formatter:off
-			return new InMemoryClientRegistrationRepository(Arrays.asList(
-					CommonOAuth2Provider.GOOGLE.getBuilder("google")
-							.clientId("google-client-id")
-							.clientSecret("google-client-secret")
-							.authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
-							.build(),
-					CommonOAuth2Provider.GITHUB.getBuilder("github")
-							.clientId("github-client-id")
-							.clientSecret("github-client-secret")
-							.authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
-							.build(),
-					CommonOAuth2Provider.FACEBOOK.getBuilder("facebook")
-							.clientId("facebook-client-id")
-							.clientSecret("facebook-client-secret")
-							.authorizationGrantType(AuthorizationGrantType.PASSWORD)
-							.build(),
-					CommonOAuth2Provider.OKTA.getBuilder("okta")
-							.clientId("okta-client-id")
-							.clientSecret("okta-client-secret")
-							.authorizationGrantType(AuthorizationGrantType.JWT_BEARER)
-							.build()));
-			// @formatter:on
-		}
+	public static MockRefreshTokenClient refreshTokenAccessTokenResponseClient() {
+		return new MockRefreshTokenClient();
+	}
 
-		@Bean
-		OAuth2AuthorizedClientRepository authorizedClientRepository() {
-			return mock(OAuth2AuthorizedClientRepository.class);
-		}
+	public static ClientCredentialsOAuth2AuthorizedClientProvider clientCredentialsAuthorizedClientProvider() {
+		ClientCredentialsOAuth2AuthorizedClientProvider authorizedClientProvider = new ClientCredentialsOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setAccessTokenResponseClient(clientCredentialsAccessTokenResponseClient());
+		return authorizedClientProvider;
+	}
 
-		@Bean
-		Consumer<DefaultOAuth2AuthorizedClientManager> authorizedClientManagerConsumer() {
-			return (authorizedClientManager) -> authorizedClientManager
-					.setContextAttributesMapper((authorizeRequest) -> {
-						HttpServletRequest request = Objects
-								.requireNonNull(authorizeRequest.getAttribute(HttpServletRequest.class.getName()));
-						String username = request.getParameter(OAuth2ParameterNames.USERNAME);
-						String password = request.getParameter(OAuth2ParameterNames.PASSWORD);
+	public static OAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> clientCredentialsAccessTokenResponseClient() {
+		return new MockClientCredentialsClient();
+	}
 
-						Map<String, Object> attributes = Collections.emptyMap();
-						if (StringUtils.hasText(username) && StringUtils.hasText(password)) {
-							attributes = new HashMap<>();
-							attributes.put(OAuth2AuthorizationContext.USERNAME_ATTRIBUTE_NAME, username);
-							attributes.put(OAuth2AuthorizationContext.PASSWORD_ATTRIBUTE_NAME, password);
-						}
+	public static PasswordOAuth2AuthorizedClientProvider passwordAuthorizedClientProvider() {
+		PasswordOAuth2AuthorizedClientProvider authorizedClientProvider = new PasswordOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setAccessTokenResponseClient(passwordAccessTokenResponseClient());
+		return authorizedClientProvider;
+	}
 
-						return attributes;
-					});
-		}
+	public static OAuth2AccessTokenResponseClient<OAuth2PasswordGrantRequest> passwordAccessTokenResponseClient() {
+		return new MockPasswordClient();
+	}
 
+	public static JwtBearerOAuth2AuthorizedClientProvider jwtBearerAuthorizedClientProvider() {
+		JwtBearerOAuth2AuthorizedClientProvider authorizedClientProvider = new JwtBearerOAuth2AuthorizedClientProvider();
+		authorizedClientProvider.setAccessTokenResponseClient(jwtBearerAccessTokenResponseClient());
+		return authorizedClientProvider;
+	}
+
+	public static OAuth2AccessTokenResponseClient<JwtBearerGrantRequest> jwtBearerAccessTokenResponseClient() {
+		return new MockJwtBearerClient();
 	}
 
 	private static class MockAuthorizationCodeClient
