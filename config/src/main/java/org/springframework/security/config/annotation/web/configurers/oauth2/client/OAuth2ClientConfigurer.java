@@ -16,6 +16,8 @@
 
 package org.springframework.security.config.annotation.web.configurers.oauth2.client;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.ResolvableType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
@@ -307,7 +309,22 @@ public final class OAuth2ClientConfigurer<B extends HttpSecurityBuilder<B>>
 			if (this.accessTokenResponseClient != null) {
 				return this.accessTokenResponseClient;
 			}
-			return new DefaultAuthorizationCodeTokenResponseClient();
+			ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
+					OAuth2AuthorizationCodeGrantRequest.class);
+			OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
+			return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
+		}
+
+		@SuppressWarnings("unchecked")
+		private <T> T getBeanOrNull(ResolvableType type) {
+			ApplicationContext context = getBuilder().getSharedObject(ApplicationContext.class);
+			if (context != null) {
+				String[] names = context.getBeanNamesForType(type);
+				if (names.length == 1) {
+					return (T) context.getBean(names[0]);
+				}
+			}
+			return null;
 		}
 
 	}
