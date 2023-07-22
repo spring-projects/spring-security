@@ -35,14 +35,14 @@ public class TestAuthentication extends PasswordEncodedUser {
 			AuthorityUtils.createAuthorityList("ROLE_USER"));
 
 	public static Authentication authenticatedAdmin() {
-		return autheticated(admin());
+		return authenticated(admin());
 	}
 
 	public static Authentication authenticatedUser() {
-		return autheticated(user());
+		return authenticated(user());
 	}
 
-	public static Authentication autheticated(UserDetails user) {
+	public static Authentication authenticated(UserDetails user) {
 		return UsernamePasswordAuthenticationToken.authenticated(user, null, user.getAuthorities());
 	}
 
