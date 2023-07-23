@@ -1,4 +1,4 @@
-== SecurityMockMvcResultMatchers
+= SecurityMockMvcResultMatchers
 
 At times it is desirable to make various security related assertions about a request.
 To accommodate this need, Spring Security Test support implements Spring MVC Test's `ResultMatcher` interface.
