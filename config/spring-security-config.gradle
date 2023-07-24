@@ -4,10 +4,6 @@ apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'kotlin'
 
-repositories {
-	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
-}
-
 dependencies {
 	management platform(project(":spring-security-dependencies"))
 	// NB: Don't add other compile time dependencies to the config module as this breaks tooling
