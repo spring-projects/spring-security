@@ -36,6 +36,10 @@ class MethodSecurityAdvisorRegistrar implements ImportBeanDefinitionRegistrar {
 	}
 
 	private void registerAsAdvisor(String prefix, BeanDefinitionRegistry registry) {
+		String advisorName = prefix + "Advisor";
+		if (registry.containsBeanDefinition(advisorName)) {
+			return;
+		}
 		String interceptorName = prefix + "MethodInterceptor";
 		if (!registry.containsBeanDefinition(interceptorName)) {
 			return;
