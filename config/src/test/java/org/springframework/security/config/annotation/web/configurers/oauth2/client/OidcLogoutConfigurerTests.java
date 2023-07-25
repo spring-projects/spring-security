@@ -246,10 +246,9 @@ public class OidcLogoutConfigurerTests {
 			// @formatter:off
 			http
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
-				.oauth2Login(Customizer.withDefaults())
+				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
 				.oidcLogout((oidc) -> oidc.backChannel((logout) -> logout
 					.authenticationManager(this.authenticationManager)
-					.oidcSessionRegistry(this.sessionRegistry)
 					.logoutHandler(this.logoutHandler)
 				));
 			// @formatter:on
