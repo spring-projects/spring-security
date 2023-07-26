@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.springframework.security.oauth2.client.oidc.web;
+package org.springframework.security.oauth2.client.oidc.web.logout;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;

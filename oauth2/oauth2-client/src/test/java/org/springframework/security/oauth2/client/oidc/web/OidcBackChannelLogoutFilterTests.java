@@ -32,6 +32,7 @@ import org.springframework.security.oauth2.client.oidc.session.OidcSessionInform
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.TestOidcSessionInformations;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcBackChannelLogoutHandler;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcLogoutAuthenticationConverter;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.registration.TestClientRegistrations;

@@ -26,7 +26,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.web.OidcBackChannelLogoutFilter;
-import org.springframework.security.oauth2.client.oidc.web.OidcLogoutAuthenticationConverter;
+import org.springframework.security.oauth2.client.oidc.web.logout.OidcLogoutAuthenticationConverter;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcBackChannelLogoutHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.web.authentication.AuthenticationConverter;
