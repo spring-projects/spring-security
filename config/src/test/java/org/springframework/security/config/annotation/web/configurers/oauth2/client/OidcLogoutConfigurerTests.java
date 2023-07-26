@@ -63,6 +63,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.LogoutTokenClaimNames;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthentication;
+import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutAuthenticationToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.TestOidcLogoutTokens;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
@@ -82,6 +83,7 @@ import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -171,6 +173,10 @@ public class OidcLogoutConfigurerTests {
 	void logoutWhenCustomComponentsThenUses() throws Exception {
 		this.spring.register(WithCustomComponentsConfig.class).autowire();
 		String registrationId = this.clientRegistration.getRegistrationId();
+		AuthenticationConverter authenticationConverter = this.spring.getContext()
+				.getBean(AuthenticationConverter.class);
+		given(authenticationConverter.convert(any()))
+				.willReturn(new OidcLogoutAuthenticationToken("token", this.clientRegistration));
 		AuthenticationManager authenticationManager = this.spring.getContext().getBean(AuthenticationManager.class);
 		OidcLogoutToken logoutToken = TestOidcLogoutTokens.withSessionId("issuer", "provider").build();
 		given(authenticationManager.authenticate(any()))
@@ -233,6 +239,8 @@ public class OidcLogoutConfigurerTests {
 	@Import(RegistrationConfig.class)
 	static class WithCustomComponentsConfig {
 
+		AuthenticationConverter authenticationConverter = mock(AuthenticationConverter.class);
+
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 
 		OidcSessionRegistry sessionRegistry = mock(OidcSessionRegistry.class);
@@ -248,12 +256,18 @@ public class OidcLogoutConfigurerTests {
 				.authorizeHttpRequests((authorize) -> authorize.anyRequest().authenticated())
 				.oauth2Login((oauth2) -> oauth2.oidcSessionRegistry(this.sessionRegistry))
 				.oidcLogout((oidc) -> oidc.backChannel((logout) -> logout
+					.authenticationConverter(this.authenticationConverter)
 					.authenticationManager(this.authenticationManager)
 					.logoutHandler(this.logoutHandler)
 				));
 			// @formatter:on
 
 			return http.build();
+		}
+
+		@Bean
+		AuthenticationConverter authenticationConverter() {
+			return this.authenticationConverter;
 		}
 
 		@Bean

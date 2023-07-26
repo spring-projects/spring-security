@@ -51,7 +51,7 @@ public class OidcBackChannelLogoutFilterTests {
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		OidcBackChannelLogoutFilter backChannelLogoutFilter = new OidcBackChannelLogoutFilter(
-				clientRegistrationRepository, authenticationManager);
+				new OidcLogoutAuthenticationConverter(clientRegistrationRepository), authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		FilterChain chain = mock(FilterChain.class);
@@ -66,8 +66,8 @@ public class OidcBackChannelLogoutFilterTests {
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		given(clientRegistrationRepository.findByRegistrationId(any())).willReturn(clientRegistration);
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
-		OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(clientRegistrationRepository,
-				authenticationManager);
+		OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(
+				new OidcLogoutAuthenticationConverter(clientRegistrationRepository), authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/connect/back-channel/id");
 		request.setServletPath("/logout/connect/back-channel/id");
 		MockHttpServletResponse response = new MockHttpServletResponse();
@@ -82,7 +82,7 @@ public class OidcBackChannelLogoutFilterTests {
 		ClientRegistrationRepository clientRegistrationRepository = mock(ClientRegistrationRepository.class);
 		AuthenticationManager authenticationManager = mock(AuthenticationManager.class);
 		OidcBackChannelLogoutFilter backChannelLogoutFilter = new OidcBackChannelLogoutFilter(
-				clientRegistrationRepository, authenticationManager);
+				new OidcLogoutAuthenticationConverter(clientRegistrationRepository), authenticationManager);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST", "/logout/connect/back-channel/id");
 		request.setServletPath("/logout/connect/back-channel/id");
 		request.setParameter("logout_token", "logout_token");
@@ -108,8 +108,8 @@ public class OidcBackChannelLogoutFilterTests {
 		OidcSessionRegistry sessionRegistry = mock(OidcSessionRegistry.class);
 		given(sessionRegistry.removeSessionInformation(any(OidcLogoutToken.class))).willReturn(infos);
 		backChannelLogoutHandler.setSessionRegistry(sessionRegistry);
-		OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(clientRegistrationRepository,
-				authenticationManager);
+		OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(
+				new OidcLogoutAuthenticationConverter(clientRegistrationRepository), authenticationManager);
 		filter.setLogoutHandler(backChannelLogoutHandler);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST",
 				"/oauth2/" + clientRegistration.getRegistrationId() + "/logout");
@@ -132,7 +132,7 @@ public class OidcBackChannelLogoutFilterTests {
 		given(authenticationManager.authenticate(any())).willThrow(new BadCredentialsException("bad"));
 		LogoutHandler logoutHandler = mock(LogoutHandler.class);
 		OidcBackChannelLogoutFilter backChannelLogoutFilter = new OidcBackChannelLogoutFilter(
-				clientRegistrationRepository, authenticationManager);
+				new OidcLogoutAuthenticationConverter(clientRegistrationRepository), authenticationManager);
 		backChannelLogoutFilter.setLogoutHandler(logoutHandler);
 		MockHttpServletRequest request = new MockHttpServletRequest("POST",
 				"/oauth2/" + clientRegistration.getRegistrationId() + "/logout");

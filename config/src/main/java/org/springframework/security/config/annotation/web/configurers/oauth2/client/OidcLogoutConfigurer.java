@@ -26,8 +26,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthenticationProvider;
 import org.springframework.security.oauth2.client.oidc.web.OidcBackChannelLogoutFilter;
+import org.springframework.security.oauth2.client.oidc.web.OidcLogoutAuthenticationConverter;
 import org.springframework.security.oauth2.client.oidc.web.logout.OidcBackChannelLogoutHandler;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.util.Assert;
@@ -96,10 +98,24 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 	 */
 	public final class BackChannelLogoutConfigurer {
 
+		private AuthenticationConverter authenticationConverter;
+
 		private AuthenticationManager authenticationManager = new ProviderManager(
 				new OidcBackChannelLogoutAuthenticationProvider());
 
 		private LogoutHandler logoutHandler;
+
+		/**
+		 * Use this {@link AuthenticationConverter} to extract the Logout Token from the
+		 * request
+		 * @param authenticationConverter the {@link AuthenticationConverter} to use
+		 * @return the {@link BackChannelLogoutConfigurer} for further configuration
+		 */
+		public BackChannelLogoutConfigurer authenticationConverter(AuthenticationConverter authenticationConverter) {
+			Assert.notNull(authenticationConverter, "authenticationConverter cannot be null");
+			this.authenticationConverter = authenticationConverter;
+			return this;
+		}
 
 		/**
 		 * Use this {@link AuthenticationManager} to authenticate the OIDC Logout Token
@@ -123,6 +139,15 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 			return this;
 		}
 
+		private AuthenticationConverter authenticationConverter(B http) {
+			if (this.authenticationConverter == null) {
+				ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
+						.getClientRegistrationRepository(http);
+				this.authenticationConverter = new OidcLogoutAuthenticationConverter(clientRegistrationRepository);
+			}
+			return this.authenticationConverter;
+		}
+
 		private AuthenticationManager authenticationManager() {
 			return this.authenticationManager;
 		}
@@ -137,9 +162,7 @@ public final class OidcLogoutConfigurer<B extends HttpSecurityBuilder<B>>
 		}
 
 		void configure(B http) {
-			ClientRegistrationRepository clientRegistrationRepository = OAuth2ClientConfigurerUtils
-					.getClientRegistrationRepository(http);
-			OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(clientRegistrationRepository,
+			OidcBackChannelLogoutFilter filter = new OidcBackChannelLogoutFilter(authenticationConverter(http),
 					authenticationManager());
 			filter.setLogoutHandler(logoutHandler(http));
 			http.addFilterBefore(filter, CsrfFilter.class);
