@@ -161,7 +161,7 @@ Of course, Spring Security is expressly designed to handle this common requireme
 == AuthenticationManager
 
 {security-api-url}org/springframework/security/authentication/AuthenticationManager.html[`AuthenticationManager`] is the API that defines how Spring Security's Filters perform  xref:features/authentication/index.adoc#authentication[authentication].
-The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (that is, by <<servlet-security-filters,Spring Security's `Filters` instances>>) that invoked the `AuthenticationManager`.
+The <<servlet-authentication-authentication,`Authentication`>> that is returned is then set on the <<servlet-authentication-securitycontextholder>> by the controller (that is, by xref:../architecture.adoc#servlet-security-filters[Spring Security's `Filters` instances]) that invoked the `AuthenticationManager`.
 If you are not integrating with Spring Security's `Filters` instances, you can set the `SecurityContextHolder` directly and are not required to use an `AuthenticationManager`.
 
 While the implementation of `AuthenticationManager` could be anything, the most common implementation is <<servlet-authentication-providermanager,`ProviderManager`>>.
