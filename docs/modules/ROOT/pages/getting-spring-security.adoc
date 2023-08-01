@@ -191,7 +191,7 @@ Alternatively, you can manually add the starter:
 [subs="verbatim,attributes"]
 ----
 dependencies {
-	compile "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springframework.boot:spring-boot-starter-security"
 }
 ----
 
@@ -245,8 +245,8 @@ A minimal Spring Security Maven set of dependencies typically looks like the fol
 [subs="verbatim,attributes"]
 ----
 dependencies {
-	compile "org.springframework.security:spring-security-web"
-	compile "org.springframework.security:spring-security-config"
+	implementation "org.springframework.security:spring-security-web"
+	implementation "org.springframework.security:spring-security-config"
 }
 ----
 
