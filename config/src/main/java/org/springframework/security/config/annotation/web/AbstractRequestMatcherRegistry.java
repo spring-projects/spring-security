@@ -19,6 +19,7 @@ package org.springframework.security.config.annotation.web;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
@@ -246,12 +247,7 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 * @return a {@link List} of {@link AntPathRequestMatcher} instances
 		 */
 		static List<RequestMatcher> antMatchers(HttpMethod httpMethod, String... antPatterns) {
-			String method = (httpMethod != null) ? httpMethod.toString() : null;
-			List<RequestMatcher> matchers = new ArrayList<>();
-			for (String pattern : antPatterns) {
-				matchers.add(new AntPathRequestMatcher(pattern, method));
-			}
-			return matchers;
+			return Arrays.asList(antMatchersAsArray(httpMethod, antPatterns));
 		}
 
 		/**
@@ -263,6 +259,15 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		 */
 		static List<RequestMatcher> antMatchers(String... antPatterns) {
 			return antMatchers(null, antPatterns);
+		}
+
+		static RequestMatcher[] antMatchersAsArray(HttpMethod httpMethod, String... antPatterns) {
+			String method = (httpMethod != null) ? httpMethod.toString() : null;
+			RequestMatcher[] matchers = new RequestMatcher[antPatterns.length];
+			for (int index = 0; index < antPatterns.length; index++) {
+				matchers[index] = new AntPathRequestMatcher(antPatterns[index], method);
+			}
+			return matchers;
 		}
 
 		/**
