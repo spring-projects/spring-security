@@ -713,7 +713,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 			}
 			String value = super.getHeader(name);
 			if (value != null) {
-				validateAllowedHeaderValue(value);
+				validateAllowedHeaderValue(name, value);
 			}
 			return value;
 		}
@@ -734,7 +734,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 				@Override
 				public String nextElement() {
 					String value = headers.nextElement();
-					validateAllowedHeaderValue(value);
+					validateAllowedHeaderValue(name, value);
 					return value;
 				}
 
@@ -768,7 +768,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 			}
 			String value = super.getParameter(name);
 			if (value != null) {
-				validateAllowedParameterValue(value);
+				validateAllowedParameterValue(name, value);
 			}
 			return value;
 		}
@@ -781,7 +781,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 				String[] values = entry.getValue();
 				validateAllowedParameterName(name);
 				for (String value : values) {
-					validateAllowedParameterValue(value);
+					validateAllowedParameterValue(name, value);
 				}
 			}
 			return parameterMap;
@@ -815,7 +815,7 @@ public class StrictHttpFirewall implements HttpFirewall {
 			String[] values = super.getParameterValues(name);
 			if (values != null) {
 				for (String value : values) {
-					validateAllowedParameterValue(value);
+					validateAllowedParameterValue(name, value);
 				}
 			}
 			return values;
@@ -828,10 +828,10 @@ public class StrictHttpFirewall implements HttpFirewall {
 			}
 		}
 
-		private void validateAllowedHeaderValue(String value) {
+		private void validateAllowedHeaderValue(String name, String value) {
 			if (!StrictHttpFirewall.this.allowedHeaderValues.test(value)) {
 				throw new RequestRejectedException(
-						"The request was rejected because the header value \"" + value + "\" is not allowed.");
+						"The request was rejected because the header: \"" + name + " \" has a value \"" + value + "\" that is not allowed.");
 			}
 		}
 
@@ -842,10 +842,10 @@ public class StrictHttpFirewall implements HttpFirewall {
 			}
 		}
 
-		private void validateAllowedParameterValue(String value) {
+		private void validateAllowedParameterValue(String name, String value) {
 			if (!StrictHttpFirewall.this.allowedParameterValues.test(value)) {
 				throw new RequestRejectedException(
-						"The request was rejected because the parameter value \"" + value + "\" is not allowed.");
+						"The request was rejected because the parameter: \"" + name + " \" has a value \"" + value + "\" that is not allowed.");
 			}
 		}
 
