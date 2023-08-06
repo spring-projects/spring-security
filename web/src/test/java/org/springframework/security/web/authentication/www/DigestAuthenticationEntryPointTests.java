@@ -93,8 +93,8 @@ public class DigestAuthenticationEntryPointTests {
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-		assertThat(headerMap.get("realm")).isEqualTo("hello");
-		assertThat(headerMap.get("qop")).isEqualTo("auth");
+		assertThat(headerMap).containsEntry("realm", "hello");
+		assertThat(headerMap).containsEntry("qop", "auth");
 		assertThat(headerMap.get("stale")).isNull();
 		checkNonceValid(headerMap.get("nonce"));
 	}
@@ -116,9 +116,9 @@ public class DigestAuthenticationEntryPointTests {
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-		assertThat(headerMap.get("realm")).isEqualTo("hello");
-		assertThat(headerMap.get("qop")).isEqualTo("auth");
-		assertThat(headerMap.get("stale")).isEqualTo("true");
+		assertThat(headerMap).containsEntry("realm", "hello");
+		assertThat(headerMap).containsEntry("qop", "auth");
+		assertThat(headerMap).containsEntry("stale", "true");
 		checkNonceValid(headerMap.get("nonce"));
 	}
 

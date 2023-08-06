@@ -286,8 +286,8 @@ public class AbstractSecurityWebSocketMessageBrokerConfigurerTests {
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
 		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(handshakeHandler.attributes.get(this.sessionAttr))
-				.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
+		assertThat(handshakeHandler.attributes).containsEntry(this.sessionAttr,
+				request.getSession().getAttribute(this.sessionAttr));
 	}
 
 	private HttpRequestHandler handler(HttpServletRequest request) throws Exception {

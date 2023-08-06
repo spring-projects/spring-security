@@ -97,8 +97,8 @@ public class SessionRegistryImplTests {
 		this.sessionRegistry.registerNewSession(sessionId2, principal1);
 		this.sessionRegistry.registerNewSession(sessionId3, principal2);
 		assertThat(this.sessionRegistry.getAllPrincipals()).hasSize(2);
-		assertThat(this.sessionRegistry.getAllPrincipals().contains(principal1)).isTrue();
-		assertThat(this.sessionRegistry.getAllPrincipals().contains(principal2)).isTrue();
+		assertThat(this.sessionRegistry.getAllPrincipals()).contains(principal1);
+		assertThat(this.sessionRegistry.getAllPrincipals()).contains(principal2);
 	}
 
 	@Test

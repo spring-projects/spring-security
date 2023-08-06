@@ -189,7 +189,7 @@ public class JdbcUserDetailsManagerTests {
 	public void userExistsReturnsTrueForExistingUsername() {
 		insertJoe();
 		assertThat(this.manager.userExists("joe")).isTrue();
-		assertThat(this.cache.getUserMap().containsKey("joe")).isTrue();
+		assertThat(this.cache.getUserMap()).containsKey("joe");
 	}
 
 	@Test
@@ -251,7 +251,7 @@ public class JdbcUserDetailsManagerTests {
 		UserDetails newJoe = this.manager.loadUserByUsername("joe");
 		assertThat(newJoe.getPassword()).isEqualTo("password");
 		assertThat(SecurityContextHolder.getContext().getAuthentication().getCredentials()).isEqualTo("password");
-		assertThat(this.cache.getUserMap().containsKey("joe")).isTrue();
+		assertThat(this.cache.getUserMap()).containsKey("joe");
 	}
 
 	@Test

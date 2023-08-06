@@ -50,7 +50,7 @@ public class JwtClaimValidatorTests {
 	public void validateWhenClaimFailsTheTestThenReturnsFailure() {
 		Jwt jwt = TestJwts.jwt().claim(JwtClaimNames.ISS, "http://abc").build();
 		Collection<OAuth2Error> details = this.validator.validate(jwt).getErrors();
-		assertThat(this.validator.validate(jwt).getErrors().isEmpty()).isFalse();
+		assertThat(this.validator.validate(jwt).getErrors()).isNotEmpty();
 		assertThat(details).allMatch((error) -> Objects.equals(error.getErrorCode(), OAuth2ErrorCodes.INVALID_TOKEN));
 	}
 

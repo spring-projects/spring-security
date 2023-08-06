@@ -100,11 +100,11 @@ public class NimbusJweEncoderTests {
 		// @formatter:on
 		Jwt encodedJwe = this.jweEncoder.encode(JwtEncoderParameters.from(jwtClaimsSet));
 
-		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
-		assertThat(encodedJwe.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
+		assertThat(encodedJwe.getHeaders()).containsEntry(JoseHeaderNames.ALG, DEFAULT_JWE_HEADER.getAlgorithm());
+		assertThat(encodedJwe.getHeaders()).containsEntry("enc", DEFAULT_JWE_HEADER.<String>getHeader("enc"));
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.JWK)).isNull();
-		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
+		assertThat(encodedJwe.getHeaders()).containsEntry(JoseHeaderNames.KID, rsaJwk.getKeyID());
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.X5U)).isNull();
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.X5C)).isNull();
 		assertThat(encodedJwe.getHeaders().get(JoseHeaderNames.X5T)).isNull();
@@ -144,18 +144,18 @@ public class NimbusJweEncoderTests {
 		// @formatter:on
 		Jwt encodedJweNestedJws = this.jweEncoder.encode(JwtEncoderParameters.from(jwsHeader, jwtClaimsSet));
 
-		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.ALG))
-				.isEqualTo(DEFAULT_JWE_HEADER.getAlgorithm());
-		assertThat(encodedJweNestedJws.getHeaders().get("enc")).isEqualTo(DEFAULT_JWE_HEADER.<String>getHeader("enc"));
+		assertThat(encodedJweNestedJws.getHeaders()).containsEntry(JoseHeaderNames.ALG,
+				DEFAULT_JWE_HEADER.getAlgorithm());
+		assertThat(encodedJweNestedJws.getHeaders()).containsEntry("enc", DEFAULT_JWE_HEADER.<String>getHeader("enc"));
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JKU)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.JWK)).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
+		assertThat(encodedJweNestedJws.getHeaders()).containsEntry(JoseHeaderNames.KID, rsaJwk.getKeyID());
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5U)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5C)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5T)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.X5T_S256)).isNull();
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.TYP)).isNull();
-		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.CTY)).isEqualTo("JWT");
+		assertThat(encodedJweNestedJws.getHeaders()).containsEntry(JoseHeaderNames.CTY, "JWT");
 		assertThat(encodedJweNestedJws.getHeaders().get(JoseHeaderNames.CRIT)).isNull();
 
 		assertThat(encodedJweNestedJws.getIssuer()).isEqualTo(jwtClaimsSet.getIssuer());

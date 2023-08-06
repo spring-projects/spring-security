@@ -149,7 +149,7 @@ public class DigestAuthenticationFilterTests {
 		String header = response.getHeader("WWW-Authenticate").toString().substring(7);
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(header);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-		assertThat(headerMap.get("stale")).isEqualTo("true");
+		assertThat(headerMap).containsEntry("stale", "true");
 	}
 
 	@Test

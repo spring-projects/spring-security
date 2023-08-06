@@ -60,7 +60,7 @@ public class KeyGeneratorsTests {
 	public void string() {
 		StringKeyGenerator keyGenerator = KeyGenerators.string();
 		String hexStringKey = keyGenerator.generateKey();
-		assertThat(hexStringKey.length()).isEqualTo(16);
+		assertThat(hexStringKey).hasSize(16);
 		assertThat(Hex.decode(hexStringKey)).hasSize(8);
 		String hexStringKey2 = keyGenerator.generateKey();
 		assertThat(hexStringKey.equals(hexStringKey2)).isFalse();

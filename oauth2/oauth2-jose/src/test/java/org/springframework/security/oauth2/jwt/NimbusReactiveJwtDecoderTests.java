@@ -149,7 +149,7 @@ public class NimbusReactiveJwtDecoderTests {
 	@Test
 	public void decodeWhenMessageReadScopeThenSuccess() {
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
-		assertThat(jwt.getClaims().get("scope")).isEqualTo("message:read");
+		assertThat(jwt.getClaims()).containsEntry("scope", "message:read");
 	}
 
 	@Test
@@ -167,7 +167,7 @@ public class NimbusReactiveJwtDecoderTests {
 	public void decodeWhenIssuedAtThenSuccess() {
 		String withIssuedAt = "eyJraWQiOiJrZXktaWQtMSIsImFsZyI6IlJTMjU2In0.eyJzY29wZSI6IiIsImV4cCI6OTIyMzM3MjAwNjA5NjM3NSwiaWF0IjoxNTI5OTQyNDQ4fQ.LBzAJO-FR-uJDHST61oX4kimuQjz6QMJPW_mvEXRB6A-fMQWpfTQ089eboipAqsb33XnwWth9ELju9HMWLk0FjlWVVzwObh9FcoKelmPNR8mZIlFG-pAYGgSwi8HufyLabXHntFavBiFtqwp_z9clSOFK1RxWvt3lywEbGgtCKve0BXOjfKWiH1qe4QKGixH-NFxidvz8Qd5WbJwyb9tChC6ZKoKPv7Jp-N5KpxkY-O2iUtINvn4xOSactUsvKHgF8ZzZjvJGzG57r606OZXaNtoElQzjAPU5xDGg5liuEJzfBhvqiWCLRmSuZ33qwp3aoBnFgEw0B85gsNe3ggABg";
 		Jwt jwt = this.decoder.decode(withIssuedAt).block();
-		assertThat(jwt.getClaims().get(JwtClaimNames.IAT)).isEqualTo(Instant.ofEpochSecond(1529942448L));
+		assertThat(jwt.getClaims()).containsEntry(JwtClaimNames.IAT, Instant.ofEpochSecond(1529942448L));
 	}
 
 	@Test
@@ -267,8 +267,8 @@ public class NimbusReactiveJwtDecoderTests {
 		this.decoder.setClaimSetConverter(claimSetConverter);
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 		Jwt jwt = this.decoder.decode(this.messageReadToken).block();
-		assertThat(jwt.getClaims().size()).isEqualTo(1);
-		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
+		assertThat(jwt.getClaims()).hasSize(1);
+		assertThat(jwt.getClaims()).containsEntry("custom", "value");
 		verify(claimSetConverter).convert(any(Map.class));
 	}
 

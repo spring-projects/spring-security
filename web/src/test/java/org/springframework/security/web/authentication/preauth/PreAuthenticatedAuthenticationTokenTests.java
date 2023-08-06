@@ -42,7 +42,7 @@ public class PreAuthenticatedAuthenticationTokenTests {
 		assertThat(token.getPrincipal()).isEqualTo(principal);
 		assertThat(token.getCredentials()).isEqualTo(credentials);
 		assertThat(token.getDetails()).isEqualTo(details);
-		assertThat(token.getAuthorities().isEmpty()).isTrue();
+		assertThat(token.getAuthorities()).isEmpty();
 	}
 
 	@Test
@@ -53,7 +53,7 @@ public class PreAuthenticatedAuthenticationTokenTests {
 		assertThat(token.getPrincipal()).isEqualTo(principal);
 		assertThat(token.getCredentials()).isEqualTo(credentials);
 		assertThat(token.getDetails()).isNull();
-		assertThat(token.getAuthorities().isEmpty()).isTrue();
+		assertThat(token.getAuthorities()).isEmpty();
 	}
 
 	@Test

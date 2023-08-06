@@ -143,8 +143,8 @@ public class AnnotationSecurityAspectTests {
 		SecurityContextHolder.getContext().setAuthentication(this.anne);
 		List<String> objects = this.prePostSecured.postFilterMethod();
 		assertThat(objects).hasSize(2);
-		assertThat(objects.contains("apple")).isTrue();
-		assertThat(objects.contains("aubergine")).isTrue();
+		assertThat(objects).contains("apple");
+		assertThat(objects).contains("aubergine");
 	}
 
 	private void configureForElAnnotations() {
