@@ -257,6 +257,7 @@ static RoleHierarchy roleHierarchy() {
     hierarchy.setHierarchy("ROLE_ADMIN > ROLE_STAFF\n" +
             "ROLE_STAFF > ROLE_USER\n" +
             "ROLE_USER > ROLE_GUEST");
+    return hierarcy;
 }
 
 // and, if using method security also add
