@@ -139,15 +139,15 @@ public class ClaimTypeConverterTests {
 		claims.put(JSON_ARRAY_CLAIM, jsonArray);
 		claims.put(JSON_OBJECT_CLAIM, jsonObject);
 		claims = this.claimTypeConverter.convert(claims);
-		assertThat(claims.get(STRING_CLAIM)).isEqualTo("true");
-		assertThat(claims.get(BOOLEAN_CLAIM)).isEqualTo(Boolean.TRUE);
-		assertThat(claims.get(INSTANT_CLAIM)).isEqualTo(instant);
-		assertThat(claims.get(URL_CLAIM)).isEqualTo(url);
-		assertThat(claims.get(COLLECTION_STRING_CLAIM)).isEqualTo(listString);
-		assertThat(claims.get(LIST_STRING_CLAIM)).isEqualTo(listString);
-		assertThat(claims.get(MAP_STRING_OBJECT_CLAIM)).isEqualTo(mapStringObject);
-		assertThat(claims.get(JSON_ARRAY_CLAIM)).isEqualTo(jsonArrayListString);
-		assertThat(claims.get(JSON_OBJECT_CLAIM)).isEqualTo(jsonObjectMap);
+		assertThat(claims).containsEntry(STRING_CLAIM, "true");
+		assertThat(claims).containsEntry(BOOLEAN_CLAIM, Boolean.TRUE);
+		assertThat(claims).containsEntry(INSTANT_CLAIM, instant);
+		assertThat(claims).containsEntry(URL_CLAIM, url);
+		assertThat(claims).containsEntry(COLLECTION_STRING_CLAIM, listString);
+		assertThat(claims).containsEntry(LIST_STRING_CLAIM, listString);
+		assertThat(claims).containsEntry(MAP_STRING_OBJECT_CLAIM, mapStringObject);
+		assertThat(claims).containsEntry(JSON_ARRAY_CLAIM, jsonArrayListString);
+		assertThat(claims).containsEntry(JSON_OBJECT_CLAIM, jsonObjectMap);
 	}
 
 	@Test

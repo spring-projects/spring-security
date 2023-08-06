@@ -50,7 +50,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		sources.add(delegate);
 		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
 		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
+		assertThat(this.mds.getAllConfigAttributes()).isEmpty();
 		MethodInvocation mi = new SimpleMethodInvocation(null, String.class.getMethod("toString"));
 		assertThat(this.mds.getAttributes(mi)).isEqualTo(Collections.emptyList());
 		// Exercise the cached case
@@ -68,7 +68,7 @@ public class DelegatingMethodSecurityMetadataSourceTests {
 		sources.add(delegate);
 		this.mds = new DelegatingMethodSecurityMetadataSource(sources);
 		assertThat(this.mds.getMethodSecurityMetadataSources()).isSameAs(sources);
-		assertThat(this.mds.getAllConfigAttributes().isEmpty()).isTrue();
+		assertThat(this.mds.getAllConfigAttributes()).isEmpty();
 		MethodInvocation mi = new SimpleMethodInvocation("", toString);
 		assertThat(this.mds.getAttributes(mi)).isSameAs(attributes);
 		// Exercise the cached case

@@ -75,7 +75,7 @@ public class CsrfTokenHandshakeInterceptorTests {
 		CsrfToken token = new DefaultCsrfToken("header", "param", "token");
 		this.httpRequest.setAttribute(DeferredCsrfToken.class.getName(), new TestDeferredCsrfToken(token));
 		this.interceptor.beforeHandshake(this.request, this.response, this.wsHandler, this.attributes);
-		assertThat(this.attributes.keySet()).containsOnly(CsrfToken.class.getName());
+		assertThat(this.attributes).containsOnlyKeys(CsrfToken.class.getName());
 		CsrfToken csrfToken = (CsrfToken) this.attributes.get(CsrfToken.class.getName());
 		assertThat(csrfToken.getHeaderName()).isEqualTo(token.getHeaderName());
 		assertThat(csrfToken.getParameterName()).isEqualTo(token.getParameterName());

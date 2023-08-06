@@ -27,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import net.shibboleth.utilities.java.support.xml.SerializeSupport;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -401,7 +400,7 @@ public class Saml2LoginConfigurerTests {
 		// assertions
 		Authentication authentication = this.securityContextRepository
 				.loadContext(new HttpRequestResponseHolder(this.request, this.response)).getAuthentication();
-		Assertions.assertNotNull(authentication, "Expected a valid authentication object.");
+		assertThat(authentication).as("Expected a valid authentication object.").isNotNull();
 		assertThat(authentication.getAuthorities()).hasSize(1);
 		assertThat(authentication.getAuthorities()).first().isInstanceOf(SimpleGrantedAuthority.class)
 				.hasToString(expected);

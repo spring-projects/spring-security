@@ -68,7 +68,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 		Collection<GrantedAuthority> authorities = this.populator.getGrantedAuthorities(ctx, "notfound");
 		assertThat(authorities).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
+		assertThat(AuthorityUtils.authorityListToSet(authorities)).contains("ROLE_USER");
 	}
 
 	@Test
@@ -79,7 +79,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		Collection<GrantedAuthority> authorities = this.populator
 				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_USER")).isTrue();
+		assertThat(AuthorityUtils.authorityListToSet(authorities)).contains("ROLE_USER");
 	}
 
 	@Test
@@ -98,8 +98,8 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 
 		assertThat(authorities).as("Should have 2 roles").hasSize(2);
 
-		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
-		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+		assertThat(authorities).contains("ROLE_DEVELOPER");
+		assertThat(authorities).contains("ROLE_MANAGER");
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
-		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+		assertThat(authorities).contains("ROLE_MANAGER");
 	}
 
 	@Test
@@ -130,8 +130,8 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 2 roles").hasSize(2);
-		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
-		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
+		assertThat(authorities).contains("ROLE_MANAGER");
+		assertThat(authorities).contains("ROLE_DEVELOPER");
 	}
 
 	@Test
@@ -147,9 +147,9 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "manager"));
 
 		assertThat(authorities).as("Should have 3 roles").hasSize(3);
-		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
-		assertThat(authorities.contains("ROLE_SUBMANAGER")).isTrue();
-		assertThat(authorities.contains("ROLE_DEVELOPER")).isTrue();
+		assertThat(authorities).contains("ROLE_MANAGER");
+		assertThat(authorities).contains("ROLE_SUBMANAGER");
+		assertThat(authorities).contains("ROLE_DEVELOPER");
 	}
 
 	@Test
@@ -164,7 +164,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 		Collection<GrantedAuthority> authorities = this.populator
 				.getGrantedAuthorities(new DirContextAdapter(new DistinguishedName("cn=notused")), "notused");
 		assertThat(authorities).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(authorities).contains("ROLE_EXTRA")).isTrue();
+		assertThat(AuthorityUtils.authorityListToSet(authorities)).contains("ROLE_EXTRA");
 	}
 
 	@Test
@@ -180,7 +180,7 @@ public class DefaultLdapAuthoritiesPopulatorTests {
 				.authorityListToSet(this.populator.getGrantedAuthorities(ctx, "notused"));
 
 		assertThat(authorities).as("Should have 1 role").hasSize(1);
-		assertThat(authorities.contains("ROLE_MANAGER")).isTrue();
+		assertThat(authorities).contains("ROLE_MANAGER");
 	}
 
 	@Test

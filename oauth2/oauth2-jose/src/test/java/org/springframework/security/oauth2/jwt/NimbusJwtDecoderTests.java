@@ -248,8 +248,8 @@ public class NimbusJwtDecoderTests {
 		given(claimSetConverter.convert(any(Map.class))).willReturn(Collections.singletonMap("custom", "value"));
 		this.jwtDecoder.setClaimSetConverter(claimSetConverter);
 		Jwt jwt = this.jwtDecoder.decode(SIGNED_JWT);
-		assertThat(jwt.getClaims().size()).isEqualTo(1);
-		assertThat(jwt.getClaims().get("custom")).isEqualTo("value");
+		assertThat(jwt.getClaims()).hasSize(1);
+		assertThat(jwt.getClaims()).containsEntry("custom", "value");
 	}
 
 	// gh-7885

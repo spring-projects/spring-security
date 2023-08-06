@@ -144,14 +144,14 @@ public class DefaultOAuth2UserServiceTests {
 				.userInfoAuthenticationMethod(AuthenticationMethod.HEADER).userNameAttributeName("user-name").build();
 		OAuth2User user = this.userService.loadUser(new OAuth2UserRequest(clientRegistration, this.accessToken));
 		assertThat(user.getName()).isEqualTo("user1");
-		assertThat(user.getAttributes().size()).isEqualTo(6);
+		assertThat(user.getAttributes()).hasSize(6);
 		assertThat((String) user.getAttribute("user-name")).isEqualTo("user1");
 		assertThat((String) user.getAttribute("first-name")).isEqualTo("first");
 		assertThat((String) user.getAttribute("last-name")).isEqualTo("last");
 		assertThat((String) user.getAttribute("middle-name")).isEqualTo("middle");
 		assertThat((String) user.getAttribute("address")).isEqualTo("address");
 		assertThat((String) user.getAttribute("email")).isEqualTo("user1@example.com");
-		assertThat(user.getAuthorities().size()).isEqualTo(1);
+		assertThat(user.getAuthorities()).hasSize(1);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OAuth2UserAuthority.class);
 		OAuth2UserAuthority userAuthority = (OAuth2UserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("OAUTH2_USER");

@@ -38,16 +38,16 @@ public class DigestAuthUtilsTests {
 		String unsplit = "username=\"rod\", invalidEntryThatHasNoEqualsSign, realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", "\"");
-		assertThat(headerMap.get("username")).isEqualTo("rod");
-		assertThat(headerMap.get("realm")).isEqualTo("Contacts Realm");
-		assertThat(headerMap.get("nonce"))
-				.isEqualTo("MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
-		assertThat(headerMap.get("uri"))
-				.isEqualTo("/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
-		assertThat(headerMap.get("response")).isEqualTo("38644211cf9ac3da63ab639807e2baff");
-		assertThat(headerMap.get("qop")).isEqualTo("auth");
-		assertThat(headerMap.get("nc")).isEqualTo("00000004");
-		assertThat(headerMap.get("cnonce")).isEqualTo("2b8d329a8571b99a");
+		assertThat(headerMap).containsEntry("username", "rod");
+		assertThat(headerMap).containsEntry("realm", "Contacts Realm");
+		assertThat(headerMap).containsEntry("nonce",
+				"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==");
+		assertThat(headerMap).containsEntry("uri",
+				"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4");
+		assertThat(headerMap).containsEntry("response", "38644211cf9ac3da63ab639807e2baff");
+		assertThat(headerMap).containsEntry("qop", "auth");
+		assertThat(headerMap).containsEntry("nc", "00000004");
+		assertThat(headerMap).containsEntry("cnonce", "2b8d329a8571b99a");
 		assertThat(headerMap).hasSize(8);
 	}
 
@@ -56,16 +56,16 @@ public class DigestAuthUtilsTests {
 		String unsplit = "username=\"rod\", realm=\"Contacts Realm\", nonce=\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\", uri=\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\", response=\"38644211cf9ac3da63ab639807e2baff\", qop=auth, nc=00000004, cnonce=\"2b8d329a8571b99a\"";
 		String[] headerEntries = StringUtils.commaDelimitedListToStringArray(unsplit);
 		Map<String, String> headerMap = DigestAuthUtils.splitEachArrayElementAndCreateMap(headerEntries, "=", null);
-		assertThat(headerMap.get("username")).isEqualTo("\"rod\"");
-		assertThat(headerMap.get("realm")).isEqualTo("\"Contacts Realm\"");
-		assertThat(headerMap.get("nonce"))
-				.isEqualTo("\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
-		assertThat(headerMap.get("uri"))
-				.isEqualTo("\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
-		assertThat(headerMap.get("response")).isEqualTo("\"38644211cf9ac3da63ab639807e2baff\"");
-		assertThat(headerMap.get("qop")).isEqualTo("auth");
-		assertThat(headerMap.get("nc")).isEqualTo("00000004");
-		assertThat(headerMap.get("cnonce")).isEqualTo("\"2b8d329a8571b99a\"");
+		assertThat(headerMap).containsEntry("username", "\"rod\"");
+		assertThat(headerMap).containsEntry("realm", "\"Contacts Realm\"");
+		assertThat(headerMap).containsEntry("nonce",
+				"\"MTEwOTAyMzU1MTQ4NDo1YzY3OWViYWM5NDNmZWUwM2UwY2NmMDBiNDQzMTQ0OQ==\"");
+		assertThat(headerMap).containsEntry("uri",
+				"\"/spring-security-sample-contacts-filter/secure/adminPermission.htm?contactId=4\"");
+		assertThat(headerMap).containsEntry("response", "\"38644211cf9ac3da63ab639807e2baff\"");
+		assertThat(headerMap).containsEntry("qop", "auth");
+		assertThat(headerMap).containsEntry("nc", "00000004");
+		assertThat(headerMap).containsEntry("cnonce", "\"2b8d329a8571b99a\"");
 		assertThat(headerMap).hasSize(8);
 	}
 

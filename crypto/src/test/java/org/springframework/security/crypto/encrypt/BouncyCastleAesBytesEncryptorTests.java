@@ -20,13 +20,13 @@ import java.security.SecureRandom;
 import java.util.UUID;
 
 import org.bouncycastle.util.Arrays;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.keygen.KeyGenerators;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 
 public class BouncyCastleAesBytesEncryptorTests {
@@ -64,11 +64,11 @@ public class BouncyCastleAesBytesEncryptorTests {
 	private void generatesDifferentCipherTexts(BytesEncryptor bcEncryptor) {
 		byte[] encrypted1 = bcEncryptor.encrypt(this.testData);
 		byte[] encrypted2 = bcEncryptor.encrypt(this.testData);
-		Assertions.assertFalse(Arrays.areEqual(encrypted1, encrypted2));
+		assertThat(Arrays.areEqual(encrypted1, encrypted2)).isFalse();
 		byte[] decrypted1 = bcEncryptor.decrypt(encrypted1);
 		byte[] decrypted2 = bcEncryptor.decrypt(encrypted2);
-		Assertions.assertArrayEquals(this.testData, decrypted1);
-		Assertions.assertArrayEquals(this.testData, decrypted2);
+		assertThat(decrypted1).containsExactly(this.testData);
+		assertThat(decrypted2).containsExactly(this.testData);
 	}
 
 	@Test

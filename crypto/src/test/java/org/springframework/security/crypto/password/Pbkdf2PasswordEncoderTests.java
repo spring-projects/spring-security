@@ -39,8 +39,8 @@ public class Pbkdf2PasswordEncoderTests {
 		// encode output is an hex coded String so with 2 chars per encoding result byte
 		// (ie. 1 char for 4 bits).
 		// The encoding result size is : (saltLength * 8) bits + hashWith bits.
-		assertThat(this.encoder.encode("password").length()).isEqualTo((8 * 8 + 256) / 4);
-		assertThat(this.encoderSalt16.encode("password").length()).isEqualTo((16 * 8 + 256) / 4);
+		assertThat(this.encoder.encode("password")).hasSize((8 * 8 + 256) / 4);
+		assertThat(this.encoderSalt16.encode("password")).hasSize((16 * 8 + 256) / 4);
 	}
 
 	@Test

@@ -75,7 +75,7 @@ public class AbstractRequestMatcherRegistryTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
 				.requestMatchers(new RegexRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
 	}
 
@@ -84,7 +84,7 @@ public class AbstractRequestMatcherRegistryTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
 				.requestMatchers(new RegexRequestMatcher("/a.*", null));
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(RegexRequestMatcher.class);
 	}
 
@@ -93,7 +93,7 @@ public class AbstractRequestMatcherRegistryTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry
 				.requestMatchers(new AntPathRequestMatcher("/a.*", HttpMethod.GET.name()));
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 
@@ -101,7 +101,7 @@ public class AbstractRequestMatcherRegistryTests {
 	public void antMatchersWhenPatternParamThenReturnAntPathRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(new AntPathRequestMatcher("/a.*"));
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(AntPathRequestMatcher.class);
 	}
 
@@ -110,7 +110,7 @@ public class AbstractRequestMatcherRegistryTests {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(HttpMethod.GET,
 				DispatcherType.ASYNC);
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
 	}
 
@@ -118,7 +118,7 @@ public class AbstractRequestMatcherRegistryTests {
 	public void dispatcherMatchersWhenPatternParamThenReturnAntPathRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.dispatcherTypeMatchers(DispatcherType.INCLUDE);
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(DispatcherTypeRequestMatcher.class);
 	}
 
@@ -126,7 +126,7 @@ public class AbstractRequestMatcherRegistryTests {
 	public void requestMatchersWhenPatternAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/path");
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(MvcRequestMatcher.class);
 	}
 
@@ -134,7 +134,7 @@ public class AbstractRequestMatcherRegistryTests {
 	public void requestMatchersWhenHttpMethodAndPatternAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET, "/path");
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(MvcRequestMatcher.class);
 	}
 
@@ -142,7 +142,7 @@ public class AbstractRequestMatcherRegistryTests {
 	public void requestMatchersWhenHttpMethodAndMvcPresentThenReturnMvcRequestMatcherType() {
 		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers(HttpMethod.GET);
 		assertThat(requestMatchers).isNotEmpty();
-		assertThat(requestMatchers.size()).isEqualTo(1);
+		assertThat(requestMatchers).hasSize(1);
 		assertThat(requestMatchers.get(0)).isExactlyInstanceOf(MvcRequestMatcher.class);
 	}
 

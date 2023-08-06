@@ -38,10 +38,10 @@ public class OidcUserInfoBuilderTests {
 				.build();
 		// @formatter:on
 		assertThat(first.getClaims()).hasSize(1);
-		assertThat(first.getClaims().get("TEST_CLAIM_1")).isEqualTo("C1");
+		assertThat(first.getClaims()).containsEntry("TEST_CLAIM_1", "C1");
 		assertThat(second.getClaims()).hasSize(2);
-		assertThat(second.getClaims().get("TEST_CLAIM_1")).isEqualTo("C2");
-		assertThat(second.getClaims().get("TEST_CLAIM_2")).isEqualTo("C3");
+		assertThat(second.getClaims()).containsEntry("TEST_CLAIM_1", "C2");
+		assertThat(second.getClaims()).containsEntry("TEST_CLAIM_2", "C3");
 	}
 
 	@Test

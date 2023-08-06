@@ -16,7 +16,6 @@
 
 package org.springframework.security.access.intercept;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.security.authentication.BadCredentialsException;
@@ -50,7 +49,7 @@ public class RunAsImplAuthenticationProviderTests {
 		RunAsImplAuthenticationProvider provider = new RunAsImplAuthenticationProvider();
 		provider.setKey("my_password");
 		Authentication result = provider.authenticate(token);
-		Assertions.assertTrue(result instanceof RunAsUserToken, "Should have returned RunAsUserToken");
+		assertThat(result instanceof RunAsUserToken).as("Should have returned RunAsUserToken").isTrue();
 		RunAsUserToken resultCast = (RunAsUserToken) result;
 		assertThat(resultCast.getKeyHash()).isEqualTo("my_password".hashCode());
 	}
