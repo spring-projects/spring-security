@@ -72,7 +72,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	private String noIssuer = jwt("sub", "sub");
 
 	@Test
-	public void resolveWhenUsingTrustedIssuerThenReturnsAuthenticationManager() throws Exception {
+	public void resolveWhenUsingFromTrustedIssuersThenReturnsAuthenticationManager() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			String issuer = server.url("").toString();
 			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
@@ -86,6 +86,30 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
 			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
 					.fromTrustedIssuers(issuer);
+			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null).block();
+			assertThat(authenticationManager).isNotNull();
+			BearerTokenAuthenticationToken token = withBearerToken(jws.serialize());
+			Authentication authentication = authenticationManager.authenticate(token).block();
+			assertThat(authentication).isNotNull();
+			assertThat(authentication.isAuthenticated()).isTrue();
+		}
+	}
+
+	@Test
+	public void resolveWhenUsingFromTrustedIssuersPredicateThenReturnsAuthenticationManager() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String issuer = server.url("").toString();
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET));
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET));
+			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+					.fromTrustedIssuers(issuer::equals);
 			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null).block();
 			assertThat(authenticationManager).isNotNull();
 			BearerTokenAuthenticationToken token = withBearerToken(jws.serialize());
@@ -229,7 +253,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	}
 
 	@Test
-	public void constructorWhenNullOrEmptyIssuersThenException() {
+	public void factoryWhenNullOrEmptyIssuersThenException() {
 		assertThatIllegalArgumentException().isThrownBy(
 				() -> JwtIssuerReactiveAuthenticationManagerResolver.fromTrustedIssuers((Predicate<String>) null));
 		assertThatIllegalArgumentException().isThrownBy(
