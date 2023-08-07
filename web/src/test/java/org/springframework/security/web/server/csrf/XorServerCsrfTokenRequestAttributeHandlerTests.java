@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -180,6 +180,16 @@ public class XorServerCsrfTokenRequestAttributeHandlerTests {
 				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE)).build();
 		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, this.token);
 		StepVerifier.create(csrfToken).expectNext(this.token.getToken()).verifyComplete();
+	}
+
+	@Test
+	public void resolveCsrfTokenIsInvalidThenReturnsNull() {
+		this.exchange = MockServerWebExchange.builder(MockServerHttpRequest.post("/")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.body(this.token.getParameterName() + "=" + XOR_CSRF_TOKEN_VALUE)).build();
+		CsrfToken token = new DefaultCsrfToken("headerName", "paramName", "a");
+		Mono<String> csrfToken = this.handler.resolveCsrfTokenValue(this.exchange, token);
+		assertThat(csrfToken.block()).isNull();
 	}
 
 	private static Answer<Void> fillByteArray() {
