@@ -227,8 +227,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 				return authenticationManager;
 			}
 			else {
-				this.logger.debug(LogMessage
-						.format("Did not resolve AuthenticationManager since issuer is not trusted", issuer));
+				this.logger.debug("Did not resolve AuthenticationManager since issuer is not trusted");
 			}
 			return null;
 		}
