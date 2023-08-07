@@ -38,8 +38,8 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 				name = 'shibboleth'
 				url = 'https://build.shibboleth.net/nexus/content/repositories/releases/'
 				content {
-					includeGroup('org.opensaml')
-					includeGroup('net.shibboleth.utilities')
+					includeGroupByRegex('org\\.opensaml.*')
+					includeGroupByRegex('net\\.shibboleth.*')
 				}
 			}
 			mavenCentral()
