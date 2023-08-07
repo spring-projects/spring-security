@@ -95,6 +95,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
 	 * @param trustedIssuers an array of trusted issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerReactiveAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
 		return fromTrustedIssuers(Set.of(trustedIssuers));
@@ -104,6 +105,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
 	 * @param trustedIssuers a collection of trusted issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerReactiveAuthenticationManagerResolver fromTrustedIssuers(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
@@ -114,6 +116,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 	 * Construct a {@link JwtIssuerReactiveAuthenticationManagerResolver} using the
 	 * provided parameters
 	 * @param trustedIssuers a predicate to validate issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerReactiveAuthenticationManagerResolver fromTrustedIssuers(Predicate<String> trustedIssuers) {
 		Assert.notNull(trustedIssuers, "trustedIssuers cannot be null");
@@ -219,7 +222,7 @@ public final class JwtIssuerReactiveAuthenticationManagerResolver
 		public Mono<ReactiveAuthenticationManager> resolve(String issuer) {
 			if (!this.trustedIssuer.test(issuer)) {
 				this.logger.debug(LogMessage
-						.format("Did not resolve AuthenticationManager since issuer '%s' is not trusted", issuer));
+						.format("Did not resolve AuthenticationManager since issuer is not trusted", issuer));
 				return Mono.empty();
 			}
 			// @formatter:off

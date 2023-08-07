@@ -91,6 +91,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers an array of trusted issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(String... trustedIssuers) {
 		return fromTrustedIssuers(Set.of(trustedIssuers));
@@ -100,6 +101,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers a collection of trusted issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Collection<String> trustedIssuers) {
 		Assert.notEmpty(trustedIssuers, "trustedIssuers cannot be empty");
@@ -110,6 +112,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 	 * Construct a {@link JwtIssuerAuthenticationManagerResolver} using the provided
 	 * parameters
 	 * @param trustedIssuers a predicate to validate issuers
+	 * @since 6.2
 	 */
 	public static JwtIssuerAuthenticationManagerResolver fromTrustedIssuers(Predicate<String> trustedIssuers) {
 		Assert.notNull(trustedIssuers, "trustedIssuers cannot be null");
@@ -225,7 +228,7 @@ public final class JwtIssuerAuthenticationManagerResolver implements Authenticat
 			}
 			else {
 				this.logger.debug(LogMessage
-						.format("Did not resolve AuthenticationManager since issuer '%s' is not trusted", issuer));
+						.format("Did not resolve AuthenticationManager since issuer is not trusted", issuer));
 			}
 			return null;
 		}
