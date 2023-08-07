@@ -1,6 +1,7 @@
 plugins {
 	id 'org.antora' version '1.0.0'
 	id 'io.spring.antora.generate-antora-yml' version '0.0.1'
+	id 'io.spring.convention.repository'
 }
 
 apply plugin: 'io.spring.convention.docs'
@@ -60,11 +61,4 @@ def resolvedVersions(Configuration configuration) {
 	return configuration.resolvedConfiguration
 				.resolvedArtifacts
 				.collectEntries { [(it.name + '-version'): it.moduleVersion.id.version] }
-}
-
-repositories {
-	mavenCentral()
-	maven { url 'https://repo.spring.io/release' }
-	maven { url 'https://repo.spring.io/milestone' }
-	maven { url 'https://repo.spring.io/snapshot' }
 }
