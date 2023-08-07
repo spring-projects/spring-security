@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,7 +88,7 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 		System.arraycopy(actualBytes, randomBytesSize, xoredCsrf, 0, tokenSize);
 
 		byte[] csrfBytes = xorCsrf(randomBytes, xoredCsrf);
-		return Utf8.decode(csrfBytes);
+		return (csrfBytes != null) ? Utf8.decode(csrfBytes) : null;
 	}
 
 	private static String createXoredCsrfToken(SecureRandom secureRandom, String token) {
@@ -105,6 +105,9 @@ public final class XorServerCsrfTokenRequestAttributeHandler extends ServerCsrfT
 	}
 
 	private static byte[] xorCsrf(byte[] randomBytes, byte[] csrfBytes) {
+		if (csrfBytes.length < randomBytes.length) {
+			return null;
+		}
 		int len = Math.min(randomBytes.length, csrfBytes.length);
 		byte[] xoredCsrf = new byte[len];
 		System.arraycopy(csrfBytes, 0, xoredCsrf, 0, csrfBytes.length);
