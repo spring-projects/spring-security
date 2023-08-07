@@ -44,7 +44,7 @@ public final class IpAddressMatcher implements RequestMatcher {
 	 * Takes a specific IP address or a range specified using the IP/Netmask (e.g.
 	 * 192.168.1.0/24 or 202.24.0.0/14).
 	 * @param ipAddress the address or range of addresses from which the request must
-	 * come.
+	 * come. Note: ipAddress should not be a hostname to avoid the DNS resolution for potential security issue
 	 */
 	public IpAddressMatcher(String ipAddress) {
 		if (ipAddress.indexOf('/') > 0) {
@@ -65,6 +65,10 @@ public final class IpAddressMatcher implements RequestMatcher {
 		return matches(request.getRemoteAddr());
 	}
 
+	/**
+	 * match whether address is in the range of ipAddress
+	 * @param address which is for Ip range check. Note: address should not be a hostname to avoid the DNS resolution for potential security issue
+	 */
 	public boolean matches(String address) {
 		InetAddress remoteAddress = parseAddress(address);
 		if (!this.requiredAddress.getClass().equals(remoteAddress.getClass())) {
