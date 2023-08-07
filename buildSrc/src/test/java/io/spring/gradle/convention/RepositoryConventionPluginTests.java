@@ -125,27 +125,27 @@ public class RepositoryConventionPluginTests {
 
 	private void assertSnapshotRepository(RepositoryHandler repositories) {
 		assertThat(repositories).extracting(ArtifactRepository::getName).hasSize(5);
-		assertThat(((MavenArtifactRepository) repositories.get(0)).getUrl().toString())
-				.isEqualTo("https://repo.maven.apache.org/maven2/");
 		assertThat(((MavenArtifactRepository) repositories.get(1)).getUrl().toString())
-				.isEqualTo("https://repo.spring.io/snapshot/");
+				.isEqualTo("https://repo.maven.apache.org/maven2/");
 		assertThat(((MavenArtifactRepository) repositories.get(2)).getUrl().toString())
+				.isEqualTo("https://repo.spring.io/snapshot/");
+		assertThat(((MavenArtifactRepository) repositories.get(3)).getUrl().toString())
 				.isEqualTo("https://repo.spring.io/milestone/");
 	}
 
 	private void assertMilestoneRepository(RepositoryHandler repositories) {
 		assertThat(repositories).extracting(ArtifactRepository::getName).hasSize(4);
-		assertThat(((MavenArtifactRepository) repositories.get(0)).getUrl().toString())
-				.isEqualTo("https://repo.maven.apache.org/maven2/");
 		assertThat(((MavenArtifactRepository) repositories.get(1)).getUrl().toString())
+				.isEqualTo("https://repo.maven.apache.org/maven2/");
+		assertThat(((MavenArtifactRepository) repositories.get(2)).getUrl().toString())
 				.isEqualTo("https://repo.spring.io/milestone/");
 	}
 
 	private void assertReleaseRepository(RepositoryHandler repositories) {
 		assertThat(repositories).extracting(ArtifactRepository::getName).hasSize(3);
-		assertThat(((MavenArtifactRepository) repositories.get(0)).getUrl().toString())
-				.isEqualTo("https://repo.maven.apache.org/maven2/");
 		assertThat(((MavenArtifactRepository) repositories.get(1)).getUrl().toString())
+				.isEqualTo("https://repo.maven.apache.org/maven2/");
+		assertThat(((MavenArtifactRepository) repositories.get(2)).getUrl().toString())
 				.isEqualTo("https://repo.spring.io/release/");
 	}
 
