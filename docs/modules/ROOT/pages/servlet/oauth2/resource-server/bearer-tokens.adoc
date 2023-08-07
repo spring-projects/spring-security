@@ -241,16 +241,15 @@ fun rest(): RestTemplate {
     val rest = RestTemplate()
     rest.interceptors.add(ClientHttpRequestInterceptor { request, body, execution ->
         val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        if (authentication != null) {
-            execution.execute(request, body)
+        if (authentication == null) {
+            return execution.execute(request, body)
         }
 
-        if (authentication!!.credentials !is AbstractOAuth2Token) {
-            execution.execute(request, body)
+        if (authentication.credentials !is AbstractOAuth2Token) {
+            return execution.execute(request, body)
         }
 
-        val token: AbstractOAuth2Token = authentication.credentials as AbstractOAuth2Token
-        request.headers.setBearerAuth(token.tokenValue)
+        request.headers.setBearerAuth(authentication.credentials.tokenValue)
         execution.execute(request, body)
     })
     return rest
