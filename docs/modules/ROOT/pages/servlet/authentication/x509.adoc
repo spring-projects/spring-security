@@ -13,7 +13,7 @@ It maps the certificate to an application user and loads that user's set of gran
 
 You can also use SSL with "`mutual authentication`". The server then requests a valid certificate from the client as part of the SSL handshake.
 The server authenticates the client by checking that its certificate is signed by an acceptable authority.
-For example, if you use Tomcat, you should read the https://tomcat.apache.org/tomcat-9.0-doc/ssl-howto.html[Tomcat SSL instructions].
+For example, if you use Tomcat, you should read the https://tomcat.apache.org/tomcat-10.1-doc/ssl-howto.html[Tomcat SSL instructions].
 You should get this working before trying it out with Spring Security.
 
 
