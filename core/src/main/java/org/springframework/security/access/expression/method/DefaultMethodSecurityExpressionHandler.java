@@ -52,6 +52,7 @@ import org.springframework.util.Assert;
  *
  * @author Luke Taylor
  * @author Evgeniy Cheban
+ * @author Ivan Shapoval
  * @since 3.0
  */
 public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpressionHandler<MethodInvocation>
@@ -81,7 +82,7 @@ public class DefaultMethodSecurityExpressionHandler extends AbstractSecurityExpr
 
 	@Override
 	public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication, MethodInvocation mi) {
-		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication, mi);
+		MethodSecurityExpressionOperations root = createSecurityExpressionRoot(authentication.get(), mi);
 		MethodSecurityEvaluationContext ctx = new MethodSecurityEvaluationContext(root, mi,
 				getParameterNameDiscoverer());
 		ctx.setBeanResolver(getBeanResolver());
