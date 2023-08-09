@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2021 the original author or authors.
+ * Copyright 2012-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -830,8 +830,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		private void validateAllowedHeaderValue(String name, String value) {
 			if (!StrictHttpFirewall.this.allowedHeaderValues.test(value)) {
-				throw new RequestRejectedException(
-						"The request was rejected because the header: \"" + name + " \" has a value \"" + value + "\" that is not allowed.");
+				throw new RequestRejectedException("The request was rejected because the header: \"" + name
+						+ " \" has a value \"" + value + "\" that is not allowed.");
 			}
 		}
 
@@ -844,8 +844,8 @@ public class StrictHttpFirewall implements HttpFirewall {
 
 		private void validateAllowedParameterValue(String name, String value) {
 			if (!StrictHttpFirewall.this.allowedParameterValues.test(value)) {
-				throw new RequestRejectedException(
-						"The request was rejected because the parameter: \"" + name + " \" has a value \"" + value + "\" that is not allowed.");
+				throw new RequestRejectedException("The request was rejected because the parameter: \"" + name
+						+ " \" has a value \"" + value + "\" that is not allowed.");
 			}
 		}
 
