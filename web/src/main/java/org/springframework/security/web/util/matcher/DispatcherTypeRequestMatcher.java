@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -66,7 +66,7 @@ public class DispatcherTypeRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
-				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
+				&& this.httpMethod != HttpMethod.valueOf(request.getMethod())) {
 			return false;
 		}
 		return this.dispatcherType == request.getDispatcherType();
