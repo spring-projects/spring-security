@@ -268,6 +268,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			}
 		}
 		this.initDefaultLoginFilter(http);
+		if (this.authenticationManager == null) {
+			registerDefaultAuthenticationProvider(http);
+		}
 	}
 
 	/**
@@ -283,10 +286,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		filter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
 		http.addFilter(postProcess(filter));
 		super.configure(http);
-		if (this.authenticationManager == null) {
-			registerDefaultAuthenticationProvider(http);
-		}
-		else {
+		if (this.authenticationManager != null) {
 			this.saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
 	}
@@ -359,7 +359,10 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {
-		http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		OpenSaml4AuthenticationProvider provider = getBeanOrNull(http, OpenSaml4AuthenticationProvider.class);
+		if (provider == null) {
+			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		}
 	}
 
 	private void registerDefaultCsrfOverride(B http) {
