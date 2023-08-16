@@ -22,6 +22,6 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean name="decoder" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoder"/>
+		<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoder" type="java.lang.Class"/>
 	</b:bean>
 </b:beans>

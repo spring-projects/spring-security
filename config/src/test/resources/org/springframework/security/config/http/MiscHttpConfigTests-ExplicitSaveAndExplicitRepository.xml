@@ -30,7 +30,7 @@
 	</http>
 
 	<b:bean name="repo" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.context.SecurityContextRepository"/>
+		<b:constructor-arg value="org.springframework.security.web.context.SecurityContextRepository" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:import resource="MiscHttpConfigTests-controllers.xml"/>

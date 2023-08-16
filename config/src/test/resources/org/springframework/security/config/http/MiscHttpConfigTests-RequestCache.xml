@@ -30,7 +30,7 @@
 	</http>
 
 	<b:bean name="requestCache" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache"/>
+		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

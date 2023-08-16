@@ -22,7 +22,7 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean name="rest" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.web.client.RestOperations"/>
+		<b:constructor-arg value="org.springframework.web.client.RestOperations" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:bean name="introspector"

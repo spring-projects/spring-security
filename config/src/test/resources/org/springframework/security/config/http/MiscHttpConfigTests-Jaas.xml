@@ -48,7 +48,7 @@
 	</b:bean>
 
 	<b:bean name="jaasAuthorityGranter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.authentication.jaas.AuthorityGranter"/>
+		<b:constructor-arg value="org.springframework.security.authentication.jaas.AuthorityGranter" type="java.lang.Class"/>
 	</b:bean>
 
 	<authentication-manager id="authenticationManager">
