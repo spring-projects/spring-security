@@ -48,8 +48,7 @@ public class Saml2WebSsoAuthenticationFilter extends AbstractAuthenticationProce
 	public static final String DEFAULT_FILTER_PROCESSES_URI = "/login/saml2/sso/{registrationId}";
 
 	private static final RequestMatcher DEFAULT_REQUEST_MATCHER = new OrRequestMatcher(
-			new AntPathRequestMatcher(DEFAULT_FILTER_PROCESSES_URI),
-			new AntPathRequestMatcher("/login/saml2/sso"));
+			new AntPathRequestMatcher(DEFAULT_FILTER_PROCESSES_URI), new AntPathRequestMatcher("/login/saml2/sso"));
 
 	private final AuthenticationConverter authenticationConverter;
 
