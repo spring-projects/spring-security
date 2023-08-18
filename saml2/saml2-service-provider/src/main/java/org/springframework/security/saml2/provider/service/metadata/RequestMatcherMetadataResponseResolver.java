@@ -19,8 +19,6 @@ package org.springframework.security.saml2.provider.service.metadata;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -126,21 +124,19 @@ public final class RequestMatcherMetadataResponseResolver implements Saml2Metada
 			Iterable<RelyingPartyRegistration> registrations) {
 		Map<String, RelyingPartyRegistration> results = new LinkedHashMap<>();
 		for (RelyingPartyRegistration registration : registrations) {
-			results.put(registration.getEntityId(), registration);
-		}
-		Collection<RelyingPartyRegistration> resolved = new ArrayList<>();
-		for (RelyingPartyRegistration registration : results.values()) {
 			UriResolver uriResolver = RelyingPartyRegistrationPlaceholderResolvers.uriResolver(request, registration);
 			String entityId = uriResolver.resolve(registration.getEntityId());
-			String ssoLocation = uriResolver.resolve(registration.getAssertionConsumerServiceLocation());
-			String sloLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
-			String sloResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
-			resolved.add(registration.mutate().entityId(entityId).assertionConsumerServiceLocation(ssoLocation)
-					.singleLogoutServiceLocation(sloLocation).singleLogoutServiceResponseLocation(sloResponseLocation)
-					.build());
+			results.computeIfAbsent(entityId, (e) -> {
+				String ssoLocation = uriResolver.resolve(registration.getAssertionConsumerServiceLocation());
+				String sloLocation = uriResolver.resolve(registration.getSingleLogoutServiceLocation());
+				String sloResponseLocation = uriResolver.resolve(registration.getSingleLogoutServiceResponseLocation());
+				return registration.mutate().entityId(entityId).assertionConsumerServiceLocation(ssoLocation)
+						.singleLogoutServiceLocation(sloLocation)
+						.singleLogoutServiceResponseLocation(sloResponseLocation).build();
+			});
 		}
-		String metadata = this.metadata.resolve(resolved);
-		String value = (resolved.size() == 1) ? resolved.iterator().next().getRegistrationId()
+		String metadata = this.metadata.resolve(results.values());
+		String value = (results.size() == 1) ? results.values().iterator().next().getRegistrationId()
 				: UUID.randomUUID().toString();
 		String fileName = this.filename.replace("{registrationId}", value);
 		try {
