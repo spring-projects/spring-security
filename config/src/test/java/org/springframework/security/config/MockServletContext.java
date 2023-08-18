@@ -16,8 +16,10 @@
 
 package org.springframework.security.config;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,7 +37,7 @@ public class MockServletContext extends org.springframework.mock.web.MockServlet
 
 	public static MockServletContext mvc() {
 		MockServletContext servletContext = new MockServletContext();
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
 		return servletContext;
 	}
 
@@ -58,6 +60,8 @@ public class MockServletContext extends org.springframework.mock.web.MockServlet
 		private final String name;
 
 		private final Class<?> clazz;
+
+		private final Set<String> mappings = new LinkedHashSet<>();
 
 		MockServletRegistration(String name, Class<?> clazz) {
 			this.name = name;
@@ -91,12 +95,13 @@ public class MockServletContext extends org.springframework.mock.web.MockServlet
 
 		@Override
 		public Set<String> addMapping(String... urlPatterns) {
-			return null;
+			this.mappings.addAll(Arrays.asList(urlPatterns));
+			return this.mappings;
 		}
 
 		@Override
 		public Collection<String> getMappings() {
-			return null;
+			return this.mappings;
 		}
 
 		@Override
