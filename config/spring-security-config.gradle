@@ -116,6 +116,14 @@ tasks.named('rncToXsd', RncToXsd).configure {
 	xslFile = new File(rncDir, 'spring-security.xsl')
 }
 
+sourceSets {
+	main {
+		resources {
+			srcDir(tasks.named('rncToXsd'))
+		}
+	}
+}
+
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
 		languageVersion = "1.3"
@@ -124,8 +132,6 @@ tasks.withType(KotlinCompile).configureEach {
 		jvmTarget = "1.8"
 	}
 }
-
-build.dependsOn rncToXsd
 
 compileTestJava {
 	exclude "org/springframework/security/config/annotation/web/configurers/saml2/**", "org/springframework/security/config/http/Saml2*"
