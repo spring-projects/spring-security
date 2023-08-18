@@ -67,7 +67,7 @@ public class AclEntryAfterInvocationCollectionFilteringProviderTests {
 				SecurityConfig.createList("UNSUPPORTED", "AFTER_ACL_COLLECTION_READ"),
 				new Object[] { new Object(), new Object() });
 		assertThat(returned instanceof Object[]).isTrue();
-		assertThat(((Object[]) returned).length == 0).isTrue();
+		assertThat(((Object[]) returned)).hasSize(0);
 	}
 
 	@Test
