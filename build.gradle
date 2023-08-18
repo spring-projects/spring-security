@@ -1,4 +1,5 @@
 import io.spring.gradle.IncludeRepoTask
+import trang.RncToXsd
 
 buildscript {
 	dependencies {
@@ -189,7 +190,7 @@ if (hasProperty('buildScan')) {
 
 nohttp {
 	source.exclude "buildSrc/build/**"
-
+	source.builtBy(project(':spring-security-config').tasks.withType(RncToXsd))
 }
 
 tasks.register('cloneSamples', IncludeRepoTask) {
