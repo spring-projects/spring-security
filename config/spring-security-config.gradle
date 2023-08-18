@@ -122,6 +122,14 @@ tasks.named('rncToXsd', RncToXsd).configure {
 	xslFile = new File(rncDir, 'spring-security.xsl')
 }
 
+sourceSets {
+	main {
+		resources {
+			srcDir(tasks.named('rncToXsd'))
+		}
+	}
+}
+
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
 		languageVersion = "1.7"
@@ -130,5 +138,3 @@ tasks.withType(KotlinCompile).configureEach {
 		jvmTarget = "17"
 	}
 }
-
-build.dependsOn rncToXsd
