@@ -58,7 +58,7 @@ Kotlin::
 @EnableWebSocketSecurity // <1> <2>
 open class WebSocketSecurityConfig { // <1> <2>
     @Bean
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
         messages.simpDestMatchers("/user/**").hasRole("USER") // <3>
         return messages.build()
     }
@@ -108,7 +108,7 @@ Kotlin::
 @EnableWebSocketSecurity // <1> <2>
 open class WebSocketSecurityConfig {
     @Bean
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?>> {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
         return AuthorityAuthorizationManager.hasRole("USER") // <3>
     }
 }
@@ -156,7 +156,7 @@ Kotlin::
 ----
 @Configuration
 open class WebSocketSecurityConfig {
-    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<?> {
+    fun messageAuthorizationManager(messages: MessageMatcherDelegatingAuthorizationManager.Builder): AuthorizationManager<Message<*>> {
         messages
             .nullDestMatcher().authenticated() // <1>
             .simpSubscribeDestMatchers("/user/queue/errors").permitAll() // <2>
@@ -394,7 +394,7 @@ open class WebSocketSecurityConfig : WebSocketMessageBrokerConfigurer {
 
     @Override
     override fun configureClientInboundChannel(registration: ChannelRegistration) {
-        var myAuthorizationRules: AuthorizationManager<Message<?>> = AuthenticatedAuthorizationManager.authenticated()
+        var myAuthorizationRules: AuthorizationManager<Message<*>> = AuthenticatedAuthorizationManager.authenticated()
         var authz: AuthorizationChannelInterceptor = AuthorizationChannelInterceptor(myAuthorizationRules)
         var publisher: AuthorizationEventPublisher = SpringAuthorizationEventPublisher(this.context)
         authz.setAuthorizationEventPublisher(publisher)
