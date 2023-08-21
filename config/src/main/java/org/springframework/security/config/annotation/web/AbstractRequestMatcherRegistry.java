@@ -18,6 +18,8 @@ package org.springframework.security.config.annotation.web;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -194,16 +196,29 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 		if (servletContext == null) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		Map<String, ? extends ServletRegistration> registrations = servletContext.getServletRegistrations();
-		if (registrations == null) {
+		Map<String, ? extends ServletRegistration> registrations = mappableServletRegistrations(servletContext);
+		if (registrations.isEmpty()) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
 		if (!hasDispatcherServlet(registrations)) {
 			return requestMatchers(RequestMatchers.antMatchersAsArray(method, patterns));
 		}
-		Assert.isTrue(registrations.size() == 1,
-				"This method cannot decide whether these patterns are Spring MVC patterns or not. If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); otherwise, please use requestMatchers(AntPathRequestMatcher).");
+		if (registrations.size() > 1) {
+			String errorMessage = computeErrorMessage(registrations.values());
+			throw new IllegalArgumentException(errorMessage);
+		}
 		return requestMatchers(createMvcMatchers(method, patterns).toArray(new RequestMatcher[0]));
+	}
+
+	private Map<String, ? extends ServletRegistration> mappableServletRegistrations(ServletContext servletContext) {
+		Map<String, ServletRegistration> mappable = new LinkedHashMap<>();
+		for (Map.Entry<String, ? extends ServletRegistration> entry : servletContext.getServletRegistrations()
+				.entrySet()) {
+			if (!entry.getValue().getMappings().isEmpty()) {
+				mappable.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return mappable;
 	}
 
 	private boolean hasDispatcherServlet(Map<String, ? extends ServletRegistration> registrations) {
@@ -224,6 +239,19 @@ public abstract class AbstractRequestMatcherRegistry<C> {
 			}
 		}
 		return false;
+	}
+
+	private String computeErrorMessage(Collection<? extends ServletRegistration> registrations) {
+		String template = "This method cannot decide whether these patterns are Spring MVC patterns or not. "
+				+ "If this endpoint is a Spring MVC endpoint, please use requestMatchers(MvcRequestMatcher); "
+				+ "otherwise, please use requestMatchers(AntPathRequestMatcher).\n\n"
+				+ "This is because there is more than one mappable servlet in your servlet context: %s.\n\n"
+				+ "For each MvcRequestMatcher, call MvcRequestMatcher#setServletPath to indicate the servlet path.";
+		Map<String, Collection<String>> mappings = new LinkedHashMap<>();
+		for (ServletRegistration registration : registrations) {
+			mappings.put(registration.getClassName(), registration.getMappings());
+		}
+		return String.format(template, mappings);
 	}
 
 	/**
