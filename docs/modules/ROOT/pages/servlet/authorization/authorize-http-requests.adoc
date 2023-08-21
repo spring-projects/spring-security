@@ -52,6 +52,7 @@ In many cases, your authorization rules will be more sophisticated than that, so
 * I have an app that uses `authorizeRequests` and I want to <<migrate-authorize-requests,migrate it to `authorizeHttpRequests`>>
 * I want to <<request-authorization-architecture,understand how the `AuthorizationFilter` components work>>
 * I want to <<match-requests, match requests>> based on a pattern; specifically <<match-by-regex,regex>>
+* I want to match request, and I map Spring MVC to <<mvc-not-default-servlet, something other than the default servlet>>
 * I want to <<authorize-requests, authorize requests>>
 * I want to <<match-by-custom, match a request programmatically>>
 * I want to <<authorize-requests, authorize a request programmatically>>
@@ -569,6 +570,71 @@ http {
 }
 ----
 ====
+
+[[match-by-mvc]]
+=== Using an MvcRequestMatcher
+
+Generally speaking, you can use `requestMatchers(String)` as demonstrated above.
+
+However, if you map Spring MVC to a different servlet path, then you need to account for that in your security configuration.
+
+For example, if Spring MVC is mapped to `/spring-mvc` instead of `/` (the default), then you may have an endpoint like `/spring-mvc/my/controller` that you want to authorize.
+
+You need to use `MvcRequestMatcher` to split the servlet path and the controller path in your configuration like so:
+
+.Match by MvcRequestMatcher
+====
+.Java
+[source,java,role="primary"]
+----
+@Bean
+MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
+	return new MvcRequestMatcher.Builder(introspector).servletPath("/spring-mvc");
+}
+
+@Bean
+SecurityFilterChain appEndpoints(HttpSecurity http, MvcRequestMatcher.Builder mvc) {
+	http
+        .authorizeHttpRequests((authorize) -> authorize
+            .requestMatchers(mvc.pattern("/my/controller/**")).hasAuthority("controller")
+            .anyRequest().authenticated()
+        );
+
+	return http.build();
+}
+----
+
+.Kotlin
+[source,kotlin,role="secondary"]
+----
+@Bean
+fun mvc(introspector: HandlerMappingIntrospector): MvcRequestMatcher.Builder =
+    MvcRequestMatcher.Builder(introspector).servletPath("/spring-mvc");
+
+@Bean
+fun appEndpoints(http: HttpSecurity, mvc: MvcRequestMatcher.Builder): SecurityFilterChain =
+    http {
+        authorizeHttpRequests {
+            authorize(mvc.pattern("/my/controller/**"), hasAuthority("controller"))
+            authorize(anyRequest, authenticated)
+        }
+    }
+----
+
+.Xml
+[source,xml,role="secondary"]
+----
+<http>
+    <intercept-url servlet-path="/spring-mvc" pattern="/my/controller/**" access="hasAuthority('controller')"/>
+    <intercept-url pattern="/**" access="authenticated"/>
+</http>
+----
+====
+
+This need can arise in at least two different ways:
+
+* If you use the `spring.mvc.servlet.path` Boot property to change the default path (`/`) to something else
+* If you register more than one Spring MVC `DispatcherServlet` (thus requiring that one of them not be the default path)
 
 [[match-by-custom]]
 === Using a Custom Matcher
