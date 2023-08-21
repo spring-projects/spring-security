@@ -174,10 +174,22 @@ public class AbstractRequestMatcherRegistryTests {
 	public void requestMatchersWhenAmbiguousServletsThenException() {
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
-		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class);
-		servletContext.addServlet("servletTwo", Servlet.class);
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
+		servletContext.addServlet("servletTwo", Servlet.class).addMapping("/servlet/**");
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.matcherRegistry.requestMatchers("/**"));
+	}
+
+	@Test
+	public void requestMatchersWhenUnmappableServletsThenSkips() {
+		mockMvcIntrospector(true);
+		MockServletContext servletContext = new MockServletContext();
+		given(this.context.getServletContext()).willReturn(servletContext);
+		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
+		servletContext.addServlet("servletTwo", Servlet.class);
+		List<RequestMatcher> requestMatchers = this.matcherRegistry.requestMatchers("/**");
+		assertThat(requestMatchers).hasSize(1);
+		assertThat(requestMatchers.get(0)).isInstanceOf(MvcRequestMatcher.class);
 	}
 
 	private void mockMvcIntrospector(boolean isPresent) {
