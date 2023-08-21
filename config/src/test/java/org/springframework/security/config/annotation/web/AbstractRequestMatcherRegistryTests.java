@@ -63,12 +63,13 @@ public class AbstractRequestMatcherRegistryTests {
 	private WebApplicationContext context;
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws Exception {
 		this.matcherRegistry = new TestRequestMatcherRegistry();
 		this.context = mock(WebApplicationContext.class);
 		given(this.context.getBean(ObjectPostProcessor.class)).willReturn(NO_OP_OBJECT_POST_PROCESSOR);
 		given(this.context.getServletContext()).willReturn(MockServletContext.mvc());
 		this.matcherRegistry.setApplicationContext(this.context);
+		mockMvcPresentClasspath(true);
 	}
 
 	@Test
@@ -219,6 +220,7 @@ public class AbstractRequestMatcherRegistryTests {
 
 	@Test
 	public void requestMatchersWhenUnmappableServletsThenSkips() {
+		mockMvcIntrospector(true);
 		MockServletContext servletContext = new MockServletContext();
 		given(this.context.getServletContext()).willReturn(servletContext);
 		servletContext.addServlet("dispatcherServlet", DispatcherServlet.class).addMapping("/");
