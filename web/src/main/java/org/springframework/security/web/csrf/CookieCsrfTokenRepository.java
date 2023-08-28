@@ -178,7 +178,7 @@ public final class CookieCsrfTokenRepository implements CsrfTokenRepository {
 	 */
 	public static CookieCsrfTokenRepository withHttpOnlyFalse() {
 		CookieCsrfTokenRepository result = new CookieCsrfTokenRepository();
-		result.setCookieCustomizer((cookie) -> cookie.httpOnly(false));
+		result.cookieHttpOnly = false;
 		return result;
 	}
 
