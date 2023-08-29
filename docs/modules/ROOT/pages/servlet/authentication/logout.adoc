@@ -80,7 +80,7 @@ Xml::
 and no authorization changes are necessary since it simply adjusts the `LogoutFilter`.
 
 [[permit-logout-endpoints]]
-However, if you stand up your own logout success endpoint (or in a rare case, <<creating-custom-logout-endpoint, your own logout endpoint>>), say using {spring-framework-reference-url}web.html#spring-web[Spring MVC], you will need permit it in Spring Security.
+However, if you stand up your own logout success endpoint (or in a rare case, <<creating-custom-logout-endpoint, your own logout endpoint>>), say using {spring-framework-reference-url}web.html#spring-web[Spring MVC], you will need to permit it in Spring Security.
 This is because Spring MVC processes your request after Spring Security does.
 
 You can do this using `authorizeHttpRequests` or `<intercept-url>` like so:
