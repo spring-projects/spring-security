@@ -217,7 +217,8 @@ class HttpBasicDslTests {
     @RestController
     class MainController {
         @GetMapping("/")
-        fun main() {
+        fun main():String {
+            return "ok"
         }
     }
 }

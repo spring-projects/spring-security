@@ -330,10 +330,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				super.init(http);
 			}
 		}
-		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = this.tokenEndpointConfig.accessTokenResponseClient;
-		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
-		}
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = getAccessTokenResponseClient();
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = getOAuth2UserService();
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider = new OAuth2LoginAuthenticationProvider(
 				accessTokenResponseClient, oauth2UserService);
@@ -439,6 +436,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				.beansOfTypeIncludingAncestors(this.getBuilder().getSharedObject(ApplicationContext.class),
 						GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
+	}
+
+	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+		if (this.tokenEndpointConfig.accessTokenResponseClient != null) {
+			return this.tokenEndpointConfig.accessTokenResponseClient;
+		}
+		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
+				OAuth2AuthorizationCodeGrantRequest.class);
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
+		return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {

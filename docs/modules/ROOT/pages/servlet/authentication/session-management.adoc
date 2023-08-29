@@ -80,15 +80,17 @@ If you try to use any of these methods, an exception will be thrown.
 
 By default, Spring Security stores the security context for you in the HTTP session. However, here are several reasons you may want to customize that:
 
-* You may want call individual setters on the `HttpSessionSecurityContextRepository` instance
+* You may want to call individual setters on the `HttpSessionSecurityContextRepository` instance
 * You may want to store the security context in a cache or database to enable horizontal scaling
 
 First, you need to create an implementation of `SecurityContextRepository` or use an existing implementation like `HttpSessionSecurityContextRepository`, then you can set it in `HttpSecurity`.
 
 [[customizing-the-securitycontextrepository]]
 .Customizing the `SecurityContextRepository`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -103,7 +105,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -119,7 +122,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http security-context-repository-ref="repo">
@@ -127,7 +131,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 </http>
 <bean name="repo" class="com.example.MyCustomSecurityContextRepository" />
 ----
-====
+======
 
 [NOTE]
 ====
@@ -144,8 +148,10 @@ In some cases, for example, you might be authenticating a user manually instead 
 You can use a custom filters or a {spring-framework-reference-url}/web.html#mvc-controller[Spring MVC controller] endpoint to do that.
 If you want to save the authentication between requests, in the `HttpSession`, for example, you have to do so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private SecurityContextRepository securityContextRepository =
@@ -170,7 +176,7 @@ class LoginRequest {
     // getters and setters
 }
 ----
-====
+======
 
 <1> Add the `SecurityContextRepository` to the controller
 <2> Inject the `HttpServletRequest` and `HttpServletResponse` to be able to save the `SecurityContext`
@@ -196,8 +202,10 @@ Some authentication mechanisms like xref:servlet/authentication/passwords/basic.
 
 If you do not wish to create sessions, you can use `SessionCreationPolicy.STATELESS`, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -211,7 +219,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -226,19 +235,20 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http create-session="stateless">
     <!-- ... -->
 </http>
 ----
-====
+======
 
 The above configuration is <<customizing-where-authentication-is-stored, configuring the `SecurityContextRepository`>> to use a `NullSecurityContextRepository` and is also xref:servlet/architecture.adoc#requestcache-prevent-saved-request[preventing the request from being saved in the session].
 
-[[never-policy-session-still-created]]
 
+[[never-policy-session-still-created]]
 If you are using `SessionCreationPolicy.NEVER`, you might notice that the application is still creating a `HttpSession`.
 In most cases, this happens because the xref:servlet/architecture.adoc#savedrequests[request is saved in the session] for the authenticated resource to re-request after authentication is successful.
 To avoid that, please refer to xref:servlet/architecture.adoc#requestcache-prevent-saved-request[how to prevent the request of being saved] section.
@@ -252,8 +262,10 @@ If, for some reason, you are using a stateless authentication mechanism, but you
 For the xref:servlet/authentication/passwords/basic.adoc[HTTP Basic], you can add xref:servlet/configuration/java.adoc#post-processing-configured-objects[a `ObjectPostProcessor`] that changes the `SecurityContextRepository` used by the `BasicAuthenticationFilter`:
 
 .Store HTTP Basic authentication in the `HttpSession`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -273,7 +285,7 @@ SecurityFilterChain web(HttpSecurity http) throws Exception {
     return http.build();
 }
 ----
-====
+======
 
 The above also applies to others authentication mechanisms, like xref:servlet/oauth2/resource-server/index.adoc[Bearer Token Authentication].
 
@@ -302,8 +314,10 @@ In summary, when `requireExplicitSave` is `true`, Spring Security sets up xref:s
 If you wish to place constraints on a single user's ability to log in to your application, Spring Security supports this out of the box with the following simple additions.
 First, you need to add the following listener to your configuration to keep Spring Security updated about session lifecycle events:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -312,7 +326,8 @@ public HttpSessionEventPublisher httpSessionEventPublisher() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -321,7 +336,8 @@ open fun httpSessionEventPublisher(): HttpSessionEventPublisher {
 }
 ----
 
-.web.xml
+web.xml::
++
 [source,xml,role="secondary"]
 ----
 <listener>
@@ -330,12 +346,14 @@ open fun httpSessionEventPublisher(): HttpSessionEventPublisher {
 </listener-class>
 </listener>
 ----
-====
+======
 
 Then add the following lines to your security configuration:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -348,7 +366,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -364,7 +383,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -374,15 +394,17 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 </session-management>
 </http>
 ----
-====
+======
 
 
 This will prevent a user from logging in multiple times - a second login will cause the first to be invalidated.
 
 Using Spring Boot, you can test the above configuration scenario the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -412,14 +434,16 @@ public class MaximumSessionsTests {
 
 }
 ----
-====
+======
 
 You can try it using the {gh-samples-url}/servlet/spring-boot/java/session-management/maximum-sessions[Maximum Sessions sample].
 
 It is also common that you would prefer to prevent a second login, in which case you can use:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -433,7 +457,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -450,7 +475,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -459,7 +485,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 </session-management>
 </http>
 ----
-====
+======
 
 
 The second login will then be rejected.
@@ -469,8 +495,10 @@ If instead you want to use an error page, you can add the attribute `session-aut
 
 Using Spring Boot, you can test the above configuration the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -501,7 +529,7 @@ public class MaximumSessionsPreventLoginTests {
 
 }
 ----
-====
+======
 
 If you are using a customized authentication filter for form-based login, then you have to configure concurrent session control support explicitly.
 You can try it using the {gh-samples-url}/servlet/spring-boot/java/session-management/maximum-sessions-prevent-login[Maximum Sessions Prevent Login sample].
@@ -513,8 +541,10 @@ That said, Spring Security can detect when a session has expired and take specif
 For example, you may want to redirect to a specific endpoint when a user makes a request with an already-expired session.
 This is achieved through the `invalidSessionUrl` in `HttpSecurity`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -527,7 +557,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -541,7 +572,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -549,7 +581,7 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 <session-management invalid-session-url="/invalidSession" />
 </http>
 ----
-====
+======
 
 Note that if you use this mechanism to detect session timeouts, it may falsely report an error if the user logs out and then logs back in without closing the browser.
 This is because the session cookie is not cleared when you invalidate the session and will be resubmitted even if the user has logged out.
@@ -560,8 +592,10 @@ If that is your case, you might want to <<clearing-session-cookie-on-logout,conf
 The `invalidSessionUrl` is a convenience method for setting the `InvalidSessionStrategy` using the {security-api-url}/org/springframework/security/web/session/SimpleRedirectInvalidSessionStrategy.html[`SimpleRedirectInvalidSessionStrategy` implementation].
 If you want to customize the behavior, you can implement the {security-api-url}/org/springframework/security/web/session/InvalidSessionStrategy.html[`InvalidSessionStrategy`] interface and configure it using the `invalidSessionStrategy` method:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -574,7 +608,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -588,7 +623,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -597,15 +633,17 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 <bean name="myCustomInvalidSessionStrategy" class="com.example.MyCustomInvalidSessionStrategy" />
 </http>
 ----
-====
+======
 
 [[clearing-session-cookie-on-logout]]
 == Clearing Session Cookies on Logout
 
 You can explicitly delete the JSESSIONID cookie on logging out, for example by using the https://w3c.github.io/webappsec-clear-site-data/[`Clear-Site-Data` header] in the logout handler:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -618,7 +656,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -632,7 +671,8 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -650,14 +690,16 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 </b:bean>
 </http>
 ----
-====
+======
 
 This has the advantage of being container agnostic and will work with any container that supports the `Clear-Site-Data` header.
 
 As an alternative, you can also use the following syntax in the logout handler:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -670,7 +712,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -684,14 +727,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
   <logout delete-cookies="JSESSIONID" />
 </http>
 ----
-====
+======
 
 Unfortunately, this cannot be guaranteed to work with every servlet container, so you need to test it in your environment.
 
@@ -701,14 +745,12 @@ If you run your application behind a proxy, you may also be able to remove the s
 For example, by using Apache HTTPD's `mod_headers`, the following directive deletes the `JSESSIONID` cookie by expiring it in the response to a logout request (assuming the application is deployed under the `/tutorial` path):
 =====
 
-====
 [source,xml]
 ----
 <LocationMatch "/tutorial/logout">
 Header always set Set-Cookie "JSESSIONID=;Path=/tutorial;Expires=Thu, 01 Jan 1970 00:00:00 GMT"
 </LocationMatch>
 ----
-====
 
 More details on the xref:servlet/exploits/headers.adoc#servlet-headers-clear-site-data[Clear Site Data] and xref:servlet/authentication/logout.adoc[Logout sections].
 
@@ -737,8 +779,10 @@ This is the default in Servlet 3.0 or older containers.
 
 You can configure the session fixation protection by doing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -753,7 +797,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -769,14 +814,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http>
   <session-management session-fixation-protection="newSession" />
 </http>
 ----
-====
+======
 
 When session fixation protection occurs, it results in a `SessionFixationProtectionEvent` being published in the application context.
 If you use `changeSessionId`, this protection will __also__ result in any  ``jakarta.servlet.http.HttpSessionIdListener``s being notified, so use caution if your code listens for both events.
@@ -790,8 +836,10 @@ You can also set the session fixation protection to `none` to disable it, but th
 
 Consider the following block of code:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
@@ -802,7 +850,7 @@ SecurityContext context = SecurityContextHolder.createEmptyContext(); <1>
 context.setAuthentication(authentication); <2>
 SecurityContextHolder.setContext(context); <3>
 ----
-====
+======
 
 1. Creates an empty `SecurityContext` instance by accessing the `SecurityContextHolder` statically.
 2. Sets the `Authentication` object in the `SecurityContext` instance.
@@ -817,8 +865,10 @@ By default, they will still look up the strategy from `SecurityContextHolder`.
 These changes are largely internal, but they present the opportunity for applications to autowire the `SecurityContextHolderStrategy` instead of accessing the `SecurityContext` statically.
 To do so, you should change the code to the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class SomeClass {
@@ -837,7 +887,7 @@ public class SomeClass {
 
 }
 ----
-====
+======
 
 1. Creates an empty `SecurityContext` instance using the configured `SecurityContextHolderStrategy`.
 2. Sets the `Authentication` object in the `SecurityContext` instance.
@@ -850,8 +900,10 @@ public class SomeClass {
 At times, it can be valuable to eagerly create sessions.
 This can be done by using the {security-api-url}org/springframework/security/web/session/ForceEagerSessionCreationFilter.html[`ForceEagerSessionCreationFilter`] which can be configured using:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -864,7 +916,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -878,14 +931,15 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http create-session="ALWAYS">
 
 </http>
 ----
-====
+======
 
 
 

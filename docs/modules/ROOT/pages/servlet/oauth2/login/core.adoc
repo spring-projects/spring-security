@@ -69,10 +69,8 @@ spring:
 ----
 +
 .OAuth Client properties
-====
 <1> `spring.security.oauth2.client.registration` is the base property prefix for OAuth Client properties.
 <2> Following the base property prefix is the ID for the xref:servlet/oauth2/client/index.adoc#oauth2Client-client-registration[`ClientRegistration`], such as Google.
-====
 
 . Replace the values in the `client-id` and `client-secret` property with the OAuth 2.0 credentials you created earlier.
 
@@ -164,7 +162,6 @@ As demonstrated previously, when we <<oauth2login-sample-application-config,conf
 
 The following listing shows an example:
 
-====
 [source,yaml]
 ----
 spring:
@@ -176,7 +173,6 @@ spring:
             client-id: google-client-id
             client-secret: google-client-secret
 ----
-====
 
 [TIP]
 The auto-defaulting of client properties works seamlessly here because the `registrationId` (`google`) matches the `GOOGLE` `enum` (case-insensitive) in `CommonOAuth2Provider`.
@@ -185,7 +181,6 @@ For cases where you may want to specify a different `registrationId`, such as `g
 
 The following listing shows an example:
 
-====
 [source,yaml]
 ----
 spring:
@@ -200,7 +195,6 @@ spring:
 ----
 <1> The `registrationId` is set to `google-login`.
 <2> The `provider` property is set to `google`, which will leverage the auto-defaulting of client properties set in `CommonOAuth2Provider.GOOGLE.getBuilder()`.
-====
 
 [[oauth2login-custom-provider-properties]]
 == Configuring Custom Provider Properties
@@ -213,7 +207,6 @@ For these cases, Spring Boot 2.x provides the following base property for config
 
 The following listing shows an example:
 
-====
 [source,yaml]
 ----
 spring:
@@ -233,7 +226,6 @@ spring:
             jwk-set-uri: https://your-subdomain.oktapreview.com/oauth2/v1/keys
 ----
 <1> The base property (`spring.security.oauth2.client.provider.okta`) allows for custom configuration of protocol endpoint locations.
-====
 
 [[oauth2login-override-boot-autoconfig]]
 == Overriding Spring Boot 2.x Auto-configuration
@@ -256,8 +248,10 @@ If you need to override the auto-configuration based on your specific requiremen
 
 The following example shows how to register a `ClientRegistrationRepository` `@Bean`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
@@ -287,7 +281,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Configuration
@@ -315,7 +310,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-provide-securityfilterchain-bean]]
@@ -324,8 +319,10 @@ class OAuth2LoginConfig {
 The following example shows how to register a `SecurityFilterChain` `@Bean` with `@EnableWebSecurity` and enable OAuth 2.0 login through `httpSecurity.oauth2Login()`:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -344,7 +341,8 @@ public class OAuth2LoginSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -362,7 +360,7 @@ class OAuth2LoginSecurityConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-completely-override-autoconfiguration]]
@@ -371,8 +369,10 @@ class OAuth2LoginSecurityConfig {
 The following example shows how to completely override the auto-configuration by registering a `ClientRegistrationRepository` `@Bean` and a `SecurityFilterChain` `@Bean`.
 
 .Overriding the auto-configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Configuration
@@ -412,7 +412,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Configuration
@@ -452,7 +453,7 @@ class OAuth2LoginConfig {
     }
 }
 ----
-====
+======
 
 
 [[oauth2login-javaconfig-wo-boot]]
@@ -461,8 +462,10 @@ class OAuth2LoginConfig {
 If you are not able to use Spring Boot 2.x and would like to configure one of the pre-defined providers in `CommonOAuth2Provider` (for example, Google), apply the following configuration:
 
 .OAuth2 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -505,7 +508,8 @@ public class OAuth2LoginConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -550,7 +554,8 @@ open class OAuth2LoginConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http auto-config="true">
@@ -574,4 +579,4 @@ open class OAuth2LoginConfig {
 	<b:constructor-arg ref="authorizedClientService"/>
 </b:bean>
 ----
-====
+======

@@ -8,8 +8,10 @@ For example, you may support more than one tenant where one tenant issues JWTs a
 
 If this decision must be made at request-time, then you can use an `AuthenticationManagerResolver` to achieve it, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -22,7 +24,8 @@ AuthenticationManagerResolver<HttpServletRequest> tokenAuthenticationManagerReso
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -41,15 +44,17 @@ fun tokenAuthenticationManagerResolver
     }
 }
 ----
-====
+======
 
 NOTE: The implementation of `useJwt(HttpServletRequest)` will likely depend on custom request material like the path.
 
 And then specify this `AuthenticationManagerResolver` in the DSL:
 
 .Authentication Manager Resolver
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -61,7 +66,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -74,14 +80,15 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
     <oauth2-resource-server authentication-manager-resolver-ref="tokenAuthenticationManagerResolver"/>
 </http>
 ----
-====
+======
 
 [[oauth2resourceserver-multitenancy]]
 == Multi-tenancy
@@ -101,12 +108,14 @@ In each case, there are two things that need to be done and trade-offs associate
 One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, this can be done with the `JwtIssuerAuthenticationManagerResolver`, like so:
 
 .Multi-tenancy Tenant by JWT Claim
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
-JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerAuthenticationManagerResolver
-    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
+JwtIssuerAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
+    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
     .authorizeHttpRequests(authorize -> authorize
@@ -117,11 +126,12 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val customAuthenticationManagerResolver = JwtIssuerAuthenticationManagerResolver
-    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 http {
     authorizeRequests {
         authorize(anyRequest, authenticated)
@@ -132,7 +142,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -149,7 +160,7 @@ http {
     </constructor-arg>
 </bean>
 ----
-====
+======
 
 This is nice because the issuer endpoints are loaded lazily.
 In fact, the corresponding `JwtAuthenticationProvider` is instantiated only when the first request with the corresponding issuer is sent.
@@ -160,8 +171,10 @@ This allows for an application startup that is independent from those authorizat
 Of course, you may not want to restart the application each time a new tenant is added.
 In this case, you can configure the `JwtIssuerAuthenticationManagerResolver` with a repository of `AuthenticationManager` instances, which you can edit at runtime, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private void addManager(Map<String, AuthenticationManager> authenticationManagers, String issuer) {
@@ -184,7 +197,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 private fun addManager(authenticationManagers: MutableMap<String, AuthenticationManager>, issuer: String) {
@@ -207,7 +221,7 @@ http {
     }
 }
 ----
-====
+======
 
 In this case, you construct `JwtIssuerAuthenticationManagerResolver` with a strategy for obtaining the `AuthenticationManager` given the issuer.
 This approach allows us to add and remove elements from the repository (shown as a `Map` in the snippet) at runtime.
@@ -221,8 +235,10 @@ You may have observed that this strategy, while simple, comes with the trade-off
 
 This extra parsing can be alleviated by configuring the xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-architecture-jwtdecoder[`JwtDecoder`] directly with a `JWTClaimsSetAwareJWSKeySelector` from Nimbus:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -264,7 +280,8 @@ public class TenantJWSKeySelector
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -301,7 +318,7 @@ class TenantJWSKeySelector(tenants: TenantRepository) : JWTClaimsSetAwareJWSKeyS
     }
 }
 ----
-====
+======
 <1> A hypothetical source for tenant information
 <2> A cache for `JWKKeySelector`s, keyed by tenant identifier
 <3> Looking up the tenant is more secure than simply calculating the JWK Set endpoint on the fly - the lookup acts as a list of allowed tenants
@@ -315,8 +332,10 @@ Without this, you have no guarantee that the issuer hasn't been altered by a bad
 
 Next, we can construct a `JWTProcessor`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -328,7 +347,8 @@ JWTProcessor jwtProcessor(JWTClaimSetJWSKeySelector keySelector) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -338,7 +358,7 @@ fun jwtProcessor(keySelector: JWTClaimsSetAwareJWSKeySelector<SecurityContext>):
     return jwtProcessor
 }
 ----
-====
+======
 
 As you are already seeing, the trade-off for moving tenant-awareness down to this level is more configuration.
 We have just a bit more.
@@ -346,8 +366,10 @@ We have just a bit more.
 Next, we still want to make sure you are validating the issuer.
 But, since the issuer may be different per JWT, then you'll need a tenant-aware validator, too:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -378,7 +400,8 @@ public class TenantJwtIssuerValidator implements OAuth2TokenValidator<Jwt> {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -406,12 +429,14 @@ class TenantJwtIssuerValidator(tenants: TenantRepository) : OAuth2TokenValidator
     }
 }
 ----
-====
+======
 
 Now that we have a tenant-aware processor and a tenant-aware validator, we can proceed with creating our xref:servlet/oauth2/resource-server/jwt.adoc#oauth2resourceserver-jwt-architecture-jwtdecoder[`JwtDecoder`]:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -424,7 +449,8 @@ JwtDecoder jwtDecoder(JWTProcessor jwtProcessor, OAuth2TokenValidator<Jwt> jwtVa
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -435,7 +461,7 @@ fun jwtDecoder(jwtProcessor: JWTProcessor<SecurityContext>?, jwtValidator: OAuth
     return decoder
 }
 ----
-====
+======
 
 We've finished talking about resolving the tenant.
 

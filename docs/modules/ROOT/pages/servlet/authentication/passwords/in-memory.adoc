@@ -8,8 +8,10 @@ Spring Security's `InMemoryUserDetailsManager` implements xref:servlet/authentic
 In the following sample, we use xref:features/authentication/password-storage.adoc#authentication-password-storage-boot-cli[Spring Boot CLI] to encode a password value of `password` and get the encoded password of `+{bcrypt}$2a$10$GRLdNijSQMUvl/au9ofL.eDwmoohzzS7.rmNSJZ.0FxO/BTk76klW+`:
 
 .InMemoryUserDetailsManager Java Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary",attrs="-attributes"]
 ----
 @Bean
@@ -28,7 +30,8 @@ public UserDetailsService users() {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary",attrs="-attributes"]
 ----
 <user-service>
@@ -41,7 +44,8 @@ public UserDetailsService users() {
 </user-service>
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary",attrs="-attributes"]
 ----
 @Bean
@@ -59,7 +63,7 @@ fun users(): UserDetailsService {
     return InMemoryUserDetailsManager(user, admin)
 }
 ----
-====
+======
 
 The preceding samples store the passwords in a secure format but leave a lot to be desired in terms of a getting started experience.
 
@@ -68,8 +72,10 @@ However, it does not protect against obtaining the password by decompiling the s
 For this reason, `User.withDefaultPasswordEncoder` should only be used for "`getting started`" and is not intended for production.
 
 .InMemoryUserDetailsManager with User.withDefaultPasswordEncoder
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -90,7 +96,8 @@ public UserDetailsService users() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -110,13 +117,12 @@ fun users(): UserDetailsService {
     return InMemoryUserDetailsManager(user, admin)
 }
 ----
-====
+======
 
 There is no simple way to use `User.withDefaultPasswordEncoder` with XML-based configuration.
 For demos or just getting started, you can choose to prefix the password with `+{noop}+` to indicate xref:features/authentication/password-storage.adoc#authentication-password-storage-dpe-format[no encoding should be used]:
 
 .<user-service> `+{noop}+` XML Configuration
-====
 [source,xml,attrs="-attributes"]
 ----
 <user-service>
@@ -128,4 +134,3 @@ For demos or just getting started, you can choose to prefix the password with `+
 		authorities="ROLE_USER,ROLE_ADMIN" />
 </user-service>
 ----
-====

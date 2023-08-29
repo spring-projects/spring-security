@@ -370,6 +370,28 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 						+ "the OAuth 2.0 Access Token Response");
 	}
 
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest));
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest));
+	}
+
 	private OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest(ClientRegistration clientRegistration) {
 		OAuth2AuthorizationRequest authorizationRequest = OAuth2AuthorizationRequest.authorizationCode()
 				.clientId(clientRegistration.getClientId()).state("state-1234")

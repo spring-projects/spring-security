@@ -189,7 +189,7 @@ public class DefaultReactiveOAuth2UserService implements ReactiveOAuth2UserServi
 
 	private static Mono<UserInfoErrorResponse> parse(ClientResponse httpResponse) {
 		String wwwAuth = httpResponse.headers().asHttpHeaders().getFirst(HttpHeaders.WWW_AUTHENTICATE);
-		if (!StringUtils.isEmpty(wwwAuth)) {
+		if (StringUtils.hasLength(wwwAuth)) {
 			// Bearer token error?
 			return Mono.fromCallable(() -> UserInfoErrorResponse.parse(wwwAuth));
 		}

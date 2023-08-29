@@ -22,6 +22,6 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean name="jwtAuthenticationConverter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.core.convert.converter.Converter"/>
+		<b:constructor-arg value="org.springframework.core.convert.converter.Converter" type="java.lang.Class"/>
 	</b:bean>
 </b:beans>

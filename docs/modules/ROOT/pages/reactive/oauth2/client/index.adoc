@@ -24,8 +24,10 @@ The `ServerHttpSecurity.oauth2Client()` DSL provides a number of configuration o
 The following code shows the complete configuration options provided by the `ServerHttpSecurity.oauth2Client()` DSL:
 
 .OAuth2 Client Configuration Options
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -49,7 +51,8 @@ public class OAuth2ClientSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -73,14 +76,16 @@ class OAuth2ClientSecurityConfig {
     }
 }
 ----
-====
+======
 
 The `ReactiveOAuth2AuthorizedClientManager` is responsible for managing the authorization (or re-authorization) of an OAuth 2.0 Client, in collaboration with one or more `ReactiveOAuth2AuthorizedClientProvider`(s).
 
 The following code shows an example of how to register a `ReactiveOAuth2AuthorizedClientManager` `@Bean` and associate it with a `ReactiveOAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials` and `password` authorization grant types:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -105,7 +110,8 @@ public ReactiveOAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -124,4 +130,4 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======

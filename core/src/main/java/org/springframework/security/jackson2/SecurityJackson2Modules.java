@@ -127,7 +127,7 @@ public final class SecurityJackson2Modules {
 			Class<? extends Module> securityModule = (Class<? extends Module>) ClassUtils.forName(className, loader);
 			if (securityModule != null) {
 				logger.debug(LogMessage.format("Loaded module %s, now registering", className));
-				return securityModule.newInstance();
+				return securityModule.getConstructor().newInstance();
 			}
 		}
 		catch (Exception ex) {

@@ -4,8 +4,8 @@ buildscript {
 	dependencies {
 		classpath "io.spring.javaformat:spring-javaformat-gradle-plugin:$springJavaformatVersion"
 		classpath 'io.spring.nohttp:nohttp-gradle:0.0.11'
-		classpath "io.freefair.gradle:aspectj-plugin:6.6-rc1"
-		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+		classpath "io.freefair.gradle:aspectj-plugin:6.6.3"
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinBuildDependencyVersion"
 		classpath "com.netflix.nebula:nebula-project-plugin:8.2.0"
 	}
 	repositories {
@@ -34,6 +34,7 @@ ext.milestoneBuild = !(snapshotBuild || releaseBuild)
 
 repositories {
 	mavenCentral()
+	maven { url "https://repo.spring.io/milestone" }
 }
 
 tasks.named("saganCreateRelease") {
@@ -102,7 +103,6 @@ updateDependenciesSettings {
 	})
 	dependencyExcludes {
 		majorVersionBump()
-		minorVersionBump()
 		alphaBetaVersions()
 		snapshotVersions()
 		addRule { components ->

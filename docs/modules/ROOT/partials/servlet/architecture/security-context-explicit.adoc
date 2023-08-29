@@ -1,6 +1,8 @@
 .Explicit Saving of SecurityContext
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -13,7 +15,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -27,14 +30,15 @@ open fun springSecurity(http: HttpSecurity): SecurityFilterChain {
 }
 ----
 
-.XML
+XML::
++
 [source,xml,role="secondary"]
 ----
 <http security-context-explicit-save="true">
 	<!-- ... -->
 </http>
 ----
-====
+======
 
 
 Upon using the configuration, it is important that any code that sets the `SecurityContextHolder` with a `SecurityContext` also saves the `SecurityContext` to the `SecurityContextRepository` if it should be persisted between requests.
@@ -42,35 +46,41 @@ Upon using the configuration, it is important that any code that sets the `Secur
 For example, the following code:
 
 .Setting `SecurityContextHolder` with `SecurityContextPersistenceFilter`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SecurityContextHolder.setContext(securityContext);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 SecurityContextHolder.setContext(securityContext)
 ----
-====
+======
 
 should be replaced with
 
 .Setting `SecurityContextHolder` with `SecurityContextHolderFilter`
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 SecurityContextHolder.setContext(securityContext);
 securityContextRepository.saveContext(securityContext, httpServletRequest, httpServletResponse);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 SecurityContextHolder.setContext(securityContext)
 securityContextRepository.saveContext(securityContext, httpServletRequest, httpServletResponse)
 ----
-====
+======

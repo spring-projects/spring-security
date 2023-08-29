@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2017 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.http.HttpMethod;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.util.pattern.PathPattern;
 
 /**
  * Provides factory methods for creating common {@link ServerWebExchangeMatcher}
@@ -57,6 +58,30 @@ public abstract class ServerWebExchangeMatchers {
 	 */
 	public static ServerWebExchangeMatcher pathMatchers(String... patterns) {
 		return pathMatchers(null, patterns);
+	}
+
+	/**
+	 * Creates a matcher that matches on any of the provided {@link PathPattern}s.
+	 * @param pathPatterns the {@link PathPattern}s to match on
+	 * @return the matcher to use
+	 */
+	public static ServerWebExchangeMatcher pathMatchers(PathPattern... pathPatterns) {
+		return pathMatchers(null, pathPatterns);
+	}
+
+	/**
+	 * Creates a matcher that matches on the specific method and any of the provided
+	 * {@link PathPattern}s.
+	 * @param method the method to match on. If null, any method will be matched.
+	 * @param pathPatterns the {@link PathPattern}s to match on
+	 * @return the matcher to use
+	 */
+	public static ServerWebExchangeMatcher pathMatchers(HttpMethod method, PathPattern... pathPatterns) {
+		List<ServerWebExchangeMatcher> matchers = new ArrayList<>(pathPatterns.length);
+		for (PathPattern pathPattern : pathPatterns) {
+			matchers.add(new PathPatternParserServerWebExchangeMatcher(pathPattern, method));
+		}
+		return new OrServerWebExchangeMatcher(matchers);
 	}
 
 	/**

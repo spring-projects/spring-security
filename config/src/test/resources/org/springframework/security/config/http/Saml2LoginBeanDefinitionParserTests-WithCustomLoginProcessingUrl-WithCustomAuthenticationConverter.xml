@@ -28,11 +28,11 @@
 		<intercept-url pattern="/**" access="authenticated"/>
 		<saml2-login login-processing-url="/my/custom/url" authentication-converter-ref="authenticationConverter"/>
 	</http>
-	
+
 	<b:bean id="authenticationConverter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationConverter"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationConverter" type="java.lang.Class"/>
+</b:bean>
+
 	<b:import resource="../saml2/google-registration.xml"/>
 	<b:import resource="userservice.xml"/>
 </b:beans>

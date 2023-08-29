@@ -222,15 +222,12 @@ public class DefaultJaasAuthenticationProviderTests {
 	public void javadocExample() {
 		String resName = "/" + getClass().getName().replace('.', '/') + ".xml";
 		ClassPathXmlApplicationContext context = new ClassPathXmlApplicationContext(resName);
-		context.registerShutdownHook();
-		try {
+		try (context) {
+			context.registerShutdownHook();
 			this.provider = context.getBean(DefaultJaasAuthenticationProvider.class);
 			Authentication auth = this.provider.authenticate(this.token);
 			assertThat(auth.isAuthenticated()).isEqualTo(true);
 			assertThat(auth.getPrincipal()).isEqualTo(this.token.getPrincipal());
-		}
-		finally {
-			context.close();
 		}
 	}
 

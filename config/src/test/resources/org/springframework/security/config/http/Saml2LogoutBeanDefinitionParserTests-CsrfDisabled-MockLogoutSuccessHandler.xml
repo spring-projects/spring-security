@@ -31,11 +31,11 @@
 		<saml2-login/>
 		<saml2-logout/>
 	</http>
-	
+
 	<b:bean id="logoutSuccessHandler" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.authentication.logout.LogoutSuccessHandler"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.web.authentication.logout.LogoutSuccessHandler" type="java.lang.Class"/>
+</b:bean>
+
 	<b:import resource="userservice.xml"/>
 	<b:import resource="../saml2/logout-registrations.xml"/>
 </b:beans>

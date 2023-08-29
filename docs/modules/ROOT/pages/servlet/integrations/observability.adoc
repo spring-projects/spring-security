@@ -17,8 +17,10 @@ When an `ObservationRegistry` bean is present, Spring Security creates traces fo
 
 For example, consider a simple Boot application:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootApplication
@@ -45,7 +47,8 @@ public class MyApplication {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @SpringBootApplication
@@ -72,20 +75,17 @@ class MyApplication {
 	}
 }
 ----
-====
+======
 
 And a corresponding request:
 
-====
 [source,bash]
 ----
 ?> http -a user:password :8080
 ----
-====
 
 Will produce the following output (indentation added for clarity):
 
-====
 [source,bash]
 ----
 START - name='http.server.requests', contextualName='null', error='null', lowCardinalityKeyValues=[], highCardinalityKeyValues=[], map=[class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@687e16d1', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.001779024, duration(nanos)=1779024.0, startTimeNanos=91695917264958}']
@@ -106,15 +106,16 @@ START - name='http.server.requests', contextualName='null', error='null', lowCar
 	STOP - name='spring.security.http.chains', contextualName='spring.security.http.chains.after', error='null', lowCardinalityKeyValues=[chain.position='17', chain.size='17', current.filter.name='DisableEncodeUrlFilter', filter.section='after'], highCardinalityKeyValues=[request.line='GET /'], map=[class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@47af8207', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.007689382, duration(nanos)=7689382.0, startTimeNanos=91697152857268}']
 STOP - name='http.server.requests', contextualName='null', error='null', lowCardinalityKeyValues=[], highCardinalityKeyValues=[request.line='GET /'], map=[class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@687e16d1', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=1.245858319, duration(nanos)=1.245858319E9, startTimeNanos=91695917264958}']
 ----
-====
 
 [[observability-tracing-manual-configuration]]
 === Manual Configuration
 
 For a non-Spring Boot application, or to override the existing Boot configuration, you can publish your own `ObservationRegistry` and Spring Security will still pick it up.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootApplication
@@ -143,7 +144,8 @@ public class MyApplication {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @SpringBootApplication
@@ -172,7 +174,8 @@ class MyApplication {
 }
 ----
 
-.Xml
+Xml::
++
 [source,kotlin,role="secondary"]
 ----
 <sec:http auto-config="true" observation-registry-ref="ref">
@@ -181,7 +184,7 @@ class MyApplication {
 
 <!-- define and configure ObservationRegistry bean -->
 ----
-====
+======
 
 [[observability-tracing-disable]]
 ==== Disabling Observability
@@ -191,8 +194,10 @@ However, this may turn off observations for more than just Spring Security.
 
 Instead, you can alter the provided `ObservationRegistry` with an `ObservationPredicate` like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -202,7 +207,8 @@ ObservationRegistryCustomizer<ObservationRegistry> noSpringSecurityObservations(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -211,7 +217,7 @@ fun noSpringSecurityObservations(): ObservationRegistryCustomizer<ObservationReg
 	(registry: ObservationRegistry) -> registry.observationConfig().observationPredicate(predicate)
 }
 ----
-====
+======
 
 [TIP]
 There is no facility for disabling observations with XML support.

@@ -27,8 +27,7 @@ public class SyncExecutorSubscribableChannelPostProcessor implements BeanPostPro
 
 	@Override
 	public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-		if (bean instanceof ExecutorSubscribableChannel) {
-			ExecutorSubscribableChannel original = (ExecutorSubscribableChannel) bean;
+		if (bean instanceof ExecutorSubscribableChannel original) {
 			ExecutorSubscribableChannel channel = new ExecutorSubscribableChannel();
 			channel.setInterceptors(original.getInterceptors());
 			return channel;

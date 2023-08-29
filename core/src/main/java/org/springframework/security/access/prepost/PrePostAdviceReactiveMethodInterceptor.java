@@ -20,8 +20,8 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 
 import kotlin.coroutines.Continuation;
-import kotlinx.coroutines.reactive.AwaitKt;
 import kotlinx.coroutines.reactive.ReactiveFlowKt;
+import kotlinx.coroutines.reactor.MonoKt;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.reactivestreams.Publisher;
@@ -201,8 +201,8 @@ public class PrePostAdviceReactiveMethodInterceptor implements MethodInterceptor
 			return ReactiveFlowKt.asFlow(publisher);
 		}
 
-		private static Object awaitSingleOrNull(Publisher<?> publisher, Object continuation) {
-			return AwaitKt.awaitSingleOrNull(publisher, (Continuation<Object>) continuation);
+		private static Object awaitSingleOrNull(Mono<?> publisher, Object continuation) {
+			return MonoKt.awaitSingleOrNull(publisher, (Continuation<Object>) continuation);
 		}
 
 	}

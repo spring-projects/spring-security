@@ -150,7 +150,6 @@ From Spring Security 2.0.1 onwards, when you use namespace-based configuration, 
 
 This is a debug level message which occurs the first time an anonymous user attempts to access a protected resource.
 
-====
 [source]
 ----
 DEBUG [ExceptionTranslationFilter] - Access is denied (user is anonymous); redirecting to authentication entry point
@@ -158,7 +157,6 @@ org.springframework.security.AccessDeniedException: Access is denied
 at org.springframework.security.vote.AffirmativeBased.decide(AffirmativeBased.java:68)
 at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:262)
 ----
-====
 
 It is normal and shouldn't be anything to worry about.
 
@@ -176,7 +174,6 @@ Note that SSL requests are never cached.
 
 The following listing shows another debug-level message that occurs the first time an anonymous user attempts to access a protected resource. However, this listing shows what happens when you do not have an `AnonymousAuthenticationFilter` in your filter chain configuration:
 
-====
 [source]
 ----
 DEBUG [ExceptionTranslationFilter] - Authentication exception occurred; redirecting to authentication entry point
@@ -185,7 +182,6 @@ org.springframework.security.AuthenticationCredentialsNotFoundException:
 at org.springframework.security.intercept.AbstractSecurityInterceptor.credentialsNotFound(AbstractSecurityInterceptor.java:342)
 at org.springframework.security.intercept.AbstractSecurityInterceptor.beforeInvocation(AbstractSecurityInterceptor.java:254)
 ----
-====
 
 It is normal and is not something to worry about.
 
@@ -202,8 +198,10 @@ This differs from one company to another, so you have to find it out yourself.
 Before adding a Spring Security LDAP configuration to an application, you should write a simple test by using standard Java LDAP code (without Spring Security involved) and make sure you can get that to work first.
 For example, to authenticate a user, you could use the following code:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -222,7 +220,8 @@ public void ldapAuthenticationIsSuccessful() throws Exception {
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Test
@@ -236,7 +235,7 @@ fun ldapAuthenticationIsSuccessful() {
     val ctx = InitialLdapContext(env, null)
 }
 ----
-====
+======
 
 === Session Management
 
@@ -301,14 +300,12 @@ It is essential to make sure that the Spring Security session registry is notifi
 Without it, the session information is not removed from the registry.
 The following example adds a listener in a `web.xml` file:
 
-====
 [source,xml]
 ----
 <listener>
 		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
 </listener>
 ----
-====
 
 [[appendix-faq-unwanted-session-creation]]
 === Spring Security creates a session somewhere, even though I have configured it not to, by setting the create-session attribute to never. What is wrong?
@@ -420,7 +417,6 @@ Any that are marked as "`optional`" in the Spring Security `pom.xml` files have 
 
 If you use Maven, you need to add the following to your `pom.xml` file dependencies:
 
-====
 [source]
 ----
 
@@ -438,7 +434,6 @@ If you use Maven, you need to add the following to your `pom.xml` file dependenc
 </dependency>
 
 ----
-====
 
 The other required jars should be pulled in transitively.
 
@@ -531,8 +526,10 @@ To load the data from an alternative source, you must use an explicitly declared
 You cannot use the namespace.
 You would then implement `FilterInvocationSecurityMetadataSource` to load the data as you please for a particular `FilterInvocation`. The `FilterInvocation` object contains the `HttpServletRequest`, so you can obtain the URL or any other relevant information on which to base your decision, based on what the list of returned attributes contains. A basic outline would look something like the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -561,7 +558,8 @@ You would then implement `FilterInvocationSecurityMetadataSource` to load the da
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
@@ -584,7 +582,7 @@ class MyFilterSecurityMetadataSource : FilterInvocationSecurityMetadataSource {
     }
 }
 ----
-====
+======
 
 For more information, look at the code for `DefaultFilterInvocationSecurityMetadataSource`.
 
@@ -597,8 +595,10 @@ The `DefaultLdapAuthoritiesPopulator` loads the user authorities from the LDAP d
 
 To use JDBC instead, you can implement the interface yourself, by using whatever SQL is appropriate for your schema:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 
@@ -624,7 +624,8 @@ public class MyAuthoritiesPopulator implements LdapAuthoritiesPopulator {
 
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
@@ -644,7 +645,7 @@ class MyAuthoritiesPopulator : LdapAuthoritiesPopulator {
     }
 }
 ----
-====
+======
 
 You would then add a bean of this type to your application context and inject it into the `LdapAuthenticationProvider`. This is covered in the section on configuring LDAP by using explicit Spring beans in the LDAP chapter of the reference manual.
 Note that you cannot use the namespace for configuration in this case.
@@ -661,8 +662,10 @@ You can find more information in the https://docs.spring.io/spring/docs/3.0.x/sp
 Normally, you would add the functionality you require to the `postProcessBeforeInitialization` method of `BeanPostProcessor`. Suppose that you want to customize the `AuthenticationDetailsSource` used by the `UsernamePasswordAuthenticationFilter` (created by the `form-login` element). You want to extract a particular header called `CUSTOM_HEADER` from the request and use it while authenticating the user.
 The processor class would look like the following listing:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public class CustomBeanPostProcessor implements BeanPostProcessor {
@@ -686,7 +689,8 @@ public class CustomBeanPostProcessor implements BeanPostProcessor {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class CustomBeanPostProcessor : BeanPostProcessor {
@@ -704,7 +708,7 @@ class CustomBeanPostProcessor : BeanPostProcessor {
     }
 }
 ----
-====
+======
 
 You would then register this bean in your application context.
 Spring automatically invoke it on the beans defined in the application context.

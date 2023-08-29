@@ -66,7 +66,7 @@ public class DispatcherTypeRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && StringUtils.hasText(request.getMethod())
-				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
+				&& this.httpMethod != HttpMethod.valueOf(request.getMethod())) {
 			return false;
 		}
 		return this.dispatcherType == request.getDispatcherType();

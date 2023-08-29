@@ -80,7 +80,6 @@ Also, this configuration presupposes that you have already xref:servlet/saml2/me
 
 In a Spring Boot application, to specify an identity provider's metadata, create configuration similar to the following:
 
-====
 [source,yml]
 ----
 spring:
@@ -96,7 +95,6 @@ spring:
               singlesignon.url: https://idp.example.com/issuer/sso
               singlesignon.sign-request: false
 ----
-====
 
 where:
 
@@ -117,14 +115,12 @@ These are frequently abbreviated as AP and RP, respectively.
 
 As configured <<saml2-specifying-identity-provider-metadata,earlier>>, the application processes any `+POST /login/saml2/sso/{registrationId}+` request containing a `SAMLResponse` parameter:
 
-====
 [source,http]
 ----
 POST /login/saml2/sso/adfs HTTP/1.1
 
 SAMLResponse=PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZ...
 ----
-====
 
 There are two ways to induce your asserting party to generate a `SAMLResponse`:
 
@@ -198,8 +194,10 @@ The resulting `Authentication#getPrincipal` is a Spring Security `Saml2Authentic
 
 Any class that uses both Spring Security and OpenSAML should statically initialize `OpenSamlInitializationService` at the beginning of the class:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static {
@@ -208,7 +206,8 @@ static {
 ----
 
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -217,7 +216,7 @@ companion object {
     }
 }
 ----
-====
+======
 
 This replaces OpenSAML's `InitializationService#initialize`.
 
@@ -227,8 +226,10 @@ In these circumstances, you may instead want to call `OpenSamlInitializationServ
 For example, when sending an unsigned AuthNRequest, you may want to force reauthentication.
 In that case, you can register your own `AuthnRequestMarshaller`, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 static {
@@ -255,7 +256,8 @@ static {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -281,7 +283,7 @@ companion object {
     }
 }
 ----
-====
+======
 
 The `requireInitialize` method may be called only once per application instance.
 
@@ -294,8 +296,10 @@ The first is a `SecurityFilterChain` that configures the application as a relyin
 When including `spring-security-saml2-service-provider`, the `SecurityFilterChain` looks like:
 
 .Default SAML 2.0 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -309,7 +313,8 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -323,15 +328,17 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 
 If the application does not expose a `SecurityFilterChain` bean, Spring Boot exposes the preceding default one.
 
 You can replace this by exposing the bean within the application:
 
 .Custom SAML 2.0 Login Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -350,7 +357,8 @@ public class MyCustomSecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -370,7 +378,7 @@ class MyCustomSecurityConfiguration {
     }
 }
 ----
-====
+======
 
 The preceding example requires the role of `USER` for any URL that starts with `/messages/`.
 
@@ -382,8 +390,10 @@ You can override the default by publishing your own `RelyingPartyRegistrationRep
 For example, you can look up the asserting party's configuration by hitting its metadata endpoint:
 
 .Relying Party Registration Repository
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Value("${metadata.location}")
@@ -399,7 +409,8 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Value("\${metadata.location}")
@@ -414,7 +425,7 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
     return InMemoryRelyingPartyRegistrationRepository(registration)
 }
 ----
-====
+======
 
 [[servlet-saml2login-relyingpartyregistrationid]]
 [NOTE]
@@ -423,8 +434,10 @@ The `registrationId` is an arbitrary value that you choose for differentiating b
 Alternatively, you can provide each detail manually:
 
 .Relying Party Registration Repository Manual Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Value("${verification.key}")
@@ -447,7 +460,8 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws Exc
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Value("\${verification.key}")
@@ -474,20 +488,22 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository {
     return InMemoryRelyingPartyRegistrationRepository(registration)
 }
 ----
-====
+======
 
 [NOTE]
 ====
 `X509Support` is an OpenSAML class, used in the preceding snippet for brevity.
 ====
 
-[[servlet-saml2login-relyingpartyregistrationrepository-dsl]]
 
+[[servlet-saml2login-relyingpartyregistrationrepository-dsl]]
 Alternatively, you can directly wire up the repository by using the DSL, which also overrides the auto-configured `SecurityFilterChain`:
 
 .Custom Relying Party Registration DSL
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -508,7 +524,8 @@ public class MyCustomSecurityConfiguration {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -529,7 +546,7 @@ class MyCustomSecurityConfiguration {
     }
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -547,8 +564,10 @@ Also, you can provide asserting party metadata like its `Issuer` value, where it
 
 The following `RelyingPartyRegistration` is the minimum required for most setups:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
@@ -556,7 +575,9 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistrations
         .registrationId("my-id")
         .build();
 ----
-.Kotlin
+
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val relyingPartyRegistration = RelyingPartyRegistrations
@@ -564,7 +585,7 @@ val relyingPartyRegistration = RelyingPartyRegistrations
     .registrationId("my-id")
     .build()
 ----
-====
+======
 
 Note that you can also create a `RelyingPartyRegistration` from an arbitrary `InputStream` source.
 One such example is when the metadata is stored in a database:
@@ -582,8 +603,10 @@ try (InputStream source = new ByteArrayInputStream(xml.getBytes())) {
 
 A more sophisticated setup is also possible:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.withRegistrationId("my-id")
@@ -598,7 +621,8 @@ RelyingPartyRegistration relyingPartyRegistration = RelyingPartyRegistration.wit
         .build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val relyingPartyRegistration =
@@ -615,7 +639,7 @@ val relyingPartyRegistration =
         }
         .build()
 ----
-====
+======
 
 [TIP]
 ====
@@ -688,8 +712,10 @@ At a minimum, you need to have a certificate from the asserting party so that th
 To construct a `Saml2X509Credential` that you can use to verify assertions from the asserting party, you can load the file and use
 the `CertificateFactory`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Resource resource = new ClassPathResource("ap.crt");
@@ -700,7 +726,8 @@ try (InputStream is = resource.getInputStream()) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val resource = ClassPathResource("ap.crt")
@@ -710,7 +737,7 @@ resource.inputStream.use {
     )
 }
 ----
-====
+======
 
 Suppose that the asserting party is going to also encrypt the assertion.
 In that case, the relying party needs a private key to decrypt the encrypted value.
@@ -718,8 +745,10 @@ In that case, the relying party needs a private key to decrypt the encrypted val
 In that case, you need an `RSAPrivateKey` as well as its corresponding `X509Certificate`.
 You can load the first by using Spring Security's `RsaKeyConverters` utility class and the second as you did before:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 X509Certificate certificate = relyingPartyDecryptionCertificate();
@@ -730,7 +759,8 @@ try (InputStream is = resource.getInputStream()) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val certificate: X509Certificate = relyingPartyDecryptionCertificate()
@@ -740,7 +770,7 @@ resource.inputStream.use {
     return Saml2X509Credential.decryption(rsa, certificate)
 }
 ----
-====
+======
 
 [TIP]
 ====
@@ -762,7 +792,6 @@ The duplication can be alleviated in a few different ways.
 
 First, in YAML this can be alleviated with references:
 
-====
 [source,yaml]
 ----
 spring:
@@ -780,14 +809,15 @@ spring:
           identityprovider:
             entity-id: ...
 ----
-====
 
 Second, in a database, you need not replicate the model of `RelyingPartyRegistration`.
 
 Third, in Java, you can create a custom configuration method:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private RelyingPartyRegistration.Builder
@@ -814,7 +844,8 @@ public RelyingPartyRegistrationRepository relyingPartyRegistrations() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 private fun addRelyingPartyDetails(builder: RelyingPartyRegistration.Builder): RelyingPartyRegistration.Builder {
@@ -842,7 +873,7 @@ open fun relyingPartyRegistrations(): RelyingPartyRegistrationRepository? {
     return InMemoryRelyingPartyRegistrationRepository(okta, azure)
 }
 ----
-====
+======
 
 [[servlet-saml2login-rpr-relyingpartyregistrationresolver]]
 === Resolving the `RelyingPartyRegistration` from the Request
@@ -870,8 +901,10 @@ In this case, the identity provider's metadata endpoint returns multiple `<md:ID
 
 These multiple asserting parties can be accessed in a single call to `RelyingPartyRegistrations` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Collection<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
@@ -884,7 +917,8 @@ Collection<RelyingPartyRegistration> registrations = RelyingPartyRegistrations
         .collect(Collectors.toList()));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,java,role="secondary"]
 ----
 var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrations
@@ -897,7 +931,7 @@ var registrations: Collection<RelyingPartyRegistration> = RelyingPartyRegistrati
         }
         .collect(Collectors.toList()));
 ----
-====
+======
 
 Note that because the registration id is set to a random value, this will change certain SAML 2.0 endpoints to be unpredictable.
 There are several ways to address this; let's focus on a way that suits the specific use case of federation.

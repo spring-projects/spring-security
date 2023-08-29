@@ -57,7 +57,7 @@ class ThreadLocalSecurityContextHolderStrategyTests {
 	void deferredContextValidates() {
 		this.strategy.setDeferredContext(() -> null);
 		Supplier<SecurityContext> deferredContext = this.strategy.getDeferredContext();
-		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> deferredContext.get());
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(deferredContext::get);
 	}
 
 	@Test

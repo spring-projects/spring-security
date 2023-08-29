@@ -56,10 +56,9 @@ public abstract class AbstractPermission implements Permission {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof Permission)) {
+		if (!(obj instanceof Permission other)) {
 			return false;
 		}
-		Permission other = (Permission) obj;
 		return (this.mask == other.getMask());
 	}
 

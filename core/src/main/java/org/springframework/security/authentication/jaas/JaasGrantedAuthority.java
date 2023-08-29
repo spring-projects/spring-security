@@ -58,9 +58,8 @@ public final class JaasGrantedAuthority implements GrantedAuthority {
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof JaasGrantedAuthority) {
-			JaasGrantedAuthority jga = (JaasGrantedAuthority) obj;
-			return this.role.equals(jga.role) && this.principal.equals(jga.principal);
+		if (obj instanceof JaasGrantedAuthority jga) {
+			return this.role.equals(jga.getAuthority()) && this.principal.equals(jga.getPrincipal());
 		}
 		return false;
 	}

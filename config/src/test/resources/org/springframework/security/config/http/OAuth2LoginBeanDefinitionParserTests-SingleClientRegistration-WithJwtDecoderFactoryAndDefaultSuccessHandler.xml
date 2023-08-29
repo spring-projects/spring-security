@@ -33,17 +33,17 @@
 	</http>
 
 	<b:bean id="accessTokenResponseClient" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient" type="java.lang.Class"/>
+</b:bean>
 	<b:bean id="jwtDecoderFactory" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoderFactory"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoderFactory" type="java.lang.Class"/>
+</b:bean>
 	<b:bean id="authorizationRequestRepository" class="org.mockito.Mockito" factory-method="mock">
-			<b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.oauth2.client.web.AuthorizationRequestRepository" type="java.lang.Class"/>
+</b:bean>
 	<b:bean id="requestCache" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache" type="java.lang.Class"/>
+</b:bean>
 
 	<b:import resource="../oauth2/client/google-registration.xml"/>
 	<b:import resource="userservice.xml"/>

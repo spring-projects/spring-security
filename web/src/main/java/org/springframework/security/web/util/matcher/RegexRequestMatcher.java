@@ -116,7 +116,7 @@ public final class RegexRequestMatcher implements RequestMatcher {
 	@Override
 	public boolean matches(HttpServletRequest request) {
 		if (this.httpMethod != null && request.getMethod() != null
-				&& this.httpMethod != HttpMethod.resolve(request.getMethod())) {
+				&& this.httpMethod != HttpMethod.valueOf(request.getMethod())) {
 			return false;
 		}
 		String url = request.getServletPath();

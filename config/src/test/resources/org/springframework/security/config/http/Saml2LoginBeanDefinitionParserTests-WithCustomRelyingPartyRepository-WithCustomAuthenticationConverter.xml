@@ -28,13 +28,13 @@
 		<intercept-url pattern="/**" access="authenticated"/>
 		<saml2-login relying-party-registration-repository-ref="relyingPartyRegistrationRepository" authentication-converter-ref="authenticationConverter"/>
 	</http>
-	
+
 	<b:bean id="relyingPartyRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository" type="java.lang.Class"/>
+</b:bean>
 	<b:bean id="authenticationConverter" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationConverter"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.web.authentication.AuthenticationConverter" type="java.lang.Class"/>
+</b:bean>
+
 	<b:import resource="userservice.xml"/>
 </b:beans>

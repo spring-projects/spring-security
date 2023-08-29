@@ -4,7 +4,6 @@ import org.gradle.api.Action;
 import org.gradle.api.GradleException;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
-import org.gradle.api.Task;
 import org.gradle.api.tasks.TaskProvider;
 import org.gradle.language.base.plugins.LifecycleBasePlugin;
 
@@ -27,12 +26,8 @@ public class AntoraVersionPlugin implements Plugin<Project> {
 		project.getPlugins().withType(LifecycleBasePlugin.class, new Action<LifecycleBasePlugin>() {
 			@Override
 			public void execute(LifecycleBasePlugin lifecycleBasePlugin) {
-				project.getTasks().named(LifecycleBasePlugin.CHECK_TASK_NAME).configure(new Action<Task>() {
-					@Override
-					public void execute(Task check) {
-						check.dependsOn(antoraCheckVersion);
-					}
-				});
+				project.getTasks().named(LifecycleBasePlugin.CHECK_TASK_NAME)
+						.configure(check -> check.dependsOn(antoraCheckVersion));
 			}
 		});
 		 project.getTasks().register("antoraUpdateVersion", UpdateAntoraVersionTask.class, new Action<UpdateAntoraVersionTask>() {

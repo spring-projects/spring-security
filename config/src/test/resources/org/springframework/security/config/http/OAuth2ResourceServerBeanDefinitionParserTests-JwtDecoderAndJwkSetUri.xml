@@ -26,7 +26,7 @@
 	<c:component-scan base-package="org.springframework.security.config.http"/>
 	<c:property-placeholder local-override="true"/>
 	<b:bean name="decoder" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoder"/>
+		<b:constructor-arg value="org.springframework.security.oauth2.jwt.JwtDecoder" type="java.lang.Class"/>
 	</b:bean>
 
 	<http>

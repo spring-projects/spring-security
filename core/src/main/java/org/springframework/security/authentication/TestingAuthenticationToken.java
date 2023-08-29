@@ -16,6 +16,7 @@
 
 package org.springframework.security.authentication;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -47,7 +48,13 @@ public class TestingAuthenticationToken extends AbstractAuthenticationToken {
 		this(principal, credentials, AuthorityUtils.createAuthorityList(authorities));
 	}
 
-	public TestingAuthenticationToken(Object principal, Object credentials, List<GrantedAuthority> authorities) {
+	public TestingAuthenticationToken(Object principal, Object credentials,
+			List<? extends GrantedAuthority> authorities) {
+		this(principal, credentials, (Collection<? extends GrantedAuthority>) authorities);
+	}
+
+	public TestingAuthenticationToken(Object principal, Object credentials,
+			Collection<? extends GrantedAuthority> authorities) {
 		super(authorities);
 		this.principal = principal;
 		this.credentials = credentials;

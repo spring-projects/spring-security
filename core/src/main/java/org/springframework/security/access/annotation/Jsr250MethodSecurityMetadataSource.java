@@ -89,8 +89,7 @@ public class Jsr250MethodSecurityMetadataSource extends AbstractFallbackMethodSe
 				attributes.add(Jsr250SecurityConfig.PERMIT_ALL_ATTRIBUTE);
 				return attributes;
 			}
-			if (annotation instanceof RolesAllowed) {
-				RolesAllowed ra = (RolesAllowed) annotation;
+			if (annotation instanceof RolesAllowed ra) {
 
 				for (String allowed : ra.value()) {
 					String defaultedAllowed = getRoleWithDefaultPrefix(allowed);

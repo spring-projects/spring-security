@@ -26,8 +26,10 @@ This class checks the current contents of the security context and, if it is emp
 Subclasses override the following methods to obtain this information.
 
 .Override AbstractPreAuthenticatedProcessingFilter
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest request);
@@ -35,14 +37,15 @@ protected abstract Object getPreAuthenticatedPrincipal(HttpServletRequest reques
 protected abstract Object getPreAuthenticatedCredentials(HttpServletRequest request);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 protected abstract fun getPreAuthenticatedPrincipal(request: HttpServletRequest): Any?
 
 protected abstract fun getPreAuthenticatedCredentials(request: HttpServletRequest): Any?
 ----
-====
+======
 
 
 After calling these, the filter creates a `PreAuthenticatedAuthenticationToken` that contains the returned data and submits it for authentication.
@@ -70,14 +73,12 @@ The pre-authenticated provider has little more to do than load the `UserDetails`
 It does this by delegating to an `AuthenticationUserDetailsService`.
 The latter is similar to the standard `UserDetailsService` but takes an `Authentication` object rather than just user name:
 
-====
 [source,java]
 ----
 public interface AuthenticationUserDetailsService {
 	UserDetails loadUserDetails(Authentication token) throws UsernameNotFoundException;
 }
 ----
-====
 
 This interface may also have other uses, but, with pre-authentication, it allows access to the authorities that were packaged in the `Authentication` object, as we saw in the previous section.
 The `PreAuthenticatedGrantedAuthoritiesUserDetailsService` class does this.
@@ -111,7 +112,6 @@ If an attacker is able to forge the headers in their original request without th
 ==== Siteminder Example Configuration
 The following example shows a typical configuration that uses this filter:
 
-====
 [source,xml]
 ----
 <security:http>
@@ -137,7 +137,6 @@ The following example shows a typical configuration that uses this filter:
 <security:authentication-provider ref="preauthAuthProvider" />
 </security:authentication-manager>
 ----
-====
 
 We've assumed here that the xref:servlet/configuration/xml-namespace.adoc#ns-config[security namespace] is being used for configuration.
 It's also assumed that you have added a `UserDetailsService` (called "userDetailsService") to your configuration to load the user's roles.

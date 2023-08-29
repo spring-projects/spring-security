@@ -22,7 +22,7 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean name="introspector" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector"/>
+		<b:constructor-arg value="org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector" type="java.lang.Class"/>
 	</b:bean>
 
 	<http>

@@ -21,8 +21,10 @@ With Spring Security <<servlet-hello-dependencies,on the classpath>>, you can no
 The following snippet shows some of the output that indicates that Spring Security is enabled in your application:
 
 .Running Spring Boot Application
-====
-.Maven
+[tabs]
+======
+Maven::
++
 [source,bash,role="primary"]
 ----
 $ ./mvnw spring-boot:run
@@ -34,7 +36,8 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 ...
 ----
 
-.Gradle
+Gradle::
++
 [source,bash,role="secondary"]
 ----
 $ ./gradlew :bootRun
@@ -46,7 +49,8 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 ...
 ----
 
-.Jar
+Jar::
++
 [source,bash,role="secondary"]
 ----
 $ java -jar target/myapplication-0.0.1.jar
@@ -57,20 +61,18 @@ Using generated security password: 8e557245-73e2-4286-969a-ff57fe326336
 
 ...
 ----
-====
+======
 
 Now that you have it running, you might try hitting an endpoint to see what happens.
 If you hit an endpoint without credentials like so:
 
 .Querying a Secured Boot Application
-====
 [source,bash]
 ----
 $ curl -i http://localhost:8080/some/path
 HTTP/1.1 401
 ...
 ----
-====
 
 then Spring Security denies access with a `401 Unauthorized`.
 
@@ -80,14 +82,12 @@ If you provide the same URL in a browser, it will redirect to a default login pa
 And if you hit an endpoint with credentials (found in the console output) as follows:
 
 .Querying with Credentials
-====
 [source,bash]
 ----
 $ curl -i -u user:8e557245-73e2-4286-969a-ff57fe326336 http://localhost:8080/some/path
 HTTP/1.1 404
 ...
 ----
-====
 
 then Spring Boot will service the request, returning a `404 Not Found` in this case since `/some/path` doesn't exist.
 
@@ -122,7 +122,6 @@ It can be helpful to understand how Spring Boot is coordinating with Spring Secu
 Taking a look at {spring-boot-api-url}org/springframework/boot/autoconfigure/security/servlet/SecurityAutoConfiguration.html[Boot's security auto configuration], it does the following (simplified for illustration):
 
 .Spring Boot Security Auto Configuration
-====
 [source,java]
 ----
 @EnableWebSecurity <1>
@@ -143,7 +142,6 @@ public class DefaultSecurityConfig {
     }
 }
 ----
-====
 1. Adds the `@EnableWebSecurity` annotation. (Among other things, this publishes xref:servlet/architecture.adoc#servlet-securityfilterchain[Spring Security's default `Filter` chain] as a `@Bean`)
 2. Publishes a xref:servlet/authentication/passwords/user-details-service.adoc[`UserDetailsService`] `@Bean` with a username of `user` and a randomly generated password that is logged to the console
 3. Publishes an xref:servlet/authentication/events.adoc[`AuthenticationEventPublisher`] `@Bean` for publishing authentication events

@@ -2,8 +2,10 @@
 
 After xref:reactive/test/web/setup.adoc[applying the Spring Security support to `WebTestClient`], we can use either annotations or `mutateWith` support -- for example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.mockUser;
@@ -64,7 +66,8 @@ public void messageWhenMutateWithMockAdminThenOk() throws Exception {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.test.web.reactive.server.expectBody
@@ -111,6 +114,6 @@ fun messageWhenMutateWithMockAdminThenOk() {
         .expectBody<String>().isEqualTo("Hello World!")
 }
 ----
-====
+======
 
 In addition to `mockUser()`, Spring Security ships with several other convenience mutators for things like xref:reactive/test/web/csrf.adoc[CSRF] and xref:reactive/test/web/oauth2.adoc[OAuth 2.0].

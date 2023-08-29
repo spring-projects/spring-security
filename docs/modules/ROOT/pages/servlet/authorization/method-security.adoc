@@ -8,25 +8,29 @@ In addition to xref:servlet/authorization/authorize-http-requests.adoc[modeling 
 [[activate-method-security]]
 You can activate it in your application by annotating any `@Configuration` class with `@EnableMethodSecurity` or adding `<method-security>` to any  XML configuration file, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security/>
 ----
-====
+======
 
 Then, you are immediately able to annotate any Spring-managed class or method with <<use-preauthorize, `@PreAuthorize`>>, <<use-postauthorize,`@PostAuthorize`>>, <<use-prefilter,`@PreFilter`>>, and <<use-postfilter,`@PostFilter`>> to authorize method invocations, including the input parameters and return values.
 
@@ -81,8 +85,10 @@ If you are using `@EnableGlobalMethodSecurity` or `<global-method-security/>`, t
 Method authorization is a combination of before- and after-method authorization.
 Consider a service bean that is annotated in the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Service
@@ -93,7 +99,8 @@ public class MyCustomerService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Service
@@ -103,7 +110,7 @@ open class MyCustomerService {
     fun readCustomer(val id: String): Customer { ... }
 }
 ----
-====
+======
 
 A given invocation to `MyCustomerService#readCustomer` may look something like this when Method Security <<activate-method-security,is activated>>:
 
@@ -162,8 +169,10 @@ The method interceptors are as follows:
 
 Generally speaking, you can consider the following listing as representative of what interceptors Spring Security publishes when you add `@EnableMethodSecurity`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -190,32 +199,36 @@ static Advisor postFilterMethodInterceptor() {
     return AuthorizationManagerAfterMethodInterceptor.postFilter();
 }
 ----
-====
+======
 
 [[favor-granting-authorities]]
 === Favor Granting Authorities Over Complicated SpEL Expressions
 
 Quite often it can be tempting to introduce a complicated SpEL expression like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
+======
 
 .Kotlin
 [source,kotlin,role="kotlin"]
 ----
 @PreAuthorize("hasAuthority('permission:read') || hasRole('ADMIN')")
 ----
-====
 
 However, you could instead grant `permission:read` to those with `ROLE_ADMIN`.
 One way to do this is with a `RoleHierarchy` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -224,7 +237,8 @@ static RoleHierarchy roleHierarchy() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,java,role="secondary"]
 ----
 companion object {
@@ -235,31 +249,35 @@ companion object {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl">
     <constructor-arg value="ROLE_ADMIN > permission:read"/>
 </bean>
 ----
-====
+======
 
 and then <<customizing-expression-handling,set that in a `MethodSecurityExpressionHandler` instance>>.
 This then allows you to have a simpler <<use-preauthorize,`@PreAuthorize`>> expression like this one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("hasAuthority('permission:read')")
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("hasAuthority('permission:read')")
 ----
-====
+======
 
 Or, where possible, adapt application-specific authorization logic into granted authorities at login time.
 
@@ -293,8 +311,10 @@ The primary way Spring Security enables method-level authorization support is th
 
 When <<activate-method-security,Method Security is active>>, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreAuthorize.html[`@PreAuthorize`] annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -306,7 +326,8 @@ public class BankService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -317,14 +338,16 @@ open class BankService {
 	}
 }
 ----
-====
+======
 
 This is meant to indicate that the method can only be invoked if the provided expression `hasRole('ADMIN')` passes.
 
 You can then xref:servlet/test/method.adoc[test the class] to confirm it is enforcing the authorization rule like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -345,7 +368,8 @@ void readAccountWithWrongRoleThenAccessDenied() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @WithMockUser(roles="ADMIN")
@@ -363,7 +387,7 @@ fun readAccountWithWrongRoleThenAccessDenied() {
     }
 }
 ----
-====
+======
 
 [TIP]
 `@PreAuthorize` also can be a <<meta-annotations, meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
@@ -380,8 +404,10 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostAuthorize.html[`@PostAuthorize`] annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -393,7 +419,8 @@ public class BankService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -404,15 +431,17 @@ open class BankService {
 	}
 }
 ----
-====
+======
 
 This is meant to indicate that the method can only return the value if the provided expression `returnObject.owner == authentication.name` passes.
 `returnObject` represents the `Account` object to be returned.
 
 You can then xref:servlet/test/method.adoc[test the class] to confirm it is enforcing the authorization rule:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -433,7 +462,8 @@ void readAccountWhenNotOwnedThenAccessDenied() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @WithMockUser(username="owner")
@@ -451,7 +481,7 @@ fun readAccountWhenNotOwnedThenAccessDenied() {
     }
 }
 ----
-====
+======
 
 [TIP]
 `@PostAuthorize` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
@@ -459,8 +489,10 @@ fun readAccountWhenNotOwnedThenAccessDenied() {
 `@PostAuthorize` is particularly helpful when defending against https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html[Insecure Direct Object Reference].
 In fact, it can be defined as a <<meta-annotations,meta-annotation>> like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Target({ ElementType.METHOD, ElementType.TYPE })
@@ -469,7 +501,8 @@ In fact, it can be defined as a <<meta-annotations,meta-annotation>> like so:
 public @interface RequireOwnership {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Target(ElementType.METHOD, ElementType.TYPE)
@@ -477,12 +510,14 @@ public @interface RequireOwnership {}
 @PostAuthorize("returnObject.owner == authentication.name")
 annotation class RequireOwnership
 ----
-====
+======
 
 Allowing you to instead annotate the service in the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -494,7 +529,8 @@ public class BankService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -505,7 +541,7 @@ open class BankService {
 	}
 }
 ----
-====
+======
 
 The result is that the above method will only return the `Account` if its `owner` attribute matches the logged-in user's `name`.
 If not, Spring Security will throw an `AccessDeniedException` and return a 403 status code.
@@ -518,8 +554,10 @@ If not, Spring Security will throw an `AccessDeniedException` and return a 403 s
 
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PreFilter.html[`@PreFilter`] annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -531,15 +569,17 @@ public class BankService {
 	}
 }
 ----
-====
+======
 
 This is meant to filter out any values from `accounts` where the expression `filterObject.owner == authentication.name` fails.
 `filterObject` represents each `account` in `accounts` and is used to test each `account`.
 
 You can then test the class in the following way to confirm it is enforcing the authorization rule:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -554,7 +594,7 @@ void updateAccountsWhenOwnedThenReturns() {
     assertThat(updated).containsOnly(ownedBy);
 }
 ----
-====
+======
 
 [TIP]
 `@PreFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
@@ -563,8 +603,10 @@ void updateAccountsWhenOwnedThenReturns() {
 
 For example, the above `updateAccounts` declaration will function the same way as the following other four:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreFilter("filterObject.owner == authentication.name")
@@ -579,7 +621,7 @@ public Collection<Account> updateAccounts(Map<String, Account> accounts)
 @PreFilter("filterObject.owner == authentication.name")
 public Collection<Account> updateAccounts(Stream<Account> accounts)
 ----
-====
+======
 
 The result is that the above method will only have the `Account` instances where their `owner` attribute matches the logged-in user's `name`.
 
@@ -591,8 +633,10 @@ The result is that the above method will only have the `Account` instances where
 
 When Method Security is active, you can annotate a method with the {security-api-url}org/springframework/security/access/prepost/PostFilter.html[`@PostFilter`] annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -604,15 +648,17 @@ public class BankService {
 	}
 }
 ----
-====
+======
 
 This is meant to filter out any values from the return value where the expression `filterObject.owner == authentication.name` fails.
 `filterObject` represents each `account` in `accounts` and is used to test each `account`.
 
 You can then test the class like so to confirm it is enforcing the authorization rule:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Autowired
@@ -626,7 +672,7 @@ void readAccountsWhenOwnedThenReturns() {
     assertThat(accounts.get(0).getOwner()).isEqualTo("owner");
 }
 ----
-====
+======
 
 [TIP]
 `@PostFilter` also can be a <<meta-annotations,meta-annotation>>, be defined <<class-or-interface-annotations,at the class or interface level>>, and use <<authorization-expressions, SpEL Authorization Expressions>>.
@@ -659,25 +705,29 @@ In-memory filtering can obviously be expensive, and so be considerate of whether
 
 To use the `@Secured` annotation, you should first change your Method Security declaration to enable it like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity(securedEnabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(securedEnabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security secured-enabled="true"/>
 ----
-====
+======
 
 This will cause Spring Security to publish <<annotation-method-interceptors,the corresponding method interceptor>> that authorizes methods, classes, and interfaces annotated with `@Secured`.
 
@@ -689,25 +739,29 @@ In case you would like to use https://jcp.org/en/jsr/detail?id=250[JSR-250] anno
 
 To use the JSR-250 annotations, you should first change your Method Security declaration to enable them like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity(jsr250Enabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(jsr250Enabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security jsr250-enabled="true"/>
 ----
-====
+======
 
 This will cause Spring Security to publish <<annotation-method-interceptors,the corresponding method interceptor>> that authorizes methods, classes, and interfaces annotated with `@RolesAllowed`, `@PermitAll`, and `@DenyAll`.
 
@@ -719,8 +773,10 @@ It's also supported to have Method Security annotations at the class and interfa
 
 If it is at the class level like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -731,7 +787,8 @@ public class MyController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -741,14 +798,16 @@ open class MyController {
     fun endpoint(): String { ... }
 }
 ----
-====
+======
 
 then all methods inherit the class-level behavior.
 
 Or, if it's declared like the following at both the class and method level:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -760,7 +819,8 @@ public class MyController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -771,7 +831,7 @@ open class MyController {
     fun endpoint(): String { ... }
 }
 ----
-====
+======
 
 then methods declaring the annotation override the class-level annotation.
 
@@ -788,8 +848,10 @@ This means that you can take any annotation and improve readability based on you
 
 For example, you can simplify `@PreAuthorize("hasRole('ADMIN')")` to `@IsAdmin` like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Target({ ElementType.METHOD, ElementType.TYPE })
@@ -798,7 +860,8 @@ For example, you can simplify `@PreAuthorize("hasRole('ADMIN')")` to `@IsAdmin` 
 public @interface IsAdmin {}
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Target(ElementType.METHOD, ElementType.TYPE)
@@ -806,12 +869,14 @@ public @interface IsAdmin {}
 @PreAuthorize("hasRole('ADMIN')")
 annotation class IsAdmin
 ----
-====
+======
 
 And the result is that on your secured methods you can now do the following instead:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -823,7 +888,8 @@ public class BankService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -834,7 +900,7 @@ open class BankService {
 	}
 }
 ----
-====
+======
 
 This results in more readable method definitions.
 
@@ -848,8 +914,10 @@ Or you may simply want to only enable a specific annotation, like `@PostAuthoriz
 You can do this in the following way:
 
 .Only @PostAuthorize Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -863,7 +931,8 @@ class MethodSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -877,7 +946,8 @@ class MethodSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security pre-post-enabled="false"/>
@@ -888,7 +958,7 @@ class MethodSecurityConfig {
 	class="org.springframework.security.authorization.method.AuthorizationManagerBeforeMethodInterceptor"
 	factory-method="postAuthorize"/>
 ----
-====
+======
 
 The above snippet achieves this by first disabling Method Security's pre-configurations and then publishing <<annotation-method-interceptors, the `@PostAuthorize` interceptor>> itself.
 
@@ -899,8 +969,10 @@ While using Spring Security's <<authorizing-with-annotations,annotation-based su
 
 If you need to declare it in your XML configuration instead, you can use xref:servlet/appendix/namespace/method-security.adoc#nsa-intercept-methods[`<intercept-methods>`] like so:
 
-====
-.Xml
+[tabs]
+======
+Xml::
++
 [source,xml,role="primary"]
 ----
 <bean class="org.mycompany.MyController">
@@ -910,7 +982,7 @@ If you need to declare it in your XML configuration instead, you can use xref:se
     </intercept-methods>
 </bean>
 ----
-====
+======
 
 [NOTE]
 This only supports matching method by prefix or by name.
@@ -930,8 +1002,10 @@ The first way to authorize a method programmatically is a two-step process.
 
 First, declare a bean that has a method that takes a `MethodSecurityExpressionOperations` instance like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component("authz")
@@ -942,7 +1016,8 @@ public class AuthorizationLogic {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component("authz")
@@ -952,12 +1027,14 @@ open class AuthorizationLogic {
     }
 }
 ----
-====
+======
 
 Then, reference that bean in your annotations in the following way:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -970,7 +1047,8 @@ public class MyController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -982,7 +1060,7 @@ open class MyController {
     }
 }
 ----
-====
+======
 
 Spring Security will invoke the given method on that bean for each method invocation.
 
@@ -996,8 +1074,10 @@ The second way to authorize a method programmatically is two create a custom xre
 
 First, declare an authorization manager instance, perhaps like this one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -1008,7 +1088,8 @@ public class MyAuthorizationManager implements AuthorizationManager<MethodInvoca
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component("authz")
@@ -1018,14 +1099,16 @@ open class MyAuthorizationManager: AuthorizationManager<MethodInvocation> {
     }
 }
 ----
-====
+======
 
 Then, publish the method interceptor with a pointcut that corresponds to when you want that `AuthorizationManager` to run.
 For example, you could replace how `@PreAuthorize` and `@PostAuthorize` work like so:
 
 .Only @PostAuthorize Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -1045,7 +1128,8 @@ class MethodSecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -1065,7 +1149,8 @@ class MethodSecurityConfig {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security pre-post-enabled="false"/>
@@ -1084,7 +1169,7 @@ class MethodSecurityConfig {
     <constructor-arg ref="myAuthorizationManager"/>
 </bean>
 ----
-====
+======
 
 [TIP]
 ====
@@ -1098,8 +1183,10 @@ Or, third, you can customize how each SpEL expression is handled.
 To do that, you can expose a custom {security-api-url}org.springframework.security.access.expression.method.MethodSecurityExpressionHandler.html[`MethodSecurityExpressionHandler`], like so:
 
 .Custom MethodSecurityExpressionHandler
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -1110,7 +1197,8 @@ static MethodSecurityExpressionHandler methodSecurityExpressionHandler(RoleHiera
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 companion object {
@@ -1123,7 +1211,8 @@ companion object {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security>
@@ -1135,7 +1224,7 @@ companion object {
 	<property name="roleHierarchy" ref="roleHierarchy"/>
 </bean>
 ----
-====
+======
 
 [TIP]
 ====
@@ -1155,8 +1244,10 @@ This has the potential advantage of centralizing method-level authorization rule
 
 For example, you can use publish your own `Advisor` or use xref:servlet/appendix/namespace/method-security.adoc#nsa-protect-pointcut[`<protect-pointcut>`] to match AOP expressions to authorization rules for your service layer like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
@@ -1170,7 +1261,8 @@ static Advisor protectServicePointcut() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import static org.springframework.security.authorization.AuthorityAuthorizationManager.hasRole;
@@ -1185,6 +1277,7 @@ companion object {
     }
 }
 ----
+======
 
 [source,xml]
 ----
@@ -1192,7 +1285,6 @@ companion object {
     <protect-pointcut expression="execution(* com.mycompany.*Service.*(..))" access="hasRole('USER')"/>
 </sec:method-security>
 ----
-====
 
 [[weave-aspectj]]
 === Integrate with AspectJ Byte-weaving
@@ -1201,25 +1293,29 @@ Performance can at times be enhanced by using AspectJ to weave Spring Security a
 
 After setting up AspectJ, you can quite simply state in the `@EnableMethodSecurity` annotation or `<method-security>` element that you are using AspectJ:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity(mode=AdviceMode.ASPECTJ)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(mode=AdviceMode.ASPECTJ)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security mode="aspectj"/>
 ----
-====
+======
 
 And the result will be that Spring Security will publish its advisors as AspectJ advice so that they can be woven in accordingly.
 
@@ -1238,25 +1334,29 @@ For example, if you have a method annotated with `@Transactional` and `@PostAuth
 
 To get `@EnableTransactionManagement` to open a transaction before method authorization advice runs, you can set ``@EnableTransactionManagement``'s order like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableTransactionManagement(order = 0)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableTransactionManagement(order = 0)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <tx:annotation-driven ref="txManager" order="0"/>
 ----
-====
+======
 
 Since the earliest method interceptor (`@PreFilter`) is set to an order of 100, a setting of zero means that the transaction advice will run before all Spring Security advice.
 
@@ -1291,8 +1391,10 @@ And here is a brief look at the most common fields:
 Having now learned the patterns, rules, and how they can be paired together, you should be able to understand what is going on in this more complex example:
 
 .Authorize Requests
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -1314,7 +1416,8 @@ public class MyService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -1336,7 +1439,8 @@ open class MyService {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <sec:method-security>
@@ -1347,7 +1451,7 @@ open class MyService {
     <protect-pointcut expression="execution(* com.mycompany.*Service.shareResource(..))" access="@authz.check(#root)"/> <5>
 </sec:method-security>
 ----
-====
+======
 <1> This method may not be invoked by anyone for any reason
 <2> This method may only be invoked by ``Authentication``s granted the `ROLE_ADMIN` authority
 <3> This method may only be invoked by ``Authentication``s granted the `db` and `ROLE_ADMIN` authorities
@@ -1367,8 +1471,10 @@ The following example uses the `@P` annotation:
 
 +
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import org.springframework.security.access.method.P;
@@ -1379,7 +1485,8 @@ import org.springframework.security.access.method.P;
 public void updateContact(@P("c") Contact contact);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.security.access.method.P
@@ -1389,7 +1496,7 @@ import org.springframework.security.access.method.P
 @PreAuthorize("hasPermission(#c, 'write')")
 fun doSomething(@P("c") contact: Contact?)
 ----
-====
+======
 +
 The intention of this expression is to require that the current `Authentication` have `write` permission specifically for this `Contact` instance.
 +
@@ -1398,8 +1505,10 @@ Behind the scenes, this is implemented by using `AnnotationParameterNameDiscover
 * If xref:servlet/integrations/data.adoc[Spring Data's] `@Param` annotation is present on at least one parameter for the method, the value is used.
 The following example uses the `@Param` annotation:
 +
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import org.springframework.data.repository.query.Param;
@@ -1410,7 +1519,8 @@ import org.springframework.data.repository.query.Param;
 Contact findContactByName(@Param("n") String name);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.data.repository.query.Param
@@ -1420,7 +1530,7 @@ import org.springframework.data.repository.query.Param
 @PreAuthorize("#n == authentication.name")
 fun findContactByName(@Param("n") name: String?): Contact?
 ----
-====
+======
 +
 The intention of this expression is to require that `name` be equal to `Authentication#getName` for the invocation to be authorized.
 +
@@ -1446,93 +1556,109 @@ The new annotation and XML element activate Spring's xref:servlet/authorization/
 
 This means that the following two listings are functionally equivalent:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <global-method-security pre-post-enabled="true"/>
 ----
-====
+======
 
 and:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <method-security/>
 ----
-====
+======
 
 For applications not using the pre-post annotations, make sure to turn it off to avoid activating unwanted behavior.
 
 For example, a listing like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableGlobalMethodSecurity(securedEnabled = true)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <global-method-security secured-enabled="true"/>
 ----
-====
+======
 
 should change to:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = false)
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <method-security secured-enabled="true" pre-post-enabled="false"/>
 ----
-====
+======
 
 === Use a Custom `@Bean` instead of subclassing `DefaultMethodSecurityExpressionHandler`
 
@@ -1549,8 +1675,10 @@ Instead, you can create a custom bean with the authorization methods that you ne
 For example, let's say you are wanting a custom evaluation of `@PostAuthorize("hasAuthority('ADMIN')")`.
 You can create a custom `@Bean` like this one:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 class MyAuthorizer {
@@ -1562,7 +1690,8 @@ class MyAuthorizer {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 class MyAuthorizer {
@@ -1573,23 +1702,26 @@ class MyAuthorizer {
 	}
 }
 ----
-====
+======
 
 and then refer to it in the annotation like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @PreAuthorize("@authz.isAdmin(#root)")
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @PreAuthorize("@authz.isAdmin(#root)")
 ----
-====
+======
 
 [[subclass-defaultmethodsecurityexpressionhandler]]
 ==== I'd still prefer to subclass `DefaultMethodSecurityExpressionHandler`
@@ -1597,8 +1729,10 @@ and then refer to it in the annotation like so:
 If you must continue subclassing `DefaultMethodSecurityExpressionHandler`, you can still do so.
 Instead, override the `createEvaluationContext(Supplier<Authentication>, MethodInvocation)` method like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -1614,7 +1748,8 @@ class MyExpressionHandler extends DefaultMethodSecurityExpressionHandler {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -1629,7 +1764,7 @@ class MyExpressionHandler: DefaultMethodSecurityExpressionHandler {
     }
 }
 ----
-====
+======
 
 == Further Reading
 

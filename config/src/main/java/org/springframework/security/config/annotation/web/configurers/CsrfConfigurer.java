@@ -40,7 +40,6 @@ import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.CsrfTokenRepository;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
 import org.springframework.security.web.session.InvalidSessionStrategy;
@@ -83,7 +82,7 @@ import org.springframework.util.Assert;
 public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 		extends AbstractHttpConfigurer<CsrfConfigurer<H>, H> {
 
-	private CsrfTokenRepository csrfTokenRepository = new LazyCsrfTokenRepository(new HttpSessionCsrfTokenRepository());
+	private CsrfTokenRepository csrfTokenRepository = new HttpSessionCsrfTokenRepository();
 
 	private RequestMatcher requireCsrfProtectionMatcher = CsrfFilter.DEFAULT_CSRF_MATCHER;
 
@@ -105,7 +104,7 @@ public final class CsrfConfigurer<H extends HttpSecurityBuilder<H>>
 
 	/**
 	 * Specify the {@link CsrfTokenRepository} to use. The default is an
-	 * {@link HttpSessionCsrfTokenRepository} wrapped by {@link LazyCsrfTokenRepository}.
+	 * {@link HttpSessionCsrfTokenRepository}.
 	 * @param csrfTokenRepository the {@link CsrfTokenRepository} to use
 	 * @return the {@link CsrfConfigurer} for further customizations
 	 */

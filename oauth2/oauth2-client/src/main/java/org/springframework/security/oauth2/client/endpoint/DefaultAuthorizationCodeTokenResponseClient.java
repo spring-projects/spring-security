@@ -58,7 +58,8 @@ public final class DefaultAuthorizationCodeTokenResponseClient
 
 	private static final String INVALID_TOKEN_RESPONSE_ERROR_CODE = "invalid_token_response";
 
-	private Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> requestEntityConverter = new OAuth2AuthorizationCodeGrantRequestEntityConverter();
+	private Converter<OAuth2AuthorizationCodeGrantRequest, RequestEntity<?>> requestEntityConverter = new ClientAuthenticationMethodValidatingRequestEntityConverter<>(
+			new OAuth2AuthorizationCodeGrantRequestEntityConverter());
 
 	private RestOperations restOperations;
 

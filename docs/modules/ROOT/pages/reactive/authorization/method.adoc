@@ -32,8 +32,10 @@ For earlier versions, please read about similar support with <<jc-enable-reactiv
 For example, the following would enable Spring Security's `@PreAuthorize` annotation:
 
 .Method Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager=true)
@@ -41,15 +43,17 @@ public class MethodSecurityConfig {
 	// ...
 }
 ----
-====
+======
 
 Adding an annotation to a method (on a class or interface) would then limit the access to that method accordingly.
 Spring Security's native annotation support defines a set of attributes for the method.
 These will be passed to the various method interceptors, like `AuthorizationManagerBeforeReactiveMethodInterceptor`, for it to make the actual decision:
 
 .Method Security Annotation Usage
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public interface BankService {
@@ -63,7 +67,7 @@ public interface BankService {
 	Mono<Account> post(Account account, Double amount);
 }
 ----
-====
+======
 
 In this case `hasRole` refers to the method found in `SecurityExpressionRoot` that gets invoked by the SpEL evaluation engine.
 
@@ -71,8 +75,10 @@ In this case `hasRole` refers to the method found in `SecurityExpressionRoot` th
 A bean like that might look something like this:
 
 .Method Security Reactive Boolean Expression
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -80,20 +86,22 @@ public Function<Account, Mono<Boolean>> func() {
     return (account) -> Mono.defer(() -> Mono.just(account.getId().equals(12)));
 }
 ----
-====
+======
 
 === Customizing Authorization
 
 Spring Security's `@PreAuthorize`, `@PostAuthorize`, `@PreFilter`, and `@PostFilter` ship with rich expression-based support.
 
-[[jc-reactive-method-security-custom-granted-authority-defaults]]
 
+[[jc-reactive-method-security-custom-granted-authority-defaults]]
 Also, for role-based authorization, Spring Security adds a default `ROLE_` prefix, which is uses when evaluating expressions like `hasRole`.
 You can configure the authorization rules to use a different prefix by exposing a `GrantedAuthorityDefaults` bean, like so:
 
 .Custom MethodSecurityExpressionHandler
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -101,7 +109,7 @@ static GrantedAuthorityDefaults grantedAuthorityDefaults() {
 	return new GrantedAuthorityDefaults("MYPREFIX_");
 }
 ----
-====
+======
 
 [TIP]
 ====
@@ -124,8 +132,10 @@ If that authorization denies access, the value is not returned, and an `AccessDe
 To recreate what adding `@EnableReactiveMethodSecurity(useAuthorizationManager=true)` does by default, you would publish the following configuration:
 
 .Full Pre-post Method Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -160,15 +170,17 @@ class MethodSecurityConfig {
 	}
 }
 ----
-====
+======
 
 Notice that Spring Security's method security is built using Spring AOP.
 So, interceptors are invoked based on the order specified.
 This can be customized by calling `setOrder` on the interceptor instances like so:
 
 .Publish Custom Advisor
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -179,13 +191,15 @@ Advisor postFilterAuthorizationMethodInterceptor() {
 	return interceptor;
 }
 ----
-====
+======
 
 You may want to only support `@PreAuthorize` in your application, in which case you can do the following:
 
 .Only @PreAuthorize Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -202,7 +216,7 @@ class MethodSecurityConfig {
 	}
 }
 ----
-====
+======
 
 Or, you may have a custom before-method `ReactiveAuthorizationManager` that you want to add to the list.
 
@@ -211,9 +225,11 @@ In this case, you will need to tell Spring Security both the `ReactiveAuthorizat
 Thus, you can configure Spring Security to invoke your `ReactiveAuthorizationManager` in between `@PreAuthorize` and `@PostAuthorize` like so:
 
 .Custom Before Advisor
-====
 
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager=true)
@@ -230,7 +246,7 @@ class MethodSecurityConfig {
     }
 }
 ----
-====
+======
 
 [TIP]
 ====
@@ -243,8 +259,10 @@ After-method authorization is generally concerned with analysing the return valu
 For example, you might have a method that confirms that the account requested actually belongs to the logged-in user like so:
 
 .@PostAuthorize example
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 public interface BankService {
@@ -254,7 +272,7 @@ public interface BankService {
 	Mono<Account> readAccount(Long id);
 }
 ----
-====
+======
 
 You can supply your own `AuthorizationMethodInterceptor` to customize how access to the return value is evaluated.
 
@@ -262,8 +280,10 @@ For example, if you have your own custom annotation, you can configure it like s
 
 
 .Custom After Advisor
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @EnableReactiveMethodSecurity(useAuthorizationManager=true)
@@ -278,7 +298,7 @@ class MethodSecurityConfig {
 	}
 }
 ----
-====
+======
 
 and it will be invoked after the `@PostAuthorize` interceptor.
 
@@ -291,8 +311,10 @@ When intercepting coroutines, only the first interceptor participates.
 If any other interceptors are present and come after Spring Security's method security interceptor, https://github.com/spring-projects/spring-framework/issues/22462[they will be skipped].
 ====
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Authentication authentication = new TestingAuthenticationToken("user", "password", "ROLE_USER");
@@ -309,7 +331,8 @@ StepVerifier.create(messageByUsername)
 	.verifyComplete();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val authentication: Authentication = TestingAuthenticationToken("user", "password", "ROLE_USER")
@@ -324,12 +347,14 @@ StepVerifier.create(messageByUsername)
 	.expectNext("Hi user")
 	.verifyComplete()
 ----
-====
+======
 
 Where `this::findMessageByUsername` is defined as:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 Mono<String> findMessageByUsername(String username) {
@@ -337,19 +362,22 @@ Mono<String> findMessageByUsername(String username) {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 fun findMessageByUsername(username: String): Mono<String> {
 	return Mono.just("Hi $username")
 }
 ----
-====
+======
 
 The following minimal method security configures method security in reactive applications:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -371,7 +399,8 @@ public class SecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -392,12 +421,14 @@ class SecurityConfig {
 	}
 }
 ----
-====
+======
 
 Consider the following class:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -409,7 +440,8 @@ public class HelloWorldMessageService {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -420,12 +452,14 @@ class HelloWorldMessageService {
 	}
 }
 ----
-====
+======
 
 Alternatively, the following class uses Kotlin coroutines:
 
-====
-.Kotlin
+[tabs]
+======
+Kotlin::
++
 [source,kotlin,role="primary"]
 ----
 @Component
@@ -437,7 +471,7 @@ class HelloWorldMessageService {
     }
 }
 ----
-====
+======
 
 
 Combined with our configuration above, `@PreAuthorize("hasRole('ADMIN')")` ensures that `findByMessage` is invoked only by a user with the `ADMIN` role.
@@ -447,8 +481,10 @@ This means that the expression must not block.
 
 When integrating with xref:reactive/configuration/webflux.adoc#jc-webflux[WebFlux Security], the Reactor Context is automatically established by Spring Security according to the authenticated user:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -484,7 +520,8 @@ public class SecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -516,6 +553,6 @@ class SecurityConfig {
 	}
 }
 ----
-====
+======
 
 You can find a complete sample in {gh-samples-url}/reactive/webflux/java/method[hellowebflux-method].

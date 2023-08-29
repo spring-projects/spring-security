@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -147,6 +148,19 @@ public class AbstractConfiguredSecurityBuilderTests {
 		assertThat(configurers).hasSize(2);
 		assertThat(configurers).containsExactly(configurer1, configurer2);
 		assertThat(builder.getConfigurers(DelegateSecurityConfigurer.class)).hasSize(2);
+	}
+
+	@Test
+	public void withWhenConfigurerThenConfigurerAdded() throws Exception {
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
+	}
+
+	@Test
+	public void withWhenDuplicateConfigurerAddedThenDuplicateConfigurerRemoved() throws Exception {
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
 	}
 
 	private static class ApplyAndRemoveSecurityConfigurer

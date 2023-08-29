@@ -98,4 +98,9 @@ public final class ClientAuthenticationMethod implements Serializable {
 		return getValue().hashCode();
 	}
 
+	@Override
+	public String toString() {
+		return this.value;
+	}
+
 }

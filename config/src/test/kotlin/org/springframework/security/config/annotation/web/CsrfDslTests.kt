@@ -290,11 +290,13 @@ class CsrfDslTests {
     @RestController
     internal class BasicController {
         @PostMapping("/test1")
-        fun test1() {
+        fun test1():String {
+            return "ok"
         }
 
         @PostMapping("/test2")
-        fun test2() {
+        fun test2():String {
+            return "ok"
         }
     }
 

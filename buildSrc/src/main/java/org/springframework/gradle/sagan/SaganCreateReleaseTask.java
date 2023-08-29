@@ -16,6 +16,10 @@
 
 package org.springframework.gradle.sagan;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.eclipse.core.runtime.Assert;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
@@ -24,6 +28,8 @@ import org.springframework.gradle.github.user.GitHubUserApi;
 import org.springframework.gradle.github.user.User;
 
 public class SaganCreateReleaseTask extends DefaultTask {
+
+	private static final Pattern VERSION_PATTERN = Pattern.compile("^([0-9]+)\\.([0-9]+)\\.([0-9]+)(-.+)?$");
 
 	@Input
 	private String gitHubAccessToken;
@@ -44,9 +50,12 @@ public class SaganCreateReleaseTask extends DefaultTask {
 		// Antora reference docs URLs for snapshots do not contain -SNAPSHOT
 		String referenceDocUrl = this.referenceDocUrl;
 		if (this.version.endsWith("-SNAPSHOT")) {
-			referenceDocUrl = this.referenceDocUrl
-					.replace("{version}", this.version)
-					.replace("-SNAPSHOT", "");
+			Matcher versionMatcher = VERSION_PATTERN.matcher(this.version);
+			Assert.isTrue(versionMatcher.matches(), "Version " + this.version + " does not match expected pattern");
+			String majorVersion = versionMatcher.group(1);
+			String minorVersion = versionMatcher.group(2);
+			String majorMinorVersion = String.format("%s.%s-SNAPSHOT", majorVersion, minorVersion);
+			referenceDocUrl = this.referenceDocUrl.replace("{version}", majorMinorVersion);
 		}
 
 		SaganApi sagan = new SaganApi(user.getLogin(), this.gitHubAccessToken);

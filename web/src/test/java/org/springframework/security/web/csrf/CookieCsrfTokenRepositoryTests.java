@@ -423,6 +423,19 @@ class CookieCsrfTokenRepositoryTests {
 		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
 	}
 
+	// gh-13659
+	@Test
+	void withHttpOnlyFalseWhenCookieCustomizerThenStillDefaultsToFalse() {
+		CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		repository.setCookieCustomizer((customizer) -> customizer.maxAge(1000));
+		CsrfToken token = repository.generateToken(this.request);
+		repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie).isNotNull();
+		assertThat(tokenCookie.getMaxAge()).isEqualTo(1000);
+		assertThat(tokenCookie.isHttpOnly()).isEqualTo(Boolean.FALSE);
+	}
+
 	@Test
 	void setCookieNameNullIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.repository.setCookieName(null));

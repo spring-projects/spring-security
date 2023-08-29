@@ -38,6 +38,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
@@ -195,6 +196,9 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 
 	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
 
+	private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder
+			.getContextHolderStrategy();
+
 	public CasAuthenticationFilter() {
 		super("/login/cas");
 		setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
@@ -211,9 +215,10 @@ public class CasAuthenticationFilter extends AbstractAuthenticationProcessingFil
 		}
 		this.logger.debug(
 				LogMessage.format("Authentication success. Updating SecurityContextHolder to contain: %s", authResult));
-		SecurityContext context = SecurityContextHolder.createEmptyContext();
+
+		SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
 		context.setAuthentication(authResult);
-		SecurityContextHolder.setContext(context);
+		this.securityContextHolderStrategy.setContext(context);
 		this.securityContextRepository.saveContext(context, request, response);
 		if (this.eventPublisher != null) {
 			this.eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(authResult, this.getClass()));

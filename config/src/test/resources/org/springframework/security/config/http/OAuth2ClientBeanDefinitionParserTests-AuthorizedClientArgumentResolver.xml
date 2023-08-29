@@ -43,9 +43,7 @@
 							 provider-id="google"/>
 	</client-registrations>
 
-	<b:bean id="authorizedClientRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository"/>
-	</b:bean>
+	<b:bean id="authorizedClientRepository" class="org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository"/>
 
 	<b:bean name="authorizedClientController" class="org.springframework.security.config.http.OAuth2ClientBeanDefinitionParserTests.AuthorizedClientController" />
 

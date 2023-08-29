@@ -37,6 +37,7 @@ import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -476,6 +477,43 @@ public class AuthorizeHttpRequestsConfigurerTests {
 	}
 
 	@Test
+	public void getWhenCustomRolePrefixAndRoleHasDifferentPrefixThenRespondsWithForbidden() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("ROLE_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void getWhenCustomRolePrefixAndHasRoleThenRespondsWithOk() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasRoleConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+	}
+
+	@Test
+	public void getWhenCustomRolePrefixAndHasAnyRoleThenRespondsWithOk() throws Exception {
+		this.spring.register(GrantedAuthorityDefaultHasAnyRoleConfig.class, BasicController.class).autowire();
+		// @formatter:off
+		MockHttpServletRequestBuilder requestWithUser = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_USER")));
+		MockHttpServletRequestBuilder requestWithAdmin = get("/")
+				.with(user("user")
+						.authorities(new SimpleGrantedAuthority("CUSTOM_PREFIX_ADMIN")));
+		// @formatter:on
+		this.mvc.perform(requestWithUser).andExpect(status().isOk());
+		this.mvc.perform(requestWithAdmin).andExpect(status().isOk());
+	}
+
+	@Test
 	public void getWhenExpressionHasIpAddressLocalhostConfiguredIpAddressIsLocalhostThenRespondsWithOk()
 			throws Exception {
 		this.spring.register(ExpressionIpAddressLocalhostConfig.class, BasicController.class).autowire();
@@ -555,6 +593,38 @@ public class AuthorizeHttpRequestsConfigurerTests {
 		this.spring.register(AnonymousConfig.class, BasicController.class).autowire();
 		MockHttpServletRequestBuilder requestWithUser = get("/").with(user("user"));
 		this.mvc.perform(requestWithUser).andExpect(status().isForbidden());
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class GrantedAuthorityDefaultHasRoleConfig {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
+		}
+
+		@Bean
+		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((c) -> c.anyRequest().hasRole("USER")).build();
+		}
+
+	}
+
+	@Configuration
+	@EnableWebSecurity
+	static class GrantedAuthorityDefaultHasAnyRoleConfig {
+
+		@Bean
+		GrantedAuthorityDefaults grantedAuthorityDefaults() {
+			return new GrantedAuthorityDefaults("CUSTOM_PREFIX_");
+		}
+
+		@Bean
+		SecurityFilterChain myFilterChain(HttpSecurity http) throws Exception {
+			return http.authorizeHttpRequests((c) -> c.anyRequest().hasAnyRole("USER", "ADMIN")).build();
+		}
+
 	}
 
 	@Configuration

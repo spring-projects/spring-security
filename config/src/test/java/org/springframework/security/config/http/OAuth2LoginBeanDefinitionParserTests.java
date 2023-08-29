@@ -27,6 +27,9 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.test.SpringTestContext;
 import org.springframework.security.config.test.SpringTestContextExtension;
@@ -522,9 +525,11 @@ public class OAuth2LoginBeanDefinitionParserTests {
 		ClientRegistration clientRegistration = this.clientRegistrationRepository.findByRegistrationId("google-login");
 		OAuth2AuthorizedClient authorizedClient = new OAuth2AuthorizedClient(clientRegistration, "user",
 				TestOAuth2AccessTokens.noScopes());
-		given(this.authorizedClientRepository.loadAuthorizedClient(any(), any(), any())).willReturn(authorizedClient);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		this.authorizedClientRepository.saveAuthorizedClient(authorizedClient, null, request, response);
 		// @formatter:off
-		this.mvc.perform(get("/authorized-client"))
+		this.mvc.perform(get("/authorized-client").session((MockHttpSession) request.getSession()))
 				.andExpect(status().isOk())
 				.andExpect(content().string("resolved"));
 		// @formatter:on
@@ -539,7 +544,7 @@ public class OAuth2LoginBeanDefinitionParserTests {
 
 		@GetMapping("/authorized-client")
 		String authorizedClient(Model model,
-				@RegisteredOAuth2AuthorizedClient("google") OAuth2AuthorizedClient authorizedClient) {
+				@RegisteredOAuth2AuthorizedClient("google-login") OAuth2AuthorizedClient authorizedClient) {
 			return (authorizedClient != null) ? "resolved" : "not-resolved";
 		}
 
