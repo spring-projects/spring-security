@@ -20,6 +20,7 @@ import java.util.Set;
 
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that
@@ -43,6 +44,14 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenRespon
  */
 public class WebClientReactiveClientCredentialsTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2ClientCredentialsGrantRequest> {
+
+	public WebClientReactiveClientCredentialsTokenResponseClient() {
+		super();
+	}
+
+	public WebClientReactiveClientCredentialsTokenResponseClient(WebClient webClient) {
+		super(webClient);
+	}
 
 	@Override
 	ClientRegistration clientRegistration(OAuth2ClientCredentialsGrantRequest grantRequest) {

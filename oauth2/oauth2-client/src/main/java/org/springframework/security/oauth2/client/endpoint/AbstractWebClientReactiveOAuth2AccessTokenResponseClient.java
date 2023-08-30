@@ -69,7 +69,7 @@ import org.springframework.web.reactive.function.client.WebClient.RequestHeaders
 public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T extends AbstractOAuth2AuthorizationGrantRequest>
 		implements ReactiveOAuth2AccessTokenResponseClient<T> {
 
-	private WebClient webClient = WebClient.builder().build();
+	private WebClient webClient;
 
 	private Converter<T, RequestHeadersSpec<?>> requestEntityConverter = this::validatingPopulateRequest;
 
@@ -81,6 +81,11 @@ public abstract class AbstractWebClientReactiveOAuth2AccessTokenResponseClient<T
 			.oauth2AccessTokenResponse();
 
 	AbstractWebClientReactiveOAuth2AccessTokenResponseClient() {
+		this.webClient = WebClient.builder().build();
+	}
+
+	AbstractWebClientReactiveOAuth2AccessTokenResponseClient(WebClient webClient) {
+		this.webClient = webClient;
 	}
 
 	@Override

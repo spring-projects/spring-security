@@ -26,6 +26,7 @@ import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationResp
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.endpoint.PkceParameterNames;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
  * An implementation of a {@link ReactiveOAuth2AccessTokenResponseClient} that
@@ -54,6 +55,14 @@ import org.springframework.web.reactive.function.BodyInserters;
  */
 public class WebClientReactiveAuthorizationCodeTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> {
+
+	public WebClientReactiveAuthorizationCodeTokenResponseClient() {
+		super();
+	}
+
+	public WebClientReactiveAuthorizationCodeTokenResponseClient(WebClient webClient) {
+		super(webClient);
+	}
 
 	@Override
 	ClientRegistration clientRegistration(OAuth2AuthorizationCodeGrantRequest grantRequest) {

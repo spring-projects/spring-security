@@ -43,6 +43,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 public final class WebClientReactiveRefreshTokenTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<OAuth2RefreshTokenGrantRequest> {
 
+	public WebClientReactiveRefreshTokenTokenResponseClient() {
+		super();
+	}
+
+	public WebClientReactiveRefreshTokenTokenResponseClient(WebClient webClient) {
+		super(webClient);
+	}
+
 	@Override
 	ClientRegistration clientRegistration(OAuth2RefreshTokenGrantRequest grantRequest) {
 		return grantRequest.getClientRegistration();

@@ -44,6 +44,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 public final class WebClientReactiveJwtBearerTokenResponseClient
 		extends AbstractWebClientReactiveOAuth2AccessTokenResponseClient<JwtBearerGrantRequest> {
 
+	public WebClientReactiveJwtBearerTokenResponseClient() {
+		super();
+	}
+
+	public WebClientReactiveJwtBearerTokenResponseClient(WebClient webClient) {
+		super(webClient);
+	}
+
 	@Override
 	ClientRegistration clientRegistration(JwtBearerGrantRequest grantRequest) {
 		return grantRequest.getClientRegistration();
