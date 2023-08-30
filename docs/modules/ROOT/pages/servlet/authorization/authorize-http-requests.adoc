@@ -562,8 +562,8 @@ http
 ----
 http {
     authorizeHttpRequests {
-        authorize(DispatcherType.FORWARD, permitAll)
-        authorize(DispatcherType.ERROR, permitAll)
+        authorize(DispatcherTypeRequestMatcher(DispatcherType.FORWARD), permitAll)
+        authorize(DispatcherTypeRequestMatcher(DispatcherType.ERROR), permitAll)
         authorize("/endpoint", permitAll)
         authorize(anyRequest, denyAll)
     }
