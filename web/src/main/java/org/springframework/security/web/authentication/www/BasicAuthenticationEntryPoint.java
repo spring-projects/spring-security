@@ -52,7 +52,7 @@ public class BasicAuthenticationEntryPoint implements AuthenticationEntryPoint, 
 	@Override
 	public void commence(HttpServletRequest request, HttpServletResponse response,
 			AuthenticationException authException) throws IOException {
-		response.addHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");
+		response.setHeader("WWW-Authenticate", "Basic realm=\"" + this.realmName + "\"");
 		response.sendError(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED.getReasonPhrase());
 	}
 
