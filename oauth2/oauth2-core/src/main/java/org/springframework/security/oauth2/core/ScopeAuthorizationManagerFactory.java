@@ -23,7 +23,7 @@ import org.springframework.security.authorization.AuthorityAuthorizationManager;
 /**
  * @author Mario Petrovski
  */
-public class ScopeAuthorizationManagerFactory {
+public final class ScopeAuthorizationManagerFactory {
 
 	private ScopeAuthorizationManagerFactory() {
 	}
@@ -33,9 +33,7 @@ public class ScopeAuthorizationManagerFactory {
 	}
 
 	public static <T> AuthorityAuthorizationManager<T> hasAnyScope(String... scopes) {
-		String[] mappedScopes = Arrays.stream(scopes).map(s -> {
-			return "SCOPE_" + s;
-		}).toArray(String[]::new);
+		String[] mappedScopes = Arrays.stream(scopes).map(s -> "SCOPE_" + s).toArray(String[]::new);
 		return AuthorityAuthorizationManager.hasAnyAuthority(mappedScopes);
 	}
 }
