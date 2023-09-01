@@ -107,6 +107,7 @@ public class HttpBasicConfigurerTests {
 
 	@Test
 	public void httpBasicWhenUsingCustomAuthenticationEntryPointThenResponseIncludesBasicChallenge() throws Exception {
+		CustomAuthenticationEntryPointConfig.ENTRY_POINT = mock(AuthenticationEntryPoint.class);
 		this.spring.register(CustomAuthenticationEntryPointConfig.class).autowire();
 		this.mvc.perform(get("/"));
 		verify(CustomAuthenticationEntryPointConfig.ENTRY_POINT).commence(any(HttpServletRequest.class),
@@ -239,7 +240,7 @@ public class HttpBasicConfigurerTests {
 	@EnableWebSecurity
 	static class CustomAuthenticationEntryPointConfig {
 
-		static AuthenticationEntryPoint ENTRY_POINT = mock(AuthenticationEntryPoint.class);
+		static AuthenticationEntryPoint ENTRY_POINT;
 
 		@Bean
 		SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
