@@ -1,10 +1,12 @@
 package org.springframework.security.oauth2.core;
 
+import java.util.Arrays;
 
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 
-import java.util.Arrays;
-
+/**
+ * @author Mario Petrovski
+ */
 public class ScopeAuthorizationManagerFactory {
 
 	public static <T> AuthorityAuthorizationManager<T> hasScope(String scope) {
