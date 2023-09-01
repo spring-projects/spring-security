@@ -124,7 +124,7 @@ public class HttpBasicConfigurerTests {
 	// SEC-3019
 	@Test
 	public void httpBasicWhenRememberMeConfiguredThenSetsRememberMeCookie() throws Exception {
-		this.spring.register(BasicUsesRememberMeConfig.class).autowire();
+		this.spring.register(BasicUsesRememberMeConfig.class, Home.class).autowire();
 		MockHttpServletRequestBuilder rememberMeRequest = get("/").with(httpBasic("user", "password"))
 				.param("remember-me", "true");
 		this.mvc.perform(rememberMeRequest).andExpect(cookie().exists("remember-me"));

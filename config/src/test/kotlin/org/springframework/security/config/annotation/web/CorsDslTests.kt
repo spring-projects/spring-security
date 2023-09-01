@@ -31,7 +31,9 @@ import org.springframework.security.config.test.SpringTestContextExtension
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.get
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.cors.CorsConfiguration
 import org.springframework.web.cors.CorsConfigurationSource
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource
@@ -72,7 +74,7 @@ class CorsDslTests {
 
     @Test
     fun `CORS when CORS configuration source bean then responds with CORS header`() {
-        this.spring.register(CorsCrossOriginBeanConfig::class.java).autowire()
+        this.spring.register(CorsCrossOriginBeanConfig::class.java, HomeController::class.java).autowire()
 
         this.mockMvc.get("/")
         {
@@ -149,7 +151,7 @@ class CorsDslTests {
 
     @Test
     fun `CORS when CORS configuration source dsl then responds with CORS header`() {
-        this.spring.register(CorsCrossOriginBeanConfig::class.java).autowire()
+        this.spring.register(CorsCrossOriginBeanConfig::class.java, HomeController::class.java).autowire()
 
         this.mockMvc.get("/")
         {
@@ -180,4 +182,13 @@ class CorsDslTests {
             return http.build()
         }
     }
+
+    @RestController
+    private class HomeController {
+        @GetMapping("/")
+        fun ok(): String {
+            return "ok"
+        }
+    }
+
 }
