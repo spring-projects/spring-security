@@ -33,7 +33,7 @@ public final class ScopeAuthorizationManagerFactory {
 	}
 
 	public static <T> AuthorityAuthorizationManager<T> hasAnyScope(String... scopes) {
-		String[] mappedScopes = Arrays.stream(scopes).map(s -> "SCOPE_" + s).toArray(String[]::new);
+		String[] mappedScopes = Arrays.stream(scopes).map((String s) -> "SCOPE_" + s).toArray(String[]::new);
 		return AuthorityAuthorizationManager.hasAnyAuthority(mappedScopes);
 	}
 }
