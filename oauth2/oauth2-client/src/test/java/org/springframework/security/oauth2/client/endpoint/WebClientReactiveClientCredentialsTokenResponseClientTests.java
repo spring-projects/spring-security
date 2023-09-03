@@ -470,4 +470,24 @@ public class WebClientReactiveClientCredentialsTokenResponseClientTests {
 				.isThrownBy(() -> this.client.getTokenResponse(clientCredentialsGrantRequest).block());
 	}
 
+	@Test
+	public void instantiateWithCustomWebClientThenCustomClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		WebClientReactiveClientCredentialsTokenResponseClient clientWithCustomWebClient = new WebClientReactiveClientCredentialsTokenResponseClient(
+				customClient);
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
+		ClientRegistration registration = this.clientRegistration.build();
+		// @formatter:off
+		enqueueJson("{\n"
+				+ "  \"access_token\":\"MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3\",\n"
+				+ "  \"token_type\":\"bearer\",\n"
+				+ "  \"expires_in\":3600,\n"
+				+ "  \"refresh_token\":\"IwOGYzYTlmM2YxOTQ5MGE3YmNmMDFkNTVk\"\n"
+				+ "}");
+		// @formatter:on
+		OAuth2ClientCredentialsGrantRequest request = new OAuth2ClientCredentialsGrantRequest(registration);
+		OAuth2AccessTokenResponse response = clientWithCustomWebClient.getTokenResponse(request).block();
+		verify(customClient, atLeastOnce()).post();
+	}
+
 }

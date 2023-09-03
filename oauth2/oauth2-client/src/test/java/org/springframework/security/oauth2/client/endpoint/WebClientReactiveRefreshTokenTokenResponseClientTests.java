@@ -30,6 +30,7 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import org.springframework.core.convert.converter.Converter;
@@ -58,8 +59,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link WebClientReactiveRefreshTokenTokenResponseClient}.
@@ -482,6 +482,31 @@ public class WebClientReactiveRefreshTokenTokenResponseClientTests {
 				this.accessToken, this.refreshToken);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(refreshTokenGrantRequest).block());
+	}
+
+	@Test
+	public void instantiateWithCustomWebClientThenCustomWebClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		WebClientReactiveRefreshTokenTokenResponseClient clientWithCustomWebClient = new WebClientReactiveRefreshTokenTokenResponseClient(
+				customClient);
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
+
+		String accessTokenSuccessResponse = "{}";
+
+		BodyExtractor<Mono<OAuth2AccessTokenResponse>, ReactiveHttpInputMessage> extractor = mock(BodyExtractor.class);
+		OAuth2AccessTokenResponse response = TestOAuth2AccessTokenResponses.accessTokenResponse().build();
+		given(extractor.extract(any(), any())).willReturn(Mono.just(response));
+
+		clientWithCustomWebClient.setBodyExtractor(extractor);
+
+		OAuth2RefreshTokenGrantRequest refreshTokenGrantRequest = new OAuth2RefreshTokenGrantRequest(
+				this.clientRegistrationBuilder.build(), this.accessToken, this.refreshToken);
+
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		OAuth2AccessTokenResponse accessTokenResponse = clientWithCustomWebClient
+				.getTokenResponse(refreshTokenGrantRequest).block();
+		verify(customClient, atLeastOnce()).post();
+
 	}
 
 }

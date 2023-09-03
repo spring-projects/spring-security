@@ -522,4 +522,25 @@ public class WebClientReactiveAuthorizationCodeTokenResponseClientTests {
 				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest).block());
 	}
 
+	@Test
+	public void instantiateWithCustomWebClientThenCustomClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		WebClientReactiveAuthorizationCodeTokenResponseClient tokenResponseClientWithCustomWebClient = new WebClientReactiveAuthorizationCodeTokenResponseClient(
+				customClient);
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
+		// @formatter:off
+		String accessTokenSuccessResponse = "{\n"
+				+ "   \"access_token\": \"access-token-1234\",\n"
+				+ "   \"token_type\": \"bearer\",\n"
+				+ "   \"expires_in\": \"3600\",\n"
+				+ "   \"scope\": \"openid profile\"\n"
+				+ "}\n";
+		// @formatter:on
+		this.server.enqueue(jsonResponse(accessTokenSuccessResponse));
+		this.clientRegistration.scope("openid", "profile", "email", "address");
+		OAuth2AccessTokenResponse response = tokenResponseClientWithCustomWebClient
+				.getTokenResponse(authorizationCodeGrantRequest()).block();
+		verify(customClient, atLeastOnce()).post();
+	}
+
 }

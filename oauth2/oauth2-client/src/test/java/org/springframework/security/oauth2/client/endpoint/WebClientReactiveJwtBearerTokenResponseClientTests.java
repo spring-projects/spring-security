@@ -50,8 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests for {@link WebClientReactiveJwtBearerTokenResponseClient}.
@@ -100,6 +99,29 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 	public void setWebClientWhenNullThenThrowIllegalArgumentException() {
 		assertThatIllegalArgumentException().isThrownBy(() -> this.client.setWebClient(null))
 				.withMessage("webClient cannot be null");
+	}
+
+	@Test
+	public void setCustomWebClientThenCustomWebClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
+		this.client.setWebClient(customClient);
+		// @formatter:off
+		String accessTokenResponse = "{\n"
+				+ "  \"access_token\": \"access-token-1234\",\n"
+				+ "  \"token_type\": \"bearer\",\n"
+				+ "  \"expires_in\": 3600,\n"
+				+ "  \"scope\": \"read write\""
+				+ "}\n";
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+				.build();
+		// @formatter:on
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		enqueueJson(accessTokenResponse);
+		this.clientRegistration.scope("read", "write");
+		OAuth2AccessTokenResponse response = this.client.getTokenResponse(request).block();
+		verify(customClient, atLeastOnce()).post();
 	}
 
 	@Test
@@ -385,6 +407,31 @@ public class WebClientReactiveJwtBearerTokenResponseClientTests {
 		JwtBearerGrantRequest jwtBearerGrantRequest = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
 		assertThatExceptionOfType(IllegalArgumentException.class)
 				.isThrownBy(() -> this.client.getTokenResponse(jwtBearerGrantRequest).block());
+	}
+
+	@Test
+	public void instantiateWithCustomWebClientThenCustomWebClientIsUsed() {
+		WebClient customClient = mock(WebClient.class);
+		WebClientReactiveJwtBearerTokenResponseClient clientWithCustomWebClient = new WebClientReactiveJwtBearerTokenResponseClient(
+				customClient);
+		given(customClient.post()).willReturn(WebClient.builder().build().post());
+
+		// @formatter:off
+		String accessTokenResponse = "{\n"
+				+ "  \"access_token\": \"access-token-1234\",\n"
+				+ "  \"token_type\": \"bearer\",\n"
+				+ "  \"expires_in\": 3600,\n"
+				+ "  \"scope\": \"read write\""
+				+ "}\n";
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_POST)
+				.build();
+		// @formatter:on
+		JwtBearerGrantRequest request = new JwtBearerGrantRequest(clientRegistration, this.jwtAssertion);
+		enqueueJson(accessTokenResponse);
+		this.clientRegistration.scope("read", "write");
+		OAuth2AccessTokenResponse response = clientWithCustomWebClient.getTokenResponse(request).block();
+		verify(customClient, atLeastOnce()).post();
 	}
 
 	private void enqueueJson(String body) {
