@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.util.Assert;
 
@@ -32,6 +34,7 @@ import org.springframework.util.Assert;
  * the framework.
  *
  * @author Luke Taylor
+ * @author Mark Chesney
  * @since 3.0
  */
 public class DefaultRedirectStrategy implements RedirectStrategy {
@@ -39,6 +42,8 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	private boolean contextRelative;
+
+	private HttpStatus statusCode = HttpStatus.FOUND;
 
 	/**
 	 * Redirects the response to the supplied URL.
@@ -55,7 +60,14 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 		if (this.logger.isDebugEnabled()) {
 			this.logger.debug(LogMessage.format("Redirecting to %s", redirectUrl));
 		}
-		response.sendRedirect(redirectUrl);
+		if (this.statusCode == HttpStatus.FOUND) {
+			response.sendRedirect(redirectUrl);
+		}
+		else {
+			response.setHeader(HttpHeaders.LOCATION, redirectUrl);
+			response.setStatus(this.statusCode.value());
+			response.getWriter().flush();
+		}
 	}
 
 	protected String calculateRedirectUrl(String contextPath, String url) {
@@ -94,6 +106,20 @@ public class DefaultRedirectStrategy implements RedirectStrategy {
 	 */
 	protected boolean isContextRelative() {
 		return this.contextRelative;
+	}
+
+	/**
+	 * Sets the HTTP status code to use. The default is {@link HttpStatus#FOUND}.
+	 * <p>
+	 * Note that according to RFC 7231, with {@link HttpStatus#FOUND}, a user agent MAY
+	 * change the request method from POST to GET for the subsequent request. If this
+	 * behavior is undesired, {@link HttpStatus#TEMPORARY_REDIRECT} can be used instead.
+	 * @param statusCode the HTTP status code to use.
+	 * @since 6.2
+	 */
+	public void setStatusCode(HttpStatus statusCode) {
+		Assert.notNull(statusCode, "statusCode cannot be null");
+		this.statusCode = statusCode;
 	}
 
 }
