@@ -23,6 +23,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -208,6 +209,37 @@ public class SessionManagementFilterTests {
 		assertThat(response.isCommitted()).isTrue();
 		assertThat(response.getRedirectedUrl()).isEqualTo("/context/requested");
 		assertThat(response.getStatus()).isEqualTo(302);
+	}
+
+	@Test
+	public void responseIsRedirectedToRequestedUrlIfStatusCodeIsSetAndSessionIsInvalid() throws Exception {
+		// given
+		DefaultRedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+		redirectStrategy.setStatusCode(HttpStatus.TEMPORARY_REDIRECT);
+		RequestedUrlRedirectInvalidSessionStrategy invalidSessionStrategy = new RequestedUrlRedirectInvalidSessionStrategy();
+		invalidSessionStrategy.setCreateNewSession(true);
+		invalidSessionStrategy.setRedirectStrategy(redirectStrategy);
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		SessionAuthenticationStrategy sessionAuthenticationStrategy = mock(SessionAuthenticationStrategy.class);
+		SessionManagementFilter filter = new SessionManagementFilter(securityContextRepository,
+				sessionAuthenticationStrategy);
+		filter.setInvalidSessionStrategy(invalidSessionStrategy);
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestedSessionId("xxx");
+		request.setRequestedSessionIdValid(false);
+		request.setRequestURI("/requested");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		FilterChain chain = mock(FilterChain.class);
+
+		// when
+		filter.doFilter(request, response, chain);
+
+		// then
+		verify(securityContextRepository).containsContext(request);
+		verifyNoMoreInteractions(securityContextRepository, sessionAuthenticationStrategy, chain);
+		assertThat(response.isCommitted()).isTrue();
+		assertThat(response.getRedirectedUrl()).isEqualTo("/requested");
+		assertThat(response.getStatus()).isEqualTo(307);
 	}
 
 	@Test
