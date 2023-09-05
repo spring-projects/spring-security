@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2016 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
+import org.springframework.util.Assert;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 /**
@@ -32,12 +33,13 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  * detected by the {@code SessionManagementFilter}.
  *
  * @author Craig Andrews
+ * @author Mark Chesney
  */
 public final class RequestedUrlRedirectInvalidSessionStrategy implements InvalidSessionStrategy {
 
 	private final Log logger = LogFactory.getLog(getClass());
 
-	private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+	private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
 	private boolean createNewSession = true;
 
@@ -66,6 +68,16 @@ public final class RequestedUrlRedirectInvalidSessionStrategy implements Invalid
 	 */
 	public void setCreateNewSession(boolean createNewSession) {
 		this.createNewSession = createNewSession;
+	}
+
+	/**
+	 * Sets the redirect strategy to use. The default is {@link DefaultRedirectStrategy}.
+	 * @param redirectStrategy the redirect strategy to use.
+	 * @since 6.2
+	 */
+	public void setRedirectStrategy(RedirectStrategy redirectStrategy) {
+		Assert.notNull(redirectStrategy, "redirectStrategy cannot be null");
+		this.redirectStrategy = redirectStrategy;
 	}
 
 }
