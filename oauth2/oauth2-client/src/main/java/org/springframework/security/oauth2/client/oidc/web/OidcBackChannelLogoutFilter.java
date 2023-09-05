@@ -113,14 +113,14 @@ public class OidcBackChannelLogoutFilter extends OncePerRequestFilter {
 		this.logoutHandler.logout(request, response, authentication);
 	}
 
-	private void handleAuthenticationFailure(HttpServletResponse response, AuthenticationException ex)
+	private void handleAuthenticationFailure(HttpServletResponse response, Exception ex)
 			throws IOException {
 		this.logger.debug("Failed to process OIDC Back-Channel Logout", ex);
 		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		this.errorHttpMessageConverter.write(oauth2Error(ex), null, new ServletServerHttpResponse(response));
 	}
 
-	private OAuth2Error oauth2Error(AuthenticationException ex) {
+	private OAuth2Error oauth2Error(Exception ex) {
 		if (ex instanceof OAuth2AuthenticationException oauth2) {
 			return oauth2.getError();
 		}

@@ -16,6 +16,9 @@
 
 package org.springframework.security.oauth2.client.oidc.web.logout;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,12 +28,15 @@ import org.apache.commons.logging.LogFactory;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcBackChannelLogoutAuthentication;
 import org.springframework.security.oauth2.client.oidc.authentication.logout.OidcLogoutToken;
 import org.springframework.security.oauth2.client.oidc.session.InMemoryOidcSessionRegistry;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionInformation;
 import org.springframework.security.oauth2.client.oidc.session.OidcSessionRegistry;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.http.converter.OAuth2ErrorHttpMessageConverter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.util.Assert;
 import org.springframework.web.client.RestClientException;
@@ -60,6 +66,8 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 
 	private String sessionCookieName = "JSESSIONID";
 
+	private final OAuth2ErrorHttpMessageConverter errorHttpMessageConverter = new OAuth2ErrorHttpMessageConverter();
+
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 		if (!(authentication instanceof OidcBackChannelLogoutAuthentication token)) {
@@ -70,6 +78,7 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 			return;
 		}
 		Iterable<OidcSessionInformation> sessions = this.sessionRegistry.removeSessionInformation(token.getPrincipal());
+		Collection<String> errors = new ArrayList<>();
 		int totalCount = 0;
 		int invalidatedCount = 0;
 		for (OidcSessionInformation session : sessions) {
@@ -80,10 +89,15 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 			}
 			catch (RestClientException ex) {
 				this.logger.debug("Failed to invalidate session", ex);
+				errors.add(ex.getMessage());
+				this.sessionRegistry.saveSessionInformation(session);
 			}
 		}
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace(String.format("Invalidated %d out of %d sessions", invalidatedCount, totalCount));
+		}
+		if (!errors.isEmpty()) {
+			handleLogoutFailure(response, oauth2Error(errors));
 		}
 	}
 
@@ -98,6 +112,20 @@ public final class OidcBackChannelLogoutHandler implements LogoutHandler {
 				.toUriString();
 		HttpEntity<?> entity = new HttpEntity<>(null, headers);
 		this.restOperations.postForEntity(logout, entity, Object.class);
+	}
+
+	private OAuth2Error oauth2Error(Collection<String> errors) {
+		return new OAuth2Error("partial_logout", "not all sessions were terminated: " + errors,
+				"https://openid.net/specs/openid-connect-backchannel-1_0.html#Validation");
+	}
+
+	private void handleLogoutFailure(HttpServletResponse response, OAuth2Error error) {
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		try {
+			this.errorHttpMessageConverter.write(error, null, new ServletServerHttpResponse(response));
+		} catch (IOException ex) {
+			throw new IllegalStateException(ex);
+		}
 	}
 
 	/**

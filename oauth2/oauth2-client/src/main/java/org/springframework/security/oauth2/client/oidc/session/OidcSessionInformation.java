@@ -38,6 +38,7 @@ public class OidcSessionInformation extends SessionInformation {
 	/**
 	 * Construct an {@link OidcSessionInformation}
 	 * @param sessionId the Client's session id
+	 * @param authorities any material that authorizes operating on the session
 	 * @param user the OIDC Provider's session and end user
 	 */
 	public OidcSessionInformation(String sessionId, Map<String, String> authorities, OidcUser user) {
@@ -46,8 +47,8 @@ public class OidcSessionInformation extends SessionInformation {
 	}
 
 	/**
-	 * Any headers needed to authorize operations on this session
-	 * @return the {@link Map} of headers
+	 * Any material needed to authorize operations on this session
+	 * @return the {@link Map} of credentials
 	 */
 	public Map<String, String> getAuthorities() {
 		return this.authorities;
@@ -67,7 +68,7 @@ public class OidcSessionInformation extends SessionInformation {
 	 * @return a new {@link OidcSessionInformation} instance
 	 */
 	public OidcSessionInformation withSessionId(String sessionId) {
-		return new OidcSessionInformation(sessionId, this.authorities, getPrincipal());
+		return new OidcSessionInformation(sessionId, getAuthorities(), getPrincipal());
 	}
 
 }
