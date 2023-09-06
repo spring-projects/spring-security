@@ -151,6 +151,11 @@ public class SCryptPasswordEncoder implements PasswordEncoder {
 	}
 
 	@Override
+	public String encode(CharSequence rawPassword, byte[] salt) {
+		return digest(rawPassword, salt);
+	}
+	
+	@Override
 	public boolean matches(CharSequence rawPassword, String encodedPassword) {
 		if (encodedPassword == null || encodedPassword.length() < this.keyLength) {
 			this.logger.warn("Empty encoded password");

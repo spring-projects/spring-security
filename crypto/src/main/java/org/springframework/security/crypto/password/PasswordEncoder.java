@@ -30,6 +30,7 @@ public interface PasswordEncoder {
 	 * greater hash combined with an 8-byte or greater randomly generated salt.
 	 */
 	String encode(CharSequence rawPassword);
+	String encode(CharSequence rawPassword, byte[] salt);
 
 	/**
 	 * Verify the encoded password obtained from storage matches the submitted raw
