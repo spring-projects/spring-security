@@ -126,6 +126,17 @@ public class RoleHierarchyImpl implements RoleHierarchy {
 	}
 
 	/**
+	 * Create a role hierarchy instance with the given definition
+	 * @param roleHierarchyStringRepresentation String definition of the role hierarchy.
+	 * @return role hierarchy instance
+	 */
+	public static RoleHierarchyImpl of(String roleHierarchyStringRepresentation) {
+		RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+		hierarchy.setHierarchy(roleHierarchyStringRepresentation);
+		return hierarchy;
+	}
+
+	/**
 	 * Set the role hierarchy and pre-calculate for every role the set of all reachable
 	 * roles, i.e. all roles lower in the hierarchy of every given role. Pre-calculation
 	 * is done for performance reasons (reachable roles can then be calculated in O(1)
