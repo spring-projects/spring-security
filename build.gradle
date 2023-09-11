@@ -123,16 +123,35 @@ updateDependenciesSettings {
 	}
 }
 
-subprojects {
-	plugins.withType(JavaPlugin) {
-		project.sourceCompatibility=JavaVersion.VERSION_17
+def toolchainVersion() {
+	if (project.hasProperty('testToolchain')) {
+		return project.property('testToolchain').toString().toInteger()
 	}
-	tasks.withType(JavaCompile) {
-		options.encoding = "UTF-8"
-		options.compilerArgs.add("-parameters")
-	}
+	return 17
 }
 
+subprojects {
+	def toolchainVersion = toolchainVersion()
+
+	tasks.withType(JavaCompile).configureEach {
+		options.encoding = "UTF-8"
+		options.compilerArgs.add("-parameters")
+
+		java {
+			toolchain {
+				languageVersion = JavaLanguageVersion.of(toolchainVersion)
+			}
+		}
+	}
+
+	tasks.withType(Test).configureEach {
+		java {
+			toolchain {
+				languageVersion = JavaLanguageVersion.of(toolchainVersion)
+			}
+		}
+	}
+}
 
 allprojects {
 	if (!['spring-security-bom', 'spring-security-docs'].contains(project.name)) {
@@ -156,12 +175,6 @@ allprojects {
 					task.enabled = false
 				}
 			}
-		}
-	}
-
-	tasks.withType(JavaCompile).configureEach {
-		javaCompiler = javaToolchains.compilerFor {
-			languageVersion = JavaLanguageVersion.of(17)
 		}
 	}
 }
