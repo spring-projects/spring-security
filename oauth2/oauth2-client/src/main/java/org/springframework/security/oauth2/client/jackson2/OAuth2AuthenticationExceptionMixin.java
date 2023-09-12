@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,15 +30,22 @@ import org.springframework.security.oauth2.core.OAuth2Error;
  * {@link OAuth2AuthenticationException}.
  *
  * @author Dennis Neufeld
+ * @author Steve Riesenberg
  * @since 5.3.4
  * @see OAuth2AuthenticationException
  * @see OAuth2ClientJackson2Module
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace", "suppressedExceptions" })
 abstract class OAuth2AuthenticationExceptionMixin {
+
+	@JsonProperty("error")
+	abstract OAuth2Error getError();
+
+	@JsonProperty("detailMessage")
+	abstract String getMessage();
 
 	@JsonCreator
 	OAuth2AuthenticationExceptionMixin(@JsonProperty("error") OAuth2Error error,
