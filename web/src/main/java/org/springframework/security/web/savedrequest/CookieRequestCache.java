@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.web.savedrequest;
 
 import java.util.Base64;
+import java.util.Collections;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -77,7 +78,7 @@ public class CookieRequestCache implements RequestCache {
 		int port = getPort(uriComponents);
 		return builder.setScheme(uriComponents.getScheme()).setServerName(uriComponents.getHost())
 				.setRequestURI(uriComponents.getPath()).setQueryString(uriComponents.getQuery()).setServerPort(port)
-				.setMethod(request.getMethod()).build();
+				.setMethod(request.getMethod()).setLocales(Collections.list(request.getLocales())).build();
 	}
 
 	private int getPort(UriComponents uriComponents) {

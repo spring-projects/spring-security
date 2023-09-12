@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2020 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,10 @@
 
 package org.springframework.security.web.savedrequest;
 
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.Locale;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -180,6 +183,25 @@ public class CookieRequestCacheTests {
 		assertThat(expiredCookie).isNotNull();
 		assertThat(expiredCookie.getValue()).isEmpty();
 		assertThat(expiredCookie.getMaxAge()).isZero();
+	}
+
+	// gh-13792
+	@Test
+	public void matchingRequestWhenMatchThenKeepOriginalRequestLocale() {
+		CookieRequestCache cookieRequestCache = new CookieRequestCache();
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setServerPort(443);
+		request.setSecure(true);
+		request.setScheme("https");
+		request.setServerName("example.com");
+		request.setRequestURI("/destination");
+		request.setPreferredLocales(Arrays.asList(Locale.FRENCH, Locale.GERMANY));
+		String redirectUrl = "https://example.com/destination";
+		request.setCookies(new Cookie(DEFAULT_COOKIE_NAME, encodeCookie(redirectUrl)));
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		HttpServletRequest matchingRequest = cookieRequestCache.getMatchingRequest(request, response);
+		assertThat(matchingRequest).isNotNull();
+		assertThat(Collections.list(matchingRequest.getLocales())).contains(Locale.FRENCH, Locale.GERMANY);
 	}
 
 	private static String encodeCookie(String cookieValue) {
