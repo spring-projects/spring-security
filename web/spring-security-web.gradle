@@ -26,7 +26,6 @@ dependencies {
 	testImplementation 'jakarta.websocket:jakarta.websocket-client-api'
 	testImplementation 'org.hamcrest:hamcrest'
 	testImplementation 'org.mockito:mockito-core'
-	testImplementation 'org.mockito:mockito-inline'
 	testImplementation 'org.skyscreamer:jsonassert'
 	testImplementation 'org.springframework:spring-webflux'
 	testImplementation 'org.synchronoss.cloud:nio-multipart-parser'
