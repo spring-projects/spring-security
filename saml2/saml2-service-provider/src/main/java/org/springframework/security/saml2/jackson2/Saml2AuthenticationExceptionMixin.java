@@ -34,10 +34,16 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
  * @see Saml2Jackson2Module
  */
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
-@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY, getterVisibility = JsonAutoDetect.Visibility.NONE,
+@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.NONE, getterVisibility = JsonAutoDetect.Visibility.NONE,
 		isGetterVisibility = JsonAutoDetect.Visibility.NONE)
 @JsonIgnoreProperties(ignoreUnknown = true, value = { "cause", "stackTrace", "suppressedExceptions" })
-class Saml2AuthenticationExceptionMixin {
+abstract class Saml2AuthenticationExceptionMixin {
+
+	@JsonProperty("error")
+	abstract Saml2Error getSaml2Error();
+
+	@JsonProperty("detailMessage")
+	abstract String getMessage();
 
 	@JsonCreator
 	Saml2AuthenticationExceptionMixin(@JsonProperty("error") Saml2Error error,
