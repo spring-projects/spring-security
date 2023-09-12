@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,8 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnJre;
+import org.junit.jupiter.api.condition.JRE;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,12 +33,21 @@ public class JavaVersionTests {
 
 	private static final int JDK17_CLASS_VERSION = 61;
 
+	private static final int JDK21_CLASS_VERSION = 65;
+
 	@Test
-	public void authenticationCorrectJdkCompatibility() throws Exception {
-		assertClassVersion(Authentication.class);
+	@EnabledOnJre(JRE.JAVA_17)
+	public void authenticationWhenJdk17ThenCorrectJdkCompatibility() throws Exception {
+		assertClassVersion(Authentication.class, JDK17_CLASS_VERSION);
 	}
 
-	private void assertClassVersion(Class<?> clazz) throws Exception {
+	@Test
+	@EnabledOnJre(JRE.JAVA_21)
+	public void authenticationWhenJdk21ThenCorrectJdkCompatibility() throws Exception {
+		assertClassVersion(Authentication.class, JDK21_CLASS_VERSION);
+	}
+
+	private void assertClassVersion(Class<?> clazz, int classVersion) throws Exception {
 		String classResourceName = clazz.getName().replaceAll("\\.", "/") + ".class";
 		try (InputStream input = Thread.currentThread().getContextClassLoader()
 				.getResourceAsStream(classResourceName)) {
@@ -44,7 +55,7 @@ public class JavaVersionTests {
 			data.readInt();
 			data.readShort(); // minor
 			int major = data.readShort();
-			assertThat(major).isEqualTo(JDK17_CLASS_VERSION);
+			assertThat(major).isEqualTo(classVersion);
 		}
 	}
 
