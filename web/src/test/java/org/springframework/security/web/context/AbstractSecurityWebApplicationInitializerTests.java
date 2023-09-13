@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ package org.springframework.security.web.context;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.EventListener;
-import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.servlet.DispatcherType;
@@ -316,14 +315,15 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		ServletContext context = mock(ServletContext.class);
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
-		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor
-				.forClass(new HashSet<SessionTrackingMode>() {
-				}.getClass());
-		willDoNothing().given(context).setSessionTrackingModes(modesCaptor.capture());
+		given(context.addFilter(eq("springSecurityFilterChain"), any(DelegatingFilterProxy.class)))
+				.willReturn(registration);
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor.forClass(Set.class);
 		new AbstractSecurityWebApplicationInitializer() {
 		}.onStartup(context);
+		verify(context).addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture());
 		assertProxyDefaults(proxyCaptor.getValue());
+		verify(context).setSessionTrackingModes(modesCaptor.capture());
 		Set<SessionTrackingMode> modes = modesCaptor.getValue();
 		assertThat(modes).hasSize(1);
 		assertThat(modes).containsExactly(SessionTrackingMode.COOKIE);
@@ -334,18 +334,20 @@ public class AbstractSecurityWebApplicationInitializerTests {
 		ServletContext context = mock(ServletContext.class);
 		FilterRegistration.Dynamic registration = mock(FilterRegistration.Dynamic.class);
 		ArgumentCaptor<DelegatingFilterProxy> proxyCaptor = ArgumentCaptor.forClass(DelegatingFilterProxy.class);
-		given(context.addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture())).willReturn(registration);
-		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor
-				.forClass(new HashSet<SessionTrackingMode>() {
-				}.getClass());
-		willDoNothing().given(context).setSessionTrackingModes(modesCaptor.capture());
+		given(context.addFilter(eq("springSecurityFilterChain"), any(DelegatingFilterProxy.class)))
+				.willReturn(registration);
+		@SuppressWarnings("unchecked")
+		ArgumentCaptor<Set<SessionTrackingMode>> modesCaptor = ArgumentCaptor.forClass(Set.class);
+		willDoNothing().given(context).setSessionTrackingModes(any());
 		new AbstractSecurityWebApplicationInitializer() {
 			@Override
 			public Set<SessionTrackingMode> getSessionTrackingModes() {
 				return Collections.singleton(SessionTrackingMode.SSL);
 			}
 		}.onStartup(context);
+		verify(context).addFilter(eq("springSecurityFilterChain"), proxyCaptor.capture());
 		assertProxyDefaults(proxyCaptor.getValue());
+		verify(context).setSessionTrackingModes(modesCaptor.capture());
 		Set<SessionTrackingMode> modes = modesCaptor.getValue();
 		assertThat(modes).hasSize(1);
 		assertThat(modes).containsExactly(SessionTrackingMode.SSL);

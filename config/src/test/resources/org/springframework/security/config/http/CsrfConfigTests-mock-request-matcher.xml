@@ -21,7 +21,7 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean id="requestMatcher" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.util.matcher.RequestMatcher"/>
-		<b:constructor-arg value="requestMatcher"/>
+		<b:constructor-arg value="org.springframework.security.web.util.matcher.RequestMatcher" type="java.lang.Class"/>
+		<b:constructor-arg value="requestMatcher" type="java.lang.String"/>
 	</b:bean>
 </b:beans>

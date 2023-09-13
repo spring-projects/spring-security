@@ -21,8 +21,8 @@
 		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<b:bean id="csrfTokenRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.csrf.CsrfTokenRepository"/>
-		<b:constructor-arg value="csrfTokenRepository"/>
+		<b:constructor-arg value="org.springframework.security.web.csrf.CsrfTokenRepository" type="java.lang.Class"/>
+		<b:constructor-arg value="csrfTokenRepository" type="java.lang.String"/>
 	</b:bean>
 
 </b:beans>
