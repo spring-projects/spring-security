@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,25 +16,41 @@
 
 package org.springframework.security.oauth2.core;
 
-import java.util.Arrays;
-
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 
 /**
  * @author Mario Petrovski
+ * @since 6.2
  */
-public final class ScopeAuthorizationManagerFactory {
+public final class OAuth2AuthorizationManagers {
 
-	private ScopeAuthorizationManagerFactory() {
+	private OAuth2AuthorizationManagers() {
 	}
 
 	public static <T> AuthorityAuthorizationManager<T> hasScope(String scope) {
+		verifyScope(scope);
 		return AuthorityAuthorizationManager.hasAuthority("SCOPE_" + scope);
 	}
 
 	public static <T> AuthorityAuthorizationManager<T> hasAnyScope(String... scopes) {
-		String[] mappedScopes = Arrays.stream(scopes).map((String s) -> "SCOPE_" + s).toArray(String[]::new);
+		verifyScopes(scopes);
+		String[] mappedScopes = new String[scopes.length];
+		for (int i = 0; i < scopes.length; i++) {
+			mappedScopes[i] = "SCOPE_" + scopes[i];
+		}
 		return AuthorityAuthorizationManager.hasAnyAuthority(mappedScopes);
+	}
+
+	private static void verifyScopes(String... scopes) throws IllegalArgumentException {
+		for (String scope : scopes) {
+			verifyScope(scope);
+		}
+	}
+
+	private static void verifyScope(String scope) {
+		if (scope.startsWith("SCOPE_")) {
+			throw new IllegalArgumentException("Scope '" + scope + "' start with 'SCOPE_' prefix.");
+		}
 	}
 
 }
