@@ -17,10 +17,11 @@
 package org.springframework.security.oauth2.core;
 
 import org.junit.jupiter.api.Test;
+
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 /**
  * Tests for {@link OAuth2AuthorizationManagers}
@@ -32,15 +33,17 @@ public class OAuth2AuthorizationManagersTests {
 	@Test
 	void hasScope_withInvalidScope_shouldThrowIllegalArgumentException() {
 		String scope = "SCOPE_invalid";
-		assertThatThrownBy(() -> OAuth2AuthorizationManagers.hasScope(scope))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> OAuth2AuthorizationManagers.hasScope(scope))
+				.withMessage("Scope 'SCOPE_invalid' start with 'SCOPE_' prefix.");
 	}
 
 	@Test
 	void hasScopes_withInvalidScope_shouldThrowIllegalArgumentException() {
 		String[] scopes = { "read", "write", "SCOPE_invalid" };
-		assertThatThrownBy(() -> OAuth2AuthorizationManagers.hasAnyScope(scopes))
-				.isInstanceOf(IllegalArgumentException.class);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> OAuth2AuthorizationManagers.hasAnyScope(scopes))
+				.withMessage("Scope 'SCOPE_invalid' start with 'SCOPE_' prefix.");
 	}
 
 	@Test
