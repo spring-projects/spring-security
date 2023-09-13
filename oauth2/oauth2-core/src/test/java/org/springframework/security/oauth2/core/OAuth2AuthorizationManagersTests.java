@@ -19,8 +19,8 @@ package org.springframework.security.oauth2.core;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authorization.AuthorityAuthorizationManager;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests for {@link OAuth2AuthorizationManagers}
@@ -32,27 +32,29 @@ public class OAuth2AuthorizationManagersTests {
 	@Test
 	void hasScope_withInvalidScope_shouldThrowIllegalArgumentException() {
 		String scope = "SCOPE_invalid";
-		assertThrows(IllegalArgumentException.class, () -> OAuth2AuthorizationManagers.hasScope(scope));
+		assertThatThrownBy(() -> OAuth2AuthorizationManagers.hasScope(scope))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	void hasScopes_withInvalidScope_shouldThrowIllegalArgumentException() {
 		String[] scopes = { "read", "write", "SCOPE_invalid" };
-		assertThrows(IllegalArgumentException.class, () -> OAuth2AuthorizationManagers.hasAnyScope(scopes));
+		assertThatThrownBy(() -> OAuth2AuthorizationManagers.hasAnyScope(scopes))
+				.isInstanceOf(IllegalArgumentException.class);
 	}
 
 	@Test
 	void hasScope_withValidScope_shouldPass() {
 		String scope = "read";
 		AuthorityAuthorizationManager<Object> authorizationManager = OAuth2AuthorizationManagers.hasScope(scope);
-		assertNotNull(authorizationManager);
+		assertThat(authorizationManager).isNotNull();
 	}
 
 	@Test
 	void hasScope_withValidScopes_shouldPass() {
 		String[] scopes = { "read", "write" };
 		AuthorityAuthorizationManager<Object> authorizationManager = OAuth2AuthorizationManagers.hasAnyScope(scopes);
-		assertNotNull(authorizationManager);
+		assertThat(authorizationManager).isNotNull();
 	}
 
 }
