@@ -28,6 +28,8 @@ import org.springframework.security.web.PortResolverImpl;
 import org.springframework.security.web.util.UrlUtils;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.util.StringUtils;
+import org.springframework.web.util.UriComponentsBuilder;
 
 /**
  * {@code RequestCache} which stores the {@code SavedRequest} in the HttpSession.
@@ -100,11 +102,14 @@ public class HttpSessionRequestCache implements RequestCache {
 
 	@Override
 	public HttpServletRequest getMatchingRequest(HttpServletRequest request, HttpServletResponse response) {
-		if (this.matchingRequestParameterName != null
-				&& request.getParameter(this.matchingRequestParameterName) == null) {
-			this.logger.trace(
-					"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
-			return null;
+		if (this.matchingRequestParameterName != null) {
+			if (!StringUtils.hasText(request.getQueryString())
+					|| !UriComponentsBuilder.fromUriString(UrlUtils.buildRequestUrl(request)).build().getQueryParams()
+							.containsKey(this.matchingRequestParameterName)) {
+				this.logger.trace(
+						"matchingRequestParameterName is required for getMatchingRequest to lookup a value, but not provided");
+				return null;
+			}
 		}
 		SavedRequest saved = getRequest(request, response);
 		if (saved == null) {
