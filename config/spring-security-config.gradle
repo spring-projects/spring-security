@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.gradle.xsd.CreateVersionlessXsdTask
 import trang.RncToXsd
 
 apply plugin: 'io.spring.convention.spring-module'
@@ -108,6 +109,17 @@ dependencies {
 	testImplementation 'io.mockk:mockk'
 
 	testRuntimeOnly 'org.hsqldb:hsqldb'
+}
+
+def versionlessXsd = project.tasks.create("versionlessXsd", CreateVersionlessXsdTask) {
+	inputFiles.from(project.sourceSets.main.resources)
+	versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
+}
+
+processResources {
+	from(versionlessXsd) {
+		into 'org/springframework/security/config/'
+	}
 }
 
 tasks.named('rncToXsd', RncToXsd).configure {
