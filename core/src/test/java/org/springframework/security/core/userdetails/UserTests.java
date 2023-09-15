@@ -26,6 +26,9 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -96,6 +99,31 @@ public class UserTests {
 				() -> User.builder().username("user").password("password").authorities((String[]) null).build());
 		assertThatIllegalArgumentException().isThrownBy(() -> User.builder().username("user").password("password")
 				.authorities(new String[] { null, null }).build());
+	}
+
+	// gh-12533
+	@ParameterizedTest
+	@NullSource
+	@ValueSource(strings = { "ROLE_USER,ROLE_ADMIN,read", "read" })
+	public void withUserDetailsWhenAuthoritiesThenOverridesPreviousAuthorities(String arg) {
+		// @formatter:off
+		UserDetails parent = User.builder()
+				.username("user")
+				.password("password")
+				.authorities("one", "two", "three")
+				.build();
+		// @formatter:on
+		String[] authorities = (arg != null) ? arg.split(",") : new String[0];
+		User.UserBuilder builder = User.withUserDetails(parent);
+		UserDetails user = builder.build();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly("one", "two", "three");
+		user = builder.authorities(authorities).build();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
+		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities)).build();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
+		user = builder.authorities(AuthorityUtils.createAuthorityList(authorities).toArray(GrantedAuthority[]::new))
+				.build();
+		assertThat(AuthorityUtils.authorityListToSet(user.getAuthorities())).containsOnly(authorities);
 	}
 
 	@Test

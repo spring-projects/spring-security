@@ -1,0 +1,24 @@
+= Authorization Changes
+
+The following sections relate to how to adapt to changes in the authorization support.
+
+== Method Security
+
+[[compile-with-parameters]]
+=== Compile With `-parameters`
+
+Spring Framework 6.1 https://github.com/spring-projects/spring-framework/issues/29559[removes LocalVariableTableParameterNameDiscoverer].
+This affects how `@PreAuthorize` and other xref:servlet/authorization/method-security.adoc[method security] annotations will process parameter names.
+If you are using method security annotations with parameter names, for example:
+
+[source,java]
+.Method security annotation using `id` parameter name
+----
+@PreAuthorize("@authz.checkPermission(#id, authentication)")
+public void doSomething(Long id) {
+    // ...
+}
+----
+
+You must compile with `-parameters` to ensure that the parameter names are available at runtime.
+For more information about this, please visit the https://github.com/spring-projects/spring-framework/wiki/Upgrading-to-Spring-Framework-6.x#core-container[Upgrading to Spring Framework 6.1 page].

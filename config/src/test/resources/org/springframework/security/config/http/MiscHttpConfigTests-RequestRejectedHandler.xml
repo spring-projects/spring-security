@@ -27,6 +27,6 @@
 	<b:import resource="MiscHttpConfigTests-HttpFirewall.xml"/>
 
 	<b:bean id="requestRejectedHandler" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.firewall.RequestRejectedHandler"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.web.firewall.RequestRejectedHandler" type="java.lang.Class"/>
+</b:bean>
 </b:beans>

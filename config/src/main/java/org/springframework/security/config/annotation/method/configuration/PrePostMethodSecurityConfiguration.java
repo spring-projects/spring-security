@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,21 @@
 
 package org.springframework.security.config.annotation.method.configuration;
 
-import io.micrometer.observation.ObservationRegistry;
+import java.util.function.Supplier;
 
-import org.springframework.aop.Advisor;
+import io.micrometer.observation.ObservationRegistry;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Role;
+import org.springframework.expression.EvaluationContext;
+import org.springframework.expression.Expression;
+import org.springframework.expression.ExpressionParser;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
@@ -36,7 +42,9 @@ import org.springframework.security.authorization.method.PostFilterAuthorization
 import org.springframework.security.authorization.method.PreAuthorizeAuthorizationManager;
 import org.springframework.security.authorization.method.PreFilterAuthorizationMethodInterceptor;
 import org.springframework.security.config.core.GrantedAuthorityDefaults;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.util.function.SingletonSupplier;
 
 /**
  * Base {@link Configuration} for enabling Spring Security Method Security.
@@ -52,26 +60,28 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor preFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static MethodInterceptor preFilterAuthorizationMethodInterceptor(
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
 		PreFilterAuthorizationMethodInterceptor preFilter = new PreFilterAuthorizationMethodInterceptor();
 		strategyProvider.ifAvailable(preFilter::setSecurityContextHolderStrategy);
 		preFilter.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		return preFilter;
 	}
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor preAuthorizeAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static MethodInterceptor preAuthorizeAuthorizationMethodInterceptor(
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
 			ObjectProvider<AuthorizationEventPublisher> eventPublisherProvider,
 			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
 		PreAuthorizeAuthorizationManager manager = new PreAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		AuthorizationManagerBeforeMethodInterceptor preAuthorize = AuthorizationManagerBeforeMethodInterceptor
 				.preAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(preAuthorize::setSecurityContextHolderStrategy);
@@ -81,7 +91,7 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor postAuthorizeAuthorizationMethodInterceptor(
+	static MethodInterceptor postAuthorizeAuthorizationMethodInterceptor(
 			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider,
@@ -89,7 +99,7 @@ final class PrePostMethodSecurityConfiguration {
 			ObjectProvider<ObservationRegistry> registryProvider, ApplicationContext context) {
 		PostAuthorizeAuthorizationManager manager = new PostAuthorizeAuthorizationManager();
 		manager.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		AuthorizationManagerAfterMethodInterceptor postAuthorize = AuthorizationManagerAfterMethodInterceptor
 				.postAuthorize(manager(manager, registryProvider));
 		strategyProvider.ifAvailable(postAuthorize::setSecurityContextHolderStrategy);
@@ -99,13 +109,14 @@ final class PrePostMethodSecurityConfiguration {
 
 	@Bean
 	@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
-	static Advisor postFilterAuthorizationMethodInterceptor(ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
+	static MethodInterceptor postFilterAuthorizationMethodInterceptor(
+			ObjectProvider<GrantedAuthorityDefaults> defaultsProvider,
 			ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
 			ObjectProvider<SecurityContextHolderStrategy> strategyProvider, ApplicationContext context) {
 		PostFilterAuthorizationMethodInterceptor postFilter = new PostFilterAuthorizationMethodInterceptor();
 		strategyProvider.ifAvailable(postFilter::setSecurityContextHolderStrategy);
 		postFilter.setExpressionHandler(
-				expressionHandlerProvider.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, context)));
+				new DeferringMethodSecurityExpressionHandler(expressionHandlerProvider, defaultsProvider, context));
 		return postFilter;
 	}
 
@@ -120,6 +131,45 @@ final class PrePostMethodSecurityConfiguration {
 	static <T> AuthorizationManager<T> manager(AuthorizationManager<T> delegate,
 			ObjectProvider<ObservationRegistry> registryProvider) {
 		return new DeferringObservationAuthorizationManager<>(registryProvider, delegate);
+	}
+
+	private static final class DeferringMethodSecurityExpressionHandler implements MethodSecurityExpressionHandler {
+
+		private final Supplier<MethodSecurityExpressionHandler> expressionHandler;
+
+		private DeferringMethodSecurityExpressionHandler(
+				ObjectProvider<MethodSecurityExpressionHandler> expressionHandlerProvider,
+				ObjectProvider<GrantedAuthorityDefaults> defaultsProvider, ApplicationContext applicationContext) {
+			this.expressionHandler = SingletonSupplier.of(() -> expressionHandlerProvider
+					.getIfAvailable(() -> defaultExpressionHandler(defaultsProvider, applicationContext)));
+		}
+
+		@Override
+		public ExpressionParser getExpressionParser() {
+			return this.expressionHandler.get().getExpressionParser();
+		}
+
+		@Override
+		public EvaluationContext createEvaluationContext(Authentication authentication, MethodInvocation invocation) {
+			return this.expressionHandler.get().createEvaluationContext(authentication, invocation);
+		}
+
+		@Override
+		public EvaluationContext createEvaluationContext(Supplier<Authentication> authentication,
+				MethodInvocation invocation) {
+			return this.expressionHandler.get().createEvaluationContext(authentication, invocation);
+		}
+
+		@Override
+		public Object filter(Object filterTarget, Expression filterExpression, EvaluationContext ctx) {
+			return this.expressionHandler.get().filter(filterTarget, filterExpression, ctx);
+		}
+
+		@Override
+		public void setReturnObject(Object returnObject, EvaluationContext ctx) {
+			this.expressionHandler.get().setReturnObject(returnObject, ctx);
+		}
+
 	}
 
 }

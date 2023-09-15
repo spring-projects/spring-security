@@ -16,11 +16,20 @@
 
 package org.springframework.security.config.http;
 
+import java.nio.charset.StandardCharsets;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import net.shibboleth.utilities.java.support.xml.SerializeSupport;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
+import org.opensaml.core.xml.io.Marshaller;
+import org.opensaml.saml.saml2.core.Assertion;
+import org.opensaml.saml.saml2.core.Response;
+import org.w3c.dom.Element;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.parsing.BeanDefinitionParsingException;
@@ -33,6 +42,7 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.saml2.core.OpenSamlInitializationService;
 import org.springframework.security.saml2.core.Saml2ParameterNames;
 import org.springframework.security.saml2.core.Saml2Utils;
 import org.springframework.security.saml2.core.TestSaml2X509Credentials;
@@ -41,6 +51,7 @@ import org.springframework.security.saml2.provider.service.authentication.Saml2A
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationException;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
 import org.springframework.security.saml2.provider.service.authentication.Saml2RedirectAuthenticationRequest;
+import org.springframework.security.saml2.provider.service.authentication.TestOpenSamlObjects;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.TestRelyingPartyRegistrations;
@@ -79,9 +90,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SecurityTestExecutionListeners
 public class Saml2LoginBeanDefinitionParserTests {
 
+	static {
+		OpenSamlInitializationService.initialize();
+	}
+
 	private static final String CONFIG_LOCATION_PREFIX = "classpath:org/springframework/security/config/http/Saml2LoginBeanDefinitionParserTests";
 
-	private static final String SIGNED_RESPONSE = "PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c2FtbDJwOlJlc3BvbnNlIHhtbG5zOnNhbWwycD0idXJuOm9hc2lzOm5hbWVzOnRjOlNBTUw6Mi4wOnByb3RvY29sIiBEZXN0aW5hdGlvbj0iaHR0cHM6Ly9ycC5leGFtcGxlLm9yZy9hY3MiIElEPSJfYzE3MzM2YTAtNTM1My00MTQ5LWI3MmMtMDNkOWY5YWYzMDdlIiBJc3N1ZUluc3RhbnQ9IjIwMjAtMDgtMDRUMjI6MDQ6NDUuMDE2WiIgVmVyc2lvbj0iMi4wIj48c2FtbDI6SXNzdWVyIHhtbG5zOnNhbWwyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXNzZXJ0aW9uIj5hcC1lbnRpdHktaWQ8L3NhbWwyOklzc3Vlcj48ZHM6U2lnbmF0dXJlIHhtbG5zOmRzPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwLzA5L3htbGRzaWcjIj4KPGRzOlNpZ25lZEluZm8+CjxkczpDYW5vbmljYWxpemF0aW9uTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIi8+CjxkczpTaWduYXR1cmVNZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNyc2Etc2hhMjU2Ii8+CjxkczpSZWZlcmVuY2UgVVJJPSIjX2MxNzMzNmEwLTUzNTMtNDE0OS1iNzJjLTAzZDlmOWFmMzA3ZSI+CjxkczpUcmFuc2Zvcm1zPgo8ZHM6VHJhbnNmb3JtIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnI2VudmVsb3BlZC1zaWduYXR1cmUiLz4KPGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMTAveG1sLWV4Yy1jMTRuIyIvPgo8L2RzOlRyYW5zZm9ybXM+CjxkczpEaWdlc3RNZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGVuYyNzaGEyNTYiLz4KPGRzOkRpZ2VzdFZhbHVlPjYzTmlyenFzaDVVa0h1a3NuRWUrM0hWWU5aYWFsQW1OQXFMc1lGMlRuRDA9PC9kczpEaWdlc3RWYWx1ZT4KPC9kczpSZWZlcmVuY2U+CjwvZHM6U2lnbmVkSW5mbz4KPGRzOlNpZ25hdHVyZVZhbHVlPgpLMVlvWWJVUjBTclY4RTdVMkhxTTIvZUNTOTNoV25mOExnNnozeGZWMUlyalgzSXhWYkNvMVlYcnRBSGRwRVdvYTJKKzVOMmFNbFBHJiMxMzsKN2VpbDBZRC9xdUVRamRYbTNwQTBjZmEvY25pa2RuKzVhbnM0ZWQwanU1amo2dkpvZ2w2Smt4Q25LWUpwTU9HNzhtampmb0phengrWCYjMTM7CkM2NktQVStBYUdxeGVwUEQ1ZlhRdTFKSy9Jb3lBaitaa3k4Z2Jwc3VyZHFCSEJLRWxjdnVOWS92UGY0OGtBeFZBKzdtRGhNNUMvL1AmIzEzOwp0L084Y3NZYXB2UjZjdjZrdk45QXZ1N3FRdm9qVk1McHVxZWNJZDJwTUVYb0NSSnE2Nkd4MStNTUVPeHVpMWZZQlRoMEhhYjRmK3JyJiMxMzsKOEY2V1NFRC8xZllVeHliRkJqZ1Q4d2lEWHFBRU8wSVY4ZWRQeEE9PQo8L2RzOlNpZ25hdHVyZVZhbHVlPgo8L2RzOlNpZ25hdHVyZT48c2FtbDI6QXNzZXJ0aW9uIHhtbG5zOnNhbWwyPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6YXNzZXJ0aW9uIiBJRD0iQWUzZjQ5OGI4LTliMTctNDA3OC05ZDM1LTg2YTA4NDA4NDk5NSIgSXNzdWVJbnN0YW50PSIyMDIwLTA4LTA0VDIyOjA0OjQ1LjA3N1oiIFZlcnNpb249IjIuMCI+PHNhbWwyOklzc3Vlcj5hcC1lbnRpdHktaWQ8L3NhbWwyOklzc3Vlcj48c2FtbDI6U3ViamVjdD48c2FtbDI6TmFtZUlEPnRlc3RAc2FtbC51c2VyPC9zYW1sMjpOYW1lSUQ+PHNhbWwyOlN1YmplY3RDb25maXJtYXRpb24gTWV0aG9kPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6Y206YmVhcmVyIj48c2FtbDI6U3ViamVjdENvbmZpcm1hdGlvbkRhdGEgTm90QmVmb3JlPSIyMDIwLTA4LTA0VDIxOjU5OjQ1LjA5MFoiIE5vdE9uT3JBZnRlcj0iMjA0MC0wNy0zMFQyMjowNTowNi4wODhaIiBSZWNpcGllbnQ9Imh0dHBzOi8vcnAuZXhhbXBsZS5vcmcvYWNzIi8+PC9zYW1sMjpTdWJqZWN0Q29uZmlybWF0aW9uPjwvc2FtbDI6U3ViamVjdD48c2FtbDI6Q29uZGl0aW9ucyBOb3RCZWZvcmU9IjIwMjAtMDgtMDRUMjE6NTk6NDUuMDgwWiIgTm90T25PckFmdGVyPSIyMDQwLTA3LTMwVDIyOjA1OjA2LjA4N1oiLz48L3NhbWwyOkFzc2VydGlvbj48L3NhbWwycDpSZXNwb25zZT4=";
+	private static final RelyingPartyRegistration registration = TestRelyingPartyRegistrations.noCredentials()
+			.signingX509Credentials((c) -> c.add(TestSaml2X509Credentials.assertingPartySigningCredential()))
+			.assertingPartyDetails((party) -> party.verificationX509Credentials(
+					(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
+			.build();
+
+	private static String SIGNED_RESPONSE;
 
 	private static final String IDP_SSO_URL = "https://sso-url.example.com/IDP/SSO";
 
@@ -116,6 +137,23 @@ public class Saml2LoginBeanDefinitionParserTests {
 
 	@Autowired
 	private MockMvc mvc;
+
+	@BeforeAll
+	static void createResponse() throws Exception {
+		String destination = registration.getAssertionConsumerServiceLocation();
+		String assertingPartyEntityId = registration.getAssertingPartyDetails().getEntityId();
+		String relyingPartyEntityId = registration.getEntityId();
+		Response response = TestOpenSamlObjects.response(destination, assertingPartyEntityId);
+		Assertion assertion = TestOpenSamlObjects.assertion("test@saml.user", assertingPartyEntityId,
+				relyingPartyEntityId, destination);
+		response.getAssertions().add(assertion);
+		Response signed = TestOpenSamlObjects.signed(response,
+				registration.getSigningX509Credentials().iterator().next(), relyingPartyEntityId);
+		Marshaller marshaller = XMLObjectProviderRegistrySupport.getMarshallerFactory().getMarshaller(signed);
+		Element element = marshaller.marshall(signed);
+		String serialized = SerializeSupport.nodeToString(element);
+		SIGNED_RESPONSE = Saml2Utils.samlEncode(serialized.getBytes(StandardCharsets.UTF_8));
+	}
 
 	@Test
 	public void requestWhenSingleRelyingPartyRegistrationThenAutoRedirect() throws Exception {
@@ -296,13 +334,9 @@ public class Saml2LoginBeanDefinitionParserTests {
 			throws Exception {
 		this.spring.configLocations(this.xml("WithCustomLoginProcessingUrl-WithCustomAuthenticationConverter"))
 				.autowire();
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
 		String response = new String(Saml2Utils.samlDecode(SIGNED_RESPONSE));
 		given(this.authenticationConverter.convert(any(HttpServletRequest.class)))
-				.willReturn(new Saml2AuthenticationToken(relyingPartyRegistration, response));
+				.willReturn(new Saml2AuthenticationToken(registration, response));
 		// @formatter:off
 		MockHttpServletRequestBuilder request = post("/my/custom/url").param("SAMLResponse", SIGNED_RESPONSE);
 		// @formatter:on
@@ -311,12 +345,8 @@ public class Saml2LoginBeanDefinitionParserTests {
 	}
 
 	private RelyingPartyRegistration relyingPartyRegistrationWithVerifyingCredential() {
-		RelyingPartyRegistration relyingPartyRegistration = TestRelyingPartyRegistrations.noCredentials()
-				.assertingPartyDetails((party) -> party.verificationX509Credentials(
-						(c) -> c.add(TestSaml2X509Credentials.relyingPartyVerifyingCredential())))
-				.build();
-		given(this.repository.findByRegistrationId(anyString())).willReturn(relyingPartyRegistration);
-		return relyingPartyRegistration;
+		given(this.repository.findByRegistrationId(anyString())).willReturn(registration);
+		return registration;
 	}
 
 	private String xml(String configName) {

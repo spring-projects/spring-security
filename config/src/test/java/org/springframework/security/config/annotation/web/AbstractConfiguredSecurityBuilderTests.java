@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2018 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.AbstractConfiguredSecurityBuilder;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
 /**
@@ -84,6 +86,24 @@ public class AbstractConfiguredSecurityBuilderTests {
 	}
 
 	@Test
+	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurerThenNotConfigured() throws Exception {
+		ApplyAndRemoveSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
+		this.builder.apply(new ApplyAndRemoveSecurityConfigurer());
+		this.builder.build();
+		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).init(this.builder);
+		verify(ApplyAndRemoveSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
+	}
+
+	@Test
+	public void buildWhenConfigurerAppliesAndRemoveAnotherConfigurersThenNotConfigured() throws Exception {
+		ApplyAndRemoveAllSecurityConfigurer.CONFIGURER = mock(SecurityConfigurer.class);
+		this.builder.apply(new ApplyAndRemoveAllSecurityConfigurer());
+		this.builder.build();
+		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).init(this.builder);
+		verify(ApplyAndRemoveAllSecurityConfigurer.CONFIGURER, never()).configure(this.builder);
+	}
+
+	@Test
 	public void getConfigurerWhenMultipleConfigurersThenThrowIllegalStateException() throws Exception {
 		TestConfiguredSecurityBuilder builder = new TestConfiguredSecurityBuilder(mock(ObjectPostProcessor.class),
 				true);
@@ -128,6 +148,45 @@ public class AbstractConfiguredSecurityBuilderTests {
 		assertThat(configurers).hasSize(2);
 		assertThat(configurers).containsExactly(configurer1, configurer2);
 		assertThat(builder.getConfigurers(DelegateSecurityConfigurer.class)).hasSize(2);
+	}
+
+	@Test
+	public void withWhenConfigurerThenConfigurerAdded() throws Exception {
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
+	}
+
+	@Test
+	public void withWhenDuplicateConfigurerAddedThenDuplicateConfigurerRemoved() throws Exception {
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		this.builder.with(new TestSecurityConfigurer(), Customizer.withDefaults());
+		assertThat(this.builder.getConfigurers(TestSecurityConfigurer.class)).hasSize(1);
+	}
+
+	private static class ApplyAndRemoveSecurityConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.apply(CONFIGURER);
+			builder.removeConfigurer(CONFIGURER.getClass());
+		}
+
+	}
+
+	private static class ApplyAndRemoveAllSecurityConfigurer
+			extends SecurityConfigurerAdapter<Object, TestConfiguredSecurityBuilder> {
+
+		private static SecurityConfigurer<Object, TestConfiguredSecurityBuilder> CONFIGURER;
+
+		@Override
+		public void init(TestConfiguredSecurityBuilder builder) throws Exception {
+			builder.apply(CONFIGURER);
+			builder.removeConfigurers(CONFIGURER.getClass());
+		}
+
 	}
 
 	private static class DelegateSecurityConfigurer

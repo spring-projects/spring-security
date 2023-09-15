@@ -140,11 +140,11 @@ public final class SecurityMockMvcResultMatchers {
 
 		/**
 		 * Allows for any validating the authentication with arbitrary assertions
-		 * @param assesrtAuthentication the Consumer which validates the authentication
+		 * @param assertAuthentication the Consumer which validates the authentication
 		 * @return the AuthenticatedMatcher to perform additional assertions
 		 */
-		public AuthenticatedMatcher withAuthentication(Consumer<Authentication> assesrtAuthentication) {
-			this.assertAuthentication = assesrtAuthentication;
+		public AuthenticatedMatcher withAuthentication(Consumer<Authentication> assertAuthentication) {
+			this.assertAuthentication = assertAuthentication;
 			return this;
 		}
 

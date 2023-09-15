@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 import org.opensaml.core.config.ConfigurationService;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.config.XMLObjectProviderRegistry;
-import org.opensaml.core.xml.config.XMLObjectProviderRegistrySupport;
 import org.opensaml.core.xml.schema.XSAny;
 import org.opensaml.core.xml.schema.XSBoolean;
 import org.opensaml.core.xml.schema.XSBooleanValue;
@@ -89,7 +88,6 @@ import org.springframework.security.saml2.core.Saml2Error;
 import org.springframework.security.saml2.core.Saml2ErrorCodes;
 import org.springframework.security.saml2.core.Saml2ResponseValidatorResult;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistration;
-import org.springframework.security.saml2.provider.service.registration.Saml2MessageBinding;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -410,16 +408,15 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 		if (!StringUtils.hasText(inResponseTo)) {
 			return Saml2ResponseValidatorResult.success();
 		}
-		AuthnRequest request = parseRequest(storedRequest);
-		if (request == null) {
+		if (storedRequest == null) {
 			String message = "The response contained an InResponseTo attribute [" + inResponseTo + "]"
 					+ " but no saved authentication request was found";
 			return Saml2ResponseValidatorResult
 					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
 		}
-		if (!inResponseTo.equals(request.getID())) {
+		if (!inResponseTo.equals(storedRequest.getId())) {
 			String message = "The InResponseTo attribute [" + inResponseTo + "] does not match the ID of the "
-					+ "authentication request [" + request.getID() + "]";
+					+ "authentication request [" + storedRequest.getId() + "]";
 			return Saml2ResponseValidatorResult
 					.failure(new Saml2Error(Saml2ErrorCodes.INVALID_IN_RESPONSE_TO, message));
 		}
@@ -776,37 +773,7 @@ public final class OpenSaml4AuthenticationProvider implements AuthenticationProv
 	}
 
 	private static String getAuthnRequestId(AbstractSaml2AuthenticationRequest serialized) {
-		AuthnRequest request = parseRequest(serialized);
-		if (request == null) {
-			return null;
-		}
-		return request.getID();
-	}
-
-	private static AuthnRequest parseRequest(AbstractSaml2AuthenticationRequest request) {
-		if (request == null) {
-			return null;
-		}
-		String samlRequest = request.getSamlRequest();
-		if (!StringUtils.hasText(samlRequest)) {
-			return null;
-		}
-		if (request.getBinding() == Saml2MessageBinding.REDIRECT) {
-			samlRequest = Saml2Utils.samlInflate(Saml2Utils.samlDecode(samlRequest));
-		}
-		else {
-			samlRequest = new String(Saml2Utils.samlDecode(samlRequest), StandardCharsets.UTF_8);
-		}
-		try {
-			Document document = XMLObjectProviderRegistrySupport.getParserPool()
-					.parse(new ByteArrayInputStream(samlRequest.getBytes(StandardCharsets.UTF_8)));
-			Element element = document.getDocumentElement();
-			return (AuthnRequest) authnRequestUnmarshaller.unmarshall(element);
-		}
-		catch (Exception ex) {
-			String message = "Failed to deserialize associated authentication request [" + ex.getMessage() + "]";
-			throw createAuthenticationException(Saml2ErrorCodes.MALFORMED_REQUEST_DATA, message, ex);
-		}
+		return (serialized != null) ? serialized.getId() : null;
 	}
 
 	private static class SAML20AssertionValidators {

@@ -1,7 +1,6 @@
 pluginManagement {
 	repositories {
 		gradlePluginPortal()
-		maven { url 'https://repo.spring.io/plugins-release' }
 	}
 }
 
@@ -13,6 +12,7 @@ plugins {
 dependencyResolutionManagement {
 	repositories {
 		mavenCentral()
+		maven { url "https://repo.spring.io/milestone" }
 	}
 }
 

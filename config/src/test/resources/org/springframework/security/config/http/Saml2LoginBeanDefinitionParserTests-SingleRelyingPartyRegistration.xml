@@ -36,7 +36,7 @@
 																assertion-consumer-service-location="{baseUrl}/login/saml2/sso/{registrationId}"
 																assertion-consumer-service-binding="REDIRECT"
 																asserting-party-id="google"/>
-		
+
 		<asserting-party asserting-party-id="google" entity-id="https://accounts.google.com/o/saml2/idp/entity-id"
 										 want-authn-requests-signed="true"
 										 single-sign-on-service-location="https://accounts.google.com/o/saml2/idp/sso-url"
@@ -51,8 +51,8 @@
 	</relying-party-registrations>
 
 	<b:bean id="requestCache" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.web.savedrequest.RequestCache" type="java.lang.Class"/>
+</b:bean>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

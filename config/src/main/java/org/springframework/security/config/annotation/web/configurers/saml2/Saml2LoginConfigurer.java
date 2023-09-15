@@ -52,6 +52,7 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestHeaderRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatchers;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
@@ -114,7 +115,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 
 	private Saml2AuthenticationRequestResolver authenticationRequestResolver;
 
-	private String loginProcessingUrl = Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI;
+	private RequestMatcher loginProcessingUrl = RequestMatchers.anyOf(
+			new AntPathRequestMatcher(Saml2WebSsoAuthenticationFilter.DEFAULT_FILTER_PROCESSES_URI),
+			new AntPathRequestMatcher("/login/saml2/sso"));
 
 	private RelyingPartyRegistrationRepository relyingPartyRegistrationRepository;
 
@@ -214,7 +217,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	@Override
 	public Saml2LoginConfigurer<B> loginProcessingUrl(String loginProcessingUrl) {
 		Assert.hasText(loginProcessingUrl, "loginProcessingUrl cannot be empty");
-		this.loginProcessingUrl = loginProcessingUrl;
+		this.loginProcessingUrl = new AntPathRequestMatcher(loginProcessingUrl);
 		return this;
 	}
 
@@ -240,12 +243,11 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	public void init(B http) throws Exception {
 		registerDefaultCsrfOverride(http);
 		relyingPartyRegistrationRepository(http);
-		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http),
-				this.loginProcessingUrl);
+		this.saml2WebSsoAuthenticationFilter = new Saml2WebSsoAuthenticationFilter(getAuthenticationConverter(http));
 		this.saml2WebSsoAuthenticationFilter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
+		this.saml2WebSsoAuthenticationFilter.setRequiresAuthenticationRequestMatcher(this.loginProcessingUrl);
 		setAuthenticationRequestRepository(http, this.saml2WebSsoAuthenticationFilter);
 		setAuthenticationFilter(this.saml2WebSsoAuthenticationFilter);
-		super.loginProcessingUrl(this.loginProcessingUrl);
 		if (StringUtils.hasText(this.loginPage)) {
 			// Set custom login page
 			super.loginPage(this.loginPage);
@@ -268,6 +270,9 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			}
 		}
 		this.initDefaultLoginFilter(http);
+		if (this.authenticationManager == null) {
+			registerDefaultAuthenticationProvider(http);
+		}
 	}
 
 	/**
@@ -283,10 +288,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		filter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
 		http.addFilter(postProcess(filter));
 		super.configure(http);
-		if (this.authenticationManager == null) {
-			registerDefaultAuthenticationProvider(http);
-		}
-		else {
+		if (this.authenticationManager != null) {
 			this.saml2WebSsoAuthenticationFilter.setAuthenticationManager(this.authenticationManager);
 		}
 	}
@@ -352,14 +354,17 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 			OpenSamlAuthenticationTokenConverter converter = new OpenSamlAuthenticationTokenConverter(
 					this.relyingPartyRegistrationRepository);
 			converter.setAuthenticationRequestRepository(getAuthenticationRequestRepository(http));
-			converter.setRequestMatcher(createLoginProcessingUrlMatcher(this.loginProcessingUrl));
+			converter.setRequestMatcher(this.loginProcessingUrl);
 			return converter;
 		}
 		return authenticationConverterBean;
 	}
 
 	private void registerDefaultAuthenticationProvider(B http) {
-		http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		OpenSaml4AuthenticationProvider provider = getBeanOrNull(http, OpenSaml4AuthenticationProvider.class);
+		if (provider == null) {
+			http.authenticationProvider(postProcess(new OpenSaml4AuthenticationProvider()));
+		}
 	}
 
 	private void registerDefaultCsrfOverride(B http) {
@@ -367,7 +372,7 @@ public final class Saml2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		if (csrf == null) {
 			return;
 		}
-		csrf.ignoringRequestMatchers(new AntPathRequestMatcher(this.loginProcessingUrl));
+		csrf.ignoringRequestMatchers(this.loginProcessingUrl);
 	}
 
 	private void initDefaultLoginFilter(B http) {

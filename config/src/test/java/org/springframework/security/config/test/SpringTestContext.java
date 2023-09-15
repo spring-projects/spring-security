@@ -28,8 +28,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
 import org.springframework.mock.web.MockServletConfig;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.BeanIds;
+import org.springframework.security.config.MockServletContext;
 import org.springframework.security.config.util.InMemoryXmlWebApplicationContext;
 import org.springframework.test.context.web.GenericXmlWebContextLoader;
 import org.springframework.test.web.servlet.MockMvc;
@@ -132,7 +132,7 @@ public class SpringTestContext implements Closeable {
 
 	public ConfigurableWebApplicationContext getContext() {
 		if (!this.context.isRunning()) {
-			this.context.setServletContext(new MockServletContext());
+			this.context.setServletContext(MockServletContext.mvc());
 			this.context.setServletConfig(new MockServletConfig());
 			this.context.refresh();
 		}
@@ -140,7 +140,7 @@ public class SpringTestContext implements Closeable {
 	}
 
 	public void autowire() {
-		this.context.setServletContext(new MockServletContext());
+		this.context.setServletContext(MockServletContext.mvc());
 		this.context.setServletConfig(new MockServletConfig());
 		for (Consumer<ConfigurableWebApplicationContext> postProcessor : this.postProcessors) {
 			postProcessor.accept(this.context);

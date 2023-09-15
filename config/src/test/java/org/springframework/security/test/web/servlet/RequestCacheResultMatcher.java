@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Ensures that the MockMvcResult redirects to the saved ReqeuestCache.getRedirectUrl().
+ * Ensures that the MockMvcResult redirects to the saved RequestCache.getRedirectUrl().
  */
 public final class RequestCacheResultMatcher {
 
 	/**
 	 * Verifies that the MockMvcResult redirects to the saved
-	 * ReqeustCache.getRedirectUrl().
+	 * RequestCache.getRedirectUrl().
 	 * @return a ResultMatcher that performs the verification.
 	 */
 	public static ResultMatcher redirectToCachedRequest() {
@@ -39,7 +39,7 @@ public final class RequestCacheResultMatcher {
 			RequestCache requestCache = new HttpSessionRequestCache();
 			MockHttpServletResponse response = mvcResult.getResponse();
 			SavedRequest savedRequest = requestCache.getRequest(mvcResult.getRequest(), response);
-			assertThat(savedRequest).describedAs("savedReqeust cannot be null").isNotNull();
+			assertThat(savedRequest).describedAs("savedRequest cannot be null").isNotNull();
 			String cachedRedirectUrl = savedRequest.getRedirectUrl();
 			assertThat(response.getRedirectedUrl()).isEqualTo(cachedRedirectUrl);
 		};

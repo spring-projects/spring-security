@@ -2,10 +2,14 @@
 
 Spring Security also provides support for CSRF testing with `WebTestClient` -- for example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
+import static org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf;
+
 this.rest
 	// provide a valid CSRF token
 	.mutateWith(csrf())
@@ -14,9 +18,12 @@ this.rest
 	...
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.test.web.reactive.server.SecurityMockServerConfigurers.csrf
+
 this.rest
     // provide a valid CSRF token
     .mutateWith(csrf())
@@ -24,4 +31,4 @@ this.rest
     .uri("/login")
     ...
 ----
-====
+======

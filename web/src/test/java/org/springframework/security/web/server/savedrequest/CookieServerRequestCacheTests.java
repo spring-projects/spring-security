@@ -46,7 +46,7 @@ public class CookieServerRequestCacheTests {
 				.from(MockServerHttpRequest.get("/secured/").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
-		assertThat(cookies.size()).isEqualTo(1);
+		assertThat(cookies).hasSize(1);
 		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
 		assertThat(cookie).isNotNull();
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/".getBytes());
@@ -60,7 +60,7 @@ public class CookieServerRequestCacheTests {
 				.from(MockServerHttpRequest.get("/secured/").queryParam("key", "value").accept(MediaType.TEXT_HTML));
 		this.cache.saveRequest(exchange).block();
 		MultiValueMap<String, ResponseCookie> cookies = exchange.getResponse().getCookies();
-		assertThat(cookies.size()).isEqualTo(1);
+		assertThat(cookies).hasSize(1);
 		ResponseCookie cookie = cookies.getFirst("REDIRECT_URI");
 		assertThat(cookie).isNotNull();
 		String encodedRedirectUrl = Base64.getEncoder().encodeToString("/secured/?key=value".getBytes());

@@ -324,6 +324,13 @@ public class MiscHttpConfigTests {
 	}
 
 	@Test
+	public void configureWhenOncePerRequestIsTrueThenFilterSecurityInterceptorObserveOncePerRequestIsTrue() {
+		this.spring.configLocations(xml("OncePerRequestTrue")).autowire();
+		FilterSecurityInterceptor filterSecurityInterceptor = getFilter(FilterSecurityInterceptor.class);
+		assertThat(filterSecurityInterceptor.isObserveOncePerRequest()).isTrue();
+	}
+
+	@Test
 	public void requestWhenCustomHttpBasicEntryPointRefThenInvokesOnCommence() throws Exception {
 		this.spring.configLocations(xml("CustomHttpBasicEntryPointRef")).autowire();
 		AuthenticationEntryPoint entryPoint = this.spring.getContext().getBean(AuthenticationEntryPoint.class);
@@ -411,7 +418,7 @@ public class MiscHttpConfigTests {
 		this.spring.configLocations(xml("DeleteCookies")).autowire();
 		MvcResult result = this.mvc.perform(post("/logout").with(csrf())).andReturn();
 		List<String> values = result.getResponse().getHeaders("Set-Cookie");
-		assertThat(values.size()).isEqualTo(2);
+		assertThat(values).hasSize(2);
 		assertThat(values).extracting((value) -> value.split("=")[0]).contains("JSESSIONID", "mycookie");
 	}
 

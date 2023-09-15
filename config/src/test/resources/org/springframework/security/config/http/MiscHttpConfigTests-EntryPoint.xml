@@ -29,7 +29,7 @@
 	</http>
 
 	<b:bean name="entryPoint" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint"/>
+		<b:constructor-arg value="org.springframework.security.web.AuthenticationEntryPoint" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:import resource="userservice.xml"/>

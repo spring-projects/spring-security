@@ -46,7 +46,7 @@ public class InetOrgPersonTests {
 		InetOrgPerson p2 = (InetOrgPerson) essence.createUserDetails();
 		Set<InetOrgPerson> set = new HashSet<>();
 		set.add(p);
-		assertThat(set.contains(p2)).isTrue();
+		assertThat(set).contains(p2);
 	}
 
 	@Test

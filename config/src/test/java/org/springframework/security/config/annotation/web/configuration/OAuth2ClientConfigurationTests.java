@@ -175,9 +175,10 @@ public class OAuth2ClientConfigurationTests {
 	@Test
 	public void loadContextWhenAccessTokenResponseClientRegisteredTwiceThenThrowNoUniqueBeanDefinitionException() {
 		// @formatter:off
-		assertThatExceptionOfType(Exception.class)
+		assertThatExceptionOfType(BeanCreationException.class)
 				.isThrownBy(() -> this.spring.register(AccessTokenResponseClientRegisteredTwiceConfig.class).autowire())
-				.withRootCauseInstanceOf(NoUniqueBeanDefinitionException.class)
+				.havingRootCause()
+				.isInstanceOf(NoUniqueBeanDefinitionException.class)
 				.withMessageContaining(
 						"expected single matching bean but found 2: accessTokenResponseClient1,accessTokenResponseClient2");
 		// @formatter:on

@@ -18,10 +18,13 @@ package org.springframework.security.web;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
@@ -36,6 +39,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.springframework.core.log.LogMessage;
+import org.springframework.util.StringUtils;
 
 /**
  * A {@link org.springframework.security.web.FilterChainProxy.FilterChainDecorator} that
@@ -137,6 +141,49 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 	static final class ObservationFilter implements Filter {
 
+		private static final Map<String, String> OBSERVATION_NAMES = new HashMap<>();
+
+		static {
+			OBSERVATION_NAMES.put("DisableEncodeUrlFilter", "session.url-encoding");
+			OBSERVATION_NAMES.put("ForceEagerSessionCreationFilter", "session.eager-create");
+			OBSERVATION_NAMES.put("ChannelProcessingFilter", "access.channel");
+			OBSERVATION_NAMES.put("WebAsyncManagerIntegrationFilter", "context.async");
+			OBSERVATION_NAMES.put("SecurityContextHolderFilter", "context.holder");
+			OBSERVATION_NAMES.put("SecurityContextPersistenceFilter", "context.management");
+			OBSERVATION_NAMES.put("HeaderWriterFilter", "header");
+			OBSERVATION_NAMES.put("CorsFilter", "cors");
+			OBSERVATION_NAMES.put("CsrfFilter", "csrf");
+			OBSERVATION_NAMES.put("LogoutFilter", "logout");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationRequestRedirectFilter", "oauth2.authnrequest");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationRequestFilter", "saml2.authnrequest");
+			OBSERVATION_NAMES.put("X509AuthenticationFilter", "authentication.x509");
+			OBSERVATION_NAMES.put("J2eePreAuthenticatedProcessingFilter", "preauthentication.j2ee");
+			OBSERVATION_NAMES.put("RequestHeaderAuthenticationFilter", "preauthentication.header");
+			OBSERVATION_NAMES.put("RequestAttributeAuthenticationFilter", "preauthentication.attribute");
+			OBSERVATION_NAMES.put("WebSpherePreAuthenticatedProcessingFilter", "preauthentication.websphere");
+			OBSERVATION_NAMES.put("CasAuthenticationFilter", "cas.authentication");
+			OBSERVATION_NAMES.put("OAuth2LoginAuthenticationFilter", "oauth2.authentication");
+			OBSERVATION_NAMES.put("Saml2WebSsoAuthenticationFilter", "saml2.authentication");
+			OBSERVATION_NAMES.put("UsernamePasswordAuthenticationFilter", "authentication.form");
+			OBSERVATION_NAMES.put("DefaultLoginPageGeneratingFilter", "page.login");
+			OBSERVATION_NAMES.put("DefaultLogoutPageGeneratingFilter", "page.logout");
+			OBSERVATION_NAMES.put("ConcurrentSessionFilter", "session.concurrent");
+			OBSERVATION_NAMES.put("DigestAuthenticationFilter", "authentication.digest");
+			OBSERVATION_NAMES.put("BearerTokenAuthenticationFilter", "authentication.bearer");
+			OBSERVATION_NAMES.put("BasicAuthenticationFilter", "authentication.basic");
+			OBSERVATION_NAMES.put("RequestCacheAwareFilter", "requestcache");
+			OBSERVATION_NAMES.put("SecurityContextHolderAwareRequestFilter", "context.servlet");
+			OBSERVATION_NAMES.put("JaasApiIntegrationFilter", "jaas");
+			OBSERVATION_NAMES.put("RememberMeAuthenticationFilter", "authentication.rememberme");
+			OBSERVATION_NAMES.put("AnonymousAuthenticationFilter", "authentication.anonymous");
+			OBSERVATION_NAMES.put("OAuth2AuthorizationCodeGrantFilter", "oauth2.client.code");
+			OBSERVATION_NAMES.put("SessionManagementFilter", "session.management");
+			OBSERVATION_NAMES.put("ExceptionTranslationFilter", "access.exceptions");
+			OBSERVATION_NAMES.put("FilterSecurityInterceptor", "access.request");
+			OBSERVATION_NAMES.put("AuthorizationFilter", "authorization");
+			OBSERVATION_NAMES.put("SwitchUserFilter", "authentication.switch");
+		}
+
 		private final ObservationRegistry registry;
 
 		private final FilterChainObservationConvention convention = new FilterChainObservationConvention();
@@ -144,6 +191,8 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 		private final Filter filter;
 
 		private final String name;
+
+		private final String eventName;
 
 		private final int position;
 
@@ -155,6 +204,12 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 			this.name = filter.getClass().getSimpleName();
 			this.position = position;
 			this.size = size;
+			this.eventName = eventName(this.name);
+		}
+
+		private String eventName(String className) {
+			String eventName = OBSERVATION_NAMES.get(className);
+			return (eventName != null) ? eventName : className;
 		}
 
 		String getName() {
@@ -181,7 +236,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentBefore.setFilterName(this.name);
 				parentBefore.setChainPosition(this.position);
 			}
-			parent.before().event(Observation.Event.of(this.name + ".before", "before " + this.name));
+			parent.before().event(Observation.Event.of(this.eventName + ".before", "before " + this.name));
 			this.filter.doFilter(request, response, chain);
 			parent.start();
 			if (parent.after().getContext() instanceof FilterChainObservationContext parentAfter) {
@@ -189,7 +244,7 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 				parentAfter.setFilterName(this.name);
 				parentAfter.setChainPosition(this.size - this.position + 1);
 			}
-			parent.after().event(Observation.Event.of(this.name + ".after", "after " + this.name));
+			parent.after().event(Observation.Event.of(this.eventName + ".after", "after " + this.name));
 		}
 
 		private AroundFilterObservation parent(HttpServletRequest request) {
@@ -324,7 +379,6 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 				private void error(Throwable error) {
 					if (this.state.get() == 1) {
-						this.scope.close();
 						this.scope.getCurrentObservation().error(error);
 					}
 				}
@@ -516,13 +570,11 @@ public final class ObservationFilterChainDecorator implements FilterChainProxy.F
 
 		@Override
 		public KeyValues getLowCardinalityKeyValues(FilterChainObservationContext context) {
-			KeyValues kv = KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
+			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection());
-			if (context.getFilterName() != null) {
-				kv = kv.and(FILTER_NAME, context.getFilterName());
-			}
-			return kv;
+					.and(FILTER_SECTION_NAME, context.getFilterSection())
+					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
+							: KeyValue.NONE_VALUE);
 		}
 
 		@Override

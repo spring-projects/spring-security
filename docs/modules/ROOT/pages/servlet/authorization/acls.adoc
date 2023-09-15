@@ -143,8 +143,10 @@ We do not intend to support non-long identifiers in Spring Security's ACL module
 
 The following fragment of code shows how to create an `Acl` or modify an existing `Acl`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 // Prepare the information we'd like in our access control entry (ACE)
@@ -165,7 +167,8 @@ acl.insertAce(acl.getEntries().length, p, sid, true);
 aclService.updateAcl(acl);
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val oi: ObjectIdentity = ObjectIdentityImpl(Foo::class.java, 44)
@@ -184,7 +187,7 @@ aclService.createAcl(oi)
 acl!!.insertAce(acl.entries.size, p, sid, true)
 aclService.updateAcl(acl)
 ----
-====
+======
 
 In the preceding example, we retrieve the ACL associated with the `Foo` domain object with identifier number 44.
 We then add an ACE so that a principal named "`Samantha`" can "`administer`" the object.
@@ -206,4 +209,4 @@ Such classes would use `AclService` to retrieve the relevant ACL and then call `
 Alternately, you could use our `AclEntryVoter`, `AclEntryAfterInvocationProvider` or `AclEntryAfterInvocationCollectionFilteringProvider` classes.
 All of these classes provide a declarative-based approach to evaluating ACL information at runtime, freeing you from needing to write any code.
 
-See the https://github.com/spring-projects/spring-security/tree/master/samples[sample applications] to learn how to use these classes.
+See the https://github.com/spring-projects/spring-security-samples[sample applications] to learn how to use these classes.

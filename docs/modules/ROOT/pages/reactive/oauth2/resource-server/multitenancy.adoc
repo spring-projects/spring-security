@@ -17,12 +17,14 @@ In each case, two things need to be done and trade-offs are associated with how 
 
 One way to differentiate tenants is by the issuer claim. Since the issuer claim accompanies signed JWTs, you can do so with the `JwtIssuerReactiveAuthenticationManagerResolver`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
-JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver
-    ("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
+JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo");
 
 http
     .authorizeExchange(exchanges -> exchanges
@@ -33,10 +35,12 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
-val customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
+val customAuthenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+    .fromTrustedIssuers("https://idp.example.org/issuerOne", "https://idp.example.org/issuerTwo")
 
 return http {
     authorizeExchange {
@@ -47,7 +51,7 @@ return http {
     }
 }
 ----
-====
+======
 
 This is nice because the issuer endpoints are loaded lazily.
 In fact, the corresponding `JwtReactiveAuthenticationManager` is instantiated only when the first request with the corresponding issuer is sent.
@@ -58,8 +62,10 @@ This allows for an application startup that is independent from those authorizat
 You may not want to restart the application each time a new tenant is added.
 In this case, you can configure the `JwtIssuerReactiveAuthenticationManagerResolver` with a repository of `ReactiveAuthenticationManager` instances, which you can edit at runtime:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 private Mono<ReactiveAuthenticationManager> addManager(
@@ -85,7 +91,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 private fun addManager(
@@ -108,7 +115,7 @@ return http {
     }
 }
 ----
-====
+======
 
 In this case, you construct `JwtIssuerReactiveAuthenticationManagerResolver` with a strategy for obtaining the `ReactiveAuthenticationManager` given to the issuer.
 This approach lets us add and remove elements from the repository (shown as a `Map` in the preceding snippet) at runtime.

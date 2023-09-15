@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
@@ -191,9 +193,9 @@ final class OpenSamlVerificationUtils {
 				else {
 					this.signature = null;
 				}
-				this.content = UriComponentsBuilder.newInstance().query(request.getParametersQuery())
-						.replaceQueryParam(Saml2ParameterNames.SIGNATURE).build(true).toUriString().substring(1)
-						.getBytes(StandardCharsets.UTF_8);
+				Map<String, String> queryParams = UriComponentsBuilder.newInstance().query(request.getParametersQuery())
+						.build(true).getQueryParams().toSingleValueMap();
+				this.content = getContent(Saml2ParameterNames.SAML_REQUEST, request.getRelayState(), queryParams);
 			}
 
 			RedirectSignature(Saml2LogoutResponse response) {
@@ -204,9 +206,24 @@ final class OpenSamlVerificationUtils {
 				else {
 					this.signature = null;
 				}
-				this.content = UriComponentsBuilder.newInstance().query(response.getParametersQuery())
-						.replaceQueryParam(Saml2ParameterNames.SIGNATURE).build(true).toUriString().substring(1)
-						.getBytes(StandardCharsets.UTF_8);
+				Map<String, String> queryParams = UriComponentsBuilder.newInstance()
+						.query(response.getParametersQuery()).build(true).getQueryParams().toSingleValueMap();
+				this.content = getContent(Saml2ParameterNames.SAML_RESPONSE, response.getRelayState(), queryParams);
+			}
+
+			static byte[] getContent(String samlObject, String relayState, final Map<String, String> queryParams) {
+				if (Objects.nonNull(relayState)) {
+					return String
+							.format("%s=%s&%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
+									Saml2ParameterNames.RELAY_STATE, queryParams.get(Saml2ParameterNames.RELAY_STATE),
+									Saml2ParameterNames.SIG_ALG, queryParams.get(Saml2ParameterNames.SIG_ALG))
+							.getBytes(StandardCharsets.UTF_8);
+				}
+				else {
+					return String.format("%s=%s&%s=%s", samlObject, queryParams.get(samlObject),
+							Saml2ParameterNames.SIG_ALG, queryParams.get(Saml2ParameterNames.SIG_ALG))
+							.getBytes(StandardCharsets.UTF_8);
+				}
 			}
 
 			byte[] getContent() {

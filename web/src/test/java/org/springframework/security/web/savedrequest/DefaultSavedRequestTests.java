@@ -45,7 +45,7 @@ public class DefaultSavedRequestTests {
 		MockHttpServletRequest request = new MockHttpServletRequest();
 		request.addHeader("If-None-Match", "somehashvalue");
 		DefaultSavedRequest saved = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443));
-		assertThat(saved.getHeaderValues("if-none-match").isEmpty()).isTrue();
+		assertThat(saved.getHeaderValues("if-none-match")).isEmpty();
 	}
 
 	// SEC-3082
@@ -120,6 +120,16 @@ public class DefaultSavedRequestTests {
 				"success");
 		assertThat(savedRequest.getParameterMap()).doesNotContainKey("success");
 		assertThat(new URL(savedRequest.getRedirectUrl())).hasQuery("foo=bar&success");
+	}
+
+	// gh-13438
+	@Test
+	public void getRedirectUrlWhenQueryAlreadyHasSuccessThenDoesNotAdd() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setQueryString("foo=bar&success");
+		DefaultSavedRequest savedRequest = new DefaultSavedRequest(request, new MockPortResolver(8080, 8443),
+				"success");
+		assertThat(savedRequest.getRedirectUrl()).contains("foo=bar&success");
 	}
 
 }

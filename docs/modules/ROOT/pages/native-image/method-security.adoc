@@ -1,0 +1,77 @@
+[[native-image-method-security]]
+= Method Security in GraalVM Native Image
+
+Although xref:servlet/authorization/method-security.adoc[Method Security] is supported in GraalVM Native Image, there are some use cases that need additional hints provided by the application.
+
+== Using `@PreAuthorize` and `@PostAuthorize` Annotations
+
+Using `@PreAuthorize` and `@PostAuthorize` annotations require additional hints if you have a custom implementation of `UserDetails` or `Authentication` classes.
+
+Let's take an example where you have a custom implementation of `UserDetails` class as follows and that implementation is returned by your `UserDetailsService`:
+
+.Custom Implementation of UserDetails
+[source,java]
+----
+public class CustomUserDetails implements UserDetails {
+
+    private final String username;
+
+    private final String password;
+
+    private final Collection<? extends GrantedAuthority> authorities;
+
+    public boolean isAdmin() {
+        return this.authorities.contains(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    }
+
+    // constructors, getters and setters
+}
+----
+
+And you want to use the `isAdmin()` method inside a `@PreAuthorize` annotation as follows:
+
+.Using isAdmin() to secure a method
+[source,java]
+----
+@PreAuthorize("principal?.isAdmin()")
+public String hello() {
+    return "Hello!";
+}
+----
+
+[NOTE]
+====
+Remember that you need to xref:servlet/authorization/method-security.adoc#jc-enable-method-security[add `@EnableMethodSecurity` annotation] to your configuration class to enable method security annotations.
+====
+
+If you https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.developing-your-first-application[run the native image] of your application with the above configuration, you will get an error similar to the following when trying to invoke the `hello()` method:
+
+[source]
+----
+failed: java.lang.IllegalArgumentException: Failed to evaluate expression 'principal?.isAdmin()' with root cause
+org.springframework.expression.spel.SpelEvaluationException: EL1004E: Method call: Method isAdmin() cannot be found on type com.mypackage.CustomUserDetails
+----
+
+Which means that the `isAdmin()` method cannot be found on the `CustomUserDetails` class.
+This is because Spring Security uses reflection to invoke the `isAdmin()` method and GraalVM Native Image does not support reflection by default.
+
+To fix this issue, you need to give hints to GraalVM Native Image to allow reflection on the `CustomUserDetails#isAdmin()` method.
+We can do that by providing a https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.advanced.custom-hints[custom hint].
+In this example we are going to use {spring-framework-reference-url}core.html#core.aot.hints.register-reflection-for-binding[the `@RegisterReflectionForBinding` annotation].
+
+[NOTE]
+====
+You might need to register all your classes that you want to use in your `@PreAuthorize` and `@PostAuthorize` annotations.
+====
+
+.Using @RegisterReflectionForBinding
+[source,java]
+----
+@Configuration
+@RegisterReflectionForBinding(CustomUserDetails.class)
+public class MyConfiguration {
+    //...
+}
+----
+
+And that's it, now you can run the native image of your application and it should work as expected.

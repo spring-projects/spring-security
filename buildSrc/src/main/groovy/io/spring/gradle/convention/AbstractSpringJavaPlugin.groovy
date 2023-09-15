@@ -54,6 +54,7 @@ public abstract class AbstractSpringJavaPlugin implements Plugin<Project> {
 		pluginManager.apply("io.spring.convention.javadoc-options");
 		pluginManager.apply("io.spring.convention.checkstyle");
 		pluginManager.apply(CopyPropertiesPlugin);
+		pluginManager.apply("io.spring.convention.eclipse");
 
 		project.jar {
 			manifest.attributes["Created-By"] =

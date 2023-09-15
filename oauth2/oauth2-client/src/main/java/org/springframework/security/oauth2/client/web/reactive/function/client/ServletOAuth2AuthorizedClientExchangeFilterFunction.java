@@ -639,7 +639,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 							authParameters.get(OAuth2ParameterNames.ERROR_URI));
 				}
 			}
-			return resolveErrorIfPossible(response.rawStatusCode());
+			return resolveErrorIfPossible(response.statusCode().value());
 		}
 
 		private OAuth2Error resolveErrorIfPossible(int statusCode) {
@@ -652,7 +652,7 @@ public final class ServletOAuth2AuthorizedClientExchangeFilterFunction implement
 
 		private Map<String, String> parseAuthParameters(String wwwAuthenticateHeader) {
 			// @formatter:off
-			return Stream.of(wwwAuthenticateHeader).filter((header) -> !StringUtils.isEmpty(header))
+			return Stream.of(wwwAuthenticateHeader).filter((header) -> StringUtils.hasLength(header))
 					.filter((header) -> header.toLowerCase().startsWith("bearer"))
 					.map((header) -> header.substring("bearer".length()))
 					.map((header) -> header.split(","))

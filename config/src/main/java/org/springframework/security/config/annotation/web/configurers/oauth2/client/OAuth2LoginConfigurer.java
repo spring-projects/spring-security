@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,7 +206,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link AuthorizationEndpointConfig} for configuring the Authorization
 	 * Server's Authorization Endpoint.
 	 * @return the {@link AuthorizationEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public AuthorizationEndpointConfig authorizationEndpoint() {
 		return this.authorizationEndpointConfig;
 	}
@@ -227,7 +230,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link TokenEndpointConfig} for configuring the Authorization Server's
 	 * Token Endpoint.
 	 * @return the {@link TokenEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
+	 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public TokenEndpointConfig tokenEndpoint() {
 		return this.tokenEndpointConfig;
 	}
@@ -248,7 +257,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link RedirectionEndpointConfig} for configuring the Client's
 	 * Redirection Endpoint.
 	 * @return the {@link RedirectionEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
+	 * instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public RedirectionEndpointConfig redirectionEndpoint() {
 		return this.redirectionEndpointConfig;
 	}
@@ -269,7 +281,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 	 * Returns the {@link UserInfoEndpointConfig} for configuring the Authorization
 	 * Server's UserInfo Endpoint.
 	 * @return the {@link UserInfoEndpointConfig}
+	 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)} or
+	 * {@code userInfoEndpoint(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public UserInfoEndpointConfig userInfoEndpoint() {
 		return this.userInfoEndpointConfig;
 	}
@@ -312,10 +330,7 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				super.init(http);
 			}
 		}
-		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = this.tokenEndpointConfig.accessTokenResponseClient;
-		if (accessTokenResponseClient == null) {
-			accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
-		}
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient = getAccessTokenResponseClient();
 		OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService = getOAuth2UserService();
 		OAuth2LoginAuthenticationProvider oauth2LoginAuthenticationProvider = new OAuth2LoginAuthenticationProvider(
 				accessTokenResponseClient, oauth2UserService);
@@ -421,6 +436,16 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 				.beansOfTypeIncludingAncestors(this.getBuilder().getSharedObject(ApplicationContext.class),
 						GrantedAuthoritiesMapper.class);
 		return (!grantedAuthoritiesMapperMap.isEmpty() ? grantedAuthoritiesMapperMap.values().iterator().next() : null);
+	}
+
+	private OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> getAccessTokenResponseClient() {
+		if (this.tokenEndpointConfig.accessTokenResponseClient != null) {
+			return this.tokenEndpointConfig.accessTokenResponseClient;
+		}
+		ResolvableType resolvableType = ResolvableType.forClassWithGenerics(OAuth2AccessTokenResponseClient.class,
+				OAuth2AuthorizationCodeGrantRequest.class);
+		OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> bean = getBeanOrNull(resolvableType);
+		return (bean != null) ? bean : new DefaultAuthorizationCodeTokenResponseClient();
 	}
 
 	private OAuth2UserService<OidcUserRequest, OidcUser> getOidcUserService() {
@@ -590,7 +615,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #authorizationEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -624,7 +652,13 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #tokenEndpoint(Customizer)} or
+		 * {@code tokenEndpoint(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -656,7 +690,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #redirectionEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}
@@ -718,7 +755,10 @@ public final class OAuth2LoginConfigurer<B extends HttpSecurityBuilder<B>>
 		/**
 		 * Returns the {@link OAuth2LoginConfigurer} for further configuration.
 		 * @return the {@link OAuth2LoginConfigurer}
+		 * @deprecated For removal in 7.0. Use {@link #userInfoEndpoint(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public OAuth2LoginConfigurer<B> and() {
 			return OAuth2LoginConfigurer.this;
 		}

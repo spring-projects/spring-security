@@ -18,14 +18,17 @@ package org.springframework.security.config.annotation.method.configuration
 
 import io.mockk.Called
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatExceptionOfType
-import org.junit.After
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,7 +49,7 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
     @Autowired
     var messageService: KotlinReactiveMessageService? = null
 
-    @After
+    @AfterEach
     fun cleanup() {
         clearAllMocks()
     }
@@ -127,6 +130,16 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
 
     @Test
     @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `suspendingPreAuthorizeDelegate when user has role then delegate called`() {
+        coEvery { delegate.suspendingPreAuthorizeHasRole() } returns "ok"
+        runBlocking {
+            messageService!!.suspendingPreAuthorizeDelegate()
+        }
+        coVerify(exactly = 1) { delegate.suspendingPreAuthorizeHasRole() }
+    }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
     fun `suspendingFlowPreAuthorize when user has role then success`() {
         runBlocking {
             assertThat(messageService!!.suspendingFlowPreAuthorize().toList()).containsExactly(1, 2, 3)
@@ -170,6 +183,16 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
 
     @Test
     @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `suspendingFlowPreAuthorizeDelegate when user has role then delegate called`() {
+        coEvery { delegate.flowPreAuthorize() } returns flow { }
+        runBlocking {
+            messageService!!.suspendingFlowPreAuthorizeDelegate().collect()
+        }
+        coVerify(exactly = 1) { delegate.flowPreAuthorize() }
+    }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
     fun `flowPreAuthorize when user has role then success`() {
         runBlocking {
             assertThat(messageService!!.flowPreAuthorize().toList()).containsExactly(1, 2, 3)
@@ -209,6 +232,16 @@ class KotlinEnableReactiveMethodSecurityNoAuthorizationManagerTests {
             }
         }
         verify { delegate wasNot Called }
+    }
+
+    @Test
+    @WithMockUser(authorities = ["ROLE_ADMIN"])
+    fun `flowPreAuthorizeDelegate when user has role then delegate called`() {
+        coEvery { delegate.flowPreAuthorize() } returns flow { }
+        runBlocking {
+            messageService!!.flowPreAuthorizeDelegate().collect()
+        }
+        coVerify(exactly = 1) { delegate.flowPreAuthorize() }
     }
 
     @Configuration

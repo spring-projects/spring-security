@@ -37,8 +37,8 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 				registration.getAssertionConsumerServiceLocation(), registration.getAssertionConsumerServiceBinding(),
 				registration.getSingleLogoutServiceLocation(), registration.getSingleLogoutServiceResponseLocation(),
 				registration.getSingleLogoutServiceBindings(), registration.getAssertingPartyDetails(),
-				registration.getNameIdFormat(), registration.getDecryptionX509Credentials(),
-				registration.getSigningX509Credentials());
+				registration.getNameIdFormat(), registration.isAuthnRequestsSigned(),
+				registration.getDecryptionX509Credentials(), registration.getSigningX509Credentials());
 	}
 
 	/**
@@ -55,7 +55,7 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 				.singleLogoutServiceLocation(getSingleLogoutServiceLocation())
 				.singleLogoutServiceResponseLocation(getSingleLogoutServiceResponseLocation())
 				.singleLogoutServiceBindings((c) -> c.addAll(getSingleLogoutServiceBindings()))
-				.nameIdFormat(getNameIdFormat())
+				.nameIdFormat(getNameIdFormat()).authnRequestsSigned(isAuthnRequestsSigned())
 				.assertingPartyDetails((assertingParty) -> ((OpenSamlAssertingPartyDetails.Builder) assertingParty)
 						.entityId(party.getEntityId()).wantAuthnRequestsSigned(party.getWantAuthnRequestsSigned())
 						.signingAlgorithms((algorithms) -> algorithms.addAll(party.getSigningAlgorithms()))
@@ -150,6 +150,11 @@ public final class OpenSamlRelyingPartyRegistration extends RelyingPartyRegistra
 		@Override
 		public Builder nameIdFormat(String nameIdFormat) {
 			return (Builder) super.nameIdFormat(nameIdFormat);
+		}
+
+		@Override
+		public Builder authnRequestsSigned(Boolean authnRequestsSigned) {
+			return (Builder) super.authnRequestsSigned(authnRequestsSigned);
 		}
 
 		@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import jakarta.servlet.http.Cookie;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockCookie;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -290,6 +291,17 @@ class CookieCsrfTokenRepositoryTests {
 		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
 	}
 
+	// gh-13075
+	@Test
+	void saveTokenWithExistingSetCookieThenDoesNotOverwrite() {
+		this.response.setHeader(HttpHeaders.SET_COOKIE, "MyCookie=test");
+		this.repository = new CookieCsrfTokenRepository();
+		CsrfToken token = this.repository.generateToken(this.request);
+		this.repository.saveToken(token, this.request, this.response);
+		assertThat(this.response.getCookie("MyCookie")).isNotNull();
+		assertThat(this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME)).isNotNull();
+	}
+
 	@Test
 	void loadTokenNoCookiesNull() {
 		assertThat(this.repository.loadToken(this.request)).isNull();
@@ -409,6 +421,19 @@ class CookieCsrfTokenRepositoryTests {
 		assertThat(tokenCookie.getPath()).isEqualTo(customPath);
 		assertThat(tokenCookie.isHttpOnly()).isEqualTo(Boolean.TRUE);
 		assertThat(((MockCookie) tokenCookie).getSameSite()).isEqualTo(sameSitePolicy);
+	}
+
+	// gh-13659
+	@Test
+	void withHttpOnlyFalseWhenCookieCustomizerThenStillDefaultsToFalse() {
+		CookieCsrfTokenRepository repository = CookieCsrfTokenRepository.withHttpOnlyFalse();
+		repository.setCookieCustomizer((customizer) -> customizer.maxAge(1000));
+		CsrfToken token = repository.generateToken(this.request);
+		repository.saveToken(token, this.request, this.response);
+		Cookie tokenCookie = this.response.getCookie(CookieCsrfTokenRepository.DEFAULT_CSRF_COOKIE_NAME);
+		assertThat(tokenCookie).isNotNull();
+		assertThat(tokenCookie.getMaxAge()).isEqualTo(1000);
+		assertThat(tokenCookie.isHttpOnly()).isEqualTo(Boolean.FALSE);
 	}
 
 	@Test

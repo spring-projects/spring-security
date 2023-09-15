@@ -140,8 +140,8 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withPublicKey(rsaJwk.toRSAPublicKey()).build();
 		Jwt jws = jwtDecoder.decode(encodedJws);
 
-		assertThat(jws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(SignatureAlgorithm.RS256.getName());
-		assertThat(jws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(rsaJwk.getKeyID());
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.ALG, SignatureAlgorithm.RS256.getName());
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.KID, rsaJwk.getKeyID());
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())
@@ -174,8 +174,8 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(secretJwk.toSecretKey()).build();
 		Jwt jws = jwtDecoder.decode(encodedJws);
 
-		assertThat(jws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(MacAlgorithm.HS256.getName());
-		assertThat(jws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(secretJwk.getKeyID());
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.ALG, MacAlgorithm.HS256.getName());
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.KID, secretJwk.getKeyID());
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())
@@ -217,9 +217,9 @@ public class NimbusJwtClientAuthenticationParametersConverterTests {
 		NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(secretJwk.toSecretKey()).build();
 		Jwt jws = jwtDecoder.decode(encodedJws);
 
-		assertThat(jws.getHeaders().get(JoseHeaderNames.ALG)).isEqualTo(MacAlgorithm.HS256.getName());
-		assertThat(jws.getHeaders().get(JoseHeaderNames.KID)).isEqualTo(secretJwk.getKeyID());
-		assertThat(jws.getHeaders().get(headerName)).isEqualTo(headerValue);
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.ALG, MacAlgorithm.HS256.getName());
+		assertThat(jws.getHeaders()).containsEntry(JoseHeaderNames.KID, secretJwk.getKeyID());
+		assertThat(jws.getHeaders()).containsEntry(headerName, headerValue);
 		assertThat(jws.<String>getClaim(JwtClaimNames.ISS)).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getSubject()).isEqualTo(clientRegistration.getClientId());
 		assertThat(jws.getAudience())

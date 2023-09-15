@@ -47,7 +47,7 @@ public class UserDetailsServiceLdapAuthoritiesPopulatorTests {
 		UserDetailsServiceLdapAuthoritiesPopulator populator = new UserDetailsServiceLdapAuthoritiesPopulator(uds);
 		Collection<? extends GrantedAuthority> auths = populator.getGrantedAuthorities(new DirContextAdapter(), "joe");
 		assertThat(auths).hasSize(1);
-		assertThat(AuthorityUtils.authorityListToSet(auths).contains("ROLE_USER")).isTrue();
+		assertThat(AuthorityUtils.authorityListToSet(auths)).contains("ROLE_USER");
 	}
 
 }

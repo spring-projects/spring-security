@@ -1,0 +1,8 @@
+[[preparing]]
+= Preparing for 7.0
+
+While Spring Security 7.0 does not have a release date yet, it is important to start preparing for it now.
+
+This preparation guide is designed to summarize the biggest changes in Spring Security 7.0 and provide steps to prepare for them.
+
+It is important to keep your application up to date with the latest Spring Security 6 and Spring Boot 3 releases.

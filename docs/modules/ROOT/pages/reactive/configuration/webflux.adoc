@@ -14,8 +14,10 @@ A few sample applications demonstrate the code:
 The following listing shows a minimal WebFlux Security configuration:
 
 .Minimal WebFlux Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 -----
 @Configuration
@@ -34,7 +36,8 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
 @Configuration
@@ -52,7 +55,7 @@ class HelloWebfluxSecurityConfig {
     }
 }
 -----
-====
+======
 
 This configuration provides form and HTTP basic authentication, sets up authorization to require an authenticated user for accessing any page, sets up a default login page and a default logout page, sets up security related HTTP headers, adds CSRF protection, and more.
 
@@ -61,8 +64,10 @@ This configuration provides form and HTTP basic authentication, sets up authoriz
 The following page shows an explicit version of the minimal WebFlux Security configuration:
 
 .Explicit WebFlux Security Configuration
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 -----
 @Configuration
@@ -92,9 +97,12 @@ public class HelloWebfluxSecurityConfig {
 }
 -----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 -----
+import org.springframework.security.config.web.server.invoke
+
 @Configuration
 @EnableWebFluxSecurity
 class HelloWebfluxSecurityConfig {
@@ -121,7 +129,10 @@ class HelloWebfluxSecurityConfig {
     }
 }
 -----
-====
+======
+
+[NOTE]
+Make sure that you import the `invoke` function in your Kotlin class, sometimes the IDE will not auto-import it causing compilation issues.
 
 This configuration explicitly sets up all the same things as our minimal configuration.
 From here, you can more easily make changes to the defaults.
@@ -135,8 +146,10 @@ You can configure multiple `SecurityWebFilterChain` instances to separate config
 
 For example, you can isolate configuration for URLs that start with `/api`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -174,9 +187,12 @@ static class MultiSecurityHttpConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
+import org.springframework.security.config.web.server.invoke
+
 @Configuration
 @EnableWebFluxSecurity
 open class MultiSecurityHttpConfig {
@@ -212,13 +228,13 @@ open class MultiSecurityHttpConfig {
     }
 }
 ----
+======
 
 <1> Configure a `SecurityWebFilterChain` with an `@Order` to specify which `SecurityWebFilterChain` Spring Security should consider first
 <2> Use `PathPatternParserServerWebExchangeMatcher` to state that this `SecurityWebFilterChain` will only apply to URL paths that start with `/api/`
 <3> Specify the authentication mechanisms that will be used for `/api/**` endpoints
 <4> Create another instance of `SecurityWebFilterChain` with lower precedence to match all other URLs
 <5> Specify the authentication mechanisms that will be used for the rest of the application
-====
 
 Spring Security selects one `SecurityWebFilterChain` `@Bean` for each request.
 It matches the requests in order by the `securityMatcher` definition.

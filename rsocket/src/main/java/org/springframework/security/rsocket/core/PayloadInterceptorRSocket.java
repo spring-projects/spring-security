@@ -91,9 +91,9 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 	public Flux<Payload> requestChannel(Publisher<Payload> payloads) {
 		return Flux.from(payloads).switchOnFirst((signal, innerFlux) -> {
 			Payload firstPayload = signal.get();
-			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany((context) -> innerFlux
-					.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
-					.transform((securedPayloads) -> this.source.requestChannel(securedPayloads)).contextWrite(context));
+			return intercept(PayloadExchangeType.REQUEST_CHANNEL, firstPayload).flatMapMany(
+					(context) -> innerFlux.index().concatMap((tuple) -> justOrIntercept(tuple.getT1(), tuple.getT2()))
+							.transform(this.source::requestChannel).contextWrite(context));
 		});
 	}
 
@@ -112,8 +112,8 @@ class PayloadInterceptorRSocket extends RSocketProxy {
 			ContextPayloadInterceptorChain chain = new ContextPayloadInterceptorChain(this.interceptors);
 			DefaultPayloadExchange exchange = new DefaultPayloadExchange(type, payload, this.metadataMimeType,
 					this.dataMimeType);
-			return chain.next(exchange).then(Mono.fromCallable(() -> chain.getContext()))
-					.defaultIfEmpty(Context.empty()).contextWrite(this.context);
+			return chain.next(exchange).then(Mono.fromCallable(chain::getContext)).defaultIfEmpty(Context.empty())
+					.contextWrite(this.context);
 		});
 	}
 

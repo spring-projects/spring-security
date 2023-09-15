@@ -1,0 +1,8 @@
+= GraalVM Native Image Support
+
+Spring Boot 3.0 provides https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.introducing-graalvm-native-images[support for generating native images with GraalVM].
+Spring Security integrates with that support and provides its features ready for native images.
+
+However, as mentioned in the https://docs.spring.io/spring-boot/docs/current/reference/html/native-image.html#native-image.introducing-graalvm-native-images.understanding-aot-processing.hint-file-generation[Spring Boot documentation], there are some cases where we need to provide hints to be used by GraalVM.
+
+This section aims to provide guidance in some Spring Security features that likely need to have additional hints provided by the application.

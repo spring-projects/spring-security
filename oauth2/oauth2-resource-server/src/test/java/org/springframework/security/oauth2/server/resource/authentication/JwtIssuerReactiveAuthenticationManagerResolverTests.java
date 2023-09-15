@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -71,7 +72,7 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	private String noIssuer = jwt("sub", "sub");
 
 	@Test
-	public void resolveWhenUsingTrustedIssuerThenReturnsAuthenticationManager() throws Exception {
+	public void resolveWhenUsingFromTrustedIssuersThenReturnsAuthenticationManager() throws Exception {
 		try (MockWebServer server = new MockWebServer()) {
 			String issuer = server.url("").toString();
 			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
@@ -83,8 +84,32 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-					issuer);
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+					.fromTrustedIssuers(issuer);
+			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null).block();
+			assertThat(authenticationManager).isNotNull();
+			BearerTokenAuthenticationToken token = withBearerToken(jws.serialize());
+			Authentication authentication = authenticationManager.authenticate(token).block();
+			assertThat(authentication).isNotNull();
+			assertThat(authentication.isAuthenticated()).isTrue();
+		}
+	}
+
+	@Test
+	public void resolveWhenUsingFromTrustedIssuersPredicateThenReturnsAuthenticationManager() throws Exception {
+		try (MockWebServer server = new MockWebServer()) {
+			String issuer = server.url("").toString();
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(String.format(DEFAULT_RESPONSE_TEMPLATE, issuer, issuer)));
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET));
+			server.enqueue(new MockResponse().setResponseCode(200).setHeader("Content-Type", "application/json")
+					.setBody(JWK_SET));
+			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
+					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
+			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+					.fromTrustedIssuers(issuer::equals);
 			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null).block();
 			assertThat(authenticationManager).isNotNull();
 			BearerTokenAuthenticationToken token = withBearerToken(jws.serialize());
@@ -110,8 +135,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 			JWSObject jws = new JWSObject(new JWSHeader(JWSAlgorithm.RS256),
 					new Payload(new JSONObject(Collections.singletonMap(JwtClaimNames.ISS, issuer))));
 			jws.sign(new RSASSASigner(TestKeys.DEFAULT_PRIVATE_KEY));
-			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-					issuer);
+			JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+					.fromTrustedIssuers(issuer);
 			ReactiveAuthenticationManager authenticationManager = authenticationManagerResolver.resolve(null).block();
 			assertThat(authenticationManager).isNotNull();
 			Authentication token = withBearerToken(jws.serialize());
@@ -140,8 +165,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenUsingUntrustedIssuerThenException() {
-		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				"other", "issuers");
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+				.fromTrustedIssuers("other", "issuers");
 		Authentication token = withBearerToken(this.jwt);
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
@@ -190,8 +215,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenBearerTokenMalformedThenException() {
-		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				"trusted");
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+				.fromTrustedIssuers("trusted");
 		Authentication token = withBearerToken("jwt");
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
@@ -204,8 +229,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenBearerTokenNoIssuerThenException() {
-		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				"trusted");
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+				.fromTrustedIssuers("trusted");
 		Authentication token = withBearerToken(this.noIssuer);
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
 				.isThrownBy(() -> authenticationManagerResolver.resolve(null)
@@ -215,8 +240,8 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 
 	@Test
 	public void resolveWhenBearerTokenEvilThenGenericException() {
-		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = new JwtIssuerReactiveAuthenticationManagerResolver(
-				"trusted");
+		JwtIssuerReactiveAuthenticationManagerResolver authenticationManagerResolver = JwtIssuerReactiveAuthenticationManagerResolver
+				.fromTrustedIssuers("trusted");
 		Authentication token = withBearerToken(this.evil);
 		// @formatter:off
 		assertThatExceptionOfType(OAuth2AuthenticationException.class)
@@ -228,11 +253,13 @@ public class JwtIssuerReactiveAuthenticationManagerResolverTests {
 	}
 
 	@Test
-	public void constructorWhenNullOrEmptyIssuersThenException() {
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver((Collection) null));
-		assertThatIllegalArgumentException()
-				.isThrownBy(() -> new JwtIssuerReactiveAuthenticationManagerResolver(Collections.emptyList()));
+	public void factoryWhenNullOrEmptyIssuersThenException() {
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> JwtIssuerReactiveAuthenticationManagerResolver.fromTrustedIssuers((Predicate<String>) null));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> JwtIssuerReactiveAuthenticationManagerResolver.fromTrustedIssuers((Collection<String>) null));
+		assertThatIllegalArgumentException().isThrownBy(
+				() -> JwtIssuerReactiveAuthenticationManagerResolver.fromTrustedIssuers(Collections.emptyList()));
 	}
 
 	@Test

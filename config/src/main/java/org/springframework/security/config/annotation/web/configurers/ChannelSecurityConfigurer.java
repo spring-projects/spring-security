@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.List;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.access.ConfigAttribute;
 import org.springframework.security.access.SecurityConfig;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
@@ -194,7 +195,10 @@ public final class ChannelSecurityConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Return the {@link SecurityBuilder} when done using the
 		 * {@link SecurityConfigurer}. This is useful for method chaining.
 		 * @return the type of {@link HttpSecurityBuilder} that is being configured
+		 * @deprecated For removal in 7.0. Use
+		 * {@link HttpSecurity#requiresChannel(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public H and() {
 			return ChannelSecurityConfigurer.this.and();
 		}

@@ -1,12 +1,10 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.gradle.xsd.CreateVersionlessXsdTask
+import trang.RncToXsd
 
 apply plugin: 'io.spring.convention.spring-module'
 apply plugin: 'trang'
 apply plugin: 'kotlin'
-
-repositories {
-	maven { url "https://build.shibboleth.net/nexus/content/repositories/releases/" }
-}
 
 dependencies {
 	management platform(project(":spring-security-dependencies"))
@@ -69,6 +67,7 @@ dependencies {
 	testImplementation 'ldapsdk:ldapsdk:4.1'
 	testImplementation('net.sourceforge.htmlunit:htmlunit') {
 		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'xml-apis', module: 'xml-apis'
 	}
 	testImplementation "org.apache.directory.server:apacheds-core"
 	testImplementation "org.apache.directory.server:apacheds-core-entry"
@@ -84,6 +83,7 @@ dependencies {
 	testImplementation "org.mockito:mockito-inline"
 	testImplementation('org.seleniumhq.selenium:htmlunit-driver') {
 		exclude group: 'commons-logging', module: 'commons-logging'
+		exclude group: 'xml-apis', module: 'xml-apis'
 	}
 	testImplementation('org.seleniumhq.selenium:selenium-java') {
 		exclude group: 'commons-logging', module: 'commons-logging'
@@ -117,11 +117,29 @@ dependencies {
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
+def versionlessXsd = project.tasks.create("versionlessXsd", CreateVersionlessXsdTask) {
+	inputFiles.from(project.sourceSets.main.resources)
+	versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
+}
 
-rncToXsd {
+processResources {
+	from(versionlessXsd) {
+		into 'org/springframework/security/config/'
+	}
+}
+
+tasks.named('rncToXsd', RncToXsd).configure {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
 	xsdDir = rncDir
 	xslFile = new File(rncDir, 'spring-security.xsl')
+}
+
+sourceSets {
+	main {
+		resources {
+			srcDir(tasks.named('rncToXsd'))
+		}
+	}
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -132,5 +150,3 @@ tasks.withType(KotlinCompile).configureEach {
 		jvmTarget = "17"
 	}
 }
-
-build.dependsOn rncToXsd

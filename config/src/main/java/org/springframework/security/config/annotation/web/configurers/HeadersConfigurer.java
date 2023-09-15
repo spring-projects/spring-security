@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,6 +24,7 @@ import java.util.Map;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.configuration.ObjectPostProcessorConfiguration;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -135,7 +136,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * X-Content-Type-Options: nosniff
 	 * </pre>
 	 * @return the {@link ContentTypeOptionsConfig} for additional customizations
+	 * @deprecated For removal in 7.0. Use {@link #contentTypeOptions(Customizer)} or
+	 * {@code contentTypeOptions(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ContentTypeOptionsConfig contentTypeOptions() {
 		return this.contentTypeOptions.enable();
 	}
@@ -166,7 +173,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * >X-XSS-Protection header</a>
 	 * </p>
 	 * @return the {@link XXssConfig} for additional customizations
+	 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} or
+	 * {@code xssProtection(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public XXssConfig xssProtection() {
 		return this.xssProtection.enable();
 	}
@@ -197,7 +210,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <li>Expires: 0</li>
 	 * </ul>
 	 * @return the {@link CacheControlConfig} for additional customizations
+	 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} or
+	 * {@code cacheControl(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CacheControlConfig cacheControl() {
 		return this.cacheControl.enable();
 	}
@@ -224,7 +243,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * <a href="https://tools.ietf.org/html/rfc6797">HTTP Strict Transport Security
 	 * (HSTS)</a>.
 	 * @return the {@link HstsConfig} for additional customizations
+	 * @deprecated For removal in 7.0. Use
+	 * {@link #httpStrictTransportSecurity(Customizer)} instead
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public HstsConfig httpStrictTransportSecurity() {
 		return this.hsts.enable();
 	}
@@ -245,7 +267,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	/**
 	 * Allows customizing the {@link XFrameOptionsHeaderWriter}.
 	 * @return the {@link FrameOptionsConfig} for additional customizations
+	 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} or
+	 * {@code frameOptions(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public FrameOptionsConfig frameOptions() {
 		return this.frameOptions.enable();
 	}
@@ -315,8 +343,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ContentSecurityPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is null or empty
 	 * @since 4.1
+	 * @deprecated For removal in 7.0. Use {@link #contentSecurityPolicy(Customizer)}
+	 * instead
 	 * @see ContentSecurityPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ContentSecurityPolicyConfig contentSecurityPolicy(String policyDirectives) {
 		this.contentSecurityPolicy.writer = new ContentSecurityPolicyHeaderWriter(policyDirectives);
 		return this.contentSecurityPolicy;
@@ -446,8 +477,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </pre>
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @since 4.2
+	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+	 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see ReferrerPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ReferrerPolicyConfig referrerPolicy() {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter();
 		return this.referrerPolicy;
@@ -469,8 +506,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link ReferrerPolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policy is null or empty
 	 * @since 4.2
+	 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+	 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See the
+	 * <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see ReferrerPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public ReferrerPolicyConfig referrerPolicy(ReferrerPolicy policy) {
 		this.referrerPolicy.writer = new ReferrerPolicyHeaderWriter(policy);
 		return this.referrerPolicy;
@@ -512,8 +555,12 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * @return the {@link FeaturePolicyConfig} for additional configuration
 	 * @throws IllegalArgumentException if policyDirectives is {@code null} or empty
 	 * @since 5.1
-	 * @deprecated Use {@link #permissionsPolicy(Customizer)} instead.
-	 * @seeObjectPostProcessorConfiguration FeaturePolicyHeaderWriter
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
+	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
+	 * @see ObjectPostProcessorConfiguration FeaturePolicyHeaderWriter
 	 */
 	@Deprecated
 	public FeaturePolicyConfig featurePolicy(String policyDirectives) {
@@ -537,8 +584,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </ul>
 	 * @return the {@link PermissionsPolicyConfig} for additional configuration
 	 * @since 5.5
+	 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)} or
+	 * {@code permissionsPolicy(Customizer.withDefaults())} to stick with defaults. See
+	 * the <a href=
+	 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+	 * for more details.
 	 * @see PermissionsPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public PermissionsPolicyConfig permissionsPolicy() {
 		this.permissionsPolicy.writer = new PermissionsPolicyHeaderWriter();
 		return this.permissionsPolicy;
@@ -575,8 +628,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 * @return the {@link CrossOriginOpenerPolicyConfig} for additional confniguration
 	 * @since 5.7
+	 * @deprecated For removal in 7.0. Use {@link #crossOriginOpenerPolicy(Customizer)}
+	 * instead
 	 * @see CrossOriginOpenerPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CrossOriginOpenerPolicyConfig crossOriginOpenerPolicy() {
 		this.crossOriginOpenerPolicy.writer = new CrossOriginOpenerPolicyHeaderWriter();
 		return this.crossOriginOpenerPolicy;
@@ -616,8 +672,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 * @return the {@link CrossOriginEmbedderPolicyConfig} for additional customizations
 	 * @since 5.7
+	 * @deprecated For removal in 7.0. Use {@link #crossOriginEmbedderPolicy(Customizer)}
+	 * instead
 	 * @see CrossOriginEmbedderPolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CrossOriginEmbedderPolicyConfig crossOriginEmbedderPolicy() {
 		this.crossOriginEmbedderPolicy.writer = new CrossOriginEmbedderPolicyHeaderWriter();
 		return this.crossOriginEmbedderPolicy;
@@ -657,8 +716,11 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 	 * </p>
 	 * @return the {@link HeadersConfigurer} for additional customizations
 	 * @since 5.7
+	 * @deprecated For removal in 7.0. Use {@link #crossOriginResourcePolicy(Customizer)}
+	 * instead
 	 * @see CrossOriginResourcePolicyHeaderWriter
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public CrossOriginResourcePolicyConfig crossOriginResourcePolicy() {
 		this.crossOriginResourcePolicy.writer = new CrossOriginResourcePolicyHeaderWriter();
 		return this.crossOriginResourcePolicy;
@@ -708,7 +770,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		/**
 		 * Allows customizing the {@link HeadersConfigurer}
 		 * @return the {@link HeadersConfigurer} for additional customization
+		 * @deprecated For removal in 7.0. Use {@link #contentTypeOptions(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -781,7 +846,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of X-XSS-Protection and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use {@link #xssProtection(Customizer)} or
+		 * {@code xssProtection(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -820,7 +891,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Cache Control and continuing configuration
 		 * of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use {@link #cacheControl(Customizer)} or
+		 * {@code cacheControl(Customizer.withDefaults())} to stick with defaults. See the
+		 * <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -926,7 +1003,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Strict Transport Security and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use
+		 * {@link #httpStrictTransportSecurity(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -987,7 +1067,13 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		/**
 		 * Allows continuing customizing the headers configuration.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use {@link #frameOptions(Customizer)} or
+		 * {@code frameOptions(Customizer.withDefaults())} to stick with defaults. See the
+		 * <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1210,7 +1296,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Content Security Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use {@link #contentSecurityPolicy(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1235,6 +1324,14 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 			return this;
 		}
 
+		/**
+		 * @deprecated For removal in 7.0. Use {@link #referrerPolicy(Customizer)} or
+		 * {@code referrerPolicy(Customizer.withDefaults())} to stick with defaults. See
+		 * the <a href=
+		 * "https://docs.spring.io/spring-security/reference/migration-7/configuration.html#_use_the_lambda_dsl">documentation</a>
+		 * for more details.
+		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1281,7 +1378,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Permissions Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use {@link #permissionsPolicy(Customizer)}
+		 * instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1311,7 +1411,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Cross Origin Opener Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use
+		 * {@link #crossOriginOpenerPolicy(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1342,7 +1445,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Cross-Origin-Embedder-Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use
+		 * {@link #crossOriginEmbedderPolicy(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}
@@ -1373,7 +1479,10 @@ public class HeadersConfigurer<H extends HttpSecurityBuilder<H>>
 		 * Allows completing configuration of Cross-Origin-Resource-Policy and continuing
 		 * configuration of headers.
 		 * @return the {@link HeadersConfigurer} for additional configuration
+		 * @deprecated For removal in 7.0. Use
+		 * {@link #crossOriginResourcePolicy(Customizer)} instead
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public HeadersConfigurer<H> and() {
 			return HeadersConfigurer.this;
 		}

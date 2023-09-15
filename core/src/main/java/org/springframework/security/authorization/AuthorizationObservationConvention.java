@@ -95,6 +95,9 @@ public final class AuthorizationObservationConvention
 		if (className.contains("Message")) {
 			return "message";
 		}
+		if (className.contains("Exchange")) {
+			return "exchange";
+		}
 		return className;
 	}
 

@@ -130,16 +130,6 @@ public final class OAuth2DeviceAuthorizationResponse {
 	}
 
 	/**
-	 * Returns a new {@link Builder}, initialized with the provided response.
-	 * @param deviceAuthorizationResponse the response to initialize the builder with
-	 * @return the {@link Builder}
-	 */
-	public static Builder withResponse(OAuth2DeviceAuthorizationResponse deviceAuthorizationResponse) {
-		Assert.notNull(deviceAuthorizationResponse, "deviceAuthorizationResponse cannot be null");
-		return new Builder(deviceAuthorizationResponse);
-	}
-
-	/**
 	 * A builder for {@link OAuth2DeviceAuthorizationResponse}.
 	 */
 	public static final class Builder {
@@ -157,17 +147,6 @@ public final class OAuth2DeviceAuthorizationResponse {
 		private long interval;
 
 		private Map<String, Object> additionalParameters;
-
-		private Builder(OAuth2DeviceAuthorizationResponse response) {
-			OAuth2DeviceCode deviceCode = response.getDeviceCode();
-			OAuth2UserCode userCode = response.getUserCode();
-			this.deviceCode = deviceCode.getTokenValue();
-			this.userCode = userCode.getTokenValue();
-			this.verificationUri = response.getVerificationUri();
-			this.verificationUriComplete = response.getVerificationUriComplete();
-			this.expiresIn = ChronoUnit.SECONDS.between(deviceCode.getIssuedAt(), deviceCode.getExpiresAt());
-			this.interval = response.getInterval();
-		}
 
 		private Builder(OAuth2DeviceCode deviceCode, OAuth2UserCode userCode) {
 			this.deviceCode = deviceCode.getTokenValue();

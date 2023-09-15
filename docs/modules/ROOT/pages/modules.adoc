@@ -21,7 +21,7 @@ Where a module depends on another Spring Security module, the non-optional depen
 
 [[spring-security-core]]
 == Core -- `spring-security-core.jar`
-This module contains core authentication and access-contol classes and interfaces, remoting support, and basic provisioning APIs.
+This module contains core authentication and access-control classes and interfaces, remoting support, and basic provisioning APIs.
 It is required by any application that uses Spring Security.
 It supports standalone applications, remote clients, method (service layer) security, and JDBC user provisioning.
 It contains the following top-level packages:
@@ -277,7 +277,7 @@ This is the basis of the Spring Security integration.
 This module contains support for testing with Spring Security.
 
 [[spring-security-taglibs]]
-== Taglibs -- `spring-secuity-taglibs.jar`
+== Taglibs -- `spring-security-taglibs.jar`
 Provides Spring Security's JSP tag implementations.
 
 .Taglib Dependencies

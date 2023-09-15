@@ -21,7 +21,10 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
+import io.micrometer.common.KeyValue;
 import io.micrometer.common.KeyValues;
 import io.micrometer.observation.Observation;
 import io.micrometer.observation.ObservationConvention;
@@ -31,6 +34,7 @@ import reactor.core.publisher.Mono;
 
 import org.springframework.lang.Nullable;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
@@ -265,25 +269,68 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			}
 
 			@Override
-			public void start() {
+			public Observation start() {
 				if (this.currentObservation.compareAndSet(ObservationReference.NOOP, this.before)) {
 					this.before.start();
-					return;
+					return this.before.observation;
 				}
 				if (this.currentObservation.compareAndSet(this.before, this.after)) {
 					this.before.stop();
 					this.after.start();
+					return this.after.observation;
 				}
+				return Observation.NOOP;
 			}
 
 			@Override
-			public void error(Throwable ex) {
+			public Observation error(Throwable ex) {
 				this.currentObservation.get().error(ex);
+				return this.currentObservation.get().observation;
 			}
 
 			@Override
 			public void stop() {
 				this.currentObservation.get().stop();
+			}
+
+			@Override
+			public Observation contextualName(String contextualName) {
+				return this.currentObservation.get().observation.contextualName(contextualName);
+			}
+
+			@Override
+			public Observation parentObservation(Observation parentObservation) {
+				return this.currentObservation.get().observation.parentObservation(parentObservation);
+			}
+
+			@Override
+			public Observation lowCardinalityKeyValue(KeyValue keyValue) {
+				return this.currentObservation.get().observation.lowCardinalityKeyValue(keyValue);
+			}
+
+			@Override
+			public Observation highCardinalityKeyValue(KeyValue keyValue) {
+				return this.currentObservation.get().observation.highCardinalityKeyValue(keyValue);
+			}
+
+			@Override
+			public Observation observationConvention(ObservationConvention<?> observationConvention) {
+				return this.currentObservation.get().observation.observationConvention(observationConvention);
+			}
+
+			@Override
+			public Observation event(Event event) {
+				return this.currentObservation.get().observation.event(event);
+			}
+
+			@Override
+			public Context getContext() {
+				return this.currentObservation.get().observation.getContext();
+			}
+
+			@Override
+			public Scope openScope() {
+				return this.currentObservation.get().observation.openScope();
 			}
 
 			@Override
@@ -313,7 +360,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 							.doOnError((t) -> {
 								error(t);
 								stop();
-							});
+							})
+							.contextWrite((context) -> context.put(ObservationThreadLocalAccessor.KEY, this));
 					// @formatter:on
 				};
 			}
@@ -328,9 +376,16 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				return this.after.observation;
 			}
 
+			@Override
+			public String toString() {
+				return this.currentObservation.get().observation.toString();
+			}
+
 			private static final class ObservationReference {
 
 				private static final ObservationReference NOOP = new ObservationReference(Observation.NOOP);
+
+				private final Lock lock = new ReentrantLock();
 
 				private final AtomicInteger state = new AtomicInteger(0);
 
@@ -341,20 +396,38 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 				}
 
 				private void start() {
-					if (this.state.compareAndSet(0, 1)) {
-						this.observation.start();
+					try {
+						this.lock.lock();
+						if (this.state.compareAndSet(0, 1)) {
+							this.observation.start();
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
 				private void error(Throwable ex) {
-					if (this.state.get() == 1) {
-						this.observation.error(ex);
+					try {
+						this.lock.lock();
+						if (this.state.get() == 1) {
+							this.observation.error(ex);
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
 				private void stop() {
-					if (this.state.compareAndSet(1, 2)) {
-						this.observation.stop();
+					try {
+						this.lock.lock();
+						if (this.state.compareAndSet(1, 2)) {
+							this.observation.stop();
+						}
+					}
+					finally {
+						this.lock.unlock();
 					}
 				}
 
@@ -364,7 +437,7 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 	}
 
-	interface WebFilterObservation {
+	interface WebFilterObservation extends Observation {
 
 		WebFilterObservation NOOP = new WebFilterObservation() {
 		};
@@ -376,13 +449,59 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			return new SimpleWebFilterObservation(observation);
 		}
 
-		default void start() {
+		@Override
+		default Observation contextualName(String contextualName) {
+			return Observation.NOOP;
 		}
 
-		default void error(Throwable ex) {
+		@Override
+		default Observation parentObservation(Observation parentObservation) {
+			return Observation.NOOP;
 		}
 
+		@Override
+		default Observation lowCardinalityKeyValue(KeyValue keyValue) {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Observation highCardinalityKeyValue(KeyValue keyValue) {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Observation observationConvention(ObservationConvention<?> observationConvention) {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Observation error(Throwable error) {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Observation event(Event event) {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Observation start() {
+			return Observation.NOOP;
+		}
+
+		@Override
+		default Context getContext() {
+			return new Observation.Context();
+		}
+
+		@Override
 		default void stop() {
+
+		}
+
+		@Override
+		default Scope openScope() {
+			return Scope.NOOP;
 		}
 
 		default WebFilter wrap(WebFilter filter) {
@@ -402,18 +521,58 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 			}
 
 			@Override
-			public void start() {
-				this.observation.start();
+			public Observation start() {
+				return this.observation.start();
 			}
 
 			@Override
-			public void error(Throwable ex) {
-				this.observation.error(ex);
+			public Observation error(Throwable ex) {
+				return this.observation.error(ex);
 			}
 
 			@Override
 			public void stop() {
 				this.observation.stop();
+			}
+
+			@Override
+			public Observation contextualName(String contextualName) {
+				return this.observation.contextualName(contextualName);
+			}
+
+			@Override
+			public Observation parentObservation(Observation parentObservation) {
+				return this.observation.parentObservation(parentObservation);
+			}
+
+			@Override
+			public Observation lowCardinalityKeyValue(KeyValue keyValue) {
+				return this.observation.lowCardinalityKeyValue(keyValue);
+			}
+
+			@Override
+			public Observation highCardinalityKeyValue(KeyValue keyValue) {
+				return this.observation.highCardinalityKeyValue(keyValue);
+			}
+
+			@Override
+			public Observation observationConvention(ObservationConvention<?> observationConvention) {
+				return this.observation.observationConvention(observationConvention);
+			}
+
+			@Override
+			public Observation event(Event event) {
+				return this.observation.event(event);
+			}
+
+			@Override
+			public Context getContext() {
+				return this.observation.getContext();
+			}
+
+			@Override
+			public Scope openScope() {
+				return this.observation.openScope();
 			}
 
 			@Override
@@ -442,7 +601,8 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 							.doOnCancel(this.observation::stop).doOnError((t) -> {
 								this.observation.error(t);
 								this.observation.stop();
-							});
+							}).contextWrite(
+									(context) -> context.put(ObservationThreadLocalAccessor.KEY, this.observation));
 				};
 			}
 
@@ -527,13 +687,11 @@ public final class ObservationWebFilterChainDecorator implements WebFilterChainP
 
 		@Override
 		public KeyValues getLowCardinalityKeyValues(WebFilterChainObservationContext context) {
-			KeyValues kv = KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
+			return KeyValues.of(CHAIN_SIZE_NAME, String.valueOf(context.getChainSize()))
 					.and(CHAIN_POSITION_NAME, String.valueOf(context.getChainPosition()))
-					.and(FILTER_SECTION_NAME, context.getFilterSection());
-			if (context.getFilterName() != null) {
-				kv = kv.and(FILTER_NAME, context.getFilterName());
-			}
-			return kv;
+					.and(FILTER_SECTION_NAME, context.getFilterSection())
+					.and(FILTER_NAME, (StringUtils.hasText(context.getFilterName())) ? context.getFilterName()
+							: KeyValue.NONE_VALUE);
 		}
 
 		@Override

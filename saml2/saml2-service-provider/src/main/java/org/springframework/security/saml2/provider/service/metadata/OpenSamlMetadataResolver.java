@@ -186,7 +186,7 @@ public final class OpenSamlMetadataResolver implements Saml2MetadataResolver {
 
 	private NameIDFormat buildNameIDFormat(RelyingPartyRegistration registration) {
 		NameIDFormat nameIdFormat = build(NameIDFormat.DEFAULT_ELEMENT_NAME);
-		nameIdFormat.setFormat(registration.getNameIdFormat());
+		nameIdFormat.setURI(registration.getNameIdFormat());
 		return nameIdFormat;
 	}
 

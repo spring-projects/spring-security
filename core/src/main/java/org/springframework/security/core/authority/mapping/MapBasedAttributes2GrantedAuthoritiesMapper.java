@@ -117,7 +117,6 @@ public class MapBasedAttributes2GrantedAuthoritiesMapper
 	 * Convert the given value to a collection of Granted Authorities, adding the result
 	 * to the given result collection.
 	 * @param value The value to convert to a GrantedAuthority Collection
-	 * @return Collection containing the GrantedAuthority Collection
 	 */
 	private void addGrantedAuthorityCollection(Collection<GrantedAuthority> result, Object value) {
 		if (value == null) {

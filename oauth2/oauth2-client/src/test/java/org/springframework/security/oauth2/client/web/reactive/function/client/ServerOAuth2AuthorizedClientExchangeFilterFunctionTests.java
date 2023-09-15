@@ -485,7 +485,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		// @formatter:on
-		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.UNAUTHORIZED.value());
+		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.UNAUTHORIZED);
 		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
@@ -560,7 +560,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
 		// @formatter:on
-		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.FORBIDDEN.value());
+		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.FORBIDDEN);
 		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		assertThat(publisherProbe.wasSubscribed()).isTrue();
 		verify(this.authorizationFailureHandler).onAuthorizationFailure(this.authorizationExceptionCaptor.capture(),
@@ -691,7 +691,7 @@ public class ServerOAuth2AuthorizedClientExchangeFilterFunctionTests {
 		ClientRequest request = ClientRequest.create(HttpMethod.GET, URI.create("https://example.com"))
 				.attributes(ServerOAuth2AuthorizedClientExchangeFilterFunction.oauth2AuthorizedClient(authorizedClient))
 				.build();
-		given(this.exchange.getResponse().rawStatusCode()).willReturn(HttpStatus.BAD_REQUEST.value());
+		given(this.exchange.getResponse().statusCode()).willReturn(HttpStatus.BAD_REQUEST);
 		this.function.filter(request, this.exchange).contextWrite(serverWebExchange()).block();
 		verify(this.authorizationFailureHandler, never()).onAuthorizationFailure(any(), any(), any());
 	}

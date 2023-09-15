@@ -19,22 +19,25 @@ To configure these, you'll use the `saml2Login#authenticationManager` method in 
 The default endpoint is `+/login/saml2/sso/{registrationId}+`.
 You can change this in the DSL and in the associated metadata like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
 SecurityFilterChain securityFilters(HttpSecurity http) throws Exception {
 	http
         // ...
-        .saml2Login((saml2) -> saml2.filterProcessingUrl("/saml2/login/sso"))
+        .saml2Login((saml2) -> saml2.loginProcessingUrl("/saml2/login/sso"))
         // ...
 
     return http.build();
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -42,7 +45,7 @@ fun securityFilters(val http: HttpSecurity): SecurityFilterChain {
 	http {
         // ...
         .saml2Login {
-            filterProcessingUrl = "/saml2/login/sso"
+            loginProcessingUrl = "/saml2/login/sso"
         }
         // ...
     }
@@ -50,23 +53,26 @@ fun securityFilters(val http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+======
 
 and:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml/SSO")
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 relyingPartyRegistrationBuilder.assertionConsumerServiceLocation("/saml/SSO")
 ----
-====
+======
 
 [[relyingpartyregistrationresolver-apply]]
 == Changing `RelyingPartyRegistration` lookup
@@ -77,8 +83,10 @@ Or, if it cannot find one in either of those cases, then it attempts to look it 
 There are a number of circumstances where you might need something more sophisticated, like if you are supporting `ARTIFACT` binding.
 In those cases, you can customize lookup through a custom `AuthenticationConverter`, which you can customize like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -92,7 +100,8 @@ SecurityFilterChain securityFilters(HttpSecurity http, AuthenticationConverter a
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -108,16 +117,18 @@ fun securityFilters(val http: HttpSecurity, val converter: AuthenticationConvert
     return http.build()
 }
 ----
-====
+======
 
 [[servlet-saml2login-opensamlauthenticationprovider-clockskew]]
 == Setting a Clock Skew
 
 It's not uncommon for the asserting and relying parties to have system clocks that aren't perfectly synchronized.
-For that reason, you can configure `OpenSaml4AuthenticationProvider` 's default assertion validator with some tolerance:
+For that reason, you can configure ``OpenSaml4AuthenticationProvider``'s default assertion validator with some tolerance:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -148,7 +159,8 @@ public class SecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -178,7 +190,7 @@ open class SecurityConfig {
     }
 }
 ----
-====
+======
 
 [[servlet-saml2login-opensamlauthenticationprovider-userdetailsservice]]
 == Coordinating with a `UserDetailsService`
@@ -186,8 +198,10 @@ open class SecurityConfig {
 Or, perhaps you would like to include user details from a legacy `UserDetailsService`.
 In that case, the response authentication converter can come in handy, as can be seen below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -221,7 +235,8 @@ public class SecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -254,13 +269,13 @@ open class SecurityConfig {
     }
 }
 ----
-====
+======
 <1> First, call the default converter, which extracts attributes and authorities from the response
 <2> Second, call the xref:servlet/authentication/passwords/user-details-service.adoc#servlet-authentication-userdetailsservice[`UserDetailsService`] using the relevant information
 <3> Third, return a custom authentication that includes the user details
 
 [NOTE]
-It's not required to call `OpenSaml4AuthenticationProvider` 's default authentication converter.
+It's not required to call ``OpenSaml4AuthenticationProvider``'s default authentication converter.
 It returns a `Saml2AuthenticatedPrincipal` containing the attributes it extracted from ``AttributeStatement``s as well as the single `ROLE_USER` authority.
 
 [[servlet-saml2login-opensamlauthenticationprovider-additionalvalidation]]
@@ -293,13 +308,15 @@ After verifying the signature, it will:
 1. Validate `<AudienceRestriction>` and `<DelegationRestriction>` conditions
 2. Validate ``<SubjectConfirmation>``s, expect for any IP address information
 
-To perform additional validation, you can configure your own assertion validator that delegates to `OpenSaml4AuthenticationProvider` 's default and then performs its own.
+To perform additional validation, you can configure your own assertion validator that delegates to ``OpenSaml4AuthenticationProvider``'s default and then performs its own.
 
 [[servlet-saml2login-opensamlauthenticationprovider-onetimeuse]]
 For example, you can use OpenSAML's `OneTimeUseConditionValidator` to also validate a `<OneTimeUse>` condition, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider();
@@ -322,7 +339,8 @@ provider.setAssertionValidator(assertionToken -> {
 });
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 var provider = OpenSaml4AuthenticationProvider()
@@ -344,10 +362,10 @@ provider.setAssertionValidator { assertionToken ->
     result.concat(Saml2Error(INVALID_ASSERTION, context.validationFailureMessage))
 }
 ----
-====
+======
 
 [NOTE]
-While recommended, it's not necessary to call `OpenSaml4AuthenticationProvider` 's default assertion validator.
+While recommended, it's not necessary to call ``OpenSaml4AuthenticationProvider``'s default assertion validator.
 A circumstance where you would skip it would be if you don't need it to check the `<AudienceRestriction>` or the `<SubjectConfirmation>` since you are doing those yourself.
 
 [[servlet-saml2login-opensamlauthenticationprovider-decryption]]
@@ -359,11 +377,13 @@ Spring Security decrypts `<saml2:EncryptedAssertion>`, `<saml2:EncryptedAttribut
 The response decrypter is for decrypting encrypted elements of the `<saml2:Response>`, like `<saml2:EncryptedAssertion>`.
 The assertion decrypter is for decrypting encrypted elements of the `<saml2:Assertion>`, like `<saml2:EncryptedAttribute>` and `<saml2:EncryptedID>`.
 
-You can replace `OpenSaml4AuthenticationProvider`'s default decryption strategy with your own.
+You can replace ``OpenSaml4AuthenticationProvider``'s default decryption strategy with your own.
 For example, if you have a separate service that decrypts the assertions in a `<saml2:Response>`, you can use it instead like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 MyDecryptionService decryptionService = ...;
@@ -371,30 +391,34 @@ OpenSaml4AuthenticationProvider provider = new OpenSaml4AuthenticationProvider()
 provider.setResponseElementsDecrypter((responseToken) -> decryptionService.decrypt(responseToken.getResponse()));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val decryptionService: MyDecryptionService = ...
 val provider = OpenSaml4AuthenticationProvider()
 provider.setResponseElementsDecrypter { responseToken -> decryptionService.decrypt(responseToken.response) }
 ----
-====
+======
 
 If you are also decrypting individual elements in a `<saml2:Assertion>`, you can customize the assertion decrypter, too:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 provider.setAssertionElementsDecrypter((assertionToken) -> decryptionService.decrypt(assertionToken.getAssertion()));
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 provider.setAssertionElementsDecrypter { assertionToken -> decryptionService.decrypt(assertionToken.assertion) }
 ----
-====
+======
 
 NOTE: There are two separate decrypters since assertions can be signed separately from responses.
 Trying to decrypt a signed assertion's elements before signature verification may invalidate the signature.
@@ -407,8 +431,10 @@ If your asserting party signs the response only, then it's safe to decrypt all e
 Of course, the `authenticationManager` DSL method can be also used to perform a completely custom SAML 2.0 authentication.
 This authentication manager should expect a `Saml2AuthenticationToken` object containing the SAML 2.0 Response XML data.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Configuration
@@ -431,7 +457,8 @@ public class SecurityConfig {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Configuration
@@ -452,7 +479,7 @@ open class SecurityConfig {
     }
 }
 ----
-====
+======
 
 [[servlet-saml2login-authenticatedprincipal]]
 == Using `Saml2AuthenticatedPrincipal`
@@ -462,8 +489,10 @@ Once the relying party validates an assertion, the result is a `Saml2Authenticat
 
 This means that you can access the principal in your controller like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -477,7 +506,8 @@ public class MainController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -490,7 +520,7 @@ class MainController {
     }
 }
 ----
-====
+======
 
 [TIP]
 Because the SAML 2.0 specification allows for each attribute to have multiple values, you can either call `getAttribute` to get the list of attributes or `getFirstAttribute` to get the first in the list.

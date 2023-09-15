@@ -87,7 +87,7 @@ public class OpenSamlLogoutRequestResolverTests {
 		LogoutRequest logoutRequest = getLogoutRequest(saml2LogoutRequest.getSamlRequest(), binding);
 		assertThat(logoutRequest.getNameID().getValue()).isEqualTo(authentication.getName());
 		assertThat(logoutRequest.getSessionIndexes()).hasSize(1);
-		assertThat(logoutRequest.getSessionIndexes().get(0).getSessionIndex()).isEqualTo("session-index");
+		assertThat(logoutRequest.getSessionIndexes().get(0).getValue()).isEqualTo("session-index");
 	}
 
 	private Saml2Authentication authentication(RelyingPartyRegistration registration) {

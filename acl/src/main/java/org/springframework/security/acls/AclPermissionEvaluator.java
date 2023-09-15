@@ -118,8 +118,7 @@ public class AclPermissionEvaluator implements PermissionEvaluator {
 		if (permission instanceof Permission[]) {
 			return Arrays.asList((Permission[]) permission);
 		}
-		if (permission instanceof String) {
-			String permString = (String) permission;
+		if (permission instanceof String permString) {
 			Permission p = buildPermission(permString);
 			if (p != null) {
 				return Arrays.asList(p);

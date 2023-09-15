@@ -16,8 +16,12 @@
 
 package org.springframework.security.web.authentication.www;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
@@ -59,6 +63,21 @@ public class BasicAuthenticationEntryPointTests {
 		assertThat(response.getStatus()).isEqualTo(401);
 		assertThat(response.getErrorMessage()).isEqualTo(HttpStatus.UNAUTHORIZED.getReasonPhrase());
 		assertThat(response.getHeader("WWW-Authenticate")).isEqualTo("Basic realm=\"hello\"");
+	}
+
+	// gh-13737
+	@Test
+	void commenceWhenResponseHasHeaderThenOverride() throws IOException {
+		BasicAuthenticationEntryPoint ep = new BasicAuthenticationEntryPoint();
+		ep.setRealmName("hello");
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setRequestURI("/some_path");
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		response.setHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"test\"");
+		ep.commence(request, response, new DisabledException("Disabled"));
+		List<String> headers = response.getHeaders("WWW-Authenticate");
+		assertThat(headers).hasSize(1);
+		assertThat(headers.get(0)).isEqualTo("Basic realm=\"hello\"");
 	}
 
 }

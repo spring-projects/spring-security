@@ -6,12 +6,10 @@ Spring Security has its own taglib, which provides basic support for accessing s
 == Declaring the Taglib
 To use any of the tags, you must have the security taglib declared in your JSP:
 
-====
 [source,xml]
 ----
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 ----
-====
 
 [[taglibs-authorize]]
 == The authorize Tag
@@ -23,11 +21,10 @@ In Spring Security 3.0, it can be used in two ways.
 The legacy options from Spring Security 2.0 are also supported, but discouraged.
 ====
 
-The first approach uses a xref:servlet/authorization/expression-based.adoc#el-access-web[web-security expression], which is specified in the `access` attribute of the tag.
+The first approach uses a xref:servlet/authorization/authorize-http-requests.adoc#authorization-expressions[web-security expression], which is specified in the `access` attribute of the tag.
 The expression evaluation is delegated to the `SecurityExpressionHandler<FilterInvocation>` defined in the application context (you should have web expressions enabled in your `<http>` namespace configuration to make sure this service is available).
 So, for example, you might have:
 
-====
 [source,xml]
 ----
 <sec:authorize access="hasRole('supervisor')">
@@ -36,11 +33,9 @@ This content will only be visible to users who have the "supervisor" authority i
 
 </sec:authorize>
 ----
-====
 
 When used in conjunction with Spring Security's `PermissionEvaluator`, the tag can also be used to check permissions:
 
-====
 [source,xml]
 ----
 <sec:authorize access="hasPermission(#domain,'read') or hasPermission(#domain,'write')">
@@ -49,14 +44,12 @@ This content will only be visible to users who have read or write permission to 
 
 </sec:authorize>
 ----
-====
 
 A common requirement is to show only a particular link, assuming the user is actually allowed to click it.
 How can we determine in advance whether something is allowed? This tag can also operate in an alternative mode that lets you define a particular URL as an attribute.
 If the user is allowed to invoke that URL, the tag body is evaluated. Otherwise, it is skipped.
 So you might have something like:
 
-====
 [source,xml]
 ----
 <sec:authorize url="/admin">
@@ -65,7 +58,6 @@ This content will only be visible to users who are authorized to send requests t
 
 </sec:authorize>
 ----
-====
 
 To use this tag, you must also have an instance of `WebInvocationPrivilegeEvaluator` in your application context.
 If you are using the namespace, one is automatically registered.
@@ -111,7 +103,6 @@ Instead, use the <<taglibs-authorize>>.
 
 The following listing shows an example:
 
-====
 [source,xml]
 ----
 <sec:accesscontrollist hasPermission="1,2" domainObject="${someObject}">
@@ -120,7 +111,6 @@ The following listing shows an example:
 
 </sec:accesscontrollist>
 ----
-====
 
 The permissions are passed to the `PermissionFactory` defined in the application context, converting them to ACL `Permission` instances, so they may be any format that is supported by the factory. They do not have to be integers. They could be strings such as `READ` or `WRITE`.
 If no `PermissionFactory` is found, an instance of `DefaultPermissionFactory` is used.
@@ -141,7 +131,6 @@ Do NOT place this tag within a Spring `<form:form></form:form>` block.
 Spring Security handles Spring forms automatically.
 The following listing shows an example:
 
-====
 [source,xml]
 ----
 	<form method="post" action="/do/something">
@@ -151,7 +140,6 @@ The following listing shows an example:
 		...
 	</form>
 ----
-====
 
 [[taglibs-csrfmeta]]
 == The csrfMetaTags Tag
@@ -163,7 +151,6 @@ Once you use this tag, you can access the form field name, header name, and toke
 JQuery is used in this example to make the task easier.
 The following listing shows an example:
 
-====
 [source,xml]
 ----
 <!DOCTYPE html>
@@ -219,6 +206,5 @@ The following listing shows an example:
 	</body>
 </html>
 ----
-====
 
 If CSRF protection is not enabled, `csrfMetaTags` outputs nothing.

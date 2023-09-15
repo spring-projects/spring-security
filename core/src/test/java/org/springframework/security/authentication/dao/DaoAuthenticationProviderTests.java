@@ -441,6 +441,13 @@ public class DaoAuthenticationProviderTests {
 		assertThatExceptionOfType(UsernameNotFoundException.class).isThrownBy(() -> provider.authenticate(token));
 	}
 
+	@Test
+	public void constructWhenPasswordEncoderProvidedThenSets() {
+		DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider(
+				NoOpPasswordEncoder.getInstance());
+		assertThat(daoAuthenticationProvider.getPasswordEncoder()).isSameAs(NoOpPasswordEncoder.getInstance());
+	}
+
 	/**
 	 * This is an explicit test for SEC-2056. It is intentionally ignored since this test
 	 * is not deterministic and {@link #testUserNotFoundEncodesPassword()} ensures that

@@ -1,5 +1,5 @@
 /*
- * Copyright 2004, 2005, 2006 Acegi Technology Pty Limited
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import org.apereo.cas.client.proxy.ProxyGrantingTicketStorage;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -31,12 +32,16 @@ import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -193,6 +198,24 @@ public class CasAuthenticationFilterTests {
 		filter.setProxyReceptorUrl(request.getServletPath());
 		filter.doFilter(request, response, chain);
 		verifyNoInteractions(chain);
+	}
+
+	@Test
+	public void successfulAuthenticationWhenProxyRequestThenSavesSecurityContext() throws Exception {
+		MockHttpServletRequest request = new MockHttpServletRequest();
+		request.setParameter(ServiceProperties.DEFAULT_CAS_ARTIFACT_PARAMETER, "ticket");
+
+		MockHttpServletResponse response = new MockHttpServletResponse();
+		CasAuthenticationFilter filter = new CasAuthenticationFilter();
+		ServiceProperties serviceProperties = new ServiceProperties();
+		serviceProperties.setAuthenticateAllArtifacts(true);
+		filter.setServiceProperties(serviceProperties);
+
+		SecurityContextRepository securityContextRepository = mock(SecurityContextRepository.class);
+		ReflectionTestUtils.setField(filter, "securityContextRepository", securityContextRepository);
+
+		filter.successfulAuthentication(request, response, new MockFilterChain(), mock(Authentication.class));
+		verify(securityContextRepository).saveContext(any(SecurityContext.class), eq(request), eq(response));
 	}
 
 }

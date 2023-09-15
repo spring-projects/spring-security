@@ -454,7 +454,7 @@ public class JdbcMutableAclServiceTests {
 		CustomSid customSid = new CustomSid("Custom sid");
 		given(customJdbcMutableAclService.createOrRetrieveSidPrimaryKey("Custom sid", false, false)).willReturn(1L);
 		Long result = customJdbcMutableAclService.createOrRetrieveSidPrimaryKey(customSid, false);
-		assertThat(new Long(1L)).isEqualTo(result);
+		assertThat(Long.valueOf(1L)).isEqualTo(result);
 	}
 
 	protected Authentication getAuth() {

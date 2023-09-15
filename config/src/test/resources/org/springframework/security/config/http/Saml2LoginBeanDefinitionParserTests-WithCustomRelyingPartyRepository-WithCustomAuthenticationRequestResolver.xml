@@ -29,13 +29,13 @@
 		<saml2-login relying-party-registration-repository-ref="relyingPartyRegistrationRepository"
 								 authentication-request-resolver-ref="authenticationRequestResolver"/>
 	</http>
-	
+
 	<b:bean id="relyingPartyRegistrationRepository" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository" type="java.lang.Class"/>
+</b:bean>
 	<b:bean id="authenticationRequestResolver" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver"/>
-	</b:bean>
-	
+    <b:constructor-arg value="org.springframework.security.saml2.provider.service.web.authentication.Saml2AuthenticationRequestResolver" type="java.lang.Class"/>
+</b:bean>
+
 	<b:import resource="userservice.xml"/>
 </b:beans>

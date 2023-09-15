@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,6 +63,7 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizedClientManager;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.method.annotation.OAuth2AuthorizedClientArgumentResolver;
@@ -436,7 +437,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 *
 	 * <p>
 	 * The support works by associating the authorized client to the HttpServletRequest
-	 * via the {@link HttpSessionOAuth2AuthorizedClientRepository}
+	 * using an {@link OAuth2AuthorizedClientRepository}
 	 * </p>
 	 * @return the {@link OAuth2ClientRequestPostProcessor} for additional customization
 	 * @since 5.3
@@ -451,7 +452,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 	 *
 	 * <p>
 	 * The support works by associating the authorized client to the HttpServletRequest
-	 * via the {@link HttpSessionOAuth2AuthorizedClientRepository}
+	 * using an {@link OAuth2AuthorizedClientRepository}
 	 * </p>
 	 * @param registrationId The registration id for the {@link OAuth2AuthorizedClient}
 	 * @return the {@link OAuth2ClientRequestPostProcessor} for additional customization
@@ -1342,11 +1343,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Use the provided {@link ClientRegistration} as the client to authorize.
 		 *
 		 * The supplied {@link ClientRegistration} will be registered into an
-		 * {@link HttpSessionOAuth2AuthorizedClientRepository}. Tests relying on
-		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
-		 * annotations should register an
-		 * {@link HttpSessionOAuth2AuthorizedClientRepository} bean to the application
-		 * context.
+		 * {@link OAuth2AuthorizedClientRepository}.
 		 * @param clientRegistration the {@link ClientRegistration} to use
 		 * @return the {@link OAuth2LoginRequestPostProcessor} for further configuration
 		 */
@@ -1481,11 +1478,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 		 * Use the provided {@link ClientRegistration} as the client to authorize.
 		 *
 		 * The supplied {@link ClientRegistration} will be registered into an
-		 * {@link HttpSessionOAuth2AuthorizedClientRepository}. Tests relying on
-		 * {@link org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient}
-		 * annotations should register an
-		 * {@link HttpSessionOAuth2AuthorizedClientRepository} bean to the application
-		 * context.
+		 * {@link HttpSessionOAuth2AuthorizedClientRepository}.
 		 * @param clientRegistration the {@link ClientRegistration} to use
 		 * @return the {@link OidcLoginRequestPostProcessor} for further configuration
 		 */
@@ -1611,14 +1604,14 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 			OAuth2AuthorizedClient client = new OAuth2AuthorizedClient(this.clientRegistration, this.principalName,
 					this.accessToken);
-			OAuth2AuthorizedClientManager authorizationClientManager = OAuth2ClientServletTestUtils
-					.getOAuth2AuthorizedClientManager(request);
-			if (!(authorizationClientManager instanceof TestOAuth2AuthorizedClientManager)) {
-				authorizationClientManager = new TestOAuth2AuthorizedClientManager(authorizationClientManager);
-				OAuth2ClientServletTestUtils.setOAuth2AuthorizedClientManager(request, authorizationClientManager);
+			OAuth2AuthorizedClientRepository authorizedClientRepository = OAuth2ClientServletTestUtils
+					.getAuthorizedClientRepository(request);
+			if (!(authorizedClientRepository instanceof TestOAuth2AuthorizedClientRepository)) {
+				authorizedClientRepository = new TestOAuth2AuthorizedClientRepository(authorizedClientRepository);
+				OAuth2ClientServletTestUtils.setAuthorizedClientRepository(request, authorizedClientRepository);
 			}
-			TestOAuth2AuthorizedClientManager.enable(request);
-			request.setAttribute(TestOAuth2AuthorizedClientManager.TOKEN_ATTR_NAME, client);
+			TestOAuth2AuthorizedClientRepository.enable(request);
+			authorizedClientRepository.saveAuthorizedClient(client, null, request, new MockHttpServletResponse());
 			return request;
 		}
 
@@ -1629,19 +1622,19 @@ public final class SecurityMockMvcRequestPostProcessors {
 		}
 
 		/**
-		 * Used to wrap the {@link OAuth2AuthorizedClientManager} to provide support for
-		 * testing when the request is wrapped
+		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
+		 * for testing when the request is wrapped
 		 */
 		private static final class TestOAuth2AuthorizedClientManager implements OAuth2AuthorizedClientManager {
-
-			static final String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName().concat(".TOKEN");
 
 			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientManager.class.getName()
 					.concat(".ENABLED");
 
 			private final OAuth2AuthorizedClientManager delegate;
 
-			private TestOAuth2AuthorizedClientManager(OAuth2AuthorizedClientManager delegate) {
+			private OAuth2AuthorizedClientRepository authorizedClientRepository;
+
+			TestOAuth2AuthorizedClientManager(OAuth2AuthorizedClientManager delegate) {
 				this.delegate = delegate;
 			}
 
@@ -1649,9 +1642,66 @@ public final class SecurityMockMvcRequestPostProcessors {
 			public OAuth2AuthorizedClient authorize(OAuth2AuthorizeRequest authorizeRequest) {
 				HttpServletRequest request = authorizeRequest.getAttribute(HttpServletRequest.class.getName());
 				if (isEnabled(request)) {
-					return (OAuth2AuthorizedClient) request.getAttribute(TOKEN_ATTR_NAME);
+					return this.authorizedClientRepository.loadAuthorizedClient(
+							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
 				}
 				return this.delegate.authorize(authorizeRequest);
+			}
+
+			static void enable(HttpServletRequest request) {
+				request.setAttribute(ENABLED_ATTR_NAME, Boolean.TRUE);
+			}
+
+			boolean isEnabled(HttpServletRequest request) {
+				return Boolean.TRUE.equals(request.getAttribute(ENABLED_ATTR_NAME));
+			}
+
+		}
+
+		/**
+		 * Used to wrap the {@link OAuth2AuthorizedClientRepository} to provide support
+		 * for testing when the request is wrapped
+		 */
+		static final class TestOAuth2AuthorizedClientRepository implements OAuth2AuthorizedClientRepository {
+
+			static final String TOKEN_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName().concat(".TOKEN");
+
+			static final String ENABLED_ATTR_NAME = TestOAuth2AuthorizedClientRepository.class.getName()
+					.concat(".ENABLED");
+
+			private final OAuth2AuthorizedClientRepository delegate;
+
+			TestOAuth2AuthorizedClientRepository(OAuth2AuthorizedClientRepository delegate) {
+				this.delegate = delegate;
+			}
+
+			@Override
+			public <T extends OAuth2AuthorizedClient> T loadAuthorizedClient(String clientRegistrationId,
+					Authentication principal, HttpServletRequest request) {
+				if (isEnabled(request)) {
+					return (T) request.getAttribute(TOKEN_ATTR_NAME);
+				}
+				return this.delegate.loadAuthorizedClient(clientRegistrationId, principal, request);
+			}
+
+			@Override
+			public void saveAuthorizedClient(OAuth2AuthorizedClient authorizedClient, Authentication principal,
+					HttpServletRequest request, HttpServletResponse response) {
+				if (isEnabled(request)) {
+					request.setAttribute(TOKEN_ATTR_NAME, authorizedClient);
+					return;
+				}
+				this.delegate.saveAuthorizedClient(authorizedClient, principal, request, response);
+			}
+
+			@Override
+			public void removeAuthorizedClient(String clientRegistrationId, Authentication principal,
+					HttpServletRequest request, HttpServletResponse response) {
+				if (isEnabled(request)) {
+					request.removeAttribute(TOKEN_ATTR_NAME);
+					return;
+				}
+				this.delegate.removeAuthorizedClient(clientRegistrationId, principal, request, response);
 			}
 
 			static void enable(HttpServletRequest request) {
@@ -1672,7 +1722,7 @@ public final class SecurityMockMvcRequestPostProcessors {
 			}
 
 			/**
-			 * Gets the {@link OAuth2AuthorizedClientManager} for the specified
+			 * Gets the {@link OAuth2AuthorizedClientRepository} for the specified
 			 * {@link HttpServletRequest}. If one is not found, one based off of
 			 * {@link HttpSessionOAuth2AuthorizedClientRepository} is used.
 			 * @param request the {@link HttpServletRequest} to obtain the
@@ -1680,12 +1730,44 @@ public final class SecurityMockMvcRequestPostProcessors {
 			 * @return the {@link OAuth2AuthorizedClientManager} for the specified
 			 * {@link HttpServletRequest}
 			 */
+			static OAuth2AuthorizedClientRepository getAuthorizedClientRepository(HttpServletRequest request) {
+				OAuth2AuthorizedClientManager manager = getOAuth2AuthorizedClientManager(request);
+				if (manager == null) {
+					return DEFAULT_CLIENT_REPO;
+				}
+				if (manager instanceof DefaultOAuth2AuthorizedClientManager) {
+					return (OAuth2AuthorizedClientRepository) ReflectionTestUtils.getField(manager,
+							"authorizedClientRepository");
+				}
+				if (manager instanceof TestOAuth2AuthorizedClientManager) {
+					return ((TestOAuth2AuthorizedClientManager) manager).authorizedClientRepository;
+				}
+				return DEFAULT_CLIENT_REPO;
+			}
+
+			static void setAuthorizedClientRepository(HttpServletRequest request,
+					OAuth2AuthorizedClientRepository repository) {
+				OAuth2AuthorizedClientManager manager = getOAuth2AuthorizedClientManager(request);
+				if (manager == null) {
+					return;
+				}
+				if (manager instanceof DefaultOAuth2AuthorizedClientManager) {
+					ReflectionTestUtils.setField(manager, "authorizedClientRepository", repository);
+					return;
+				}
+				if (!(manager instanceof TestOAuth2AuthorizedClientManager)) {
+					manager = new TestOAuth2AuthorizedClientManager(manager);
+					setOAuth2AuthorizedClientManager(request, manager);
+				}
+				TestOAuth2AuthorizedClientManager.enable(request);
+				((TestOAuth2AuthorizedClientManager) manager).authorizedClientRepository = repository;
+			}
+
 			static OAuth2AuthorizedClientManager getOAuth2AuthorizedClientManager(HttpServletRequest request) {
 				OAuth2AuthorizedClientArgumentResolver resolver = findResolver(request,
 						OAuth2AuthorizedClientArgumentResolver.class);
 				if (resolver == null) {
-					return (authorizeRequest) -> DEFAULT_CLIENT_REPO.loadAuthorizedClient(
-							authorizeRequest.getClientRegistrationId(), authorizeRequest.getPrincipal(), request);
+					return null;
 				}
 				return (OAuth2AuthorizedClientManager) ReflectionTestUtils.getField(resolver,
 						"authorizedClientManager");

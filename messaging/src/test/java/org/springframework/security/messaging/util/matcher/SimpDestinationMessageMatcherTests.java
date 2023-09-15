@@ -113,7 +113,7 @@ public class SimpDestinationMessageMatcherTests {
 		this.matcher = new SimpDestinationMessageMatcher("/topics/{topic}/**");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.DESTINATION_HEADER, "/topics/someTopic/sub1");
 		this.messageBuilder.setHeader(SimpMessageHeaderAccessor.MESSAGE_TYPE_HEADER, SimpMessageType.MESSAGE);
-		assertThat(this.matcher.extractPathVariables(this.messageBuilder.build()).get("topic")).isEqualTo("someTopic");
+		assertThat(this.matcher.extractPathVariables(this.messageBuilder.build())).containsEntry("topic", "someTopic");
 	}
 
 	@Test

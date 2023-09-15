@@ -17,9 +17,10 @@ How does Spring Security know we want to support form-based authentication?
 There is a configuration class (called `SecurityFilterChain`) that is being invoked behind the scenes.
 It is configured with the following default implementation:
 
-====
 [source,kotlin]
 ----
+import org.springframework.security.config.annotation.web.invoke
+
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
    http {
@@ -32,7 +33,9 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
     return http.build()
 }
 ----
-====
+
+[NOTE]
+Make sure that import the `invoke` function in your class, sometimes the IDE will not auto-import it causing compilation issues.
 
 The default configuration (shown in the preceding listing):
 
@@ -42,7 +45,6 @@ The default configuration (shown in the preceding listing):
 
 Note that this configuration is parallels the XML namespace configuration:
 
-====
 [source,xml]
 ----
 <http>
@@ -51,7 +53,6 @@ Note that this configuration is parallels the XML namespace configuration:
 	<http-basic />
 </http>
 ----
-====
 
 == Multiple HttpSecurity Instances
 
@@ -59,10 +60,11 @@ We can configure multiple `HttpSecurity` instances, just as we can have multiple
 The key is to register multiple `SecurityFilterChain` ``@Bean``s.
 The following example has a different configuration for URL's that start with `/api/`:
 
-====
 [source,kotlin]
 ----
 @Configuration
+import org.springframework.security.config.annotation.web.invoke
+
 @EnableWebSecurity
 class MultiHttpSecurityConfig {
     @Bean                                                            <1>
@@ -106,4 +108,3 @@ class MultiHttpSecurityConfig {
 <4> Create another instance of `SecurityFilterChain`.
 If the URL does not start with `/api/`, this configuration is used.
 This configuration is considered after `apiFilterChain`, since it has an `@Order` value after `1` (no `@Order` defaults to last).
-====

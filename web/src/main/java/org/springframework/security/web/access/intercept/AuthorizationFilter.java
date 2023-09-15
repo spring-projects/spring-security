@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -170,7 +170,25 @@ public class AuthorizationFilter extends GenericFilterBean {
 	 * @param shouldFilterAllDispatcherTypes should filter all dispatcher types. Default
 	 * is {@code true}
 	 * @since 5.7
+	 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType} instead.
+	 * <pre>
+	 * &#064;Configuration
+	 * &#064;EnableWebSecurity
+	 * public class SecurityConfig {
+	 *
+	 * 	&#064;Bean
+	 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	 * 		http
+	 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
+	 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+	 * 			 	// ...
+	 * 		 	);
+	 * 		return http.build();
+	 * 	}
+	 * }
+	 * </pre>
 	 */
+	@Deprecated(since = "6.1", forRemoval = true)
 	public void setShouldFilterAllDispatcherTypes(boolean shouldFilterAllDispatcherTypes) {
 		this.observeOncePerRequest = !shouldFilterAllDispatcherTypes;
 		this.filterErrorDispatch = shouldFilterAllDispatcherTypes;
@@ -188,7 +206,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 	/**
 	 * Sets whether this filter apply only once per request. By default, this is
-	 * <code>true</code>, meaning the filter will only execute once per request. Sometimes
+	 * <code>false</code>, meaning the filter will execute on every request. Sometimes
 	 * users may wish it to execute more than once per request, such as when JSP forwards
 	 * are being used and filter security is desired on each included fragment of the HTTP
 	 * request.
@@ -200,7 +218,8 @@ public class AuthorizationFilter extends GenericFilterBean {
 	}
 
 	/**
-	 * If set to true, the filter will be applied to error dispatcher. Defaults to false.
+	 * If set to true, the filter will be applied to error dispatcher. Defaults to
+	 * {@code true}.
 	 * @param filterErrorDispatch whether the filter should be applied to error dispatcher
 	 */
 	public void setFilterErrorDispatch(boolean filterErrorDispatch) {
@@ -209,7 +228,7 @@ public class AuthorizationFilter extends GenericFilterBean {
 
 	/**
 	 * If set to true, the filter will be applied to the async dispatcher. Defaults to
-	 * false.
+	 * {@code true}.
 	 * @param filterAsyncDispatch whether the filter should be applied to async dispatch
 	 */
 	public void setFilterAsyncDispatch(boolean filterAsyncDispatch) {

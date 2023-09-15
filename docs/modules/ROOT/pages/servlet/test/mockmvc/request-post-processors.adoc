@@ -5,16 +5,19 @@ Spring MVC Test provides a convenient interface (`RequestPostProcessor`) that yo
 Spring Security provides a number of `RequestPostProcessor` implementations that make testing easier.
 To use Spring Security's `RequestPostProcessor` implementations, use the following static import:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*
 ----
-====
+======

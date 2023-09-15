@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -101,6 +102,23 @@ public final class RequestMatcherMetadataResponseResolverTests {
 		assertThat(resolver.resolve(new MockHttpServletRequest())).isNull();
 	}
 
+	// gh-13700
+	@Test
+	void resolveWhenNoRegistrationIdThenResolvesEntityIds() {
+		RelyingPartyRegistration one = withEntityId("one");
+		RelyingPartyRegistration two = withEntityId("two");
+		RelyingPartyRegistrationRepository registrations = new InMemoryRelyingPartyRegistrationRepository(one, two);
+		RequestMatcherMetadataResponseResolver resolver = new RequestMatcherMetadataResponseResolver(registrations,
+				this.metadataFactory);
+		given(this.metadataFactory.resolve(any(Collection.class))).willReturn("metadata");
+		resolver.resolve(get("/saml2/metadata"));
+		ArgumentCaptor<Collection<RelyingPartyRegistration>> captor = ArgumentCaptor.forClass(Collection.class);
+		verify(this.metadataFactory).resolve(captor.capture());
+		Collection<RelyingPartyRegistration> resolved = captor.getValue();
+		assertThat(resolved).hasSize(2);
+		assertThat(resolved.iterator().next().getEntityId()).isEqualTo("one");
+	}
+
 	private MockHttpServletRequest get(String uri) {
 		MockHttpServletRequest request = new MockHttpServletRequest("GET", uri);
 		request.setServletPath(uri);
@@ -108,8 +126,8 @@ public final class RequestMatcherMetadataResponseResolverTests {
 	}
 
 	private RelyingPartyRegistration withEntityId(String entityId) {
-		return TestRelyingPartyRegistrations.relyingPartyRegistration().registrationId(entityId).entityId(entityId)
-				.build();
+		return TestRelyingPartyRegistrations.relyingPartyRegistration().registrationId(entityId)
+				.entityId("{registrationId}").build();
 	}
 
 }

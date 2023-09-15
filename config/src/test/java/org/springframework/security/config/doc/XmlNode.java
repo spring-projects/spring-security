@@ -58,8 +58,7 @@ public class XmlNode {
 
 	public Optional<XmlNode> parent() {
 		// @formatter:off
-		return Optional.ofNullable(this.node.getParentNode())
-				.map((parent) -> new XmlNode(parent));
+		return Optional.ofNullable(this.node.getParentNode()).map(XmlNode::new);
 		// @formatter:on
 	}
 
@@ -67,7 +66,7 @@ public class XmlNode {
 		// @formatter:off
 		return Optional.ofNullable(this.node.getAttributes())
 				.map((attrs) -> attrs.getNamedItem(name))
-				.map((attr) -> attr.getTextContent())
+				.map(Node::getTextContent)
 				.orElse(null);
 		// @formatter:on
 	}

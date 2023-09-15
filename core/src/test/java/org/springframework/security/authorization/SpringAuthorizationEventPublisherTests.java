@@ -38,7 +38,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
  */
 public class SpringAuthorizationEventPublisherTests {
 
-	Supplier<Authentication> authentication = () -> TestAuthentication.authenticatedUser();
+	Supplier<Authentication> authentication = TestAuthentication::authenticatedUser;
 
 	ApplicationEventPublisher applicationEventPublisher;
 

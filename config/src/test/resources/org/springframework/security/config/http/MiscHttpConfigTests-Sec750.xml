@@ -38,7 +38,7 @@
 	</b:bean>
 
 	<b:bean name="userService" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.core.userdetails.UserDetailsService"/>
+		<b:constructor-arg value="org.springframework.security.core.userdetails.UserDetailsService" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:bean name="beanNameCollectingPostProcessor" class="org.springframework.security.BeanNameCollectingPostProcessor"/>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -206,6 +206,14 @@ public class XorCsrfTokenRequestAttributeHandlerTests {
 		this.request.setParameter(this.token.getParameterName(), "invalid");
 		String tokenValue = this.handler.resolveCsrfTokenValue(this.request, this.token);
 		assertThat(tokenValue).isEqualTo(this.token.getToken());
+	}
+
+	@Test
+	public void resolveCsrfTokenIsInvalidThenReturnsNull() {
+		this.request.setParameter(this.token.getParameterName(), XOR_CSRF_TOKEN_VALUE);
+		CsrfToken csrfToken = new DefaultCsrfToken("headerName", "paramName", "a");
+		String tokenValue = this.handler.resolveCsrfTokenValue(this.request, csrfToken);
+		assertThat(tokenValue).isNull();
 	}
 
 	private static Answer<Void> fillByteArray() {

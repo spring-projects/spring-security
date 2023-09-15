@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,11 +149,44 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 		SaveContextOnUpdateOrErrorResponseWrapper responseWrapper = WebUtils.getNativeResponse(response,
 				SaveContextOnUpdateOrErrorResponseWrapper.class);
 		if (responseWrapper == null) {
-			boolean httpSessionExists = request.getSession(false) != null;
-			SecurityContext initialContext = this.securityContextHolderStrategy.createEmptyContext();
-			responseWrapper = new SaveToSessionResponseWrapper(response, request, httpSessionExists, initialContext);
+			saveContextInHttpSession(context, request);
+			return;
 		}
 		responseWrapper.saveContext(context);
+	}
+
+	private void saveContextInHttpSession(SecurityContext context, HttpServletRequest request) {
+		if (isTransient(context) || isTransient(context.getAuthentication())) {
+			return;
+		}
+		SecurityContext emptyContext = generateNewContext();
+		if (emptyContext.equals(context)) {
+			HttpSession session = request.getSession(false);
+			removeContextFromSession(context, session);
+		}
+		else {
+			boolean createSession = this.allowSessionCreation;
+			HttpSession session = request.getSession(createSession);
+			setContextInSession(context, session);
+		}
+	}
+
+	private void setContextInSession(SecurityContext context, HttpSession session) {
+		if (session != null) {
+			session.setAttribute(this.springSecurityContextKey, context);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Stored %s to HttpSession [%s]", context, session));
+			}
+		}
+	}
+
+	private void removeContextFromSession(SecurityContext context, HttpSession session) {
+		if (session != null) {
+			session.removeAttribute(this.springSecurityContextKey);
+			if (this.logger.isDebugEnabled()) {
+				this.logger.debug(LogMessage.format("Removed %s from HttpSession [%s]", context, session));
+			}
+		}
 	}
 
 	@Override
@@ -392,11 +425,8 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
 				// We may have a new session, so check also whether the context attribute
 				// is set SEC-1561
 				if (contextChanged(context) || httpSession.getAttribute(springSecurityContextKey) == null) {
-					httpSession.setAttribute(springSecurityContextKey, context);
+					HttpSessionSecurityContextRepository.this.saveContextInHttpSession(context, this.request);
 					this.isSaveContextInvoked = true;
-					if (this.logger.isDebugEnabled()) {
-						this.logger.debug(LogMessage.format("Stored %s to HttpSession [%s]", context, httpSession));
-					}
 				}
 			}
 		}

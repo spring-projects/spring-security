@@ -25,7 +25,7 @@ import org.springframework.security.core.Authentication;
  * A reactive authorization manager which can determine if an {@link Authentication} has
  * access to a specific object.
  *
- * @param <T> the type of object that the authorization check is being done one.
+ * @param <T> the type of object that the authorization check is being done on.
  * @author Rob Winch
  * @since 5.0
  */

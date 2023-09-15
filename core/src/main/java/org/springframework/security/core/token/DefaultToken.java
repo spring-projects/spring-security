@@ -59,8 +59,7 @@ public class DefaultToken implements Token {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (obj != null && obj instanceof DefaultToken) {
-			DefaultToken rhs = (DefaultToken) obj;
+		if (obj instanceof DefaultToken rhs) {
 			return this.key.equals(rhs.key) && this.keyCreationTime == rhs.keyCreationTime
 					&& this.extendedInformation.equals(rhs.extendedInformation);
 		}
@@ -71,7 +70,7 @@ public class DefaultToken implements Token {
 	public int hashCode() {
 		int code = 979;
 		code = code * this.key.hashCode();
-		code = code * new Long(this.keyCreationTime).hashCode();
+		code = code * Long.valueOf(this.keyCreationTime).hashCode();
 		code = code * this.extendedInformation.hashCode();
 		return code;
 	}

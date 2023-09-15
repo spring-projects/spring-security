@@ -27,6 +27,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.context.SecurityContextHolderStrategy;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
 
 /**
@@ -53,6 +55,8 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 
 	private boolean clearAuthentication = true;
 
+	private SecurityContextRepository securityContextRepository = new HttpSessionSecurityContextRepository();
+
 	/**
 	 * Requires the request to be passed in.
 	 * @param request from which to obtain a HTTP session (cannot be null)
@@ -76,6 +80,8 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 		if (this.clearAuthentication) {
 			context.setAuthentication(null);
 		}
+		SecurityContext emptyContext = this.securityContextHolderStrategy.createEmptyContext();
+		this.securityContextRepository.saveContext(emptyContext, request, response);
 	}
 
 	public boolean isInvalidateHttpSession() {
@@ -112,6 +118,16 @@ public class SecurityContextLogoutHandler implements LogoutHandler {
 	 */
 	public void setClearAuthentication(boolean clearAuthentication) {
 		this.clearAuthentication = clearAuthentication;
+	}
+
+	/**
+	 * Sets the {@link SecurityContextRepository} to use. Default is
+	 * {@link HttpSessionSecurityContextRepository}.
+	 * @param securityContextRepository the {@link SecurityContextRepository} to use.
+	 */
+	public void setSecurityContextRepository(SecurityContextRepository securityContextRepository) {
+		Assert.notNull(securityContextRepository, "securityContextRepository cannot be null");
+		this.securityContextRepository = securityContextRepository;
 	}
 
 }

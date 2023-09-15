@@ -11,8 +11,10 @@ You can parse an asserting party's metadata xref:servlet/saml2/login/overview.ad
 When using the OpenSAML vendor support, the resulting `AssertingPartyDetails` will be of type `OpenSamlAssertingPartyDetails`.
 This means you'll be able to do get the underlying OpenSAML XMLObject by doing the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
@@ -20,22 +22,25 @@ OpenSamlAssertingPartyDetails details = (OpenSamlAssertingPartyDetails)
 EntityDescriptor openSamlEntityDescriptor = details.getEntityDescriptor();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val details: OpenSamlAssertingPartyDetails =
         registration.getAssertingPartyDetails() as OpenSamlAssertingPartyDetails;
 val openSamlEntityDescriptor: EntityDescriptor = details.getEntityDescriptor();
 ----
-====
+======
 
 [[publishing-relying-party-metadata]]
 == Producing `<saml2:SPSSODescriptor>` Metadata
 
 You can publish a metadata endpoint using the `saml2Metadata` DSL method, as you'll see below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 http
@@ -44,7 +49,8 @@ http
     .saml2Metadata(withDefaults());
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 http {
@@ -53,7 +59,7 @@ http {
     saml2Metadata { }
 }
 ----
-====
+======
 
 You can use this metadata endpoint to register your relying party with your asserting party.
 This is often as simple as finding the correct form field to supply the metadata endpoint.
@@ -62,28 +68,33 @@ By default, the metadata endpoint is `+/saml2/metadata+`, though it also respond
 
 You can change this by calling the `metadataUrl` method in the DSL:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 .saml2Metadata((saml2) -> saml2.metadataUrl("/saml/metadata"))
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 saml2Metadata {
 	metadataUrl = "/saml/metadata"
 }
 ----
-====
+======
 
 == Changing the Way a `RelyingPartyRegistration` Is Looked Up
 
 If you have a different strategy for identifying which `RelyingPartyRegistration` to use, you can configure your own `Saml2MetadataResponseResolver` like the one below:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -95,7 +106,8 @@ Saml2MetadataResponseResolver metadataResponseResolver(RelyingPartyRegistrationR
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -106,4 +118,4 @@ fun metadataResponseResolver(val registrations: RelyingPartyRegistrationReposito
 	return metadata
 }
 ----
-====
+======

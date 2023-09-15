@@ -1,5 +1,10 @@
 [[new]]
-= What's New in Spring Security 6.1
+= What's New in Spring Security 6.2
 
-Spring Security 6.1 provides a number of new features.
+Spring Security 6.2 provides a number of new features.
 Below are the highlights of the release.
+
+== Configuration
+
+* https://github.com/spring-projects/spring-security/issues/5011[gh-5011] - xref:servlet/integrations/cors.adoc[(docs)] Automatically enable `.cors()` if `CorsConfigurationSource` bean is present
+* https://github.com/spring-projects/spring-security/issues/13204[gh-13204] - xref:migration-7/configuration.adoc#_use_with_instead_of_apply_for_custom_dsls[(docs)] Add `AbstractConfiguredSecurityBuilder.with(...)` method to apply configurers returning the builder

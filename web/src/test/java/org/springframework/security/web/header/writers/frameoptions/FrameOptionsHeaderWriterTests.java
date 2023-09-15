@@ -72,7 +72,7 @@ public class FrameOptionsHeaderWriterTests {
 	public void writeHeadersAllowFromReturnsNull() {
 		this.writer = new XFrameOptionsHeaderWriter(this.strategy);
 		this.writer.writeHeaders(this.request, this.response);
-		assertThat(this.response.getHeaderNames().isEmpty()).isTrue();
+		assertThat(this.response.getHeaderNames()).isEmpty();
 	}
 
 	@Test

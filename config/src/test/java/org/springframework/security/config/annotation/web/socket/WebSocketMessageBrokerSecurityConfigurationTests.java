@@ -371,8 +371,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 	private void assertHandshake(HttpServletRequest request) {
 		TestHandshakeHandler handshakeHandler = this.context.getBean(TestHandshakeHandler.class);
 		assertThatCsrfToken(handshakeHandler.attributes.get(CsrfToken.class.getName())).isEqualTo(this.token);
-		assertThat(handshakeHandler.attributes.get(this.sessionAttr))
-				.isEqualTo(request.getSession().getAttribute(this.sessionAttr));
+		assertThat(handshakeHandler.attributes).containsEntry(this.sessionAttr,
+				request.getSession().getAttribute(this.sessionAttr));
 	}
 
 	private HttpRequestHandler handler(HttpServletRequest request) throws Exception {
@@ -627,9 +627,8 @@ public class WebSocketMessageBrokerSecurityConfigurationTests {
 		public boolean doHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
 				Map<String, Object> attributes) throws HandshakeFailureException {
 			this.attributes = attributes;
-			if (wsHandler instanceof SockJsWebSocketHandler) {
+			if (wsHandler instanceof SockJsWebSocketHandler sockJs) {
 				// work around SPR-12716
-				SockJsWebSocketHandler sockJs = (SockJsWebSocketHandler) wsHandler;
 				WebSocketServerSockJsSession session = (WebSocketServerSockJsSession) ReflectionTestUtils
 						.getField(sockJs, "sockJsSession");
 				this.attributes = session.getAttributes();

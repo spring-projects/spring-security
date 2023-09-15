@@ -68,7 +68,7 @@ Discover more commands with `./gradlew tasks`.
 
 == Getting Support
 Check out the https://stackoverflow.com/questions/tagged/spring-security[Spring Security tags on Stack Overflow].
-https://spring.io/services[Commercial support] is available too.
+https://spring.io/support[Commercial support] is available too.
 
 == Contributing
 https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request[Pull requests] are welcome; see the https://github.com/spring-projects/spring-security/blob/main/CONTRIBUTING.adoc[contributor guidelines] for details.

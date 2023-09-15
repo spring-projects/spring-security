@@ -65,7 +65,7 @@ public class XsdDocumentedTests {
 
 	String schema31xDocumentLocation = "org/springframework/security/config/spring-security-3.1.xsd";
 
-	String schemaDocumentLocation = "org/springframework/security/config/spring-security-6.1.xsd";
+	String schemaDocumentLocation = "org/springframework/security/config/spring-security-6.2.xsd";
 
 	XmlSupport xml = new XmlSupport();
 
@@ -151,7 +151,7 @@ public class XsdDocumentedTests {
 				.list((dir, name) -> name.endsWith(".xsd"));
 		// @formatter:on
 		assertThat(schemas.length)
-				.withFailMessage("the count is equal to 22, if not then schemaDocument needs updating").isEqualTo(22);
+				.withFailMessage("the count is equal to 24, if not then schemaDocument needs updating").isEqualTo(24);
 	}
 
 	/**

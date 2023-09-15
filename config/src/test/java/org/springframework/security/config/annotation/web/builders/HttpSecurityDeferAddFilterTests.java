@@ -48,7 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @ExtendWith(SpringTestContextExtension.class)
-public class HttpSecurityDeferAddFilterTest {
+public class HttpSecurityDeferAddFilterTests {
 
 	public final SpringTestContext spring = new SpringTestContext(this);
 

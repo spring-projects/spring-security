@@ -234,7 +234,7 @@ public class OidcUserServiceTests {
 				.loadUser(new OidcUserRequest(clientRegistration, this.accessToken, this.idToken));
 		assertThat(user.getIdToken()).isNotNull();
 		assertThat(user.getUserInfo()).isNotNull();
-		assertThat(user.getUserInfo().getClaims().size()).isEqualTo(6);
+		assertThat(user.getUserInfo().getClaims()).hasSize(6);
 		assertThat(user.getIdToken()).isEqualTo(this.idToken);
 		assertThat(user.getName()).isEqualTo("subject1");
 		assertThat(user.getUserInfo().getSubject()).isEqualTo("subject1");
@@ -243,7 +243,7 @@ public class OidcUserServiceTests {
 		assertThat(user.getUserInfo().getFamilyName()).isEqualTo("last");
 		assertThat(user.getUserInfo().getPreferredUsername()).isEqualTo("user1");
 		assertThat(user.getUserInfo().getEmail()).isEqualTo("user1@example.com");
-		assertThat(user.getAuthorities().size()).isEqualTo(3);
+		assertThat(user.getAuthorities()).hasSize(3);
 		assertThat(user.getAuthorities().iterator().next()).isInstanceOf(OidcUserAuthority.class);
 		OidcUserAuthority userAuthority = (OidcUserAuthority) user.getAuthorities().iterator().next();
 		assertThat(userAuthority.getAuthority()).isEqualTo("OIDC_USER");

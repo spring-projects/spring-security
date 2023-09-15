@@ -34,6 +34,14 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 			if (forceMavenRepositories?.contains('local')) {
 				mavenLocal()
 			}
+			maven {
+				name = 'shibboleth'
+				url = 'https://build.shibboleth.net/nexus/content/repositories/releases/'
+				content {
+					includeGroupByRegex('org\\.opensaml.*')
+					includeGroupByRegex('net\\.shibboleth.*')
+				}
+			}
 			mavenCentral()
 			if (isSnapshot) {
 				maven {
@@ -67,11 +75,10 @@ class RepositoryConventionPlugin implements Plugin<Project> {
 						password project.artifactoryPassword
 					}
 				}
+				content {
+					excludeGroup('net.minidev')
+				}
 				url = 'https://repo.spring.io/release/'
-			}
-			maven {
-				name = 'shibboleth'
-				url = 'https://build.shibboleth.net/nexus/content/repositories/releases/'
 			}
 		}
 	}

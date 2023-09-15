@@ -1,4 +1,4 @@
-=== SecurityMockMvcResultHandlers
+= SecurityMockMvcResultHandlers
 
 Spring Security provides a few ``ResultHandler``s implementations.
 In order to use Spring Security's ``ResultHandler``s implementations ensure the following static import is used:
@@ -8,7 +8,7 @@ In order to use Spring Security's ``ResultHandler``s implementations ensure the 
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultHandlers.*;
 ----
 
-==== Exporting the SecurityContext
+== Exporting the SecurityContext
 
 Often times we want to query a repository to see if some `MockMvc` request actually persisted in the database.
 In some cases our repository query uses the xref:features/integrations/data.adoc[Spring Data Integration] to filter the results based on current user's username or any other property.

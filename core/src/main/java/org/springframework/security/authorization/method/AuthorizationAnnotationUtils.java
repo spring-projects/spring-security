@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2021 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.springframework.security.authorization.method;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 
 import org.springframework.core.annotation.AnnotationConfigurationException;
@@ -96,6 +97,10 @@ final class AuthorizationAnnotationUtils {
 			Class<A> annotationType) {
 		boolean alreadyFound = false;
 		for (MergedAnnotation<Annotation> mergedAnnotation : mergedAnnotations) {
+			if (isSynthetic(mergedAnnotation.getSource())) {
+				continue;
+			}
+
 			if (mergedAnnotation.getType() == annotationType) {
 				if (alreadyFound) {
 					return true;
@@ -103,6 +108,14 @@ final class AuthorizationAnnotationUtils {
 				alreadyFound = true;
 			}
 		}
+		return false;
+	}
+
+	private static boolean isSynthetic(Object object) {
+		if (object instanceof Executable) {
+			return ((Executable) object).isSynthetic();
+		}
+
 		return false;
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,10 +119,10 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 		html.append("<!DOCTYPE html>\n");
 		html.append("<html>\n").append("    <head>\n");
 		html.append("        <meta http-equiv=\"Content-Security-Policy\" ")
-				.append("content=\"script-src 'sha256-t+jmhLjs1ocvgaHBJsFcgznRk68d37TLtbI3NE9h7EU='\">\n");
+				.append("content=\"script-src 'sha256-oZhLbc2kO8b8oaYLrUc7uye1MgVKMyLtPqWR4WtKF+c='\">\n");
 		html.append("        <meta charset=\"utf-8\" />\n");
 		html.append("    </head>\n");
-		html.append("    <body onload=\"document.forms[0].submit()\">\n");
+		html.append("    <body>\n");
 		html.append("        <noscript>\n");
 		html.append("            <p>\n");
 		html.append("                <strong>Note:</strong> Since your browser does not support JavaScript,\n");
@@ -150,8 +150,8 @@ public final class Saml2RelyingPartyInitiatedLogoutSuccessHandler implements Log
 		html.append("            </noscript>\n");
 		html.append("        </form>\n");
 		html.append("        \n");
+		html.append("        <script>window.onload = function() { document.forms[0].submit(); }</script>\n");
 		html.append("    </body>\n");
-		html.append("    <script>window.onload = () => document.forms[0].submit();</script>\n");
 		html.append("</html>");
 		return html.toString();
 	}

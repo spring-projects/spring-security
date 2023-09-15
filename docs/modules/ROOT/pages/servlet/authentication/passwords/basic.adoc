@@ -15,7 +15,7 @@ The preceding figure builds off our xref:servlet/architecture.adoc#servlet-secur
 
 image:{icondir}/number_1.png[] First, a user makes an unauthenticated request to the resource `/private` for which it is not authorized.
 
-image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-requests.adoc#servlet-authorization-filtersecurityinterceptor[`FilterSecurityInterceptor`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
+image:{icondir}/number_2.png[] Spring Security's xref:servlet/authorization/authorize-http-requests.adoc[`AuthorizationFilter`] indicates that the unauthenticated request is __Denied__ by throwing an `AccessDeniedException`.
 
 image:{icondir}/number_3.png[] Since the user is not authenticated, xref:servlet/architecture.adoc#servlet-exceptiontranslationfilter[`ExceptionTranslationFilter`] initiates __Start Authentication__.
 The configured xref:servlet/authentication/architecture.adoc#servlet-authentication-authenticationentrypoint[`AuthenticationEntryPoint`] is an instance of {security-api-url}org/springframework/security/web/authentication/www/BasicAuthenticationEntryPoint.html[`BasicAuthenticationEntryPoint`], which sends a WWW-Authenticate header.
@@ -60,9 +60,11 @@ However, as soon as any servlet based configuration is provided, HTTP Basic must
 The following example shows a minimal, explicit configuration:
 
 .Explicit HTTP Basic Configuration
-====
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
-.Java
 ----
 @Bean
 public SecurityFilterChain filterChain(HttpSecurity http) {
@@ -73,8 +75,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 }
 ----
 
+XML::
++
 [source,xml,role="secondary"]
-.XML
 ----
 <http>
 	<!-- ... -->
@@ -82,8 +85,9 @@ public SecurityFilterChain filterChain(HttpSecurity http) {
 </http>
 ----
 
+Kotlin::
++
 [source,kotlin,role="secondary"]
-.Kotlin
 ----
 @Bean
 open fun filterChain(http: HttpSecurity): SecurityFilterChain {
@@ -94,4 +98,4 @@ open fun filterChain(http: HttpSecurity): SecurityFilterChain {
 	return http.build()
 }
 ----
-====
+======

@@ -23,7 +23,7 @@
 	<b:import resource="classpath:org/springframework/security/config/websocket/websocket.xml"/>
 
 	<b:bean name="authorizationManager" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager"/>
+		<b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager" type="java.lang.Class"/>
 	</b:bean>
 
 	<websocket-message-broker authorization-manager-ref="authorizationManager"/>

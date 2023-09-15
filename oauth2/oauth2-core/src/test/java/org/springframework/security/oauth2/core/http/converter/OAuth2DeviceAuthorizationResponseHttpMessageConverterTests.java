@@ -44,7 +44,7 @@ import static org.mockito.Mockito.mock;
  *
  * @author Steve Riesenberg
  */
-public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTest {
+public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTests {
 
 	private OAuth2DeviceAuthorizationResponseHttpMessageConverter messageConverter;
 
@@ -176,7 +176,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverterTest {
 		assertThat(authorizationResponse).contains("\"verification_uri\":\"https://example.com/device\"");
 		assertThat(authorizationResponse)
 				.contains("\"verification_uri_complete\":\"https://example.com/device?user_code=WDJB-MJHT\"");
-		assertThat(authorizationResponse).contains("\"expires_in\":");
+		assertThat(authorizationResponse).contains("\"expires_in\":1800");
 		assertThat(authorizationResponse).contains("\"interval\":5");
 		assertThat(authorizationResponse).contains("\"custom_parameter_1\":\"custom-value-1\"");
 		assertThat(authorizationResponse).contains("\"custom_parameter_2\":\"custom-value-2\"");

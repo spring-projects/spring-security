@@ -17,8 +17,10 @@ When an `ObservationRegistry` bean is present, Spring Security creates traces fo
 
 For example, consider a simple Boot application:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootApplication
@@ -45,7 +47,8 @@ public class MyApplication {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @SpringBootApplication
@@ -72,20 +75,17 @@ class MyApplication {
 	}
 }
 ----
-====
+======
 
 And a corresponding request:
 
-====
 [source,bash]
 ----
 ?> http -a user:password :8080
 ----
-====
 
 Will produce the following output (indentation added for clarity):
 
-====
 [source,bash]
 ----
 START - name='http.server.requests', contextualName='null', error='null', lowCardinalityKeyValues=[], highCardinalityKeyValues=[], map=[class io.micrometer.tracing.handler.TracingObservationHandler$TracingContext='io.micrometer.tracing.handler.TracingObservationHandler$TracingContext@5dfdb78', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.00191856, duration(nanos)=1918560.0, startTimeNanos=101177265022745}', class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@121549e0']
@@ -101,15 +101,16 @@ START - name='http.server.requests', contextualName='null', error='null', lowCar
 	STOP - name='spring.security.http.chains', contextualName='spring.security.http.chains.after', error='null', lowCardinalityKeyValues=[chain.size='14', filter.section='after'], highCardinalityKeyValues=[request.line='/'], map=[class io.micrometer.tracing.handler.TracingObservationHandler$TracingContext='io.micrometer.tracing.handler.TracingObservationHandler$TracingContext@40b25623', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.001693146, duration(nanos)=1693146.0, startTimeNanos=101178044824275}', class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@3b6cec2']
 STOP - name='http.server.requests', contextualName='null', error='null', lowCardinalityKeyValues=[], highCardinalityKeyValues=[], map=[class io.micrometer.tracing.handler.TracingObservationHandler$TracingContext='io.micrometer.tracing.handler.TracingObservationHandler$TracingContext@5dfdb78', class io.micrometer.core.instrument.LongTaskTimer$Sample='SampleImpl{duration(seconds)=0.784320641, duration(nanos)=7.84320641E8, startTimeNanos=101177265022745}', class io.micrometer.core.instrument.Timer$Sample='io.micrometer.core.instrument.Timer$Sample@121549e0']
 ----
-====
 
 [[webflux-observability-tracing-manual-configuration]]
 === Manual Configuration
 
 For a non-Spring Boot application, or to override the existing Boot configuration, you can publish your own `ObservationRegistry` and Spring Security will still pick it up.
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @SpringBootApplication
@@ -138,7 +139,8 @@ public class MyApplication {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @SpringBootApplication
@@ -167,7 +169,8 @@ class MyApplication {
 }
 ----
 
-.Xml
+Xml::
++
 [source,kotlin,role="secondary"]
 ----
 <sec:http auto-config="true" observation-registry-ref="ref">
@@ -176,7 +179,7 @@ class MyApplication {
 
 <!-- define and configure ObservationRegistry bean -->
 ----
-====
+======
 
 [[webflux-observability-tracing-disable]]
 === Disabling Observability
@@ -186,8 +189,10 @@ However, this may turn off observations for more than just Spring Security.
 
 Instead, you can alter the provided `ObservationRegistry` with an `ObservationPredicate` like the following:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -197,7 +202,8 @@ ObservationRegistryCustomizer<ObservationRegistry> noSpringSecurityObservations(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -206,7 +212,7 @@ fun noSpringSecurityObservations(): ObservationRegistryCustomizer<ObservationReg
 	(registry: ObservationRegistry) -> registry.observationConfig().observationPredicate(predicate)
 }
 ----
-====
+======
 
 [TIP]
 There is no facility for disabling observations with XML support.

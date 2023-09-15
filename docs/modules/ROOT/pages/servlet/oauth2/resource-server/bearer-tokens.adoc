@@ -12,8 +12,10 @@ For example, you may have a need to read the bearer token from a custom header.
 To achieve this, you can expose a `DefaultBearerTokenResolver` as a bean, or wire an instance into the DSL, as you can see in the following example:
 
 .Custom Bearer Token Header
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -24,7 +26,8 @@ BearerTokenResolver bearerTokenResolver() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -35,7 +38,8 @@ fun bearerTokenResolver(): BearerTokenResolver {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -47,7 +51,7 @@ fun bearerTokenResolver(): BearerTokenResolver {
     <property name="bearerTokenHeaderName" value="Proxy-Authorization"/>
 </bean>
 ----
-====
+======
 
 Or, in circumstances where a provider is using both a custom header and value, you can use `HeaderBearerTokenResolver` instead.
 
@@ -56,8 +60,10 @@ Or, in circumstances where a provider is using both a custom header and value, y
 Or, you may wish to read the token from a form parameter, which you can do by configuring the `DefaultBearerTokenResolver`, as you can see below:
 
 .Form Parameter Bearer Token
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 DefaultBearerTokenResolver resolver = new DefaultBearerTokenResolver();
@@ -68,7 +74,8 @@ http
     );
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val resolver = DefaultBearerTokenResolver()
@@ -80,7 +87,8 @@ http {
 }
 ----
 
-.Xml
+Xml::
++
 [source,xml,role="secondary"]
 ----
 <http>
@@ -92,15 +100,17 @@ http {
     <property name="allowFormEncodedBodyParameter" value="true"/>
 </bean>
 ----
-====
+======
 
 == Bearer Token Propagation
 
 Now that your resource server has validated the token, it might be handy to pass it to downstream services.
 This is quite simple with `{security-api-url}org/springframework/security/oauth2/server/resource/web/reactive/function/client/ServletBearerExchangeFilterFunction.html[ServletBearerExchangeFilterFunction]`, which you can see in the following example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -111,7 +121,8 @@ public WebClient rest() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -121,15 +132,17 @@ fun rest(): WebClient {
             .build()
 }
 ----
-====
+======
 
 When the above `WebClient` is used to perform requests, Spring Security will look up the current `Authentication` and extract any `{security-api-url}org/springframework/security/oauth2/core/AbstractOAuth2Token.html[AbstractOAuth2Token]` credential.
 Then, it will propagate that token in the `Authorization` header.
 
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -139,7 +152,8 @@ this.rest.get()
         .block()
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 this.rest.get()
@@ -148,14 +162,16 @@ this.rest.get()
         .bodyToMono<String>()
         .block()
 ----
-====
+======
 
 Will invoke the `https://other-service.example.com/endpoint`, adding the bearer token `Authorization` header for you.
 
 In places where you need to override this behavior, it's a simple matter of supplying the header yourself, like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 this.rest.get()
@@ -166,7 +182,8 @@ this.rest.get()
         .block()
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 this.rest.get()
@@ -176,7 +193,7 @@ this.rest.get()
         .bodyToMono<String>()
         .block()
 ----
-====
+======
 
 In this case, the filter will fall back and simply forward the request onto the rest of the web filter chain.
 
@@ -188,8 +205,10 @@ To obtain this level of support, please use the OAuth 2.0 Client filter.
 
 There is no `RestTemplate` equivalent for `ServletBearerExchangeFilterFunction` at the moment, but you can propagate the request's bearer token quite simply with your own interceptor:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -213,7 +232,8 @@ RestTemplate rest() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -221,22 +241,21 @@ fun rest(): RestTemplate {
     val rest = RestTemplate()
     rest.interceptors.add(ClientHttpRequestInterceptor { request, body, execution ->
         val authentication: Authentication? = SecurityContextHolder.getContext().authentication
-        if (authentication != null) {
-            execution.execute(request, body)
+        if (authentication == null) {
+            return execution.execute(request, body)
         }
 
-        if (authentication!!.credentials !is AbstractOAuth2Token) {
-            execution.execute(request, body)
+        if (authentication.credentials !is AbstractOAuth2Token) {
+            return execution.execute(request, body)
         }
 
-        val token: AbstractOAuth2Token = authentication.credentials as AbstractOAuth2Token
-        request.headers.setBearerAuth(token.tokenValue)
+        request.headers.setBearerAuth(authentication.credentials.tokenValue)
         execution.execute(request, body)
     })
     return rest
 }
 ----
-====
+======
 
 
 [NOTE]
@@ -259,8 +278,10 @@ WWW-Authenticate: Bearer error_code="invalid_token", error_description="Unsuppor
 
 Additionally, it is published as an `AuthenticationFailureBadCredentialsEvent`, which you can xref:servlet/authentication/events.adoc#servlet-events[listen for in your application] like so:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Component
@@ -274,7 +295,8 @@ public class FailureEvents {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Component
@@ -287,4 +309,4 @@ class FailureEvents {
     }
 }
 ----
-====
+======

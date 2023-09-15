@@ -29,8 +29,8 @@
 	</http>
 
 	<b:bean id="ref" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager"/>
-	</b:bean>
+    <b:constructor-arg value="org.springframework.security.authorization.AuthorizationManager" type="java.lang.Class"/>
+</b:bean>
 
 	<b:import resource="userservice.xml"/>
 </b:beans>

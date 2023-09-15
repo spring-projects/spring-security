@@ -8,12 +8,10 @@ This section describes the OAuth2 core interfaces and classes that Spring Securi
 
 `ClientRegistration` is a representation of a client registered with an OAuth 2.0 or OpenID Connect 1.0 Provider.
 
-A client registration holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
 A `ClientRegistration` object holds information, such as client id, client secret, authorization grant type, redirect URI, scope(s), authorization URI, token URI, and other details.
 
 `ClientRegistration` and its properties are defined as follows:
 
-====
 [source,java]
 ----
 public final class ClientRegistration {
@@ -67,26 +65,28 @@ This information is available only if the Spring Boot 2.x property `spring.secur
 <15> `(userInfoEndpoint)authenticationMethod`: The authentication method used when sending the access token to the UserInfo Endpoint.
 The supported values are *header*, *form*, and *query*.
 <16> `userNameAttributeName`: The name of the attribute returned in the UserInfo Response that references the Name or Identifier of the end-user.
-====
 
 You can initially configure a `ClientRegistration` by using discovery of an OpenID Connect Provider's https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfig[Configuration endpoint] or an Authorization Server's https://tools.ietf.org/html/rfc8414#section-3[Metadata endpoint].
 
 `ClientRegistrations` provides convenience methods for configuring a `ClientRegistration` in this way, as follows:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 ClientRegistration clientRegistration =
     ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build();
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 val clientRegistration = ClientRegistrations.fromIssuerLocation("https://idp.example.com/issuer").build()
 ----
-====
+======
 
 The preceding code queries, in series, `https://idp.example.com/issuer/.well-known/openid-configuration`, `https://idp.example.com/.well-known/openid-configuration/issuer`, and `https://idp.example.com/.well-known/oauth-authorization-server/issuer`, stopping at the first to return a 200 response.
 
@@ -114,8 +114,10 @@ The auto-configuration also registers the `ClientRegistrationRepository` as a `@
 
 The following listing shows an example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -136,7 +138,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -156,7 +159,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [[oauth2Client-authorized-client]]
 == OAuth2AuthorizedClient
@@ -176,8 +179,10 @@ From a developer perspective, the `OAuth2AuthorizedClientRepository` or `OAuth2A
 
 The following listing shows an example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Controller
@@ -200,7 +205,8 @@ public class OAuth2ClientController {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Controller
@@ -221,7 +227,7 @@ class OAuth2ClientController {
     }
 }
 ----
-====
+======
 
 [NOTE]
 ====
@@ -259,8 +265,10 @@ You can use `OAuth2AuthorizedClientProviderBuilder` to configure and build the d
 
 The following code shows an example of how to configure and build an `OAuth2AuthorizedClientProvider` composite that provides support for the `authorization_code`, `refresh_token`, `client_credentials`, and `password` authorization grant types:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -285,7 +293,8 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -304,7 +313,7 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======
 
 When an authorization attempt succeeds, the `DefaultOAuth2AuthorizedClientManager` delegates to the `OAuth2AuthorizationSuccessHandler`, which (by default) saves the `OAuth2AuthorizedClient` through the `OAuth2AuthorizedClientRepository`.
 In the case of a re-authorization failure (for example, a refresh token is no longer valid), the previously saved `OAuth2AuthorizedClient` is removed from the `OAuth2AuthorizedClientRepository` through the `RemoveAuthorizedClientOAuth2AuthorizationFailureHandler`.
@@ -315,8 +324,10 @@ This can be useful when you need to supply an `OAuth2AuthorizedClientProvider` w
 
 The following code shows an example of the `contextAttributesMapper`:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -360,7 +371,8 @@ private Function<OAuth2AuthorizeRequest, Map<String, Object>> contextAttributesM
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -398,7 +410,7 @@ private fun contextAttributesMapper(): Function<OAuth2AuthorizeRequest, MutableM
     }
 }
 ----
-====
+======
 
 The `DefaultOAuth2AuthorizedClientManager` is designed to be used _within_ the context of a `HttpServletRequest`.
 When operating _outside_ of a `HttpServletRequest` context, use `AuthorizedClientServiceOAuth2AuthorizedClientManager` instead.
@@ -409,8 +421,10 @@ An OAuth 2.0 Client configured with the `client_credentials` grant type can be c
 
 The following code shows an example of how to configure an `AuthorizedClientServiceOAuth2AuthorizedClientManager` that provides support for the `client_credentials` grant type:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -432,7 +446,8 @@ public OAuth2AuthorizedClientManager authorizedClientManager(
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -448,4 +463,4 @@ fun authorizedClientManager(
     return authorizedClientManager
 }
 ----
-====
+======

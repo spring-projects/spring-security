@@ -10,8 +10,10 @@ It is not only useful but necessary to include the user in the queries to suppor
 To use this support, add `org.springframework.security:spring-security-data` dependency and provide a bean of type `SecurityEvaluationContextExtension`.
 In Java Configuration, this would look like:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Bean
@@ -20,7 +22,8 @@ public SecurityEvaluationContextExtension securityEvaluationContextExtension() {
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Bean
@@ -28,7 +31,7 @@ fun securityEvaluationContextExtension(): SecurityEvaluationContextExtension {
     return SecurityEvaluationContextExtension()
 }
 ----
-====
+======
 
 In XML Configuration, this would look like:
 
@@ -43,8 +46,10 @@ In XML Configuration, this would look like:
 Now Spring Security can be used within your queries.
 For example:
 
-====
-.Java
+[tabs]
+======
+Java::
++
 [source,java,role="primary"]
 ----
 @Repository
@@ -54,7 +59,8 @@ public interface MessageRepository extends PagingAndSortingRepository<Message,Lo
 }
 ----
 
-.Kotlin
+Kotlin::
++
 [source,kotlin,role="secondary"]
 ----
 @Repository
@@ -63,8 +69,8 @@ interface MessageRepository : PagingAndSortingRepository<Message?, Long?> {
     fun findInbox(pageable: Pageable?): Page<Message?>?
 }
 ----
-====
+======
 
 This checks to see if the `Authentication.getPrincipal().getId()` is equal to the recipient of the `Message`.
 Note that this example assumes you have customized the principal to be an Object that has an id property.
-By exposing the `SecurityEvaluationContextExtension` bean, all of the xref:servlet/authorization/expression-based.adoc#common-expressions[Common Security Expressions] are available within the Query.
+By exposing the `SecurityEvaluationContextExtension` bean, all of the xref:servlet/authorization/method-security.adoc#authorization-expressions[Common Security Expressions] are available within the Query.

@@ -30,8 +30,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.web.MockFilterChain;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import org.springframework.mock.web.MockServletContext;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.MockServletContext;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.PasswordEncodedUser;
@@ -167,7 +167,7 @@ public class UrlAuthorizationConfigurerTests {
 	public void loadConfig(Class<?>... configs) {
 		this.context = new AnnotationConfigWebApplicationContext();
 		this.context.register(configs);
-		this.context.setServletContext(new MockServletContext());
+		this.context.setServletContext(MockServletContext.mvc());
 		this.context.refresh();
 		this.context.getAutowireCapableBeanFactory().autowireBean(this);
 	}

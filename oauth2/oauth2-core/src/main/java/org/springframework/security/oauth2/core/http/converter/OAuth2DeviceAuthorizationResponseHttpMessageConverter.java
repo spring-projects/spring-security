@@ -56,7 +56,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	private static final ParameterizedTypeReference<Map<String, Object>> STRING_OBJECT_MAP = new ParameterizedTypeReference<>() {
 	};
 
-	private final GenericHttpMessageConverter<Object> jsonMessageConvereter = HttpMessageConverters
+	private final GenericHttpMessageConverter<Object> jsonMessageConverter = HttpMessageConverters
 			.getJsonMessageConverter();
 
 	private Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> deviceAuthorizationResponseConverter = new DefaultMapOAuth2DeviceAuthorizationResponseConverter();
@@ -74,7 +74,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 			HttpInputMessage inputMessage) throws HttpMessageNotReadableException {
 
 		try {
-			Map<String, Object> deviceAuthorizationResponseParameters = (Map<String, Object>) this.jsonMessageConvereter
+			Map<String, Object> deviceAuthorizationResponseParameters = (Map<String, Object>) this.jsonMessageConverter
 					.read(STRING_OBJECT_MAP.getType(), null, inputMessage);
 			return this.deviceAuthorizationResponseConverter.convert(deviceAuthorizationResponseParameters);
 		}
@@ -90,9 +90,9 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 			HttpOutputMessage outputMessage) throws HttpMessageNotWritableException {
 
 		try {
-			Map<String, Object> deviceauthorizationResponseParameters = this.deviceAuthorizationResponseParametersConverter
+			Map<String, Object> deviceAuthorizationResponseParameters = this.deviceAuthorizationResponseParametersConverter
 					.convert(deviceAuthorizationResponse);
-			this.jsonMessageConvereter.write(deviceauthorizationResponseParameters, STRING_OBJECT_MAP.getType(),
+			this.jsonMessageConverter.write(deviceAuthorizationResponseParameters, STRING_OBJECT_MAP.getType(),
 					MediaType.APPLICATION_JSON, outputMessage);
 		}
 		catch (Exception ex) {
@@ -107,7 +107,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	 * @param deviceAuthorizationResponseConverter the {@link Converter} used for
 	 * converting to an {@link OAuth2DeviceAuthorizationResponse}
 	 */
-	public void setDeviceAuthorizationResponseConverter(
+	public final void setDeviceAuthorizationResponseConverter(
 			Converter<Map<String, Object>, OAuth2DeviceAuthorizationResponse> deviceAuthorizationResponseConverter) {
 		Assert.notNull(deviceAuthorizationResponseConverter, "deviceAuthorizationResponseConverter cannot be null");
 		this.deviceAuthorizationResponseConverter = deviceAuthorizationResponseConverter;
@@ -121,7 +121,7 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 	 * for converting to a {@code Map} representation of the Device Authorization Response
 	 * parameters
 	 */
-	public void setDeviceAuthorizationResponseParametersConverter(
+	public final void setDeviceAuthorizationResponseParametersConverter(
 			Converter<OAuth2DeviceAuthorizationResponse, Map<String, Object>> deviceAuthorizationResponseParametersConverter) {
 		Assert.notNull(deviceAuthorizationResponseParametersConverter,
 				"deviceAuthorizationResponseParametersConverter cannot be null");
@@ -167,11 +167,10 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 			return (obj != null) ? obj.toString() : null;
 		}
 
-		private static long getParameterValue(Map<String, Object> tokenResponseParameters, String parameterName,
-				long defaultValue) {
+		private static long getParameterValue(Map<String, Object> parameters, String parameterName, long defaultValue) {
 			long parameterValue = defaultValue;
 
-			Object obj = tokenResponseParameters.get(parameterName);
+			Object obj = parameters.get(parameterName);
 			if (obj != null) {
 				// Final classes Long and Integer do not need to be coerced
 				if (obj.getClass() == Long.class) {
@@ -221,8 +220,9 @@ public class OAuth2DeviceAuthorizationResponseHttpMessageConverter
 
 		private static long getExpiresIn(OAuth2DeviceAuthorizationResponse deviceAuthorizationResponse) {
 			if (deviceAuthorizationResponse.getDeviceCode().getExpiresAt() != null) {
-				return ChronoUnit.SECONDS.between(Instant.now(),
-						deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
+				Instant issuedAt = (deviceAuthorizationResponse.getDeviceCode().getIssuedAt() != null)
+						? deviceAuthorizationResponse.getDeviceCode().getIssuedAt() : Instant.now();
+				return ChronoUnit.SECONDS.between(issuedAt, deviceAuthorizationResponse.getDeviceCode().getExpiresAt());
 			}
 			return -1;
 		}

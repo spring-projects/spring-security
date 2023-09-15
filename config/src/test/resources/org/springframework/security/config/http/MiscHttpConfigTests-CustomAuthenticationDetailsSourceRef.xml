@@ -32,7 +32,7 @@
 	</http>
 
 	<b:bean name="authenticationDetailsSource" class="org.mockito.Mockito" factory-method="mock">
-		<b:constructor-arg value="org.springframework.security.authentication.AuthenticationDetailsSource"/>
+		<b:constructor-arg value="org.springframework.security.authentication.AuthenticationDetailsSource" type="java.lang.Class"/>
 	</b:bean>
 
 	<b:import resource="MiscHttpConfigTests-controllers.xml"/>

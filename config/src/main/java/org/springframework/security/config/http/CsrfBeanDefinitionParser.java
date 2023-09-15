@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ import org.springframework.security.web.csrf.CsrfAuthenticationStrategy;
 import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.security.web.csrf.CsrfLogoutHandler;
 import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
-import org.springframework.security.web.csrf.LazyCsrfTokenRepository;
 import org.springframework.security.web.csrf.MissingCsrfTokenException;
 import org.springframework.security.web.servlet.support.csrf.CsrfRequestDataValueProcessor;
 import org.springframework.security.web.session.InvalidSessionAccessDeniedHandler;
@@ -109,13 +108,12 @@ public class CsrfBeanDefinitionParser implements BeanDefinitionParser {
 			this.requestHandlerRef = element.getAttribute(ATT_REQUEST_HANDLER);
 		}
 		if (!StringUtils.hasText(this.csrfRepositoryRef)) {
-			RootBeanDefinition csrfTokenRepository = new RootBeanDefinition(HttpSessionCsrfTokenRepository.class);
-			BeanDefinitionBuilder lazyTokenRepository = BeanDefinitionBuilder
-					.rootBeanDefinition(LazyCsrfTokenRepository.class);
-			lazyTokenRepository.addConstructorArgValue(csrfTokenRepository);
-			this.csrfRepositoryRef = pc.getReaderContext().generateBeanName(lazyTokenRepository.getBeanDefinition());
-			pc.registerBeanComponent(
-					new BeanComponentDefinition(lazyTokenRepository.getBeanDefinition(), this.csrfRepositoryRef));
+			BeanDefinitionBuilder httpSessionCsrfTokenRepository = BeanDefinitionBuilder
+					.rootBeanDefinition(HttpSessionCsrfTokenRepository.class);
+			this.csrfRepositoryRef = pc.getReaderContext()
+					.generateBeanName(httpSessionCsrfTokenRepository.getBeanDefinition());
+			pc.registerBeanComponent(new BeanComponentDefinition(httpSessionCsrfTokenRepository.getBeanDefinition(),
+					this.csrfRepositoryRef));
 		}
 		BeanDefinitionBuilder builder = BeanDefinitionBuilder.rootBeanDefinition(CsrfFilter.class);
 		builder.addConstructorArgReference(this.csrfRepositoryRef);

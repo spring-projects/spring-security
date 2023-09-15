@@ -1,9 +1,10 @@
 package io.spring.gradle.convention
 
-import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.bundling.Zip
+import org.springframework.gradle.xsd.CreateVersionlessXsdTask
 
 public class SchemaZipPlugin implements Plugin<Project> {
 
@@ -15,7 +16,10 @@ public class SchemaZipPlugin implements Plugin<Project> {
 		schemaZip.archiveClassifier = 'schema'
 		schemaZip.description = "Builds -${schemaZip.archiveClassifier} archive containing all " +
 			"XSDs for deployment at static.springframework.org/schema."
-
+		def versionlessXsd = project.tasks.create("versionlessXsd", CreateVersionlessXsdTask) {
+			description = "Generates spring-security.xsd"
+			versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
+		}
 		project.rootProject.subprojects.each { module ->
 
 			module.getPlugins().withType(JavaPlugin.class).all {
@@ -36,8 +40,14 @@ public class SchemaZipPlugin implements Plugin<Project> {
 						duplicatesStrategy 'exclude'
 						from xsdFile.path
 					}
+					versionlessXsd.getInputFiles().from(xsdFile.path)
 				}
 			}
 		}
+
+        schemaZip.into("security") {
+            from(versionlessXsd.getOutputs())
+        }
+
 	}
 }

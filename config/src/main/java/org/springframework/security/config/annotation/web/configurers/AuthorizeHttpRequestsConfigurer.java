@@ -35,6 +35,7 @@ import org.springframework.security.authorization.SpringAuthorizationEventPublis
 import org.springframework.security.config.annotation.ObjectPostProcessor;
 import org.springframework.security.config.annotation.web.AbstractRequestMatcherRegistry;
 import org.springframework.security.config.annotation.web.HttpSecurityBuilder;
+import org.springframework.security.config.core.GrantedAuthorityDefaults;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
@@ -62,6 +63,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 
 	private final Supplier<RoleHierarchy> roleHierarchy;
 
+	private String rolePrefix = "ROLE_";
+
 	/**
 	 * Creates an instance.
 	 * @param context the {@link ApplicationContext} to use
@@ -76,6 +79,11 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		}
 		this.roleHierarchy = SingletonSupplier.of(() -> (context.getBeanNamesForType(RoleHierarchy.class).length > 0)
 				? context.getBean(RoleHierarchy.class) : new NullRoleHierarchy());
+		String[] grantedAuthorityDefaultsBeanNames = context.getBeanNamesForType(GrantedAuthorityDefaults.class);
+		if (grantedAuthorityDefaultsBeanNames.length > 0) {
+			GrantedAuthorityDefaults grantedAuthorityDefaults = context.getBean(GrantedAuthorityDefaults.class);
+			this.rolePrefix = grantedAuthorityDefaults.getRolePrefix();
+		}
 	}
 
 	/**
@@ -194,7 +202,25 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * @return the {@link AuthorizationManagerRequestMatcherRegistry} for further
 		 * customizations
 		 * @since 5.7
+		 * @deprecated Permit access to the {@link jakarta.servlet.DispatcherType}
+		 * instead. <pre>
+		 * &#064;Configuration
+		 * &#064;EnableWebSecurity
+		 * public class SecurityConfig {
+		 *
+		 * 	&#064;Bean
+		 * 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		 * 		http
+		 * 		 	.authorizeHttpRequests((authorize) -&gt; authorize
+		 * 				.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+		 * 			 	// ...
+		 * 		 	);
+		 * 		return http.build();
+		 * 	}
+		 * }
+		 * </pre>
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public AuthorizationManagerRequestMatcherRegistry shouldFilterAllDispatcherTypes(boolean shouldFilter) {
 			this.shouldFilterAllDispatcherTypes = shouldFilter;
 			return this;
@@ -204,7 +230,9 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * Return the {@link HttpSecurityBuilder} when done using the
 		 * {@link AuthorizeHttpRequestsConfigurer}. This is useful for method chaining.
 		 * @return the {@link HttpSecurityBuilder} for further customizations
+		 * @deprecated For removal in 7.0. Use the lambda based configuration instead.
 		 */
+		@Deprecated(since = "6.1", forRemoval = true)
 		public H and() {
 			return AuthorizeHttpRequestsConfigurer.this.and();
 		}
@@ -259,7 +287,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasRole(String role) {
-			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasRole(role)));
+			return access(withRoleHierarchy(AuthorityAuthorizationManager
+					.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, new String[] { role })));
 		}
 
 		/**
@@ -271,7 +300,8 @@ public final class AuthorizeHttpRequestsConfigurer<H extends HttpSecurityBuilder
 		 * customizations
 		 */
 		public AuthorizationManagerRequestMatcherRegistry hasAnyRole(String... roles) {
-			return access(withRoleHierarchy(AuthorityAuthorizationManager.hasAnyRole(roles)));
+			return access(withRoleHierarchy(
+					AuthorityAuthorizationManager.hasAnyRole(AuthorizeHttpRequestsConfigurer.this.rolePrefix, roles)));
 		}
 
 		/**

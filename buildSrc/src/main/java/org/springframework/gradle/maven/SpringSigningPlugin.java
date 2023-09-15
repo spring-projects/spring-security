@@ -21,7 +21,6 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.publish.Publication;
 import org.gradle.api.publish.PublishingExtension;
-import org.gradle.api.publish.plugins.PublishingPlugin;
 import org.gradle.plugins.signing.SigningExtension;
 import org.gradle.plugins.signing.SigningPlugin;
 
@@ -44,12 +43,7 @@ public class SpringSigningPlugin implements Plugin<Project> {
 
 	private void sign(Project project) {
 		SigningExtension signing = project.getExtensions().findByType(SigningExtension.class);
-		signing.setRequired(new Callable<Boolean>() {
-			@Override
-			public Boolean call() throws Exception {
-				return project.getGradle().getTaskGraph().hasTask("publishArtifacts");
-			}
-		});
+		signing.setRequired((Callable<Boolean>) () -> project.getGradle().getTaskGraph().hasTask("publishArtifacts"));
 		String signingKeyId = (String) project.findProperty("signingKeyId");
 		String signingKey = (String) project.findProperty("signingKey");
 		String signingPassword = (String) project.findProperty("signingPassword");

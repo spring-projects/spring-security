@@ -31,6 +31,8 @@ import org.springframework.security.config.test.SpringTestContextExtension;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.HeaderWriterFilter;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -50,7 +52,7 @@ public class HeadersConfigurerEagerHeadersTests {
 
 	@Test
 	public void requestWhenHeadersEagerlyConfiguredThenHeadersAreWritten() throws Exception {
-		this.spring.register(HeadersAtTheBeginningOfRequestConfig.class).autowire();
+		this.spring.register(HeadersAtTheBeginningOfRequestConfig.class, HomeController.class).autowire();
 		this.mvc.perform(get("/").secure(true)).andExpect(header().string("X-Content-Type-Options", "nosniff"))
 				.andExpect(header().string("X-Frame-Options", "DENY"))
 				.andExpect(header().string("Strict-Transport-Security", "max-age=31536000 ; includeSubDomains"))
@@ -78,6 +80,16 @@ public class HeadersConfigurerEagerHeadersTests {
 					});
 			return http.build();
 			// @formatter:on
+		}
+
+	}
+
+	@RestController
+	private static class HomeController {
+
+		@GetMapping("/")
+		String ok() {
+			return "ok";
 		}
 
 	}

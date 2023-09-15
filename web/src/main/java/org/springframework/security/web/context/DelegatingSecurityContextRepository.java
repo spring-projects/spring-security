@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,14 @@ public final class DelegatingSecurityContextRepository implements SecurityContex
 
 	@Override
 	public SecurityContext loadContext(HttpRequestResponseHolder requestResponseHolder) {
-		return loadDeferredContext(requestResponseHolder.getRequest()).get();
+		SecurityContext result = null;
+		for (SecurityContextRepository delegate : this.delegates) {
+			SecurityContext delegateResult = delegate.loadContext(requestResponseHolder);
+			if (result == null || delegate.containsContext(requestResponseHolder.getRequest())) {
+				result = delegateResult;
+			}
+		}
+		return result;
 	}
 
 	@Override

@@ -89,7 +89,7 @@ public class InMemoryConfigurationTests {
 	public void mappedNonnullDefault() {
 		InMemoryConfiguration configuration = new InMemoryConfiguration(this.mappedEntries, this.defaultEntries);
 		assertThat(this.defaultEntries).isEqualTo(configuration.getAppConfigurationEntry("missing"));
-		assertThat(this.mappedEntries.get("name")).isEqualTo(configuration.getAppConfigurationEntry("name"));
+		assertThat(this.mappedEntries).containsEntry("name", configuration.getAppConfigurationEntry("name"));
 	}
 
 	@Test

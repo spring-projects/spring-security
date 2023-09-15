@@ -10,12 +10,10 @@ You can use a namespace element to more concisely configure an individual bean o
 A simple element can conceal the fact that multiple beans and processing steps are being added to the application context.
 For example, adding the following element from the `security` namespace to an application context starts up an embedded LDAP server for testing use within the application:
 
-====
 [source,xml]
 ----
 <security:ldap-server />
 ----
-====
 
 This is much simpler than wiring up the equivalent Apache Directory Server beans.
 The most common alternative configuration requirements are supported by attributes on the `ldap-server` element, and the user is isolated from worrying about which beans they need to create and what the bean property names are.
@@ -26,7 +24,6 @@ We recommend that you try the https://spring.io/tools/sts[Spring Tool Suite], as
 To start using the `security` namespace in your application context, add the `spring-security-config` jar to your classpath.
 Then, all you need to do is add the schema declaration to your application context file:
 
-====
 [source,xml]
 ----
 <beans xmlns="http://www.springframework.org/schema/beans"
@@ -39,13 +36,11 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 	...
 </beans>
 ----
-====
 
 In many of the examples you can see (and in the sample applications), we often use `security` (rather than `beans`) as the default namespace, which means we can omit the prefix on all the security namespace elements, making the content easier to read.
 You may also want to do this if you have your application context divided up into separate files and have most of your security configuration in one of them.
 Your security application context file would then start like this:
 
-====
 [source,xml]
 ----
 <beans:beans xmlns="http://www.springframework.org/schema/security"
@@ -58,7 +53,6 @@ xsi:schemaLocation="http://www.springframework.org/schema/beans
 	...
 </beans:beans>
 ----
-====
 
 We assume this syntax is being used from now on in this chapter.
 
@@ -95,7 +89,6 @@ In later sections, we introduce more advanced namespace configuration options.
 === web.xml Configuration
 The first thing you need to do is add the following filter declaration to your `web.xml` file:
 
-====
 [source,xml]
 ----
 <filter>
@@ -108,7 +101,6 @@ The first thing you need to do is add the following filter declaration to your `
 <url-pattern>/*</url-pattern>
 </filter-mapping>
 ----
-====
 
 `DelegatingFilterProxy` is a Spring Framework class that delegates to a filter implementation that is defined as a Spring bean in your application context.
 In this case, the bean is named `springSecurityFilterChain`, which is an internal infrastructure bean created by the namespace to handle web security.
@@ -121,7 +113,6 @@ Web security services are configured by the `<http>` element.
 === A Minimal <http> Configuration
 To enable web security, you need the following configuration:
 
-====
 [source,xml]
 ----
 <http>
@@ -130,7 +121,6 @@ To enable web security, you need the following configuration:
 <logout />
 </http>
 ----
-====
 
 That listing says that we want:
 
@@ -147,7 +137,7 @@ The `ROLE_` prefix is a marker that indicates that a simple comparison with the 
 In other words, a normal role-based check should be used.
 Access-control in Spring Security is not limited to the use of simple roles (hence the use of the prefix to differentiate between different types of security attributes).
 We see later how the interpretation can vary. The interpretation of the comma-separated values in the `access` attribute depends on the which implementation of the <<ns-access-manager,`AccessDecisionManager`>> is used.
-Since Spring Security 3.0, you can also populate the attribute with an  xref:servlet/authorization/expression-based.adoc#el-access[EL expression].
+Since Spring Security 3.0, you can also populate the attribute with an  xref:servlet/authorization/authorize-http-requests.adoc#authorization-expressions[EL expression].
 
 
 [NOTE]
@@ -159,7 +149,6 @@ You can also add a `method` attribute to limit the match to a particular HTTP me
 
 To add users, you can define a set of test data directly in the namespace:
 
-====
 [source,xml,attrs="-attributes"]
 ----
 <authentication-manager>
@@ -174,12 +163,10 @@ To add users, you can define a set of test data directly in the namespace:
 </authentication-provider>
 </authentication-manager>
 ----
-====
 
 The preceding listing shows an example of a secure way to store the same passwords.
 The password is prefixed with `+{bcrypt}+` to instruct `DelegatingPasswordEncoder`, which supports any configured `PasswordEncoder` for matching, that the passwords are hashed using BCrypt:
 
-====
 [source,xml,attrs="-attributes"]
 ----
 <authentication-manager>
@@ -195,7 +182,6 @@ The password is prefixed with `+{bcrypt}+` to instruct `DelegatingPasswordEncode
 </authentication-provider>
 </authentication-manager>
 ----
-====
 
 
 [subs="quotes"]
@@ -225,7 +211,6 @@ This is the URL to which the user is taken after successfully logging in. it def
 You can also configure things so that the user _always_ ends up at this page (regardless of whether the login was "`on-demand`" or they explicitly chose to log in) by setting the `always-use-default-target` attribute to `true`.
 This is useful if your application always requires that the user starts at a "`home`" page, for example:
 
-====
 [source,xml]
 ----
 <http pattern="/login.htm*" security="none"/>
@@ -235,7 +220,6 @@ This is useful if your application always requires that the user starts at a "`h
 		always-use-default-target='true' />
 </http>
 ----
-====
 
 For even more control over the destination, you can use the `authentication-success-handler-ref` attribute as an alternative to `default-target-url`.
 The referenced bean should be an instance of `AuthenticationSuccessHandler`.
@@ -357,7 +341,6 @@ The filters, aliases, and namespace elements and attributes that create the filt
 
 You can add your own filter to the stack by using the `custom-filter` element and one of these names to specify the position at which your filter should appear:
 
-====
 [source,xml]
 ----
 <http>
@@ -366,7 +349,6 @@ You can add your own filter to the stack by using the `custom-filter` element an
 
 <beans:bean id="myFilter" class="com.mycompany.MySpecialAuthenticationFilter"/>
 ----
-====
 
 You can also use the `after` or `before` attributes if you want your filter to be inserted before or after another filter in the stack.
 You can use `FIRST` and `LAST` with the `position` attribute to indicate that you want your filter to appear before or after the entire stack, respectively.
@@ -387,7 +369,7 @@ If you replace a namespace filter that requires an authentication entry point (t
 == Method Security
 Since version 2.0, Spring Security has substantial support for adding security to your service layer methods.
 It provides support for JSR-250 annotation security as well as the framework's original `@Secured` annotation.
-Since version 3.0, you can also make use of xref:servlet/authorization/expression-based.adoc#el-access[expression-based annotations].
+Since version 3.0, you can also make use of xref:servlet/authorization/method-security.adoc#authorizing-with-annotations[expression-based annotations].
 You can apply security to a single bean (by using the `intercept-methods` element to decorate the bean declaration), or you can secure multiple beans across the entire service layer using the AspectJ style pointcuts.
 
 [[ns-access-manager]]
@@ -407,22 +389,18 @@ If you need to use a more complicated access control strategy, you can set an al
 
 For method security, you do so by setting the `access-decision-manager-ref` attribute on `global-method-security` to the `id` of the appropriate `AccessDecisionManager` bean in the application context:
 
-====
 [source,xml]
 ----
 <global-method-security access-decision-manager-ref="myAccessDecisionManagerBean">
 ...
 </global-method-security>
 ----
-====
 
 The syntax for web security is the same, but the attribute is on the `http` element:
 
-====
 [source,xml]
 ----
 <http access-decision-manager-ref="myAccessDecisionManagerBean">
 ...
 </http>
 ----
-====

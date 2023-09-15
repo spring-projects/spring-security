@@ -1,5 +1,5 @@
 /*
- * Copyright 2002-2022 the original author or authors.
+ * Copyright 2002-2023 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -130,7 +130,7 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		assertThat(accessTokenResponse.getAccessToken().getExpiresAt()).isBetween(expiresAtBefore, expiresAtAfter);
 		assertThat(accessTokenResponse.getAccessToken().getScopes()).containsExactly("read", "write");
 		assertThat(accessTokenResponse.getRefreshToken().getTokenValue()).isEqualTo("refresh-token-1234");
-		assertThat(accessTokenResponse.getAdditionalParameters().size()).isEqualTo(2);
+		assertThat(accessTokenResponse.getAdditionalParameters()).hasSize(2);
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_1", "custom-value-1");
 		assertThat(accessTokenResponse.getAdditionalParameters()).containsEntry("custom_parameter_2", "custom-value-2");
 	}
@@ -233,6 +233,15 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 		assertThat(formParameters)
 				.contains("client_assertion_type=urn%3Aietf%3Aparams%3Aoauth%3Aclient-assertion-type%3Ajwt-bearer");
 		assertThat(formParameters).contains("client_assertion=");
+	}
+
+	// gh-13143
+	@Test
+	public void getTokenResponseWhenTokenEndpointReturnsEmptyBodyThenIllegalArgument() {
+		this.server.enqueue(new MockResponse().setResponseCode(302));
+		ClientRegistration clientRegistration = this.clientRegistration.build();
+		assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(
+				() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest(clientRegistration)));
 	}
 
 	private void configureJwtClientAuthenticationConverter(Function<ClientRegistration, JWK> jwkResolver) {
@@ -359,6 +368,28 @@ public class DefaultAuthorizationCodeTokenResponseClientTests {
 						.getTokenResponse(authorizationCodeGrantRequest(this.clientRegistration.build())))
 				.withMessageContaining("[invalid_token_response] An error occurred while attempting to retrieve "
 						+ "the OAuth 2.0 Access Token Response");
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenCustomClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(new ClientAuthenticationMethod("basic")).build();
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest));
+	}
+
+	// gh-13144
+	@Test
+	public void getTokenResponseWhenUnsupportedClientAuthenticationMethodThenIllegalArgument() {
+		ClientRegistration clientRegistration = this.clientRegistration
+				.clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_JWT).build();
+		OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest = authorizationCodeGrantRequest(
+				clientRegistration);
+		assertThatExceptionOfType(IllegalArgumentException.class)
+				.isThrownBy(() -> this.tokenResponseClient.getTokenResponse(authorizationCodeGrantRequest));
 	}
 
 	private OAuth2AuthorizationCodeGrantRequest authorizationCodeGrantRequest(ClientRegistration clientRegistration) {

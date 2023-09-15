@@ -174,8 +174,7 @@ public class JaasAuthenticationProviderTests {
 		assertThat(set.contains("ROLE_TEST2")).withFailMessage("GrantedAuthorities should contain ROLE_TEST2").isTrue();
 		boolean foundit = false;
 		for (GrantedAuthority a : list) {
-			if (a instanceof JaasGrantedAuthority) {
-				JaasGrantedAuthority grant = (JaasGrantedAuthority) a;
+			if (a instanceof JaasGrantedAuthority grant) {
 				assertThat(grant.getPrincipal()).withFailMessage("Principal was null on JaasGrantedAuthority")
 						.isNotNull();
 				foundit = true;
