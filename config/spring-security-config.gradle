@@ -116,24 +116,21 @@ def versionlessXsd = project.tasks.create("versionlessXsd", CreateVersionlessXsd
 	versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
 }
 
-processResources {
-	from(versionlessXsd) {
-		into 'org/springframework/security/config/'
-	}
-}
-
-tasks.named('rncToXsd', RncToXsd).configure {
+def rncToXsd = tasks.named('rncToXsd', RncToXsd)
+rncToXsd.configure {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
 	xsdDir = rncDir
 	xslFile = new File(rncDir, 'spring-security.xsl')
 }
 
-sourceSets {
-	main {
-		resources {
-			srcDir(tasks.named('rncToXsd'))
-		}
-	}
+tasks.named('processResources', ProcessResources).configure {
+    from(versionlessXsd) {
+        into 'org/springframework/security/config/'
+    }
+    from(rncToXsd) {
+        duplicatesStrategy DuplicatesStrategy.EXCLUDE
+        into 'org/springframework/security/config/'
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {
