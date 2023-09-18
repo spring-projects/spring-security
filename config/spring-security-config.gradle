@@ -133,6 +133,13 @@ tasks.named('processResources', ProcessResources).configure {
 	}
 }
 
+tasks.named('sourcesJar', Jar).configure {
+	from(rncToXsd) {
+		duplicatesStrategy DuplicatesStrategy.EXCLUDE
+		into 'org/springframework/security/config/'
+	}
+}
+
 tasks.withType(KotlinCompile).configureEach {
 	kotlinOptions {
 		languageVersion = "1.3"
