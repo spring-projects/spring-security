@@ -173,7 +173,7 @@ open fun filterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
 
 And that's it!
 
-This will stand up the endpoint `/logout/connect/back-channel/+{registrationId}` which the OIDC Provider can request to invalidate a given session of an end user in your application.
+This will stand up the endpoint `+/logout/connect/back-channel/{registrationId}+` which the OIDC Provider can request to invalidate a given session of an end user in your application.
 
 [NOTE]
 `oidcLogout` requires that `oauth2Login` also be configured.
