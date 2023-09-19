@@ -117,28 +117,32 @@ dependencies {
 	testRuntimeOnly 'org.hsqldb:hsqldb'
 }
 
-def versionlessXsd = project.tasks.create("versionlessXsd", CreateVersionlessXsdTask) {
-	inputFiles.from(project.sourceSets.main.resources)
-	versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
-}
-
-processResources {
-	from(versionlessXsd) {
-		into 'org/springframework/security/config/'
-	}
-}
-
-tasks.named('rncToXsd', RncToXsd).configure {
+def rncToXsd = tasks.named('rncToXsd', RncToXsd)
+rncToXsd.configure {
 	rncDir = file('src/main/resources/org/springframework/security/config/')
 	xsdDir = rncDir
 	xslFile = new File(rncDir, 'spring-security.xsl')
 }
 
-sourceSets {
-	main {
-		resources {
-			srcDir(tasks.named('rncToXsd'))
-		}
+def versionlessXsd = tasks.register("versionlessXsd", CreateVersionlessXsdTask) {
+	inputFiles.from(rncToXsd.map { task -> project.fileTree(task.xsdDir) })
+	versionlessXsdFile = project.layout.buildDirectory.file("versionlessXsd/spring-security.xsd")
+}
+
+tasks.named('processResources', ProcessResources).configure {
+	from(versionlessXsd) {
+		into 'org/springframework/security/config/'
+	}
+	from(rncToXsd) {
+		duplicatesStrategy DuplicatesStrategy.EXCLUDE
+		into 'org/springframework/security/config/'
+	}
+}
+
+tasks.named('sourcesJar', Jar).configure {
+	from(rncToXsd) {
+		duplicatesStrategy DuplicatesStrategy.EXCLUDE
+		into 'org/springframework/security/config/'
 	}
 }
 
