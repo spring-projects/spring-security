@@ -5,7 +5,11 @@ plugins {
 	id 'com.apollographql.apollo' version '2.4.5'
 }
 
-sourceCompatibility = JavaVersion.VERSION_17
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
 
 repositories {
 	gradlePluginPortal()
