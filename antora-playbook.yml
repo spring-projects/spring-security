@@ -7,6 +7,7 @@ antora:
   - '@antora/atlas-extension'
   - require: '@springio/antora-extensions/root-component-extension'
     root_component_name: 'security'
+  - '@springio/antora-extensions/static-page-extension'
 site:
   title: Spring Security
   url: https://docs.spring.io/spring-security/reference
@@ -34,7 +35,7 @@ urls:
   redirect_facility: httpd
 ui:
   bundle:
-    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.3.7/ui-bundle.zip
+    url: https://github.com/spring-io/antora-ui-spring/releases/download/v0.4.1/ui-bundle.zip
     snapshot: true
 runtime:
   log:

@@ -9,14 +9,14 @@ antora {
 	environment = [
 		'ALGOLIA_API_KEY': '9d489079e5ec46dbb238909fee5c9c29',
 		'ALGOLIA_APP_ID': 'WB1FQYI187',
-		'ALGOLIA_INDEX_NAME': 'springsecurity',
+		'ALGOLIA_INDEX_NAME': 'springdocs',
 	]
 	// NOTE remember to update the versions in lib/antora/templates/per-branch-antora-playbook.yml as well
 	dependencies = [
 		'@antora/atlas-extension': '1.0.0-alpha.1',
 		'@antora/collector-extension': '1.0.0-alpha.3',
 		'@asciidoctor/tabs': '1.0.0-beta.3',
-		'@springio/antora-extensions': '1.4.2',
+		'@springio/antora-extensions': '1.6.0',
 		'@springio/asciidoctor-extensions': '1.0.0-alpha.8',
 	]
 }
