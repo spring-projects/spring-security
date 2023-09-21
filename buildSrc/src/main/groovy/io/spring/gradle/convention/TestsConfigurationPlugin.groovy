@@ -43,7 +43,7 @@ public class TestsConfigurationPlugin implements Plugin<Project> {
 		}
 
 		project.tasks.create('testJar', Jar) {
-			classifier = 'test'
+			archiveClassifier = 'test'
 			from project.sourceSets.test.output
 		}
 
