@@ -131,25 +131,15 @@ def toolchainVersion() {
 }
 
 subprojects {
-	def toolchainVersion = toolchainVersion()
+	java {
+		toolchain {
+			languageVersion = JavaLanguageVersion.of(toolchainVersion())
+		}
+	}
 
 	tasks.withType(JavaCompile).configureEach {
 		options.encoding = "UTF-8"
 		options.compilerArgs.add("-parameters")
-
-		java {
-			toolchain {
-				languageVersion = JavaLanguageVersion.of(toolchainVersion)
-			}
-		}
-	}
-
-	tasks.withType(Test).configureEach {
-		java {
-			toolchain {
-				languageVersion = JavaLanguageVersion.of(toolchainVersion)
-			}
-		}
 	}
 }
 
