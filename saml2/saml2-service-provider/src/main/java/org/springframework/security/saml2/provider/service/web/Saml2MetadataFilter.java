@@ -88,7 +88,7 @@ public final class Saml2MetadataFilter extends OncePerRequestFilter {
 		String encodedFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
 		String format = "attachment; filename=\"%s\"; filename*=UTF-8''%s";
 		response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format(format, fileName, encodedFileName));
-		response.setContentLength(metadata.length());
+		response.setContentLength(metadata.getBytes(StandardCharsets.UTF_8).length);
 		response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 		response.getWriter().write(metadata);
 	}
