@@ -73,10 +73,10 @@ import org.springframework.util.Assert;
  * @author Rob Winch
  * @author Gunnar Hillert
  * @author Evgeniy Cheban
- * @deprecated Use {@link UnboundIdContainer} instead because ApacheDS 1.x is no longer
+ * @deprecated For removal in 7.0. Use {@link UnboundIdContainer} instead because ApacheDS 1.x is no longer
  * supported with no GA version to replace it.
  */
-@Deprecated
+@Deprecated(since = "5.2", forRemoval = true)
 public class ApacheDSContainer
 		implements EmbeddedLdapServerContainer, InitializingBean, DisposableBean, Lifecycle, ApplicationContextAware {
 

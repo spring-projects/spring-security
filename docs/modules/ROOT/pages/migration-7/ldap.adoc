@@ -1,0 +1,11 @@
+= LDAP Migrations
+
+The following steps relate to changes around how to configure the LDAP components and how to use an embedded LDAP server.
+
+== Use `UnboundId` instead of `ApacheDS`
+
+ApacheDS has not had a GA release for a considerable period, and its classes in Spring Security were https://github.com/spring-projects/spring-security/pull/6376[deprecated in version 5.2].
+Consequently, support for ApacheDS will be discontinued in version 7.0.
+
+If you are currently using ApacheDS as an embedded LDAP server, we recommend migrating to https://ldap.com/unboundid-ldap-sdk-for-java/[UnboundId].
+You can find instructions in xref:servlet/authentication/passwords/ldap.adoc#servlet-authentication-ldap-embedded[this section] that describe how to set up an embedded UnboundId LDAP server.
