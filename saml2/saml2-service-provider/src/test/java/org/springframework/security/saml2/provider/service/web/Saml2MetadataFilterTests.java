@@ -166,8 +166,8 @@ public class Saml2MetadataFilterTests {
 		this.filter.doFilter(this.request, this.response, this.chain);
 		assertThat(this.response.getCharacterEncoding()).isEqualTo(StandardCharsets.UTF_8.name());
 		assertThat(this.response.getContentAsString(StandardCharsets.UTF_8)).isEqualTo(generatedMetadata);
-		assertThat(this.response.getContentLength()).isEqualTo(
-				generatedMetadata.getBytes(StandardCharsets.UTF_8).length);
+		assertThat(this.response.getContentLength())
+				.isEqualTo(generatedMetadata.getBytes(StandardCharsets.UTF_8).length);
 	}
 
 	@Test
