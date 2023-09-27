@@ -33,18 +33,9 @@ public class JavaVersionTests {
 
 	private static final int JDK17_CLASS_VERSION = 61;
 
-	private static final int JDK21_CLASS_VERSION = 65;
-
 	@Test
-	@EnabledOnJre(JRE.JAVA_17)
 	public void authenticationWhenJdk17ThenCorrectJdkCompatibility() throws Exception {
 		assertClassVersion(Authentication.class, JDK17_CLASS_VERSION);
-	}
-
-	@Test
-	@EnabledOnJre(JRE.JAVA_21)
-	public void authenticationWhenJdk21ThenCorrectJdkCompatibility() throws Exception {
-		assertClassVersion(Authentication.class, JDK21_CLASS_VERSION);
 	}
 
 	private void assertClassVersion(Class<?> clazz, int classVersion) throws Exception {
