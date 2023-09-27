@@ -31,6 +31,13 @@ dependencies {
 }
 
 def generateAttributes() {
+	def springFrameworkVersion = libs.org.springframework.spring.framework.bom.get().versionConstraint.displayName
+	springFrameworkVersion = springFrameworkVersion.contains("-")
+			? springFrameworkVersion.substring(0, springFrameworkVersion.indexOf("-"))
+			: springFrameworkVersion
+	def springBootVersion = project.property("springBootVersion")
+	def samplesBranch = project.property("samplesBranch")
+
 	def docsTag = snapshotBuild ? 'current' : project.version
 	def ghTag = snapshotBuild ? 'main' : project.version
 	def ghUrl = "https://github.com/spring-projects/spring-security/tree/$ghTag"

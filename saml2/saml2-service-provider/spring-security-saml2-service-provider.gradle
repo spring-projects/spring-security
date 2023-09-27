@@ -55,9 +55,9 @@ dependencies {
 	api "org.opensaml:opensaml-core"
 	api "org.opensaml:opensaml-saml-api"
 	api "org.opensaml:opensaml-saml-impl"
-	opensaml4MainImplementation "org.opensaml:opensaml-core:4.1.0"
-	opensaml4MainImplementation "org.opensaml:opensaml-saml-api:4.1.0"
-	opensaml4MainImplementation "org.opensaml:opensaml-saml-impl:4.1.0"
+	opensaml4MainImplementation libs.org.opensaml4.opensaml.core
+	opensaml4MainImplementation libs.org.opensaml4.opensaml.saml.api
+	opensaml4MainImplementation libs.org.opensaml4.opensaml.saml.impl
 
 	provided 'jakarta.servlet:jakarta.servlet-api'
 

@@ -79,34 +79,37 @@ configurations {
 }
 
 dependencies {
-	implementation 'com.google.code.gson:gson:2.8.6'
-	implementation 'com.thaiopensource:trang:20091111'
-	implementation 'net.sourceforge.saxon:saxon:9.1.0.8'
-	implementation 'org.yaml:snakeyaml:1.30'
+	implementation platform(libs.io.projectreactor.reactor.bom)
+
+	implementation libs.com.google.code.gson.gson
+	implementation libs.com.thaiopensource.trag
+	implementation libs.net.sourceforge.saxon.saxon
+	implementation libs.org.yaml.snakeyaml
 	implementation localGroovy()
 
-	implementation 'io.github.gradle-nexus:publish-plugin:1.1.0'
-	implementation 'io.projectreactor:reactor-core:3.5.0'
-	implementation 'org.gretty:gretty:3.0.9'
-	implementation 'com.apollographql.apollo:apollo-runtime:2.4.5'
-	implementation 'com.github.ben-manes:gradle-versions-plugin:0.38.0'
-	implementation 'com.github.spullara.mustache.java:compiler:0.9.4'
-	implementation 'io.spring.javaformat:spring-javaformat-gradle-plugin:0.0.15'
-	implementation 'io.spring.nohttp:nohttp-gradle:0.0.11'
-	implementation 'net.sourceforge.htmlunit:htmlunit:2.37.0'
-	implementation 'org.hidetake:gradle-ssh-plugin:2.10.1'
-	implementation 'org.jfrog.buildinfo:build-info-extractor-gradle:4.29.0'
-	implementation 'org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:2.7.1'
+	implementation libs.io.github.gradle.nexus.publish.plugin
+	implementation 'io.projectreactor:reactor-core'
+	implementation libs.org.gretty.gretty
+	implementation libs.com.apollographql.apollo.apollo.runtime
+	implementation libs.com.github.ben.manes.gradle.versions.plugin
+	implementation libs.com.github.spullara.mustache.java.compiler
+	implementation libs.io.spring.javaformat.spring.javaformat.gradle.plugin
+	implementation libs.io.spring.nohttp.nohttp.gradle
+	implementation libs.net.sourceforge.htmlunit
+	implementation libs.org.hidetake.gradle.ssh.plugin
+	implementation libs.org.jfrog.buildinfo.build.info.extractor.gradle
+	implementation libs.org.sonarsource.scanner.gradle.sonarqube.gradle.plugin
 
-	testImplementation platform('org.junit:junit-bom:5.9.3')
+	testImplementation platform(libs.org.junit.junit.bom)
+	testImplementation platform(libs.org.mockito.mockito.bom)
 	testImplementation "org.junit.jupiter:junit-jupiter-api"
 	testImplementation "org.junit.jupiter:junit-jupiter-params"
 	testImplementation "org.junit.jupiter:junit-jupiter-engine"
-	testImplementation 'org.apache.commons:commons-io:1.3.2'
-	testImplementation 'org.assertj:assertj-core:3.13.2'
-	testImplementation 'org.mockito:mockito-core:3.12.4'
-	testImplementation 'org.mockito:mockito-junit-jupiter:3.12.4'
-	testImplementation "com.squareup.okhttp3:mockwebserver:3.14.9"
+	testImplementation libs.org.apache.commons.commons.io
+	testImplementation libs.org.assertj.assertj.core
+	testImplementation 'org.mockito:mockito-core'
+	testImplementation 'org.mockito:mockito-junit-jupiter'
+	testImplementation libs.com.squareup.okhttp3.mockwebserver
 }
 
 
